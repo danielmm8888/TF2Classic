@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pushd `dirname $0`
+devtools/bin/vpc /tf2classic +game /mksln Tf2Classic
+popd
