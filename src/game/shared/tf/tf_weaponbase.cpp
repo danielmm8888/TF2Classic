@@ -39,6 +39,8 @@ extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 
 extern ConVar tf_useparticletracers;
 
+extern ConVar tf_weapon_criticals;
+
 #ifdef CLIENT_DLL
 extern ConVar tf_model_muzzleflash;
 #endif
@@ -464,10 +466,14 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
-	else
+	else if ( tf_weapon_criticals.GetBool() )
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
+	}
+	else
+	{
+		m_bCurrentAttackIsCrit = false;
 	}
 }
 
