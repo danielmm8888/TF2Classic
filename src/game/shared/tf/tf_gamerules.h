@@ -212,6 +212,10 @@ public:
 
 	virtual int		GetHudType(void){ return m_iHudType; };
 
+	virtual bool	IsMultiplayer(void){ return true; };
+
+	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
+
 #ifdef CLIENT_DLL
 
 	DECLARE_CLIENTCLASS_NOBASE(); // This makes data tables able to access our private vars.

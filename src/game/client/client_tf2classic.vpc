@@ -32,7 +32,6 @@ $Project "Client (TF)"
 		$File	"hud_voicestatus.cpp"
 		$File	"$SRCDIR\game\shared\teamplay_round_timer.cpp"
 		$File	"$SRCDIR\game\shared\teamplay_round_timer.h"
-		
 		$File	"hud_controlpointicons.cpp"
 		$File	"hud_controlpointicons.h"
 		$File	"voice_menu.cpp"
@@ -40,11 +39,17 @@ $Project "Client (TF)"
 		$File	"hud_basedeathnotice.h"
 		$File	"$SRCDIR\game\shared\playerclass_info_parse.cpp"
 		$File	"$SRCDIR\game\shared\playerclass_info_parse.h"
+		$File	"TeamBitmapImage.cpp"
+		$File	"hud_vguiscreencursor.cpp"
+		$File	"hud_base_account.cpp"
+		$File	"hud_base_account.h"
 		
 		$Folder	"game_controls"
 		{
 				$File	"game_controls\classmenu.cpp"
 				$File	"game_controls\classmenu.h"
+				$File	"game_controls\buymenu.cpp"
+				$File	"game_controls\buysubmenu.cpp"
 		}
 		
 		$Folder	"Multiplayer"

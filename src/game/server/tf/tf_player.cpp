@@ -67,6 +67,8 @@ extern ConVar	tf_spy_invis_time;
 extern ConVar	tf_spy_invis_unstealth_time;
 extern ConVar	tf_stalematechangeclasstime;
 
+extern ConVar	tf_damage_disablespread;
+
 EHANDLE g_pLastSpawnPoints[TF_TEAM_COUNT];
 
 ConVar tf_playerstatetransitions( "tf_playerstatetransitions", "-2", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "tf_playerstatetransitions <ent index or -1 for all>. Show player state transitions." );
@@ -2635,13 +2637,14 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			{
 				float flMin = 0.25;
 				float flMax = 0.75;
+				float flCenter = 0.5;
 
 				if ( bitsDamage & DMG_USEDISTANCEMOD )
 				{
 					float flDistance = max( 1.0, (WorldSpaceCenter() - info.GetAttacker()->WorldSpaceCenter()).Length() );
 					float flOptimalDistance = 512.0;
 
-					float flCenter = RemapValClamped( flDistance / flOptimalDistance, 0.0, 2.0, 1.0, 0.0 );
+					flCenter = RemapValClamped( flDistance / flOptimalDistance, 0.0, 2.0, 1.0, 0.0 );
 					if ( bitsDamage & DMG_NOCLOSEDISTANCEMOD )
 					{
 						if ( flCenter > 0.5 )
@@ -2660,7 +2663,16 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				}
 
 				//Msg("Range: %.2f - %.2f\n", flMin, flMax );
-				float flRandomVal = RandomFloat( flMin, flMax );
+				float flRandomVal;
+
+				if (tf_damage_disablespread.GetBool())
+				{
+					flRandomVal = flCenter;
+				}
+				else
+				{
+					flRandomVal = RandomFloat(flMin, flMax);
+				}
 
 				if ( flRandomVal > 0.5 )
 				{

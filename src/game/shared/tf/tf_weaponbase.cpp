@@ -43,6 +43,9 @@ extern ConVar tf_useparticletracers;
 extern ConVar tf_model_muzzleflash;
 #endif
 
+ConVar tf_weapon_criticals("tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Whether or not random crits are enabled\n" );
+extern ConVar tf_weapon_criticals_melee;
+
 //=============================================================================
 //
 // Global functions.
@@ -450,6 +453,10 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 
 	if ( gpGlobals->framecount == m_iLastCritCheckFrame )
 		return;
+
+	if (!tf_weapon_criticals.GetBool() && (!IsMeleeWeapon() || (IsMeleeWeapon() && tf_weapon_criticals_melee.GetInt() == 1)))
+		return;
+
 	m_iLastCritCheckFrame = gpGlobals->framecount;
 
 	// if base entity seed has changed since last calculation, reseed with new seed
