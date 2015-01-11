@@ -13,6 +13,7 @@
 // Client specific.
 #ifdef CLIENT_DLL
 #define CTFSMG C_TFSMG
+#define CTFSMG_Scout C_TFSMG_Scout
 #endif
 
 //=============================================================================
@@ -28,9 +29,9 @@ public:
 	DECLARE_PREDICTABLE();
 
 // Server specific.
-#ifdef GAME_DLL
-	DECLARE_DATADESC();
-#endif
+//#ifdef GAME_DLL
+//	DECLARE_DATADESC();
+//#endif
 
 	CTFSMG() {}
 	~CTFSMG() {}
@@ -40,6 +41,16 @@ public:
 private:
 
 	CTFSMG( const CTFSMG & ) {}
+};
+
+class CTFSMG_Scout : public CTFSMG
+{
+public:
+	DECLARE_CLASS(CTFSMG_Scout, CTFSMG);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SMG_SCOUT; }
 };
 
 #endif // TF_WEAPON_SMG_H

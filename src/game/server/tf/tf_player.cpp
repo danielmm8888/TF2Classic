@@ -87,11 +87,15 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELOPMENTONLY, "Max time after a voice command until player can do another one" );
 
+ConVar tf2c_equip_scout_nailgun("tf2c_equip_scout_nailgun", "0", 0);
+ConVar tf2c_equip_scout_smg("tf2c_equip_scout_smg", "0", 0);
+ConVar tf2c_equip_spy_tranq("tf2c_equip_spy_tranq", "0", 0);
+
+
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
 
-extern ConVar tf_beta_weapons;
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -144,6 +148,8 @@ void TE_PlayerAnimEvent( CBasePlayer *pPlayer, PlayerAnimEvent_t event, int nDat
 //
 // Ragdoll Entity
 //
+//=================================================================================
+
 class CTFRagdoll : public CBaseAnimatingOverlay
 {
 public:
@@ -1092,7 +1098,7 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 	switch (GetPlayerClass()->GetClassIndex())
 	{
 	case TF_CLASS_SCOUT:
-		if (tf_beta_weapons.GetBool())
+		if (tf2c_equip_scout_nailgun.GetBool())
 		{
 			pData->m_aWeapons[0] = TF_WEAPON_NAILGUN;
 		}
@@ -1100,8 +1106,28 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 		{
 			pData->m_aWeapons[0] = TF_WEAPON_SCATTERGUN;
 		}
-		pData->m_aWeapons[1] = TF_WEAPON_PISTOL_SCOUT;
+		if (tf2c_equip_scout_smg.GetBool())
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
+		}
+		else
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_PISTOL_SCOUT;
+		}
 		pData->m_aWeapons[2] = TF_WEAPON_BAT;
+		break;
+	case TF_CLASS_SPY:
+		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
+		if (tf2c_equip_spy_tranq.GetBool())
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_TRANQ;
+		}
+		else
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_REVOLVER;
+		}
+		pData->m_aWeapons[2] = TF_WEAPON_PDA_SPY;
+		pData->m_aWeapons[3] = TF_WEAPON_INVIS;
 		break;
 	}
 }

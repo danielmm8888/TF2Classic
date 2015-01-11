@@ -9,22 +9,28 @@
 //
 // Weapon SMG tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFSMG, DT_WeaponSMG )
+#define CREATE_SIMPLE_WEAPON_TABLE( WpnName, entityname )			\
+																	\
+	IMPLEMENT_NETWORKCLASS_ALIASED( WpnName, DT_##WpnName )	\
+															\
+	BEGIN_NETWORK_TABLE( C##WpnName, DT_##WpnName )			\
+	END_NETWORK_TABLE()										\
+															\
+	BEGIN_PREDICTION_DATA( C##WpnName )						\
+	END_PREDICTION_DATA()									\
+															\
+	LINK_ENTITY_TO_CLASS( entityname, C##WpnName );			\
+	PRECACHE_WEAPON_REGISTER( entityname );
 
-BEGIN_NETWORK_TABLE( CTFSMG, DT_WeaponSMG )
-END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFSMG )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_smg, CTFSMG );
-PRECACHE_WEAPON_REGISTER( tf_weapon_smg );
+CREATE_SIMPLE_WEAPON_TABLE(TFSMG, tf_weapon_smg)
+CREATE_SIMPLE_WEAPON_TABLE(TFSMG_Scout, tf_weapon_smg_scout)
 
 // Server specific.
-#ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFSMG )
-END_DATADESC()
-#endif
+//#ifndef CLIENT_DLL
+//BEGIN_DATADESC( CTFSMG )
+//END_DATADESC()
+//#endif
 
 //=============================================================================
 //

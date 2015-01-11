@@ -674,12 +674,16 @@ CON_COMMAND_F( bot_changeteams, "Make all bots change teams", FCVAR_CHEAT )
 
 		if ( pPlayer && (pPlayer->GetFlags() & FL_FAKECLIENT) )
 		{
-			int iTeam = pPlayer->GetTeamNumber();			
+			int iTeam = pPlayer->GetTeamNumber();
 			if ( TF_TEAM_BLUE == iTeam || TF_TEAM_RED == iTeam )
 			{
 				// toggle team between red & blue
 				pPlayer->ChangeTeam( TF_TEAM_BLUE + TF_TEAM_RED - iTeam );
-			}			
+			}
+			else if (iTeam == TEAM_UNASSIGNED || iTeam == TEAM_SPECTATOR)
+			{
+				pPlayer->ChangeTeam(RandomInt(TF_TEAM_BLUE, TF_TEAM_RED));
+			}
 		}
 	}
 }

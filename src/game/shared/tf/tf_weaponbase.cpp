@@ -40,7 +40,7 @@ extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 extern ConVar tf_useparticletracers;
 
 #ifdef CLIENT_DLL
-extern ConVar tf_model_muzzleflash;
+extern ConVar tf2c_model_muzzleflash;
 #endif
 
 ConVar tf_weapon_criticals("tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Whether or not random crits are enabled\n" );
@@ -1310,7 +1310,7 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 			DispatchEffect( pszMuzzleFlashEffect, muzzleFlashData );
 		}
 
-		if (pszMuzzleFlashModel && tf_model_muzzleflash.GetBool())
+		if (pszMuzzleFlashModel && tf2c_model_muzzleflash.GetBool())
 		{
 			float flEffectLifetime = GetMuzzleFlashModelLifetime();
 

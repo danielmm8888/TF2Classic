@@ -35,6 +35,8 @@ public:
 	CTFTranq() {}
 	~CTFTranq() {}
 
+	virtual void	Precache();
+
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_TRANQ; }
 
 private:

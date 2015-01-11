@@ -78,7 +78,7 @@ ConVar tf_playergib_maxspeed( "tf_playergib_maxspeed", "400", FCVAR_CHEAT | FCVA
 
 ConVar cl_autorezoom( "cl_autorezoom", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "When set to 1, sniper rifle will re-zoom after firing a zoomed shot." );
 
-ConVar tf_model_muzzleflash("tf_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
+ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
@@ -175,7 +175,7 @@ public:
 
 	IRagdoll* GetIRagdoll() const;
 
-	void ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName );
+	void ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName );
 
 	void ClientThink( void );
 	void StartFadeOut( float fDelay );
@@ -199,7 +199,7 @@ private:
 
 	void Interp_Copy( C_BaseAnimatingOverlay *pSourceEntity );
 
-	void CreateTFRagdoll();
+	void CreateTFRagdoll( void );
 	void CreateTFGibs( void );
 private:
 
@@ -269,10 +269,11 @@ void C_TFRagdoll::Interp_Copy( C_BaseAnimatingOverlay *pSourceEntity )
 	for ( int i = 0; i < pDest->m_Entries.Count(); i++ )
 	{
 		VarMapEntry_t *pDestEntry = &pDest->m_Entries[i];
-		for ( int j=0; j < pSrc->m_Entries.Count(); j++ )
+		const char *pszName = pDestEntry->watcher->GetDebugName();
+		for (int j = 0; j < pSrc->m_Entries.Count(); j++)
 		{
 			VarMapEntry_t *pSrcEntry = &pSrc->m_Entries[j];
-			if ( !Q_strcmp( pSrcEntry->watcher->GetDebugName(), pDestEntry->watcher->GetDebugName() ) )
+			if (!Q_strcmp(pSrcEntry->watcher->GetDebugName(), pszName))
 			{
 				pDestEntry->watcher->Copy( pSrcEntry->watcher );
 				break;
@@ -304,7 +305,7 @@ void C_TFRagdoll::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeight
 //			iDamageType - 
 //			*pCustomImpactName - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName )
+void C_TFRagdoll::ImpactTrace(trace_t *pTrace, int iDamageType, const char *pCustomImpactName)
 {
 	VPROF( "C_TFRagdoll::ImpactTrace" );
 	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
@@ -339,7 +340,7 @@ void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomIm
 // Purpose: 
 // Input  :  - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::CreateTFRagdoll()
+void C_TFRagdoll::CreateTFRagdoll(void)
 {
 	// Get the player.
 	C_TFPlayer *pPlayer = NULL;
@@ -392,9 +393,9 @@ void C_TFRagdoll::CreateTFRagdoll()
 		{
 			// This is the local player, so set them in a default
 			// pose and slam their velocity, angles and origin
-			SetAbsOrigin( /* m_vecRagdollOrigin : */ pPlayer->GetRenderOrigin() );			
-			SetAbsAngles( pPlayer->GetRenderAngles() );
-			SetAbsVelocity( m_vecRagdollVelocity );
+			SetAbsOrigin(pPlayer->GetRenderOrigin());
+			SetAbsAngles(pPlayer->GetRenderAngles());
+			SetAbsVelocity(m_vecRagdollVelocity);
 
 			// Hack! Find a neutral standing pose or use the idle.
 			int iSeq = LookupSequence( "RagdollSpawn" );

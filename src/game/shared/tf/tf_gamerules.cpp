@@ -81,7 +81,6 @@ extern ConVar sv_turbophysics;
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
-ConVar tf_beta_weapons( "tf_beta_weapons", "0", FCVAR_NOTIFY | FCVAR_REPLICATED);
 
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
