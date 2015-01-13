@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2001, Valve LLC, All rights reserved. ============
+﻿//========= Copyright © 1996-2001, Valve LLC, All rights reserved. ============
 //
 // Purpose:		Player for HL1.
 //
@@ -5443,7 +5443,11 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 	{
 		if ( m_iObserverMode == OBS_MODE_IN_EYE )
 		{
-			ForceObserverMode( OBS_MODE_CHASE );
+			m_iObserverMode = OBS_MODE_CHASE;
+			SetObserverTarget(m_hObserverTarget);
+			SetMoveType(MOVETYPE_OBSERVER);
+			CheckObserverSettings();
+			//ForceObserverMode( OBS_MODE_CHASE ); // We'll leave this in in case something screws up
 		}
 	}
 
