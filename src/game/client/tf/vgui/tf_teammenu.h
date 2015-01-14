@@ -17,10 +17,10 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFTeamButton : public CTFButton
+class CTFTeamButton : public CExButton
 {
 private:
-	DECLARE_CLASS_SIMPLE( CTFTeamButton, CTFButton );
+	DECLARE_CLASS_SIMPLE( CTFTeamButton, CExButton );
 
 public:
 	CTFTeamButton( vgui::Panel *parent, const char *panelName );
@@ -95,7 +95,7 @@ private:
 #ifdef _X360
 	CTFFooter		*m_pFooter;
 #else
-	CTFButton		*m_pCancelButton;
+	CExButton		*m_pCancelButton;
 #endif
 
 	bool m_bRedDisabled;

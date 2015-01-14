@@ -58,8 +58,8 @@ CTFIntroMenu::CTFIntroMenu( IViewPort *pViewPort ) : CIntroMenu( pViewPort )
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
 #else
-	m_pBack = new CTFButton( this, "Back", "" );
-	m_pOK = new CTFButton( this, "Skip", "" );
+	m_pBack = new CExButton( this, "Back", "" );
+	m_pOK = new CExButton( this, "Skip", "" );
 #endif
 
 	m_iCurrentCaption = 0;

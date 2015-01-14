@@ -57,8 +57,8 @@ private:
 	float				m_flNextThink;
 
 	CTFClassImage		*m_pClassImage;
-	CTFImagePanel		*m_pSpyImage; // used when spies are disguised
-	CTFImagePanel		*m_pSpyOutlineImage;
+	CExImagePanel		*m_pSpyImage; // used when spies are disguised
+	CExImagePanel		*m_pSpyOutlineImage;
 
 	int					m_nTeam;
 	int					m_nClass;
@@ -70,10 +70,10 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose:  Clips the health image to the appropriate percentage
 //-----------------------------------------------------------------------------
-class CTFHealthPanel : public CTFImagePanel
+class CTFHealthPanel : public CExImagePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFHealthPanel, CTFImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFHealthPanel, CExImagePanel );
 
 	CTFHealthPanel( vgui::Panel *parent, const char *name );
 	virtual void Paint();
@@ -113,7 +113,7 @@ protected:
 
 private:
 	CTFHealthPanel		*m_pHealthImage;
-	CTFImagePanel		*m_pHealthBonusImage;
+	CExImagePanel		*m_pHealthBonusImage;
 	vgui::ImagePanel	*m_pHealthImageBG;
 
 	int					m_nHealth;

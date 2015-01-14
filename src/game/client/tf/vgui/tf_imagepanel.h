@@ -18,12 +18,12 @@
 
 #define MAX_BG_LENGTH		128
 
-class CTFImagePanel : public vgui::ImagePanel, public CGameEventListener
+class CExImagePanel : public vgui::ImagePanel, public CGameEventListener
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFImagePanel, vgui::ImagePanel );
+	DECLARE_CLASS_SIMPLE( CExImagePanel, vgui::ImagePanel );
 
-	CTFImagePanel( vgui::Panel *parent, const char *name );
+	CExImagePanel(vgui::Panel *parent, const char *name);
 
 	virtual void ApplySettings( KeyValues *inResourceData );
 	void UpdateBGImage( void );

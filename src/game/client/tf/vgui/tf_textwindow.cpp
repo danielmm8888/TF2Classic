@@ -42,7 +42,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFTextWindow::CTFTextWindow( IViewPort *pViewPort ) : CTextWindow( pViewPort )
 {
-	m_pTFTextMessage = new CTFRichText( this, "TFTextMessage" );
+	m_pTFTextMessage = new CExRichText( this, "TFTextMessage" );
 
 	SetProportional( true );
 }

@@ -92,7 +92,7 @@ CTFClassMenu::CTFClassMenu( IViewPort *pViewPort ) : CClassMenu( pViewPort )
 	for ( int i = 0 ; i < CLASS_COUNT_IMAGES ; ++i )
 	{
 		Q_snprintf( tempName, sizeof( tempName ), "countImage%d", i );
-		m_ClassCountImages[i] = new CTFImagePanel( this, tempName );
+		m_ClassCountImages[i] = new CExImagePanel( this, tempName );
 	}
 
 	m_pCountLabel = NULL;
@@ -287,7 +287,7 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 		// Scroll class info text up
 		if ( g_lastPanel )
 		{
-			CTFRichText *pRichText = dynamic_cast< CTFRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
+			CExRichText *pRichText = dynamic_cast< CExRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
 
 			if ( pRichText )
 			{
@@ -300,7 +300,7 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 		// Scroll class info text up
 		if ( g_lastPanel )
 		{
-			CTFRichText *pRichText = dynamic_cast< CTFRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
+			CExRichText *pRichText = dynamic_cast< CExRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
 
 			if ( pRichText )
 			{
@@ -570,7 +570,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 		{
 			for ( int j = 0 ; j < classCount ; ++j )
 			{
-				CTFImagePanel *pImage = m_ClassCountImages[nTotalCount];
+				CExImagePanel *pImage = m_ClassCountImages[nTotalCount];
 				if ( pImage )
 				{
 					pImage->SetVisible( true );
@@ -605,7 +605,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 	// turn off any unused images
 	while ( nTotalCount < CLASS_COUNT_IMAGES )
 	{
-		CTFImagePanel *pImage = m_ClassCountImages[nTotalCount];
+		CExImagePanel *pImage = m_ClassCountImages[nTotalCount];
 		if ( pImage )
 		{
 			pImage->SetVisible( false );

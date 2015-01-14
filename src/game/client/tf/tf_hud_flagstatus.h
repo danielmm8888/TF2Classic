@@ -19,10 +19,10 @@
 //-----------------------------------------------------------------------------
 // Purpose:  Draws the rotated arrow panels
 //-----------------------------------------------------------------------------
-class CTFArrowPanel : public CTFImagePanel
+class CTFArrowPanel : public CExImagePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFArrowPanel, CTFImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFArrowPanel, CExImagePanel );
 
 	CTFArrowPanel( vgui::Panel *parent, const char *name );
 	virtual void Paint();
@@ -71,8 +71,8 @@ private:
 	EHANDLE			m_hEntity;
 
 	CTFArrowPanel	*m_pArrow;
-	CTFImagePanel	*m_pStatusIcon;
-	CTFImagePanel	*m_pBriefcase;
+	CExImagePanel	*m_pStatusIcon;
+	CExImagePanel	*m_pBriefcase;
 };
 
 
@@ -102,10 +102,10 @@ private:
 
 private:
 
-	CTFImagePanel			*m_pCarriedImage;
+	CExImagePanel			*m_pCarriedImage;
 
 	CExLabel				*m_pPlayingTo;
-	CTFImagePanel			*m_pPlayingToBG;
+	CExImagePanel			*m_pPlayingToBG;
 
 	CTFFlagStatus			*m_pRedFlag;
 	CTFFlagStatus			*m_pBlueFlag;

@@ -79,8 +79,8 @@ private:
 #ifdef _X360
 	CTFFooter		*m_pFooter;
 #else
-	CTFButton		*m_pBack;
-	CTFButton		*m_pOK;
+	CExButton		*m_pBack;
+	CExButton		*m_pOK;
 #endif
 
 	float			m_flActionThink;

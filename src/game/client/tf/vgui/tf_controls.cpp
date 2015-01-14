@@ -15,16 +15,16 @@
 
 using namespace vgui;
 
-DECLARE_BUILD_FACTORY_DEFAULT_TEXT( CTFButton, CTFButton );
+DECLARE_BUILD_FACTORY_DEFAULT_TEXT( CExButton, CExButton );
 DECLARE_BUILD_FACTORY_DEFAULT_TEXT( CExLabel, CExLabel );
-DECLARE_BUILD_FACTORY( CTFRichText );
+DECLARE_BUILD_FACTORY( CExRichText );
 DECLARE_BUILD_FACTORY( CTFFooter );
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFButton::CTFButton( Panel *parent, const char *name, const char *text ) : Button( parent, name, text )
+CExButton::CExButton(Panel *parent, const char *name, const char *text) : Button(parent, name, text)
 {
 	m_szFont[0] = '\0';
 	m_szColor[0] = '\0';
@@ -33,7 +33,7 @@ CTFButton::CTFButton( Panel *parent, const char *name, const char *text ) : Butt
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFButton::CTFButton( Panel *parent, const char *name, const wchar_t *wszText ) : Button( parent, name, wszText )
+CExButton::CExButton(Panel *parent, const char *name, const wchar_t *wszText) : Button(parent, name, wszText)
 {
 	m_szFont[0] = '\0';
 	m_szColor[0] = '\0';
@@ -42,7 +42,7 @@ CTFButton::CTFButton( Panel *parent, const char *name, const wchar_t *wszText ) 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFButton::ApplySettings( KeyValues *inResourceData )
+void CExButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings( inResourceData );
 
@@ -55,7 +55,7 @@ void CTFButton::ApplySettings( KeyValues *inResourceData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFButton::ApplySchemeSettings( IScheme *pScheme )
+void CExButton::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
@@ -104,14 +104,14 @@ void CExLabel::ApplySchemeSettings(IScheme *pScheme)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFRichText::CTFRichText( Panel *parent, const char *name ) : RichText( parent, name )
+CExRichText::CExRichText(Panel *parent, const char *name) : RichText(parent, name)
 {
 	m_szFont[0] = '\0';
 	m_szColor[0] = '\0';
 
 	SetCursor(dc_arrow);
 
-	m_pUpArrow = new CTFImagePanel( this, "UpArrow" );
+	m_pUpArrow = new CExImagePanel( this, "UpArrow" );
 	if ( m_pUpArrow )
 	{
 		m_pUpArrow->SetShouldScaleImage( true );
@@ -129,7 +129,7 @@ CTFRichText::CTFRichText( Panel *parent, const char *name ) : RichText( parent, 
 		m_pLine->SetVisible( false );
 	}
 
-	m_pDownArrow = new CTFImagePanel( this, "DownArrow" );
+	m_pDownArrow = new CExImagePanel( this, "DownArrow" );
 	if ( m_pDownArrow )
 	{
 		m_pDownArrow->SetShouldScaleImage( true );
@@ -153,7 +153,7 @@ CTFRichText::CTFRichText( Panel *parent, const char *name ) : RichText( parent, 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::ApplySettings( KeyValues *inResourceData )
+void CExRichText::ApplySettings( KeyValues *inResourceData )
 {
 	BaseClass::ApplySettings( inResourceData );
 
@@ -166,7 +166,7 @@ void CTFRichText::ApplySettings( KeyValues *inResourceData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::ApplySchemeSettings( IScheme *pScheme )
+void CExRichText::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
@@ -195,7 +195,7 @@ void CTFRichText::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::PerformLayout()
+void CExRichText::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
@@ -237,7 +237,7 @@ void CTFRichText::PerformLayout()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::SetText( const wchar_t *text )
+void CExRichText::SetText(const wchar_t *text)
 {
 	wchar_t buffer[2048];
 	Q_wcsncpy( buffer, text, sizeof( buffer ) );
@@ -257,7 +257,7 @@ void CTFRichText::SetText( const wchar_t *text )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::SetText( const char *text )
+void CExRichText::SetText(const char *text)
 {
 	char buffer[2048];
 	Q_strncpy( buffer, text, sizeof( buffer ) );
@@ -277,7 +277,7 @@ void CTFRichText::SetText( const char *text )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::SetScrollBarImagesVisible( bool visible )
+void CExRichText::SetScrollBarImagesVisible(bool visible)
 {
 	if ( m_pDownArrow && m_pDownArrow->IsVisible() != visible )
 	{
@@ -303,7 +303,7 @@ void CTFRichText::SetScrollBarImagesVisible( bool visible )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRichText::OnTick()
+void CExRichText::OnTick()
 {
 	if ( !IsVisible() )
 		return;

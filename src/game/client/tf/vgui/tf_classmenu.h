@@ -57,7 +57,7 @@ public:
 			}
 		}
 
-		CTFRichText *pRichText = dynamic_cast<CTFRichText *>(FindChildByName( "classInfo" ) );
+		CExRichText *pRichText = dynamic_cast<CExRichText *>(FindChildByName( "classInfo" ) );
 		if ( pRichText )
 		{
 			pRichText->InvalidateLayout( true, false );
@@ -116,7 +116,7 @@ private:
 	vgui::CKeyRepeatHandler	m_KeyRepeat;
 
 #ifndef _X360
-	CTFImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
+	CExImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
 	CExLabel *m_pCountLabel;
 #endif
 };

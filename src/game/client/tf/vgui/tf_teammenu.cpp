@@ -35,7 +35,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFTeamButton::CTFTeamButton( vgui::Panel *parent, const char *panelName ) : CTFButton( parent, panelName, "" )
+CTFTeamButton::CTFTeamButton( vgui::Panel *parent, const char *panelName ) : CExButton( parent, panelName, "" )
 {
 	m_szModelPanel[0] = '\0';
 	m_iTeam = TEAM_UNASSIGNED;
@@ -259,7 +259,7 @@ CTFTeamMenu::CTFTeamMenu( IViewPort *pViewPort ) : CTeamMenu( pViewPort )
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
 #else
-	m_pCancelButton = new CTFButton( this, "CancelButton", "#TF_Cancel" );
+	m_pCancelButton = new CExButton( this, "CancelButton", "#TF_Cancel" );
 #endif
 
 	vgui::ivgui()->AddTickSignal( GetVPanel() );

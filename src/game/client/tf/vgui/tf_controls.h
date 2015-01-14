@@ -27,13 +27,13 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFButton : public vgui::Button
+class CExButton : public vgui::Button
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFButton, vgui::Button );
+	DECLARE_CLASS_SIMPLE( CExButton, vgui::Button );
 
-	CTFButton( vgui::Panel *parent, const char *name, const char *text );
-	CTFButton( vgui::Panel *parent, const char *name, const wchar_t *wszText );
+	CExButton(vgui::Panel *parent, const char *name, const char *text);
+	CExButton(vgui::Panel *parent, const char *name, const wchar_t *wszText);
 
 	virtual void ApplySettings( KeyValues *inResourceData );
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
@@ -64,12 +64,12 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFRichText : public vgui::RichText
+class CExRichText : public vgui::RichText
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFRichText, vgui::RichText );
+	DECLARE_CLASS_SIMPLE( CExRichText, vgui::RichText );
 
-	CTFRichText( vgui::Panel *parent, const char *panelName );
+	CExRichText(vgui::Panel *parent, const char *panelName);
 
 	virtual void ApplySettings( KeyValues *inResourceData );
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
@@ -84,9 +84,9 @@ private:
 	char		m_szFont[64];
 	char		m_szColor[64];
 
-	CTFImagePanel		*m_pUpArrow;
+	CExImagePanel		*m_pUpArrow;
 	vgui::ImagePanel	*m_pLine;
-	CTFImagePanel		*m_pDownArrow;
+	CExImagePanel		*m_pDownArrow;
 	vgui::ImagePanel	*m_pBox;
 };
 
