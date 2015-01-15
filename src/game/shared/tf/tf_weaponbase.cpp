@@ -455,7 +455,10 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		return;
 
 	if (!tf_weapon_criticals.GetBool() && (!IsMeleeWeapon() || (IsMeleeWeapon() && tf_weapon_criticals_melee.GetInt() == 1)))
+	{
+		m_bCurrentAttackIsCrit = false;
 		return;
+	}
 
 	m_iLastCritCheckFrame = gpGlobals->framecount;
 

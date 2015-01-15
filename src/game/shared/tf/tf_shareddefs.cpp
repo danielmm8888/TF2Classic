@@ -85,7 +85,9 @@ const char *g_aGameTypeNames[] =
 	"Undefined",
 	"#Gametype_CTF",
 	"#Gametype_CP",
-	"#Gametype_PL",
+	"#Gametype_Escort",
+	"#Gametype_Arena",
+	"#Gametype_MVM",
 };
 
 //-----------------------------------------------------------------------------

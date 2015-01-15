@@ -91,6 +91,10 @@ ConVar tf2c_equip_scout_nailgun("tf2c_equip_scout_nailgun", "0", 0);
 ConVar tf2c_equip_scout_smg("tf2c_equip_scout_smg", "0", 0);
 ConVar tf2c_equip_spy_tranq("tf2c_equip_spy_tranq", "0", 0);
 
+ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
+
+
+
 
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
@@ -1026,13 +1030,17 @@ void CTFPlayer::GiveDefaultItems()
 	ChangeWeapon( pData );
 
 	// Give weapons.
-	ManageRegularWeapons( pData );
+	if (tf2c_random_weapons.GetBool())
+		ManageRandomWeapons( pData );
+	else
+		ManageRegularWeapons( pData );
 
 	// Give grenades.
 	//ManageGrenades( pData );
 
 	// Give a builder weapon for each object the playerclass is allowed to build
 	ManageBuilderWeapons( pData );
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1196,6 +1204,49 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
 }
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
+{
+	for (int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon)
+	{
+		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
+		const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
+
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iWeapon);
+
+		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
+		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
+		{
+			Weapon_Detach(pWeapon);
+			UTIL_Remove(pWeapon);
+		}
+
+		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID(iWeaponID);
+
+		if (pWeapon)
+		{
+			pWeapon->ChangeTeam(GetTeamNumber());
+			pWeapon->GiveDefaultAmmo();
+
+			if (m_bRegenerating == false)
+			{
+				pWeapon->WeaponReset();
+			}
+		}
+		else
+		{
+			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
+
+			if (pWeapon)
+			{
+				pWeapon->DefaultTouch(this);
+			}
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -2267,7 +2318,7 @@ void CTFPlayer::StartBuildingObjectOfType( int iType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
+void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 	if ( m_takedamage != DAMAGE_YES )
 		return;
