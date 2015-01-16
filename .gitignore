@@ -54,3 +54,9 @@ config.cfg
 # shader files
 *.tmp
 
+# library files
+src/lib/public/mathlib.lib
+src/lib/public/raytrace.lib
+src/lib/public/tier1.lib
+src/lib/public/vgui_controls.lib
+
