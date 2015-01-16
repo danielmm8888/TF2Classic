@@ -149,7 +149,7 @@ private:
 	CPanelAnimationVar( int, m_iMaxSlots, "MaxSlots", "6" );
 	CPanelAnimationVar( bool, m_bPlaySelectionSounds, "PlaySelectSounds", "1" );
 
-	CExImagePanel *m_pActiveWeaponBG;
+	CTFImagePanel *m_pActiveWeaponBG;
 
 	float m_flDemoStartTime;
 	float m_flDemoModeChangeTime;
@@ -177,7 +177,7 @@ CHudWeaponSelection::CHudWeaponSelection( const char *pElementName ) : CBaseHudW
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
-	m_pActiveWeaponBG = new CExImagePanel( this, "ActiveWeapon" );
+	m_pActiveWeaponBG = new CTFImagePanel( this, "ActiveWeapon" );
 	m_pActiveWeaponBG->SetVisible( false );
 
 	SetPostChildPaintEnabled( true );

@@ -366,7 +366,7 @@ void CTFHudTimeStatus::SetTimeAdded( int iIndex, int nSeconds )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFHudTimeStatus::CheckClockLabelLength( CExLabel *pLabel, CExImagePanel *pBG)
+void CTFHudTimeStatus::CheckClockLabelLength( CExLabel *pLabel, CTFImagePanel *pBG)
 {
 	if ( !pLabel || ! pBG )
 		return;
@@ -496,16 +496,16 @@ void CTFHudTimeStatus::ApplySchemeSettings( IScheme *pScheme )
 	m_pProgressBar = dynamic_cast<CTFProgressBar *>( FindChildByName( "TimePanelProgressBar" ) );
 
 	m_pOvertimeLabel = dynamic_cast<CExLabel *>(FindChildByName("OvertimeLabel"));
-	m_pOvertimeBG = dynamic_cast<CExImagePanel *>( FindChildByName( "OvertimeBG" ) );
+	m_pOvertimeBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "OvertimeBG" ) );
 
 	m_pSuddenDeathLabel = dynamic_cast<CExLabel *>(FindChildByName("SuddenDeathLabel"));
-	m_pSuddenDeathBG = dynamic_cast<CExImagePanel *>( FindChildByName( "SuddenDeathBG" ) );
+	m_pSuddenDeathBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "SuddenDeathBG" ) );
 
 	m_pWaitingForPlayersLabel = dynamic_cast<CExLabel *>(FindChildByName("WaitingForPlayersLabel"));
-	m_pWaitingForPlayersBG = dynamic_cast<CExImagePanel *>( FindChildByName("WaitingForPlayersBG" ) );
+	m_pWaitingForPlayersBG = dynamic_cast<CTFImagePanel *>( FindChildByName("WaitingForPlayersBG" ) );
 
 	m_pSetupLabel = dynamic_cast<CExLabel *>(FindChildByName("SetupLabel"));
-	m_pSetupBG = dynamic_cast<CExImagePanel *>( FindChildByName("SetupBG" ) );
+	m_pSetupBG = dynamic_cast<CTFImagePanel *>( FindChildByName("SetupBG" ) );
 
 	m_flNextThink = 0.0f;
 	m_iTimerIndex = 0;

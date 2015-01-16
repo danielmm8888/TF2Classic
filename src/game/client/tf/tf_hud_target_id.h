@@ -61,7 +61,7 @@ protected:
 
 	vgui::Label				*m_pTargetNameLabel;
 	vgui::Label				*m_pTargetDataLabel;
-	CExImagePanel			*m_pBGPanel;
+	CTFImagePanel			*m_pBGPanel;
 	CTFSpectatorGUIHealth	*m_pTargetHealth;
 
 	int m_iRenderPriority;

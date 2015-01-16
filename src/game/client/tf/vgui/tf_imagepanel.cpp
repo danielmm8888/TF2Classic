@@ -23,12 +23,12 @@
 
 using namespace vgui;
 
-DECLARE_BUILD_FACTORY( CExImagePanel );
+DECLARE_BUILD_FACTORY( CTFImagePanel );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CExImagePanel::CExImagePanel(Panel *parent, const char *name) : ImagePanel(parent, name)
+CTFImagePanel::CTFImagePanel(Panel *parent, const char *name) : ImagePanel(parent, name)
 {
 	for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 	{
@@ -44,7 +44,7 @@ CExImagePanel::CExImagePanel(Panel *parent, const char *name) : ImagePanel(paren
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CExImagePanel::ApplySettings(KeyValues *inResourceData)
+void CTFImagePanel::ApplySettings(KeyValues *inResourceData)
 {
 	for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 	{
@@ -59,7 +59,7 @@ void CExImagePanel::ApplySettings(KeyValues *inResourceData)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CExImagePanel::UpdateBGImage(void)
+void CTFImagePanel::UpdateBGImage(void)
 {
 	if ( m_iBGTeam >= 0 && m_iBGTeam < TF_TEAM_COUNT )
 	{
@@ -73,7 +73,7 @@ void CExImagePanel::UpdateBGImage(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CExImagePanel::FireGameEvent(IGameEvent * event)
+void CTFImagePanel::FireGameEvent(IGameEvent * event)
 {
 	if ( FStrEq( "localplayer_changeteam", event->GetName() ) )
 	{
@@ -86,7 +86,7 @@ void CExImagePanel::FireGameEvent(IGameEvent * event)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-Color CExImagePanel::GetDrawColor(void)
+Color CTFImagePanel::GetDrawColor(void)
 {
 	Color tempColor = GetFgColor();
 	tempColor[3] = GetAlpha();

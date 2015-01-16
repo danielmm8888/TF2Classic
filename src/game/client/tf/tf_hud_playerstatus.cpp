@@ -65,8 +65,8 @@ static char *g_szRedClassImages[] =
 CTFHudPlayerClass::CTFHudPlayerClass( Panel *parent, const char *name ) : EditablePanel( parent, name )
 {
 	m_pClassImage = new CTFClassImage( this, "PlayerStatusClassImage" );
-	m_pSpyImage = new CExImagePanel( this, "PlayerStatusSpyImage" );
-	m_pSpyOutlineImage = new CExImagePanel( this, "PlayerStatusSpyOutlineImage" );
+	m_pSpyImage = new CTFImagePanel( this, "PlayerStatusSpyImage" );
+	m_pSpyOutlineImage = new CTFImagePanel( this, "PlayerStatusSpyOutlineImage" );
 
 	m_nTeam = TEAM_UNASSIGNED;
 	m_nClass = TF_CLASS_UNDEFINED;
@@ -223,7 +223,7 @@ void CTFHudPlayerClass::FireGameEvent( IGameEvent * event )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFHealthPanel::CTFHealthPanel( Panel *parent, const char *name ) : CExImagePanel( parent, name )
+CTFHealthPanel::CTFHealthPanel( Panel *parent, const char *name ) : CTFImagePanel( parent, name )
 {
 	m_flHealth = 1.0f;
 
@@ -300,7 +300,7 @@ CTFHudPlayerHealth::CTFHudPlayerHealth( Panel *parent, const char *name ) : Edit
 {
 	m_pHealthImage = new CTFHealthPanel( this, "PlayerStatusHealthImage" );	
 	m_pHealthImageBG = new ImagePanel( this, "PlayerStatusHealthImageBG" );
-	m_pHealthBonusImage = new CExImagePanel( this, "PlayerStatusHealthBonusImage" );
+	m_pHealthBonusImage = new CTFImagePanel( this, "PlayerStatusHealthBonusImage" );
 
 	m_flNextThink = 0.0f;
 }

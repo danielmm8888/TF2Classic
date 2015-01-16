@@ -122,7 +122,7 @@ void CTFFreezePanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	{
 		m_pFreezeLabel = dynamic_cast<Label *>( m_pBasePanel->FindChildByName("FreezeLabel") );
 		m_pAvatar = dynamic_cast<CAvatarImagePanel *>( m_pBasePanel->FindChildByName("AvatarImage") );
-		m_pFreezePanelBG = dynamic_cast<CExImagePanel *>( m_pBasePanel->FindChildByName( "FreezePanelBG" ) );
+		m_pFreezePanelBG = dynamic_cast<CTFImagePanel *>( m_pBasePanel->FindChildByName( "FreezePanelBG" ) );
 		m_pNemesisSubPanel = dynamic_cast<EditablePanel *>( m_pBasePanel->FindChildByName( "NemesisSubPanel" ) );
 		m_pKillerHealth	= dynamic_cast<CTFFreezePanelHealth *>( m_pBasePanel->FindChildByName( "FreezePanelHealth" ) );
 	}
@@ -832,7 +832,7 @@ void CTFFreezePanelCallout::UpdateForGib( int iGib, int iCount )
 		m_pGibLabel->GetBounds( x, y, w, t );
 		m_pGibLabel->SetBounds( x, y, w + nDiff, t );
 
-		CExImagePanel *pBackground = dynamic_cast<CExImagePanel *>( FindChildByName( "CalloutBG" ) );
+		CTFImagePanel *pBackground = dynamic_cast<CTFImagePanel *>( FindChildByName( "CalloutBG" ) );
 		if ( pBackground )
 		{
 			// also adjust the background image

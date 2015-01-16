@@ -84,7 +84,7 @@ private:
 
 	void SetExtraTimePanels();
 	void SetTimeAdded( int iIndex, int nSeconds );
-	void CheckClockLabelLength( CExLabel *pLabel, CExImagePanel *pBG);
+	void CheckClockLabelLength( CExLabel *pLabel, CTFImagePanel *pBG );
 
 private:
 
@@ -97,17 +97,17 @@ private:
 	CTFProgressBar		*m_pProgressBar;
 
 	CExLabel			*m_pWaitingForPlayersLabel;
-	CExImagePanel		*m_pWaitingForPlayersBG;
+	CTFImagePanel		*m_pWaitingForPlayersBG;
 
 	CExLabel			*m_pOvertimeLabel;
-	CExImagePanel		*m_pOvertimeBG;
+	CTFImagePanel		*m_pOvertimeBG;
 
 	CExLabel			*m_pSetupLabel;
-	CExImagePanel		*m_pSetupBG;
+	CTFImagePanel		*m_pSetupBG;
 
 	// we'll have a second label/bg set for the SuddenDeath panel in case we want to change the look from the Overtime label
 	CExLabel			*m_pSuddenDeathLabel;
-	CExImagePanel		*m_pSuddenDeathBG;
+	CTFImagePanel		*m_pSuddenDeathBG;
 
 	// delta stuff
 	int m_iTimerDeltaHead;

@@ -116,7 +116,7 @@ private:
 	vgui::CKeyRepeatHandler	m_KeyRepeat;
 
 #ifndef _X360
-	CExImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
+	CTFImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
 	CExLabel *m_pCountLabel;
 #endif
 };

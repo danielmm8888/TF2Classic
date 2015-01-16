@@ -103,7 +103,7 @@ private:
 	float					m_flShowSnapshotReminderAt;
 	EditablePanel			*m_pNemesisSubPanel;
 	vgui::Label				*m_pFreezeLabel;
-	CExImagePanel			*m_pFreezePanelBG;
+	CTFImagePanel			*m_pFreezePanelBG;
 	CAvatarImagePanel		*m_pAvatar;
 	vgui::EditablePanel		*m_pScreenshotPanel;
 	vgui::EditablePanel		*m_pBasePanel;

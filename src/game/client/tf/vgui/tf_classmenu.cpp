@@ -92,7 +92,7 @@ CTFClassMenu::CTFClassMenu( IViewPort *pViewPort ) : CClassMenu( pViewPort )
 	for ( int i = 0 ; i < CLASS_COUNT_IMAGES ; ++i )
 	{
 		Q_snprintf( tempName, sizeof( tempName ), "countImage%d", i );
-		m_ClassCountImages[i] = new CExImagePanel( this, tempName );
+		m_ClassCountImages[i] = new CTFImagePanel( this, tempName );
 	}
 
 	m_pCountLabel = NULL;
@@ -570,7 +570,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 		{
 			for ( int j = 0 ; j < classCount ; ++j )
 			{
-				CExImagePanel *pImage = m_ClassCountImages[nTotalCount];
+				CTFImagePanel *pImage = m_ClassCountImages[nTotalCount];
 				if ( pImage )
 				{
 					pImage->SetVisible( true );
@@ -605,7 +605,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 	// turn off any unused images
 	while ( nTotalCount < CLASS_COUNT_IMAGES )
 	{
-		CExImagePanel *pImage = m_ClassCountImages[nTotalCount];
+		CTFImagePanel *pImage = m_ClassCountImages[nTotalCount];
 		if ( pImage )
 		{
 			pImage->SetVisible( false );

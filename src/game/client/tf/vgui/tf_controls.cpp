@@ -111,7 +111,7 @@ CExRichText::CExRichText(Panel *parent, const char *name) : RichText(parent, nam
 
 	SetCursor(dc_arrow);
 
-	m_pUpArrow = new CExImagePanel( this, "UpArrow" );
+	m_pUpArrow = new CTFImagePanel( this, "UpArrow" );
 	if ( m_pUpArrow )
 	{
 		m_pUpArrow->SetShouldScaleImage( true );
@@ -129,7 +129,7 @@ CExRichText::CExRichText(Panel *parent, const char *name) : RichText(parent, nam
 		m_pLine->SetVisible( false );
 	}
 
-	m_pDownArrow = new CExImagePanel( this, "DownArrow" );
+	m_pDownArrow = new CTFImagePanel( this, "DownArrow" );
 	if ( m_pDownArrow )
 	{
 		m_pDownArrow->SetShouldScaleImage( true );

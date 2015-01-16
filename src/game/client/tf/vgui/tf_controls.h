@@ -84,9 +84,9 @@ private:
 	char		m_szFont[64];
 	char		m_szColor[64];
 
-	CExImagePanel		*m_pUpArrow;
+	CTFImagePanel		*m_pUpArrow;
 	vgui::ImagePanel	*m_pLine;
-	CExImagePanel		*m_pDownArrow;
+	CTFImagePanel		*m_pDownArrow;
 	vgui::ImagePanel	*m_pBox;
 };
 

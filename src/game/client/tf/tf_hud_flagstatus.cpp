@@ -46,7 +46,7 @@ extern ConVar tf_flag_caps_per_round;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFArrowPanel::CTFArrowPanel( Panel *parent, const char *name ) : CExImagePanel( parent, name )
+CTFArrowPanel::CTFArrowPanel( Panel *parent, const char *name ) : CTFImagePanel( parent, name )
 {
 	m_RedMaterial.Init( "hud/objectives_flagpanel_compass_red", TEXTURE_GROUP_VGUI ); 
 	m_BlueMaterial.Init( "hud/objectives_flagpanel_compass_blue", TEXTURE_GROUP_VGUI ); 
@@ -235,8 +235,8 @@ void CTFFlagStatus::ApplySchemeSettings( IScheme *pScheme )
 	LoadControlSettings( "resource/UI/FlagStatus.res" );
 
 	m_pArrow = dynamic_cast<CTFArrowPanel *>( FindChildByName( "Arrow" ) );
-	m_pStatusIcon = dynamic_cast<CExImagePanel *>( FindChildByName( "StatusIcon" ) );
-	m_pBriefcase = dynamic_cast<CExImagePanel *>( FindChildByName( "Briefcase" ) );
+	m_pStatusIcon = dynamic_cast<CTFImagePanel *>( FindChildByName( "StatusIcon" ) );
+	m_pBriefcase = dynamic_cast<CTFImagePanel *>( FindChildByName( "Briefcase" ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -317,9 +317,9 @@ void CTFHudFlagObjectives::ApplySchemeSettings( IScheme *pScheme )
 	// load control settings...
 	LoadControlSettings( "resource/UI/HudObjectiveFlagPanel.res" );
 
-	m_pCarriedImage = dynamic_cast<CExImagePanel *>( FindChildByName( "CarriedImage" ) );
+	m_pCarriedImage = dynamic_cast<CTFImagePanel *>( FindChildByName( "CarriedImage" ) );
 	m_pPlayingTo = dynamic_cast<CExLabel *>( FindChildByName( "PlayingTo" ) );
-	m_pPlayingToBG = dynamic_cast<CExImagePanel *>( FindChildByName( "PlayingToBG" ) );
+	m_pPlayingToBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "PlayingToBG" ) );
 
 	m_pRedFlag = dynamic_cast<CTFFlagStatus *>( FindChildByName( "RedFlag" ) );
 	m_pBlueFlag = dynamic_cast<CTFFlagStatus *>( FindChildByName( "BlueFlag" ) );
@@ -329,7 +329,7 @@ void CTFHudFlagObjectives::ApplySchemeSettings( IScheme *pScheme )
 	m_pSpecCarriedImage = dynamic_cast<ImagePanel *>( FindChildByName( "SpecCarriedImage" ) );
 
 	// outline is always on, so we need to init the alpha to 0
-	CExImagePanel *pOutline = dynamic_cast<CExImagePanel *>( FindChildByName( "OutlineImage" ) );
+	CTFImagePanel *pOutline = dynamic_cast<CTFImagePanel *>( FindChildByName( "OutlineImage" ) );
 	if ( pOutline )
 	{
 		pOutline->SetAlpha( 0 );

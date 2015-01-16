@@ -44,7 +44,7 @@ public:
 private:
 	Label			*m_pSwitchLabel;
 	Label			*m_pGoalLabel;
-	CExImagePanel	*m_pGoalImage;
+	CTFImagePanel	*m_pGoalImage;
 	float			m_flHideAt;
 	int				m_iGoalLabelOrgY;
 };
@@ -87,7 +87,7 @@ void CHudTeamGoal::ApplySchemeSettings( IScheme *pScheme )
 
 	m_pSwitchLabel = dynamic_cast<Label *>( FindChildByName("SwitchLabel") );
 	m_pGoalLabel = dynamic_cast<Label *>( FindChildByName("GoalLabel") );
-	m_pGoalImage = dynamic_cast<CExImagePanel *>( FindChildByName("GoalImage") );
+	m_pGoalImage = dynamic_cast<CTFImagePanel *>( FindChildByName("GoalImage") );
 
 	if ( m_pGoalLabel )
 	{
