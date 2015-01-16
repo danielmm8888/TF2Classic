@@ -217,6 +217,7 @@ private:
 	void OnRemoveDisguising( void );
 	void OnRemoveInvulnerable( void );
 	void OnRemoveTeleported( void );
+	void OnRemoveTranq( void );
 
 	float GetCritMult( void );
 
