@@ -186,7 +186,7 @@ DECLARE_CLIENT_EFFECT(NAILGUN_NAIL_DISPATCH_EFFECT, ClientsideProjectileNailCall
 
 // Tranqualizer syringe (same as medic's syringe, except with a different gravity and particle effect
 
-#define TRANQDART_MODEL				"models/weapons/w_models/w_syringe_proj.mdl"
+#define TRANQDART_MODEL				"models/weapons/w_models/w_dart.mdl"
 #define TRANQDART_DISPATCH_EFFECT	"ClientProjectile_TranqDart"
 #define TRANQDART_GRAVITY	0.0f
 
