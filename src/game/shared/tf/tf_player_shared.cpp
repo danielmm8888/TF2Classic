@@ -414,6 +414,10 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		OnAddDisguised();
 		break;
 
+	case TF_COND_SLOWED:
+		OnAddSlowed();
+		break;
+
 	case TF_COND_TAUNTING:
 		{
 			CTFWeaponBase *pWpn = m_pOuter->GetActiveTFWeapon();
@@ -473,8 +477,8 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 		OnRemoveTeleported();
 		break;
 
-	case TF_COND_TRANQED:
-		OnRemoveTranq();
+	case TF_COND_SLOWED:
+		OnRemoveSlowed();
 		break;
 
 	default:
@@ -740,6 +744,15 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_STEALTHED_BLINK );
 		}
 	}
+
+	if ( InCond( TF_COND_SLOWED ) )
+	{
+		if ( gpGlobals->curtime > m_flSlowedRemoveTime )
+		{
+			RemoveCond( TF_COND_SLOWED );
+		}
+	}
+
 #endif
 }
 
@@ -905,9 +918,18 @@ void CTFPlayerShared::OnRemoveTeleported( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Remove tranq effect
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::OnRemoveTranq(void)
+void CTFPlayerShared::OnAddSlowed(void)
+{
+	m_pOuter->TeamFortress_SetSpeed();
+	m_flSlowedRemoveTime = gpGlobals->curtime + 4.0f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove slowdown effect
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveSlowed(void)
 {
 	// Set speed back to normal
 	m_pOuter->TeamFortress_SetSpeed();
@@ -1602,6 +1624,11 @@ void CTFPlayerShared::SetInvulnerable( bool bState, bool bInstant )
 			RemoveCond( TF_COND_BURNING );
 		}
 
+		if ( InCond( TF_COND_SLOWED ) )
+		{
+			RemoveCond( TF_COND_SLOWED );
+		}
+
 		CSingleUserRecipientFilter filter( m_pOuter );
 		m_pOuter->EmitSound( filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn" );
 	}
@@ -2134,7 +2161,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	}
 
 	// Reduce our speed if we were tranquilized
-	if (m_Shared.InCond(TF_COND_TRANQED))
+	if ( m_Shared.InCond( TF_COND_SLOWED ) )
 	{
 		maxfbspeed *= 0.55f;
 	}

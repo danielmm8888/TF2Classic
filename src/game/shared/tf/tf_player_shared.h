@@ -209,6 +209,7 @@ private:
 	void OnAddBurning( void );
 	void OnAddDisguising( void );
 	void OnAddDisguised( void );
+	void OnAddSlowed( void );
 
 	void OnRemoveZoomed( void );
 	void OnRemoveBurning( void );
@@ -217,7 +218,7 @@ private:
 	void OnRemoveDisguising( void );
 	void OnRemoveInvulnerable( void );
 	void OnRemoveTeleported( void );
-	void OnRemoveTranq( void );
+	void OnRemoveSlowed( void );
 
 	float GetCritMult( void );
 
@@ -282,6 +283,7 @@ private:
 	float					m_flFlameBurnTime;
 	float					m_flFlameRemoveTime;
 	float					m_flTauntRemoveTime;
+	float					m_flSlowedRemoveTime;
 
 
 	float m_flDisguiseCompleteTime;

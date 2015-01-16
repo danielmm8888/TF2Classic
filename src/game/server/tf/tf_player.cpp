@@ -948,9 +948,9 @@ void CTFPlayer::Regenerate( void )
 	}
 
 	// Remove tranq condition
-	if (m_Shared.InCond(TF_COND_TRANQED))
+	if  (m_Shared.InCond( TF_COND_SLOWED ) )
 	{
-		m_Shared.RemoveCond(TF_COND_TRANQED);
+		m_Shared.RemoveCond( TF_COND_SLOWED );
 	}
 }
 
@@ -2638,17 +2638,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
  
 	int bitsDamage = inputInfo.GetDamageType();
 
-	// Hit by tranq
-	CTFWeaponBase *pWeapon = ToTFPlayer(info.GetAttacker())->GetActiveTFWeapon();
-	if (pWeapon)
-	{
-		if (pWeapon->GetWeaponID() == TF_WEAPON_TRANQ)
-		{
-			m_Shared.AddCond(TF_COND_TRANQED);
-			this->TeamFortress_SetSpeed();
-		}
-	}
-
 	// If we're invulnerable, force ourselves to only take damage events only, so we still get pushed
 	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
 	{
@@ -3018,6 +3007,12 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
+
+	// Hit by tranq
+	if (info.GetDamageType() & DMG_PARALYZE)
+	{
+		m_Shared.AddCond(TF_COND_SLOWED);
+	}
 
 	bool bIgniting = false;
 
