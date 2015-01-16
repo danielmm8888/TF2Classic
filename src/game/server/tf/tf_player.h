@@ -481,6 +481,36 @@ private:
 	CNetworkQAngle( m_angEyeAngles );					// Copied from EyeAngles() so we can send it to the client.
 
 	CTFPlayerClass		m_PlayerClass;
+	int m_WeaponPresetPrimary;
+	int m_WeaponPresetSecondary;
+	int m_WeaponPresetMelee;
+
+	int GetWeaponPreset(int iSlotNum){
+		if (iSlotNum == 0){
+			return m_WeaponPresetPrimary;
+		}
+		else if (iSlotNum == 1){
+			return m_WeaponPresetSecondary;
+		}
+		else if (iSlotNum == 2){
+			return m_WeaponPresetMelee;
+		}
+		return 0;
+	};
+
+	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
+	{
+		if (iSlotNum == 0){
+			m_WeaponPresetPrimary = iPresetNum;
+		}
+		else if (iSlotNum == 1){
+			m_WeaponPresetSecondary = iPresetNum;
+		}
+		else if (iSlotNum == 2){
+			m_WeaponPresetMelee = iPresetNum;
+		}
+	}
+
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.
 	int					m_iLastSkin;

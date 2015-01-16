@@ -87,10 +87,8 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELOPMENTONLY, "Max time after a voice command until player can do another one" );
 
-ConVar tf2c_equip_scout_nailgun("tf2c_equip_scout_nailgun", "0", 0);
-ConVar tf2c_equip_scout_smg("tf2c_equip_scout_smg", "0", 0);
-ConVar tf2c_equip_spy_tranq("tf2c_equip_spy_tranq", "0", 0);
 
+// Team Fortress 2 Classic commands
 ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
 
 
@@ -394,6 +392,11 @@ CTFPlayer::CTFPlayer()
 	m_bInitTaunt = false;
 
 	m_bSpeakingConceptAsDisguisedSpy = false;
+
+	m_WeaponPresetPrimary = 0;
+	m_WeaponPresetSecondary = 0;
+	m_WeaponPresetMelee = 0;
+
 }
 
 
@@ -1112,33 +1115,33 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 	switch (GetPlayerClass()->GetClassIndex())
 	{
 	case TF_CLASS_SCOUT:
-		if (tf2c_equip_scout_nailgun.GetBool())
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_NAILGUN;
-		}
-		else
+		if (GetWeaponPreset(0) == 0)
 		{
 			pData->m_aWeapons[0] = TF_WEAPON_SCATTERGUN;
 		}
-		if (tf2c_equip_scout_smg.GetBool())
+		if (GetWeaponPreset(0) == 1)
 		{
-			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
+			pData->m_aWeapons[0] = TF_WEAPON_NAILGUN;
 		}
-		else
+		if (GetWeaponPreset(1) == 0)
 		{
 			pData->m_aWeapons[1] = TF_WEAPON_PISTOL_SCOUT;
+		}
+		if (GetWeaponPreset(1) == 1)
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
 		}
 		pData->m_aWeapons[2] = TF_WEAPON_BAT;
 		break;
 	case TF_CLASS_SPY:
 		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
-		if (tf2c_equip_spy_tranq.GetBool())
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_TRANQ;
-		}
-		else
+		if (GetWeaponPreset(0) == 0)
 		{
 			pData->m_aWeapons[1] = TF_WEAPON_REVOLVER;
+		}
+		if (GetWeaponPreset(0) == 1)
+		{
+			pData->m_aWeapons[1] = TF_WEAPON_TRANQ;
 		}
 		pData->m_aWeapons[2] = TF_WEAPON_PDA_SPY;
 		pData->m_aWeapons[3] = TF_WEAPON_INVIS;
@@ -1944,6 +1947,14 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if ( args.ArgC() >= 2 )
 		{
 			HandleCommand_JoinClass( args[1] );
+		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "weaponpreset"))
+	{
+		if (args.ArgC() >= 3)
+		{
+			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
 		}
 		return true;
 	}
