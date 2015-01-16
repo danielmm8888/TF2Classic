@@ -2640,10 +2640,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	// Hit by tranq
 	CTFWeaponBase *pWeapon = ToTFPlayer(info.GetAttacker())->GetActiveTFWeapon();
-	if (pWeapon->GetWeaponID() == TF_WEAPON_TRANQ)
+	if (pWeapon)
 	{
-		m_Shared.AddCond(TF_COND_TRANQED);
-		this->TeamFortress_SetSpeed();
+		if (pWeapon->GetWeaponID() == TF_WEAPON_TRANQ)
+		{
+			m_Shared.AddCond(TF_COND_TRANQED);
+			this->TeamFortress_SetSpeed();
+		}
 	}
 
 	// If we're invulnerable, force ourselves to only take damage events only, so we still get pushed
