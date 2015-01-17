@@ -481,33 +481,35 @@ private:
 	CNetworkQAngle( m_angEyeAngles );					// Copied from EyeAngles() so we can send it to the client.
 
 	CTFPlayerClass		m_PlayerClass;
-	int m_WeaponPresetPrimary;
-	int m_WeaponPresetSecondary;
-	int m_WeaponPresetMelee;
+	CUtlVector<int> m_WeaponPresetPrimary;
+	CUtlVector<int> m_WeaponPresetSecondary;
+	CUtlVector<int> m_WeaponPresetMelee;
 
 	int GetWeaponPreset(int iSlotNum){
+		int iClass = GetPlayerClass()->GetClassIndex();
 		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary;
+			return m_WeaponPresetPrimary[iClass];
 		}
 		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary;
+			return m_WeaponPresetSecondary[iClass];
 		}
 		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee;
+			return m_WeaponPresetMelee[iClass];
 		}
 		return 0;
 	};
 
 	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 	{
+		int iClass = GetPlayerClass()->GetClassIndex();
 		if (iSlotNum == 0){
-			m_WeaponPresetPrimary = iPresetNum;
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary = iPresetNum;
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 2){
-			m_WeaponPresetMelee = iPresetNum;
+			m_WeaponPresetMelee[iClass] = iPresetNum;
 		}
 	}
 
