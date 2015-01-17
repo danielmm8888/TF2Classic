@@ -1042,13 +1042,13 @@ void CTFPlayer::GiveDefaultItems()
 		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
 	}
 	
-	ChangeWeapon( pData );
+	ChangeWeapon(pData);
 
 	// Give weapons.
 	if (tf2c_random_weapons.GetBool())
 		ManageRandomWeapons( pData );
 	else
-		ManageRegularWeapons( pData );
+		ManageRegularWeapons(pData);
 
 	// Give grenades.
 	//ManageGrenades( pData );
@@ -1138,6 +1138,18 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
 		}
 		pData->m_aWeapons[2] = TF_WEAPON_BAT;
+		break;
+	case TF_CLASS_SOLDIER:
+		if (GetWeaponPreset(0) == 0)
+		{
+			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHER;
+		}
+		if (GetWeaponPreset(0) == 1)
+		{
+			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHERBETA;
+		}
+		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_SOLDIER;
+		pData->m_aWeapons[2] = TF_WEAPON_SHOVEL;
 		break;
 	case TF_CLASS_SPY:
 		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
