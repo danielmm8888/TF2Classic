@@ -19,8 +19,8 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Spectator",
 	"Red",
 	"Blue",
-//	"Green",
-//	"Yellow"
+	"Green",
+	"Yellow"
 };
 
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
@@ -29,18 +29,8 @@ color32 g_aTeamColors[TF_TEAM_COUNT] =
 	{ 0, 0, 0, 0 }, // Spectator
 	{ 255, 0, 0, 0 }, // Red
 	{ 0, 0, 255, 0 }, // Blue
-//	{ 0, 255, 0, 0 }, // Green
-//	{ 255, 255, 0, 0 } // Yellow
-};
-
-color32 g_aTeamSkinColors[TF_TEAM_COUNT] =
-{
-	{ 0, 0, 0, 0 }, // Unassigned
-	{ 0, 0, 0, 0 }, // Spectator
-	{ 255, 63, 53, 0 }, // Red
-	{ 63, 53, 255, 0 }, // Blue
-//	{ 53, 255, 63, 0 }, // Green
-//	{ 255, 255, 120, 0 } // Yellow
+	{ 0, 255, 0, 0 }, // Green
+	{ 255, 255, 0, 0 } // Yellow
 };
 
 //-----------------------------------------------------------------------------
@@ -162,8 +152,9 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_SENTRY_ROCKET",
 	"TF_WEAPON_DISPENSER",
 	"TF_WEAPON_INVIS",
-	"TF_WEAPON_FLAG",
+	"TF_WEAPON_FLAG", // ADD NEW WEAPONS AFTER THIS
 	"TF_WEAPON_SMG_SCOUT",
+	"TF_WEAPON_ROCKETLAUNCHERBETA",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -224,8 +215,9 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_SENTRY_ROCKET
 	DMG_GENERIC,	// TF_WEAPON_DISPENSER
 	DMG_GENERIC,	// TF_WEAPON_INVIS
-	DMG_GENERIC,	// TF_WEAPON_FLAG
+	DMG_GENERIC,	// TF_WEAPON_FLAG // ADD NEW WEAPONS AFTER THIS
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
+	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list

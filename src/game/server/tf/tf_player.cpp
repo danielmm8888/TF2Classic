@@ -91,6 +91,7 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELO
 // Team Fortress 2 Classic commands
 ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
 
+extern ConVar tf2c_4play;
 
 
 
@@ -1139,6 +1140,18 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 		}
 		pData->m_aWeapons[2] = TF_WEAPON_BAT;
 		break;
+	case TF_CLASS_SOLDIER:
+		if (GetWeaponPreset(0) == 0)
+		{
+			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHER;
+		}
+		if (GetWeaponPreset(0) == 1)
+		{
+			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHERBETA;
+		}
+		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_SOLDIER;
+		pData->m_aWeapons[2] = TF_WEAPON_SHOVEL;
+		break;
 	case TF_CLASS_SPY:
 		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
 		if (GetWeaponPreset(0) == 0)
@@ -1438,22 +1451,54 @@ int CTFPlayer::GetAutoTeam( void )
 {
 	int iTeam = TEAM_SPECTATOR;
 
-	CTFTeam *pBlue = TFTeamMgr()->GetTeam( TF_TEAM_BLUE );
-	CTFTeam *pRed  = TFTeamMgr()->GetTeam( TF_TEAM_RED );
+	CTFTeam *pBlue = TFTeamMgr()->GetTeam(TF_TEAM_BLUE);
+	CTFTeam *pRed = TFTeamMgr()->GetTeam(TF_TEAM_RED);
 
-	if ( pBlue && pRed )
+	if (tf2c_4play.GetBool())
 	{
-		if ( pBlue->GetNumPlayers() < pRed->GetNumPlayers() )
+		CTFTeam *pGreen = TFTeamMgr()->GetTeam(TF_TEAM_GREEN);
+		CTFTeam *pYellow = TFTeamMgr()->GetTeam(TF_TEAM_YELLOW);
+
+		if (pBlue && pRed && pGreen && pYellow)
 		{
-			iTeam = TF_TEAM_BLUE;
+			if (pBlue->GetNumPlayers() < pRed->GetNumPlayers() && pBlue->GetNumPlayers() < pGreen->GetNumPlayers() && pBlue->GetNumPlayers() < pYellow->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_BLUE;
+			}
+			else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers() && pRed->GetNumPlayers() < pGreen->GetNumPlayers() && pRed->GetNumPlayers() < pYellow->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_RED;
+			}
+			else if (pGreen->GetNumPlayers() < pRed->GetNumPlayers() && pGreen->GetNumPlayers() < pBlue->GetNumPlayers() && pGreen->GetNumPlayers() < pYellow->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_RED;
+			}
+			else if (pYellow->GetNumPlayers() < pRed->GetNumPlayers() && pYellow->GetNumPlayers() < pBlue->GetNumPlayers() && pYellow->GetNumPlayers() < pGreen->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_RED;
+			}
+			else
+			{
+				iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
+			}
 		}
-		else if ( pRed->GetNumPlayers() < pBlue->GetNumPlayers() )
+	}
+	else
+	{
+		if (pBlue && pRed)
 		{
-			iTeam = TF_TEAM_RED;
-		}
-		else
-		{
-			iTeam = RandomInt( 0, 1 ) ? TF_TEAM_RED : TF_TEAM_BLUE;
+			if (pBlue->GetNumPlayers() < pRed->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_BLUE;
+			}
+			else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers())
+			{
+				iTeam = TF_TEAM_RED;
+			}
+			else
+			{
+				iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
+			}
 		}
 	}
 
@@ -1486,7 +1531,13 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 	}
 
-	if ( iTeam == TEAM_SPECTATOR )
+	if (iTeam > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	{
+		Warning("Four player teams have been disabled!\n");
+		return;
+	}
+
+	if (iTeam == TEAM_SPECTATOR)
 	{
 		// Prevent this is the cvar is set
 		if ( !mp_allowspectators.GetInt() && !IsHLTV() )
@@ -1574,6 +1625,12 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 		iNewTeam = GetAutoTeam();
 	}
 
+	if (iNewTeam > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	{
+		Warning("Four player teams have been disabled!\n");
+		return;
+	}
+
 	if ( !GetGlobalTeam( iNewTeam ) )
 	{
 		Warning( "CTFPlayer::ForceChangeTeam( %d ) - invalid team index.\n", iNewTeam );
@@ -1627,6 +1684,12 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	if ( !GetGlobalTeam( iTeamNum ) )
 	{
 		Warning( "CTFPlayer::ChangeTeam( %d ) - invalid team index.\n", iTeamNum );
+		return;
+	}
+
+	if (iTeamNum > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	{
+		Warning("Four player teams have been disabled!\n");
 		return;
 	}
 
@@ -3758,8 +3821,6 @@ void CTFPlayer::UpdateModel( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::UpdateSkin( int iTeam )
 {
-	//SetRenderColor(g_aTeamSkinColors[iTeam].r, g_aTeamSkinColors[iTeam].g, g_aTeamSkinColors[iTeam].b, g_aTeamSkinColors[iTeam].a);
-
 	// The player's skin is team - 2.
 	int iSkin = iTeam - 2;
 
@@ -4897,6 +4958,38 @@ CTFTeam *CTFPlayer::GetOpposingTFTeam( void )
 	else
 	{
 		return TFTeamMgr()->GetTeam( TF_TEAM_RED );
+	}
+}
+
+void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
+{
+	int iTeam = GetTeamNumber();
+	switch (iTeam)
+	{
+		case TF_TEAM_RED:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_BLUE:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_GREEN:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_YELLOW:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			break;
+
 	}
 }
 

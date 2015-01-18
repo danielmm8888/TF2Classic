@@ -30,3 +30,13 @@ END_DATADESC()
 //
 // Weapon Nailgun functions.
 //
+void CTFNailgun::Precache()
+{
+	BaseClass::Precache();
+#ifndef CLIENT_DLL
+	PrecacheParticleSystem("nailtrails_scout_red");
+	PrecacheParticleSystem("nailtrails_scout_blue");
+	PrecacheParticleSystem("nailtrails_scout_red_crit");
+	PrecacheParticleSystem("nailtrails_scout_blue_crit");
+#endif
+}

@@ -130,7 +130,7 @@ private:
 	CPanelAnimationVarAliasType( float, m_flIconXPos, "IconXPos", "16", "proportional_float" );
 	CPanelAnimationVarAliasType( float, m_flIconYPos, "IconYPos", "8", "proportional_float" );
 
-	CPanelAnimationVarAliasType( float, m_flTextYPos, "TextYPos", "54", "proportional_float" );
+	CPanelAnimationVarAliasType( float, m_flTextYPos, "TextYPos", "35", "proportional_float" );
 	CPanelAnimationVarAliasType( float, m_flErrorYPos, "ErrorYPos", "60", "proportional_float" );
 
 	CPanelAnimationVar( float, m_flAlphaOverride, "Alpha", "255" );
@@ -571,6 +571,16 @@ void CHudWeaponSelection::PostChildPaint()
 							wchar_t *pText = g_pVGuiLocalize->Find( "#TF_OUT_OF_AMMO" );
 							DrawString( pText, msgX, msgY, ammoColor, true );
 						}
+						else
+						{
+							int msgX = xpos + (m_flLargeBoxWide * 0.5);
+							int msgY = ypos + (int)m_flErrorYPos;
+							Color ammoColor = Color(255, 0, 0, 255);
+							wchar_t *pText = g_pVGuiLocalize->Find(pWeapon->GetWpnData().szPrintName);
+
+							if (pText != NULL_STRING)
+								DrawString(pText, msgX, msgY, Color(236, 236, 180, 255), true);
+						}
 
 						xpos -= ( m_flLargeBoxWide + m_flBoxGap );
 						bFirstItem = false;
@@ -605,6 +615,14 @@ void CHudWeaponSelection::PostChildPaint()
 						{
 							pTexture->DrawSelf( xpos, ypos, m_flSmallBoxWide, m_flSmallBoxTall, col  );
 						}
+
+						int msgX = xpos + (m_flSmallBoxWide * 0.5);
+						int msgY = ypos + 35;
+						Color ammoColor = Color(255, 0, 0, 255);
+						wchar_t *pText = g_pVGuiLocalize->Find(pWeapon->GetWpnData().szPrintName);
+
+						if (pText != NULL_STRING)
+							DrawString(pText, msgX, msgY, Color(236, 236, 180, 255), true);
 
 						ypos += ( m_flSmallBoxTall + m_flBoxGap );	
 					}

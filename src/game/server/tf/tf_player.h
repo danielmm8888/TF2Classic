@@ -249,6 +249,7 @@ public:
 
 	CTFTeam *GetTFTeam( void );
 	CTFTeam *GetOpposingTFTeam( void );
+	void GetOpposingTFTeamList( CUtlVector<CTFTeam *> *pTeamList );
 
 	void TeleportEffect( void );
 	void RemoveTeleportEffect( void );

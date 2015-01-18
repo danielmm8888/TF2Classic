@@ -804,34 +804,43 @@ void CTFFlameEntity::FlameThink( void )
 		if ( !pAttacker )
 			return;
 
-		CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
-		if ( !pTeam )
-			return;
+		CUtlVector<CTFTeam *> pTeamList;
+		pAttacker->GetOpposingTFTeamList(&pTeamList);
+
+		//CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
+		//if ( !pTeam )
+		//	return;
 	
 		bool bHitWorld = false;
 
-		// check collision against all enemy players
-		for ( int iPlayer= 0; iPlayer < pTeam->GetNumPlayers(); iPlayer++ )
+		for (int i = 0; i < pTeamList.Size(); i++)
 		{
-			CBasePlayer *pPlayer = pTeam->GetPlayer( iPlayer );
-			// Is this player connected, alive, and an enemy?
-			if ( pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive() )
+			if (pTeamList[i])
 			{
-				CheckCollision( pPlayer, &bHitWorld );
-				if ( bHitWorld )
-					return;
-			}
-		}
+				// check collision against all enemy players
+				for (int iPlayer = 0; iPlayer < pTeamList[i]->GetNumPlayers(); iPlayer++)
+				{
+					CBasePlayer *pPlayer = pTeamList[i]->GetPlayer(iPlayer);
+					// Is this player connected, alive, and an enemy?
+					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive())
+					{
+						CheckCollision(pPlayer, &bHitWorld);
+						if (bHitWorld)
+							return;
+					}
+				}
 
-		// check collision against all enemy objects
-		for ( int iObject = 0; iObject < pTeam->GetNumObjects(); iObject++ )
-		{
-			CBaseObject *pObject = pTeam->GetObject( iObject );
-			if ( pObject )
-			{
-				CheckCollision( pObject, &bHitWorld );
-				if ( bHitWorld )
-					return;
+				// check collision against all enemy objects
+				for (int iObject = 0; iObject < pTeamList[i]->GetNumObjects(); iObject++)
+				{
+					CBaseObject *pObject = pTeamList[i]->GetObject(iObject);
+					if (pObject)
+					{
+						CheckCollision(pObject, &bHitWorld);
+						if (bHitWorld)
+							return;
+					}
+				}
 			}
 		}
 	}

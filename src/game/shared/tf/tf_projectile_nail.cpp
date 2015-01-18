@@ -162,6 +162,21 @@ float CTFProjectile_Nail::GetGravity(void)
 }
 
 #ifdef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : const char
+//-----------------------------------------------------------------------------
+const char *GetNailTrailParticleName(int iTeamNumber, bool bCritical)
+{
+	if (iTeamNumber == TF_TEAM_BLUE)
+	{
+		return (bCritical ? "nailtrails_scout_blue_crit" : "nailtrails_scout_blue");
+	}
+	else
+	{
+		return (bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red");
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -174,6 +189,9 @@ void ClientsideProjectileNailCallback(const CEffectData &data)
 		C_LocalTempEntity *pNail = ClientsideProjectileCallback(data, NAILGUN_NAIL_GRAVITY);
 		if (pNail)
 		{
+			pNail->m_nSkin = (pPlayer->GetTeamNumber() == TF_TEAM_RED) ? 0 : 1;
+			bool bCritical = ((data.m_nDamageType & DMG_CRITICAL) != 0);
+			pNail->AddParticleEffect(GetNailTrailParticleName(pPlayer->GetTeamNumber(), bCritical));
 			pNail->AddEffects(EF_NOSHADOW);
 			pNail->flags |= FTENT_USEFASTCOLLISIONS;
 		}
