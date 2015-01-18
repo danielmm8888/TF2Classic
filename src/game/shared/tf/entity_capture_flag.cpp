@@ -470,6 +470,10 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 		return;
 #endif
 
+	// Do not allow the player to pick up multiple flags
+	if ( pPlayer->HasTheFlag() )
+		return;
+
 	// Pick up the flag.
 	PickUp( pPlayer, true );
 }

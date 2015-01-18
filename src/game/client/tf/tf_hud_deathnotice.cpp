@@ -61,6 +61,8 @@ private:
 
 	CPanelAnimationVar( Color, m_clrBlueText, "TeamBlue", "153 204 255 255" );
 	CPanelAnimationVar( Color, m_clrRedText, "TeamRed", "255 64 64 255" );
+	CPanelAnimationVar( Color, m_clrGreenText, "TeamGreen", "53 255 63 255" );
+	CPanelAnimationVar( Color, m_clrYellowText, "TeamYellow", "255 255 120 255" );
 
 };
 
@@ -242,8 +244,8 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 		bool bDefense = ( FStrEq( "teamplay_capture_blocked", pszEventName ) || ( FStrEq( "teamplay_flag_event", pszEventName ) &&
 			TF_FLAGEVENT_DEFEND == event->GetInt( "eventtype" ) ) );
 
-		const char *szCaptureIcons[] = { "d_redcapture", "d_bluecapture" };
-		const char *szDefenseIcons[] = { "d_reddefend", "d_bluedefend" };
+		const char *szCaptureIcons[] = { "d_redcapture", "d_bluecapture", "d_greencapture", "d_yellowcapture" };
+		const char *szDefenseIcons[] = { "d_reddefend", "d_bluedefend", "d_greendefend", "d_yellowdefend" };
 		
 		int iTeam = m_DeathNotices[iDeathNoticeMsg].Killer.iTeam;
 		Assert( iTeam >= FIRST_GAME_TEAM );
@@ -291,6 +293,12 @@ Color CTFHudDeathNotice::GetTeamColor( int iTeamNumber, bool bLocalPlayerInvolve
 		break;
 	case TF_TEAM_RED:
 		return m_clrRedText;
+		break;
+	case TF_TEAM_GREEN:
+		return m_clrGreenText;
+		break;
+	case TF_TEAM_YELLOW:
+		return m_clrYellowText;
 		break;
 	case TEAM_UNASSIGNED:		
 		return Color( 255, 255, 255, 255 );

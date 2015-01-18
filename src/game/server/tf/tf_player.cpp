@@ -1731,7 +1731,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	}
 	else // active player
 	{
-		if ( !IsDead() && (iOldTeam == TF_TEAM_RED || iOldTeam == TF_TEAM_BLUE) )
+		if ( !IsDead() && (iOldTeam == TF_TEAM_RED || iOldTeam == TF_TEAM_BLUE || iOldTeam == TF_TEAM_GREEN || iOldTeam == TF_TEAM_YELLOW) )
 		{
 			// Kill player if switching teams while alive
 			CommitSuicide( false, true );
@@ -2017,6 +2017,14 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				ShowViewPortPanel( PANEL_CLASS_BLUE, true );
 				break;
 
+			case TF_TEAM_GREEN:
+				ShowViewPortPanel( PANEL_CLASS_GREEN, true );
+				break;
+
+			case TF_TEAM_YELLOW:
+				ShowViewPortPanel( PANEL_CLASS_YELLOW, true );
+				break;
+
 			default:
 				break;
 			}
@@ -2245,6 +2253,18 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			}
 		}
 	}
+	/*else if (FStrEq(pcmd, "tf2c_4play"))
+	{
+		if (args.ArgC() < 2)
+		{
+			tf2c_4play.GetBool();
+			//Warning("4 Team Gameplay is currently %s", )
+			//return;
+		}
+
+		//tf2c_4play.SetValue()
+		return true;
+	}*/
 
 	return BaseClass::ClientCommand( args );
 }
