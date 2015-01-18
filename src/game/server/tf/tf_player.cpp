@@ -1152,6 +1152,18 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_SOLDIER;
 		pData->m_aWeapons[2] = TF_WEAPON_SHOVEL;
 		break;
+	case TF_CLASS_HEAVYWEAPONS:
+		pData->m_aWeapons[0] = TF_WEAPON_MINIGUN;
+		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_HWG;
+		if (GetWeaponPreset(2) == 1)
+		{
+			pData->m_aWeapons[2] = TF_WEAPON_PIPE;
+		}
+		else
+		{
+			pData->m_aWeapons[2] = TF_WEAPON_FISTS;
+		}
+		break;
 	case TF_CLASS_SPY:
 		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
 		if (GetWeaponPreset(0) == 0)
