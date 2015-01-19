@@ -10,6 +10,7 @@
 #include "hud.h"
 #include "hudelement.h"
 #include "c_tf_player.h"
+#include "view.h"
 #include <vgui/IScheme.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Label.h>
@@ -33,9 +34,11 @@ public:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
 	virtual bool ShouldDraw( void );
+	virtual void PaintBackground( void );
 
 private:
 	Label	*m_pDamageAccountLabel;
+	float	m_flRemoveAt; // Time to remove from view
 };
 
 // Register and set depth
@@ -99,15 +102,24 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 
 	if (Q_strcmp("player_damaged", pEventName) == 0)
 	{
-		SetVisible( true );
 		if ( m_pDamageAccountLabel
 			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
 		{
-			char buffer[4];
-			m_pDamageAccountLabel->SetText(itoa( event->GetInt( "amount" ),buffer,10 ) );
+			SetVisible( true );
+			// Set remove time
+			m_flRemoveAt = gpGlobals->curtime + 1.0f;
+			// Set text to amount of damage
+			char buffer[5]; // Up to four digits
+			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ), buffer, 10 ) );
 			m_pDamageAccountLabel->SetVisible( true );
-			m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) ); // temporary
-			// TODO: Position above player's head, fix formatting
+
+			// Respoition based on location of player hit
+			int iX, iY;
+			Vector vecTarget = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
+			bool bOnscreen = GetVectorInScreenSpace( vecTarget, iX, iY );
+			int halfWidth = (GetWide() / 2) - 20; // A bit hacky
+			if( bOnscreen )
+				SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
 		}
 	}
 }
@@ -118,4 +130,21 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 bool CTFDamageAccountPanel::ShouldDraw( void )
 {
 	return ( IsVisible( ) );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDamageAccountPanel::PaintBackground( void )
+{
+	m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
+	// Hide it?
+	if( gpGlobals->curtime >= m_flRemoveAt )
+	{
+		SetAlpha( 0 ); // Using alphas for future fade-out effect
+	}
+	else
+	{
+		SetAlpha( 255 );
+	}
 }

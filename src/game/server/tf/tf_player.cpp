@@ -3005,12 +3005,25 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_damaged" );
 	if ( event )
 	{
-		event->SetInt( "userid_from", ToTFPlayer( info.GetAttacker() )->GetUserID() ); // Who shot
-		event->SetInt( "userid_to", ToTFPlayer( info.GetInflictor() )->GetUserID() ); // Who WAS shot
-		event->SetInt( "amount", ( int )info.GetDamage() );
-		event->SetInt( "type", 1 );
-
-		gameeventmanager->FireEvent( event );
+		if( info.GetAttacker()->IsPlayer() )
+		{
+			CTFPlayer *attacker = ToTFPlayer( info.GetAttacker() ); // Needs to be updated to include projectiles
+			CTFPlayer  *inflictor = ToTFPlayer( info.GetInflictor() );
+			if( attacker && inflictor )
+			{
+				event->SetInt( "userid_from", attacker->GetUserID() ); // Who shot
+				event->SetInt( "userid_to", inflictor->GetUserID() ); // Who WAS shot
+				event->SetInt( "amount", (int)info.GetDamage() );
+				event->SetInt( "type", 1 );
+				// Position used for hit text
+				Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
+				event->SetFloat( "from_x", texPos.x );
+				event->SetFloat( "from_y", texPos.y );
+				event->SetFloat( "from_z", texPos.z );
+				// Fire off event
+				gameeventmanager->FireEvent( event );
+			}
+		}
 	}
 
 	return bTookDamage;
