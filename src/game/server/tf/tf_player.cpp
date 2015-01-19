@@ -3001,6 +3001,18 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	CTF_GameStats.Event_PlayerDamage( this, info, iHealthBefore - GetHealth() );
 
+	// Send out damage event
+	IGameEvent * event = gameeventmanager->CreateEvent( "player_damaged" );
+	if ( event )
+	{
+		event->SetInt( "userid_from", ToTFPlayer( info.GetAttacker() )->GetUserID() ); // Who shot
+		event->SetInt( "userid_to", ToTFPlayer( info.GetInflictor() )->GetUserID() ); // Who WAS shot
+		event->SetInt( "amount", ( int )info.GetDamage() );
+		event->SetInt( "type", 1 );
+
+		gameeventmanager->FireEvent( event );
+	}
+
 	return bTookDamage;
 }
 
