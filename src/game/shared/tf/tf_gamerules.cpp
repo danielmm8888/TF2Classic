@@ -2246,7 +2246,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		}
 
 		gameeventmanager->FireEvent( event );
-	}		
+	}
 }
 
 void CTFGameRules::ClientDisconnected( edict_t *pClient )
