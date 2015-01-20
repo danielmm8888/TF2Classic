@@ -36,6 +36,8 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 
 #define SNIPER_DOT_SPRITE_RED		"effects/sniperdot_red.vmt"
 #define SNIPER_DOT_SPRITE_BLUE		"effects/sniperdot_blue.vmt"
+#define SNIPER_DOT_SPRITE_GREEN		"effects/sniperdot_green.vmt"
+#define SNIPER_DOT_SPRITE_YELLOW	"effects/sniperdot_yellow.vmt"
 
 //=============================================================================
 //
@@ -118,6 +120,8 @@ void CTFSniperRifle::Precache()
 	BaseClass::Precache();
 	PrecacheModel( SNIPER_DOT_SPRITE_RED );
 	PrecacheModel( SNIPER_DOT_SPRITE_BLUE );
+	PrecacheModel(SNIPER_DOT_SPRITE_GREEN);
+	PrecacheModel(SNIPER_DOT_SPRITE_YELLOW);
 }
 
 //-----------------------------------------------------------------------------
@@ -904,13 +908,21 @@ void CSniperDot::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
-		if ( GetTeamNumber() == TF_TEAM_BLUE )
+
+		switch (GetTeamNumber())
 		{
-			m_hSpriteMaterial.Init( SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS );
-		}
-		else
-		{
-			m_hSpriteMaterial.Init( SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS );
+		case TF_TEAM_RED:
+			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS);
+			break;
+		case TF_TEAM_BLUE:
+			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS);
+			break;
+		case TF_TEAM_GREEN:
+			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_GREEN, TEXTURE_GROUP_CLIENT_EFFECTS);
+			break;
+		case TF_TEAM_YELLOW:
+			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_YELLOW, TEXTURE_GROUP_CLIENT_EFFECTS);
+			break;
 		}
 	}
 }

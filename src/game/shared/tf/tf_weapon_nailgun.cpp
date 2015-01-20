@@ -36,7 +36,11 @@ void CTFNailgun::Precache()
 #ifndef CLIENT_DLL
 	PrecacheParticleSystem("nailtrails_scout_red");
 	PrecacheParticleSystem("nailtrails_scout_blue");
+	PrecacheParticleSystem("nailtrails_scout_green");
+	PrecacheParticleSystem("nailtrails_scout_yellow");
 	PrecacheParticleSystem("nailtrails_scout_red_crit");
 	PrecacheParticleSystem("nailtrails_scout_blue_crit");
+	PrecacheParticleSystem("nailtrails_scout_green_crit");
+	PrecacheParticleSystem("nailtrails_scout_yellow_crit");
 #endif
 }

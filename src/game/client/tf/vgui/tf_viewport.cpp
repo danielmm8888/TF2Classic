@@ -93,6 +93,8 @@ CON_COMMAND( showmapinfo, "Show map info panel" )
 			gViewPortInterface->ShowPanel( PANEL_TEAM, false );
 			gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
 			gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+			gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, false );
+			gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false );
 			gViewPortInterface->ShowPanel( PANEL_INTRO, false );
 			gViewPortInterface->ShowPanel( PANEL_ROUNDINFO, false );
 
@@ -131,6 +133,12 @@ CON_COMMAND( changeclass, "Choose a new class" )
 			break;
 		case TF_TEAM_BLUE:
 			gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, true );
+			break;
+		case TF_TEAM_GREEN:
+			gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, true );
+			break;
+		case TF_TEAM_YELLOW:
+			gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, true );
 			break;
 		default:
 			break;
@@ -247,6 +255,14 @@ IViewPortPanel* TFViewport::CreatePanelByName(const char *szPanelName)
 	{
 		newpanel = new CTFClassMenu_Blue( this );	
 	}
+	else if ( Q_strcmp( PANEL_CLASS_GREEN, szPanelName ) == 0)
+	{
+		newpanel = new CTFClassMenu_Green(this);
+	}
+	else if ( Q_strcmp( PANEL_CLASS_YELLOW, szPanelName ) == 0)
+	{
+		newpanel = new CTFClassMenu_Yellow(this);
+	}
 	else if ( Q_strcmp( PANEL_INTRO, szPanelName ) == 0 )
 	{
 		newpanel = new CTFIntroMenu( this );
@@ -266,6 +282,8 @@ void TFViewport::CreateDefaultPanels( void )
 	AddNewPanel( CreatePanelByName( PANEL_TEAM ), "PANEL_TEAM" );
 	AddNewPanel( CreatePanelByName( PANEL_CLASS_RED ), "PANEL_CLASS_RED" );
 	AddNewPanel( CreatePanelByName( PANEL_CLASS_BLUE ), "PANEL_CLASS_BLUE" );
+	AddNewPanel( CreatePanelByName( PANEL_CLASS_GREEN ), "PANEL_CLASS_GREEN" );
+	AddNewPanel( CreatePanelByName( PANEL_CLASS_YELLOW ), "PANEL_CLASS_YELLOW" );
 	AddNewPanel( CreatePanelByName( PANEL_INTRO ), "PANEL_INTRO" );
 	AddNewPanel( CreatePanelByName( PANEL_ROUNDINFO ), "PANEL_ROUNDINFO" );
 
@@ -318,6 +336,12 @@ void TFViewport::OnScreenSizeChanged( int iOldWide, int iOldTall )
 				break;
 			case TF_TEAM_BLUE:
 				gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, true );
+				break;
+			case TF_TEAM_GREEN:
+				gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, true );
+				break;
+			case TF_TEAM_YELLOW:
+				gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, true );
 				break;
 			}
 		}

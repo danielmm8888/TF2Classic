@@ -10,7 +10,7 @@
 #include "teamplayroundbased_gamerules.h"
 #include "team_control_point_round.h"
 
-#if defined ( TF_DLL )
+#if defined ( TF_DLL ) || defined( TF_CLASSIC )
 #include "tf_gamerules.h"
 #endif
 
@@ -32,6 +32,10 @@ BEGIN_DATADESC( CTeamControlPointRound )
 	DEFINE_OUTPUT( m_OnEnd,			"OnEnd" ),
 	DEFINE_OUTPUT( m_OnWonByTeam1,	"OnWonByTeam1" ),
 	DEFINE_OUTPUT( m_OnWonByTeam2,	"OnWonByTeam2" ),
+#ifdef TF_CLASSIC
+	DEFINE_OUTPUT( m_OnWonByTeam3, "OnWonByTeam3" ),
+	DEFINE_OUTPUT( m_OnWonByTeam4, "OnWonByTeam4" ),
+#endif
 END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( team_control_point_round, CTeamControlPointRound );
@@ -164,6 +168,14 @@ void CTeamControlPointRound::FireTeamWinOutput( int iWinningTeam )
 	case 2:
 		m_OnWonByTeam2.FireOutput( this, this );
 		break;
+#ifdef TF_CLASSIC
+	case 3:
+		m_OnWonByTeam3.FireOutput(this, this);
+		break;
+	case 4:
+		m_OnWonByTeam4.FireOutput(this, this);
+		break;
+#endif
 	default:
 		Assert(0);
 		break;

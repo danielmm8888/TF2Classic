@@ -57,6 +57,8 @@ protected:
 
 	Color			m_cBlueColor;
 	Color			m_cRedColor;
+	Color			m_cGreenColor;
+	Color			m_cYellowColor;
 	Color			m_cSpecColor;
 
 	vgui::Label				*m_pTargetNameLabel;

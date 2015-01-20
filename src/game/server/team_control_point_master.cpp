@@ -50,6 +50,10 @@ BEGIN_DATADESC( CTeamControlPointMaster )
 
 	DEFINE_OUTPUT( m_OnWonByTeam1,	"OnWonByTeam1" ),
 	DEFINE_OUTPUT( m_OnWonByTeam2,	"OnWonByTeam2" ),
+#ifdef TF_CLASSIC
+	DEFINE_OUTPUT( m_OnWonByTeam3, "OnWonByTeam3" ),
+	DEFINE_OUTPUT( m_OnWonByTeam4, "OnWonByTeam4" ),
+#endif
 
 END_DATADESC()
 
@@ -915,6 +919,14 @@ void CTeamControlPointMaster::FireTeamWinOutput( int iWinningTeam )
 	case 2:
 		m_OnWonByTeam2.FireOutput(this,this);
 		break;
+#ifdef TF_CLASSIC
+	case 3:
+		m_OnWonByTeam3.FireOutput(this, this);
+		break;
+	case 4:
+		m_OnWonByTeam4.FireOutput(this, this);
+		break;
+#endif
 	default:
 		Assert(0);
 		break;

@@ -82,4 +82,22 @@ public:
 	CDispenserControlPanel_Red( vgui::Panel *parent, const char *panelName ) : CDispenserControlPanel( parent, panelName ) {}
 };
 
+class CDispenserControlPanel_Green : public CDispenserControlPanel
+{
+	DECLARE_CLASS( CDispenserControlPanel_Green, CDispenserControlPanel );
+
+public:
+	CDispenserControlPanel_Green( vgui::Panel *parent, const char *panelName) : CDispenserControlPanel(parent, panelName ) {}
+};
+
+
+class CDispenserControlPanel_Yellow : public CDispenserControlPanel
+{
+	DECLARE_CLASS( CDispenserControlPanel_Yellow, CDispenserControlPanel );
+
+public:
+	CDispenserControlPanel_Yellow( vgui::Panel *parent, const char *panelName) : CDispenserControlPanel(parent, panelName ) {}
+};
+
+
 #endif	//C_OBJ_DISPENSER_H

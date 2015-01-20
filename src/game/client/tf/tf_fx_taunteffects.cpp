@@ -49,7 +49,21 @@ void TF_ThrowCigaretteCallback( const CEffectData &data )
 	if ( pTemp == NULL )
 		return;
 
-	pTemp->m_nSkin = ( iTeam == TF_TEAM_RED ) ? 0 : 1;
+	switch (iTeam)
+	{
+		case TF_TEAM_RED:
+			pTemp->m_nSkin = 0;
+			break;
+		case TF_TEAM_BLUE:
+			pTemp->m_nSkin = 1;
+			break;
+		case TF_TEAM_GREEN:
+			pTemp->m_nSkin = 2;
+			break;
+		case TF_TEAM_YELLOW:
+			pTemp->m_nSkin = 3;
+			break;
+	}
 
 	pTemp->m_vecTempEntAngVelocity[0] = random->RandomFloat(-512,511);
 	pTemp->m_vecTempEntAngVelocity[1] = random->RandomFloat(-255,255);

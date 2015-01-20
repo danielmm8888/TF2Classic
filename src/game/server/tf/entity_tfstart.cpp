@@ -24,6 +24,8 @@ BEGIN_DATADESC( CTFTeamSpawn )
 	DEFINE_KEYFIELD( m_iszControlPointName, FIELD_STRING, "controlpoint" ),
 	DEFINE_KEYFIELD( m_iszRoundBlueSpawn, FIELD_STRING, "round_bluespawn" ),
 	DEFINE_KEYFIELD( m_iszRoundRedSpawn, FIELD_STRING, "round_redspawn" ),
+	DEFINE_KEYFIELD( m_iszRoundGreenSpawn, FIELD_STRING, "round_greenspawn" ),
+	DEFINE_KEYFIELD( m_iszRoundYellowSpawn, FIELD_STRING, "round_yellowspawn" ),
 
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
@@ -165,6 +167,26 @@ void CTFTeamSpawn::InputRoundSpawn( inputdata_t &input )
 		if ( !m_hRoundRedSpawn )
 		{
 			Warning("%s failed to find control point round named '%s'\n", GetClassname(), STRING(m_iszRoundRedSpawn) );
+		}
+	}
+
+	if (m_iszRoundGreenSpawn != NULL_STRING)
+	{
+		// We need to re-find our control point round, because they're recreated over round restarts
+		m_hRoundGreenSpawn = dynamic_cast<CTeamControlPointRound*>(gEntList.FindEntityByName(NULL, m_iszRoundGreenSpawn));
+		if (!m_hRoundGreenSpawn)
+		{
+			Warning("%s failed to find control point round named '%s'\n", GetClassname(), STRING(m_iszRoundGreenSpawn));
+		}
+	}
+
+	if (m_iszRoundYellowSpawn != NULL_STRING)
+	{
+		// We need to re-find our control point round, because they're recreated over round restarts
+		m_hRoundYellowSpawn = dynamic_cast<CTeamControlPointRound*>(gEntList.FindEntityByName(NULL, m_iszRoundYellowSpawn));
+		if (!m_hRoundYellowSpawn)
+		{
+			Warning("%s failed to find control point round named '%s'\n", GetClassname(), STRING(m_iszRoundYellowSpawn));
 		}
 	}
 }

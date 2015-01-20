@@ -45,6 +45,12 @@ CHudMenuSpyDisguise::CHudMenuSpyDisguise( const char *pElementName ) : CHudEleme
 
 		Q_snprintf( buf, sizeof(buf), "class_item_blue_%d", i+1 );
 		m_pClassItems_Blue[i] = new EditablePanel( this, buf );
+
+		Q_snprintf(buf, sizeof(buf), "class_item_green_%d", i + 1);
+		m_pClassItems_Green[i] = new EditablePanel(this, buf);
+
+		Q_snprintf(buf, sizeof(buf), "class_item_yellow_%d", i + 1);
+		m_pClassItems_Yellow[i] = new EditablePanel(this, buf);
 	}
 
 	m_iShowingTeam = TF_TEAM_RED;
@@ -306,6 +312,7 @@ void CHudMenuSpyDisguise::SelectDisguise( int iClass, int iTeam )
 void CHudMenuSpyDisguise::ToggleDisguiseTeam( void )
 {
 	// flip the teams
+
 	m_iShowingTeam = ( m_iShowingTeam == TF_TEAM_BLUE ) ? TF_TEAM_RED : TF_TEAM_BLUE;
 
 	// show / hide the class items

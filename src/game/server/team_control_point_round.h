@@ -78,6 +78,10 @@ private:
 	COutputEvent m_OnEnd;
 	COutputEvent m_OnWonByTeam1;
 	COutputEvent m_OnWonByTeam2;
+#ifdef TF_CLASSIC
+	COutputEvent m_OnWonByTeam3;
+	COutputEvent m_OnWonByTeam4;
+#endif
 };
 
 #endif // TEAM_CONTROL_POINT_ROUND_H

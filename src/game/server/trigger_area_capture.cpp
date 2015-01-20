@@ -61,6 +61,7 @@ BEGIN_DATADESC(CTriggerAreaCapture)
 	DEFINE_OUTPUT( m_OnCapTeam1,	"OnCapTeam1" ),
 	DEFINE_OUTPUT( m_OnCapTeam2,	"OnCapTeam2" ),
 
+
 	DEFINE_OUTPUT( m_StartOutput,	"OnStartCap" ),
 	DEFINE_OUTPUT( m_BreakOutput,	"OnBreakCap" ),
 	DEFINE_OUTPUT( m_CapOutput,		"OnEndCap" ),

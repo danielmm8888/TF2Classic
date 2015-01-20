@@ -190,8 +190,31 @@ void C_ObjectTeleporter::StartChargedEffects()
 	{
 		char szEffect[128];
 
-		Q_snprintf( szEffect, sizeof(szEffect), "teleporter_%s_charged", 
-			( GetTeamNumber() == TF_TEAM_RED ) ? "red" : "blue" );
+		string_t teamname;
+		switch (GetTeamNumber())
+		{
+			case TF_TEAM_RED:
+				teamname = "red";
+				break;
+
+			case TF_TEAM_BLUE:
+				teamname = "blue";
+				break;
+
+			case TF_TEAM_GREEN:
+				teamname = "green";
+				break;
+
+			case TF_TEAM_YELLOW:
+				teamname = "yellow";
+				break;
+
+			default:
+				teamname = "blue";
+				break;
+		}
+
+		Q_snprintf( szEffect, sizeof(szEffect), "teleporter_%s_charged", teamname );
 
 		Assert( m_pChargedEffect == NULL );
 		m_pChargedEffect = ParticleProp()->Create( szEffect, PATTACH_ABSORIGIN );
@@ -202,16 +225,37 @@ void C_ObjectTeleporter::StartActiveEffects()
 {
 	char szEffect[128];
 
-	Q_snprintf( szEffect, sizeof(szEffect), "teleporter_%s_%s", 
-		( GetTeamNumber() == TF_TEAM_RED ) ? "red" : "blue",
+	string_t teamname;
+	switch (GetTeamNumber())
+	{
+	case TF_TEAM_RED:
+		teamname = "red";
+		break;
+
+	case TF_TEAM_BLUE:
+		teamname = "blue";
+		break;
+
+	case TF_TEAM_GREEN:
+		teamname = "green";
+		break;
+
+	case TF_TEAM_YELLOW:
+		teamname = "yellow";
+		break;
+	default:
+		teamname = "blue";
+		break;
+	}
+
+	Q_snprintf(szEffect, sizeof(szEffect), "teleporter_%s_%s", teamname,
 		( GetType() == OBJ_TELEPORTER_ENTRANCE ) ? "entrance" : "exit" );
 
 	Assert( m_pDirectionEffect == NULL );
 	m_pDirectionEffect = ParticleProp()->Create( szEffect, PATTACH_ABSORIGIN );
 
 	// arm glow effects
-	Q_snprintf( szEffect, sizeof(szEffect), "teleporter_arms_circle_%s",
-		( GetTeamNumber() == TF_TEAM_RED ) ? "red" : "blue" );
+	Q_snprintf(szEffect, sizeof(szEffect), "teleporter_arms_circle_%s", teamname);
 
 	Assert( m_pChargedLeftArmEffect == NULL );
 	m_pChargedLeftArmEffect = ParticleProp()->Create( szEffect, PATTACH_POINT_FOLLOW, 1 );

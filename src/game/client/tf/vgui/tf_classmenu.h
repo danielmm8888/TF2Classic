@@ -171,6 +171,8 @@ public:
 			if ( gViewPortInterface )
 			{
 				gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false );
 			}
 		}
 
@@ -240,6 +242,8 @@ public:
 			if ( gViewPortInterface )
 			{
 				gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, false);
+				gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false);
 			}
 		}
 
@@ -257,6 +261,148 @@ public:
 	}
 
 	virtual void UpdateClassCounts( void ){ UpdateNumClassLabels( TF_TEAM_RED ); }
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Draws the green class menu
+//-----------------------------------------------------------------------------
+
+class CTFClassMenu_Green : public CTFClassMenu
+{
+private:
+	DECLARE_CLASS_SIMPLE(CTFClassMenu_Green, CTFClassMenu);
+
+public:
+	CTFClassMenu_Green::CTFClassMenu_Green(IViewPort *pViewPort) : BaseClass(pViewPort)
+	{
+		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "scout_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "soldier_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_PYRO] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "pyro_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_DEMOMAN] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "demoman_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_MEDIC] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "medic_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_HEAVYWEAPONS] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "heavyweapons_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SNIPER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "sniper_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_ENGINEER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "engineer_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SPY] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "spy_green", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_RANDOM] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "randompc_green", m_pClassInfoPanel);
+	}
+
+	virtual void ApplySchemeSettings(IScheme *pScheme)
+	{
+		BaseClass::ApplySchemeSettings(pScheme);
+
+		LoadControlSettings("Resource/UI/Classmenu_green.res");
+
+		for (int i = 0; i < GetChildCount(); i++)
+		{
+			CImageMouseOverButton<CTFClassInfoPanel> *button = dynamic_cast<CImageMouseOverButton<CTFClassInfoPanel> *>(GetChild(i));
+
+			if (button)
+			{
+				button->SetPreserveArmedButtons(true);
+				button->SetUpdateDefaultButtons(true);
+			}
+		}
+	}
+
+	virtual void ShowPanel(bool bShow)
+	{
+		if (bShow)
+		{
+			// make sure the Red class menu isn't open
+			if (gViewPortInterface)
+			{
+				gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false );
+			}
+		}
+
+		BaseClass::ShowPanel(bShow);
+	}
+
+	virtual const char *GetName(void)
+	{
+		return PANEL_CLASS_GREEN;
+	}
+
+	virtual int GetTeamNumber(void)
+	{
+		return TF_TEAM_GREEN;
+	}
+
+	virtual void UpdateClassCounts(void){ UpdateNumClassLabels(TF_TEAM_GREEN); }
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Draws the yellow class menu
+//-----------------------------------------------------------------------------
+
+class CTFClassMenu_Yellow : public CTFClassMenu
+{
+private:
+	DECLARE_CLASS_SIMPLE(CTFClassMenu_Yellow, CTFClassMenu);
+
+public:
+	CTFClassMenu_Yellow::CTFClassMenu_Yellow(IViewPort *pViewPort) : BaseClass(pViewPort)
+	{
+		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "scout_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "soldier_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_PYRO] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "pyro_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_DEMOMAN] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "demoman_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_MEDIC] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "medic_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_HEAVYWEAPONS] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "heavyweapons_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SNIPER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "sniper_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_ENGINEER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "engineer_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_SPY] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "spy_yellow", m_pClassInfoPanel);
+		m_pClassButtons[TF_CLASS_RANDOM] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "randompc_yellow", m_pClassInfoPanel);
+	}
+
+	virtual void ApplySchemeSettings(IScheme *pScheme)
+	{
+		BaseClass::ApplySchemeSettings(pScheme);
+
+		LoadControlSettings("Resource/UI/Classmenu_yellow.res");
+
+		for (int i = 0; i < GetChildCount(); i++)
+		{
+			CImageMouseOverButton<CTFClassInfoPanel> *button = dynamic_cast<CImageMouseOverButton<CTFClassInfoPanel> *>(GetChild(i));
+
+			if (button)
+			{
+				button->SetPreserveArmedButtons(true);
+				button->SetUpdateDefaultButtons(true);
+			}
+		}
+	}
+
+	virtual void ShowPanel(bool bShow)
+	{
+		if (bShow)
+		{
+			// make sure the Red class menu isn't open
+			if (gViewPortInterface)
+			{
+				gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+				gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, false );
+			}
+		}
+
+		BaseClass::ShowPanel(bShow);
+	}
+
+	virtual const char *GetName(void)
+	{
+		return PANEL_CLASS_YELLOW;
+	}
+
+	virtual int GetTeamNumber(void)
+	{
+		return TF_TEAM_YELLOW;
+	}
+
+	virtual void UpdateClassCounts(void){ UpdateNumClassLabels(TF_TEAM_YELLOW); }
 };
 
 #endif // TF_CLASSMENU_H

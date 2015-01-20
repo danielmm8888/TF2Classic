@@ -74,13 +74,26 @@ float CTFProjectile_Syringe::GetGravity( void )
 //-----------------------------------------------------------------------------
 const char *GetSyringeTrailParticleName( int iTeamNumber, bool bCritical )
 {
-	if ( iTeamNumber == TF_TEAM_BLUE )
+	switch (iTeamNumber)
 	{
-		return ( bCritical ? "nailtrails_medic_blue_crit" : "nailtrails_medic_blue" );
-	}
-	else
-	{
+	case TF_TEAM_RED:
 		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
+		break;
+
+	case TF_TEAM_BLUE:
+		return ( bCritical ? "nailtrails_medic_blue_crit" : "nailtrails_medic_blue" );
+		break;
+
+	case TF_TEAM_GREEN:
+		return ( bCritical ? "nailtrails_medic_green_crit" : "nailtrails_medic_green" );
+		break;
+
+	case TF_TEAM_YELLOW:
+		return ( bCritical ? "nailtrails_medic_yellow_crit" : "nailtrails_medic_yellow" );
+		break;
+	default:
+		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
+		break;
 	}
 }
 
@@ -96,7 +109,21 @@ void ClientsideProjectileSyringeCallback( const CEffectData &data )
 		C_LocalTempEntity *pSyringe = ClientsideProjectileCallback( data, SYRINGE_GRAVITY );
 		if ( pSyringe )
 		{
-			pSyringe->m_nSkin = ( pPlayer->GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
+			switch (pPlayer->GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				pSyringe->m_nSkin = 0;
+				break;
+			case TF_TEAM_BLUE:
+				pSyringe->m_nSkin = 1;
+				break;
+			case TF_TEAM_GREEN:
+				pSyringe->m_nSkin = 2;
+				break;
+			case TF_TEAM_YELLOW:
+				pSyringe->m_nSkin = 3;
+				break;
+			}
 			bool bCritical = ( ( data.m_nDamageType & DMG_CRITICAL ) != 0 );
 			pSyringe->AddParticleEffect( GetSyringeTrailParticleName( pPlayer->GetTeamNumber(), bCritical ) );
 			pSyringe->AddEffects( EF_NOSHADOW );
@@ -168,13 +195,26 @@ float CTFProjectile_Nail::GetGravity(void)
 //-----------------------------------------------------------------------------
 const char *GetNailTrailParticleName(int iTeamNumber, bool bCritical)
 {
-	if (iTeamNumber == TF_TEAM_BLUE)
+	switch (iTeamNumber)
 	{
-		return (bCritical ? "nailtrails_scout_blue_crit" : "nailtrails_scout_blue");
-	}
-	else
-	{
-		return (bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red");
+	case TF_TEAM_RED:
+		return ( bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red" );
+		break;
+
+	case TF_TEAM_BLUE:
+		return ( bCritical ? "nailtrails_scout_blue_crit" : "nailtrails_scout_blue" );
+		break;
+
+	case TF_TEAM_GREEN:
+		return ( bCritical ? "nailtrails_scout_green_crit" : "nailtrails_scout_green" );
+		break;
+
+	case TF_TEAM_YELLOW:
+		return ( bCritical ? "nailtrails_scout_yellow_crit" : "nailtrails_scout_yellow" );
+		break;
+	default:
+		return ( bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red" );
+		break;
 	}
 }
 
@@ -189,7 +229,21 @@ void ClientsideProjectileNailCallback(const CEffectData &data)
 		C_LocalTempEntity *pNail = ClientsideProjectileCallback(data, NAILGUN_NAIL_GRAVITY);
 		if (pNail)
 		{
-			pNail->m_nSkin = (pPlayer->GetTeamNumber() == TF_TEAM_RED) ? 0 : 1;
+			switch (pPlayer->GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				pNail->m_nSkin = 0;
+				break;
+			case TF_TEAM_BLUE:
+				pNail->m_nSkin = 1;
+				break;
+			case TF_TEAM_GREEN:
+				pNail->m_nSkin = 2;
+				break;
+			case TF_TEAM_YELLOW:
+				pNail->m_nSkin = 3;
+				break;
+			}
 			bool bCritical = ((data.m_nDamageType & DMG_CRITICAL) != 0);
 			pNail->AddParticleEffect(GetNailTrailParticleName(pPlayer->GetTeamNumber(), bCritical));
 			pNail->AddEffects(EF_NOSHADOW);
@@ -260,13 +314,26 @@ float CTFProjectile_Dart::GetGravity(void)
 //-----------------------------------------------------------------------------
 const char *GetTranqDartTrailParticleName(int iTeamNumber, bool bCritical)
 {
-	if (iTeamNumber == TF_TEAM_BLUE)
+	switch (iTeamNumber)
 	{
-		return (bCritical ? "nailtrails_medic_blue_crit" : "tranq_tracer_teamcolor_blue");
-	}
-	else
-	{
-		return (bCritical ? "nailtrails_medic_red_crit" : "tranq_tracer_teamcolor_red");
+	case TF_TEAM_RED:
+		return ( bCritical ? "nailtrails_medic_red_crit" : "tranq_tracer_teamcolor_red" );
+		break;
+
+	case TF_TEAM_BLUE:
+		return ( bCritical ? "nailtrails_medic_blue_crit" : "tranq_tracer_teamcolor_blue" );
+		break;
+
+	case TF_TEAM_GREEN:
+		return ( bCritical ? "nailtrails_medic_green_crit" : "tranq_tracer_teamcolor_green" );
+		break;
+
+	case TF_TEAM_YELLOW:
+		return ( bCritical ? "nailtrails_medic_yellow_crit" : "tranq_tracer_teamcolor_yellow" );
+		break;
+	default:
+		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
+		break;
 	}
 }
 
@@ -282,7 +349,21 @@ void ClientsideProjectileTranqDartCallback(const CEffectData &data)
 		C_LocalTempEntity *pSyringe = ClientsideProjectileCallback(data, TRANQDART_GRAVITY);
 		if (pSyringe)
 		{
-			pSyringe->m_nSkin = (pPlayer->GetTeamNumber() == TF_TEAM_RED) ? 0 : 1;
+			switch (pPlayer->GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				pSyringe->m_nSkin = 0;
+				break;
+			case TF_TEAM_BLUE:
+				pSyringe->m_nSkin = 1;
+				break;
+			case TF_TEAM_GREEN:
+				pSyringe->m_nSkin = 2;
+				break;
+			case TF_TEAM_YELLOW:
+				pSyringe->m_nSkin = 3;
+				break;
+			}
 			bool bCritical = ((data.m_nDamageType & DMG_CRITICAL) != 0);
 			pSyringe->AddParticleEffect(GetTranqDartTrailParticleName(pPlayer->GetTeamNumber(), bCritical));
 			pSyringe->AddEffects(EF_NOSHADOW);

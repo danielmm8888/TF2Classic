@@ -99,7 +99,7 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pPlayer || pPlayer->IsHLTV() ||
-		( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE ) ||
+		(pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE && pPlayer->GetTeamNumber() != TF_TEAM_GREEN && pPlayer->GetTeamNumber() != TF_TEAM_YELLOW) ||
 		( pPlayer->m_Shared.GetState() != TF_STATE_OBSERVER ) && ( pPlayer->m_Shared.GetState() != TF_STATE_DYING ) ||
 		( pPlayer->GetObserverMode() == OBS_MODE_FREEZECAM ) )
 	{

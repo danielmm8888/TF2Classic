@@ -684,11 +684,45 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	{
 		if ( m_bCritFire )
 		{
-			pszParticleEffect = ( pOwner->GetTeamNumber() == TF_TEAM_BLUE ? "flamethrower_crit_blue" : "flamethrower_crit_red" );
+			switch(pOwner->GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				pszParticleEffect = "flamethrower_crit_red";
+				break;
+			case TF_TEAM_BLUE:
+				pszParticleEffect = "flamethrower_crit_blue";
+				break;
+			case TF_TEAM_GREEN:
+				pszParticleEffect = "flamethrower_crit_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pszParticleEffect = "flamethrower_crit_yellow";
+				break;
+			default:
+				pszParticleEffect = "flamethrower_crit_blue";
+				break;
+			}
 		}
 		else 
 		{
-			pszParticleEffect = ( pOwner->GetTeamNumber() == TF_TEAM_BLUE ? "flamethrower_blue" : "flamethrower" );
+			switch(pOwner->GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				pszParticleEffect = "flamethrower";
+				break;
+			case TF_TEAM_BLUE:
+				pszParticleEffect = "flamethrower_blue";
+				break;
+			case TF_TEAM_GREEN:
+				pszParticleEffect = "flamethrower_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pszParticleEffect = "flamethrower_yellow";
+				break;
+			default:
+				pszParticleEffect = "flamethrower_blue";
+				break;
+			}
 		}		
 	}
 

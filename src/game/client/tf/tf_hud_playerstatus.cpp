@@ -59,14 +59,51 @@ static char *g_szRedClassImages[] =
 	"",
 };
 
+static char *g_szGreenClassImages[] =
+{
+	"",
+	"../hud/class_scoutgreen",
+	"../hud/class_snipergreen",
+	"../hud/class_soldiergreen",
+	"../hud/class_demogreen",
+	"../hud/class_medicgreen",
+	"../hud/class_heavygreen",
+	"../hud/class_pyrogreen",
+	"../hud/class_spygreen",
+	"../hud/class_engigreen",
+	"",
+};
+
+static char *g_szYellowClassImages[] =
+{
+	"",
+	"../hud/class_scoutred",
+	"../hud/class_sniperred",
+	"../hud/class_soldierred",
+	"../hud/class_demored",
+	"../hud/class_medicred",
+	"../hud/class_heavyred",
+	"../hud/class_pyrored",
+	"../hud/class_spyred",
+	"../hud/class_engired",
+	"",
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CTFHudPlayerClass::CTFHudPlayerClass( Panel *parent, const char *name ) : EditablePanel( parent, name )
 {
 	m_pClassImage = new CTFClassImage( this, "PlayerStatusClassImage" );
+	//m_pClassImageBG = new CTFClassImage(this, "PlayerStatusClassImageBG");
 	m_pSpyImage = new CTFImagePanel( this, "PlayerStatusSpyImage" );
 	m_pSpyOutlineImage = new CTFImagePanel( this, "PlayerStatusSpyOutlineImage" );
+
+	// This is used by retail TF2 to display the characters as models instead of images
+	//m_pClassModelPanel = new CTFPlayerModelPanel(this, "classmodelpanel");
+	//m_pClassModelPanelBG = new CTFImagePanel(this, "classmodelpanelBG");
+	// It's activated using cl_hud_playerclass_use_playermodel. The description for it is
+	// "Use player model in player class HUD."
 
 	m_nTeam = TEAM_UNASSIGNED;
 	m_nClass = TF_CLASS_UNDEFINED;
@@ -531,13 +568,20 @@ void CTFClassImage::SetClass( int iTeam, int iClass, int iCloakstate )
 	char szImage[128];
 	szImage[0] = '\0';
 
-	if ( iTeam == TF_TEAM_BLUE )
+	switch (iTeam)
 	{
-		Q_strncpy( szImage, g_szBlueClassImages[ iClass ], sizeof(szImage) );
-	}
-	else
-	{
-		Q_strncpy( szImage, g_szRedClassImages[ iClass ], sizeof(szImage) );
+		case TF_TEAM_RED:
+			Q_strncpy(szImage, g_szRedClassImages[iClass], sizeof(szImage));
+			break;
+		case TF_TEAM_BLUE:
+			Q_strncpy(szImage, g_szBlueClassImages[iClass], sizeof(szImage));
+			break;
+		case TF_TEAM_GREEN:
+			Q_strncpy(szImage, g_szGreenClassImages[iClass], sizeof(szImage));
+			break;
+		case TF_TEAM_YELLOW:
+			Q_strncpy(szImage, g_szYellowClassImages[iClass], sizeof(szImage));
+			break;
 	}
 
 	switch( iCloakstate )

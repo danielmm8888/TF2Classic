@@ -663,12 +663,20 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "speech_mediccall" );
 	PrecacheParticleSystem( "player_recent_teleport_blue" );
 	PrecacheParticleSystem( "player_recent_teleport_red" );
+	PrecacheParticleSystem( "player_recent_teleport_green" );
+	PrecacheParticleSystem( "player_recent_teleport_yellow" );
 	PrecacheParticleSystem( "particle_nemesis_red" );
 	PrecacheParticleSystem( "particle_nemesis_blue" );
+	PrecacheParticleSystem( "particle_nemesis_green" );
+	PrecacheParticleSystem( "particle_nemesis_yellow" );
 	PrecacheParticleSystem( "spy_start_disguise_red" );
 	PrecacheParticleSystem( "spy_start_disguise_blue" );
+	PrecacheParticleSystem( "spy_start_disguise_green" );
+	PrecacheParticleSystem( "spy_start_disguise_yellow" );
 	PrecacheParticleSystem( "burningplayer_red" );
 	PrecacheParticleSystem( "burningplayer_blue" );
+	PrecacheParticleSystem( "burningplayer_green" );
+	PrecacheParticleSystem( "burningplayer_yellow" );
 	PrecacheParticleSystem( "blood_spray_red_01" );
 	PrecacheParticleSystem( "blood_spray_red_01_far" );
 	PrecacheParticleSystem( "water_blood_impact_red_01" );
@@ -1344,6 +1352,8 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	{
 	case TF_TEAM_RED:
 	case TF_TEAM_BLUE:
+	case TF_TEAM_GREEN:
+	case TF_TEAM_YELLOW:
 		{
 			pSpawnPointName = "info_player_teamspawn";
 			if ( SelectSpawnSpot( pSpawnPointName, pSpot ) )
@@ -1589,7 +1599,24 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 		ChangeTeam( iTeam );
 
-		ShowViewPortPanel( ( iTeam == TF_TEAM_RED ) ? PANEL_CLASS_RED : PANEL_CLASS_BLUE );
+		switch (iTeam)
+		{
+			case TF_TEAM_RED:
+				ShowViewPortPanel(PANEL_CLASS_RED);
+				break;
+
+			case TF_TEAM_BLUE:
+				ShowViewPortPanel(PANEL_CLASS_BLUE);
+				break;
+
+			case TF_TEAM_GREEN:
+				ShowViewPortPanel(PANEL_CLASS_GREEN);
+				break;
+
+			case TF_TEAM_YELLOW:
+				ShowViewPortPanel(PANEL_CLASS_YELLOW);
+				break;
+		}
 	}
 }
 
@@ -2058,7 +2085,29 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				
 				// intercepting the team value and reassigning what gets passed into Disguise()
 				// because the team numbers in the client menu don't match the #define values for the teams
-				m_Shared.Disguise( ( nTeam == 1 ) ? TF_TEAM_BLUE : TF_TEAM_RED, nClass );
+
+				if (tf2c_4play.GetBool())
+				{
+					switch (nTeam)
+					{
+					case 1:
+						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
+						break;
+					case 2:
+						m_Shared.Disguise(TF_TEAM_RED, nClass);
+						break;
+					case 3:
+						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
+						break;
+					case 4:
+						m_Shared.Disguise(TF_TEAM_YELLOW, nClass);
+						break;
+					}
+				}
+				else
+				{
+					m_Shared.Disguise((nTeam == 1) ? TF_TEAM_BLUE : TF_TEAM_RED, nClass);
+				}
 			}
 		}
 		return true;
@@ -3050,6 +3099,7 @@ bool CTFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 	if ( ( ( collisionGroup == COLLISION_GROUP_PLAYER_MOVEMENT ) && tf_avoidteammates.GetBool() ) ||
 		collisionGroup == TFCOLLISION_GROUP_ROCKETS )
 	{
+
 		switch( GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
@@ -3059,6 +3109,16 @@ bool CTFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 
 		case TF_TEAM_BLUE:
 			if ( !( contentsMask & CONTENTS_BLUETEAM ) )
+				return false;
+			break;
+
+		case TF_TEAM_GREEN:
+			if ( !(contentsMask & CONTENTS_GREENTEAM ) )
+				return false;
+			break;
+
+		case TF_TEAM_YELLOW:
+			if ( !(contentsMask & CONTENTS_YELLOWTEAM ) )
 				return false;
 			break;
 		}
@@ -3771,7 +3831,21 @@ void CTFPlayer::DropAmmoPack( void )
 
 		pAmmoPack->SetInitialVelocity( vecImpulse );
 
-		pAmmoPack->m_nSkin = ( GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
+		switch (GetTeamNumber())
+		{
+			case TF_TEAM_RED:
+				pAmmoPack->m_nSkin = 0;
+				break;
+			case TF_TEAM_BLUE:
+				pAmmoPack->m_nSkin = 1;
+				break;
+			case TF_TEAM_GREEN:
+				pAmmoPack->m_nSkin = 2;
+				break;
+			case TF_TEAM_YELLOW:
+				pAmmoPack->m_nSkin = 3;
+				break;
+		}
 
 		// Give the ammo pack some health, so that trains can destroy it.
 		pAmmoPack->SetCollisionGroup( COLLISION_GROUP_DEBRIS );

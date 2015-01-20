@@ -324,6 +324,8 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 
 		gViewPortInterface->ShowPanel( PANEL_CLASS_RED, false );
 		gViewPortInterface->ShowPanel( PANEL_CLASS_BLUE, false );
+		gViewPortInterface->ShowPanel( PANEL_CLASS_GREEN, false );
+		gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false );
 
 		engine->CheckPoint( "TeamMenu" );
 

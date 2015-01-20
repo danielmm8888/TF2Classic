@@ -63,11 +63,17 @@ void C_TFProjectile_Rocket::CreateRocketTrails( void )
 	{
 		switch( GetTeamNumber() )
 		{
+		case TF_TEAM_RED:
+			ParticleProp()->Create("critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW);
+			break;
 		case TF_TEAM_BLUE:
 			ParticleProp()->Create( "critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
 			break;
-		case TF_TEAM_RED:
-			ParticleProp()->Create( "critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW );
+		case TF_TEAM_GREEN:
+			ParticleProp()->Create("critical_rocket_green", PATTACH_ABSORIGIN_FOLLOW);
+			break;
+		case TF_TEAM_YELLOW:
+			ParticleProp()->Create("critical_rocket_yellow", PATTACH_ABSORIGIN_FOLLOW);
 			break;
 		default:
 			break;

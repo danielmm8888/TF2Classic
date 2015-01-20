@@ -72,6 +72,8 @@ void CTargetID::ApplySchemeSettings( vgui::IScheme *scheme )
 	m_pBGPanel = dynamic_cast<CTFImagePanel*>(FindChildByName("TargetIDBG"));
 	m_cBlueColor = scheme->GetColor( "TeamBlue", Color( 255, 64, 64, 255 ) );
 	m_cRedColor = scheme->GetColor( "TeamRed", Color( 255, 64, 64, 255 ) );
+	m_cGreenColor = scheme->GetColor("TeamGreen", Color( 255, 64, 64, 255 ) );
+	m_cYellowColor = scheme->GetColor("TeamYellow", Color( 255, 64, 64, 255 ) );
 	m_cSpecColor = scheme->GetColor( "TeamSpec", Color( 255, 160, 0, 255 ) );
 	m_hFont = scheme->GetFont( "TargetID", true );
 
@@ -221,6 +223,14 @@ Color CTargetID::GetColorForTargetTeam( int iTeamNumber )
 
 	case TF_TEAM_RED:
 		return m_cRedColor;
+		break;
+
+	case TF_TEAM_GREEN:
+		return m_cGreenColor;
+		break;
+
+	case TF_TEAM_YELLOW:
+		return m_cYellowColor;
 		break;
 
 	default:

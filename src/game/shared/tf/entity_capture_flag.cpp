@@ -168,6 +168,8 @@ void CCaptureFlag::Precache( void )
 
 	PrecacheParticleSystem( "player_intel_trail_blue" );
 	PrecacheParticleSystem( "player_intel_trail_red" );
+	PrecacheParticleSystem(	"player_intel_trail_green" );
+	PrecacheParticleSystem(	"player_intel_trail_yellow" );
 	PrecacheParticleSystem( "player_intel_papertrail" );
 }
 
@@ -1142,6 +1144,12 @@ void CCaptureFlag::ManageTrailEffects( void )
 				case TF_TEAM_RED:
 					pEffectName = "player_intel_trail_red";
 					break;
+				case TF_TEAM_GREEN:
+					pEffectName = "player_intel_trail_green";
+					break;
+				case TF_TEAM_YELLOW:
+					pEffectName = "player_intel_trail_yellow";
+					break;
 				default:
 					pEffectName = "player_intel_trail_blue";
 					break;
@@ -1348,6 +1356,16 @@ void CCaptureFlagReturnIcon::DrawReturnProgressBar( void )
 		ubColor[0] = 0;
 		ubColor[1] = 0;
 		ubColor[2] = 255;
+		break;
+	case TF_TEAM_GREEN:
+		ubColor[0] = 0;
+		ubColor[1] = 255;
+		ubColor[2] = 0;
+		break;
+	case TF_TEAM_YELLOW:
+		ubColor[0] = 255;
+		ubColor[1] = 255;
+		ubColor[2] = 0;
 		break;
 	default:
 		ubColor[0] = 100;

@@ -175,11 +175,19 @@ unsigned int CTFGameMovement::PlayerSolidMask( bool brushOnly )
 		switch( m_pTFPlayer->GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
-			uMask = CONTENTS_BLUETEAM;
+			uMask = CONTENTS_BLUETEAM & CONTENTS_GREENTEAM & CONTENTS_YELLOWTEAM;
 			break;
 
 		case TF_TEAM_BLUE:
-			uMask = CONTENTS_REDTEAM;
+			uMask = CONTENTS_REDTEAM & CONTENTS_GREENTEAM & CONTENTS_YELLOWTEAM;
+			break;
+
+		case TF_TEAM_GREEN:
+			uMask = CONTENTS_REDTEAM & CONTENTS_BLUETEAM & CONTENTS_YELLOWTEAM;
+			break;
+
+		case TF_TEAM_YELLOW:
+			uMask = CONTENTS_REDTEAM & CONTENTS_BLUETEAM & CONTENTS_GREENTEAM;
 			break;
 		}
 	}

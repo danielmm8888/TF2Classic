@@ -36,10 +36,14 @@ private:
 
 	CMaterialReference	m_RedMaterial;
 	CMaterialReference	m_BlueMaterial;
+	CMaterialReference	m_GreenMaterial;
+	CMaterialReference	m_YellowMaterial;
 	CMaterialReference	m_NeutralMaterial;
 
 	CMaterialReference	m_RedMaterialNoArrow;
 	CMaterialReference	m_BlueMaterialNoArrow;
+	CMaterialReference	m_GreenMaterialNoArrow;
+	CMaterialReference	m_YellowMaterialNoArrow;
 };
 
 //-----------------------------------------------------------------------------
@@ -109,6 +113,8 @@ private:
 
 	CTFFlagStatus			*m_pRedFlag;
 	CTFFlagStatus			*m_pBlueFlag;
+	CTFFlagStatus			*m_pGreenFlag;
+	CTFFlagStatus			*m_pYellowFlag;
 	CTFArrowPanel			*m_pCapturePoint;
 
 	bool					m_bFlagAnimationPlayed;
