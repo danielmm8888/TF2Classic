@@ -115,12 +115,7 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 			m_pDamageAccountLabel->SetVisible( true );
 
 			// Respoition based on location of player hit
-			Vector m_vDamagePos = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
-			int iX, iY;
-			bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
-			int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
-			if( bOnscreen )
-				SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
+			m_vDamagePos = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
 		}
 	}
 }
@@ -147,10 +142,10 @@ void CTFDamageAccountPanel::Think( void )
 	else
 	{
 		SetAlpha( 255 );
-		//int iX, iY;
-		//bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
-		//int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
-		//if( bOnscreen )
-		//	SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
+		int iX, iY;
+		bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
+		int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
+		if( bOnscreen )
+			SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
 	}
 }
