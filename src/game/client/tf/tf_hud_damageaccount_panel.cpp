@@ -34,11 +34,12 @@ public:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
 	virtual bool ShouldDraw( void );
-	virtual void PaintBackground( void );
+	virtual void Think( void );
 
 private:
 	Label	*m_pDamageAccountLabel;
 	float	m_flRemoveAt; // Time to remove from view
+	Vector m_vDamagePos;
 };
 
 // Register and set depth
@@ -110,14 +111,14 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 			m_flRemoveAt = gpGlobals->curtime + 1.0f;
 			// Set text to amount of damage
 			char buffer[5]; // Up to four digits
-			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ), buffer, 10 ) );
+			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ) * -1, buffer, 10 ) );
 			m_pDamageAccountLabel->SetVisible( true );
 
 			// Respoition based on location of player hit
+			Vector m_vDamagePos = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
 			int iX, iY;
-			Vector vecTarget = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
-			bool bOnscreen = GetVectorInScreenSpace( vecTarget, iX, iY );
-			int halfWidth = (GetWide() / 2) - 20; // A bit hacky
+			bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
+			int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
 			if( bOnscreen )
 				SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
 		}
@@ -135,7 +136,7 @@ bool CTFDamageAccountPanel::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::PaintBackground( void )
+void CTFDamageAccountPanel::Think( void )
 {
 	m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
 	// Hide it?
@@ -146,5 +147,10 @@ void CTFDamageAccountPanel::PaintBackground( void )
 	else
 	{
 		SetAlpha( 255 );
+		//int iX, iY;
+		//bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
+		//int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
+		//if( bOnscreen )
+		//	SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
 	}
 }

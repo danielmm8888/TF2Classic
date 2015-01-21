@@ -3065,7 +3065,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				event->SetInt( "amount", (int)info.GetDamage() );
 				event->SetInt( "type", 1 );
 				// Position used for hit text
-				Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
+				//Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
+				Vector texPos = info.GetDamagePosition();
 				event->SetFloat( "from_x", texPos.x );
 				event->SetFloat( "from_y", texPos.y );
 				event->SetFloat( "from_z", texPos.z );
