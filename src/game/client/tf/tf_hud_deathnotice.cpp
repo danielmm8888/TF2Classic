@@ -61,8 +61,8 @@ private:
 
 	CPanelAnimationVar( Color, m_clrBlueText, "TeamBlue", "153 204 255 255" );
 	CPanelAnimationVar( Color, m_clrRedText, "TeamRed", "255 64 64 255" );
-	CPanelAnimationVar( Color, m_clrGreenText, "TeamGreen", "53 255 63 255" );
-	CPanelAnimationVar( Color, m_clrYellowText, "TeamYellow", "255 255 120 255" );
+	CPanelAnimationVar( Color, m_clrGreenText, "TeamGreen", "8 174 0 255" );
+	CPanelAnimationVar( Color, m_clrYellowText, "TeamYellow", "237 213 0 255" );
 
 };
 

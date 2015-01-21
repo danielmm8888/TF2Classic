@@ -374,11 +374,11 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 					break;
 
 			case TF_TEAM_GREEN:
-				m_nSkin = 2;
+				m_nSkin = 4;
 					break;
 
 			case TF_TEAM_YELLOW:
-				m_nSkin = 3;
+				m_nSkin = 5;
 					break;
 		}
 	}
@@ -2958,11 +2958,11 @@ int C_TFPlayer::GetSkin()
 			break;
 
 		case TF_TEAM_GREEN:
-			nSkin = 2;
+			nSkin = 4;
 			break;
 
 		case TF_TEAM_YELLOW:
-			nSkin = 3;
+			nSkin = 5;
 			break;
 
 		default:
@@ -3553,7 +3553,7 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 
 void SetupHeadLabelMaterials( void )
 {
-	for ( int i = 0; i < 2; i++ )
+	for (int i = 0; i < (TF_TEAM_COUNT - 2); i++)
 	{
 		if ( g_pHeadLabelMaterial[i] )
 		{

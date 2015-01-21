@@ -2090,16 +2090,16 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				{
 					switch (nTeam)
 					{
-					case 1:
+					case 0:
 						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
 						break;
-					case 2:
+					case 1:
 						m_Shared.Disguise(TF_TEAM_RED, nClass);
 						break;
-					case 3:
+					case 2:
 						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
 						break;
-					case 4:
+					case 3:
 						m_Shared.Disguise(TF_TEAM_YELLOW, nClass);
 						break;
 					}
@@ -3953,7 +3953,39 @@ void CTFPlayer::UpdateModel( void )
 void CTFPlayer::UpdateSkin( int iTeam )
 {
 	// The player's skin is team - 2.
-	int iSkin = iTeam - 2;
+	//int iSkin = iTeam - 2;
+	int iSkin;
+
+	// This is temp only until we get proper skins for GRN/YLW
+	if (tf2c_4play.GetBool())
+	{
+		switch (iTeam)
+		{
+		case TF_TEAM_RED:
+			iSkin = 0;
+			SetRenderColor(255, 0, 0);
+			break;
+		case TF_TEAM_BLUE:
+			iSkin = 1;
+			SetRenderColor(0, 0, 255);
+			break;
+		case TF_TEAM_GREEN:
+			iSkin = 4;
+			SetRenderColor(0, 255, 0);
+			break;
+		case TF_TEAM_YELLOW:
+			iSkin = 5;
+			SetRenderColor(255, 255, 0);
+			break;
+		default:
+			iSkin = 0;
+			break;
+		}
+	}
+	else
+	{
+		iSkin = iTeam - 2;
+	}
 
 	// Check to see if the skin actually changed.
 	if ( iSkin != m_iLastSkin )

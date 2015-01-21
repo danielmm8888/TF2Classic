@@ -77,15 +77,15 @@ static char *g_szGreenClassImages[] =
 static char *g_szYellowClassImages[] =
 {
 	"",
-	"../hud/class_scoutred",
-	"../hud/class_sniperred",
-	"../hud/class_soldierred",
-	"../hud/class_demored",
-	"../hud/class_medicred",
-	"../hud/class_heavyred",
-	"../hud/class_pyrored",
-	"../hud/class_spyred",
-	"../hud/class_engired",
+	"../hud/class_scoutyellow",
+	"../hud/class_sniperyellow",
+	"../hud/class_soldieryellow",
+	"../hud/class_demoyellow",
+	"../hud/class_medicyellow",
+	"../hud/class_heavyyellow",
+	"../hud/class_pyroyellow",
+	"../hud/class_spyyellow",
+	"../hud/class_engiyellow",
 	"",
 };
 

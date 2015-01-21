@@ -237,6 +237,26 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				C_TFPlayer *pVictim = C_TFPlayer::GetLocalTFPlayer();
 				CTFPlayer *pTFKiller = ToTFPlayer( pKiller );
 
+				// Set the BG according to the team they're on
+				switch (pTFKiller->GetTeamNumber())
+				{
+					case TF_TEAM_RED:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_red_bg");
+						break;
+					case TF_TEAM_BLUE:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
+						break;
+					case TF_TEAM_GREEN:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_green_bg");
+						break;
+					case TF_TEAM_YELLOW:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_yellow_bg");
+						break;
+					default:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
+						break;
+				}
+
 				//If this was just a regular kill but this guy is our nemesis then just show it.
 				if ( pVictim && pTFKiller && pTFKiller->m_Shared.IsPlayerDominated( pVictim->entindex() ) )
 				{
