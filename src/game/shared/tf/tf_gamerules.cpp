@@ -210,7 +210,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFGameRulesProxy, DT_TFGameRulesProxy )
 #ifdef GAME_DLL
 BEGIN_DATADESC( CTFGameRulesProxy )
 
-DEFINE_KEYFIELD( m_iHud_Type, FIELD_INTEGER, "hud_type"),
+	DEFINE_KEYFIELD( m_iHud_Type, FIELD_INTEGER, "hud_type"),
 
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetRedTeamRespawnWaveTime", InputSetRedTeamRespawnWaveTime ),
