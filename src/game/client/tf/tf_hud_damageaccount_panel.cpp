@@ -11,6 +11,7 @@
 #include "hudelement.h"
 #include "c_tf_player.h"
 #include "view.h"
+#include "vgui/ISurface.h"
 #include <vgui/IScheme.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Label.h>
@@ -46,6 +47,8 @@ private:
 DECLARE_HUDELEMENT_DEPTH(CTFDamageAccountPanel, 1);
 // Create console var, to choose whether to show this or not
 ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "");
+// Create console var for hit sound
+ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -95,10 +98,6 @@ void CTFDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 {
-	// Don't do anything if the user chooses not to view this
-	if ( hud_combattext.GetBool() == false )
-		return;
-
 	const char *pEventName = event->GetName();
 
 	if (Q_strcmp("player_damaged", pEventName) == 0)
@@ -106,6 +105,17 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 		if ( m_pDamageAccountLabel
 			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
 		{
+			// Play hit sound, if appliable
+			if( tf_dingalingaling.GetBool() == true )
+			{
+				vgui::surface()->PlaySound( "ui/hitsound.wav" ); // Ding!
+			}
+			// Stop here if we chose not to show hit numbers
+			if( hud_combattext.GetBool() == false )
+			{
+				return;
+			}
+
 			SetVisible( true );
 			// Set remove time
 			m_flRemoveAt = gpGlobals->curtime + 1.0f;
@@ -129,7 +139,7 @@ bool CTFDamageAccountPanel::ShouldDraw( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Update position on screen every frame
 //-----------------------------------------------------------------------------
 void CTFDamageAccountPanel::Think( void )
 {
