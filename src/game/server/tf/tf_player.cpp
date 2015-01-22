@@ -2036,16 +2036,16 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				{
 					switch (nTeam)
 					{
-					case 1:
+					case 0:
 						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
 						break;
-					case 2:
+					case 1:
 						m_Shared.Disguise(TF_TEAM_RED, nClass);
 						break;
-					case 3:
+					case 2:
 						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
 						break;
-					case 4:
+					case 3:
 						m_Shared.Disguise(TF_TEAM_YELLOW, nClass);
 						break;
 					}
@@ -3011,10 +3011,9 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				event->SetInt( "amount", (int)info.GetDamage() );
 				event->SetInt( "type", 1 );
 				// Position used for hit text
-				Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
-				event->SetFloat( "from_x", texPos.x );
-				event->SetFloat( "from_y", texPos.y );
-				event->SetFloat( "from_z", texPos.z );
+				event->SetFloat( "from_x", info.GetDamagePosition().x );
+				event->SetFloat( "from_y", info.GetDamagePosition().y );
+				event->SetFloat( "from_z", info.GetDamagePosition().z );
 				// Fire off event
 				gameeventmanager->FireEvent( event );
 			}
@@ -3899,7 +3898,39 @@ void CTFPlayer::UpdateModel( void )
 void CTFPlayer::UpdateSkin( int iTeam )
 {
 	// The player's skin is team - 2.
-	int iSkin = iTeam - 2;
+	//int iSkin = iTeam - 2;
+	int iSkin;
+
+	// This is temp only until we get proper skins for GRN/YLW
+	if (tf2c_4play.GetBool())
+	{
+		switch (iTeam)
+		{
+		case TF_TEAM_RED:
+			iSkin = 0;
+			SetRenderColor(255, 0, 0);
+			break;
+		case TF_TEAM_BLUE:
+			iSkin = 1;
+			SetRenderColor(0, 0, 255);
+			break;
+		case TF_TEAM_GREEN:
+			iSkin = 4;
+			SetRenderColor(0, 255, 0);
+			break;
+		case TF_TEAM_YELLOW:
+			iSkin = 5;
+			SetRenderColor(255, 255, 0);
+			break;
+		default:
+			iSkin = 0;
+			break;
+		}
+	}
+	else
+	{
+		iSkin = iTeam - 2;
+	}
 
 	// Check to see if the skin actually changed.
 	if ( iSkin != m_iLastSkin )
@@ -6442,7 +6473,8 @@ uint64 powerplay_ids[] =
 	76561197960265749 ^ powerplaymask,
 	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
-	76561198136391192 ^ powerplaymask,
+	76561198029219422 ^ powerplaymask,
+	//76561198136391192 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
 	76561198016621705 ^ powerplaymask,
 	76561198020781429 ^ powerplaymask,
