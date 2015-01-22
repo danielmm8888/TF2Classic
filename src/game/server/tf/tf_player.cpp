@@ -1126,65 +1126,11 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
-	// This is only temporary until we get a proper weapon switching system in.
-	switch (GetPlayerClass()->GetClassIndex())
+	for (int i = 0; i < 5; i++)
 	{
-	case TF_CLASS_SCOUT:
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_SCATTERGUN;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_NAILGUN;
-		}
-		if (GetWeaponPreset(1) == 0)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_PISTOL_SCOUT;
-		}
-		if (GetWeaponPreset(1) == 1)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
-		}
-		pData->m_aWeapons[2] = TF_WEAPON_BAT;
-		break;
-	case TF_CLASS_SOLDIER:
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHER;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHERBETA;
-		}
-		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_SOLDIER;
-		pData->m_aWeapons[2] = TF_WEAPON_SHOVEL;
-		break;
-	case TF_CLASS_HEAVYWEAPONS:
-		pData->m_aWeapons[0] = TF_WEAPON_MINIGUN;
-		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_HWG;
-		if (GetWeaponPreset(2) == 1)
-		{
-			pData->m_aWeapons[2] = TF_WEAPON_PIPE;
-		}
-		else
-		{
-			pData->m_aWeapons[2] = TF_WEAPON_FISTS;
-		}
-		break;
-	case TF_CLASS_SPY:
-		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_REVOLVER;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_TRANQ;
-		}
-		pData->m_aWeapons[2] = TF_WEAPON_PDA_SPY;
-		pData->m_aWeapons[3] = TF_WEAPON_INVIS;
-		break;
+		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, i, GetWeaponPreset(i));
+		if (iWeapon != 0)
+			pData->m_aWeapons[i] = iWeapon;
 	}
 }
 
@@ -2090,16 +2036,16 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				{
 					switch (nTeam)
 					{
-					case 0:
+					case 1:
 						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
 						break;
-					case 1:
+					case 2:
 						m_Shared.Disguise(TF_TEAM_RED, nClass);
 						break;
-					case 2:
+					case 3:
 						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
 						break;
-					case 3:
+					case 4:
 						m_Shared.Disguise(TF_TEAM_YELLOW, nClass);
 						break;
 					}
@@ -3065,9 +3011,10 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				event->SetInt( "amount", (int)info.GetDamage() );
 				event->SetInt( "type", 1 );
 				// Position used for hit text
-				event->SetFloat( "from_x", info.GetDamagePosition().x );
-				event->SetFloat( "from_y", info.GetDamagePosition().y );
-				event->SetFloat( "from_z", info.GetDamagePosition().z );
+				Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
+				event->SetFloat( "from_x", texPos.x );
+				event->SetFloat( "from_y", texPos.y );
+				event->SetFloat( "from_z", texPos.z );
 				// Fire off event
 				gameeventmanager->FireEvent( event );
 			}
@@ -3952,39 +3899,7 @@ void CTFPlayer::UpdateModel( void )
 void CTFPlayer::UpdateSkin( int iTeam )
 {
 	// The player's skin is team - 2.
-	//int iSkin = iTeam - 2;
-	int iSkin;
-
-	// This is temp only until we get proper skins for GRN/YLW
-	if (tf2c_4play.GetBool())
-	{
-		switch (iTeam)
-		{
-		case TF_TEAM_RED:
-			iSkin = 0;
-			SetRenderColor(255, 0, 0);
-			break;
-		case TF_TEAM_BLUE:
-			iSkin = 1;
-			SetRenderColor(0, 0, 255);
-			break;
-		case TF_TEAM_GREEN:
-			iSkin = 4;
-			SetRenderColor(0, 255, 0);
-			break;
-		case TF_TEAM_YELLOW:
-			iSkin = 5;
-			SetRenderColor(255, 255, 0);
-			break;
-		default:
-			iSkin = 0;
-			break;
-		}
-	}
-	else
-	{
-		iSkin = iTeam - 2;
-	}
+	int iSkin = iTeam - 2;
 
 	// Check to see if the skin actually changed.
 	if ( iSkin != m_iLastSkin )
@@ -6527,7 +6442,7 @@ uint64 powerplay_ids[] =
 	76561197960265749 ^ powerplaymask,
 	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
-	//76561198136391192 ^ powerplaymask,
+	76561198136391192 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
 	76561198016621705 ^ powerplaymask,
 	76561198020781429 ^ powerplaymask,

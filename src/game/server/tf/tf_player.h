@@ -12,6 +12,7 @@
 #include "tf_player_shared.h"
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
+#include "tf_inventory.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -75,6 +76,7 @@ public:
 	// Creation/Destruction.
 	static CTFPlayer	*CreatePlayer( const char *className, edict_t *ed );
 	static CTFPlayer	*Instance( int iEnt );
+	static CTFInventory *Inventory;
 
 	virtual void		Spawn();
 	virtual void		ForceRespawn();
