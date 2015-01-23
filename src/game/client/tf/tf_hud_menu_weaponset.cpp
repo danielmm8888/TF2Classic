@@ -120,7 +120,7 @@ CHudMenuWeaponSet::CHudMenuWeaponSet(const char *pElementName) : CHudElement(pEl
 
 	RegisterForRenderGroup("mid");
 }
-ConVar tfc_weaponset_show("tfc_weaponset_show", "0", FCVAR_ARCHIVE, "Shows weapon selection menu. 1 = ON, 0 = OFF.");
+ConVar tf2c_weaponset_show("tf2c_weaponset_show", "0", FCVAR_ARCHIVE, "Shows weapon selection menu. 1 = ON, 0 = OFF.");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -172,7 +172,7 @@ bool CHudMenuWeaponSet::ShouldDraw(void)
 	if (pPlayer->m_Shared.InCond(TF_COND_TAUNTING))
 		return false;
 
-	return (tfc_weaponset_show.GetBool());
+	return (tf2c_weaponset_show.GetBool());
 	//return (pWpn->GetWeaponID() == TF_WEAPON_PDA_SPY);
 }
 
@@ -377,7 +377,7 @@ int	CHudMenuWeaponSet::HudElementKeyInput(int down, ButtonCode_t keynum, const c
 		{
 			int iSlot = keynum - KEY_1;
 			//(m_iShowingTeam == TF_TEAM_BLUE) ? 1 : 0;
-			//tfc_weaponset_show 1
+			//tf2c_weaponset_show 1
 			//SelectWeapon(iSlot, iWeapon);
 			SelectSlot(iSlot);
 		}
@@ -385,7 +385,7 @@ int	CHudMenuWeaponSet::HudElementKeyInput(int down, ButtonCode_t keynum, const c
 		{
 			int iWeapon = keynum - KEY_1;
 			//(m_iShowingTeam == TF_TEAM_BLUE) ? 1 : 0;
-			//tfc_weaponset_show 1
+			//tf2c_weaponset_show 1
 			//SelectSlot(iSlot);
 			SelectWeapon(m_iSelectedSlot, iWeapon);
 		}
@@ -421,7 +421,7 @@ void CHudMenuWeaponSet::SelectSlot(int iSlot)
 		m_pWeaponList->SetVisible(true);
 		m_iSelectedSlot = iSlot;
 		//char szCmd[64];
-		//Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tfc_weaponset_show 0", iSlot); //; lastinv
+		//Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tf2c_weaponset_show 0", iSlot); //; lastinv
 		//engine->ExecuteClientCmd(szCmd);
 	}
 }
@@ -435,7 +435,7 @@ void CHudMenuWeaponSet::SelectWeapon(int iSlot, int iWeapon)
 	if (pPlayer)
 	{
 		char szCmd[64];
-		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tfc_weaponset_show 0", iSlot, iWeapon); //; lastinv
+		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tf2c_weaponset_show 0", iSlot, iWeapon); //; lastinv
 		engine->ExecuteClientCmd(szCmd);
 		//Q_snprintf(szCmd, sizeof(szCmd), "say \"weaponpreset %d %d\"", iSlot, iWeapon); //; lastinv
 		//engine->ExecuteClientCmd(szCmd);
