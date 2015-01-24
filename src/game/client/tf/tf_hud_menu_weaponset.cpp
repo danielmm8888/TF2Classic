@@ -40,7 +40,6 @@ using namespace vgui;
 //======================================
 
 DECLARE_HUDELEMENT(CHudMenuWeaponSet);
-//DECLARE_HUDELEMENT_DEPTH(CHudMenuWeaponSet, 40);
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -52,37 +51,16 @@ CHudMenuWeaponSet::CHudMenuWeaponSet(const char *pElementName) : CHudElement(pEl
 
 	SetHiddenBits(HIDEHUD_MISCSTATUS);
 
-	/*for (int i = 0; i<3; i++)
-	{
 	char buf[32];
-	Q_snprintf(buf, sizeof(buf), "weaponslot_%d", i + 1);
-	m_pWeaponSlot[i] = new EditablePanel(this, buf);
+	Q_snprintf(buf, sizeof(buf), "WeaponIcon");
 
-	Q_snprintf(buf, sizeof(buf), "weaponitem_%d", i + 1);
-	m_pWeaponItem[i] = new EditablePanel(this, buf);
+	m_pWeaponIcon = new EditablePanel(this, buf);
+	m_pWeaponIcon->SetVisible(false);
 
-	Q_snprintf(buf, sizeof(buf), "class_item_blue_%d", i + 1);
-	m_pClassItems_Blue[i] = new EditablePanel(this, buf);
-
-	Q_snprintf(buf, sizeof(buf), "class_item_green_%d", i + 1);
-	m_pClassItems_Green[i] = new EditablePanel(this, buf);
-
-	Q_snprintf(buf, sizeof(buf), "class_item_yellow_%d", i + 1);
-	m_pClassItems_Yellow[i] = new EditablePanel(this, buf);
+	for (int i = 0; i < VECTOR_NUM; i++){
+		m_pWeaponIcons.AddToTail(new EditablePanel(this, buf));
+		m_pWeaponIcons[i]->SetVisible(false);
 	}
-	*/
-
-	char buf[32];
-	Q_snprintf(buf, sizeof(buf), "slotitems_%d", 0);
-	m_pSlotList = new EditablePanel(this, buf);
-	m_pSlotList->SetVisible(false);
-
-	Q_snprintf(buf, sizeof(buf), "weaponitems_%d", 0);
-	m_pWeaponList = new EditablePanel(this, buf);
-	m_pWeaponList->SetVisible(false);
-
-	m_pActiveWeaponBG = new CTFImagePanel(this, "ActiveWeapon");
-	m_pActiveWeaponBG->SetVisible(false);
 
 	SetPostChildPaintEnabled(true);
 
@@ -106,10 +84,6 @@ CHudMenuWeaponSet::CHudMenuWeaponSet(const char *pElementName) : CHudElement(pEl
 
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 
-	//m_iShowingTeam = TF_TEAM_RED;
-
-	//ListenForGameEvent("spy_pda_reset");
-
 	m_iSelectedItem = -1;
 
 	m_pActiveSelection = NULL;
@@ -131,12 +105,22 @@ void CHudMenuWeaponSet::ApplySchemeSettings(IScheme *pScheme)
 	
 	// load control settings...
 	LoadControlSettings("resource/UI/weaponselect_menu/HudMenuSelectBase.res");
-	//LoadControlSettings("resource/UI/HudWeaponSelection.res");
-	//m_pWeaponSlot[0]->LoadControlSettings("resource/UI/weaponselect_menu/primary.res");
-	//m_pWeaponSlot[1]->LoadControlSettings("resource/UI/weaponselect_menu/secondary.res");
-	//m_pWeaponSlot[2]->LoadControlSettings("resource/UI/weaponselect_menu/melee.res");
-	//m_pSlotList->LoadControlSettings("resource/UI/weaponselect_menu/HudMenuSlotSelect.res");
-	//m_pWeaponList->LoadControlSettings("resource/UI/weaponselect_menu/HudMenuWeaponSelect.res");
+	m_pWeaponIcon->LoadControlSettings("resource/UI/weaponselect_menu/HudMenuWeaponIcon.res");
+	m_pWeaponIcon->SetPos(500, 500);
+	m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(FindChildByName("SelectedSlot"));
+	m_pWeaponBucket->GetPos(m_iSelect_X, m_iSelect_Y);
+
+	for (int i = 0; i < VECTOR_NUM; i++)
+	{
+		m_pWeaponIcons[i]->LoadControlSettings("resource/UI/weaponselect_menu/HudMenuWeaponIcon.res");
+		m_pWeaponIcons[i]->SetEnabled(1);
+		m_pWeaponIcons[i]->SetVisible(1);
+		m_pWeaponIcons[i]->SetWide(m_pWeaponIcon->GetWide());
+		m_pWeaponIcons[i]->SetTall(m_pWeaponIcon->GetTall());
+		m_pWeaponIcons[i]->SetPos(0, 0);
+		m_pWeaponIcons[i]->SetZPos(m_pWeaponIcon->GetZPos());
+	}
+
 	m_pActiveSelection = NULL;
 
 	SetPaintBackgroundEnabled(true);
@@ -167,174 +151,86 @@ bool CHudMenuWeaponSet::ShouldDraw(void)
 	if (pPlayer != pWpn->GetOwner())
 		return false;
 
-	/*if (pPlayer->m_Shared.InCond(TF_COND_TAUNTING))
-	return false;*/
 	if (pPlayer->m_Shared.InCond(TF_COND_TAUNTING))
 		return false;
 
 	return (tf2c_weaponset_show.GetBool());
-	//return (pWpn->GetWeaponID() == TF_WEAPON_PDA_SPY);
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: draws a selection box
-//-----------------------------------------------------------------------------
-void CHudMenuWeaponSet::DrawBox(int x, int y, int wide, int tall, Color color, float normalizedAlpha, int number)
-{
-	BaseClass::DrawBox(x, y, wide, tall, color, normalizedAlpha / 255.0f);
-
-	// draw the number
-	if (IsPC() && number >= 0)
-	{
-		Color numberColor = m_NumberColor;
-		numberColor[3] *= normalizedAlpha / 255.0f;
-		surface()->DrawSetTextColor(numberColor);
-		surface()->DrawSetTextFont(m_hNumberFont);
-		wchar_t wch = '0' + number;
-		surface()->DrawSetTextPos(x + wide - m_flSelectionNumberXPos, y + m_flSelectionNumberYPos);
-		surface()->DrawUnicodeChar(wch);
-	}
-}
-
-
-void CHudMenuWeaponSet::DrawString(wchar_t *text, int xpos, int ypos, Color col, bool bCenter)
-{
-	surface()->DrawSetTextColor(col);
-	vgui::IScheme* pScheme = vgui::scheme()->GetIScheme(GetScheme());
-	vgui::HFont hFont = pScheme->GetFont("Default");
-	surface()->DrawSetTextFont(hFont); 
-	// set the font	
-	//surface()->DrawSetTextFont(m_hTextFont);
-
-	// count the position
-	int slen = 0, charCount = 0, maxslen = 0;
-	{
-		for (wchar_t *pch = text; *pch != 0; pch++)
-		{
-			if (*pch == '\n')
-			{
-				// newline character, drop to the next line
-				if (slen > maxslen)
-				{
-					maxslen = slen;
-				}
-				slen = 0;
-			}
-			else if (*pch == '\r')
-			{
-				// do nothing
-			}
-			else
-			{
-				slen += surface()->GetCharacterWidth(hFont, *pch);
-				charCount++;
-			}
-		}
-	}
-	if (slen > maxslen)
-	{
-		maxslen = slen;
-	}
-
-	int x = xpos;
-
-	if (bCenter)
-	{
-		x = xpos - slen * 0.5;
-	}
-
-	surface()->DrawSetTextPos(x, ypos);
-	// adjust the charCount by the scan amount
-	charCount *= m_flTextScan;
-	for (wchar_t *pch = text; charCount > 0; pch++)
-	{
-		if (*pch == '\n')
-		{
-			// newline character, move to the next line
-			surface()->DrawSetTextPos(x + ((m_flLargeBoxWide - slen) / 2), ypos + (surface()->GetFontTall(hFont) * 1.1f));
-		}
-		else if (*pch == '\r')
-		{
-			// do nothing
-		}
-		else
-		{
-			surface()->DrawUnicodeChar(*pch);
-			charCount--;
-		}
-	}
-}
-
-void  CHudMenuWeaponSet::Paint()
+void CHudMenuWeaponSet::OnThink()
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (!pPlayer)
 		return;
-	//int nNumSlots = GetNumVisibleSlots();
-	//if (nNumSlots <= 0)
-	//	return;
+	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
 	C_BaseCombatWeapon *pSelectedWeapon = NULL;
 	pSelectedWeapon = pPlayer->GetActiveWeapon();
 	if (!pSelectedWeapon)
 		return;
-	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
 
-
-	//C_BaseCombatWeapon *pSelectedWeapon;
-	//TFPlayerClassData_t* pData = pClass->GetData();
-	//int num = pData->m_aWeapons[0];
-	//TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
-
-	vgui::IScheme* pScheme = vgui::scheme()->GetIScheme(GetScheme());
-	vgui::HFont hFont = pScheme->GetFont("Default");
-	surface()->DrawSetTextFont(hFont); // set the font	
-	surface()->DrawSetTextPos(100, 100);
-	wchar_t *pText = g_pVGuiLocalize->Find(pSelectedWeapon->GetWpnData().szPrintName);
-	surface()->DrawUnicodeChar('Q');
-	Color ammoColor = Color(236, 236, 180, 255);
-	DrawString(pText, 200, 100, ammoColor, true);
-
+	m_pWeaponLabel = dynamic_cast<CExLabel *>(FindChildByName("StatusLabel"));
+	m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(FindChildByName("SelectedSlot"));
 	if (m_iSelectedSlot == -1)
-		pText = L"Select Slot";
-	else
-		pText = L"Select Weapon";
-	DrawString(pText, 100, 200, ammoColor, true);
-	wchar buffer[33];
-
-	//pText = _itow(num, buffer, 10);
-	//DrawString(pText, 200, 200, ammoColor, true);
-
-	//DrawAllWeapons
-	for (int i = 0; i < 5; i++)
 	{
-		for (int j = 0; j < 5; j++)
+		m_pWeaponLabel->SetText("Select Slot");
+		m_pWeaponBucket->SetVisible(false);
+	}
+	else
+	{
+		m_pWeaponLabel->SetText("Select Weapon");
+		m_pWeaponBucket->SetVisible(true);
+		m_pWeaponBucket->SetPos(m_iSelect_X, m_iSelect_Y + m_iSelectedSlot * 185);
+	}
+
+
+	for (int i = 0; i < ROWNUM; i++)
+	{
+		for (int j = 0; j < COLNUM; j++)
 		{
-			Color col(255, 255, 255, 255);
-			int Weapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, i, j);
-			if (Weapon != 0)
-			{	
-				//CBaseCombatWeapon* tWeapon = pPlayer->GetWeapon(Weapon);
-				//pPlayer->Weapon_OwnsThisID(Weapon);
-				//int iWeaponID = Weapon;
-				//const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
-				//CTFWeaponBase *pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
-				pText = _itow(Weapon, buffer, 10);
-				DrawString(pText, j * 200 + 200, i * 200 + 200, ammoColor, true);
-				CTFWeaponBase *pWeapon = pPlayer->Weapon_OwnsThisID(Weapon);
-				if (pWeapon)
+				int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, i, j);
+				if (iWeapon > 0)
 				{
-					const CHudTexture *pTexture = pWeapon->GetSpriteInactive();
-					pTexture->DrawSelf(j * 200 + 200, i * 200 + 200, m_flLargeBoxWide, m_flLargeBoxTall, col);
+					m_pWeaponIcons[COLNUM * i + j]->SetEnabled(1);
+					m_pWeaponIcons[COLNUM * i + j]->SetVisible(1);
+					m_pWeaponIcons[COLNUM * i + j]->SetPos(j * 300 + 200, i * 185 + 100);
+					m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponBucket"));
+					m_pWeaponBucket->SetVisible(1);
+					char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
+					char szIcon[64];
+					Q_snprintf(szIcon, sizeof(szIcon), "../%s", cIcon);
+					if (szIcon)
+						m_pWeaponBucket->SetImage(szIcon);
+
+					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponLabel"));
+					const char *pszWeaponName = WeaponIdToAlias(iWeapon);
+					char szWeaponName[64];
+					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pszWeaponName);
+					wchar_t *pText = g_pVGuiLocalize->Find(szWeaponName);
+					m_pWeaponLabel->SetText(pText);
+
+					m_pActiveWeaponBG = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("ActiveWeapon"));
+					if (pPlayer->Weapon_OwnsThisID(iWeapon))
+					{
+						m_pActiveWeaponBG->SetVisible(true);
+					}
+					else
+					{
+						m_pActiveWeaponBG->SetVisible(false);
+					}
+
+					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponNumber"));
+					char szWeaponNumber[64];
+					Q_snprintf(szWeaponNumber, sizeof(szWeaponNumber), "%d %d", i+1, j+1);
+					m_pWeaponLabel->SetText(szWeaponNumber);
+	
 				}
 				else
 				{
-					pText = L"ERROR";
-					Color ammoColor = Color(225, 0, 0, 255);
-					DrawString(pText, j * 200 + 200 + 100, i * 200 + 200 + 100, ammoColor, true);
+					m_pWeaponIcons[COLNUM * i + j]->SetEnabled(0);
+					m_pWeaponIcons[COLNUM * i + j]->SetVisible(0);
 				}
 			}
 		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -344,22 +240,14 @@ int	CHudMenuWeaponSet::HudElementKeyInput(int down, ButtonCode_t keynum, const c
 {
 	if (!ShouldDraw())
 	{
+		m_iSelectedSlot = -1;
+		tf2c_weaponset_show.SetValue(0);
 		return 1;
 	}
 
 	if (!down)
 	{
 		return 1;
-	}
-	if (m_iSelectedSlot == -1)
-	{
-		m_pSlotList->SetVisible(true);
-		m_pWeaponList->SetVisible(false);
-	}
-	else
-	{
-		m_pSlotList->SetVisible(false);
-		m_pWeaponList->SetVisible(true);
 	}
 	switch (keynum)
 	{
@@ -376,36 +264,23 @@ int	CHudMenuWeaponSet::HudElementKeyInput(int down, ButtonCode_t keynum, const c
 		if (m_iSelectedSlot == -1)
 		{
 			int iSlot = keynum - KEY_1;
-			//(m_iShowingTeam == TF_TEAM_BLUE) ? 1 : 0;
-			//tf2c_weaponset_show 1
-			//SelectWeapon(iSlot, iWeapon);
 			SelectSlot(iSlot);
 		}
 		else
 		{
 			int iWeapon = keynum - KEY_1;
-			//(m_iShowingTeam == TF_TEAM_BLUE) ? 1 : 0;
-			//tf2c_weaponset_show 1
-			//SelectSlot(iSlot);
 			SelectWeapon(m_iSelectedSlot, iWeapon);
 		}
 	}
 	return 0;
-	case KEY_MINUS:
-		//ToggleDisguiseTeam();
-		return 0;
-
 	case KEY_0:
 		// cancel, close the menu
-		engine->ExecuteClientCmd("lastinv");
+		tf2c_weaponset_show.SetValue(0);
+		m_iSelectedSlot = -1;
 		return 0;
-
 	default:
 		return 1;	// key not handled
 	}
-	//}
-
-
 	return 1;	// key not handled
 }
 
@@ -417,12 +292,7 @@ void CHudMenuWeaponSet::SelectSlot(int iSlot)
 	CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pPlayer)
 	{
-		m_pSlotList->SetVisible(false);
-		m_pWeaponList->SetVisible(true);
 		m_iSelectedSlot = iSlot;
-		//char szCmd[64];
-		//Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tf2c_weaponset_show 0", iSlot); //; lastinv
-		//engine->ExecuteClientCmd(szCmd);
 	}
 }
 
@@ -437,31 +307,7 @@ void CHudMenuWeaponSet::SelectWeapon(int iSlot, int iWeapon)
 		char szCmd[64];
 		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tf2c_weaponset_show 0", iSlot, iWeapon); //; lastinv
 		engine->ExecuteClientCmd(szCmd);
-		//Q_snprintf(szCmd, sizeof(szCmd), "say \"weaponpreset %d %d\"", iSlot, iWeapon); //; lastinv
-		//engine->ExecuteClientCmd(szCmd);
-		m_pSlotList->SetVisible(true);
-		m_pWeaponList->SetVisible(false);
 		m_iSelectedSlot = -1;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudMenuWeaponSet::SetSelectedItem(int iSlot)
-{
-	if (m_iSelectedItem != iSlot)
-	{
-		m_iSelectedItem = iSlot;
-
-		// move the selection item to the new position
-		if (m_pActiveSelection)
-		{
-			// move the selection background
-			//int x, y;
-			//m_pClassItems_Blue[m_iSelectedItem - 1]->GetPos(x, y);
-			//	m_pActiveSelection->SetPos(x, y);
-		}
 	}
 }
 
@@ -470,37 +316,12 @@ void CHudMenuWeaponSet::SetSelectedItem(int iSlot)
 //-----------------------------------------------------------------------------
 void CHudMenuWeaponSet::FireGameEvent(IGameEvent *event)
 {
-	//const char * type = event->GetName();
-
-	//if (Q_strcmp(type, "spy_pda_reset") == 0)
-	//{
-	CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (pPlayer)
+	if (!ShouldDraw())
 	{
-		//bool bShowBlue = (pPlayer->GetTeamNumber() == TF_TEAM_RED);
-		if (m_iSelectedSlot == -1)
-		{
-			m_pSlotList->SetVisible(true);
-			m_pWeaponList->SetVisible(false);
-		}
-		else
-		{
-			m_pSlotList->SetVisible(false);
-			m_pWeaponList->SetVisible(true);
-		}
-		for (int i = 0; i<3; i++)
-		{
-			//m_pWeaponSlot[i]->SetVisible(true);
-			//m_pWeaponSlot[i]->SetVisible(bShowBlue);
-		}
-
-		//m_iShowingTeam = (bShowBlue) ? TF_TEAM_BLUE : TF_TEAM_RED;
+		tf2c_weaponset_show.SetValue(0);
+		m_iSelectedSlot = -1;
 	}
-	//}
-	//else
-	//{
-	//	CHudElement::FireGameEvent(event);
-	//}
+	CHudElement::FireGameEvent(event);
 }
 
 //-----------------------------------------------------------------------------
@@ -510,26 +331,6 @@ void CHudMenuWeaponSet::SetVisible(bool state)
 {
 	if (state == true)
 	{
-		// close the weapon selection menu
-		engine->ClientCmd("cancelselect");
-
-		/*bool bConsoleMode = (IsConsole() || tf_weaponset_menu_controller_mode.GetBool());
-
-		if (bConsoleMode != m_bInConsoleMode)
-		{
-		InvalidateLayout(true, true);
-		m_bInConsoleMode = bConsoleMode;
-		}*/
-
-		// set the %lastinv% dialog var to our binding
-		const char *key = engine->Key_LookupBinding("lastinv");
-		if (!key)
-		{
-			key = "< not bound >";
-		}
-
-		SetDialogVariable("lastinv", key);
-
 		HideLowerPriorityHudElementsInGroup("mid");
 	}
 	else

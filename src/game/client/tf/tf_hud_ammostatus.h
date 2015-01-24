@@ -11,6 +11,8 @@
 #pragma once
 #endif
 
+#include "tf_inventory.h"
+
 #define TF_MAX_GRENADES			4
 #define TF_MAX_FILENAME_LENGTH	128
 
@@ -41,6 +43,7 @@ private:
 private:
 
 	float							m_flNextThink;
+	CTFInventory					*Invenory;
 
 	CHandle<C_BaseCombatWeapon>		m_hCurrentActiveWeapon;
 	int								m_nAmmo;
@@ -52,6 +55,10 @@ private:
 	CExLabel						*m_pInReserveShadow;
 	CExLabel						*m_pNoClip;
 	CExLabel						*m_pNoClipShadow;
+	CTFImagePanel					*m_pWeaponBucket;
+
+	CPanelAnimationVarAliasType(float, m_flLargeBoxWide, "LargeBoxWide", "108", "proportional_float");
+	CPanelAnimationVarAliasType(float, m_flLargeBoxTall, "LargeBoxTall", "72", "proportional_float");
 };
 
 #endif	// TF_HUD_AMMOSTATUS_H

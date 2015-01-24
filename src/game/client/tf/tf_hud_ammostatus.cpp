@@ -60,6 +60,8 @@ CTFHudWeaponAmmo::CTFHudWeaponAmmo( const char *pElementName ) : CHudElement( pE
 	m_pNoClip = NULL;
 	m_pNoClipShadow = NULL;
 
+	m_pWeaponBucket = NULL;
+
 	m_nAmmo	= -1;
 	m_nAmmo2 = -1;
 	m_hCurrentActiveWeapon = NULL;
@@ -73,6 +75,8 @@ void CTFHudWeaponAmmo::Reset()
 {
 	m_flNextThink = gpGlobals->curtime + 0.05f;
 }
+
+ConVar tf2c_ammobucket("tf2c_ammobucket", "0", FCVAR_ARCHIVE, "Shows weapon bucket in the ammo section. 1 = ON, 0 = OFF.");
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -92,6 +96,8 @@ void CTFHudWeaponAmmo::ApplySchemeSettings( IScheme *pScheme )
 
 	m_pNoClip = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClip"));
 	m_pNoClipShadow = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClipShadow"));
+
+	m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(FindChildByName("WeaponBucket"));
 
 	m_nAmmo	= -1;
 	m_nAmmo2 = -1;
@@ -134,6 +140,10 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 void CTFHudWeaponAmmo::UpdateAmmoLabels( bool bPrimary, bool bReserve, bool bNoClip )
 {
+	if (m_pWeaponBucket)
+	{
+		m_pWeaponBucket->SetVisible(true);
+	}
 	if ( m_pInClip && m_pInClipShadow )
 	{
 		if ( m_pInClip->IsVisible() != bPrimary )
@@ -168,8 +178,29 @@ void CTFHudWeaponAmmo::UpdateAmmoLabels( bool bPrimary, bool bReserve, bool bNoC
 void CTFHudWeaponAmmo::OnThink()
 {
 	// Get the player and active weapon.
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pPlayer)
+		return;
+	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
+	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+	if (!pWeapon)
+		return;
+
+	if (tf2c_ammobucket.GetBool()){
+		for (int j = 0; j < COLNUM; j++)
+		{
+			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
+			if (pPlayer->Weapon_OwnsThisID(iWeapon))
+			{
+				char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
+				char szImage[64];
+				Q_snprintf(szImage, sizeof(szImage), "../%s", cIcon);
+				if (szImage)
+					m_pWeaponBucket->SetImage(szImage);
+				break;
+			}
+		}
+	}
 
 	if ( m_flNextThink < gpGlobals->curtime )
 	{

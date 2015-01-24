@@ -15,9 +15,21 @@
 #include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
 #include "tf_player_shared.h"
+#include "tf_weapon_parse.h"
+#include "basecombatweapon_shared.h"
+//#include "player.h"
+//#include "c_tf_player.h"
+#if defined( CLIENT_DLL )
+#include "history_resource.h"
+#endif
 
 #define INVENTORY_SLOTS			6
 #define INVENTORY_WEAPONS		5
+#define INVENTORY_TEAMS			4
+#define INVENTORY_WEAPONS_COUNT	500
+#define COLNUM	3
+#define ROWNUM	3
+#define VECTOR_NUM	COLNUM * ROWNUM
 
 class CTFInventory
 {
@@ -27,6 +39,43 @@ public:
 	int GetWeapon(int iClass, int iSlot, int iNum){
 		return Weapons[iClass][iSlot][iNum];
 	};
+
+	static CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
+	{
+		int idx = list.Find(psz);
+		if (idx == list.InvalidIndex())
+			return NULL;
+
+		return list[idx];
+	}
+
+	char* GetWeaponBucket(int iWeapon, int iTeam){
+		//FileWeaponInfo_t *pWeaponInfo = new FileWeaponInfo_t();		
+		//Q_snprintf(sz, sizeof(sz), "scripts/%s", pWeaponnfo->szIClassName);
+		//return WeaponBuckets[iWeapon][iTeam];
+#if defined( CLIENT_DLL )
+		const char *pszWeaponName = WeaponIdToAlias(iWeapon);
+		char sz[128];
+		Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
+		CUtlDict< CHudTexture *, int > tempList;
+		LoadHudTextures(tempList, sz, g_pGameRules->GetEncryptionKey());
+		CHudTexture *p;
+		switch (iTeam)
+		{
+		case 0: p = FindHudTextureInDict(tempList, "weapon");
+		case 1: p = FindHudTextureInDict(tempList, "weapon_s");
+		case 2: p = FindHudTextureInDict(tempList, "weapon_g");
+		case 3: p = FindHudTextureInDict(tempList, "weapon_y");
+		default:
+			p = FindHudTextureInDict(tempList, "weapon");
+		}
+		char* sTextureFile = p->szTextureFile;
+		return sTextureFile;
+#else
+		return NULL;
+#endif
+	}; 
+	
 	
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
