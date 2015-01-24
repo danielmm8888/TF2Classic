@@ -1559,6 +1559,16 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		return;
 	}
 
+	if (iTeam == GetTeamNumber())
+	{
+		return;	// we wouldn't change the team
+	}
+
+	if (HasTheFlag())
+	{
+		DropFlag();
+	}
+
 	if (iTeam == TEAM_SPECTATOR)
 	{
 		// Prevent this is the cvar is set
@@ -1584,11 +1594,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 	}
 	else
 	{
-		if ( iTeam == GetTeamNumber() )
-		{
-			return;	// we wouldn't change the team
-		}
-
 		// if this join would unbalance the teams, refuse
 		// come up with a better way to tell the player they tried to join a full team!
 		if ( TFGameRules()->WouldChangeUnbalanceTeams( iTeam, GetTeamNumber() ) )
@@ -1618,6 +1623,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 				break;
 		}
 	}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -3956,26 +3962,21 @@ void CTFPlayer::UpdateSkin( int iTeam )
 	//int iSkin = iTeam - 2;
 	int iSkin;
 
-	// This is temp only until we get proper skins for GRN/YLW
 	if (tf2c_4play.GetBool())
 	{
 		switch (iTeam)
 		{
 		case TF_TEAM_RED:
 			iSkin = 0;
-			SetRenderColor(255, 0, 0);
 			break;
 		case TF_TEAM_BLUE:
 			iSkin = 1;
-			SetRenderColor(0, 0, 255);
 			break;
 		case TF_TEAM_GREEN:
 			iSkin = 4;
-			SetRenderColor(0, 255, 0);
 			break;
 		case TF_TEAM_YELLOW:
 			iSkin = 5;
-			SetRenderColor(255, 255, 0);
 			break;
 		default:
 			iSkin = 0;

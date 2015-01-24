@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
+﻿//====== Copyright © 1996-2004, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -1155,7 +1155,7 @@ void CTFPlayerShared::OnAddBurning( void )
 			break;
 
 		case TF_TEAM_YELLOW:
-			pEffectName = "burningplayer_zellow";
+			pEffectName = "burningplayer_yellow";
 			break;
 		default:
 			pEffectName = "burningplayer_red";

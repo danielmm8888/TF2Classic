@@ -82,6 +82,7 @@ public:
 	virtual void Activate();
 
 	int		m_iHud_Type;
+	bool	m_bFourTeamMode;
 
 #endif
 };
@@ -330,8 +331,8 @@ private:
 	CNetworkVar( int, m_nGameType ); // Type of game this map is (CTF, CP)
 	CNetworkString( m_pszTeamGoalStringRed, MAX_TEAMGOAL_STRING );
 	CNetworkString( m_pszTeamGoalStringBlue, MAX_TEAMGOAL_STRING );
-	CNetworkString(m_pszTeamGoalStringGreen, MAX_TEAMGOAL_STRING);
-	CNetworkString(m_pszTeamGoalStringYellow, MAX_TEAMGOAL_STRING);
+	CNetworkString( m_pszTeamGoalStringGreen, MAX_TEAMGOAL_STRING );
+	CNetworkString( m_pszTeamGoalStringYellow, MAX_TEAMGOAL_STRING );
 
 public:
 
@@ -339,9 +340,9 @@ public:
 	int	 m_iPreviousRoundWinners;
 
 	int		m_iBirthdayMode;
-
 	int		m_iHudType;
 
+	CNetworkVar( bool, m_bFourTeamMode );
 };
 
 //-----------------------------------------------------------------------------

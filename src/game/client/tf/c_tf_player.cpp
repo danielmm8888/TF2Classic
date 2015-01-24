@@ -91,7 +91,7 @@ extern CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *p
 const char *pszHeadLabelNames[] =
 {
 	"effects/speech_voice_red",
-	"effects/speech_voice_blue"
+	"effects/speech_voice_blue",
 	"effects/speech_voice_green",
 	"effects/speech_voice_yellow"
 };

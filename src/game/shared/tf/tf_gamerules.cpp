@@ -166,15 +166,17 @@ BEGIN_NETWORK_TABLE_NOBASE( CTFGameRules, DT_TFGameRules )
 	RecvPropString( RECVINFO( m_pszTeamGoalStringRed ) ),
 	RecvPropString( RECVINFO( m_pszTeamGoalStringBlue ) ),
 	RecvPropString( RECVINFO( m_pszTeamGoalStringGreen ) ),
-	RecvPropString(RECVINFO(m_pszTeamGoalStringYellow)),
+	RecvPropString( RECVINFO( m_pszTeamGoalStringYellow ) ),
+	RecvPropBool( RECVINFO( m_bFourTeamMode ) ),
 
 #else
 
 	SendPropInt( SENDINFO( m_nGameType ), 3, SPROP_UNSIGNED ),
 	SendPropString( SENDINFO( m_pszTeamGoalStringRed ) ),
 	SendPropString( SENDINFO( m_pszTeamGoalStringBlue ) ),
-	SendPropString(SENDINFO(m_pszTeamGoalStringGreen)),
-	SendPropString(SENDINFO(m_pszTeamGoalStringYellow)),
+	SendPropString( SENDINFO( m_pszTeamGoalStringGreen ) ),
+	SendPropString( SENDINFO( m_pszTeamGoalStringYellow ) ),
+	SendPropBool( SENDINFO( m_bFourTeamMode ) ),
 
 #endif
 END_NETWORK_TABLE()
@@ -211,6 +213,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFGameRulesProxy, DT_TFGameRulesProxy )
 BEGIN_DATADESC( CTFGameRulesProxy )
 
 	DEFINE_KEYFIELD( m_iHud_Type, FIELD_INTEGER, "hud_type"),
+	DEFINE_KEYFIELD( m_bFourTeamMode, FIELD_BOOLEAN, "fourteammode"),
 
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_FLOAT, "SetRedTeamRespawnWaveTime", InputSetRedTeamRespawnWaveTime ),
@@ -437,6 +440,8 @@ void CTFGameRulesProxy::Activate()
 	TFGameRules()->Activate();
 
 	TFGameRules()->SetHudType(m_iHud_Type);
+
+	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
 
 	BaseClass::Activate();
 }
