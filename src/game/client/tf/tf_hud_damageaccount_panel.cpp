@@ -11,6 +11,7 @@
 #include "hudelement.h"
 #include "c_tf_player.h"
 #include "view.h"
+#include "vgui/ISurface.h"
 #include <vgui/IScheme.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Label.h>
@@ -34,17 +35,20 @@ public:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
 	virtual bool ShouldDraw( void );
-	virtual void PaintBackground( void );
+	virtual void Think( void );
 
 private:
 	Label	*m_pDamageAccountLabel;
 	float	m_flRemoveAt; // Time to remove from view
+	Vector m_vDamagePos;
 };
 
 // Register and set depth
 DECLARE_HUDELEMENT_DEPTH(CTFDamageAccountPanel, 1);
 // Create console var, to choose whether to show this or not
 ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "");
+// Create console var for hit sound
+ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -94,10 +98,6 @@ void CTFDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 {
-	// Don't do anything if the user chooses not to view this
-	if ( hud_combattext.GetBool() == false )
-		return;
-
 	const char *pEventName = event->GetName();
 
 	if (Q_strcmp("player_damaged", pEventName) == 0)
@@ -105,21 +105,27 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 		if ( m_pDamageAccountLabel
 			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
 		{
+			// Play hit sound, if appliable
+			if( tf_dingalingaling.GetBool() == true )
+			{
+				vgui::surface()->PlaySound( "ui/hitsound.wav" ); // Ding!
+			}
+			// Stop here if we chose not to show hit numbers
+			if( hud_combattext.GetBool() == false )
+			{
+				return;
+			}
+
 			SetVisible( true );
 			// Set remove time
 			m_flRemoveAt = gpGlobals->curtime + 1.0f;
 			// Set text to amount of damage
 			char buffer[5]; // Up to four digits
-			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ), buffer, 10 ) );
+			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ) * -1, buffer, 10 ) );
 			m_pDamageAccountLabel->SetVisible( true );
 
 			// Respoition based on location of player hit
-			int iX, iY;
-			Vector vecTarget = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
-			bool bOnscreen = GetVectorInScreenSpace( vecTarget, iX, iY );
-			int halfWidth = (GetWide() / 2) - 20; // A bit hacky
-			if( bOnscreen )
-				SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
+			m_vDamagePos = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
 		}
 	}
 }
@@ -133,9 +139,9 @@ bool CTFDamageAccountPanel::ShouldDraw( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Update position on screen every frame
 //-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::PaintBackground( void )
+void CTFDamageAccountPanel::Think( void )
 {
 	m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
 	// Hide it?
@@ -146,5 +152,10 @@ void CTFDamageAccountPanel::PaintBackground( void )
 	else
 	{
 		SetAlpha( 255 );
+		int iX, iY;
+		bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
+		int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
+		if( bOnscreen )
+			SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
 	}
 }

@@ -1126,65 +1126,11 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
-	// This is only temporary until we get a proper weapon switching system in.
-	switch (GetPlayerClass()->GetClassIndex())
+	for (int i = 0; i < 5; i++)
 	{
-	case TF_CLASS_SCOUT:
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_SCATTERGUN;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_NAILGUN;
-		}
-		if (GetWeaponPreset(1) == 0)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_PISTOL_SCOUT;
-		}
-		if (GetWeaponPreset(1) == 1)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_SMG_SCOUT;
-		}
-		pData->m_aWeapons[2] = TF_WEAPON_BAT;
-		break;
-	case TF_CLASS_SOLDIER:
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHER;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[0] = TF_WEAPON_ROCKETLAUNCHERBETA;
-		}
-		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_SOLDIER;
-		pData->m_aWeapons[2] = TF_WEAPON_SHOVEL;
-		break;
-	case TF_CLASS_HEAVYWEAPONS:
-		pData->m_aWeapons[0] = TF_WEAPON_MINIGUN;
-		pData->m_aWeapons[1] = TF_WEAPON_SHOTGUN_HWG;
-		if (GetWeaponPreset(2) == 1)
-		{
-			pData->m_aWeapons[2] = TF_WEAPON_PIPE;
-		}
-		else
-		{
-			pData->m_aWeapons[2] = TF_WEAPON_FISTS;
-		}
-		break;
-	case TF_CLASS_SPY:
-		pData->m_aWeapons[0] = TF_WEAPON_KNIFE;
-		if (GetWeaponPreset(0) == 0)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_REVOLVER;
-		}
-		if (GetWeaponPreset(0) == 1)
-		{
-			pData->m_aWeapons[1] = TF_WEAPON_TRANQ;
-		}
-		pData->m_aWeapons[2] = TF_WEAPON_PDA_SPY;
-		pData->m_aWeapons[3] = TF_WEAPON_INVIS;
-		break;
+		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, i, GetWeaponPreset(i));
+		if (iWeapon != 0)
+			pData->m_aWeapons[i] = iWeapon;
 	}
 }
 
@@ -3071,10 +3017,9 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				event->SetInt( "amount", (int)info.GetDamage() );
 				event->SetInt( "type", 1 );
 				// Position used for hit text
-				Vector texPos = WorldSpaceCenter() + Vector( 0, 0, 42 );
-				event->SetFloat( "from_x", texPos.x );
-				event->SetFloat( "from_y", texPos.y );
-				event->SetFloat( "from_z", texPos.z );
+				event->SetFloat( "from_x", info.GetDamagePosition().x );
+				event->SetFloat( "from_y", info.GetDamagePosition().y );
+				event->SetFloat( "from_z", info.GetDamagePosition().z );
 				// Fire off event
 				gameeventmanager->FireEvent( event );
 			}
@@ -6529,6 +6474,7 @@ uint64 powerplay_ids[] =
 	76561197960265749 ^ powerplaymask,
 	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
+	76561198029219422 ^ powerplaymask,
 	//76561198136391192 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
 	76561198016621705 ^ powerplaymask,
