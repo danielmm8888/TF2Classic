@@ -31,7 +31,7 @@ public:
 
 	virtual void LevelInit();
 	virtual void Init();
-	virtual void FireGameEvent( IGameEvent * event );
+	virtual void FireGameEvent(IGameEvent *event);
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 
 	virtual bool ShouldDraw( void );

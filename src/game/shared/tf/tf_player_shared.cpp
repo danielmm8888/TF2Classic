@@ -24,6 +24,7 @@
 #include "soundenvelope.h"
 #include "c_tf_playerclass.h"
 #include "iviewrender.h"
+#include "engine/ivdebugoverlay.h"
 
 #define CTFPlayerClass C_TFPlayerClass
 
@@ -60,6 +61,10 @@ ConVar tf_damage_disablespread("tf_damage_disablespread", "0", FCVAR_NOTIFY | FC
 
 //ConVar tf_spy_stealth_blink_time( "tf_spy_stealth_blink_time", "0.3", FCVAR_DEVELOPMENTONLY, "time after being hit the spy blinks into view" );
 //ConVar tf_spy_stealth_blink_scale( "tf_spy_stealth_blink_scale", "0.85", FCVAR_DEVELOPMENTONLY, "percentage visible scalar after being hit the spy blinks into view" );
+
+ConVar sv_showimpacts("sv_showimpacts", "0", FCVAR_REPLICATED, "Shows client (red) and server (blue) bullet impact point (1=both, 2=client-only, 3=server-only)");
+ConVar sv_showplayerhitboxes("sv_showplayerhitboxes", "0", FCVAR_REPLICATED, "Show lag compensated hitboxes for the specified player index whenever a player fires.");
+
 #define TF_SPY_STEALTH_BLINKTIME   0.3f
 #define TF_SPY_STEALTH_BLINKSCALE  0.85f
 
@@ -1915,6 +1920,46 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 		NDebugOverlay::Line( vecStart, trace.endpos, 0,255,0, true, 30 );
 	}
 #endif
+
+
+#ifdef CLIENT_DLL
+	if ( sv_showimpacts.GetInt() == 1 || sv_showimpacts.GetInt() == 2 )
+	{
+		// draw red client impact markers
+		debugoverlay->AddBoxOverlay( trace.endpos, Vector(-2,-2,-2), Vector(2,2,2), QAngle( 0, 0, 0), 255,0,0,127, 4 );
+
+		if ( trace.m_pEnt && trace.m_pEnt->IsPlayer() )
+		{
+			C_BasePlayer *player = ToBasePlayer( trace.m_pEnt );
+			player->DrawClientHitboxes( 4, true );
+}
+		}
+#else
+	if (sv_showimpacts.GetInt() == 1 || sv_showimpacts.GetInt() == 3)
+	{
+		// draw blue server impact markers
+		NDebugOverlay::Box(trace.endpos, Vector(-2, -2, -2), Vector(2, 2, 2), 0, 0, 255, 127, 4);
+
+		if (trace.m_pEnt && trace.m_pEnt->IsPlayer())
+		{
+			CBasePlayer *player = ToBasePlayer(trace.m_pEnt);
+			player->DrawServerHitboxes(4, true);
+		}
+	}
+#endif
+
+	if (sv_showplayerhitboxes.GetInt() > 0)
+	{
+		CBasePlayer *lagPlayer = UTIL_PlayerByIndex( sv_showplayerhitboxes.GetInt() );
+		if( lagPlayer )
+		{
+#ifdef CLIENT_DLL
+			lagPlayer->DrawClientHitboxes(4, true);
+#else
+			lagPlayer->DrawServerHitboxes(4, true);
+#endif
+		}
+	}
 
 	if( trace.fraction < 1.0 )
 	{
