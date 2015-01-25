@@ -39,12 +39,12 @@ public:
 	virtual Activity TranslateActivity( Activity actDesired );
 	virtual void Update( float eyeYaw, float eyePitch );
 
-	void	DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
+	virtual void	DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
 
-	bool	HandleMoving( Activity &idealActivity );
-	bool	HandleJumping( Activity &idealActivity );
-	bool	HandleDucking( Activity &idealActivity );
-	bool	HandleSwimming( Activity &idealActivity );
+	virtual bool	HandleMoving(Activity &idealActivity);
+	virtual bool	HandleJumping(Activity &idealActivity);
+	virtual bool	HandleDucking(Activity &idealActivity);
+	virtual bool	HandleSwimming(Activity &idealActivity);
 
 
 private:

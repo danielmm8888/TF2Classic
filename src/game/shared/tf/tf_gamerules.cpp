@@ -81,7 +81,6 @@ extern ConVar sv_turbophysics;
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
-ConVar tf2c_4play("tf2c_4play", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
@@ -1645,7 +1644,7 @@ void cc_ShowRespawnTimes()
 		ClientPrint( pPlayer, HUD_PRINTTALK, tempRed );
 		ClientPrint( pPlayer, HUD_PRINTTALK, tempBlue );
 
-		if (tf2c_4play.GetBool())
+		if (TFGameRules()->IsFourTeamGame())
 		{
 			float flGreenMin = (pRules->m_TeamRespawnWaveTimes[TF_TEAM_GREEN] >= 0 ? pRules->m_TeamRespawnWaveTimes[TF_TEAM_GREEN] : mp_respawnwavetime.GetFloat());
 			float flGreenScalar = pRules->GetRespawnTimeScalar(TF_TEAM_GREEN);
@@ -2336,12 +2335,12 @@ void CTFGameRules::SendWinPanelInfo( void )
 				iRedScorePrev = ( iRedScore - TEAMPLAY_ROUND_WIN_SCORE >= 0 ) ? ( iRedScore - TEAMPLAY_ROUND_WIN_SCORE ) : 0;
 				break;
 			case TF_TEAM_GREEN:
-				if (!tf2c_4play.GetBool())
+				if (!IsFourTeamGame())
 					break;
 				iGreenScorePrev = (iGreenScore - TEAMPLAY_ROUND_WIN_SCORE >= 0) ? (iBlueScore - TEAMPLAY_ROUND_WIN_SCORE) : 0;
 				break;
 			case TF_TEAM_YELLOW:
-				if (!tf2c_4play.GetBool())
+				if (!IsFourTeamGame())
 					break;
 				iYellowScorePrev = (iYellowScore - TEAMPLAY_ROUND_WIN_SCORE >= 0) ? (iRedScore - TEAMPLAY_ROUND_WIN_SCORE) : 0;
 				break;

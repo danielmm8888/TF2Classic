@@ -1077,7 +1077,7 @@ void CTFWeaponBase::WeaponIdle( void )
 		{
 			if ( !( m_bReloadsSingly && m_iReloadMode != TF_RELOAD_START ) )
 			{
-				//SendWeaponAnim( ACT_VM_IDLE );
+				SendWeaponAnim( ACT_VM_IDLE );
 				m_flTimeWeaponIdle = gpGlobals->curtime + SequenceDuration();
 			}
 		}

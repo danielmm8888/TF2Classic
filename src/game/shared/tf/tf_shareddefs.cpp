@@ -156,6 +156,7 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_SMG_SCOUT",
 	"TF_WEAPON_ROCKETLAUNCHERBETA",
 	"TF_WEAPON_PIPE",
+	"TF_WEAPON_CYCLOPS",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -220,6 +221,7 @@ int g_aWeaponDamageTypes[] =
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
 	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
 	DMG_CLUB,		// TF_WEAPON_PIPE,
+	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
@@ -249,7 +251,8 @@ int g_iProjectileWeapons[] =
 	TF_WEAPON_SYRINGEGUN_MEDIC,
 	TF_WEAPON_NAILGUN,
 	TF_WEAPON_TRANQ,
-	TF_WEAPON_ROCKETLAUNCHERBETA
+	TF_WEAPON_ROCKETLAUNCHERBETA,
+	TF_WEAPON_CYCLOPS,
 };
 
 const char *g_pszHintMessages[] =

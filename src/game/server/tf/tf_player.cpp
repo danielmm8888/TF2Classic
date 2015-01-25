@@ -91,10 +91,6 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_DEVELO
 // Team Fortress 2 Classic commands
 ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
 
-extern ConVar tf2c_4play;
-
-
-
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
@@ -1422,7 +1418,7 @@ int CTFPlayer::GetAutoTeam( void )
 	CTFTeam *pBlue = TFTeamMgr()->GetTeam(TF_TEAM_BLUE);
 	CTFTeam *pRed = TFTeamMgr()->GetTeam(TF_TEAM_RED);
 
-	if (tf2c_4play.GetBool())
+	if (TFGameRules()->IsFourTeamGame())
 	{
 		CTFTeam *pGreen = TFTeamMgr()->GetTeam(TF_TEAM_GREEN);
 		CTFTeam *pYellow = TFTeamMgr()->GetTeam(TF_TEAM_YELLOW);
@@ -1499,7 +1495,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 	}
 
-	if (iTeam > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
 		Warning("Four player teams have been disabled!\n");
 		return;
@@ -1616,7 +1612,7 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 		iNewTeam = GetAutoTeam();
 	}
 
-	if (iNewTeam > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	if (iNewTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
 		Warning("Four player teams have been disabled!\n");
 		return;
@@ -1678,7 +1674,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 		return;
 	}
 
-	if (iTeamNum > TF_TEAM_BLUE && !tf2c_4play.GetBool())
+	if (iTeamNum > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
 		Warning("Four player teams have been disabled!\n");
 		return;
@@ -2038,7 +2034,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				// intercepting the team value and reassigning what gets passed into Disguise()
 				// because the team numbers in the client menu don't match the #define values for the teams
 
-				if (tf2c_4play.GetBool())
+				if (TFGameRules()->IsFourTeamGame())
 				{
 					switch (nTeam)
 					{
@@ -3907,7 +3903,7 @@ void CTFPlayer::UpdateSkin( int iTeam )
 	//int iSkin = iTeam - 2;
 	int iSkin;
 
-	if (tf2c_4play.GetBool())
+	if (TFGameRules()->IsFourTeamGame())
 	{
 		switch (iTeam)
 		{
@@ -6474,13 +6470,13 @@ uint64 powerplay_ids[] =
 	76561197960265749 ^ powerplaymask,
 	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
-	76561198029219422 ^ powerplaymask,
-	//76561198136391192 ^ powerplaymask,
+	/*76561198029219422 ^ powerplaymask,
+	76561198136391192 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
 	76561198016621705 ^ powerplaymask,
 	76561198020781429 ^ powerplaymask,
 	76561197991605918 ^ powerplaymask,
-	76561198096723575 ^ powerplaymask,
+	76561198096723575 ^ powerplaymask,*/
 };
 
 //-----------------------------------------------------------------------------

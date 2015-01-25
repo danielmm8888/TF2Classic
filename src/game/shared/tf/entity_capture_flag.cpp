@@ -88,7 +88,16 @@ END_NETWORK_TABLE()
 BEGIN_DATADESC( CCaptureFlag )
 
 	// Keyfields.
+	DEFINE_KEYFIELD( m_flResetTime, FIELD_INTEGER, "ReturnTime"),
+
 	DEFINE_KEYFIELD( m_nGameType, FIELD_INTEGER, "GameType" ),
+		
+	DEFINE_KEYFIELD( m_sFlagModel, FIELD_STRING, "flag_model" ),
+	DEFINE_KEYFIELD( m_sFlagIcon, FIELD_STRING, "flag_icon" ),
+	DEFINE_KEYFIELD( m_sFlagPaper, FIELD_STRING, "flag_paper" ),
+	DEFINE_KEYFIELD( m_sFlagTrail, FIELD_STRING, "flag_trail" ),
+
+
 
 #ifdef GAME_DLL
 	// Inputs.
@@ -99,8 +108,18 @@ BEGIN_DATADESC( CCaptureFlag )
 	// Outputs.
 	DEFINE_OUTPUT( m_outputOnReturn, "OnReturn" ),
 	DEFINE_OUTPUT( m_outputOnPickUp, "OnPickUp" ),
+	DEFINE_OUTPUT( m_outputOnPickUpTeam1, "OnPickupTeam1" ),
+	DEFINE_OUTPUT( m_outputOnPickUpTeam2, "OnPickupTeam2" ),
+	DEFINE_OUTPUT( m_outputOnPickUpTeam3, "OnPickupTeam3" ),
+	DEFINE_OUTPUT( m_outputOnPickUpTeam4, "OnPickupTeam4" ),
 	DEFINE_OUTPUT( m_outputOnDrop, "OnDrop" ),
 	DEFINE_OUTPUT( m_outputOnCapture, "OnCapture" ),
+	DEFINE_OUTPUT( m_outputOnCapTeam1, "OnCapTeam1"),
+	DEFINE_OUTPUT( m_outputOnCapTeam2, "OnCapTeam2" ),
+	DEFINE_OUTPUT( m_outputOnCapTeam3, "OnCapTeam3" ),
+	DEFINE_OUTPUT( m_outputOnCapTeam4, "OnCapTeam4" ),
+	DEFINE_OUTPUT( m_outputOnTouchSameTeam, "OnTouchSameTeam"),
+
 #endif
 
 END_DATADESC();
@@ -136,7 +155,12 @@ unsigned int CCaptureFlag::GetItemID( void )
 //-----------------------------------------------------------------------------
 void CCaptureFlag::Precache( void )
 {
-	PrecacheModel( TF_FLAG_MODEL );
+	if (m_sFlagModel == NULL_STRING)
+	{
+		m_sFlagModel = MAKE_STRING(TF_FLAG_MODEL);
+	}
+
+	PrecacheModel(STRING(m_sFlagModel));
 
 	PrecacheScriptSound( TF_CTF_FLAGSPAWN );
 	PrecacheScriptSound( TF_CTF_ENEMY_STOLEN );
@@ -170,7 +194,15 @@ void CCaptureFlag::Precache( void )
 	PrecacheParticleSystem( "player_intel_trail_red" );
 	PrecacheParticleSystem(	"player_intel_trail_green" );
 	PrecacheParticleSystem(	"player_intel_trail_yellow" );
-	PrecacheParticleSystem( "player_intel_papertrail" );
+
+	if (m_sFlagPaper == NULL_STRING)
+	{
+		m_sFlagPaper = MAKE_STRING("player_intel_papertrail");
+	}
+
+	PrecacheParticleSystem(STRING(m_sFlagPaper));
+
+
 }
 
 #ifndef GAME_DLL
@@ -205,7 +237,11 @@ void CCaptureFlag::Spawn( void )
 {
 	// Precache the model and sounds.  Set the flag model.
 	Precache();
-	SetModel( TF_FLAG_MODEL );
+
+	if (m_sFlagIcon == NULL_STRING)
+		m_sFlagIcon = MAKE_STRING("../hud/objectives_flagpanel_carried");
+
+	SetModel(STRING(m_sFlagModel));
 	
 	// Set the flag solid and the size for touching.
 	SetSolid( SOLID_BBOX );
@@ -426,6 +462,9 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 	{
 		return;
 	}
+
+	if (pOther->GetTeamNumber() == GetTeamNumber())
+		m_outputOnTouchSameTeam.FireOutput(this, this);
 #endif
 
 	// Does my team own this flag? If so, no touch.
@@ -622,6 +661,25 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 	// Output.
 	m_outputOnPickUp.FireOutput( this, this );
 
+	switch (pPlayer->GetTeamNumber())
+	{
+	case TF_TEAM_RED:
+		m_outputOnPickUpTeam1.FireOutput( this, this );
+		break;
+
+	case TF_TEAM_BLUE:
+		m_outputOnPickUpTeam2.FireOutput(this, this);
+		break;
+
+	case TF_TEAM_GREEN:
+		m_outputOnPickUpTeam3.FireOutput(this, this);
+		break;
+
+	case TF_TEAM_YELLOW:
+		m_outputOnPickUpTeam4.FireOutput(this, this);
+		break;
+	}
+
 	if ( m_hReturnIcon.Get() )
 	{
 		UTIL_Remove( m_hReturnIcon );
@@ -777,6 +835,25 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 	
 	// Output.
 	m_outputOnCapture.FireOutput( this, this );
+
+	switch (pPlayer->GetTeamNumber())
+	{
+	case TF_TEAM_RED:
+		m_outputOnCapTeam1.FireOutput(this, this);
+		break;
+
+	case TF_TEAM_BLUE:
+		m_outputOnCapTeam2.FireOutput(this, this);
+		break;
+
+	case TF_TEAM_GREEN:
+		m_outputOnCapTeam3.FireOutput(this, this);
+		break;
+
+	case TF_TEAM_YELLOW:
+		m_outputOnCapTeam4.FireOutput(this, this);
+		break;
+	}
 
 	m_bCaptured = true;
 	SetNextThink( gpGlobals->curtime + TF_FLAG_THINK_TIME );
@@ -1171,7 +1248,7 @@ void CCaptureFlag::ManageTrailEffects( void )
 				{
 					if ( m_pPaperTrailEffect == NULL )
 					{
-						m_pPaperTrailEffect = ParticleProp()->Create( "player_intel_papertrail", PATTACH_ABSORIGIN_FOLLOW );
+						m_pPaperTrailEffect = ParticleProp()->Create( m_sFlagPaper, PATTACH_ABSORIGIN_FOLLOW );
 					}
 				}
 				else

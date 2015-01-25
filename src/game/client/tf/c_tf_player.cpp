@@ -932,6 +932,38 @@ public:
 EXPOSE_INTERFACE( CProxyBurnLevel, IMaterialProxy, "BurnLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
+// Purpose: Used for piss
+//			Returns the RGB value for said piss.
+//-----------------------------------------------------------------------------
+class CProxyYellowLevel : public CResultProxy
+{
+public:
+	void OnBind(void *pC_BaseEntity)
+	{
+		Assert(m_pResult);
+
+		if (!pC_BaseEntity)
+			return;
+
+		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
+		if (!pEntity)
+			return;
+
+		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+
+		if (pPlayer)
+		{
+			// This should be used to check if the player has the piss condition
+			// If he is, return yellow
+		}
+
+		m_pResult->SetVecValue(1.0f, 1.0f, 1.0f);
+	}
+};
+
+EXPOSE_INTERFACE(CProxyYellowLevel, IMaterialProxy, "YellowLevel" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
 // Purpose: RecvProxy that converts the Player's object UtlVector to entindexes
 //-----------------------------------------------------------------------------
 void RecvProxy_PlayerObjectList( const CRecvProxyData *pData, void *pStruct, void *pOut )

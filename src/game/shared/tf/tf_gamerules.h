@@ -225,6 +225,8 @@ public:
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
 
+	bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
+
 #ifdef CLIENT_DLL
 
 	DECLARE_CLIENTCLASS_NOBASE(); // This makes data tables able to access our private vars.
