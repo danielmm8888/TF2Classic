@@ -14,7 +14,6 @@
 
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] = {
-
 		{
 			{
 				TF_WEAPON_SCATTERGUN, TF_WEAPON_NAILGUN
@@ -124,5 +123,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			}
 		}
 };
+
+
 
 CTFInventory::CTFInventory(){};
