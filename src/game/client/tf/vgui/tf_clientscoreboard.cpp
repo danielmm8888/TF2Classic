@@ -34,6 +34,7 @@
 #include "c_tf_team.h"
 #include "c_tf_player.h"
 #include "vgui_avatarimage.h"
+#include "tf_gamerules.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -283,12 +284,18 @@ void CTFClientScoreBoardDialog::UpdateTeamInfo()
 	}
 }
 
-bool AreEnemyTeams( int iTeam1, int iTeam2 )
+bool AreEnemyTeams(int iTeam1, int iTeam2)
 {
-	if ( iTeam1 == TF_TEAM_RED && iTeam2 == TF_TEAM_BLUE )
+	if (iTeam1 == TF_TEAM_RED && (iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_GREEN || iTeam2 == TF_TEAM_YELLOW))
 		return true;
 
-	if ( iTeam1 == TF_TEAM_BLUE && iTeam2 == TF_TEAM_RED )
+	if (iTeam1 == TF_TEAM_BLUE && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_GREEN || iTeam2 == TF_TEAM_YELLOW))
+		return true;
+
+	if (iTeam1 == TF_TEAM_GREEN && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_YELLOW))
+		return true;
+
+	if (iTeam1 == TF_TEAM_YELLOW && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_GREEN))
 		return true;
 
 	return false;

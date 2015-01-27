@@ -399,8 +399,8 @@ void CTFGrenadePipebombProjectile::Precache()
 	PrecacheModel( TF_WEAPON_PIPEGRENADE_MODEL );
 	PrecacheParticleSystem( "stickybombtrail_blue" );
 	PrecacheParticleSystem( "stickybombtrail_red" );
-	PrecacheParticleSystem("stickybombtrail_green");
-	PrecacheParticleSystem("stickybombtrail_yellow");
+	PrecacheParticleSystem( "stickybombtrail_green" );
+	PrecacheParticleSystem( "stickybombtrail_yellow" );
 
 	BaseClass::Precache();
 }

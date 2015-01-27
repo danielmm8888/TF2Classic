@@ -810,6 +810,13 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 
 		// Reward the team
 		TFTeamMgr()->AddTeamScore( pPlayer->GetTeamNumber(), TF_INVADE_CAPTURED_TEAM_FRAGS );
+
+		// This was added by request for the "push" map -danielmm8888
+		if (tf_flag_caps_per_round.GetInt() > 0)
+		{
+			TFTeamMgr()->IncrementFlagCaptures(pPlayer->GetTeamNumber());
+		}
+
 	}
 
 	IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_flag_event" );

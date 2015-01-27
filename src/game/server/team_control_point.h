@@ -164,12 +164,18 @@ private:
 
 	COutputEvent	m_OnCapTeam1;
 	COutputEvent	m_OnCapTeam2;
+	COutputEvent	m_OnCapTeam3;
+	COutputEvent	m_OnCapTeam4;
 
 	COutputEvent	m_OnOwnerChangedToTeam1;
 	COutputEvent	m_OnOwnerChangedToTeam2;
+	COutputEvent	m_OnOwnerChangedToTeam3;
+	COutputEvent	m_OnOwnerChangedToTeam4;
 
 	COutputEvent	m_OnRoundStartOwnedByTeam1;
 	COutputEvent	m_OnRoundStartOwnedByTeam2;
+	COutputEvent	m_OnRoundStartOwnedByTeam3;
+	COutputEvent	m_OnRoundStartOwnedByTeam4;
 
 	COutputEvent	m_OnUnlocked;
 
