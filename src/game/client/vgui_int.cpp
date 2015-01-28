@@ -24,6 +24,8 @@
 #include "filesystem.h"
 #include "matsys_controls/matsyscontrols.h"
 
+#include "tf_advancedoptions.h"
+
 #ifdef SIXENSE
 #include "sixense/in_sixense.h"
 #endif
@@ -197,6 +199,7 @@ void VGui_CreateGlobalPanels( void )
 {
 	VPANEL gameToolParent = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
 	VPANEL toolParent = enginevgui->GetPanel( PANEL_TOOLS );
+	VPANEL gameParent = enginevgui->GetPanel( PANEL_INGAMESCREENS );
 #if defined( TRACK_BLOCKING_IO )
 	VPANEL gameDLLPanel = enginevgui->GetPanel( PANEL_GAMEDLL );
 #endif
@@ -204,6 +207,7 @@ void VGui_CreateGlobalPanels( void )
 	internalCenterPrint->Create( gameToolParent );
 	loadingdisc->Create( gameToolParent );
 	messagechars->Create( gameToolParent );
+	advpanel->Create(gameParent);
 
 	// Debugging or related tool
 	fps->Create( toolParent );
@@ -240,6 +244,7 @@ void VGui_Shutdown()
 	messagechars->Destroy();
 	loadingdisc->Destroy();
 	internalCenterPrint->Destroy();
+	advpanel->Destroy();
 
 	if ( g_pClientMode )
 	{
