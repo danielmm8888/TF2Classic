@@ -275,7 +275,7 @@ public:
 
 	bool CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex );
 
-	virtual const char *GetGameDescription( void ){ return "Team Fortress"; }
+	virtual const char *GetGameDescription( void );
 
 	// Sets up g_pPlayerResource.
 	virtual void CreateStandardEntities();

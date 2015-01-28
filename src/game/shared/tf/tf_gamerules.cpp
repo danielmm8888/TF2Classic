@@ -3584,6 +3584,33 @@ bool CTFGameRules::HasPassedMinRespawnTime( CBasePlayer *pPlayer )
 	return ( gpGlobals->curtime > flMinSpawnTime );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Sets the game description in the server browser
+//-----------------------------------------------------------------------------
+const char *CTFGameRules::GetGameDescription(void)
+{
+	switch (m_nGameType)
+	{
+		case TF_GAMETYPE_CTF:
+			return "TF2C (CTF)";
+			break;
+		case TF_GAMETYPE_CP:
+			return "TF2C (CP)";
+			break;
+		case TF_GAMETYPE_ESCORT:
+			return "TF2C (Payload)";
+			break;
+		case TF_GAMETYPE_ARENA:
+			return "TF2C (Arena)";
+			break;
+		case TF_GAMETYPE_MVM:
+			return "Implying we will ever have this";
+			break;
+		default:
+			return "TF2C";
+			break;
+	}
+}
 
 #endif
 
