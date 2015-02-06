@@ -17,6 +17,7 @@
 #include "tf_player_shared.h"
 #include "tf_weapon_parse.h"
 #include "basecombatweapon_shared.h"
+#include "Filesystem.h" 
 //#include "player.h"
 //#include "c_tf_player.h"
 #if defined( CLIENT_DLL )
@@ -36,8 +37,14 @@ class CTFInventory
 public:
 	CTFInventory();
 
-	int GetWeapon(int iClass, int iSlot, int iNum){
+	int GetWeapon(int iClass, int iSlot, int iNum)
+	{
 		return Weapons[iClass][iSlot][iNum];
+	};
+
+	const char* GetSlotName(int iSlot)
+	{
+		return g_aPlayerSlotNames[iSlot];
 	};
 
 	static CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
@@ -49,7 +56,29 @@ public:
 		return list[idx];
 	}
 
-	char* GetWeaponBucket(int iWeapon, int iTeam){
+	KeyValues* GetInventory(IBaseFileSystem *pFileSystem)
+	{
+		KeyValues *pInv = new KeyValues("Inventory");
+		pInv->LoadFromFile(pFileSystem, "scripts/tf_inventory.txt");
+		return pInv;
+	};
+
+	void SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory)
+	{
+		pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
+	};
+
+	int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
+	{
+		KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+		if (!pSub)
+			return 0;
+		const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
+		return iPreset;
+	};
+
+	char* GetWeaponBucket(int iWeapon, int iTeam)
+	{
 		//FileWeaponInfo_t *pWeaponInfo = new FileWeaponInfo_t();		
 		//Q_snprintf(sz, sizeof(sz), "scripts/%s", pWeaponnfo->szIClassName);
 		//return WeaponBuckets[iWeapon][iTeam];
@@ -79,6 +108,7 @@ public:
 	
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
+	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
 };
 
 #endif // TF_SHAREDDEFS_H

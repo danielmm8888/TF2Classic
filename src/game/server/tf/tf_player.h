@@ -448,6 +448,8 @@ private:
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
 
 	void				ChangeWeapon( TFPlayerClassData_t *pData );
+	void				LoadInventory(TFPlayerClassData_t *pData);
+	void				SaveInventory(TFPlayerClassData_t *pData);
 
 private:
 	// Map introductions
@@ -502,9 +504,35 @@ private:
 		return 0;
 	};
 
+	int GetWeaponPreset(int iClass, int iSlotNum){
+		if (iSlotNum == 0){
+			return m_WeaponPresetPrimary[iClass];
+		}
+		else if (iSlotNum == 1){
+			return m_WeaponPresetSecondary[iClass];
+		}
+		else if (iSlotNum == 2){
+			return m_WeaponPresetMelee[iClass];
+		}
+		return 0;
+	};
+
 	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 	{
 		int iClass = GetPlayerClass()->GetClassIndex();
+		if (iSlotNum == 0){
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 1){
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 2){
+			m_WeaponPresetMelee[iClass] = iPresetNum;
+		}
+	}
+
+	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
+	{
 		if (iSlotNum == 0){
 			m_WeaponPresetPrimary[iClass] = iPresetNum;
 		}

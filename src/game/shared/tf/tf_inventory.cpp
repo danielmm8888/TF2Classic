@@ -12,8 +12,18 @@
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
 
+const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
+{
+	"Primary",
+	"Secondary",
+	"Melee",
+	"Building",
+	"PDA",
+	"PDA"
+};
 
-const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] = {
+const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] = 
+{
 		{
 			{
 				TF_WEAPON_SCATTERGUN, TF_WEAPON_NAILGUN
