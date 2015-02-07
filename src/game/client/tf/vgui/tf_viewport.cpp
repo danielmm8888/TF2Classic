@@ -49,6 +49,7 @@
 #include "tf_roundinfo.h"
 
 #include "tf_overview.h"
+#include "tf_fourteamscoreboard.h"
 
 /*
 CON_COMMAND( spec_help, "Show spectator help screen")
@@ -267,6 +268,14 @@ IViewPortPanel* TFViewport::CreatePanelByName(const char *szPanelName)
 	{
 		newpanel = new CTFIntroMenu( this );
 	}
+	else if ( Q_strcmp( PANEL_FOURTEAMSCOREBOARD, szPanelName ) == 0 )
+	{
+		newpanel = new CTFFourTeamScoreBoardDialog(this);
+	}
+	else if ( Q_strcmp( PANEL_FOURTEAMSELECT, szPanelName) == 0 )
+	{
+		newpanel = new CTFFourTeamMenu(this);
+	}
 	else
 	{
 		// create a generic base panel, don't add twice
@@ -286,6 +295,8 @@ void TFViewport::CreateDefaultPanels( void )
 	AddNewPanel( CreatePanelByName( PANEL_CLASS_YELLOW ), "PANEL_CLASS_YELLOW" );
 	AddNewPanel( CreatePanelByName( PANEL_INTRO ), "PANEL_INTRO" );
 	AddNewPanel( CreatePanelByName( PANEL_ROUNDINFO ), "PANEL_ROUNDINFO" );
+	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSCOREBOARD ), "PANEL_FOURTEAMSCOREBOARD" );
+	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSELECT ), "PANEL_FOURTEAMSELECT" );
 
 	BaseClass::CreateDefaultPanels();
 }
