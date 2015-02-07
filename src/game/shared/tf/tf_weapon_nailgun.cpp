@@ -39,8 +39,8 @@ void CTFNailgun::Precache()
 	PrecacheParticleSystem("nailtrails_scout_green");
 	PrecacheParticleSystem("nailtrails_scout_yellow");
 	PrecacheParticleSystem("nailtrails_scout_red_crit");
-	PrecacheParticleSystem("nailtrails_scout_blue_crit");
+	PrecacheParticleSystem("nailtrails_scout_blue_crit");
 	PrecacheParticleSystem("nailtrails_scout_green_crit");
-	PrecacheParticleSystem("nailtrails_scout_yellow_crit");
+	PrecacheParticleSystem("nailtrails_scout_yellow_crit");
 #endif
 }
