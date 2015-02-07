@@ -1122,6 +1122,10 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
+	// Since the civilian has no weapons, the game will just crash
+	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN)
+		return;
+
 	for (int i = 0; i < 5; i++)
 	{
 		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, i, GetWeaponPreset(i));
@@ -1435,15 +1439,15 @@ int CTFPlayer::GetAutoTeam( void )
 			}
 			else if (pGreen->GetNumPlayers() < pRed->GetNumPlayers() && pGreen->GetNumPlayers() < pBlue->GetNumPlayers() && pGreen->GetNumPlayers() < pYellow->GetNumPlayers())
 			{
-				iTeam = TF_TEAM_RED;
+				iTeam = TF_TEAM_GREEN;
 			}
 			else if (pYellow->GetNumPlayers() < pRed->GetNumPlayers() && pYellow->GetNumPlayers() < pBlue->GetNumPlayers() && pYellow->GetNumPlayers() < pGreen->GetNumPlayers())
 			{
-				iTeam = TF_TEAM_RED;
+				iTeam = TF_TEAM_YELLOW;
 			}
 			else
 			{
-				iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
+				iTeam = RandomInt(2, 5);
 			}
 		}
 	}
