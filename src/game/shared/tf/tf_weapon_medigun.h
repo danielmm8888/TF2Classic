@@ -135,4 +135,31 @@ private:
 	CWeaponMedigun( const CWeaponMedigun & );
 };
 
+// Now make sure there isn't something other than team players in the way.
+class CMedigunFilter : public CTraceFilterSimple
+{
+public:
+	CMedigunFilter(CBaseEntity *pShooter) : CTraceFilterSimple(pShooter, COLLISION_GROUP_WEAPON)
+	{
+		m_pShooter = pShooter;
+	}
+
+	virtual bool ShouldHitEntity(IHandleEntity *pHandleEntity, int contentsMask)
+	{
+		// If it hit an edict the isn't the target and is on our team, then the ray is blocked.
+		CBaseEntity *pEnt = static_cast<CBaseEntity*>(pHandleEntity);
+
+		// Ignore collisions with the shooter
+		if (pEnt == m_pShooter)
+			return false;
+
+		if (pEnt->GetTeam() == m_pShooter->GetTeam())
+			return false;
+
+		return CTraceFilterSimple::ShouldHitEntity(pHandleEntity, contentsMask);
+	}
+
+	CBaseEntity	*m_pShooter;
+};
+
 #endif // TF_WEAPON_MEDIGUN_H
