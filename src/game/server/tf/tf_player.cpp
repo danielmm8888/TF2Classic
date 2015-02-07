@@ -1162,6 +1162,7 @@ void CTFPlayer::SaveInventory(TFPlayerClassData_t *pData)
 		}
 	}
 	Inventory->SetInventory(filesystem, pInventory);
+	pInventory->deleteThis();
 }
 
 //-----------------------------------------------------------------------------
