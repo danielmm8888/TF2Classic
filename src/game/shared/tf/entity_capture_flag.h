@@ -156,6 +156,7 @@ public:
 	void			Think( void );
 	
 	void			SetFlagStatus( int iStatus );
+	int				GetFlagStatus( void ) { return m_nFlagStatus; };
 	void			ResetFlagReturnTime( void ) { m_flResetTime = 0; }
 	void			SetFlagReturnIn( float flTime )
 	{
@@ -205,9 +206,10 @@ public:
 
 	string_t		m_sFlagIcon;
 
+	void			Reset( void );
+
 private:
 
-	void			Reset( void );
 	void			ResetMessage( void );
 
 private:
