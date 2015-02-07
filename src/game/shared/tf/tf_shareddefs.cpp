@@ -52,6 +52,34 @@ const char *g_aPlayerClassNames[] =
 	"#TF_Class_Name_Civilian"
 };
 
+const char *g_aPlayerClassEmblems[] =
+{
+	"../hud/leaderboard_class_scout",
+	"../hud/leaderboard_class_sniper",
+	"../hud/leaderboard_class_soldier",
+	"../hud/leaderboard_class_demo",
+	"../hud/leaderboard_class_medic",
+	"../hud/leaderboard_class_heavy",
+	"../hud/leaderboard_class_pyro",
+	"../hud/leaderboard_class_spy",
+	"../hud/leaderboard_class_engineer",
+	"../hud/leaderboard_class_civilian",
+};
+
+const char *g_aPlayerClassEmblemsDead[] =
+{
+	"../hud/leaderboard_class_scout_d",
+	"../hud/leaderboard_class_sniper_d",
+	"../hud/leaderboard_class_soldier_d",
+	"../hud/leaderboard_class_demo_d",
+	"../hud/leaderboard_class_medic_d",
+	"../hud/leaderboard_class_heavy_d",
+	"../hud/leaderboard_class_pyro_d",
+	"../hud/leaderboard_class_spy_d",
+	"../hud/leaderboard_class_engineer_d",
+	"../hud/leaderboard_class_civilian_d",
+};
+
 const char *g_aPlayerClassNames_NonLocalized[] =
 {
 	"Undefined",
@@ -157,6 +185,9 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_ROCKETLAUNCHERBETA",
 	"TF_WEAPON_PIPE",
 	"TF_WEAPON_CYCLOPS",
+	"TF_WEAPON_OVERHEALER",
+	"TF_WEAPON_FISHWHACKER",
+	"TF_WEAPON_SHOTGUN_MEDIC",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -222,6 +253,9 @@ int g_aWeaponDamageTypes[] =
 	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
 	DMG_CLUB,		// TF_WEAPON_PIPE,
 	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
+	DMG_BULLET,		// TF_WEAPON_OVERHEALER,
+	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
+	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list

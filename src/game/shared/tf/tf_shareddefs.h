@@ -77,6 +77,8 @@ enum
 #define PANEL_CLASS_YELLOW		"class_yellow"
 #define PANEL_MAPINFO			"mapinfo"
 #define PANEL_ROUNDINFO			"roundinfo"
+#define PANEL_FOURTEAMSCOREBOARD "fourteamscoreboard"
+#define PANEL_FOURTEAMSELECT	"fourteamselect"
 
 // file we'll save our list of viewed intro movies in
 #define MOVIES_FILE				"viewed.res"
@@ -131,6 +133,9 @@ enum
 
 extern const char *g_aPlayerClassNames[];				// localized class names
 extern const char *g_aPlayerClassNames_NonLocalized[];	// non-localized class names
+
+extern const char *g_aPlayerClassEmblems[];
+extern const char *g_aPlayerClassEmblemsDead[];
 
 //-----------------------------------------------------------------------------
 // For entity_capture_flags to use when placed in the world
@@ -309,6 +314,9 @@ enum
 	TF_WEAPON_ROCKETLAUNCHERBETA,
 	TF_WEAPON_PIPE,
 	TF_WEAPON_CYCLOPS,
+	TF_WEAPON_OVERHEALER,
+	TF_WEAPON_FISHWHACKER,
+	TF_WEAPON_SHOTGUN_MEDIC,
 
 	TF_WEAPON_COUNT
 };
