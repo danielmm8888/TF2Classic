@@ -1047,7 +1047,8 @@ void CTFPlayer::GiveDefaultItems()
 		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
 	}
 	
-	ChangeWeapon( pData );
+	LoadInventory(pData);
+	ChangeWeapon(pData);
 
 	// Give weapons.
 	if (tf2c_random_weapons.GetBool())
@@ -1122,16 +1123,41 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
-	// Since the civilian has no weapons, the game will just crash
-	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN)
-		return;
-
-	for (int i = 0; i < 5; i++)
+	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 	{
-		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, i, GetWeaponPreset(i));
+		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, iSlot, GetWeaponPreset(iSlot));
 		if (iWeapon != 0)
-			pData->m_aWeapons[i] = iWeapon;
+			pData->m_aWeapons[iSlot] = iWeapon;
 	}
+}
+
+void CTFPlayer::LoadInventory(TFPlayerClassData_t *pData)
+{
+	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	//int iClass = GetPlayerClass()->GetClassIndex();
+	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
+	{
+		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+		{
+			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
+			HandleCommand_WeaponPreset(iClass, iSlot, iPreset);
+		}
+	}
+}
+
+void CTFPlayer::SaveInventory(TFPlayerClassData_t *pData)
+{
+	KeyValues* pInventory = new KeyValues("Inventory");
+	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
+	{
+		KeyValues* pClass = new KeyValues(g_aPlayerClassNames_NonLocalized[iClass]);
+		pInventory->AddSubKey(pClass);
+		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+		{
+			pClass->SetInt(Inventory->GetSlotName(iSlot), GetWeaponPreset(iClass, iSlot));
+		}
+	}
+	Inventory->SetInventory(filesystem, pInventory);
 }
 
 //-----------------------------------------------------------------------------
@@ -1439,15 +1465,15 @@ int CTFPlayer::GetAutoTeam( void )
 			}
 			else if (pGreen->GetNumPlayers() < pRed->GetNumPlayers() && pGreen->GetNumPlayers() < pBlue->GetNumPlayers() && pGreen->GetNumPlayers() < pYellow->GetNumPlayers())
 			{
-				iTeam = TF_TEAM_GREEN;
+				iTeam = TF_TEAM_RED;
 			}
 			else if (pYellow->GetNumPlayers() < pRed->GetNumPlayers() && pYellow->GetNumPlayers() < pBlue->GetNumPlayers() && pYellow->GetNumPlayers() < pGreen->GetNumPlayers())
 			{
-				iTeam = TF_TEAM_YELLOW;
+				iTeam = TF_TEAM_RED;
 			}
 			else
 			{
-				iTeam = RandomInt(2, 5);
+				iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
 			}
 		}
 	}
@@ -2023,7 +2049,21 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if (args.ArgC() >= 3)
 		{
 			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
+			TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
+			SaveInventory(pData);
 		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "loadinv"))
+	{
+		TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
+		LoadInventory(pData);
+		return true;
+	}
+	else if (FStrEq(pcmd, "saveinv"))
+	{
+		TFPlayerClassData_t *pData = GetPlayerClass()->GetData();
+		SaveInventory(pData);
 		return true;
 	}
 	else if ( FStrEq( pcmd, "disguise" ) ) 
@@ -3004,25 +3044,27 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	// Send out damage event
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_damaged" );
-	if ( event )
+	if( event && !m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
-		if( info.GetAttacker()->IsPlayer() )
+		// Double check for valid TFPlayer
+		CTFPlayer *attacker = NULL;
+		if( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
 		{
-			CTFPlayer *attacker = ToTFPlayer( info.GetAttacker() ); // Needs to be updated to include projectiles
-			CTFPlayer  *inflictor = ToTFPlayer( info.GetInflictor() );
-			if( attacker && inflictor )
-			{
-				event->SetInt( "userid_from", attacker->GetUserID() ); // Who shot
-				event->SetInt( "userid_to", inflictor->GetUserID() ); // Who WAS shot
-				event->SetInt( "amount", (int)info.GetDamage() );
-				event->SetInt( "type", 1 );
-				// Position used for hit text
-				event->SetFloat( "from_x", info.GetDamagePosition().x );
-				event->SetFloat( "from_y", info.GetDamagePosition().y );
-				event->SetFloat( "from_z", info.GetDamagePosition().z );
-				// Fire off event
-				gameeventmanager->FireEvent( event );
-			}
+			attacker = ToTFPlayer( info.GetAttacker() );
+		}
+
+		if( attacker )
+		{
+			event->SetInt( "userid_from", attacker->GetUserID() ); // Who shot
+			event->SetInt( "userid_to", GetUserID() ); // Who WAS shot (i.e. us)
+			event->SetInt( "amount", (int)info.GetDamage() );
+			event->SetInt( "type", 1 );
+			// Position used for hit text
+			event->SetFloat( "from_x", info.GetDamagePosition().x );
+			event->SetFloat( "from_y", info.GetDamagePosition().y );
+			event->SetFloat( "from_z", info.GetDamagePosition().z );
+			// Fire off event
+			gameeventmanager->FireEvent( event );
 		}
 	}
 
@@ -6262,7 +6304,7 @@ void CTFPlayer::SpeakWeaponFire( int iCustomConcept )
 	if ( !GetResponseSceneFromConcept( iCustomConcept, szScene, sizeof( szScene ) ) )
 		return;
 
-	float flDuration = InstancedScriptedScene( this, szScene, &m_hExpressionSceneEnt, 0.0, true, NULL, true );
+	float flDuration = InstancedScriptedScene(this, szScene, &m_hExpressionSceneEnt, 0.0, true, NULL, true );
 	m_flNextSpeakWeaponFire = gpGlobals->curtime + flDuration;
 }
 
