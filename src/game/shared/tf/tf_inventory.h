@@ -11,17 +11,13 @@
 #endif
 
 #include "cbase.h"
-#include "server_class.h"
+//#include "server_class.h"
 #include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
-#include "tf_player_shared.h"
 #include "tf_weapon_parse.h"
-#include "basecombatweapon_shared.h"
 #include "Filesystem.h" 
-//#include "player.h"
-//#include "c_tf_player.h"
 #if defined( CLIENT_DLL )
-#include "history_resource.h"
+#include "c_tf_player.h"
 #endif
 
 #define INVENTORY_SLOTS			6
@@ -54,7 +50,19 @@ public:
 			return NULL;
 
 		return list[idx];
-	}
+	};
+
+#if defined( CLIENT_DLL )
+	int GetWeaponPreset(C_TFPlayer *pPlayer, int iClass, int iSlot)
+	{
+		//C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+		for (int i = 0; i < INVENTORY_WEAPONS; i++)
+		{
+			if (pPlayer->Weapon_OwnsThisID(Weapons[iClass][iSlot][i]))
+				return i;
+		}
+		return 0;
+	};
 
 	KeyValues* GetInventory(IBaseFileSystem *pFileSystem)
 	{
@@ -68,21 +76,11 @@ public:
 		pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
 	};
 
-	int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
-	{
-		KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-		if (!pSub)
-			return 0;
-		const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
-		return iPreset;
-	};
-
 	char* GetWeaponBucket(int iWeapon, int iTeam)
 	{
 		//FileWeaponInfo_t *pWeaponInfo = new FileWeaponInfo_t();		
 		//Q_snprintf(sz, sizeof(sz), "scripts/%s", pWeaponnfo->szIClassName);
 		//return WeaponBuckets[iWeapon][iTeam];
-#if defined( CLIENT_DLL )
 		const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 		char sz[128];
 		Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
@@ -100,11 +98,19 @@ public:
 		}
 		char* sTextureFile = p->szTextureFile;
 		return sTextureFile;
-#else
-		return NULL;
-#endif
 	}; 
+#endif
 	
+
+int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
+	{
+		KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+		if (!pSub)
+			return 0;
+		const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
+		return iPreset;
+	};
+
 	
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];

@@ -60,6 +60,8 @@
 #include "materialsystem/IMaterialVar.h"
 #include "c_tf_team.h"
 
+#include "tf_inventory.h"
+
 #if defined( CTFPlayer )
 #undef CTFPlayer
 #endif
@@ -3086,6 +3088,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		KeyUp( &in_ducktoggle, NULL ); 
 	}
 
+	LoadInventory();
 	UpdateVisibility();
 
 	m_hFirstGib = NULL;
@@ -3322,6 +3325,51 @@ void C_TFPlayer::Simulate( void )
 	// So we deliberately skip over the base player simulate, which calls them.
 	BaseClass::BaseClass::Simulate();
 }
+
+void C_TFPlayer::LoadInventory(void)
+{
+	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
+	{
+		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+		{
+			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
+			char szCmd[64];
+			Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d %d;", iClass, iSlot, iPreset);
+			engine->ExecuteClientCmd(szCmd);
+		}
+	}
+}
+
+void C_TFPlayer::EditInventory(int iSlot, int iWeapon)
+{
+	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	int iClass = GetPlayerClass()->GetClassIndex();
+	KeyValues* pClass = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	pClass->SetInt(Inventory->GetSlotName(iSlot), iWeapon);
+	Inventory->SetInventory(filesystem, pInventory);
+}
+
+/*
+void C_TFPlayer::SaveInventory(void)
+{
+//KeyValues* pInventory = new KeyValues("Inventory");
+KeyValues* pInventory = Inventory->GetInventory(filesystem);
+//for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
+//{
+//KeyValues* pClass = new KeyValues(g_aPlayerClassNames_NonLocalized[iClass]);
+
+pInventory->AddSubKey(pClass);
+for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+{
+int iPreset = Inventory->GetWeaponPreset(this, iClass, iSlot);
+pClass->SetInt(Inventory->GetSlotName(iSlot), iPreset);
+}
+//}
+Inventory->SetInventory(filesystem, pInventory);
+pInventory->deleteThis();
+}
+*/
 
 //-----------------------------------------------------------------------------
 // Purpose: 

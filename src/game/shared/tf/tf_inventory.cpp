@@ -7,8 +7,6 @@
 
 
 #include "cbase.h"
-#include "server_class.h"
-#include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
 

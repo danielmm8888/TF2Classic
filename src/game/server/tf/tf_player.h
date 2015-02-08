@@ -116,6 +116,60 @@ public:
 	CTFWeaponBase		*GetActiveTFWeapon( void ) const;
 	bool				IsActiveTFWeapon(int iWeaponID);
 
+	int GetWeaponPreset(int iSlotNum){
+		int iClass = GetPlayerClass()->GetClassIndex();
+		if (iSlotNum == 0){
+			return m_WeaponPresetPrimary[iClass];
+		}
+		else if (iSlotNum == 1){
+			return m_WeaponPresetSecondary[iClass];
+		}
+		else if (iSlotNum == 2){
+			return m_WeaponPresetMelee[iClass];
+		}
+		return 0;
+	};
+
+	int GetWeaponPreset(int iClass, int iSlotNum){
+		if (iSlotNum == 0){
+			return m_WeaponPresetPrimary[iClass];
+		}
+		else if (iSlotNum == 1){
+			return m_WeaponPresetSecondary[iClass];
+		}
+		else if (iSlotNum == 2){
+			return m_WeaponPresetMelee[iClass];
+		}
+		return 0;
+	};
+
+	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
+	{
+		int iClass = GetPlayerClass()->GetClassIndex();
+		if (iSlotNum == 0){
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 1){
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 2){
+			m_WeaponPresetMelee[iClass] = iPresetNum;
+		}
+	}
+
+	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
+	{
+		if (iSlotNum == 0){
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 1){
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
+		}
+		else if (iSlotNum == 2){
+			m_WeaponPresetMelee[iClass] = iPresetNum;
+		}
+	}
+
 	void				SaveMe( void );
 
 	void				FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int nDamageType, int nCustomDamageType = TF_DMG_CUSTOM_NONE );
@@ -448,8 +502,8 @@ private:
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
 
 	void				ChangeWeapon( TFPlayerClassData_t *pData );
-	void				LoadInventory(TFPlayerClassData_t *pData);
-	void				SaveInventory(TFPlayerClassData_t *pData);
+	void				LoadInventory(void);
+	void				SaveInventory(void);
 
 private:
 	// Map introductions
@@ -489,60 +543,6 @@ private:
 	CUtlVector<int> m_WeaponPresetPrimary;
 	CUtlVector<int> m_WeaponPresetSecondary;
 	CUtlVector<int> m_WeaponPresetMelee;
-
-	int GetWeaponPreset(int iSlotNum){
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	int GetWeaponPreset(int iClass, int iSlotNum){
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
-	{
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = iPresetNum;
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = iPresetNum;
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = iPresetNum;
-		}
-	}
-
-	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
-	{
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = iPresetNum;
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = iPresetNum;
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = iPresetNum;
-		}
-	}
 
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.

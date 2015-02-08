@@ -42,6 +42,7 @@ public:
 
 	C_TFPlayer();
 	~C_TFPlayer();
+	class CTFInventory *Inventory;
 
 	static C_TFPlayer* GetLocalTFPlayer();
 
@@ -72,6 +73,9 @@ public:
 
 	virtual void Simulate( void );
 	virtual void FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options );
+
+	void LoadInventory(void);
+	void EditInventory(int iSlot, int iWeapon);
 
 	void FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int nDamageType, int nCustomDamageType = TF_DMG_CUSTOM_NONE );
 
