@@ -931,7 +931,7 @@ static ConCommand startcamin( "+camin", CAM_InDown );
 static ConCommand endcamin( "-camin", CAM_InUp );
 static ConCommand startcamout( "+camout", CAM_OutDown );
 static ConCommand camout( "-camout", CAM_OutUp );
-static ConCommand thirdperson_mayamode( "thirdperson_mayamode", ::CAM_ToThirdPerson_MayaMode, "Switch to thirdperson Maya-like camera controls.", FCVAR_CHEAT );
+static ConCommand thirdperson_mayamode( "thirdperson_mayamode", ::CAM_ToThirdPerson_MayaMode, "Switch to thirdperson Maya-like camera controls.");
 static ConCommand thirdpersonshoulder("thirdpersonshoulder", ::CAM_ToThirdPersonShoulder, "Switch to thirdperson-shoulder camera.");
 
 // TF allows servers to push people into first/thirdperson, for mods
