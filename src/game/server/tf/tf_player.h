@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve LLC, All rights reserved. ============
+//========= Copyright Â© 1996-2005, Valve LLC, All rights reserved. ============
 //
 //=============================================================================
 #ifndef TF_PLAYER_H
@@ -554,12 +554,13 @@ private:
 
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
-
+/*
 public:
 	bool				SetPowerplayEnabled( bool bOn );
 	bool				PlayerHasPowerplay( void );
 	void				PowerplayThink( void );
 	float				m_flPowerPlayTime;
+*/
 };
 
 //-----------------------------------------------------------------------------
