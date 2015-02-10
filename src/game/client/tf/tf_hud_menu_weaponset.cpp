@@ -126,6 +126,16 @@ void CHudMenuWeaponSet::ApplySchemeSettings(IScheme *pScheme)
 	SetPaintBackgroundEnabled(true);
 
 	// set our size
+	//1920 1080
+	//1024 768
+	//300 185
+	//0.15625 0.1712
+	float fWide = GetWide() * 0.15625;
+	float fTall = GetTall() * 0.1712;
+
+	m_fWide = fWide * sqrt(300 / fWide);
+	m_fTall = fTall * sqrt(185 / fTall);
+
 	int screenWide, screenTall;
 	int x, y;
 	GetPos(x, y);
@@ -180,7 +190,7 @@ void CHudMenuWeaponSet::OnThink()
 	{
 		m_pWeaponLabel->SetText("Select Weapon");
 		m_pWeaponBucket->SetVisible(true);
-		m_pWeaponBucket->SetPos(m_iSelect_X, m_iSelect_Y + m_iSelectedSlot * 185);
+		m_pWeaponBucket->SetPos(m_iSelect_X, m_iSelect_Y + m_iSelectedSlot * m_fTall);
 	}
 
 
@@ -193,7 +203,7 @@ void CHudMenuWeaponSet::OnThink()
 				{
 					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetEnabled(1);
 					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetVisible(1);
-					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetPos(iPreset * 300 + 200, iSlot * 185 + 100);
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetPos(iPreset * m_fWide + m_fWide - 100, iSlot * m_fTall + m_fTall - 80);
 					m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("WeaponBucket"));
 					m_pWeaponBucket->SetVisible(1);
 					char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());

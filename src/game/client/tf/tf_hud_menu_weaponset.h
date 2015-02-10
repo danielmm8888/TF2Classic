@@ -64,6 +64,9 @@ private:
 
 	int m_iSelectedItem;
 
+	float m_fWide;
+	float m_fTall;
+
 	int m_iSelect_X;
 	int m_iSelect_Y;
 
