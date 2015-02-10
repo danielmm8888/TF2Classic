@@ -10,6 +10,76 @@
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
 
+CTFInventory::CTFInventory(){};
+
+int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
+{
+	return Weapons[iClass][iSlot][iNum];
+};
+
+#if defined( CLIENT_DLL )
+const char* CTFInventory::GetSlotName(int iSlot)
+{
+	return g_aPlayerSlotNames[iSlot];
+};
+
+CHudTexture *CTFInventory::FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
+{
+	int idx = list.Find(psz);
+	if (idx == list.InvalidIndex())
+		return NULL;
+
+	return list[idx];
+};
+
+KeyValues* CTFInventory::GetInventory(IBaseFileSystem *pFileSystem)
+{
+	KeyValues *pInv = new KeyValues("Inventory");
+	pInv->LoadFromFile(pFileSystem, "scripts/tf_inventory.txt");
+	return pInv;
+};
+
+void CTFInventory::SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory)
+{
+	pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
+};
+
+char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
+{
+	const char *pszWeaponName = WeaponIdToAlias(iWeapon);
+	char sz[128];
+	Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
+	CUtlDict< CHudTexture *, int > tempList;
+	LoadHudTextures(tempList, sz, g_pGameRules->GetEncryptionKey());
+	CHudTexture *p;
+	switch (iTeam)
+	{
+	case 0: p = FindHudTextureInDict(tempList, "weapon");
+	case 1: p = FindHudTextureInDict(tempList, "weapon_s");
+	case 2: p = FindHudTextureInDict(tempList, "weapon_g");
+	case 3: p = FindHudTextureInDict(tempList, "weapon_y");
+	default:
+		p = FindHudTextureInDict(tempList, "weapon");
+	}
+	char* sTextureFile = p->szTextureFile;
+	return sTextureFile;
+};
+
+int CTFInventory::GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
+{
+	KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	if (!pSub)
+		return 0;
+	const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
+	return iPreset;
+};
+
+int CTFInventory::GetWeaponPreset(IBaseFileSystem *pFileSystem, int iClass, int iSlot)
+{
+	return GetLocalPreset(GetInventory(pFileSystem), iClass, iSlot);
+};
+#endif
+
 const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 {
 	"Primary",
@@ -131,7 +201,3 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			}
 		}
 };
-
-
-
-CTFInventory::CTFInventory(){};

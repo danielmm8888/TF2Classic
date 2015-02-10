@@ -76,7 +76,7 @@ public:
 	// Creation/Destruction.
 	static CTFPlayer	*CreatePlayer( const char *className, edict_t *ed );
 	static CTFPlayer	*Instance( int iEnt );
-	static CTFInventory *Inventory;
+	CTFInventory *Inventory;
 
 	virtual void		Spawn();
 	virtual void		ForceRespawn();
@@ -502,8 +502,6 @@ private:
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
 
 	void				ChangeWeapon( TFPlayerClassData_t *pData );
-	void				LoadInventory(void);
-	void				SaveInventory(void);
 
 private:
 	// Map introductions

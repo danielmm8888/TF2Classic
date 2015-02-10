@@ -163,6 +163,7 @@ void CHudMenuWeaponSet::OnThink()
 	if (!pPlayer)
 		return;
 	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
+	int iClass = pClass->GetClassIndex();
 	C_BaseCombatWeapon *pSelectedWeapon = NULL;
 	pSelectedWeapon = pPlayer->GetActiveWeapon();
 	if (!pSelectedWeapon)
@@ -183,17 +184,17 @@ void CHudMenuWeaponSet::OnThink()
 	}
 
 
-	for (int i = 0; i < ROWNUM; i++)
+	for (int iSlot = 0; iSlot < ROWNUM; iSlot++)
 	{
-		for (int j = 0; j < COLNUM; j++)
+		for (int iPreset = 0; iPreset < COLNUM; iPreset++)
 		{
-				int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, i, j);
+			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, iSlot, iPreset);
 				if (iWeapon > 0)
 				{
-					m_pWeaponIcons[COLNUM * i + j]->SetEnabled(1);
-					m_pWeaponIcons[COLNUM * i + j]->SetVisible(1);
-					m_pWeaponIcons[COLNUM * i + j]->SetPos(j * 300 + 200, i * 185 + 100);
-					m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponBucket"));
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetEnabled(1);
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetVisible(1);
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetPos(iPreset * 300 + 200, iSlot * 185 + 100);
+					m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("WeaponBucket"));
 					m_pWeaponBucket->SetVisible(1);
 					char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
 					char szIcon[64];
@@ -201,15 +202,17 @@ void CHudMenuWeaponSet::OnThink()
 					if (szIcon)
 						m_pWeaponBucket->SetImage(szIcon);
 
-					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponLabel"));
+					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("WeaponLabel"));
 					const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 					char szWeaponName[64];
 					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pszWeaponName);
 					wchar_t *pText = g_pVGuiLocalize->Find(szWeaponName);
 					m_pWeaponLabel->SetText(pText);
 
-					m_pActiveWeaponBG = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("ActiveWeapon"));
-					if (pPlayer->Weapon_OwnsThisID(iWeapon))
+					m_pActiveWeaponBG = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("ActiveWeapon"));
+
+					int iWeaponPreset = Invenory->GetWeaponPreset(filesystem, iClass, iSlot);
+					if (iPreset == iWeaponPreset)
 					{
 						m_pActiveWeaponBG->SetVisible(true);
 					}
@@ -218,16 +221,16 @@ void CHudMenuWeaponSet::OnThink()
 						m_pActiveWeaponBG->SetVisible(false);
 					}
 
-					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * i + j]->FindChildByName("WeaponNumber"));
+					m_pWeaponLabel = dynamic_cast<CExLabel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("WeaponNumber"));
 					char szWeaponNumber[64];
-					Q_snprintf(szWeaponNumber, sizeof(szWeaponNumber), "%d %d", i+1, j+1);
+					Q_snprintf(szWeaponNumber, sizeof(szWeaponNumber), "%d %d", iSlot + 1, iPreset + 1);
 					m_pWeaponLabel->SetText(szWeaponNumber);
 	
 				}
 				else
 				{
-					m_pWeaponIcons[COLNUM * i + j]->SetEnabled(0);
-					m_pWeaponIcons[COLNUM * i + j]->SetVisible(0);
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetEnabled(0);
+					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetVisible(0);
 				}
 			}
 		}
@@ -305,9 +308,10 @@ void CHudMenuWeaponSet::SelectWeapon(int iSlot, int iWeapon)
 	if (pPlayer)
 	{
 		char szCmd[64];
-		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d; tf2c_weaponset_show 0", iSlot, iWeapon); //; lastinv
+		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d", iSlot, iWeapon); //; tf2c_weaponset_show 0
 		engine->ExecuteClientCmd(szCmd);
 		m_iSelectedSlot = -1;
+		pPlayer->EditInventory(iSlot, iWeapon);
 	}
 }
 

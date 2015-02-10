@@ -3335,7 +3335,7 @@ void C_TFPlayer::LoadInventory(void)
 		{
 			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
 			char szCmd[64];
-			Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d %d;", iClass, iSlot, iPreset);
+			Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset);
 			engine->ExecuteClientCmd(szCmd);
 		}
 	}

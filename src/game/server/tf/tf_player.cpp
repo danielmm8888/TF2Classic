@@ -1047,7 +1047,6 @@ void CTFPlayer::GiveDefaultItems()
 		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
 	}
 	
-	//m_Shared.LoadInventory();
 	ChangeWeapon(pData);
 
 	// Give weapons.
@@ -1133,37 +1132,6 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 		if (iWeapon != 0)
 			pData->m_aWeapons[iSlot] = iWeapon;
 	}
-}
-
-void CTFPlayer::LoadInventory(void)
-{
-	/*KeyValues* pInventory = Inventory->GetInventory(filesystem);
-	//int iClass = GetPlayerClass()->GetClassIndex();
-	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
-	{
-		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-		{
-			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
-			HandleCommand_WeaponPreset(iClass, iSlot, iPreset);
-		}
-	}*/
-}
-
-void CTFPlayer::SaveInventory(void)
-{
-	/*KeyValues* pInventory = new KeyValues("Inventory");
-	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
-	{
-		KeyValues* pClass = new KeyValues(g_aPlayerClassNames_NonLocalized[iClass]);
-		pInventory->AddSubKey(pClass);
-		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-		{
-			pClass->SetInt(Inventory->GetSlotName(iSlot), GetWeaponPreset(iClass, iSlot));
-		}
-	}
-	Inventory->SetInventory(filesystem, pInventory);
-	pInventory->deleteThis();
-	*/
 }
 
 //-----------------------------------------------------------------------------
@@ -2055,24 +2023,15 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if (args.ArgC() >= 3)
 		{
 			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
-			//m_Shared.SaveInventory(this);
 		}
-		if (args.ArgC() >= 1)
+		return true;
+	}
+	else if (FStrEq(pcmd, "weaponpresetclass"))
+	{
+		if (args.ArgC() >= 4)
 		{
 			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]), atoi(args[3]));
-			//m_Shared.SaveInventory(this);
 		}
-		return true;
-	}
-	else if (FStrEq(pcmd, "loadinv"))
-	{
-		//m_Shared.LoadInventory();
-		//LoadInventory();
-		return true;
-	}
-	else if (FStrEq(pcmd, "saveinv"))
-	{
-		//m_Shared.SaveInventory();
 		return true;
 	}
 	else if ( FStrEq( pcmd, "disguise" ) ) 

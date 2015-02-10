@@ -33,88 +33,22 @@ class CTFInventory
 public:
 	CTFInventory();
 
-	int GetWeapon(int iClass, int iSlot, int iNum)
-	{
-		return Weapons[iClass][iSlot][iNum];
-	};
-
-	const char* GetSlotName(int iSlot)
-	{
-		return g_aPlayerSlotNames[iSlot];
-	};
-
-	static CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
-	{
-		int idx = list.Find(psz);
-		if (idx == list.InvalidIndex())
-			return NULL;
-
-		return list[idx];
-	};
+	int GetWeapon(int iClass, int iSlot, int iNum);
 
 #if defined( CLIENT_DLL )
-	int GetWeaponPreset(C_TFPlayer *pPlayer, int iClass, int iSlot)
-	{
-		//C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-		for (int i = 0; i < INVENTORY_WEAPONS; i++)
-		{
-			if (pPlayer->Weapon_OwnsThisID(Weapons[iClass][iSlot][i]))
-				return i;
-		}
-		return 0;
-	};
-
-	KeyValues* GetInventory(IBaseFileSystem *pFileSystem)
-	{
-		KeyValues *pInv = new KeyValues("Inventory");
-		pInv->LoadFromFile(pFileSystem, "scripts/tf_inventory.txt");
-		return pInv;
-	};
-
-	void SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory)
-	{
-		pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
-	};
-
-	char* GetWeaponBucket(int iWeapon, int iTeam)
-	{
-		//FileWeaponInfo_t *pWeaponInfo = new FileWeaponInfo_t();		
-		//Q_snprintf(sz, sizeof(sz), "scripts/%s", pWeaponnfo->szIClassName);
-		//return WeaponBuckets[iWeapon][iTeam];
-		const char *pszWeaponName = WeaponIdToAlias(iWeapon);
-		char sz[128];
-		Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
-		CUtlDict< CHudTexture *, int > tempList;
-		LoadHudTextures(tempList, sz, g_pGameRules->GetEncryptionKey());
-		CHudTexture *p;
-		switch (iTeam)
-		{
-		case 0: p = FindHudTextureInDict(tempList, "weapon");
-		case 1: p = FindHudTextureInDict(tempList, "weapon_s");
-		case 2: p = FindHudTextureInDict(tempList, "weapon_g");
-		case 3: p = FindHudTextureInDict(tempList, "weapon_y");
-		default:
-			p = FindHudTextureInDict(tempList, "weapon");
-		}
-		char* sTextureFile = p->szTextureFile;
-		return sTextureFile;
-	}; 
+	KeyValues* GetInventory(IBaseFileSystem *pFileSystem);
+	void SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory);
+	int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot);
+	int GetWeaponPreset(IBaseFileSystem *pFileSystem, int iClass, int iSlot);
+	char* GetWeaponBucket(int iWeapon, int iTeam);
+	const char* GetSlotName(int iSlot);
+	CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz);
 #endif
 	
-
-int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
-	{
-		KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-		if (!pSub)
-			return 0;
-		const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
-		return iPreset;
-	};
-
 	
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
 };
 
-#endif // TF_SHAREDDEFS_H
+#endif // TF_INVENTORY_H
