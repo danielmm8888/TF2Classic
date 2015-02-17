@@ -18,9 +18,16 @@
 
 enum
 {
-	HealthKit,
-	AmmoKit
+	TF_BACKPACK_HEALTHKIT,
+	TF_BACKPACK_AMMOKIT,
+	//add new here
+
+	TF_BACKPACK_COUNT		
 };
+
+#define TF_BACKPACK_TAKE_SOUND	"Backback.Take"
+#define TF_BACKPACK_DROP_SOUND	"Backback.Drop"
+#define TF_BACKPACK_SIZES		3
 
 //=============================================================================
 //
@@ -41,17 +48,12 @@ public:
 	void AddNewEntity(const char* cNewEntity) { cEntityName = cNewEntity; };
 	void AddNewEntityByType(int iType, int iSize);
 	const char *GetStatus(void);
-	int GetEntityType(void) { return iEntityType; };
-	int GetEntitySize(void) { return iEntitySize; };
-	
+	virtual void Precache();
 
 private:
 
 	const char* cEntityName;
-	int iEntityType;
-	int iEntitySize;
-	static const char* HealthEntities[3];
-	static const char* AmmoEntities[3];
+	static const char* Entities[TF_BACKPACK_COUNT][TF_BACKPACK_SIZES];
 	CTFBackpack( const CTFBackpack & ) {}
 };
 

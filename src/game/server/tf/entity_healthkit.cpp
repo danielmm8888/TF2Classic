@@ -66,7 +66,9 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			if (pBackpack->CanPickup())
 			{				
 				int Size = GetPowerupSize();
-				pBackpack->AddNewEntityByType(HealthKit, Size);
+				pBackpack->AddNewEntityByType(TF_BACKPACK_HEALTHKIT, Size);
+				CSingleUserRecipientFilter filter(pPlayer);
+				EmitSound(filter, entindex(), TF_BACKPACK_TAKE_SOUND);
 				bSuccess = true;
 			}
 			

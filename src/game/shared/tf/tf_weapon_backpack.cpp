@@ -37,20 +37,19 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_Backpack );
 // Weapon Backpack functions.
 //
 
-const char *CTFBackpack::HealthEntities[3] =
+const char *CTFBackpack::Entities[TF_BACKPACK_COUNT][TF_BACKPACK_SIZES] =
 {
-	"item_healthkit_small",
-	"item_healthkit_medium",
-	"item_healthkit_full"
+	{ 
+		"item_healthkit_small",
+		"item_healthkit_medium",
+		"item_healthkit_full"
+	},
+	{
+		"item_ammopack_small",
+		"item_ammopack_medium",
+		"item_ammopack_full"
+	}
 };
-
-const char *CTFBackpack::AmmoEntities[3] =
-{
-	"item_ammopack_small",
-	"item_ammopack_medium",
-	"item_ammopack_full"
-};
-
 
 const char *CTFBackpack::GetStatus(void)
 {
@@ -60,37 +59,32 @@ const char *CTFBackpack::GetStatus(void)
 		return "Full";
 };
 
+void CTFBackpack::Precache(void)
+{
+	PrecacheScriptSound(TF_BACKPACK_TAKE_SOUND);
+	PrecacheScriptSound(TF_BACKPACK_DROP_SOUND);
+	BaseClass::Precache();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 CTFBackpack::CTFBackpack()
 {
 	cEntityName = "";
-	iEntityType = -1;
-	iEntitySize = -1;
 }
 
 void  CTFBackpack::AddNewEntityByType(int iType, int iSize)
 {
-	const char* cEntity;
-	switch (iType)
-	{
-	case HealthKit:
-		cEntity = HealthEntities[iSize];
-		break;
-	case AmmoKit:
-		cEntity = AmmoEntities[iSize];
-		break;
-	default:
-		cEntity = "";
-		break;
-	}
+	if (iType >= TF_BACKPACK_COUNT || iSize >= TF_BACKPACK_SIZES)
+		return;
+	
+	const char* cEntity = Entities[iType][iSize];
+
 #ifdef GAME_DLL
 	CTFPlayer *pPlayer = ToTFPlayer(GetPlayerOwner());
 	pPlayer->m_Shared.SetBackpackEntity(iType, iSize);
 #endif
-	iEntityType = iType;
-	iEntitySize = iSize;
 	AddNewEntity(cEntity);
 }
 
@@ -116,8 +110,8 @@ void CTFBackpack::PrimaryAttack()
 #ifdef GAME_DLL
 		CTFPlayer *pPlayer = ToTFPlayer(GetPlayerOwner());
 		pPlayer->m_Shared.SetBackpackEntity(-1, -1);
+		CSingleUserRecipientFilter filter(pPlayer);
+		EmitSound(filter, entindex(), TF_BACKPACK_DROP_SOUND);
 #endif
-		iEntityType = -1;
-		iEntitySize = -1;
 	}
 };

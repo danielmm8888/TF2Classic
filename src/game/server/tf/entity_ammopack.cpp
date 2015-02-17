@@ -69,7 +69,9 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 			if (pBackpack->CanPickup())
 			{
 				int Size = GetPowerupSize();
-				pBackpack->AddNewEntityByType(AmmoKit, Size);
+				pBackpack->AddNewEntityByType(TF_BACKPACK_AMMOKIT, Size);
+				CSingleUserRecipientFilter filter(pPlayer);
+				EmitSound(filter, entindex(), TF_BACKPACK_TAKE_SOUND);
 				bSuccess = true;
 			}
 
