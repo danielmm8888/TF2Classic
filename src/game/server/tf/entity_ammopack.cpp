@@ -103,5 +103,9 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		}
 	}
 
+	if (bSuccess && GetRespawnDelay() == -1)
+	{
+		UTIL_Remove(this);
+	}
 	return bSuccess;
 }
