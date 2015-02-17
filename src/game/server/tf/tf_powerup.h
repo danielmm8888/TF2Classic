@@ -44,7 +44,10 @@ public:
 	bool			IsDisabled( void );
 	void			SetDisabled( bool bDisabled );
 
-	virtual float	GetRespawnDelay( void ) { return g_pGameRules->FlItemRespawnTime( this ); }
+	//virtual float	GetRespawnDelay( void ) { return g_pGameRules->FlItemRespawnTime( this ); }
+	virtual float 	GetRespawnDelay(void) { return m_fRespawnDelay; }
+	virtual void	SetRespawnDelay(float fRespawnDelay) { m_fRespawnDelay = fRespawnDelay; }
+
 
 	// Input handlers
 	void			InputEnable( inputdata_t &inputdata );
@@ -56,6 +59,7 @@ public:
 private:
 	bool			m_bDisabled;
 	bool			m_bRespawning;
+	float			m_fRespawnDelay;
 
 	DECLARE_DATADESC();
 };

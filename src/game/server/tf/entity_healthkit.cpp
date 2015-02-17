@@ -11,6 +11,7 @@
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
 #include "entity_healthkit.h"
+#include "tf_weapon_backpack.h"
 
 //=============================================================================
 //
@@ -57,8 +58,20 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 	bool bSuccess = false;
 
 	if ( ValidTouch( pPlayer ) )
-	{
-		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
+	{		
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetActiveWeapon();
+		if (pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_BACKPACK)
+		{
+			CTFBackpack* pBackpack = (CTFBackpack*)pWeapon;
+			if (pBackpack->CanPickup())
+			{				
+				int Size = GetPowerupSize();
+				pBackpack->AddNewEntityByType(HealthKit, Size);
+				bSuccess = true;
+			}
+			
+		}
+		else if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
 		{
 			CSingleUserRecipientFilter user( pPlayer );
 			user.MakeReliable();
@@ -90,5 +103,9 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 		}
 	}
 
+	if (bSuccess && GetRespawnDelay() == -1)
+	{
+		UTIL_Remove(this);
+	}
 	return bSuccess;
 }

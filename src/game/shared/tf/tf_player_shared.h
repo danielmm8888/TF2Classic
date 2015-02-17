@@ -185,6 +185,10 @@ public:
 	float	GetSpyCloakMeter() const		{ return m_flCloakMeter; }
 	void	SetSpyCloakMeter( float val ) { m_flCloakMeter = val; }
 
+	int		GetBackpackEntityType() const		{ return m_iBackpackEntityType; }
+	int		GetBackpackEntitySize() const		{ return m_iBackpackEntitySize; }
+	void	SetBackpackEntity(int iType, int iSize) { m_iBackpackEntityType = iType; m_iBackpackEntitySize = iSize; }	
+
 	bool	IsJumping( void ) { return m_bJumping; }
 	void	SetJumping( bool bJumping );
 	bool    IsAirDashing( void ) { return m_bAirDash; }
@@ -296,6 +300,9 @@ private:
 	float m_flNextBurningSound;
 
 	CNetworkVar( float, m_flCloakMeter );	// [0,100]
+
+	CNetworkVar(int, m_iBackpackEntityType);
+	CNetworkVar(int, m_iBackpackEntitySize);
 
 	CNetworkVar( bool, m_bJumping );
 	CNetworkVar( bool, m_bAirDash );

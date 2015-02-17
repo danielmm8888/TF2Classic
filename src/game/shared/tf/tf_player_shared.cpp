@@ -124,6 +124,8 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_bAirDash) ),
 	RecvPropInt( RECVINFO( m_nPlayerState ) ),
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
+	RecvPropInt(RECVINFO(m_iBackpackEntityType)),
+	RecvPropInt(RECVINFO(m_iBackpackEntitySize)),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -138,6 +140,8 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_nPlayerState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_nPlayerCond, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flCloakMeter, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD(m_iBackpackEntityType, FIELD_INTEGER, FTYPEDESC_INSENDTABLE),
+	DEFINE_PRED_FIELD(m_iBackpackEntitySize, FIELD_INTEGER, FTYPEDESC_INSENDTABLE),
 	DEFINE_PRED_FIELD( m_bJumping, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAirDash, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
@@ -164,6 +168,8 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_bAirDash ), 1, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nPlayerState ), Q_log2( TF_STATE_COUNT )+1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
+	SendPropInt(SENDINFO(m_iBackpackEntityType), 3, SPROP_VARINT | SPROP_CHANGES_OFTEN),
+	SendPropInt(SENDINFO(m_iBackpackEntitySize), 3, SPROP_VARINT | SPROP_CHANGES_OFTEN),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -194,6 +200,8 @@ CTFPlayerShared::CTFPlayerShared()
 	m_flStealthNextChangeTime = 0.0f;
 	m_iCritMult = 0;
 	m_flInvisibility = 0.0f;
+	m_iBackpackEntityType = -1;
+	m_iBackpackEntitySize = -1;
 
 #ifdef CLIENT_DLL
 	m_iDisguiseWeaponModelIndex = -1;

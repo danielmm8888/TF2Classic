@@ -11,6 +11,7 @@
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
 #include "entity_ammopack.h"
+#include "tf_weapon_backpack.h"
 
 //=============================================================================
 //
@@ -61,29 +62,44 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		if ( !pTFPlayer )
 			return false;
 
-		int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
-		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true ) )
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetActiveWeapon();
+		if (pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_BACKPACK)
 		{
-			bSuccess = true;
-		}
+			CTFBackpack* pBackpack = (CTFBackpack*)pWeapon;
+			if (pBackpack->CanPickup())
+			{
+				int Size = GetPowerupSize();
+				pBackpack->AddNewEntityByType(AmmoKit, Size);
+				bSuccess = true;
+			}
 
-		int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
-		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true ) )
+		} 
+		else
 		{
-			bSuccess = true;
-		}
+			int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+			if (pPlayer->GiveAmmo(ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true))
+			{
+				bSuccess = true;
+			}
 
-		int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
-		if ( pPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true ) )
-		{
-			bSuccess = true;
-		}
+			int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+			if (pPlayer->GiveAmmo(ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true))
+			{
+				bSuccess = true;
+			}
 
-		// did we give them anything?
-		if ( bSuccess )
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+			if (pPlayer->GiveAmmo(ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true))
+			{
+				bSuccess = true;
+			}
+
+			// did we give them anything?
+			if (bSuccess)
+			{
+				CSingleUserRecipientFilter filter(pPlayer);
+				EmitSound(filter, entindex(), TF_AMMOPACK_PICKUP_SOUND);
+			}
 		}
 	}
 
