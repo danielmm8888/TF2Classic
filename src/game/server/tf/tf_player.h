@@ -146,6 +146,8 @@ public:
 	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 	{
 		int iClass = GetPlayerClass()->GetClassIndex();
+		if (iPresetNum >= INVENTORY_WEAPONS)
+			return;
 		if (iSlotNum == 0){
 			m_WeaponPresetPrimary[iClass] = iPresetNum;
 		}
