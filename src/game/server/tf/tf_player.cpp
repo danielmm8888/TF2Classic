@@ -6456,7 +6456,8 @@ CON_COMMAND_F( tf_crashclients, "testing only, crashes about 50 percent of the c
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+/*
 bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 {
 	if ( bOn )
@@ -6542,6 +6543,7 @@ void CTFPlayer::PowerplayThink( void )
 		SetContextThink( &CTFPlayer::PowerplayThink, gpGlobals->curtime + flDuration + RandomFloat( 2, 5 ), "TFPlayerLThink" );
 	}
 }
+*/
 
 //-----------------------------------------------------------------------------
 // Purpose: 
