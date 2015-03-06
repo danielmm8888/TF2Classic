@@ -15,6 +15,7 @@
 #include <vgui/ISurface.h>
 #include <vgui/IVGUI.h>
 #include "c_baseobject.h"
+#include "tf_gamerules.h"
 
 #include "tf_hud_menu_spy_disguise.h"
 
@@ -132,6 +133,26 @@ void CHudMenuSpyDisguise::ApplySchemeSettings( IScheme *pScheme )
 		m_pClassItems_Blue[6]->LoadControlSettings( "resource/UI/disguise_menu/medic_blue.res" );
 		m_pClassItems_Blue[7]->LoadControlSettings( "resource/UI/disguise_menu/sniper_blue.res" );
 		m_pClassItems_Blue[8]->LoadControlSettings( "resource/UI/disguise_menu/spy_blue.res" );
+
+		m_pClassItems_Green[0]->LoadControlSettings("resource/UI/disguise_menu/scout_green.res");
+		m_pClassItems_Green[1]->LoadControlSettings("resource/UI/disguise_menu/soldier_green.res");
+		m_pClassItems_Green[2]->LoadControlSettings("resource/UI/disguise_menu/pyro_green.res");
+		m_pClassItems_Green[3]->LoadControlSettings("resource/UI/disguise_menu/demoman_green.res");
+		m_pClassItems_Green[4]->LoadControlSettings("resource/UI/disguise_menu/heavy_green.res");
+		m_pClassItems_Green[5]->LoadControlSettings("resource/UI/disguise_menu/engineer_green.res");
+		m_pClassItems_Green[6]->LoadControlSettings("resource/UI/disguise_menu/medic_green.res");
+		m_pClassItems_Green[7]->LoadControlSettings("resource/UI/disguise_menu/sniper_green.res");
+		m_pClassItems_Green[8]->LoadControlSettings("resource/UI/disguise_menu/spy_green.res");
+
+		m_pClassItems_Yellow[0]->LoadControlSettings("resource/UI/disguise_menu/scout_yellow.res");
+		m_pClassItems_Yellow[1]->LoadControlSettings("resource/UI/disguise_menu/soldier_yellow.res");
+		m_pClassItems_Yellow[2]->LoadControlSettings("resource/UI/disguise_menu/pyro_yellow.res");
+		m_pClassItems_Yellow[3]->LoadControlSettings("resource/UI/disguise_menu/demoman_yellow.res");
+		m_pClassItems_Yellow[4]->LoadControlSettings("resource/UI/disguise_menu/heavy_yellow.res");
+		m_pClassItems_Yellow[5]->LoadControlSettings("resource/UI/disguise_menu/engineer_yellow.res");
+		m_pClassItems_Yellow[6]->LoadControlSettings("resource/UI/disguise_menu/medic_yellow.res");
+		m_pClassItems_Yellow[7]->LoadControlSettings("resource/UI/disguise_menu/sniper_yellow.res");
+		m_pClassItems_Yellow[8]->LoadControlSettings("resource/UI/disguise_menu/spy_yellow.res");
 
 		m_pActiveSelection = NULL;
 	}
@@ -268,7 +289,8 @@ int	CHudMenuSpyDisguise::HudElementKeyInput( int down, ButtonCode_t keynum, cons
 		case KEY_9:
 			{
 				int iClass = iRemapKeyToClass[ keynum - KEY_1 ];
-				int iTeam = ( m_iShowingTeam == TF_TEAM_BLUE ) ? 1 : 0;
+				//int iTeam = ( m_iShowingTeam == TF_TEAM_BLUE ) ? 1 : 0;
+				int iTeam = m_iShowingTeam - 2;
 
 				SelectDisguise( iClass, iTeam );
 			}
@@ -306,22 +328,80 @@ void CHudMenuSpyDisguise::SelectDisguise( int iClass, int iTeam )
 	}
 }
 
+void CHudMenuSpyDisguise::FlipFourTeams( void )
+{
+	// flip the teams
+	m_iShowingTeam = (m_iShowingTeam + 1) % 6;
+
+	if (m_iShowingTeam == 0)
+		m_iShowingTeam = TF_TEAM_RED;
+
+	switch (m_iShowingTeam)
+	{
+	case TF_TEAM_RED:
+		for (int i = 0; i < 9; i++)
+		{
+			m_pClassItems_Red[i]->SetVisible(true);
+			m_pClassItems_Blue[i]->SetVisible(false);
+			m_pClassItems_Green[i]->SetVisible(false);
+			m_pClassItems_Yellow[i]->SetVisible(false);
+		}
+		break;
+
+	case TF_TEAM_BLUE:
+		for (int i = 0; i < 9; i++)
+		{
+			m_pClassItems_Red[i]->SetVisible(false);
+			m_pClassItems_Blue[i]->SetVisible(true);
+			m_pClassItems_Green[i]->SetVisible(false);
+			m_pClassItems_Yellow[i]->SetVisible(false);
+		}
+		break;
+
+	case TF_TEAM_GREEN:
+		for (int i = 0; i < 9; i++)
+		{
+			m_pClassItems_Red[i]->SetVisible(false);
+			m_pClassItems_Blue[i]->SetVisible(false);
+			m_pClassItems_Green[i]->SetVisible(true);
+			m_pClassItems_Yellow[i]->SetVisible(false);
+		}
+		break;
+
+	case TF_TEAM_YELLOW:
+		for (int i = 0; i < 9; i++)
+		{
+			m_pClassItems_Red[i]->SetVisible(false);
+			m_pClassItems_Blue[i]->SetVisible(false);
+			m_pClassItems_Green[i]->SetVisible(false);
+			m_pClassItems_Yellow[i]->SetVisible(true);
+		}
+		break;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CHudMenuSpyDisguise::ToggleDisguiseTeam( void )
 {
-	// flip the teams
-
-	m_iShowingTeam = ( m_iShowingTeam == TF_TEAM_BLUE ) ? TF_TEAM_RED : TF_TEAM_BLUE;
-
-	// show / hide the class items
-	bool bShowBlue = ( m_iShowingTeam == TF_TEAM_BLUE );
-
-	for ( int i=0; i<9; i++ )
+	if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 	{
-		m_pClassItems_Red[i]->SetVisible( !bShowBlue );
-		m_pClassItems_Blue[i]->SetVisible( bShowBlue );
+		FlipFourTeams();
+	}
+	else
+	{
+		// flip the teams
+		m_iShowingTeam = (m_iShowingTeam == TF_TEAM_BLUE) ? TF_TEAM_RED : TF_TEAM_BLUE;
+
+		// show / hide the class items
+		bool bShowBlue = (m_iShowingTeam == TF_TEAM_BLUE);
+
+		for (int i = 0; i<9; i++)
+		{
+			m_pClassItems_Red[i]->SetVisible(!bShowBlue);
+			m_pClassItems_Blue[i]->SetVisible(bShowBlue);
+		}
 	}
 }
 
@@ -357,15 +437,22 @@ void CHudMenuSpyDisguise::FireGameEvent( IGameEvent *event )
 		CTFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 		if ( pPlayer )
 		{
-			bool bShowBlue = ( pPlayer->GetTeamNumber() == TF_TEAM_RED );
-
-			for ( int i=0; i<9; i++ )
+			if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 			{
-				m_pClassItems_Red[i]->SetVisible( !bShowBlue );
-				m_pClassItems_Blue[i]->SetVisible( bShowBlue );
+				FlipFourTeams();
 			}
+			else
+			{
+				bool bShowBlue = (pPlayer->GetTeamNumber() == TF_TEAM_RED);
 
-			m_iShowingTeam = ( bShowBlue ) ? TF_TEAM_BLUE : TF_TEAM_RED;
+				for (int i = 0; i<9; i++)
+				{
+					m_pClassItems_Red[i]->SetVisible(!bShowBlue);
+					m_pClassItems_Blue[i]->SetVisible(bShowBlue);
+				}
+
+				m_iShowingTeam = (bShowBlue) ? TF_TEAM_BLUE : TF_TEAM_RED;
+			}
 		}
 	}
 	else
