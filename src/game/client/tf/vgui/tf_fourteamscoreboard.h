@@ -34,11 +34,8 @@ public:
 	virtual void Reset();
 	virtual void Update();
 	virtual void ShowPanel( bool bShow );
+	virtual void UpdatePlayerAvatar( int playerIndex, KeyValues *kv );
 
-#if defined( _X360 )
-	int	HudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
-#endif
-	
 protected:
 	virtual void PerformLayout();
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );

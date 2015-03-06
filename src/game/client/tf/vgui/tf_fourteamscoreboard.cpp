@@ -104,8 +104,8 @@ void CTFFourTeamScoreBoardDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 		m_iImageDead = m_pImageList->AddImage( scheme()->GetImage( "../hud/leaderboard_dead", true ) );
 		m_iImageDominated = m_pImageList->AddImage( scheme()->GetImage( "../hud/leaderboard_dominated", true ) );
 		m_iImageNemesis = m_pImageList->AddImage( scheme()->GetImage( "../hud/leaderboard_nemesis", true ) );
-		
-		for (int i = TF_CLASS_SCOUT; i <= TF_CLASS_COUNT_ALL; i++)
+
+		for (int i = TF_CLASS_SCOUT; i <= TF_CLASS_COUNT_ALL -1 ; i++)
 		{
 			m_iClassEmblem[i] = m_pImageList->AddImage(scheme()->GetImage(g_aPlayerClassEmblems[i - 1], true));
 			m_iClassEmblemDead[i] = m_pImageList->AddImage(scheme()->GetImage(g_aPlayerClassEmblemsDead[i - 1], true));
@@ -599,6 +599,45 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerDetails()
 	else
 	{
 		m_pClassImage->SetVisible( false );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFFourTeamScoreBoardDialog::UpdatePlayerAvatar(int playerIndex, KeyValues *kv)
+{
+	// Update their avatar
+	if (kv && ShowAvatars() && steamapicontext->SteamFriends() && steamapicontext->SteamUtils())
+	{
+		player_info_t pi;
+		if (engine->GetPlayerInfo(playerIndex, &pi))
+		{
+			if (pi.friendsID)
+			{
+				CSteamID steamIDForPlayer(pi.friendsID, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual);
+
+				// See if we already have that avatar in our list
+				int iMapIndex = m_mapAvatarsToImageList.Find(steamIDForPlayer);
+				int iImageIndex;
+				if (iMapIndex == m_mapAvatarsToImageList.InvalidIndex())
+				{
+					CAvatarImage *pImage = new CAvatarImage();
+					pImage->SetAvatarSteamID(steamIDForPlayer);
+					pImage->SetAvatarSize(32, 32);	// Deliberately non scaling
+					pImage->SetDrawFriend(false);
+					iImageIndex = m_pImageList->AddImage(pImage);
+
+					m_mapAvatarsToImageList.Insert(steamIDForPlayer, iImageIndex);
+				}
+				else
+				{
+					iImageIndex = m_mapAvatarsToImageList[iMapIndex];
+				}
+
+				kv->SetInt("avatar", iImageIndex);
+			}
+		}
 	}
 }
 
