@@ -46,6 +46,7 @@ LINK_ENTITY_TO_CLASS( func_respawnroom, CFuncRespawnRoom);
 
 BEGIN_DATADESC( CFuncRespawnRoom )
 	DEFINE_FUNCTION( RespawnRoomTouch ),
+	DEFINE_KEYFIELD( m_bAllowFlag, FIELD_BOOLEAN, "AllowFlag"),
 	// inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetActive", InputSetActive ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "SetInactive", InputSetInactive ),
@@ -102,7 +103,7 @@ void CFuncRespawnRoom::RespawnRoomTouch(CBaseEntity *pOther)
 		{
 			// Players carrying the flag drop it if they try to run into a respawn room
 			CTFPlayer *pPlayer = ToTFPlayer(pOther);
-			if ( pPlayer->HasTheFlag() )
+			if ( pPlayer->HasTheFlag() && !m_bAllowFlag )
 			{
 				pPlayer->DropFlag();
 			}
