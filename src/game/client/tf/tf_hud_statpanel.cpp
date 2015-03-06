@@ -10,7 +10,7 @@
 #include "winerror.h"
 #include "tf_hud_statpanel.h"
 #include "tf_hud_winpanel.h"
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include "vgui_controls/AnimationController.h"
 #include "iclientmode.h"
 #include "c_tf_playerresource.h"

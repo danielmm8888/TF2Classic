@@ -30,7 +30,7 @@
 
 #include "vgui/isurface.h"
 #include <vgui/ILocalize.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include "engine/IEngineSound.h"
 
 using namespace vgui;

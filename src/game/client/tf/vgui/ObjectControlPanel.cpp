@@ -10,7 +10,7 @@
 #include <vgui_controls/Label.h>
 #include "VGUI_BitmapButton.h"
 #include <vgui/ISurface.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include "c_tf_player.h"
 #include "clientmode_tf.h"
 #include <vgui/IScheme.h>

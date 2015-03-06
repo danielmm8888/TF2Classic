@@ -21,7 +21,7 @@
 #include <KeyValues.h>
 #include <vgui/Cursor.h>
 #include <vgui/IScheme.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <vgui/ILocalize.h>
 #include <vgui/VGUI.h>
 

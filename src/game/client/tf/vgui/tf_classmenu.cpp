@@ -11,7 +11,7 @@
 #include <KeyValues.h>
 #include <FileSystem.h>
 #include <vgui_controls/Button.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 
 #include "hud.h" // for gEngfuncs
 #include "c_tf_player.h"
