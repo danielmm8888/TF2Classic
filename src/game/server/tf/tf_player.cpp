@@ -1123,7 +1123,7 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
 	// Since the civilian has no weapons, the game will just crash
-	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN)
+	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN || GetPlayerClass()->GetClassIndex() == TF_CLASS_MERCENARY)
 		return;
 
 	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
@@ -1743,6 +1743,9 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 {
+	if (GetNextChangeClassTime() > gpGlobals->curtime)
+		return;
+
 	// can only join a class after you join a valid team
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
 		return;
@@ -1808,6 +1811,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		}
 		return;
 	}
+	SetNextChangeClassTime(gpGlobals->curtime + 2.0f);
 
 	SetDesiredPlayerClassIndex( iClass );
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_changeclass" );
@@ -2051,10 +2055,10 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 					switch (nTeam)
 					{
 					case 0:
-						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
+						m_Shared.Disguise(TF_TEAM_RED, nClass);
 						break;
 					case 1:
-						m_Shared.Disguise(TF_TEAM_RED, nClass);
+						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
 						break;
 					case 2:
 						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
@@ -2208,6 +2212,8 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "condump_on" ) )
 	{
+		return true;
+		/*
 		if ( !PlayerHasPowerplay() )
 		{
 			Msg("Console dumping on.\n");
@@ -2232,10 +2238,12 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				if ( SetPowerplayEnabled( true ) )
 					return true;
 			}
-		}
+		}*/
 	}
 	else if ( FStrEq( pcmd, "condump_off" ) )
 	{
+		return true;
+		/*
 		if ( !PlayerHasPowerplay() )
 		{
 			Msg("Console dumping off.\n");
@@ -2260,7 +2268,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				if ( SetPowerplayEnabled( false ) )
 					return true;
 			}
-		}
+		}*/
 	}
 	/*else if (FStrEq(pcmd, "tf2c_4play"))
 	{
@@ -5904,6 +5912,12 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 			break;
 		case TF_WPN_TYPE_PDA:
 			criteriaSet.AppendCriteria( "weaponmode", "pda" );
+			break;
+		case TF_WPN_TYPE_ITEM1:
+			criteriaSet.AppendCriteria("weaponmode", "item1");
+			break;
+		case TF_WPN_TYPE_ITEM2:
+			criteriaSet.AppendCriteria("weaponmode", "item2");
 			break;
 		}
 
