@@ -64,7 +64,7 @@ private:
 	CPanelAnimationVar( Color, m_clrBlueText, "TeamBlue", "153 204 255 255" );
 	CPanelAnimationVar( Color, m_clrRedText, "TeamRed", "255 64 64 255" );
 	CPanelAnimationVar( Color, m_clrGreenText, "TeamGreen", "8 174 0 255" );
-	CPanelAnimationVar( Color, m_clrYellowText, "TeamYellow", "255 200 0 255" );
+	CPanelAnimationVar( Color, m_clrYellowText, "TeamYellow", "255 160 0 255" );
 
 };
 
@@ -284,6 +284,10 @@ void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const ch
 	DeathNoticeItem &msg2 = m_DeathNotices[AddDeathNoticeItem()];
 	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
 	Q_strncpy( msg2.Victim.szName, g_PR->GetPlayerName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
+
+	msg2.Killer.iTeam = g_PR->GetTeam(iKillerID);
+	msg2.Victim.iTeam = g_PR->GetTeam(iVictimID);
+
 	const wchar_t *wzMsg =  g_pVGuiLocalize->Find( pMsgKey );
 	if ( wzMsg )
 	{
@@ -490,11 +494,11 @@ Color CTFHudDeathNotice::GetTeamColor( int iTeamNumber, bool bLocalPlayerInvolve
 		return m_clrYellowText;
 		break;
 	case TEAM_UNASSIGNED:		
-		return Color( 255, 255, 255, 255 );
+		return bLocalPlayerInvolved ? Color(0, 0, 0, 255) : Color(255, 255, 255, 255);
 		break;
 	default:
 		AssertOnce( false );	// invalid team
-		return Color( 255, 255, 255, 255 );
+		return bLocalPlayerInvolved ? Color(0, 0, 0, 255) : Color(255, 255, 255, 255);
 		break;
 	}
 }
