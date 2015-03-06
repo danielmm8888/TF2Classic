@@ -14,7 +14,7 @@
 #include "tf_shareddefs.h"
 #include <vgui/IScheme.h>
 #include <vgui_controls/ImagePanel.h>
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
 
 class C_SceneEntity;
 

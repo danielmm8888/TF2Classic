@@ -23,7 +23,7 @@
 #include "imagemouseoverbutton.h"
 #include "iconpanel.h"
 #include <vgui_controls/CheckButton.h>
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
 #include "c_tf_playerresource.h"
 
 using namespace vgui;
