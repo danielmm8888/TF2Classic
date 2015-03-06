@@ -21,7 +21,7 @@
 #include "tf_gamerules.h"
 #include "tf_modelpanel.h"
 #include "imagemouseoverbutton.h"
-#include "iconpanel.h"
+#include "IconPanel.h"
 #include <vgui_controls/CheckButton.h>
 #include "GameEventListener.h"
 #include "c_tf_playerresource.h"

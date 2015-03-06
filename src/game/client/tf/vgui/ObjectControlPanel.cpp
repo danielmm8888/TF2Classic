@@ -8,7 +8,7 @@
 #include "ObjectControlPanel.h"
 #include <vgui_controls/Controls.h>
 #include <vgui_controls/Label.h>
-#include "VGUI_BitmapButton.h"
+#include "vgui_bitmapbutton.h"
 #include <vgui/ISurface.h>
 #include <vgui/IVGui.h>
 #include "c_tf_player.h"

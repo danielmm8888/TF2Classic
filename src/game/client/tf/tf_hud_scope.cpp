@@ -11,7 +11,7 @@
 #include "hud_numericdisplay.h"
 #include "iclientmode.h"
 #include "c_tf_player.h"
-#include "vguimatsurface/IMatSystemSurface.h"
+#include "VGuiMatSurface/IMatSystemSurface.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imesh.h"
 #include "materialsystem/imaterialvar.h"

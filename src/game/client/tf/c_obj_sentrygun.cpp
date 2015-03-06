@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_tf_player.h"
-#include "VGUI_BitmapButton.h"
+#include "vgui_bitmapbutton.h"
 #include "vgui/ILocalize.h"
 #include "tf_fx_muzzleflash.h"
 #include "eventlist.h"

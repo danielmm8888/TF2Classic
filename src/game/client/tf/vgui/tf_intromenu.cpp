@@ -18,7 +18,9 @@
 #include "tf_shareddefs.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
+#ifdef _WIN32
 #include "winerror.h"
+#endif
 #include "ixboxsystem.h"
 #include "intromenu.h"
 #include "tf_intromenu.h"

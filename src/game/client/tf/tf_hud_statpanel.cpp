@@ -7,7 +7,9 @@
 //=============================================================================//
 
 #include "cbase.h"
+#ifdef _WIN32
 #include "winerror.h"
+#endif
 #include "tf_hud_statpanel.h"
 #include "tf_hud_winpanel.h"
 #include <vgui/IVGui.h>

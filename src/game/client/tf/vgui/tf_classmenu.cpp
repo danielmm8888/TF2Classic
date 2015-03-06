@@ -21,7 +21,7 @@
 #include "tf_controls.h"
 #include "vguicenterprint.h"
 #include "imagemouseoverbutton.h"
-#include "iconpanel.h"
+#include "IconPanel.h"
 
 #include "IGameUIFuncs.h" // for key bindings
 
