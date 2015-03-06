@@ -16,7 +16,7 @@
 #include "iinput.h"
 #include "vgui/isurface.h"
 #include "vgui/ipanel.h"
-#include "GameUI/igameui.h"
+#include "GameUI/IGameUI.h"
 #include <vgui_controls/AnimationController.h>
 #include "ivmodemanager.h"
 #include "BuyMenu.h"

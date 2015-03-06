@@ -17,7 +17,7 @@
 // Client specific.
 #else
 #include "vgui/ISurface.h"
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 #include "c_tf_player.h"
 #include "tf_viewmodel.h"
 #include "hud_crosshair.h"
@@ -30,9 +30,9 @@
 #include "toolframework_client.h"
 
 // for spy material proxy
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
 
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif

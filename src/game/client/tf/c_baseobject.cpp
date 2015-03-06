@@ -11,7 +11,7 @@
 #include "c_tf_team.h"
 #include "engine/IEngineSound.h"
 #include "particles_simple.h"
-#include "FunctionProxy.h"
+#include "functionproxy.h"
 #include "ieffects.h"
 #include "model_types.h"
 #include "particlemgr.h"

@@ -15,7 +15,7 @@
 #include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
 #include "tf_weapon_parse.h"
-#include "Filesystem.h" 
+#include "filesystem.h" 
 #if defined( CLIENT_DLL )
 #include "c_tf_player.h"
 #endif
