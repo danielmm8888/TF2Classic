@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose:			The Medic's Medikit weapon
 //					
@@ -14,7 +14,7 @@
 
 #if defined( CLIENT_DLL )
 #include <vgui_controls/Panel.h>
-#include <vgui/isurface.h>
+#include <vgui/ISurface.h>
 #include "particles_simple.h"
 #include "c_tf_player.h"
 #include "soundenvelope.h"

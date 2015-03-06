@@ -14,8 +14,8 @@
 #include "clientmode_tf.h"
 #include "cdll_client_int.h"
 #include "iinput.h"
-#include "vgui/isurface.h"
-#include "vgui/ipanel.h"
+#include "vgui/ISurface.h"
+#include "vgui/IPanel.h"
 #include "GameUI/IGameUI.h"
 #include <vgui_controls/AnimationController.h>
 #include "ivmodemanager.h"

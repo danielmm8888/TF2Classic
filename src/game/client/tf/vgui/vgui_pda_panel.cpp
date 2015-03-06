@@ -13,7 +13,7 @@
 #include "vgui_BitmapPanel.h"
 #include "vgui_controls/Label.h"
 #include "tf_weapon_pda.h"
-#include "vgui/isurface.h"
+#include "vgui/ISurface.h"
 #include "c_tf_player.h"
 #include <vgui_controls/RadioButton.h>
 #include "clientmode.h"

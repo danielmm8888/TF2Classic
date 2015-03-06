@@ -7,12 +7,12 @@
 #include "cbase.h"
 #include "hudelement.h"
 #include <vgui_controls/Panel.h>
-#include <vgui/isurface.h>
+#include <vgui/ISurface.h>
 #include "clientmode.h"
 #include "c_tf_player.h"
 #include "tf_hud_crosshair.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMesh.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imesh.h"
 #include "materialsystem/imaterialvar.h"
 #include "mathlib/mathlib.h"
 #include "basecombatweapon_shared.h"

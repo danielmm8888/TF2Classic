@@ -12,8 +12,8 @@
 #include "iclientmode.h"
 #include "c_tf_player.h"
 #include "vguimatsurface/IMatSystemSurface.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMesh.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imesh.h"
 #include "materialsystem/imaterialvar.h"
 
 #include <vgui/IScheme.h>

@@ -17,7 +17,7 @@
 #include "keyvalues.h"
 #include <filesystem.h>
 #include "c_team.h"
-#include "vgui/isurface.h"
+#include "vgui/ISurface.h"
 #include "iclientmode.h"
 #include "tf_gamerules.h"
 //#include "asw_vgui_ingame_panel.h"

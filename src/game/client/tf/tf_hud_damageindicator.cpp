@@ -14,8 +14,8 @@
 #include <vgui_controls/AnimationController.h>
 #include <vgui/ISurface.h>
 #include "vguimatsurface/IMatSystemSurface.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMesh.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imesh.h"
 #include "materialsystem/imaterialvar.h"
 #include "ieffects.h"
 #include "hudelement.h"
