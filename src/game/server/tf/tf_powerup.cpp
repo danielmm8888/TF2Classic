@@ -51,7 +51,6 @@ CTFPowerup::CTFPowerup()
 {
 	m_bDisabled = false;
 	m_bRespawning = false;
-	m_fRespawnDelay = g_pGameRules->FlItemRespawnTime(this);
 
 	UseClientSideAnimation();
 }
@@ -90,7 +89,7 @@ CBaseEntity* CTFPowerup::Respawn( void )
 	CBaseEntity *pReturn = BaseClass::Respawn();
 
 	// Override the respawn time
-	SetNextThink(GetRespawnDelay() == -1 ? -1 : gpGlobals->curtime + GetRespawnDelay());
+	SetNextThink( gpGlobals->curtime + GetRespawnDelay() );
 
 	return pReturn;
 }

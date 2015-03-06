@@ -11,7 +11,6 @@
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
 #include "entity_ammopack.h"
-#include "tf_weapon_backpack.h"
 
 //=============================================================================
 //
@@ -62,52 +61,31 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		if ( !pTFPlayer )
 			return false;
 
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetActiveWeapon();
-		if (pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_BACKPACK)
+		int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true ) )
 		{
-			CTFBackpack* pBackpack = (CTFBackpack*)pWeapon;
-			if (pBackpack->CanPickup())
-			{
-				int Size = GetPowerupSize();
-				pBackpack->AddNewEntityByType(TF_BACKPACK_AMMOKIT, Size);
-				CSingleUserRecipientFilter filter(pPlayer);
-				EmitSound(filter, entindex(), TF_BACKPACK_TAKE_SOUND);
-				bSuccess = true;
-			}
+			bSuccess = true;
+		}
 
-		} 
-		else
+		int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true ) )
 		{
-			int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
-			if (pPlayer->GiveAmmo(ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true))
-			{
-				bSuccess = true;
-			}
+			bSuccess = true;
+		}
 
-			int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
-			if (pPlayer->GiveAmmo(ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true))
-			{
-				bSuccess = true;
-			}
+		int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+		if ( pPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true ) )
+		{
+			bSuccess = true;
+		}
 
-			int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
-			if (pPlayer->GiveAmmo(ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true))
-			{
-				bSuccess = true;
-			}
-
-			// did we give them anything?
-			if (bSuccess)
-			{
-				CSingleUserRecipientFilter filter(pPlayer);
-				EmitSound(filter, entindex(), TF_AMMOPACK_PICKUP_SOUND);
-			}
+		// did we give them anything?
+		if ( bSuccess )
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
 		}
 	}
 
-	if (bSuccess && GetRespawnDelay() == -1)
-	{
-		UTIL_Remove(this);
-	}
 	return bSuccess;
 }
