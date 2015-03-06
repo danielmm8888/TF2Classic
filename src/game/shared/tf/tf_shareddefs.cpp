@@ -49,7 +49,8 @@ const char *g_aPlayerClassNames[] =
 	"#TF_Class_Name_Pyro",
 	"#TF_Class_Name_Spy",
 	"#TF_Class_Name_Engineer",
-	"#TF_Class_Name_Civilian"
+	"#TF_Class_Name_Civilian",
+	"#TF_Class_Name_Mercenary"
 };
 
 const char *g_aPlayerClassEmblems[] =
@@ -92,7 +93,8 @@ const char *g_aPlayerClassNames_NonLocalized[] =
 	"Pyro",
 	"Spy",
 	"Engineer",
-	"Civilian"
+	"Civilian",
+	"Mercenary"
 };
 
 //-----------------------------------------------------------------------------
@@ -106,6 +108,7 @@ const char *g_aGameTypeNames[] =
 	"#Gametype_Escort",
 	"#Gametype_Arena",
 	"#Gametype_MVM",
+	"#Gametype_DM"
 };
 
 //-----------------------------------------------------------------------------

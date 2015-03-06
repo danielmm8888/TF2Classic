@@ -158,6 +158,14 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	{
 		m_iWeaponType = TF_WPN_TYPE_PDA;
 	}
+	else if (!Q_strcmp(pszWeaponType, "item1"))
+	{
+		m_iWeaponType = TF_WPN_TYPE_ITEM1;
+	}
+	else if (!Q_strcmp(pszWeaponType, "item2"))
+	{
+		m_iWeaponType = TF_WPN_TYPE_ITEM2;
+	}
 
 	// Grenade data.
 	m_bGrenade				= ( pKeyValuesData->GetInt( "Grenade", 0 ) != 0 );
