@@ -8,9 +8,9 @@
 #include "c_te_effect_dispatch.h"
 #include "tier0/vprof.h"
 #include "clientsideeffects.h"
-#include "ClientEffectPrecacheSystem.h"
+#include "clienteffectprecachesystem.h"
 #include "view.h"
-#include "CollisionUtils.h"
+#include "collisionutils.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "engine/IEngineSound.h"
 

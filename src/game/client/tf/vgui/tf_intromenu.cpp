@@ -10,7 +10,7 @@
 #include <KeyValues.h>
 #include <vgui/IVGui.h>
 #include <vgui/ISurface.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
 #include "iclientmode.h"
 #include "clientmode_shared.h"
@@ -18,7 +18,9 @@
 #include "tf_shareddefs.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
+#ifdef _WIN32
 #include "winerror.h"
+#endif
 #include "ixboxsystem.h"
 #include "intromenu.h"
 #include "tf_intromenu.h"

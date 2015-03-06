@@ -10,7 +10,7 @@
 #include <KeyValues.h>
 #include "vgui_video.h"
 #include "tf_vgui_video.h"
-#include "engine/ienginesound.h"
+#include "engine/IEngineSound.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!

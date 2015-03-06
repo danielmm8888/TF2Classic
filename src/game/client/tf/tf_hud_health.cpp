@@ -20,7 +20,7 @@ using namespace vgui;
 
 #include "hudelement.h"
 #include "hud_numericdisplay.h"
-#include "ConVar.h"
+#include "convar.h"
 #include "c_tf_player.h"
 
 #if 0

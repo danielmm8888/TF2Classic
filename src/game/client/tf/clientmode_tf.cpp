@@ -19,9 +19,9 @@
 #include "GameUI/IGameUI.h"
 #include <vgui_controls/AnimationController.h>
 #include "ivmodemanager.h"
-#include "BuyMenu.h"
+#include "buymenu.h"
 #include "filesystem.h"
-#include "vgui/ivgui.h"
+#include "vgui/IVGui.h"
 #include "hud_chat.h"
 #include "view_shared.h"
 #include "view.h"
@@ -31,7 +31,7 @@
 #include "dlight.h"
 #include <imapoverview.h>
 #include "c_playerresource.h"
-#include <keyvalues.h>
+#include <KeyValues.h>
 #include "text_message.h"
 #include "panelmetaclassmgr.h"
 #include "c_tf_player.h"

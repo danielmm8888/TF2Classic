@@ -15,7 +15,7 @@
 #include <vgui/IVGui.h>
 #include <vgui_controls/ProgressBar.h>
 #include <vgui_controls/AnimationController.h>
-#include "game_controls/iconpanel.h"
+#include "game_controls/IconPanel.h"
 #include "teamplay_round_timer.h"
 
 #include "tf_hud_building_status.h"

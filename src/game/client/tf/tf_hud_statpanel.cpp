@@ -7,7 +7,9 @@
 //=============================================================================//
 
 #include "cbase.h"
+#ifdef _WIN32
 #include "winerror.h"
+#endif
 #include "tf_hud_statpanel.h"
 #include "tf_hud_winpanel.h"
 #include <vgui/IVGui.h>
@@ -20,7 +22,7 @@
 #include "tf/c_tf_player.h"
 #include "tf/c_tf_team.h"
 #include "tf/tf_steamstats.h"
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "dmxloader/dmxloader.h"
 #include "fmtstr.h"
 #include "tf_statsummary.h"
