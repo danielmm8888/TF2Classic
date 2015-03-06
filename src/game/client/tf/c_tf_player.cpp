@@ -1722,16 +1722,16 @@ bool C_TFPlayer::IsEnemyPlayer( void )
 	switch( pLocalPlayer->GetTeamNumber() )
 	{
 	case TF_TEAM_RED:
-		return ( GetTeamNumber() == TF_TEAM_BLUE || TF_TEAM_GREEN || TF_TEAM_YELLOW);
-	
+		return (GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_GREEN || GetTeamNumber() == TF_TEAM_YELLOW);
+
 	case TF_TEAM_BLUE:
-		return ( GetTeamNumber() == TF_TEAM_RED || TF_TEAM_GREEN || TF_TEAM_YELLOW );
+		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_GREEN || GetTeamNumber() == TF_TEAM_YELLOW);
 
 	case TF_TEAM_GREEN:
-		return ( GetTeamNumber() == TF_TEAM_RED || TF_TEAM_BLUE || TF_TEAM_YELLOW );
+		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_YELLOW);
 
 	case TF_TEAM_YELLOW:
-		return ( GetTeamNumber() == TF_TEAM_RED || TF_TEAM_BLUE || TF_TEAM_GREEN );
+		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_GREEN);
 
 	default:
 		break;
