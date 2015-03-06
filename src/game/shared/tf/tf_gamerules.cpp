@@ -72,6 +72,7 @@ static int g_TauntCamAchievements[] =
 	0,		// TF_CLASS_ENGINEER,
 
 	0,		// TF_CLASS_CIVILIAN,
+	0,		// TF_CLASS_MERCENARY,
 	0,		// TF_CLASS_COUNT_ALL,
 };
 
@@ -135,7 +136,7 @@ static CViewVectors g_TFViewVectors(
 	Vector( 0, 0, 14 )		//VEC_DEAD_VIEWHEIGHT (m_vDeadViewHeight) dead view height
 );							
 
-Vector g_TFClassViewVectors[11] =
+Vector g_TFClassViewVectors[12] =
 {
 	Vector( 0, 0, 72 ),		// TF_CLASS_UNDEFINED
 
@@ -148,7 +149,8 @@ Vector g_TFClassViewVectors[11] =
 	Vector( 0, 0, 68 ),		// TF_CLASS_PYRO,
 	Vector( 0, 0, 75 ),		// TF_CLASS_SPY,
 	Vector( 0, 0, 68 ),		// TF_CLASS_ENGINEER,
-	Vector( 0, 0, 65 ),		// TF_CLASS_CIVILIAN,			// TF_FIRST_NORMAL_CLASS
+	Vector( 0, 0, 65 ),		// TF_CLASS_CIVILIAN,			
+	Vector( 0, 0, 68 ),		// TF_CLASS_MERCENARY,
 };
 
 const CViewVectors *CTFGameRules::GetViewVectors() const
@@ -662,7 +664,13 @@ void CTFGameRules::Activate()
 {
 	m_iBirthdayMode = BIRTHDAY_RECALCULATE;
 
-	m_nGameType.Set(TF_GAMETYPE_UNDEFINED);
+	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
+
+	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
+	{
+		m_nGameType.Set(TF_GAMETYPE_DM);
+		return;
+	}
 
 	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> (gEntList.FindEntityByClassname(NULL, "item_teamflag"));
 	if (pFlag)
@@ -3603,6 +3611,9 @@ const char *CTFGameRules::GetGameDescription(void)
 		case TF_GAMETYPE_ARENA:
 			return "TF2C (Arena)";
 			break;
+		case TF_GAMETYPE_DM:
+			return "TF2C (Deathmatch)";
+			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";
 			break;
@@ -3642,5 +3653,22 @@ const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 	}
 
 	return strFullpath;
+}
+#endif
+
+
+#ifdef GAME_DLL
+class CTFLogicDeathmatch : public CBaseEntity
+{
+public:
+	DECLARE_CLASS(CTFLogicDeathmatch, CBaseEntity);
+	void	Spawn(void);
+};
+
+LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
+
+void CTFLogicDeathmatch::Spawn(void)
+{
+	BaseClass::Spawn();
 }
 #endif

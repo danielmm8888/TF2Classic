@@ -225,7 +225,8 @@ public:
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
 
-	bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
+	bool			IsFourTeamGame( void ){ return m_bFourTeamMode; };
+	bool			IsDeathmatch(void){ return m_nGameType == TF_GAMETYPE_DM; };
 
 #ifdef CLIENT_DLL
 
