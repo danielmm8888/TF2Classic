@@ -13,7 +13,7 @@
 #include "tf_gamerules.h"
 #include "tf_hud_objectivestatus.h"
 #include "tf_hud_statpanel.h"
-#include "IClientMode.h"
+#include "iclientmode.h"
 #include "c_playerresource.h"
 #include "tf_hud_building_status.h"
 #include "tf_hud_winpanel.h"

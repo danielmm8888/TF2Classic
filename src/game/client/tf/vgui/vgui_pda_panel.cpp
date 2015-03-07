@@ -10,7 +10,7 @@
 #include <vgui/IVGui.h>
 #include "ienginevgui.h"
 #include "vgui_bitmapimage.h"
-#include "vgui_BitmapPanel.h"
+#include "vgui_bitmappanel.h"
 #include "vgui_controls/Label.h"
 #include "tf_weapon_pda.h"
 #include "vgui/ISurface.h"

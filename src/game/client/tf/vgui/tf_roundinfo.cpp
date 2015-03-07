@@ -15,7 +15,7 @@
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
 #include <filesystem.h>
-#include "materialsystem/IMaterialVar.h"
+#include "materialsystem/imaterialvar.h"
 #include "IGameUIFuncs.h" // for key bindings
 
 #include "tf_controls.h"
@@ -28,7 +28,7 @@
 #include "tf_roundinfo.h"
 
 
-#include "vgui/isurface.h"
+#include "vgui/ISurface.h"
 #include <vgui/ILocalize.h>
 #include <vgui/IVGui.h>
 #include "engine/IEngineSound.h"

@@ -16,7 +16,7 @@
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVgui.h>
+#include <vgui/IVGui.h>
 #include <vgui_controls/SectionedListPanel.h>
 #include <vgui_controls/ImageList.h>
 #include <game/client/iviewport.h>
