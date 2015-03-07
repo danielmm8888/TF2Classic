@@ -61,7 +61,7 @@ public:
 
 	virtual bool CreateMove( float flInputSampleTime, CUserCmd *pCmd );
 
-	virtual bool				IsAllowedToSwitchWeapons( void );
+	virtual bool IsAllowedToSwitchWeapons( void );
 
 	virtual void ClientThink();
 
@@ -251,6 +251,10 @@ private:
 
 	QAngle				m_angTauntPredViewAngles;
 	QAngle				m_angTauntEngViewAngles;
+
+public:
+
+	int					m_iPlayerColor[3];
 
 private:
 

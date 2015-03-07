@@ -82,6 +82,26 @@ ConVar cl_autorezoom( "cl_autorezoom", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Whe
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
+void tf2c_setmerccolor_f(const CCommand& args)
+{
+	if (args.ArgC() < 4)
+	{
+		Msg("Format: tf2c_setmerccolor r g b\n");
+		return;
+	}
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	
+	if (!pPlayer)
+		return;
+
+	pPlayer->m_iPlayerColor[0] = min(atoi(args.Arg(1)), 255);
+	pPlayer->m_iPlayerColor[1] = min(atoi(args.Arg(2)), 255);
+	pPlayer->m_iPlayerColor[2] = min(atoi(args.Arg(3)), 255);
+
+}
+
+ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0);
+
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
 IMaterial	*g_pHeadLabelMaterial[4] = { NULL, NULL }; 
@@ -491,6 +511,10 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		m_flBurnEffectStartTime = gpGlobals->curtime;
 		ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
 	}
+
+	// Set the ragdoll to the proper mecrenary color
+	if (pPlayer && pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
+		SetRenderColor(pPlayer->m_iPlayerColor[0], pPlayer->m_iPlayerColor[1], pPlayer->m_iPlayerColor[2]);
 
 	// Fade out the ragdoll in a while
 	StartFadeOut( cl_ragdoll_fade_time.GetFloat() );
@@ -1087,6 +1111,10 @@ C_TFPlayer::C_TFPlayer() :
 	m_bWaterExitEffectActive = false;
 
 	m_bUpdateObjectHudState = false;
+
+	m_iPlayerColor[0] = 255;
+	m_iPlayerColor[1] = 255;
+	m_iPlayerColor[2] = 255;
 }
 
 C_TFPlayer::~C_TFPlayer()
@@ -2849,6 +2877,10 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 	m_hSpawnedGibs.Purge();
 	m_hFirstGib = CreateGibsFromList( m_aGibs, GetModelIndex(), NULL, breakParams, this, -1 , false, true, &m_hSpawnedGibs );
 
+	// Set the gibs to the proper mecrenary color
+	if (IsPlayerClass(TF_CLASS_MERCENARY))
+		m_hFirstGib->SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
+
 	DropPartyHat( breakParams, vecBreakVelocity );
 }
 
@@ -3092,6 +3124,12 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
+
+	if (IsPlayerClass(TF_CLASS_MERCENARY))
+	{
+		SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
+	}
+
 }
 
 //-----------------------------------------------------------------------------
