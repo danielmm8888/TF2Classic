@@ -97,3 +97,63 @@ void CFilterTFTeam::InputRoundActivate( inputdata_t &input )
 		}
 	}
 }
+
+//=============================================================================
+//
+// Class filter
+//
+
+class CFilterTFClass : public CBaseFilter
+{
+	DECLARE_CLASS( CFilterTFClass, CBaseFilter );
+
+public:
+
+	inline bool PassesFilterImpl( CBaseEntity *pCaller, CBaseEntity *pEntity );
+
+private:
+
+	int	m_iAllowedClass;
+
+	DECLARE_DATADESC();
+};
+
+BEGIN_DATADESC( CFilterTFClass )
+
+DEFINE_KEYFIELD( m_iAllowedClass, FIELD_INTEGER, "classfilter" ),
+
+END_DATADESC()
+
+
+LINK_ENTITY_TO_CLASS( filter_activator_tfclass, CFilterTFClass );
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CFilterTFClass::PassesFilterImpl(CBaseEntity *pCaller, CBaseEntity *pEntity)
+{
+	CTFPlayer *pPlayer = dynamic_cast< CTFPlayer * >(pEntity);
+
+	if (!pPlayer)
+		return false;
+
+	// is the entity we're asking about on the winning 
+	// team during the bonus time? (winners pass all filters)
+
+	if (  TFGameRules() &&
+		( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && 
+		(TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber()))
+	{
+		// this should open all doors for the winners
+		if ( m_bNegated )
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+
+	return (pPlayer->GetTeamNumber() == GetTeamNumber() && pPlayer->IsPlayerClass(m_iAllowedClass));
+}
