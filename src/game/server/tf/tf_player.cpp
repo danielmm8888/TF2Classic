@@ -242,6 +242,7 @@ int SendProxyArrayLength_PlayerObjects( const void *pStruct, int objectID )
 }
 
 BEGIN_DATADESC( CTFPlayer )
+	DEFINE_OUTPUT( m_OnDeath, "OnDeath" ),
 END_DATADESC()
 extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
 
@@ -1550,6 +1551,12 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 		ChangeTeam( iTeam );
 
+		if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+			return;
+		}
+
 		switch (iTeam)
 		{
 			case TF_TEAM_RED:
@@ -1748,6 +1755,9 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 
 	// can only join a class after you join a valid team
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
+		return;
+
+	if (TFGameRules()->IsDeathmatch())
 		return;
 
 	// In case we don't get the class menu message before the spawn timer
@@ -3563,6 +3573,8 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		info_modified.SetAttacker( TFGameRules()->GetDeathScorer( info.GetAttacker(), info.GetInflictor(), this ) );
 	}
 
+	m_OnDeath.FireOutput(this, this);
+
 	BaseClass::Event_Killed( info_modified );
 
 	CTFPlayer *pInflictor = ToTFPlayer( info.GetInflictor() );
@@ -3984,7 +3996,7 @@ void CTFPlayer::TeamFortress_ClientDisconnected( void )
 {
 	TeamFortress_RemoveEverythingFromWorld();
 	RemoveNemesisRelationships();
-
+	m_OnDeath.FireOutput(this, this);
 	RemoveAllWeapons();
 }
 
