@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2006, Valve Corporation, All rights reserved. =======
+//====== Copyright Â© 1996-2006, Valve Corporation, All rights reserved. =======
 //
 // Purpose: 
 //
@@ -55,15 +55,15 @@ enum
 //-----------------------------------------------------------------------------
 // CVar replacements
 //-----------------------------------------------------------------------------
-#define TF_DAMAGE_CRIT_CHANCE				0.05f
-#define TF_DAMAGE_CRIT_CHANCE_RAPID			0.05f
+#define TF_DAMAGE_CRIT_CHANCE				0.02f
+#define TF_DAMAGE_CRIT_CHANCE_RAPID			0.02f
 #define TF_DAMAGE_CRIT_DURATION_RAPID		2.0f
-#define TF_DAMAGE_CRIT_CHANCE_MELEE			0.15f
+#define TF_DAMAGE_CRIT_CHANCE_MELEE			0.10f
 
 #define TF_DAMAGE_CRITMOD_MAXTIME			20
 #define TF_DAMAGE_CRITMOD_MINTIME			2
 #define TF_DAMAGE_CRITMOD_DAMAGE			800
-#define TF_DAMAGE_CRITMOD_MAXMULT			4
+#define TF_DAMAGE_CRITMOD_MAXMULT			6
 
 #define TF_DAMAGE_CRIT_MULTIPLIER			3.0f
 
