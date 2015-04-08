@@ -468,12 +468,6 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	if ( gpGlobals->framecount == m_iLastCritCheckFrame )
 		return;
 
-	if (!tf_weapon_criticals.GetBool() && (!IsMeleeWeapon() || (IsMeleeWeapon() && tf_weapon_criticals_melee.GetInt() == 1)))
-	{
-		m_bCurrentAttackIsCrit = false;
-		return;
-	}
-
 	m_iLastCritCheckFrame = gpGlobals->framecount;
 
 	// if base entity seed has changed since last calculation, reseed with new seed
@@ -488,10 +482,14 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
-	else
+	else if (!tf_weapon_criticals.GetBool() && (!IsMeleeWeapon() || (IsMeleeWeapon() && tf_weapon_criticals_melee.GetInt() == 1)))
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
+	}
+	else
+	{
+		m_bCurrentAttackIsCrit = false;
 	}
 }
 
