@@ -2112,7 +2112,13 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
-					nTeam = random->RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+					
+					// PistonMiner: Added check whether or not we actually have four teams.
+					if ( TFGameRules()->IsFourTeamGame() )
+						nTeam = random->RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+					else
+						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
+
 				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
 			}
 
