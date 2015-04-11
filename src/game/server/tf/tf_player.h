@@ -149,26 +149,26 @@ public:
 		if (iPresetNum >= INVENTORY_WEAPONS)
 			return;
 		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = iPresetNum;
+			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
 		}
 		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = iPresetNum;
+			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
 		}
 		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = iPresetNum;
+			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
 		}
 	}
 
 	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
 	{
 		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = iPresetNum;
+			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
 		}
 		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = iPresetNum;
+			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
 		}
 		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = iPresetNum;
+			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
 		}
 	}
 
