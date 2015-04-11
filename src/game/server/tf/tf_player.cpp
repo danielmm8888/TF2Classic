@@ -2094,6 +2094,9 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			// disguise as the previous class, if one exists
 			int nClass = m_Shared.GetDesiredDisguiseClass();
 
+			// PistonMiner: try and disguise as the previous team
+			int nTeam = m_Shared.GetDesiredDisguiseTeam();
+
 			//If we pass in "random" or whatever then just make it pick a random class.
 			if ( args.ArgC() > 1 )
 			{
@@ -2103,14 +2106,17 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if ( nClass == TF_CLASS_UNDEFINED )
 			{
 				// they haven't disguised yet, pick a nice one for them.
-				// exclude some undesirable classes
+				// exclude some undesirable classes 
+
+				// PistonMiner: Added Mercenary and Civilan to undesired, also made it so it doesnt pick your own team
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
-				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY );
+					nTeam = random->RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
 			}
 
-			m_Shared.Disguise( ( GetTeamNumber() == TF_TEAM_BLUE ) ? TF_TEAM_RED : TF_TEAM_BLUE, nClass );
+			m_Shared.Disguise( nTeam, nClass );
 		}
 
 		return true;
