@@ -1085,7 +1085,9 @@ void CTFPlayerShared::OnRemoveDisguising( void )
 		m_pOuter->m_pDisguisingEffect = NULL;
 	}
 #else
-	m_nDesiredDisguiseTeam = TF_SPY_UNDEFINED;
+	// PistonMiner: Removed the reset as we need this for later.
+
+	//m_nDesiredDisguiseTeam = TF_SPY_UNDEFINED;
 
 	// Do not reset this value, we use the last desired disguise class for the
 	// 'lastdisguise' command
