@@ -23,10 +23,12 @@
 
 inline CBasePlayer *AI_GetSinglePlayer()
 {
+#ifndef TF_CLASSIC
 	if ( gpGlobals->maxClients > 1 )
 	{
 		return NULL;
 	}
+#endif // TF_CLASSIC
 	
 	return UTIL_GetLocalPlayer();
 }

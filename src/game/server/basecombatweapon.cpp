@@ -77,13 +77,14 @@ void W_Precache(void)
 	g_sModelIndexLaser = CBaseEntity::PrecacheModel( (char *)g_pModelNameLaser );
 
 	PrecacheParticleSystem( "blood_impact_red_01" );
-	PrecacheParticleSystem( "blood_impact_green_01" );
-	PrecacheParticleSystem( "blood_impact_yellow_01" );
 
 	CBaseEntity::PrecacheModel ("effects/bubble.vmt");//bubble trails
 
 	CBaseEntity::PrecacheModel("models/weapons/w_bullet.mdl");
 #endif
+	// Moved it out of ifdef since they're used by HL2 NPCs and TF2 doesn't replace them.
+	PrecacheParticleSystem( "blood_impact_green_01" );
+	PrecacheParticleSystem( "blood_impact_yellow_01" );
 
 	CBaseEntity::PrecacheScriptSound( "BaseCombatWeapon.WeaponDrop" );
 	CBaseEntity::PrecacheScriptSound( "BaseCombatWeapon.WeaponMaterialize" );

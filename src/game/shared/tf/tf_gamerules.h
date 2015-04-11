@@ -248,6 +248,8 @@ public:
 	virtual bool ClientCommand( CBaseEntity *pEdict, const CCommand &args );
 	virtual void Think();
 
+	virtual void InitDefaultAIRelationships( void );
+
 	bool CheckTimeLimit();
 	bool CheckWinLimit();
 	bool CheckCapsPerRound();

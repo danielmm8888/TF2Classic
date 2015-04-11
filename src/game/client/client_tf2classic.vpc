@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;tf\vgui,.\tf,$SRCDIR\game\shared\tf,$SRCDIR\game\shared\Multiplayer"
+		$AdditionalIncludeDirectories		"$BASE;tf\vgui,.\tf,$SRCDIR\game\shared\tf,$SRCDIR\game\shared\Multiplayer,.\hl2,$SRCDIR\game\shared\hl2"
 		$PreprocessorDefinitions			"$BASE;TF_CLASSIC_CLIENT;GLOWS_ENABLE"
 	}
 }
@@ -52,6 +52,17 @@ $Project "Client (TF)"
 				$File	"game_controls\classmenu.h"
 				$File	"game_controls\buymenu.cpp"
 				$File	"game_controls\buysubmenu.cpp"
+		}
+		
+		$Folder "HL2 DLL"
+		{
+			$File	"hl2\c_antlion_dust.cpp"
+			$File	"hl2\c_barnacle.cpp"
+			$File	"hl2\c_basehlcombatweapon.cpp"
+			$File	"hl2\c_basehlcombatweapon.h"
+			$File	"$SRCDIR\game\shared\hl2\basehlcombatweapon_shared.cpp"
+			$File	"episodic\c_vort_charge_token.cpp"
+			$File	"hl2\c_weapon__stubs_hl2.cpp"
 		}
 		
 		$Folder	"Multiplayer"

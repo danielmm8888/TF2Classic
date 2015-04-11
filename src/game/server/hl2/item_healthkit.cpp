@@ -22,24 +22,24 @@ ConVar	sk_healthcharger( "sk_healthcharger","0" );
 //-----------------------------------------------------------------------------
 // Small health kit. Heals the player when picked up.
 //-----------------------------------------------------------------------------
-class CHealthKit : public CItem
+class CHealthKitHL2 : public CItem
 {
 public:
-	DECLARE_CLASS( CHealthKit, CItem );
+	DECLARE_CLASS( CHealthKitHL2, CItem );
 
 	void Spawn( void );
 	void Precache( void );
 	bool MyTouch( CBasePlayer *pPlayer );
 };
 
-LINK_ENTITY_TO_CLASS( item_healthkit, CHealthKit );
+LINK_ENTITY_TO_CLASS( item_healthkit, CHealthKitHL2 );
 PRECACHE_REGISTER(item_healthkit);
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHealthKit::Spawn( void )
+void CHealthKitHL2::Spawn( void )
 {
 	Precache();
 	SetModel( "models/items/healthkit.mdl" );
@@ -51,7 +51,7 @@ void CHealthKit::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHealthKit::Precache( void )
+void CHealthKitHL2::Precache( void )
 {
 	PrecacheModel("models/items/healthkit.mdl");
 
@@ -64,7 +64,7 @@ void CHealthKit::Precache( void )
 // Input  : *pPlayer - 
 // Output : 
 //-----------------------------------------------------------------------------
-bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
+bool CHealthKitHL2::MyTouch( CBasePlayer *pPlayer )
 {
 	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
 	{

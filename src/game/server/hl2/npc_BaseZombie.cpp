@@ -138,8 +138,8 @@ int CNPC_BaseZombie::ACT_ZOM_SWATRIGHTLOW;
 int CNPC_BaseZombie::ACT_ZOM_RELEASECRAB;
 int CNPC_BaseZombie::ACT_ZOM_FALL;
 
-ConVar	sk_zombie_dmg_one_slash( "sk_zombie_dmg_one_slash","0");
-ConVar	sk_zombie_dmg_both_slash( "sk_zombie_dmg_both_slash","0");
+ConVar	sk_zombie_dmg_one_slash( "sk_zombie_dmg_one_slash","10");
+ConVar	sk_zombie_dmg_both_slash( "sk_zombie_dmg_both_slash","25");
 
 
 // When a zombie spawns, he will select a 'base' pitch value

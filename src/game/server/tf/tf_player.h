@@ -149,26 +149,26 @@ public:
 		if (iPresetNum >= INVENTORY_WEAPONS)
 			return;
 		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
+			m_WeaponPresetMelee[iClass] = iPresetNum;
 		}
 	}
 
 	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
 	{
 		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
+			m_WeaponPresetPrimary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
+			m_WeaponPresetSecondary[iClass] = iPresetNum;
 		}
 		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
+			m_WeaponPresetMelee[iClass] = iPresetNum;
 		}
 	}
 
@@ -195,6 +195,7 @@ public:
 	void				DropFlag( void );
 	void				TFWeaponRemove( int iWeaponID );
 	bool				TFWeaponDrop( CTFWeaponBase *pWeapon, bool bThrowForward );
+	virtual bool		BumpWeapon( CBaseCombatWeapon *pWeapon );
 
 	// Class.
 	CTFPlayerClass		*GetPlayerClass( void ) 					{ return &m_PlayerClass; }

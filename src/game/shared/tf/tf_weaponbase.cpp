@@ -482,11 +482,7 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
-	else if ( IsMeleeWeapon() && ((tf_weapon_criticals_melee.GetInt() == 1 && tf_weapon_criticals.GetBool()) || tf_weapon_criticals_melee.GetInt() == 2))
-	{
-		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	else if ( tf_weapon_criticals.GetBool() )
+	else if (!tf_weapon_criticals.GetBool() && (!IsMeleeWeapon() || (IsMeleeWeapon() && tf_weapon_criticals_melee.GetInt() == 1)))
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();

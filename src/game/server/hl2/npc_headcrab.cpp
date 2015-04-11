@@ -185,10 +185,10 @@ int ACT_HEADCRAB_CEILING_LAND;
 //-----------------------------------------------------------------------------
 // Skill settings.
 //-----------------------------------------------------------------------------
-ConVar	sk_headcrab_health( "sk_headcrab_health","0");
-ConVar	sk_headcrab_fast_health( "sk_headcrab_fast_health","0");
-ConVar	sk_headcrab_poison_health( "sk_headcrab_poison_health","0");
-ConVar	sk_headcrab_melee_dmg( "sk_headcrab_melee_dmg","0");
+ConVar	sk_headcrab_health( "sk_headcrab_health","10");
+ConVar	sk_headcrab_fast_health( "sk_headcrab_fast_health","10");
+ConVar	sk_headcrab_poison_health( "sk_headcrab_poison_health","35");
+ConVar	sk_headcrab_melee_dmg( "sk_headcrab_melee_dmg","5");
 ConVar	sk_headcrab_poison_npc_damage( "sk_headcrab_poison_npc_damage", "0" );
 
 BEGIN_DATADESC( CBaseHeadcrab )

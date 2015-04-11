@@ -35,8 +35,12 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+		#ifndef TF_CLASSIC
 		CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
 		return ( pHL2Player && pHL2Player->ApplyBattery() );
+		#else
+		return NULL; //for now return NULL.
+		#endif
 	}
 };
 

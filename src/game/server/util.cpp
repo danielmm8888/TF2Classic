@@ -617,6 +617,100 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 // Return the local player.
 // If this is a multiplayer game, return NULL.
 // 
+#ifdef TF_CLASSIC
+CBasePlayer *UTIL_GetLocalPlayer( void )
+{
+
+	// first try getting the host, failing that, get *ANY* player
+	CBasePlayer *pHost = UTIL_GetListenServerHost();
+	if ( pHost )
+		return pHost;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( pPlayer )
+			return pPlayer;
+	}
+
+	return NULL;
+}
+
+//SecobMod__Information: This is a new function designed to get the nearest player to a player that called the command, this is used for our respawn where killed code to try and respawn at a near-by player.
+CBasePlayer *UTIL_GetOtherNearestPlayer( const Vector &origin )
+{
+// End of copied and pasted code.                                    //SecobMod__Information: See the following Null Pointer line.
+	float distToOtherNearest = 128.0f; //SecobMod__Information: We don't want the OtherNearest player to be the player that called this function.
+	CBasePlayer *pOtherNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if ( flDist >= distToOtherNearest )
+
+		{
+			pOtherNearest = pPlayer;
+			distToOtherNearest = flDist;
+
+		}
+	}
+
+
+	return pOtherNearest;
+}
+
+CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
+{
+	float distToNearest = 99999999999999999999999999999999999999.0f;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if ( flDist < distToNearest )
+
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+
+		}
+	}
+
+
+	return pNearest;
+}
+
+CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
+{															
+	float distToNearest = 99999999999999999999999999999999999999.0f;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();
+		if ( flDist < distToNearest && pLooker->FVisible( pPlayer, mask ) )
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}	
+	}
+
+	return pNearest; 
+}
+#else
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
 	if ( gpGlobals->maxClients > 1 )
@@ -635,7 +729,7 @@ CBasePlayer *UTIL_GetLocalPlayer( void )
 
 	return UTIL_PlayerByIndex( 1 );
 }
-
+#endif
 //
 // Get the local player on a listen server - this is for multiplayer use only
 // 

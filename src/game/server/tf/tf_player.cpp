@@ -49,6 +49,7 @@
 #include "steam/steam_api.h"
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
+#include "tf_powerup.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -653,6 +654,8 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "Game.SuddenDeath" );
 	PrecacheScriptSound( "Game.Stalemate" );
 	PrecacheScriptSound( "TV.Tune" );
+
+	PrecacheScriptSound( "AmmoPack.Touch" );
 
 	// Precache particle systems
 	PrecacheParticleSystem( "crit_text" );
@@ -1324,7 +1327,10 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	if ( !pSpot )
 	{
 		Warning( "PutClientInServer: no %s on level\n", pSpawnPointName );
-		return CBaseEntity::Instance( INDEXENT(0) );
+
+		// Fall back to BaseClass
+		return BaseClass::EntSelectSpawnPoint();
+		//return CBaseEntity::Instance( INDEXENT(0) );
 	}
 
 	return pSpot;
@@ -2094,9 +2100,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			// disguise as the previous class, if one exists
 			int nClass = m_Shared.GetDesiredDisguiseClass();
 
-			// PistonMiner: try and disguise as the previous team
-			int nTeam = m_Shared.GetDesiredDisguiseTeam();
-
 			//If we pass in "random" or whatever then just make it pick a random class.
 			if ( args.ArgC() > 1 )
 			{
@@ -2106,23 +2109,14 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if ( nClass == TF_CLASS_UNDEFINED )
 			{
 				// they haven't disguised yet, pick a nice one for them.
-				// exclude some undesirable classes 
-
-				// PistonMiner: Added Mercenary and Civilan to undesired, also made it so it doesnt pick your own team
+				// exclude some undesirable classes
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
-					
-					// PistonMiner: Added check whether or not we actually have four teams.
-					if ( TFGameRules()->IsFourTeamGame() )
-						nTeam = random->RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
-					else
-						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
-
-				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
+				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY );
 			}
 
-			m_Shared.Disguise( nTeam, nClass );
+			m_Shared.Disguise( ( GetTeamNumber() == TF_TEAM_BLUE ) ? TF_TEAM_RED : TF_TEAM_BLUE, nClass );
 		}
 
 		return true;
@@ -2644,6 +2638,53 @@ void CTFPlayer::DropFlag( void )
 			}
 		}
 	}
+}
+
+bool CTFPlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
+{
+	if ( dynamic_cast<CTFWeaponBase*>( pWeapon ) != NULL )
+		return BaseClass::BumpWeapon( pWeapon );
+
+	// TF players must NOT be able to use non-TF weapons. So make them act as small ammo packs for players.
+
+	// Can I have this weapon type?
+	if ( !IsAllowedToPickupWeapons() )
+		return false;
+
+
+	// Don't let the player fetch weapons through walls (use MASK_SOLID so that you can't pickup through windows)
+	if( pWeapon->FVisible( this, MASK_SOLID ) == false && !(GetFlags() & FL_NOTARGET) )
+		return false;
+
+	bool bSuccess = false;
+
+	int iMaxPrimary = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+	if ( GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_SMALL]), TF_AMMO_PRIMARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxSecondary = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+	if ( GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_SMALL]), TF_AMMO_SECONDARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxMetal = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+	if ( GiveAmmo( ceil(iMaxMetal * PackRatios[POWERUP_SMALL]), TF_AMMO_METAL, true ) )
+	{
+		bSuccess = true;
+	}
+
+	// did we give them anything?
+	if ( bSuccess )
+	{
+		CSingleUserRecipientFilter filter( this );
+		EmitSound( filter, entindex(), "AmmoPack.Touch" );
+		UTIL_Remove( pWeapon );
+	}
+
+	return bSuccess;
 }
 
 //-----------------------------------------------------------------------------
