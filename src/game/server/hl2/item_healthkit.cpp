@@ -12,34 +12,38 @@
 #include "in_buttons.h"
 #include "engine/IEngineSound.h"
 
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar	sk_healthkit( "sk_healthkit","0" );		
-ConVar	sk_healthvial( "sk_healthvial","0" );		
-ConVar	sk_healthcharger( "sk_healthcharger","0" );		
+ConVar	sk_healthkit( "sk_healthkit","25" );		
+ConVar	sk_healthvial( "sk_healthvial","10" );		
+ConVar	sk_healthcharger( "sk_healthcharger","50" );		
 
 //-----------------------------------------------------------------------------
 // Small health kit. Heals the player when picked up.
 //-----------------------------------------------------------------------------
-class CHealthKitHL2 : public CItem
+class CHLHealthKit : public CItem
 {
 public:
-	DECLARE_CLASS( CHealthKitHL2, CItem );
+	DECLARE_CLASS( CHLHealthKit, CItem );
 
 	void Spawn( void );
 	void Precache( void );
 	bool MyTouch( CBasePlayer *pPlayer );
 };
 
-LINK_ENTITY_TO_CLASS( item_healthkit, CHealthKitHL2 );
+LINK_ENTITY_TO_CLASS( item_healthkit, CHLHealthKit );
 PRECACHE_REGISTER(item_healthkit);
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHealthKitHL2::Spawn( void )
+void CHLHealthKit::Spawn( void )
 {
 	Precache();
 	SetModel( "models/items/healthkit.mdl" );
@@ -51,7 +55,7 @@ void CHealthKitHL2::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHealthKitHL2::Precache( void )
+void CHLHealthKit::Precache( void )
 {
 	PrecacheModel("models/items/healthkit.mdl");
 
@@ -64,8 +68,9 @@ void CHealthKitHL2::Precache( void )
 // Input  : *pPlayer - 
 // Output : 
 //-----------------------------------------------------------------------------
-bool CHealthKitHL2::MyTouch( CBasePlayer *pPlayer )
+bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
+#ifndef TF_CLASSIC
 	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
 	{
 		CSingleUserRecipientFilter user( pPlayer );
@@ -91,6 +96,43 @@ bool CHealthKitHL2::MyTouch( CBasePlayer *pPlayer )
 	}
 
 	return false;
+#else
+	bool bSuccess = false;
+
+	if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthkit.GetFloat() / 100)), DMG_GENERIC ) )
+	{
+		CSingleUserRecipientFilter user( pPlayer );
+		user.MakeReliable();
+
+		UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
+		MessageEnd();
+
+		EmitSound( user, entindex(), "HealthKit.Touch" );
+
+		bSuccess = true;
+
+		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+
+		Assert( pTFPlayer );
+
+		// Healthkits also contain a fire blanket.
+		if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+		{
+			pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
+		}
+
+		// Remove tranq condition
+		if ( pTFPlayer->m_Shared.InCond( TF_COND_SLOWED ) )
+		{
+			pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
+		}
+
+		UTIL_Remove(this);
+	}
+
+	return bSuccess;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -119,6 +161,7 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if ( pPlayer->TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
 		{
 			CSingleUserRecipientFilter user( pPlayer );
@@ -144,7 +187,45 @@ public:
 		}
 
 		return false;
+#else
+		bool bSuccess = false;
+
+		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthvial.GetFloat() / 100)), DMG_GENERIC ) )
+		{
+			CSingleUserRecipientFilter user( pPlayer );
+			user.MakeReliable();
+
+			UserMessageBegin( user, "ItemPickup" );
+				WRITE_STRING( GetClassname() );
+			MessageEnd();
+
+			EmitSound( user, entindex(), "HealthKit.Touch" );
+
+			bSuccess = true;
+
+			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+
+			Assert( pTFPlayer );
+
+			// Healthkits also contain a fire blanket.
+			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+			{
+				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
+			}
+
+			// Remove tranq condition
+			if ( pTFPlayer->m_Shared.InCond( TF_COND_SLOWED ) )
+			{
+				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
+			}
+
+			UTIL_Remove(this);
+		}
+
+		return bSuccess;
+#endif
 	}
+
 };
 
 LINK_ENTITY_TO_CLASS( item_healthvial, CHealthVial );
