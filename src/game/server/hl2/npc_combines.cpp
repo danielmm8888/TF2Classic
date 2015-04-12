@@ -28,11 +28,11 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar	sk_combine_s_health( "sk_combine_s_health","0");
-ConVar	sk_combine_s_kick( "sk_combine_s_kick","0");
+ConVar	sk_combine_s_health( "sk_combine_s_health","50");
+ConVar	sk_combine_s_kick( "sk_combine_s_kick","10");
 
-ConVar sk_combine_guard_health( "sk_combine_guard_health", "0");
-ConVar sk_combine_guard_kick( "sk_combine_guard_kick", "0");
+ConVar sk_combine_guard_health( "sk_combine_guard_health", "70");
+ConVar sk_combine_guard_kick( "sk_combine_guard_kick", "15");
  
 // Whether or not the combine guard should spawn health on death
 ConVar combine_guard_spawn_health( "combine_guard_spawn_health", "1" );
@@ -338,7 +338,8 @@ void CNPC_CombineS::Event_Killed( const CTakeDamageInfo &info )
 				}
 			}
 		}
-
+		// Soldiers don't drop health and grenades for now.
+#ifdef HL2_DLL
 		CHalfLife2 *pHL2GameRules = static_cast<CHalfLife2 *>(g_pGameRules);
 
 		// Attempt to drop health
@@ -357,8 +358,8 @@ void CNPC_CombineS::Event_Killed( const CTakeDamageInfo &info )
 				pHL2GameRules->NPC_DroppedGrenade();
 			}
 		}
+#endif
 	}
-
 	BaseClass::Event_Killed( info );
 }
 

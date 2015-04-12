@@ -32,7 +32,7 @@
 	#include "portal_util_shared.h"
 #endif
 
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	extern int g_interactionPlayerLaunchedRPG;
 #endif
 

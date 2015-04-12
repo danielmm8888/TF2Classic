@@ -2163,10 +2163,11 @@ void CBaseEntity::DoImpactEffect( trace_t &tr, int nDamageType )
 void CBaseEntity::ComputeTracerStartPosition( const Vector &vecShotSrc, Vector *pVecTracerStart )
 {
 #ifndef HL2MP
-	if ( g_pGameRules->IsMultiplayer() )
+	if ( g_pGameRules->IsMultiplayer() && IsPlayer() )
 	{
 		// NOTE: we do this because in MakeTracer, we force it to use the attachment position
 		// in multiplayer, so the results from this function should never actually get used.
+		// Not all NPCs use attachments, though. (Nicknine)
 		pVecTracerStart->Init( 999, 999, 999 );
 		return;
 	}
@@ -2242,7 +2243,8 @@ int CBaseEntity::GetTracerAttachment( void )
 {
 	int iAttachment = TRACER_DONT_USE_ATTACHMENT;
 
-	if ( g_pGameRules->IsMultiplayer() )
+	// Not all NPCs use attachments. (Nicknine)
+	if ( g_pGameRules->IsMultiplayer() && IsPlayer() )
 	{
 		iAttachment = 1;
 	}

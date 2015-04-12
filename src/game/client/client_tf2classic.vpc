@@ -56,15 +56,20 @@ $Project "Client (TF)"
 		
 		$Folder "HL2 DLL"
 		{
+			$File	"episodic\c_vort_charge_token.cpp"
 			$File	"hl2\c_antlion_dust.cpp"
 			$File	"hl2\c_barnacle.cpp"
 			$File	"hl2\c_basehlcombatweapon.cpp"
 			$File	"hl2\c_basehlcombatweapon.h"
+			$File	"hl2\c_func_tankmortar.cpp"
 			$File	"$SRCDIR\game\shared\hl2\basehlcombatweapon_shared.cpp"
 			$File	"hl2\c_prop_combine_ball.cpp"
 			$File	"hl2\c_prop_combine_ball.h"
-			$File	"episodic\c_vort_charge_token.cpp"
+			$File	"hl2\c_strider.cpp"
+			$File	"hl2\c_te_concussiveexplosion.cpp"
 			$File	"hl2\c_weapon__stubs_hl2.cpp"
+			$File	"hl2\c_weapon_physcannon.cpp"
+			$File	"hl2\fx_hl2_tracers.cpp"
 		}
 		
 		$Folder	"Multiplayer"
