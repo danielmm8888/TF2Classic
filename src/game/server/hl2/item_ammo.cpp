@@ -12,6 +12,13 @@
 #include "eventlist.h"
 #include "npcevent.h"
 
+#ifdef TF_CLASSIC
+#include "tf_powerup.h"
+#include "tf_player.h"
+
+#define TF_AMMOPACK_PICKUP_SOUND	"AmmoPack.Touch"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -35,6 +42,35 @@ int ITEM_GiveAmmo( CBasePlayer *pPlayer, float flCount, const char *pszAmmoName,
 	return pPlayer->GiveAmmo( flCount, iAmmoType, bSuppressSound );
 }
 
+bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound = true)
+{
+	bool bSuccess = false;
+
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	if ( !pTFPlayer )
+		return false;
+
+	int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * flCount), TF_AMMO_PRIMARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * flCount), TF_AMMO_SECONDARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+	if ( pPlayer->GiveAmmo( ceil(iMaxMetal * flCount), TF_AMMO_METAL, true ) )
+	{
+		bSuccess = true;
+	}
+
+	return bSuccess;
+}
+
 // ========================================================================
 //	>> BoxSRounds
 // ========================================================================
@@ -42,6 +78,10 @@ class CItem_BoxSRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxSRounds, CItem );
+
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -55,6 +95,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL, "Pistol"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -64,6 +105,14 @@ public:
 
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -77,6 +126,10 @@ class CItem_LargeBoxSRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxSRounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -90,6 +143,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL_LARGE, "Pistol"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -98,6 +152,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -112,6 +174,10 @@ class CItem_BoxMRounds : public CItem
 public:
 	DECLARE_CLASS( CItem_BoxMRounds, CItem );
 
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
+#endif
+
 	void Spawn( void )
 	{ 
 		Precache( );
@@ -124,6 +190,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1, "SMG1"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -132,6 +199,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -145,6 +220,10 @@ class CItem_LargeBoxMRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxMRounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -158,6 +237,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_LARGE, "SMG1"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -166,6 +246,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -179,6 +267,10 @@ class CItem_BoxLRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxLRounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -192,6 +284,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2, "AR2"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -200,6 +293,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -213,6 +314,10 @@ class CItem_LargeBoxLRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxLRounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -226,6 +331,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_LARGE, "AR2"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -234,6 +340,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -248,6 +362,10 @@ class CItem_Box357Rounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_Box357Rounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Precache( void )
 	{
@@ -262,6 +380,7 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357, "357"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -270,6 +389,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -283,6 +410,10 @@ class CItem_LargeBox357Rounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBox357Rounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Precache( void )
 	{
@@ -297,6 +428,7 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357_LARGE, "357"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -305,6 +437,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -318,6 +458,10 @@ class CItem_BoxXBowRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxXBowRounds, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Precache( void )
 	{
@@ -333,6 +477,7 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_CROSSBOW, "XBowBolt" ))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -341,6 +486,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -423,6 +576,10 @@ class CItem_RPG_Round : public CItem
 public:
 	DECLARE_CLASS( CItem_RPG_Round, CItem );
 
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
+#endif
+
 	void Spawn( void )
 	{ 
 		Precache( );
@@ -435,6 +592,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_RPG_ROUND, "RPG_Round"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -443,6 +601,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -456,6 +622,10 @@ class CItem_AR2_Grenade : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_AR2_Grenade, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -469,6 +639,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_GRENADE, "SMG1_Grenade"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -477,6 +648,14 @@ public:
 			}	
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -526,6 +705,10 @@ class CItem_BoxBuckshot : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxBuckshot, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
+#endif
 
 	void Spawn( void )
 	{ 
@@ -539,6 +722,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_BUCKSHOT, "Buckshot"))
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -547,6 +731,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -559,6 +751,10 @@ class CItem_AR2AltFireRound : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_AR2AltFireRound, CItem );
+	
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
+#endif
 
 	void Precache( void )
 	{
@@ -575,6 +771,7 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_ALTFIRE, "AR2AltFire" ) )
 		{
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
@@ -583,6 +780,14 @@ public:
 			}
 			return true;
 		}
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			UTIL_Remove(this);
+		}
+#endif
 		return false;
 	}
 };
@@ -615,6 +820,10 @@ class CItem_AmmoCrate : public CBaseAnimating
 {
 public:
 	DECLARE_CLASS( CItem_AmmoCrate, CBaseAnimating );
+
+#ifdef TF_CLASSIC
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
+#endif
 
 	void	Spawn( void );
 	void	Precache( void );
@@ -899,6 +1108,7 @@ void CItem_AmmoCrate::HandleAnimEvent( animevent_t *pEvent )
 	{
 		if ( m_hActivator )
 		{
+#ifndef TF_CLASSIC
 			if ( m_pGiveWeapon[m_nAmmoType] && !m_hActivator->Weapon_OwnsThisType( m_pGiveWeapon[m_nAmmoType] ) )
 			{
 				CBaseEntity *pEntity = CreateEntityByName( m_pGiveWeapon[m_nAmmoType] );
@@ -924,6 +1134,14 @@ void CItem_AmmoCrate::HandleAnimEvent( animevent_t *pEvent )
 			{
 				SetBodygroup( 1, false );
 			}
+#else
+			if ( ITEM_GiveTFAmmo( m_hActivator, PackRatios[GetPowerupSize()]) ) 
+			{
+				SetBodygroup( 1, false );
+				CSingleUserRecipientFilter filter( m_hActivator );
+				EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			}
+#endif
 			m_hActivator = NULL;
 		}
 		return;

@@ -15,6 +15,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#ifdef TF_CLASSIC
+ConVar sk_battery( "sk_battery","15" );
+#endif
+
 class CItemBattery : public CItem
 {
 public:

@@ -10,6 +10,11 @@
 #include "items.h"
 #include "ammodef.h"
 
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#include "tf_shareddefs.h"
+#include "tf_powerup.h"
+#endif
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -19,13 +24,23 @@ extern ConVar sk_healthkit;
 
 ConVar g_debug_dynamicresupplies( "g_debug_dynamicresupplies", "0", FCVAR_NONE, "Debug item_dynamic_resupply spawning. Set to 1 to see text printouts of the spawning. Set to 2 to see lines drawn to other items factored into the spawning." );
 
+#ifdef TF_CLASSIC
 struct DynamicResupplyItems_t
 {
 	const char *sEntityName;
 	const char *sAmmoDef;
-	int			iAmmoCount;
+	float		flAmmoRatio;
 	float		flFullProbability;	// Probability of spawning if the player meeds all goals
 };
+#else
+struct DynamicResupplyItems_t
+{
+	const char *sEntityName;
+	const char *sAmmoDef;
+	float		iAmmoCount;
+	float		flFullProbability;	// Probability of spawning if the player meeds all goals
+};
+#endif
 
 struct SpawnInfo_t
 {
@@ -44,6 +59,21 @@ static DynamicResupplyItems_t g_DynamicResupplyHealthItems[] =
 };
 
 // Ammo types
+#ifdef TF_CLASSIC
+static DynamicResupplyItems_t g_DynamicResupplyAmmoItems[] =
+{
+	{ "item_ammo_pistol",			"Pistol",		PackRatios[POWERUP_SMALL],		0.5f },
+	{ "item_ammo_smg1",				"SMG1",			PackRatios[POWERUP_SMALL],			0.4f },
+	{ "item_ammo_smg1_grenade",		"SMG1_Grenade", PackRatios[POWERUP_SMALL], 0.0f },
+	{ "item_ammo_ar2",				"AR2",			PackRatios[POWERUP_MEDIUM],			0.0f },
+	{ "item_box_buckshot",			"Buckshot",		PackRatios[POWERUP_MEDIUM],		0.0f },
+	{ "item_rpg_round",				"RPG_Round",	PackRatios[POWERUP_SMALL],	0.0f },
+	{ "weapon_frag",				"Grenade",		PackRatios[POWERUP_SMALL],						0.1f },
+	{ "item_ammo_357",				"357",			PackRatios[POWERUP_MEDIUM],			0.0f },
+	{ "item_ammo_crossbow",			"XBowBolt",		PackRatios[POWERUP_MEDIUM],		0.0f },
+	{ "item_ammo_ar2_altfire",		"AR2AltFire",	PackRatios[POWERUP_SMALL],	0.0f },
+};
+#else
 static DynamicResupplyItems_t g_DynamicResupplyAmmoItems[] =
 {
 	{ "item_ammo_pistol",			"Pistol",		SIZE_AMMO_PISTOL,		0.5f },
@@ -57,6 +87,7 @@ static DynamicResupplyItems_t g_DynamicResupplyAmmoItems[] =
 	{ "item_ammo_crossbow",			"XBowBolt",		SIZE_AMMO_CROSSBOW,		0.0f },
 	{ "item_ammo_ar2_altfire",		"AR2AltFire",	SIZE_AMMO_AR2_ALTFIRE,	0.0f },
 };
+#endif
 
 #define DS_HEALTH_INDEX		0
 #define DS_ARMOR_INDEX		1
@@ -446,6 +477,7 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 		{
 			// Armor 
 			// Ignore armor if we don't have the suit
+#ifndef TF_CLASSIC
 			if ( !pPlayer->IsSuitEquipped() )
 			{
 				pSpawnInfo[i].m_flCurrentRatio = 1.0;
@@ -456,6 +488,10 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 				float flCurrentArmor = pPlayer->ArmorValue() + (pSpawnInfo[i].m_iPotentialItems * sk_battery.GetFloat());
 				pSpawnInfo[i].m_flCurrentRatio = (flCurrentArmor / flMax);
 			}
+#else
+			// TF2 players don't have armor so always ignore that.
+			pSpawnInfo[i].m_flCurrentRatio = 1.0;
+#endif
 		}
 
 		pSpawnInfo[i].m_flDesiredRatio = pMaster->m_flDesiredHealth[i] * sk_dynamic_resupply_modifier.GetFloat();
@@ -480,8 +516,23 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 //-----------------------------------------------------------------------------
 void CItem_DynamicResupply::ComputeAmmoRatios( CItem_DynamicResupply* pMaster, CBasePlayer *pPlayer, int iDebug, SpawnInfo_t *pSpawnInfo )
 {
+#ifdef TF_CLASSIC
+	// TF2 players don't use HL2 ammo and TF2 ammo packs are based on ratios so we act differently here.
+	// We get player's lowest ammo ratio and compare it to the desired ratio.
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	float flLowestRatio = 1.0f;
+
+	for ( int i = 1; i < TF_AMMO_GRENADES1; i++ )
+	{
+		float flMaxAmmo = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[i];
+		float flCurrentAmmo = pTFPlayer->GetAmmoCount( i );
+		flLowestRatio = min( flLowestRatio, ( flCurrentAmmo / flMaxAmmo ) );
+	}
+#endif
+
 	for ( int i = 0; i < NUM_AMMO_ITEMS; i++ )
 	{
+#ifndef TF_CLASSIC
 		// Get the ammodef's
 		int iAmmoType = GetAmmoDef()->Index( g_DynamicResupplyAmmoItems[i].sAmmoDef );
 		Assert( iAmmoType != -1 );
@@ -498,6 +549,10 @@ void CItem_DynamicResupply::ComputeAmmoRatios( CItem_DynamicResupply* pMaster, C
 			flCurrentAmmo += (pSpawnInfo[i].m_iPotentialItems * g_DynamicResupplyAmmoItems[i].iAmmoCount);
 			pSpawnInfo[i].m_flCurrentRatio = (flCurrentAmmo / flMax);
 		}
+#else
+		flLowestRatio += (pSpawnInfo[i].m_iPotentialItems * g_DynamicResupplyAmmoItems[i].flAmmoRatio);
+		pSpawnInfo[i].m_flCurrentRatio = clamp( flLowestRatio, 0, 1 );;
+#endif
 
 		// Use the master if we're supposed to
 		pSpawnInfo[i].m_flDesiredRatio = pMaster->m_flDesiredAmmo[i] * sk_dynamic_resupply_modifier.GetFloat();
