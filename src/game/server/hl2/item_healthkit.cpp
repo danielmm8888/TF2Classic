@@ -128,6 +128,7 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 			pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
 		}
 
+		// Healthkits respawn by default in multiplayer. We don't want this so don't check ItemShouldRespawn.
 		UTIL_Remove(this);
 	}
 
@@ -219,6 +220,7 @@ public:
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
 			}
 
+			// Healthkits respawn by default in multiplayer. We don't want this so don't check ItemShouldRespawn.
 			UTIL_Remove(this);
 		}
 
