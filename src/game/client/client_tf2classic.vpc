@@ -61,6 +61,8 @@ $Project "Client (TF)"
 			$File	"hl2\c_basehlcombatweapon.cpp"
 			$File	"hl2\c_basehlcombatweapon.h"
 			$File	"$SRCDIR\game\shared\hl2\basehlcombatweapon_shared.cpp"
+			$File	"hl2\c_prop_combine_ball.cpp"
+			$File	"hl2\c_prop_combine_ball.h"
 			$File	"episodic\c_vort_charge_token.cpp"
 			$File	"hl2\c_weapon__stubs_hl2.cpp"
 		}

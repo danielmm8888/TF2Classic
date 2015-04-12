@@ -2100,6 +2100,9 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			// disguise as the previous class, if one exists
 			int nClass = m_Shared.GetDesiredDisguiseClass();
 
+			// PistonMiner: try and disguise as the previous team
+			int nTeam = m_Shared.GetDesiredDisguiseTeam();
+
 			//If we pass in "random" or whatever then just make it pick a random class.
 			if ( args.ArgC() > 1 )
 			{

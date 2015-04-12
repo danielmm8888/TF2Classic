@@ -64,10 +64,14 @@ ConVar physcannon_punt_cone( "physcannon_punt_cone", "0.997" );
 ConVar player_throwforce( "player_throwforce", "1000" );
 ConVar physcannon_dmg_glass( "physcannon_dmg_glass", "15" );
 ConVar physcannon_right_turrets( "physcannon_right_turrets", "0" );
-
+#ifdef TF_CLASSIC
+ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
+ConVar hl2_normspeed( "hl2_normspeed", "190" );
+ConVar hl2_sprintspeed( "hl2_sprintspeed", "320" );
+#else
 extern ConVar hl2_normspeed;
 extern ConVar hl2_walkspeed;
-
+#endif
 #define PHYSCANNON_BEAM_SPRITE "sprites/orangelight1.vmt"
 #define PHYSCANNON_GLOW_SPRITE "sprites/glow04_noz.vmt"
 #define PHYSCANNON_ENDCAP_SPRITE "sprites/orangeflare1.vmt"
@@ -1023,13 +1027,13 @@ void CPlayerPickupController::Init( CBasePlayer *pPlayer, CBaseEntity *pObject )
 			return;
 		}
 	}
-
+#ifdef HL2_DLL
 	CHL2_Player *pOwner = (CHL2_Player *)ToBasePlayer( pPlayer );
 	if ( pOwner )
 	{
 		pOwner->EnableSprint( false );
 	}
-
+#endif
 	// If the target is debris, convert it to non-debris
 	if ( pObject->GetCollisionGroup() == COLLISION_GROUP_DEBRIS )
 	{
@@ -1084,12 +1088,13 @@ void CPlayerPickupController::Shutdown( bool bThrown )
 
 	if ( m_pPlayer )
 	{
+#ifdef HL2_DLL
 		CHL2_Player *pOwner = (CHL2_Player *)ToBasePlayer( m_pPlayer );
 		if ( pOwner )
 		{
 			pOwner->EnableSprint( true );
 		}
-
+#endif
 		m_pPlayer->SetUseEntity( NULL );
 		if ( m_pPlayer->GetActiveWeapon() )
 		{
@@ -1457,7 +1462,12 @@ enum
 //-----------------------------------------------------------------------------
 bool PlayerHasMegaPhysCannon()
 {
+#ifndef TF_CLASSIC
 	return ( HL2GameRules()->MegaPhyscannonActive() == true );
+#else
+	// TF2 players can't use HL2 weapons anyway so let's just always return false.
+	return false;
+#endif
 }
 
 
@@ -2425,8 +2435,9 @@ bool CWeaponPhysCannon::AttachObject( CBaseEntity *pObject, const Vector &vPosit
 		// NVNT set the players constant force to simulate holding mass
 		HapticSetConstantForce(pOwner,clamp(m_grabController.GetLoadWeight()*0.05,1,5)*Vector(0,-1,0));
 #endif
+#ifdef HL2_DLL
 		pOwner->EnableSprint( false );
-
+#endif
 		float	loadWeight = ( 1.0f - GetLoadPercentage() );
 		float	maxSpeed = hl2_walkspeed.GetFloat() + ( ( hl2_normspeed.GetFloat() - hl2_walkspeed.GetFloat() ) * loadWeight );
 
@@ -2874,8 +2885,10 @@ void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 	CHL2_Player *pOwner = (CHL2_Player *)ToBasePlayer( GetOwner() );
 	if( pOwner != NULL )
 	{
+		#ifdef HL2_DLL
 		pOwner->EnableSprint( true );
 		pOwner->SetMaxSpeed( hl2_normspeed.GetFloat() );
+		#endif
 		
 		if( wasLaunched )
 		{
@@ -2886,7 +2899,6 @@ void CWeaponPhysCannon::DetachObject( bool playSound, bool wasLaunched )
 		HapticSetConstantForce(pOwner,Vector(0,0,0));
 #endif
 	}
-
 	CBaseEntity *pObject = m_grabController.GetAttached();
 
 	m_grabController.DetachEntity( wasLaunched );
