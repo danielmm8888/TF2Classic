@@ -155,6 +155,14 @@ bool CWeaponOverhealer::Deploy(void)
 	{
 		m_bHolstered = false;
 
+#ifdef GAME_DLL
+		CTFPlayer *pOwner = ToTFPlayer(GetOwnerEntity());
+		if (pOwner)
+		{
+			pOwner->m_Shared.RecalculateInvuln();
+		}
+#endif
+
 #ifdef CLIENT_DLL
 		ManageChargeEffect();
 #endif
