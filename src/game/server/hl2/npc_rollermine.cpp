@@ -44,8 +44,8 @@
 #define ROLLERMINE_MAX_TORQUE_FACTOR	5
 extern short g_sModelIndexWExplosion;
 
-ConVar	sk_rollermine_shock( "sk_rollermine_shock","0");
-ConVar	sk_rollermine_stun_delay("sk_rollermine_stun_delay", "1");
+ConVar	sk_rollermine_shock( "sk_rollermine_shock","10");
+ConVar	sk_rollermine_stun_delay("sk_rollermine_stun_delay", "3");
 ConVar	sk_rollermine_vehicle_intercept( "sk_rollermine_vehicle_intercept","1");
 
 enum

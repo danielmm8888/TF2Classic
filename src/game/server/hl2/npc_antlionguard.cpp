@@ -43,8 +43,8 @@ inline void TraceHull_SkipPhysics( const Vector &vecAbsStart, const Vector &vecA
 					 int collisionGroup, trace_t *ptr, float minMass );
 
 ConVar	g_debug_antlionguard( "g_debug_antlionguard", "0" );
-ConVar	sk_antlionguard_dmg_charge( "sk_antlionguard_dmg_charge", "0" );
-ConVar	sk_antlionguard_dmg_shove( "sk_antlionguard_dmg_shove", "0" );
+ConVar	sk_antlionguard_dmg_charge( "sk_antlionguard_dmg_charge", "20" );
+ConVar	sk_antlionguard_dmg_shove( "sk_antlionguard_dmg_shove", "10" );
 
 #if HL2_EPISODIC
 // When enabled, add code to have the antlion bleed profusely as it is badly injured.
@@ -91,7 +91,7 @@ ConVar	g_antlionguard_hemorrhage( "g_antlionguard_hemorrhage", "1", FCVAR_NONE, 
 #define	ANTLIONGUARD_CHARGE_MIN			256
 #define	ANTLIONGUARD_CHARGE_MAX			2048
 
-ConVar	sk_antlionguard_health( "sk_antlionguard_health", "0" );
+ConVar	sk_antlionguard_health( "sk_antlionguard_health", "500" );
 
 int	g_interactionAntlionGuardFoundPhysicsObject = 0;	// We're moving to a physics object to shove it, don't all choose the same object
 int	g_interactionAntlionGuardShovedPhysicsObject = 0;	// We've punted an object, it is now clear to be chosen by others
