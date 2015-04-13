@@ -109,6 +109,12 @@ extern ConVar sk_healthkit;
 #include "utlbuffer.h"
 #include "gamestats.h"
 
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#include "tf_shareddefs.h"
+#include "tf_weaponbase.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -711,8 +717,43 @@ bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
 int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 {
 	Forget( bits_MEMORY_INCOVER );
+	CTakeDamageInfo newInfo = info;
 
-	if ( !BaseClass::OnTakeDamage_Alive( info ) )
+#ifdef TF_CLASSIC
+	int bitsDamage = info.GetDamageType();
+
+	// Crit modifier
+	if ( info.GetAttacker() != this && !(bitsDamage & (DMG_DROWN | DMG_FALL)) ) 
+	{
+		float flDamage = info.GetDamage();
+		if ( bitsDamage & DMG_CRITICAL )
+		{
+			flDamage = info.GetDamage() * TF_DAMAGE_CRIT_MULTIPLIER;
+
+			// Show the attacker
+			if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
+			{
+				CEffectData	data;
+				data.m_nHitBox = GetParticleSystemIndex( "crit_text" );
+				data.m_vOrigin = WorldSpaceCenter() + Vector(0,0,32);
+				data.m_vAngles = vec3_angle;
+				data.m_nEntIndex = 0;
+
+				CSingleUserRecipientFilter filter( (CBasePlayer*)info.GetAttacker() );
+				te->DispatchEffect( filter, 0.0, data.m_vOrigin, "ParticleEffect", data );
+
+				EmitSound_t params;
+				params.m_flSoundTime = 0;
+				params.m_pSoundName = "TFPlayer.CritHit";
+				EmitSound( filter, info.GetAttacker()->entindex(), params );
+			}
+		}
+
+		newInfo.SetDamage( flDamage );
+	}
+#endif
+
+	if ( !BaseClass::OnTakeDamage_Alive( newInfo ) )
 		return 0;
 
 	if ( GetSleepState() == AISS_WAITING_FOR_THREAT )
@@ -1153,7 +1194,41 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		break;
 
 	case HITGROUP_HEAD:
+#ifndef TF_CLASSIC
 		subInfo.ScaleDamage( GetHitgroupDamageMultiplier(ptr->hitgroup, info) );
+#else
+		// If we're attacked by a TF2 player then only the sniper can do headshot damage.
+		if ( info.GetAttacker()->IsPlayer() )
+		{
+			CTFPlayer *pAttacker = (CTFPlayer*)ToTFPlayer( info.GetAttacker() );
+			if ( (subInfo.GetDamageType() & DMG_USE_HITLOCATIONS) )
+			{
+				CTFWeaponBase *pWpn = pAttacker->GetActiveTFWeapon();
+				bool bCritical = true;
+
+				if ( pWpn && !pWpn->CanFireCriticalShot( true ) )
+				{
+					bCritical = false;
+				}
+
+				if ( bCritical )
+				{
+					subInfo.AddDamageType( DMG_CRITICAL );
+					subInfo.SetDamageCustom( TF_DMG_CUSTOM_HEADSHOT );
+
+					// play the critical shot sound to the shooter	
+					if ( pWpn )
+					{
+						pWpn->WeaponSound( BURST );
+					}
+				}
+			}
+		}
+		else
+		{
+			subInfo.ScaleDamage( GetHitgroupDamageMultiplier(ptr->hitgroup, info) );
+		}
+#endif
 		if( bDebug ) DevMsg("Hit Location: Head\n");
 		break;
 
