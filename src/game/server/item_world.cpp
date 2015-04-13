@@ -98,7 +98,7 @@ BEGIN_DATADESC( CItem )
 	DEFINE_THINKFUNC( Materialize ),
 	DEFINE_THINKFUNC( ComeToRest ),
 
-#if defined( HL2MP ) || defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( HL2MP ) || defined( TF_DLL )
 	DEFINE_FIELD( m_flNextResetCheckTime, FIELD_TIME ),
 	DEFINE_THINKFUNC( FallThink ),
 #endif
@@ -202,7 +202,7 @@ void CItem::Spawn( void )
 	}
 #endif //CLIENT_DLL
 
-#if defined( HL2MP ) || defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( HL2MP ) || defined( TF_DLL )
 	SetThink( &CItem::FallThink );
 	SetNextThink( gpGlobals->curtime + 0.1f );
 #endif
@@ -272,7 +272,7 @@ void CItem::ComeToRest( void )
 	}
 }
 
-#if defined( HL2MP ) || defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( HL2MP ) || defined( TF_DLL )
 
 //-----------------------------------------------------------------------------
 // Purpose: Items that have just spawned run this think to catch them when 
@@ -307,7 +307,7 @@ void CItem::FallThink ( void )
 	}
 #endif // HL2MP
 
-#if defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( TF_DLL )
 	// We only come here if ActivateWhenAtRest() is never called,
 	// which is the case when creating currencypacks in MvM
 	if ( !( GetFlags() & FL_ONGROUND ) )
