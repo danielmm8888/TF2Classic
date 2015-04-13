@@ -1164,6 +1164,13 @@ bool CTraceFilterMelee::ShouldHitEntity( IHandleEntity *pHandleEntity, int conte
 			// Can only damage other NPCs that we hate
 			if ( m_bDamageAnyNPC || pBCC->IRelationType( pEntity ) == D_HT )
 			{
+#ifdef TF_CLASSIC
+				// HACKHACK: If NPC is damaging a player with DMG_SLASH then add DMG_CLUB so player does melee death scream.
+				if ( pBCC->IsNPC() && pVictimBCC->IsPlayer() )
+				{
+					info.AddDamageType( DMG_CLUB );
+				}
+#endif
 				if ( info.GetDamage() )
 				{
 					pEntity->TakeDamage( info );
