@@ -4598,7 +4598,7 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		EmitSound( "BaseCombatCharacter.AmmoPickup" );
 	}
 
-	CBaseCombatCharacter::GiveAmmo( iAdd, iAmmoIndex );
+	CBaseCombatCharacter::GiveAmmo( iAdd, iAmmoIndex, bSuppressSound );
 	return iAdd;
 }
 
