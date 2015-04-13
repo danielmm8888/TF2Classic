@@ -43,7 +43,7 @@ public:
 		CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
 		return ( pHL2Player && pHL2Player->ApplyBattery() );
 #else
-		// For now, suit batteries don't anything for TF2 players.
+		// For now, suit batteries don't do anything for TF2 players.
 		// TODO: Find a use for them.
 		return false;
 #endif

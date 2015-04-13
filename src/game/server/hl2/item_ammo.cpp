@@ -42,6 +42,7 @@ int ITEM_GiveAmmo( CBasePlayer *pPlayer, float flCount, const char *pszAmmoName,
 	return pPlayer->GiveAmmo( flCount, iAmmoType, bSuppressSound );
 }
 
+#ifdef TF_CLASSIC
 bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound = true)
 {
 	bool bSuccess = false;
@@ -51,25 +52,26 @@ bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound =
 		return false;
 
 	int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * flCount), TF_AMMO_PRIMARY, true ) )
+	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * flCount), TF_AMMO_PRIMARY, bSuppressSound ) )
 	{
 		bSuccess = true;
 	}
 
 	int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * flCount), TF_AMMO_SECONDARY, true ) )
+	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * flCount), TF_AMMO_SECONDARY, bSuppressSound ) )
 	{
 		bSuccess = true;
 	}
 
 	int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
-	if ( pPlayer->GiveAmmo( ceil(iMaxMetal * flCount), TF_AMMO_METAL, true ) )
+	if ( pPlayer->GiveAmmo( ceil(iMaxMetal * flCount), TF_AMMO_METAL, bSuppressSound ) )
 	{
 		bSuccess = true;
 	}
 
 	return bSuccess;
 }
+#endif
 
 // ========================================================================
 //	>> BoxSRounds
@@ -92,6 +94,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxsrounds.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -140,6 +145,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxsrounds.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -187,6 +195,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxmrounds.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -234,6 +245,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxmrounds.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -281,6 +295,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/combine_rifle_cartridge01.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -328,6 +345,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/combine_rifle_cartridge01.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -370,6 +390,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/357ammo.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	void Spawn( void )
 	{ 
@@ -418,6 +441,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/357ammobox.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	void Spawn( void )
 	{ 
@@ -466,6 +492,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/crossbowrounds.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 
 	void Spawn( void )
@@ -589,6 +618,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/weapons/w_missile_closed.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -636,6 +668,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/ar2_grenade.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -719,6 +754,9 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxbuckshot.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
@@ -760,6 +798,9 @@ public:
 	{
 		PrecacheParticleSystem( "combineball" );
 		PrecacheModel ("models/items/combine_rifle_ammo01.mdl");
+#ifdef TF_CLASSIC
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 	}
 
 	void Spawn( void )
@@ -994,6 +1035,9 @@ void CItem_AmmoCrate::Precache( void )
 
 	PrecacheScriptSound( "AmmoCrate.Open" );
 	PrecacheScriptSound( "AmmoCrate.Close" );
+#ifdef TF_CLASSIC
+	PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -357,9 +357,13 @@ void CItem_DynamicResupply::SpawnFullItem( CItem_DynamicResupply *pMaster, CBase
 	float flTotalProb = 0.0f;
 	for ( i = 0; i < NUM_AMMO_ITEMS; ++i )
 	{
+#ifndef TF_CLASSIC
 		int iAmmoType = GetAmmoDef()->Index( g_DynamicResupplyAmmoItems[i].sAmmoDef );
 		bool bCanSpawn = pPlayer->Weapon_GetWpnForAmmo( iAmmoType ) != NULL;
-
+#else
+		// TF2 players can't use HL2 weapons but can still get their ammo from HL2 items so don't check.
+		bool bCanSpawn = true;
+#endif
 		if ( bCanSpawn && ( g_DynamicResupplyAmmoItems[i].flFullProbability != 0 ) && ( pMaster->m_flDesiredAmmo[i] != 0.0f ) )
 		{
 			flTotalProb += g_DynamicResupplyAmmoItems[i].flFullProbability;
