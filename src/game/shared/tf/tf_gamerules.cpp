@@ -116,13 +116,12 @@ ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, 
 #endif
 							  );
 
-#define USE_HL2_PLAYER_HULL
+ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 /**
  * Player hull & eye position for standing, ducking, etc.  This version has a taller
  * player height, but goldsrc-compatible collision bounds.
  */
-#ifdef USE_HL2_PLAYER_HULL
-static CViewVectors g_TFViewVectors(
+static CViewVectors g_HLViewVectors(
 	Vector( 0, 0, 64 ),			//VEC_VIEW (m_vView)
 								
 	Vector(-16, -16, 0 ),		//VEC_HULL_MIN (m_vHullMin)
@@ -137,7 +136,7 @@ static CViewVectors g_TFViewVectors(
 													
 	Vector( 0, 0, 14 )			//VEC_DEAD_VIEWHEIGHT (m_vDeadViewHeight)
 );	
-#else
+
 static CViewVectors g_TFViewVectors(
 	Vector( 0, 0, 72 ),		//VEC_VIEW (m_vView) eye position
 							
@@ -153,7 +152,6 @@ static CViewVectors g_TFViewVectors(
 												
 	Vector( 0, 0, 14 )		//VEC_DEAD_VIEWHEIGHT (m_vDeadViewHeight) dead view height
 );	
-#endif
 
 Vector g_TFClassViewVectors[12] =
 {
@@ -174,6 +172,9 @@ Vector g_TFClassViewVectors[12] =
 
 const CViewVectors *CTFGameRules::GetViewVectors() const
 {
+	if ( tf2c_use_hl2_player_hull.GetBool() )
+		return &g_HLViewVectors;
+
 	return &g_TFViewVectors;
 }
 
