@@ -3006,7 +3006,7 @@ bool CTFGameRules::PlayerMayCapturePoint( CBasePlayer *pPlayer, int iPointIndex,
 		return false;
 	}
 
- 	if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+ 	if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pTFPlayer->m_Shared.GetDisguiseTeam() != pTFPlayer->GetTeamNumber() )
 	{
 		if ( pszReason )
 		{
