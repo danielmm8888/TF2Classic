@@ -1394,7 +1394,8 @@ int CProtoSniper::SelectSchedule ( void )
 		// Reload is absolute priority.
 		return SCHED_RELOAD;
 	}
-
+	// SecobMod__Information: The condition area below when used in mp caused the sniper to fail terribly. Removing it from working with the AI enabled really improves snipers.
+#ifndef TF_CLASSIC
 	if( !AI_GetSinglePlayer()->IsAlive() && m_bKilledPlayer )
 	{
 		if( HasCondition(COND_IN_PVS) )
@@ -1402,7 +1403,8 @@ int CProtoSniper::SelectSchedule ( void )
 			return SCHED_PSNIPER_PLAYER_DEAD;
 		}
 	}
-	
+#endif
+
 	if( HasCondition( COND_HEAR_DANGER ) )
 	{
 		// Next priority is to be suppressed!
