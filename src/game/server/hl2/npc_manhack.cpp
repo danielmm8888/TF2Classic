@@ -78,8 +78,8 @@
 
 #define	MANHACK_CHARGE_MIN_DIST	200
 
-ConVar	sk_manhack_health( "sk_manhack_health","0");
-ConVar	sk_manhack_melee_dmg( "sk_manhack_melee_dmg","0");
+ConVar	sk_manhack_health( "sk_manhack_health","25");
+ConVar	sk_manhack_melee_dmg( "sk_manhack_melee_dmg","20");
 ConVar	sk_manhack_v2( "sk_manhack_v2","1");
 
 extern void		SpawnBlood(Vector vecSpot, const Vector &vAttackDir, int bloodColor, float flDamage);

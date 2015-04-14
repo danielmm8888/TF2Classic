@@ -12,6 +12,8 @@
   handling for the player's suit.
 */
 
+//TF2CFIXME: Doesn't disappear on player touch (The-Yiffy-Fox)
+
 #include "cbase.h"
 #include "player.h"
 #include "gamerules.h"

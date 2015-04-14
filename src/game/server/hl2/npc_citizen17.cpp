@@ -49,7 +49,7 @@ extern ConVar sk_healthvial;
 
 const int MAX_PLAYER_SQUAD = 4;
 
-ConVar	sk_citizen_health				( "sk_citizen_health",					"0");
+ConVar	sk_citizen_health				( "sk_citizen_health",					"40");
 ConVar	sk_citizen_heal_player			( "sk_citizen_heal_player",				"25");
 ConVar	sk_citizen_heal_player_delay	( "sk_citizen_heal_player_delay",		"25");
 ConVar	sk_citizen_giveammo_player_delay( "sk_citizen_giveammo_player_delay",	"10");
