@@ -192,6 +192,7 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_FISHWHACKER",
 	"TF_WEAPON_SHOTGUN_MEDIC",
 	"TF_WEAPON_HUNTERRIFLE",
+	"TF_WEAPON_UMBRELLA",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -261,6 +262,7 @@ int g_aWeaponDamageTypes[] =
 	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
 	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC
 	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE
+	DMG_CLUB, // TF_WEAPON_UMBRELLA
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
