@@ -51,9 +51,7 @@
 
 #define ITEM_RESPAWN_TIME	10.0f
 
-#ifdef TF_CLASSIC
 ConVar	sk_plr_health_drop_time("sk_plr_health_drop_time", "30", FCVAR_REPLICATED);
-#endif
 
 enum
 {
@@ -619,7 +617,6 @@ int	CTFGameRules::Damage_GetShouldNotBleed( void )
 	return 0;
 }
 
-#ifdef TF_CLASSIC
 #ifdef GAME_DLL
 //-----------------------------------------------------------------------------
 // Purpose: Whether or not the NPC should drop a health vial
@@ -647,7 +644,6 @@ void CTFGameRules::NPC_DroppedHealth(void)
 	m_flLastHealthDropTime = gpGlobals->curtime + sk_plr_health_drop_time.GetFloat();
 }
 #endif
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -672,9 +668,7 @@ CTFGameRules::CTFGameRules()
 	m_flIntermissionEndTime = 0.0f;
 	m_flNextPeriodicThink = 0.0f;
 
-#ifdef TF_CLASSIC
 	m_flLastHealthDropTime = 0.0f;
-#endif
 
 	ListenForGameEvent( "teamplay_point_captured" );
 	ListenForGameEvent( "teamplay_capture_blocked" );	
