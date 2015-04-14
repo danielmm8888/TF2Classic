@@ -25,55 +25,69 @@
 #include "tf_gamestats.h"
 #include "ilagcompensationmanager.h"
 #endif
-#include "tf_weapon_medigun.h"
 
-#include "tf_weapon_overhealer.h"
+#include "tf_weapon_kritzkrieg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 // Buff ranges
-ConVar weapon_overhealer_damage_modifier( "weapon_overhealer_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
+ConVar weapon_kritzkrieg_damage_modifier( "weapon_kritzkrieg_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the kritzkrieg." );
+ConVar weapon_kritzkrieg_construction_rate( "weapon_kritzkrieg_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the kritzkrieg." );
+ConVar weapon_kritzkrieg_charge_rate( "weapon_kritzkrieg_charge_rate", "30", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time healing it takes to fully charge the kritzkrieg." );
+ConVar weapon_kritzkrieg_chargerelease_rate( "weapon_kritzkrieg_chargerelease_rate", "8", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time it takes the a full charge of the kritzkrieg to be released." );
 
-static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
+#if defined (CLIENT_DLL)
+ConVar tf_kritzkrieg_autoheal( "tf_kritzkrieg_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Kritzkrieg's primary attack to be a toggle instead of needing to be held down." );
+#endif
+
+#if !defined (CLIENT_DLL)
+ConVar tf_kritzkrieg_lagcomp(  "tf_kritzkrieg_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
+#endif
+
+static const char *s_pszKritzkriegHealTargetThink = "KritzkriegHealTargetThink";
 
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void RecvProxy_HealingTargetOverhealer( const CRecvProxyData *pData, void *pStruct, void *pOut )
+void RecvProxy_HealingTargetKritzKrieg( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
-	CWeaponOverhealer *pMedigun = ((CWeaponOverhealer*)(pStruct));
-	if ( pMedigun != NULL )
+	CWeaponKritzkrieg *pKritzkrieg = ((CWeaponKritzkrieg*)(pStruct));
+	if ( pKritzkrieg != NULL )
 	{
-		pMedigun->ForceHealingTargetUpdate();
+		pKritzkrieg->ForceHealingTargetUpdate();
 	}
 
 	RecvProxy_IntToEHandle( pData, pStruct, pOut );
 }
 #endif
 
-LINK_ENTITY_TO_CLASS(tf_weapon_overhealer, CWeaponOverhealer);
-PRECACHE_WEAPON_REGISTER(tf_weapon_overhealer);
+LINK_ENTITY_TO_CLASS( tf_weapon_kritzkrieg, CWeaponKritzkrieg );
+PRECACHE_WEAPON_REGISTER( tf_weapon_kritzkrieg );
 
-IMPLEMENT_NETWORKCLASS_ALIASED( WeaponOverhealer, DT_WeaponOverhealer )
+IMPLEMENT_NETWORKCLASS_ALIASED( WeaponKritzkrieg, DT_WeaponKritzkrieg )
 
-BEGIN_NETWORK_TABLE(CWeaponOverhealer, DT_WeaponOverhealer)
+BEGIN_NETWORK_TABLE( CWeaponKritzkrieg, DT_WeaponKritzkrieg )
 #if !defined( CLIENT_DLL )
+	SendPropFloat( SENDINFO(m_flChargeLevel), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 	SendPropEHandle( SENDINFO( m_hHealingTarget ) ),
 	SendPropBool( SENDINFO( m_bHealing ) ),
 	SendPropBool( SENDINFO( m_bAttacking ) ),
+	SendPropBool( SENDINFO( m_bChargeRelease ) ),
 	SendPropBool( SENDINFO( m_bHolstered ) ),
 #else
-RecvPropEHandle(RECVINFO(m_hHealingTarget), RecvProxy_HealingTargetOverhealer),
+	RecvPropFloat( RECVINFO(m_flChargeLevel) ),
+	RecvPropEHandle( RECVINFO( m_hHealingTarget ), RecvProxy_HealingTargetKritzKrieg ),
 	RecvPropBool( RECVINFO( m_bHealing ) ),
 	RecvPropBool( RECVINFO( m_bAttacking ) ),
+	RecvPropBool( RECVINFO( m_bChargeRelease ) ),
 	RecvPropBool( RECVINFO( m_bHolstered ) ),
 #endif
 END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
-BEGIN_PREDICTION_DATA( CWeaponOverhealer  )
+BEGIN_PREDICTION_DATA( CWeaponKritzkrieg  )
 
 	DEFINE_PRED_FIELD( m_bHealing, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAttacking, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -82,28 +96,45 @@ BEGIN_PREDICTION_DATA( CWeaponOverhealer  )
 
 	DEFINE_FIELD( m_flHealEffectLifetime, FIELD_FLOAT ),
 
+	DEFINE_PRED_FIELD( m_flChargeLevel, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bChargeRelease, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+
+//	DEFINE_PRED_FIELD( m_bPlayingSound, FIELD_BOOLEAN ),
+//	DEFINE_PRED_FIELD( m_bUpdateHealingTargets, FIELD_BOOLEAN ),
+
 END_PREDICTION_DATA()
 #endif
 
 #define PARTICLE_PATH_VEL				140.0
 #define NUM_PATH_PARTICLES_PER_SEC		300.0f
-#define NUM_MEDIGUN_PATH_POINTS		8
+#define NUM_KRITZKRIEG_PATH_POINTS		8
 
 extern ConVar tf_max_health_boost;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CWeaponOverhealer::CWeaponOverhealer(void)
+CWeaponKritzkrieg::CWeaponKritzkrieg( void )
 {
 	WeaponReset();
+
 	SetPredictionEligible( true );
+}
+
+CWeaponKritzkrieg::~CWeaponKritzkrieg()
+{
+#ifdef CLIENT_DLL
+	if ( m_pChargedSound )
+	{
+		CSoundEnvelopeController::GetController().SoundDestroy( m_pChargedSound );
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::WeaponReset(void)
+void CWeaponKritzkrieg::WeaponReset( void )
 {
 	BaseClass::WeaponReset();
 
@@ -112,21 +143,26 @@ void CWeaponOverhealer::WeaponReset(void)
 	m_bHealing = false;
 	m_bAttacking = false;
 	m_bHolstered = true;
+	m_bChargeRelease = false;
 
 	m_bCanChangeTarget = true;
 
 	m_flNextBuzzTime = 0;
+	m_flReleaseStartedAt = 0;
+	m_flChargeLevel = 0.0f;
 
 	RemoveHealingTarget( true );
 
 #if defined( CLIENT_DLL )
 	m_bPlayingSound = false;
 	m_bUpdateHealingTargets = false;
-	//m_bOldChargeRelease = false;
+	m_bOldChargeRelease = false;
 
 	UpdateEffects();
 	ManageChargeEffect();
 
+	m_pChargeEffect = NULL;
+	m_pChargedSound = NULL;
 #endif
 
 }
@@ -135,29 +171,38 @@ void CWeaponOverhealer::WeaponReset(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::Precache()
+void CWeaponKritzkrieg::Precache()
 {
 	BaseClass::Precache();
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
 	PrecacheScriptSound( "WeaponMedigun.Healing" );
+	PrecacheScriptSound( "WeaponMedigun.Charged" );
+	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
+	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
+	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
+	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
+	PrecacheParticleSystem( "medicgun_beam_red_invun" );
 	PrecacheParticleSystem( "medicgun_beam_red" );
+	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
 	PrecacheParticleSystem( "medicgun_beam_blue" );
+	PrecacheParticleSystem("medicgun_beam_green_invun");
 	PrecacheParticleSystem("medicgun_beam_green");
+	PrecacheParticleSystem("medicgun_beam_yellow_invun");
 	PrecacheParticleSystem("medicgun_beam_yellow");
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::Deploy(void)
+bool CWeaponKritzkrieg::Deploy( void )
 {
 	if ( BaseClass::Deploy() )
 	{
 		m_bHolstered = false;
 
 #ifdef GAME_DLL
-		CTFPlayer *pOwner = ToTFPlayer(GetOwnerEntity());
-		if (pOwner)
+		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+		if ( m_bChargeRelease && pOwner )
 		{
 			pOwner->m_Shared.RecalculateInvuln();
 			pOwner->m_Shared.RecalculateCrits();
@@ -179,7 +224,7 @@ bool CWeaponOverhealer::Deploy(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::Holster(CBaseCombatWeapon *pSwitchingTo)
+bool CWeaponKritzkrieg::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
@@ -207,7 +252,7 @@ bool CWeaponOverhealer::Holster(CBaseCombatWeapon *pSwitchingTo)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::UpdateOnRemove(void)
+void CWeaponKritzkrieg::UpdateOnRemove( void )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
@@ -230,7 +275,7 @@ void CWeaponOverhealer::UpdateOnRemove(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponOverhealer::GetTargetRange(void)
+float CWeaponKritzkrieg::GetTargetRange( void )
 {
 	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flRange;
 }
@@ -238,7 +283,7 @@ float CWeaponOverhealer::GetTargetRange(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponOverhealer::GetStickRange(void)
+float CWeaponKritzkrieg::GetStickRange( void )
 {
 	return (GetTargetRange() * 1.2);
 }
@@ -246,7 +291,7 @@ float CWeaponOverhealer::GetStickRange(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponOverhealer::GetHealRate(void)
+float CWeaponKritzkrieg::GetHealRate( void )
 {
 	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
 }
@@ -254,7 +299,7 @@ float CWeaponOverhealer::GetHealRate(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::HealingTarget(CBaseEntity *pTarget)
+bool CWeaponKritzkrieg::HealingTarget( CBaseEntity *pTarget )
 {
 	if ( pTarget == m_hHealingTarget )
 		return true;
@@ -265,7 +310,7 @@ bool CWeaponOverhealer::HealingTarget(CBaseEntity *pTarget)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::AllowedToHealTarget(CBaseEntity *pTarget)
+bool CWeaponKritzkrieg::AllowedToHealTarget( CBaseEntity *pTarget )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -292,7 +337,7 @@ bool CWeaponOverhealer::AllowedToHealTarget(CBaseEntity *pTarget)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::CouldHealTarget(CBaseEntity *pTarget)
+bool CWeaponKritzkrieg::CouldHealTarget( CBaseEntity *pTarget )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -307,7 +352,7 @@ bool CWeaponOverhealer::CouldHealTarget(CBaseEntity *pTarget)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::MaintainTargetInSlot()
+void CWeaponKritzkrieg::MaintainTargetInSlot()
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -334,7 +379,7 @@ void CWeaponOverhealer::MaintainTargetInSlot()
 		m_flNextTargetCheckTime = gpGlobals->curtime + 1.0f;
 
 		trace_t tr;
-		CMedigunFilter drainFilter( pOwner );
+		CKritzkriegFilter drainFilter( pOwner );
 
 		Vector vecAiming;
 		pOwner->EyeVectors( &vecAiming );
@@ -368,7 +413,7 @@ void CWeaponOverhealer::MaintainTargetInSlot()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::FindNewTargetForSlot()
+void CWeaponKritzkrieg::FindNewTargetForSlot()
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -402,7 +447,7 @@ void CWeaponOverhealer::FindNewTargetForSlot()
 			}
 
 			// Start the heal target thinking.
-			SetContextThink(&CWeaponOverhealer::HealTargetThink, gpGlobals->curtime, s_pszMedigunHealTargetThink);
+			SetContextThink( &CWeaponKritzkrieg::HealTargetThink, gpGlobals->curtime, s_pszKritzkriegHealTargetThink );
 #endif
 
 			m_hHealingTarget.Set( tr.m_pEnt );
@@ -415,13 +460,13 @@ void CWeaponOverhealer::FindNewTargetForSlot()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::HealTargetThink(void)
+void CWeaponKritzkrieg::HealTargetThink( void )
 {	
 	// Verify that we still have a valid heal target.
 	CBaseEntity *pTarget = m_hHealingTarget;
 	if ( !pTarget || !pTarget->IsAlive() )
 	{
-		SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
+		SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
 		return;
 	}
 
@@ -435,14 +480,14 @@ void CWeaponOverhealer::HealTargetThink(void)
 		RemoveHealingTarget( true );
 	}
 
-	SetNextThink( gpGlobals->curtime + 0.2f, s_pszMedigunHealTargetThink );
+	SetNextThink( gpGlobals->curtime + 0.2f, s_pszKritzkriegHealTargetThink );
 }
 #endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to a healable target
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::FindAndHealTargets(void)
+bool CWeaponKritzkrieg::FindAndHealTargets( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -464,9 +509,9 @@ bool CWeaponOverhealer::FindAndHealTargets(void)
 	CBaseEntity *pNewTarget = m_hHealingTarget;
 	if ( pNewTarget && pNewTarget->IsAlive() )
 	{
-#ifdef GAME_DLL
 		CTFPlayer *pTFPlayer = ToTFPlayer( pNewTarget );
 
+#ifdef GAME_DLL
 		// HACK: For now, just deal with players
 		if ( pTFPlayer )
 		{
@@ -478,17 +523,110 @@ bool CWeaponOverhealer::FindAndHealTargets(void)
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
 			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
+
+		if ( m_flReleaseStartedAt && m_flReleaseStartedAt < (gpGlobals->curtime + 0.2) )
+		{
+			// When we start the release, everyone we heal rockets to full health
+			pNewTarget->TakeHealth( pNewTarget->GetMaxHealth(), DMG_GENERIC );
+		}
 #endif
+	
 		bFound = true;
+
+		// Charge up our power if we're not releasing it, and our target
+		// isn't receiving any benefit from our healing.
+		if ( !m_bChargeRelease )
+		{
+			if ( pTFPlayer )
+			{
+				int iBoostMax = floor( pTFPlayer->m_Shared.GetMaxBuffedHealth() * 0.95);
+
+				if ( weapon_kritzkrieg_charge_rate.GetFloat() )
+				{
+					float flChargeAmount = gpGlobals->frametime / weapon_kritzkrieg_charge_rate.GetFloat();
+
+					// Reduced charge for healing fully healed guys
+					if ( pNewTarget->GetHealth() >= iBoostMax && ( TFGameRules() && !TFGameRules()->InSetup() ) )
+					{
+						flChargeAmount *= 0.5;
+					}
+
+					int iTotalHealers = pTFPlayer->m_Shared.GetNumHealers();
+					if ( iTotalHealers > 1 )
+					{
+						flChargeAmount /= (float)iTotalHealers;
+					}
+
+					float flNewLevel = min( m_flChargeLevel + flChargeAmount, 1.0 );
+#ifdef GAME_DLL
+					if ( flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
+					{
+						pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEREADY );
+
+						if ( pTFPlayer )
+						{
+							pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEREADY );
+						}
+					}
+#endif
+					m_flChargeLevel = flNewLevel;
+				}
+			}
+		}
 	}
 
 	return bFound;
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponKritzkrieg::ItemHolsterFrame( void )
+{
+	BaseClass::ItemHolsterFrame();
+
+	DrainCharge();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponKritzkrieg::DrainCharge( void )
+{
+	// If we're in charge release mode, drain our charge
+	if ( m_bChargeRelease )
+	{
+		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+		if ( !pOwner )
+			return;
+
+		float flChargeAmount = gpGlobals->frametime / weapon_kritzkrieg_chargerelease_rate.GetFloat();
+		m_flChargeLevel = max( m_flChargeLevel - flChargeAmount, 0.0 );
+		if ( !m_flChargeLevel )
+		{
+			m_bChargeRelease = false;
+			m_flReleaseStartedAt = 0;
+
+#ifdef GAME_DLL
+			/*
+			if ( m_bHealingSelf )
+			{
+				m_bHealingSelf = false;
+				pOwner->m_Shared.StopHealing( pOwner );
+			}
+			*/
+
+			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateCrits();
+#endif
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Overloaded to handle the hold-down healing
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::ItemPostFrame(void)
+void CWeaponKritzkrieg::ItemPostFrame( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -504,7 +642,7 @@ void CWeaponOverhealer::ItemPostFrame(void)
 #if !defined( CLIENT_DLL )
 	if ( AppliesModifier() )
 	{
-		m_DamageModifier.SetModifier( weapon_overhealer_damage_modifier.GetFloat() );
+		m_DamageModifier.SetModifier( weapon_kritzkrieg_damage_modifier.GetFloat() );
 	}
 #endif
 
@@ -550,13 +688,18 @@ void CWeaponOverhealer::ItemPostFrame(void)
  		}
 	}
 
+	if ( pOwner->m_nButtons & IN_ATTACK2 )
+	{
+		SecondaryAttack();
+	}
+
 	WeaponIdle();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponOverhealer::Lower(void)
+bool CWeaponKritzkrieg::Lower( void )
 {
 	// Stop healing if we are
 	if ( m_bHealing )
@@ -575,7 +718,7 @@ bool CWeaponOverhealer::Lower(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
+void CWeaponKritzkrieg::RemoveHealingTarget( bool bStopHealingSelf )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -599,7 +742,7 @@ void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
 	}
 
 	// Stop thinking - we no longer have a heal target.
-	SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
+	SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
 #endif
 
 	m_hHealingTarget.Set( NULL );
@@ -622,17 +765,30 @@ void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
 //-----------------------------------------------------------------------------
 // Purpose: Attempt to heal any player within range of the medikit
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::PrimaryAttack(void)
+void CWeaponKritzkrieg::PrimaryAttack( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
 		return;
 
+
 	if ( !CanAttack() )
 		return;
 
+#ifdef GAME_DLL
+	/*
+	// Start boosting ourself if we're not
+	if ( m_bChargeRelease && !m_bHealingSelf )
+	{
+		pOwner->m_Shared.Heal( pOwner, GetHealRate() * 2 );
+		m_bHealingSelf = true;
+	}
+	*/
+#endif
+
 #if !defined (CLIENT_DLL)
-	lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
+	if ( tf_kritzkrieg_lagcomp.GetBool() )
+		lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
 #endif
 
 	if ( FindAndHealTargets() )
@@ -656,7 +812,73 @@ void CWeaponOverhealer::PrimaryAttack(void)
 	}
 	
 #if !defined (CLIENT_DLL)
-	lagcompensation->FinishLagCompensation( pOwner );
+	if ( tf_kritzkrieg_lagcomp.GetBool() )
+		lagcompensation->FinishLagCompensation( pOwner );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Burn charge level to generate invulnerability
+//-----------------------------------------------------------------------------
+void CWeaponKritzkrieg::SecondaryAttack( void )
+{
+	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	if ( !pOwner )
+		return;
+
+	if ( !CanAttack() )
+		return;
+
+	// Ensure they have a full charge and are not already in charge release mode
+	if ( m_flChargeLevel < 1.0 || m_bChargeRelease )
+	{
+#ifdef CLIENT_DLL
+		// Deny, flash
+		if ( !m_bChargeRelease && m_flFlashCharge <= 0 )
+		{
+			m_flFlashCharge = 10;
+			pOwner->EmitSound( "Player.DenyWeaponSelection" );
+		}
+#endif
+		return;
+	}
+
+	if ( pOwner->HasTheFlag() )
+	{
+#ifdef GAME_DLL
+		CSingleUserRecipientFilter filter( pOwner );
+		TFGameRules()->SendHudNotification( filter, HUD_NOTIFY_NO_INVULN_WITH_FLAG );
+#endif
+		pOwner->EmitSound( "Player.DenyWeaponSelection" );
+		return;
+	}
+
+	// Start super charge
+	m_bChargeRelease = true;
+	m_flReleaseStartedAt = 0;//gpGlobals->curtime;
+
+#ifdef GAME_DLL
+	CTF_GameStats.Event_PlayerInvulnerable( pOwner );
+	pOwner->m_Shared.RecalculateInvuln();
+	pOwner->m_Shared.RecalculateCrits();
+
+	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
+
+	if ( m_hHealingTarget && m_hHealingTarget->IsPlayer() )
+	{
+		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
+		pTFPlayer->m_Shared.RecalculateInvuln();
+		pTFPlayer->m_Shared.RecalculateCrits();
+		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
+	}
+
+	IGameEvent * event = gameeventmanager->CreateEvent( "player_chargedeployed" );
+	if ( event )
+	{
+		event->SetInt( "userid", pOwner->GetUserID() );
+
+		gameeventmanager->FireEvent( event, true );	// don't send to clients
+	}
 #endif
 }
 
@@ -665,7 +887,7 @@ void CWeaponOverhealer::PrimaryAttack(void)
 //			If so, move into the "heal-able" animation. 
 //			Otherwise, move into the "not-heal-able" animation.
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::WeaponIdle(void)
+void CWeaponKritzkrieg::WeaponIdle( void )
 {
 	if ( HasWeaponIdleTimeElapsed() )
 	{
@@ -684,7 +906,7 @@ void CWeaponOverhealer::WeaponIdle(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::StopHealSound(bool bStopHealingSound, bool bStopNoTargetSound)
+void CWeaponKritzkrieg::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSound )
 {
 	if ( bStopHealingSound )
 	{
@@ -700,7 +922,7 @@ void CWeaponOverhealer::StopHealSound(bool bStopHealingSound, bool bStopNoTarget
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::ManageChargeEffect(void)
+void CWeaponKritzkrieg::ManageChargeEffect( void )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	C_BaseEntity *pEffectOwner = this;
@@ -722,13 +944,65 @@ void CWeaponOverhealer::ManageChargeEffect(void)
 		bOwnerTaunting = true;
 	}
 
+	if ( GetTFPlayerOwner() && bOwnerTaunting == false && m_bHolstered == false && ( m_flChargeLevel >= 1.0f || m_bChargeRelease == true ) )
+	{
+		if ( m_pChargeEffect == NULL )
+		{
+			char *pszEffectName = NULL;
+
+			switch( GetTFPlayerOwner()->GetTeamNumber() )
+			{
+			case TF_TEAM_BLUE:
+				pszEffectName = "medicgun_invulnstatus_fullcharge_blue";
+				break;
+			case TF_TEAM_RED:
+				pszEffectName = "medicgun_invulnstatus_fullcharge_red";
+				break;
+			case TF_TEAM_GREEN:
+				pszEffectName = "medicgun_invulnstatus_fullcharge_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pszEffectName = "medicgun_invulnstatus_fullcharge_yellow";
+				break;
+			default:
+				pszEffectName = "";
+				break;
+			}
+
+			m_pChargeEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
+		}
+
+		if ( m_pChargedSound == NULL )
+		{
+			CLocalPlayerFilter filter;
+
+			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+
+			m_pChargedSound = controller.SoundCreate( filter, entindex(), "WeaponMedigun.Charged" );
+			controller.Play( m_pChargedSound, 1.0, 100 );
+		}
+	}
+	else
+	{
+		if ( m_pChargeEffect != NULL )
+		{
+			pEffectOwner->ParticleProp()->StopEmission( m_pChargeEffect );
+			m_pChargeEffect = NULL;
+		}
+
+		if ( m_pChargedSound != NULL )
+		{
+			CSoundEnvelopeController::GetController().SoundDestroy( m_pChargedSound );
+			m_pChargedSound = NULL;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : updateType - 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::OnDataChanged(DataUpdateType_t updateType)
+void CWeaponKritzkrieg::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged( updateType );
 
@@ -771,7 +1045,7 @@ void CWeaponOverhealer::OnDataChanged(DataUpdateType_t updateType)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::ClientThink()
+void CWeaponKritzkrieg::ClientThink()
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
@@ -794,7 +1068,7 @@ void CWeaponOverhealer::ClientThink()
 	{
 		if ( pLocalPlayer == m_hHealingTarget )
 		{
-			pLocalPlayer->SetHealer( pFiringPlayer, 0 );
+			pLocalPlayer->SetHealer( pFiringPlayer, m_flChargeLevel );
 		}
 
 		if ( !m_bPlayingSound )
@@ -805,17 +1079,17 @@ void CWeaponOverhealer::ClientThink()
 		}
 	}
 
-//	if ( m_bOldChargeRelease != m_bChargeRelease )
+	if ( m_bOldChargeRelease != m_bChargeRelease )
 	{
-//		m_bOldChargeRelease = m_bChargeRelease;
-//		ForceHealingTargetUpdate();
+		m_bOldChargeRelease = m_bChargeRelease;
+		ForceHealingTargetUpdate();
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponOverhealer::UpdateEffects(void)
+void CWeaponKritzkrieg::UpdateEffects( void )
 {
 	CTFPlayer *pFiringPlayer = ToTFPlayer( GetOwnerEntity() );
 	if ( !pFiringPlayer )
@@ -854,24 +1128,49 @@ void CWeaponOverhealer::UpdateEffects(void)
 			return;
 
 		const char *pszEffectName;
-		switch (GetTeamNumber())
+		if (m_bChargeRelease)
 		{
-		case TF_TEAM_BLUE:
-			pszEffectName = "medicgun_beam_blue";
-			break;
-		case TF_TEAM_RED:
-			pszEffectName = "medicgun_beam_red";
-			break;
-		case TF_TEAM_GREEN:
-			pszEffectName = "medicgun_beam_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pszEffectName = "medicgun_beam_yellow";
-			break;
-		default:
-			pszEffectName = "medicgun_beam_blue";
-			break;
+			switch (GetTeamNumber())
+			{
+			case TF_TEAM_BLUE:
+				pszEffectName = "medicgun_beam_blue_invun";
+				break;
+			case TF_TEAM_RED:
+				pszEffectName = "medicgun_beam_red_invun";
+				break;
+			case TF_TEAM_GREEN:
+				pszEffectName = "medicgun_beam_green_invun";
+				break;
+			case TF_TEAM_YELLOW:
+				pszEffectName = "medicgun_beam_yellow_invun";
+				break;
+			default:
+				pszEffectName = "medicgun_beam_blue";
+				break;
+			}
 		}
+		else
+		{
+			switch (GetTeamNumber())
+			{
+			case TF_TEAM_BLUE:
+				pszEffectName = "medicgun_beam_blue";
+				break;
+			case TF_TEAM_RED:
+				pszEffectName = "medicgun_beam_red";
+				break;
+			case TF_TEAM_GREEN:
+				pszEffectName = "medicgun_beam_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pszEffectName = "medicgun_beam_yellow";
+				break;
+			default:
+				pszEffectName = "medicgun_beam_blue";
+				break;
+			}
+		}
+
 
 		CNewParticleEffect *pEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
 		pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );
