@@ -18,7 +18,11 @@
 #include "hl2_player.h"
 #include "iservervehicle.h"
 #include "items.h"
+#ifndef TF_CLASSIC
+#include "hl2_gamerules.h"
+#else
 #include "tf_gamerules.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -3101,13 +3105,16 @@ void CNPC_MetroPolice::Event_Killed( const CTakeDamageInfo &info )
 
 	if ( pPlayer != NULL )
 	{
-		CTFGameRules *pHL2GameRules = static_cast<CTFGameRules *>(g_pGameRules);
-
+#ifndef TF_CLASSIC
+		CHalfLife2 *pGameRules = static_cast<CHalfLife2 *>(g_pGameRules);
+#else
+		CTFGameRules *pGameRules = static_cast<CTFGameRules *>(g_pGameRules);
+#endif
 		// Attempt to drop health
-		if ( pHL2GameRules->NPC_ShouldDropHealth( pPlayer ) )
+		if ( pGameRules->NPC_ShouldDropHealth( pPlayer ) )
 		{
 			DropItem( "item_healthvial", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
-			pHL2GameRules->NPC_DroppedHealth();
+			pGameRules->NPC_DroppedHealth();
 		}
 	}
 
