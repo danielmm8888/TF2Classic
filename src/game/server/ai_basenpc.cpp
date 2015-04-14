@@ -6902,9 +6902,6 @@ void CAI_BaseNPC::NPCInit ( void )
 		UTIL_Remove( this );
 		return;
 	}
-#ifdef TF_CLASSIC
-	ChangeTeam( g_TFClassTeams[Classify()] );
-#endif
 
 	if( IsWaitingToRappel() )
 	{
@@ -10985,6 +10982,10 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 void CAI_BaseNPC::Activate( void )
 {
 	BaseClass::Activate();
+
+#ifdef TF_CLASSIC
+	ChangeTeam( g_TFClassTeams[Classify()] );
+#endif
 
 	if ( GetModelPtr() )
 	{

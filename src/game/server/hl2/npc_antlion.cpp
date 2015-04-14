@@ -35,6 +35,10 @@
 #include "grenade_spit.h"
 #endif
 
+#ifdef TF_CLASSIC
+#include "tf_shareddefs.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -384,6 +388,15 @@ void CNPC_Antlion::Activate( void )
 	}
 
 	BaseClass::Activate();
+
+#ifdef TF_CLASSIC
+	// If we're allied with player, join team RED.
+	// We're calling this after BaseClass since it changes team back to default one
+	if ( IsAllied() )
+	{
+		ChangeTeam( TF_TEAM_RED );
+	}
+#endif
 }
 
 
