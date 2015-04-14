@@ -786,6 +786,7 @@ bool CTFGameRules::CanGoToStalemate( void )
 // Classnames of entities that are preserved across round restarts
 static const char *s_PreserveEnts[] =
 {
+	"hl2_gamerules",
 	"tf_gamerules",
 	"tf_team_manager",
 	"tf_player_manager",
@@ -809,6 +810,12 @@ void CTFGameRules::Activate()
 	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
+		return;
+	}
+
+	if (gEntList.FindEntityByClassname(NULL, "hl2_gamerules"))
+	{
+		m_nGameType.Set(TF_GAMETYPE_HLCOOP);
 		return;
 	}
 
@@ -4987,6 +4994,9 @@ const char *CTFGameRules::GetGameDescription(void)
 			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";
+			break;
+		case TF_GAMETYPE_HLCOOP:
+			return "TF2C (Half-Life Co-op)";
 			break;
 		default:
 			return "TF2C";

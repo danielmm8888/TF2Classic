@@ -162,6 +162,7 @@ enum
 	TF_GAMETYPE_ARENA,
 	TF_GAMETYPE_MVM,
 	TF_GAMETYPE_DM,
+	TF_GAMETYPE_HLCOOP,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 
