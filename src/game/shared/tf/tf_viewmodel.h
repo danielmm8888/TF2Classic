@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -38,8 +38,9 @@ public:
 #if defined( CLIENT_DLL )
 	virtual bool ShouldPredict( void )
 	{
+		// Prediction often causes viewmodels to get bugged so I'm disabling this for now. (Nickine)
 		if ( GetOwner() && GetOwner() == C_BasePlayer::GetLocalPlayer() )
-			return true;
+			return false;
 
 		return BaseClass::ShouldPredict();
 	}

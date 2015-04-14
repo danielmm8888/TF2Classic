@@ -17,6 +17,7 @@
 #include "c_tf_player.h"
 #include "c_tf_team.h"
 #include "c_tf_playerresource.h"
+#include "engine/IEngineSound.h"
 
 #include "tf_controls.h"
 #include "vguicenterprint.h"
@@ -50,6 +51,84 @@ static int iRemapIndexToClass[TF_CLASS_MENU_BUTTONS] =
 	0,
 	TF_CLASS_RANDOM
 };
+
+// background music
+static char* pszBackgroundRed = "music.class_menu";
+static char* pszBackgroundBlue = "music.class_menu_blue";
+static char* pszBackgroundGreen = "music.class_menu_green";
+static char* pszBackgroundYellow = "music.class_menu_yellow";
+
+// hoverup sounds for each class
+static char* pszHoverupRed[TF_CLASS_MENU_BUTTONS] =
+{
+	0,
+	"music.class_menu_01",
+	"music.class_menu_02",
+	"music.class_menu_03",
+	"music.class_menu_04",
+	"music.class_menu_05",
+	"music.class_menu_06",
+	"music.class_menu_07",
+	"music.class_menu_08",
+	"music.class_menu_09",
+	0,
+	0,
+	"music.class_menu_69"
+};
+
+static char* pszHoverupBlue[TF_CLASS_MENU_BUTTONS] =
+{
+	0,
+	"music.class_menu_01_blue",
+	"music.class_menu_02_blue",
+	"music.class_menu_03_blue",
+	"music.class_menu_04_blue",
+	"music.class_menu_05_blue",
+	"music.class_menu_06_blue",
+	"music.class_menu_07_blue",
+	"music.class_menu_08_blue",
+	"music.class_menu_09_blue",
+	0,
+	0,
+	"music.class_menu_69_blue"
+};
+
+
+static char* pszHoverupGreen[TF_CLASS_MENU_BUTTONS] =
+{
+	0,
+	"music.class_menu_01_green",
+	"music.class_menu_02_green",
+	"music.class_menu_03_green",
+	"music.class_menu_04_green",
+	"music.class_menu_05_green",
+	"music.class_menu_06_green",
+	"music.class_menu_07_green",
+	"music.class_menu_08_green",
+	"music.class_menu_09_green",
+	0,
+	0,
+	"music.class_menu_69_green"
+};
+
+
+static char* pszHoverupYellow[TF_CLASS_MENU_BUTTONS] =
+{
+	0,
+	"music.class_menu_01_yellow",
+	"music.class_menu_02_yellow",
+	"music.class_menu_03_yellow",
+	"music.class_menu_04_yellow",
+	"music.class_menu_05_yellow",
+	"music.class_menu_06_yellow",
+	"music.class_menu_07_yellow",
+	"music.class_menu_08_yellow",
+	"music.class_menu_09_yellow",
+	0,
+	0,
+	"music.class_menu_69_yellow"
+};
+
 
 int GetIndexForClass( int iClass )
 {
@@ -145,6 +224,48 @@ CImageMouseOverButton<CTFClassInfoPanel> *CTFClassMenu::GetCurrentClassButton()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+char *CTFClassMenu::GetTeamSound(int iTeam)
+{
+	switch (iTeam)
+	{
+	case TF_TEAM_RED:
+		return pszBackgroundRed;
+	case TF_TEAM_BLUE:
+		return pszBackgroundBlue;
+	case TF_TEAM_GREEN:
+		return pszBackgroundGreen;
+	case TF_TEAM_YELLOW:
+		return pszBackgroundYellow;
+	default:
+		break;
+	}
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+char *CTFClassMenu::GetClassSound(int iClass, int iTeam)
+{
+	switch (iTeam)
+	{
+	case TF_TEAM_RED:
+		return pszHoverupRed[iClass];
+	case TF_TEAM_BLUE:
+		return pszHoverupBlue[iClass];
+	case TF_TEAM_GREEN:
+		return pszHoverupGreen[iClass];
+	case TF_TEAM_YELLOW:
+		return pszHoverupYellow[iClass];
+	default:
+		break;
+	}
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFClassMenu::ShowPanel( bool bShow )
 {
 	if ( bShow )
@@ -173,6 +294,12 @@ void CTFClassMenu::ShowPanel( bool bShow )
 
 		Activate();
 		SetMouseInputEnabled( true );
+	
+		int iTeam = GetTeamNumber();
+		char* psZBackground = GetTeamSound(iTeam);
+		CLocalPlayerFilter filter;
+		if (psZBackground != NULL)
+			C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, psZBackground);
 
 		m_iClassMenuKey = gameuifuncs->GetButtonCodeForBind( "changeclass" );
 		m_iScoreBoardKey = gameuifuncs->GetButtonCodeForBind( "showscores" );
@@ -217,6 +344,10 @@ void CTFClassMenu::ShowPanel( bool bShow )
 		// everything is off so just reset these for next time
 		g_lastButton = NULL;
 		g_lastPanel = NULL;
+		
+		int iTeam = GetTeamNumber();
+		char* psZBackground = GetTeamSound(iTeam);
+		C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, psZBackground);
 
 		SetVisible( false );
 		SetMouseInputEnabled( false );
@@ -390,6 +521,28 @@ Panel *CTFClassMenu::CreateControlByName( const char *controlName )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnShowPage( const char *pagename )
 {
+	///
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	int iTeam = pLocalPlayer->GetTeamNumber();
+
+	for (int i = 0; i < GetChildCount(); i++)
+	{
+		CImageMouseOverButton<CTFClassInfoPanel> *button = dynamic_cast<CImageMouseOverButton<CTFClassInfoPanel> *>(GetChild(i));
+		if (button)
+		{
+			int iClass = iRemapIndexToClass[GetChildCount() - TF_CLASS_COUNT_ALL - i - 1];
+			CLocalPlayerFilter filter;
+			char *pszSound = GetClassSound(iClass, iTeam);
+			if (button == g_lastButton)
+			{
+				C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszSound);
+			}
+			else 
+			{
+				C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszSound);
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
