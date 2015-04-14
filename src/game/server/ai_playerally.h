@@ -395,7 +395,7 @@ public:
 
 protected:
 	
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	// Health regeneration for friendly allies
 	virtual bool ShouldRegenerateHealth( void ) { return ( Classify() == CLASS_PLAYER_ALLY_VITAL ); }
 #endif

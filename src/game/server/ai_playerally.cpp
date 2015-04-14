@@ -22,7 +22,7 @@ extern ConVar rr_debugresponses;
 
 //-----------------------------------------------------------------------------
 
-ConVar sk_ally_regen_time( "sk_ally_regen_time", "0.3003", FCVAR_NONE, "Time taken for an ally to regenerate a point of health." );
+ConVar sk_ally_regen_time( "sk_ally_regen_time", "0.2", FCVAR_NONE, "Time taken for an ally to regenerate a point of health." );
 ConVar sv_npc_talker_maxdist( "sv_npc_talker_maxdist", "1024", 0, "NPCs over this distance from the player won't attempt to speak." );
 ConVar ai_no_talk_delay( "ai_no_talk_delay", "0" );
 
@@ -517,7 +517,7 @@ void CAI_PlayerAlly::PrescheduleThink( void )
 {
 	BaseClass::PrescheduleThink();
 
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	// Vital allies regenerate
 	if( GetHealth() >= GetMaxHealth() )
 	{
@@ -1125,7 +1125,7 @@ int CAI_PlayerAlly::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 {
 	CTakeDamageInfo subInfo = info;
 	// Vital allies never take more than 25% of their health in a single hit (except for physics damage)
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	// Don't do damage reduction for DMG_GENERIC. This allows SetHealth inputs to still do full damage.
 	if ( subInfo.GetDamageType() != DMG_GENERIC )
 	{
