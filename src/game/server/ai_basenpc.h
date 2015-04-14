@@ -37,7 +37,6 @@
 #include "ai_navigator.h"
 #include "tier1/functors.h"
 
-
 #define PLAYER_SQUADNAME "player_squad"
 
 class CAI_Schedule;
@@ -102,6 +101,9 @@ enum Interruptability_t
 	DEATH_INTERRUPTABILITY
 };
 
+#ifdef TF_CLASSIC
+extern int g_TFClassTeams[];
+#endif
 //-------------------------------------
 // Memory
 //-------------------------------------
