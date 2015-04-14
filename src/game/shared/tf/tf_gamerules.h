@@ -132,6 +132,17 @@ public:
 
 	virtual void	FrameUpdatePostEntityThink();
 
+#ifdef TF_CLASSIC
+	//HL2 NPC stuff
+	bool	NPC_ShouldDropHealth(CBasePlayer *pRecipient);
+	void	NPC_DroppedHealth(void);
+
+private:
+	float	m_flLastHealthDropTime;
+public:
+#endif
+
+
 	// Called when a new round is being initialized
 	virtual void	SetupOnRoundStart( void );
 
