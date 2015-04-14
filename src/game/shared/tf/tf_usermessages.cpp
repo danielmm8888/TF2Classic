@@ -17,6 +17,7 @@
 
 void RegisterUserMessages()
 {
+	//TF2C/Source Engine Messages
 	usermessages->Register("Geiger", 1);		// geiger info data
 	usermessages->Register("Train", 1);		// train control data
 	usermessages->Register("HudText", -1);
@@ -32,34 +33,33 @@ void RegisterUserMessages()
 	usermessages->Register("VGUIMenu", -1);	// Show VGUI menu
 	usermessages->Register("Rumble", 3);	// Send a rumble to a controller
 	usermessages->Register("CloseCaption", -1); // Show a caption (by string id number)(duration in 10th of a second)
-
 	usermessages->Register("SendAudio", -1);	// play radion command
-
 	usermessages->Register("VoiceMask", VOICE_MAX_PLAYERS_DW * 4 * 2 + 1);
 	usermessages->Register("RequestState", 0);
-
 	usermessages->Register("Damage", -1);		// for HUD damage indicators
 	usermessages->Register("HintText", -1);	// Displays hint text display
 	usermessages->Register("KeyHintText", -1);	// Displays hint text display
-
 	usermessages->Register("HudMsg", -1);
 	usermessages->Register("AmmoDenied", 2);
 	usermessages->Register("AchievementEvent", -1);
-
 	usermessages->Register("UpdateRadar", -1);
-
 	usermessages->Register("VoiceSubtitle", 3);
-
 	usermessages->Register("HudNotify", 1);
 	usermessages->Register("HudNotifyCustom", -1);
-
 	usermessages->Register("PlayerStatsUpdate", -1);
-
 	usermessages->Register("CallVoteFailed", -1);
 	usermessages->Register("VoteStart", -1);
 	usermessages->Register("VotePass", -1);
 	usermessages->Register("VoteFailed", -1);
 	usermessages->Register("VoteSetup", -1);
+
+	//HL2 Only Messages
+	usermessages->Register("Battery", 2);
+	usermessages->Register("SquadMemberDied", 0);
+	usermessages->Register("CreditsMsg", 1);
+	usermessages->Register("LogoTimeMsg", 4);
+	usermessages->Register("UpdateJalopyRadar", -1);
+
 
 #ifndef _X360
 	// NVNT register haptic user messages
