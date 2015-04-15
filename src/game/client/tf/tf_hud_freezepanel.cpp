@@ -335,7 +335,27 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 			}
 			else if ( pKiller->IsNPC() )
 			{
-				//C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pKiller );
+				C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pKiller );
+
+				// Set the BG according to the team they're on
+				switch (pNPC->GetTeamNumber())
+				{
+					case TF_TEAM_RED:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_red_bg");
+						break;
+					case TF_TEAM_BLUE:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
+						break;
+					case TF_TEAM_GREEN:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_green_bg");
+						break;
+					case TF_TEAM_YELLOW:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_yellow_bg");
+						break;
+					default:
+						m_pFreezePanelBG->SetImage("../hud/freezecam_black_bg");
+						break;
+				}
 
 				if ( !pKiller->IsAlive() )
 				{
