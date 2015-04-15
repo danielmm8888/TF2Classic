@@ -605,7 +605,8 @@ bool CAI_Pathfinder::IsLinkUsable(CAI_Link *pLink, int startID)
 			return false;
 
 		// FIXME: This bit causes crashes in TF2 because data in m_strAllowUse somehow gets deleted so it contains garbage.
-		// Removing this until we can fix this.
+		// Removing this until we can fix this. For now, let's just always assume that AllowUse field is empty.
+		return false;
 #if 0
 		const char *pszAllowUse = STRING( pDynamicLink->m_strAllowUse );
 		if ( pDynamicLink->m_bInvertAllow )
