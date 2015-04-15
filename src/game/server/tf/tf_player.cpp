@@ -3627,6 +3627,10 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		// Look at the sentrygun. 
 		m_hObserverTarget.Set( info.GetAttacker() ); 
 	}
+	else if ( info.GetAttacker() && info.GetAttacker()->IsNPC() )
+	{
+		m_hObserverTarget.Set( info.GetAttacker() ); 
+	}
 	else
 	{
 		m_hObserverTarget.Set( NULL );
