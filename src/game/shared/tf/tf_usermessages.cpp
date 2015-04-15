@@ -53,15 +53,12 @@ void RegisterUserMessages()
 	usermessages->Register("VoteFailed", -1);
 	usermessages->Register("VoteSetup", -1);
 
-	// FIXME: I'm getting "CUserMessages::DispatchUserMessage:  missing client hook for Battery".
-#if 0
 	//HL2 Only Messages
-	usermessages->Register("Battery", 2);
+	//usermessages->Register("Battery", 2); // FIXME: What the fuck is the point of this?
 	usermessages->Register("SquadMemberDied", 0);
 	usermessages->Register("CreditsMsg", 1);
 	usermessages->Register("LogoTimeMsg", 4);
 	usermessages->Register("UpdateJalopyRadar", -1);
-#endif
 
 #ifndef _X360
 	// NVNT register haptic user messages
