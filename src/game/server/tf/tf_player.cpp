@@ -3629,8 +3629,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	}
 	else if ( info.GetAttacker() && info.GetAttacker()->IsNPC() )
 	{
-		// FIXME: Unlike players, NPC origin is located at their feet.
-		// So we somehow need to adjust camera focus accordingly.
 		m_hObserverTarget.Set( info.GetAttacker() ); 
 	}
 	else

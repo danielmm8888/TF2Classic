@@ -1429,6 +1429,21 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 		}
 	}
 
+#ifdef TF_CLASSIC_CLIENT
+	if ( target-IsNPC() )
+	{
+		if ( target->IsAlive() )
+		{
+			// HL2 viewheight seems approciate here.
+			return Vector(0,0,64);
+		}
+		else
+		{
+			return VEC_DEAD_VIEWHEIGHT;
+		}
+	}
+#endif
+
 	// assume it's the players ragdoll
 	return VEC_DEAD_VIEWHEIGHT;
 }
@@ -1619,6 +1634,13 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	{
 		// Look at their chest, not their head
 		Vector maxs = pTarget->GetBaseAnimating() ? VEC_HULL_MAX_SCALED( pTarget->GetBaseAnimating() ) : VEC_HULL_MAX;
+#ifdef TF_CLASSIC_CLIENT
+		// Obviously you can't apply player height to NPCs.
+		if ( pTarget->IsNPC() )
+		{
+			maxs = pTarget->WorldAlignMaxs();
+		}
+#endif
 		vecCamTarget.z -= (maxs.z * 0.5);
 	}
 	else
@@ -1775,6 +1797,16 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
 	};
+
+#ifdef TF_CLASSIC_CLIENT
+	if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
+	{
+		// Not all NPCs even have eyes. So let's use their center instead.
+		Vector vKiller = pKiller->WorldSpaceCenter() - origin;
+		QAngle aKiller; VectorAngles( vKiller, aKiller );
+		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
+	};
+#endif
 
 	Vector vForward; AngleVectors( eyeAngles, &vForward );
 
