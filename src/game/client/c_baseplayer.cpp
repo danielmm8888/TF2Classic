@@ -1658,6 +1658,13 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	// Stop a few units away from the target, and shift up to be at the same height
 	vecTargetPos = vecCamTarget - (vecToTarget * m_flFreezeFrameDistance);
 	float flEyePosZ = pTarget->EyePosition().z;
+#ifdef TF_CLASSIC_CLIENT
+	if ( pTarget->IsNPC() )
+	{
+		// Eh, let's just use HL2 viewheight for NPC eye height.
+		flEyePosZ = pTarget->GetAbsOrigin().z + 64.0f;
+	}
+#endif
 	vecTargetPos.z = flEyePosZ + m_flFreezeZOffset;
 
 	// Now trace out from the target, so that we're put in front of any walls
@@ -1801,7 +1808,8 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 #ifdef TF_CLASSIC_CLIENT
 	if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
 	{
-		// Not all NPCs even have eyes. So let's use their center instead.
+		// C_AI_BaseNPC doesn't have it's own EyePosition() so it returns vec3_origin.
+		// Besides, not all NPCs even have eyes. So let's use their center instead.
 		Vector vKiller = pKiller->WorldSpaceCenter() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
