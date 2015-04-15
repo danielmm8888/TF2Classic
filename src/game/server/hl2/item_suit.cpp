@@ -12,8 +12,6 @@
   handling for the player's suit.
 */
 
-//TF2CFIXME: Doesn't disappear on player touch (The-Yiffy-Fox)
-
 #include "cbase.h"
 #include "player.h"
 #include "gamerules.h"
@@ -43,6 +41,7 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
+#ifndef TF_CLASSIC
 		if ( pPlayer->IsSuitEquipped() )
 			return FALSE;
 
@@ -54,6 +53,12 @@ public:
 		pPlayer->EquipSuit();
 				
 		return true;
+#else
+		// Can be picked up but doesn't actually do anything.
+		UTIL_Remove( this );
+
+		return true;
+#endif
 	}
 };
 
