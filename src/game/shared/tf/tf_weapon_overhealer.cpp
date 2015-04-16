@@ -160,6 +160,7 @@ bool CWeaponOverhealer::Deploy(void)
 		if (pOwner)
 		{
 			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateCrits();
 		}
 #endif
 
@@ -191,6 +192,7 @@ bool CWeaponOverhealer::Holster(CBaseCombatWeapon *pSwitchingTo)
 	if ( pOwner )
 	{
 		pOwner->m_Shared.RecalculateInvuln( true );
+		pOwner->m_Shared.RecalculateCrits(true);
 	}
 #endif
 
@@ -474,6 +476,7 @@ bool CWeaponOverhealer::FindAndHealTargets(void)
 			}
 
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
 #endif
 		bFound = true;
@@ -588,6 +591,7 @@ void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );

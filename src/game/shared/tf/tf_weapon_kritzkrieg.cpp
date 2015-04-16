@@ -26,49 +26,49 @@
 #include "ilagcompensationmanager.h"
 #endif
 
-#include "tf_weapon_medigun.h"
+#include "tf_weapon_kritzkrieg.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 // Buff ranges
-ConVar weapon_medigun_damage_modifier( "weapon_medigun_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
-ConVar weapon_medigun_construction_rate( "weapon_medigun_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the medigun." );
-ConVar weapon_medigun_charge_rate( "weapon_medigun_charge_rate", "40", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time healing it takes to fully charge the medigun." );
-ConVar weapon_medigun_chargerelease_rate( "weapon_medigun_chargerelease_rate", "8", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time it takes the a full charge of the medigun to be released." );
+ConVar weapon_kritzkrieg_damage_modifier( "weapon_kritzkrieg_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the kritzkrieg." );
+ConVar weapon_kritzkrieg_construction_rate( "weapon_kritzkrieg_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the kritzkrieg." );
+ConVar weapon_kritzkrieg_charge_rate( "weapon_kritzkrieg_charge_rate", "30", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time healing it takes to fully charge the kritzkrieg." );
+ConVar weapon_kritzkrieg_chargerelease_rate( "weapon_kritzkrieg_chargerelease_rate", "8", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time it takes the a full charge of the kritzkrieg to be released." );
 
 #if defined (CLIENT_DLL)
-ConVar tf_medigun_autoheal( "tf_medigun_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Medigun's primary attack to be a toggle instead of needing to be held down." );
+ConVar tf_kritzkrieg_autoheal( "tf_kritzkrieg_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Kritzkrieg's primary attack to be a toggle instead of needing to be held down." );
 #endif
 
 #if !defined (CLIENT_DLL)
-ConVar tf_medigun_lagcomp(  "tf_medigun_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
+ConVar tf_kritzkrieg_lagcomp(  "tf_kritzkrieg_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
 #endif
 
-static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
+static const char *s_pszKritzkriegHealTargetThink = "KritzkriegHealTargetThink";
 
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void RecvProxy_HealingTarget( const CRecvProxyData *pData, void *pStruct, void *pOut )
+void RecvProxy_HealingTargetKritzKrieg( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
-	CWeaponMedigun *pMedigun = ((CWeaponMedigun*)(pStruct));
-	if ( pMedigun != NULL )
+	CWeaponKritzkrieg *pKritzkrieg = ((CWeaponKritzkrieg*)(pStruct));
+	if ( pKritzkrieg != NULL )
 	{
-		pMedigun->ForceHealingTargetUpdate();
+		pKritzkrieg->ForceHealingTargetUpdate();
 	}
 
 	RecvProxy_IntToEHandle( pData, pStruct, pOut );
 }
 #endif
 
-LINK_ENTITY_TO_CLASS( tf_weapon_medigun, CWeaponMedigun );
-PRECACHE_WEAPON_REGISTER( tf_weapon_medigun );
+LINK_ENTITY_TO_CLASS( tf_weapon_kritzkrieg, CWeaponKritzkrieg );
+PRECACHE_WEAPON_REGISTER( tf_weapon_kritzkrieg );
 
-IMPLEMENT_NETWORKCLASS_ALIASED( WeaponMedigun, DT_WeaponMedigun )
+IMPLEMENT_NETWORKCLASS_ALIASED( WeaponKritzkrieg, DT_WeaponKritzkrieg )
 
-BEGIN_NETWORK_TABLE( CWeaponMedigun, DT_WeaponMedigun )
+BEGIN_NETWORK_TABLE( CWeaponKritzkrieg, DT_WeaponKritzkrieg )
 #if !defined( CLIENT_DLL )
 	SendPropFloat( SENDINFO(m_flChargeLevel), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 	SendPropEHandle( SENDINFO( m_hHealingTarget ) ),
@@ -78,7 +78,7 @@ BEGIN_NETWORK_TABLE( CWeaponMedigun, DT_WeaponMedigun )
 	SendPropBool( SENDINFO( m_bHolstered ) ),
 #else
 	RecvPropFloat( RECVINFO(m_flChargeLevel) ),
-	RecvPropEHandle( RECVINFO( m_hHealingTarget ), RecvProxy_HealingTarget ),
+	RecvPropEHandle( RECVINFO( m_hHealingTarget ), RecvProxy_HealingTargetKritzKrieg ),
 	RecvPropBool( RECVINFO( m_bHealing ) ),
 	RecvPropBool( RECVINFO( m_bAttacking ) ),
 	RecvPropBool( RECVINFO( m_bChargeRelease ) ),
@@ -87,7 +87,7 @@ BEGIN_NETWORK_TABLE( CWeaponMedigun, DT_WeaponMedigun )
 END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
-BEGIN_PREDICTION_DATA( CWeaponMedigun  )
+BEGIN_PREDICTION_DATA( CWeaponKritzkrieg  )
 
 	DEFINE_PRED_FIELD( m_bHealing, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAttacking, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -107,21 +107,21 @@ END_PREDICTION_DATA()
 
 #define PARTICLE_PATH_VEL				140.0
 #define NUM_PATH_PARTICLES_PER_SEC		300.0f
-#define NUM_MEDIGUN_PATH_POINTS		8
+#define NUM_KRITZKRIEG_PATH_POINTS		8
 
 extern ConVar tf_max_health_boost;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CWeaponMedigun::CWeaponMedigun( void )
+CWeaponKritzkrieg::CWeaponKritzkrieg( void )
 {
 	WeaponReset();
 
 	SetPredictionEligible( true );
 }
 
-CWeaponMedigun::~CWeaponMedigun()
+CWeaponKritzkrieg::~CWeaponKritzkrieg()
 {
 #ifdef CLIENT_DLL
 	if ( m_pChargedSound )
@@ -134,7 +134,7 @@ CWeaponMedigun::~CWeaponMedigun()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::WeaponReset( void )
+void CWeaponKritzkrieg::WeaponReset( void )
 {
 	BaseClass::WeaponReset();
 
@@ -171,7 +171,7 @@ void CWeaponMedigun::WeaponReset( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::Precache()
+void CWeaponKritzkrieg::Precache()
 {
 	BaseClass::Precache();
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
@@ -194,7 +194,7 @@ void CWeaponMedigun::Precache()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::Deploy( void )
+bool CWeaponKritzkrieg::Deploy( void )
 {
 	if ( BaseClass::Deploy() )
 	{
@@ -224,7 +224,7 @@ bool CWeaponMedigun::Deploy( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
+bool CWeaponKritzkrieg::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
@@ -252,7 +252,7 @@ bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::UpdateOnRemove( void )
+void CWeaponKritzkrieg::UpdateOnRemove( void )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
@@ -275,7 +275,7 @@ void CWeaponMedigun::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponMedigun::GetTargetRange( void )
+float CWeaponKritzkrieg::GetTargetRange( void )
 {
 	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flRange;
 }
@@ -283,7 +283,7 @@ float CWeaponMedigun::GetTargetRange( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponMedigun::GetStickRange( void )
+float CWeaponKritzkrieg::GetStickRange( void )
 {
 	return (GetTargetRange() * 1.2);
 }
@@ -291,7 +291,7 @@ float CWeaponMedigun::GetStickRange( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CWeaponMedigun::GetHealRate( void )
+float CWeaponKritzkrieg::GetHealRate( void )
 {
 	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
 }
@@ -299,7 +299,7 @@ float CWeaponMedigun::GetHealRate( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::HealingTarget( CBaseEntity *pTarget )
+bool CWeaponKritzkrieg::HealingTarget( CBaseEntity *pTarget )
 {
 	if ( pTarget == m_hHealingTarget )
 		return true;
@@ -310,7 +310,7 @@ bool CWeaponMedigun::HealingTarget( CBaseEntity *pTarget )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::AllowedToHealTarget( CBaseEntity *pTarget )
+bool CWeaponKritzkrieg::AllowedToHealTarget( CBaseEntity *pTarget )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -337,7 +337,7 @@ bool CWeaponMedigun::AllowedToHealTarget( CBaseEntity *pTarget )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::CouldHealTarget( CBaseEntity *pTarget )
+bool CWeaponKritzkrieg::CouldHealTarget( CBaseEntity *pTarget )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -352,7 +352,7 @@ bool CWeaponMedigun::CouldHealTarget( CBaseEntity *pTarget )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::MaintainTargetInSlot()
+void CWeaponKritzkrieg::MaintainTargetInSlot()
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -379,7 +379,7 @@ void CWeaponMedigun::MaintainTargetInSlot()
 		m_flNextTargetCheckTime = gpGlobals->curtime + 1.0f;
 
 		trace_t tr;
-		CMedigunFilter drainFilter( pOwner );
+		CKritzkriegFilter drainFilter( pOwner );
 
 		Vector vecAiming;
 		pOwner->EyeVectors( &vecAiming );
@@ -413,7 +413,7 @@ void CWeaponMedigun::MaintainTargetInSlot()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::FindNewTargetForSlot()
+void CWeaponKritzkrieg::FindNewTargetForSlot()
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -447,7 +447,7 @@ void CWeaponMedigun::FindNewTargetForSlot()
 			}
 
 			// Start the heal target thinking.
-			SetContextThink( &CWeaponMedigun::HealTargetThink, gpGlobals->curtime, s_pszMedigunHealTargetThink );
+			SetContextThink( &CWeaponKritzkrieg::HealTargetThink, gpGlobals->curtime, s_pszKritzkriegHealTargetThink );
 #endif
 
 			m_hHealingTarget.Set( tr.m_pEnt );
@@ -460,13 +460,13 @@ void CWeaponMedigun::FindNewTargetForSlot()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::HealTargetThink( void )
+void CWeaponKritzkrieg::HealTargetThink( void )
 {	
 	// Verify that we still have a valid heal target.
 	CBaseEntity *pTarget = m_hHealingTarget;
 	if ( !pTarget || !pTarget->IsAlive() )
 	{
-		SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
+		SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
 		return;
 	}
 
@@ -480,14 +480,14 @@ void CWeaponMedigun::HealTargetThink( void )
 		RemoveHealingTarget( true );
 	}
 
-	SetNextThink( gpGlobals->curtime + 0.2f, s_pszMedigunHealTargetThink );
+	SetNextThink( gpGlobals->curtime + 0.2f, s_pszKritzkriegHealTargetThink );
 }
 #endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to a healable target
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::FindAndHealTargets( void )
+bool CWeaponKritzkrieg::FindAndHealTargets( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -541,9 +541,9 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 			{
 				int iBoostMax = floor( pTFPlayer->m_Shared.GetMaxBuffedHealth() * 0.95);
 
-				if ( weapon_medigun_charge_rate.GetFloat() )
+				if ( weapon_kritzkrieg_charge_rate.GetFloat() )
 				{
-					float flChargeAmount = gpGlobals->frametime / weapon_medigun_charge_rate.GetFloat();
+					float flChargeAmount = gpGlobals->frametime / weapon_kritzkrieg_charge_rate.GetFloat();
 
 					// Reduced charge for healing fully healed guys
 					if ( pNewTarget->GetHealth() >= iBoostMax && ( TFGameRules() && !TFGameRules()->InSetup() ) )
@@ -581,18 +581,16 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::AddCharge(void)
+void CWeaponKritzkrieg::AddCharge(void)
 {
 	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
 	m_flChargeLevel = flNewLevel;
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::ItemHolsterFrame( void )
+void CWeaponKritzkrieg::ItemHolsterFrame( void )
 {
 	BaseClass::ItemHolsterFrame();
 
@@ -602,7 +600,7 @@ void CWeaponMedigun::ItemHolsterFrame( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::DrainCharge( void )
+void CWeaponKritzkrieg::DrainCharge( void )
 {
 	// If we're in charge release mode, drain our charge
 	if ( m_bChargeRelease )
@@ -611,7 +609,7 @@ void CWeaponMedigun::DrainCharge( void )
 		if ( !pOwner )
 			return;
 
-		float flChargeAmount = gpGlobals->frametime / weapon_medigun_chargerelease_rate.GetFloat();
+		float flChargeAmount = gpGlobals->frametime / weapon_kritzkrieg_chargerelease_rate.GetFloat();
 		m_flChargeLevel = max( m_flChargeLevel - flChargeAmount, 0.0 );
 		if ( !m_flChargeLevel )
 		{
@@ -637,7 +635,7 @@ void CWeaponMedigun::DrainCharge( void )
 //-----------------------------------------------------------------------------
 // Purpose: Overloaded to handle the hold-down healing
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::ItemPostFrame( void )
+void CWeaponKritzkrieg::ItemPostFrame( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -653,7 +651,7 @@ void CWeaponMedigun::ItemPostFrame( void )
 #if !defined( CLIENT_DLL )
 	if ( AppliesModifier() )
 	{
-		m_DamageModifier.SetModifier( weapon_medigun_damage_modifier.GetFloat() );
+		m_DamageModifier.SetModifier( weapon_kritzkrieg_damage_modifier.GetFloat() );
 	}
 #endif
 
@@ -710,7 +708,7 @@ void CWeaponMedigun::ItemPostFrame( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponMedigun::Lower( void )
+bool CWeaponKritzkrieg::Lower( void )
 {
 	// Stop healing if we are
 	if ( m_bHealing )
@@ -729,7 +727,7 @@ bool CWeaponMedigun::Lower( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
+void CWeaponKritzkrieg::RemoveHealingTarget( bool bStopHealingSelf )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -745,7 +743,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
-			pTFPlayer->m_Shared.RecalculateCrits( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
@@ -753,7 +751,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 	}
 
 	// Stop thinking - we no longer have a heal target.
-	SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
+	SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
 #endif
 
 	m_hHealingTarget.Set( NULL );
@@ -776,7 +774,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 //-----------------------------------------------------------------------------
 // Purpose: Attempt to heal any player within range of the medikit
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::PrimaryAttack( void )
+void CWeaponKritzkrieg::PrimaryAttack( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -798,7 +796,7 @@ void CWeaponMedigun::PrimaryAttack( void )
 #endif
 
 #if !defined (CLIENT_DLL)
-	if ( tf_medigun_lagcomp.GetBool() )
+	if ( tf_kritzkrieg_lagcomp.GetBool() )
 		lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
 #endif
 
@@ -823,7 +821,7 @@ void CWeaponMedigun::PrimaryAttack( void )
 	}
 	
 #if !defined (CLIENT_DLL)
-	if ( tf_medigun_lagcomp.GetBool() )
+	if ( tf_kritzkrieg_lagcomp.GetBool() )
 		lagcompensation->FinishLagCompensation( pOwner );
 #endif
 }
@@ -831,7 +829,7 @@ void CWeaponMedigun::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 // Purpose: Burn charge level to generate invulnerability
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::SecondaryAttack( void )
+void CWeaponKritzkrieg::SecondaryAttack( void )
 {
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
@@ -898,7 +896,7 @@ void CWeaponMedigun::SecondaryAttack( void )
 //			If so, move into the "heal-able" animation. 
 //			Otherwise, move into the "not-heal-able" animation.
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::WeaponIdle( void )
+void CWeaponKritzkrieg::WeaponIdle( void )
 {
 	if ( HasWeaponIdleTimeElapsed() )
 	{
@@ -917,7 +915,7 @@ void CWeaponMedigun::WeaponIdle( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSound )
+void CWeaponKritzkrieg::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSound )
 {
 	if ( bStopHealingSound )
 	{
@@ -933,7 +931,7 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::ManageChargeEffect( void )
+void CWeaponKritzkrieg::ManageChargeEffect( void )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	C_BaseEntity *pEffectOwner = this;
@@ -1013,7 +1011,7 @@ void CWeaponMedigun::ManageChargeEffect( void )
 // Purpose: 
 // Input  : updateType - 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::OnDataChanged( DataUpdateType_t updateType )
+void CWeaponKritzkrieg::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged( updateType );
 
@@ -1056,7 +1054,7 @@ void CWeaponMedigun::OnDataChanged( DataUpdateType_t updateType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::ClientThink()
+void CWeaponKritzkrieg::ClientThink()
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
@@ -1100,7 +1098,7 @@ void CWeaponMedigun::ClientThink()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::UpdateEffects( void )
+void CWeaponKritzkrieg::UpdateEffects( void )
 {
 	CTFPlayer *pFiringPlayer = ToTFPlayer( GetOwnerEntity() );
 	if ( !pFiringPlayer )

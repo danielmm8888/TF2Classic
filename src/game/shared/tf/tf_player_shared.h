@@ -155,6 +155,7 @@ public:
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
 	void	RecalculateInvuln( bool bInstantRemove = false );
+	void	RecalculateCrits(bool bInstantRemove = false);
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
 #endif
@@ -231,6 +232,9 @@ private:
 	// Invulnerable.
 	bool  IsProvidingInvuln( CTFPlayer *pPlayer );
 	void  SetInvulnerable( bool bState, bool bInstant = false );
+	// Kritzkrieg.
+	bool  IsProvidingCrits(CTFPlayer *pPlayer);
+	void  SetCrits(bool bState, bool bInstant = false);
 #endif
 
 private:
@@ -275,6 +279,7 @@ private:
 	float					m_flDisguiseHealFraction;	// Same for disguised healing
 
 	float m_flInvulnerableOffTime;
+	float m_flCritOffTime;
 #endif
 
 	// Burn handling

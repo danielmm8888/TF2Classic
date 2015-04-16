@@ -48,6 +48,7 @@
 #include "tf_hud_statpanel.h"
 #include "input.h"
 #include "tf_weapon_medigun.h"
+#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_hud_mediccallers.h"
 #include "in_main.h"
@@ -3257,6 +3258,18 @@ float C_TFPlayer::MedicGetChargeLevel( void )
 			return pWeapon->GetChargeLevel();
 	}
 
+	if (IsPlayerClass(TF_CLASS_MEDIC))
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG);
+
+		if (pWpn == NULL)
+			return 0;
+
+		CWeaponKritzkrieg *pWeapon = dynamic_cast <CWeaponKritzkrieg*>(pWpn);
+
+		if (pWeapon)
+			return pWeapon->GetChargeLevel();
+	}
 	return 0;
 }
 

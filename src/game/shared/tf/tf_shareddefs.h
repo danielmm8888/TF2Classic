@@ -323,6 +323,8 @@ enum
 	TF_WEAPON_SHOTGUN_MEDIC,
 	TF_WEAPON_HUNTERRIFLE,
 	TF_WEAPON_UMBRELLA,
+	TF_WEAPON_KRITZKRIEG,
+	TF_WEAPON_UBERSAW,
 
 	TF_WEAPON_COUNT
 };
@@ -399,6 +401,7 @@ enum
 	TF_COND_SLOWED,
 
 	// Add new conditions that should be affected by healing here
+	TF_COND_KRITZ,
 
 	TF_COND_LAST
 };

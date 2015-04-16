@@ -477,7 +477,6 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		m_iCurrentSeed = iSeed;
 		RandomSeed( m_iCurrentSeed );
 	}
-	
 	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber() ) )
 	{
 		m_bCurrentAttackIsCrit = true;
@@ -490,6 +489,10 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
+	}
+	if (pPlayer->m_Shared.InCond(TF_COND_KRITZ))
+	{
+		m_bCurrentAttackIsCrit = true;
 	}
 	else
 	{

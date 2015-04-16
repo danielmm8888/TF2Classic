@@ -132,6 +132,11 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
+	if (pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG)
+	{
+		return false;
+	}
+
 	return CHudElement::ShouldDraw();
 }
 
