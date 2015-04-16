@@ -355,6 +355,16 @@ enum
 
 extern const char *g_szProjectileNames[];
 
+enum
+{
+	TF_ATTRIBUTE_NONE = 0,
+	TF_ATTRIBUTE_UBER_ON_HIT,
+
+	TF_NUM_ATTRIBUTES
+};
+
+extern const char *g_szWeaponAttributes[];
+
 //-----------------------------------------------------------------------------
 // Attributes.
 //-----------------------------------------------------------------------------
