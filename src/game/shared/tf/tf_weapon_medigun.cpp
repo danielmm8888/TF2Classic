@@ -581,6 +581,17 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CWeaponMedigun::AddCharge(void)
+{
+	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
+	m_flChargeLevel = flNewLevel;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CWeaponMedigun::ItemHolsterFrame( void )
 {
 	BaseClass::ItemHolsterFrame();

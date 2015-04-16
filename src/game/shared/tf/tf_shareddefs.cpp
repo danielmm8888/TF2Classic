@@ -194,6 +194,7 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_HUNTERRIFLE",
 	"TF_WEAPON_UMBRELLA",
 	"TF_WEAPON_KRITZKRIEG",
+	"TF_WEAPON_UBERSAW",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -265,6 +266,7 @@ int g_aWeaponDamageTypes[] =
 	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE
 	DMG_CLUB, // TF_WEAPON_UMBRELLA
 	DMG_BULLET,		// TF_WEAPON_KRITZ
+	DMG_SLASH,		// TF_WEAPON_UBERSAW
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list

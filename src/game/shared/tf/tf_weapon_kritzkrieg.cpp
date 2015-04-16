@@ -581,6 +581,15 @@ bool CWeaponKritzkrieg::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CWeaponKritzkrieg::AddCharge(void)
+{
+	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
+	m_flChargeLevel = flNewLevel;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CWeaponKritzkrieg::ItemHolsterFrame( void )
 {
 	BaseClass::ItemHolsterFrame();
