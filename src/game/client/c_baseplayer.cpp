@@ -1434,8 +1434,10 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 	{
 		if ( target->IsAlive() )
 		{
-			// HL2 viewheight seems approciate here.
-			return Vector(0,0,64);
+			// Human Hull height in HL2 is 72 and player viewheight is 64.
+			// So let's take that last value and scale it according to NPC's height.
+			float flEyeHeight = 64.0f * (target->WorldAlignMaxs().z / 72.0f );
+			return Vector(0,0,flEyeHeight);
 		}
 		else
 		{
@@ -1661,8 +1663,8 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 #ifdef TF_CLASSIC_CLIENT
 	if ( pTarget->IsNPC() )
 	{
-		// Eh, let's just use HL2 viewheight for NPC eye height.
-		flEyePosZ = pTarget->GetAbsOrigin().z + 64.0f;
+		// Use HL2 player viewheight scaled according to NPC size.
+		flEyePosZ = pTarget->GetAbsOrigin().z + 64.0f * (pTarget->WorldAlignMaxs().z / 72.0f );;
 	}
 #endif
 	vecTargetPos.z = flEyePosZ + m_flFreezeZOffset;
