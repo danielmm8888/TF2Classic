@@ -90,6 +90,9 @@
 #include "serverbenchmark_base.h"
 #include "querycache.h"
 
+#ifdef GE_LUA
+#include "ge_luamanager.h"
+#endif
 
 #ifdef TF_DLL
 #include "gc_clientsystem.h"
@@ -742,6 +745,14 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	gamestatsuploader->InitConnection();
 #endif
 
+/**
+	This is where we start lua!
+**/
+
+#ifdef GE_LUA
+	// Start LUA
+	GELua()->InitDll();
+#endif
 	return true;
 }
 
@@ -795,6 +806,11 @@ void CServerGameDLL::DLLShutdown( void )
 	s_SteamAPIContext.Clear(); // Steam API context shutdown
 	s_SteamGameServerAPIContext.Clear();
 #endif	
+
+#ifdef GE_LUA
+	// Shutdown LUA, close all open gameplays
+	GELua()->ShutdownDll();
+#endif
 
 	gameeventmanager = NULL;
 	
