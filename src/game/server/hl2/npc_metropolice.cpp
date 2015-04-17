@@ -115,7 +115,7 @@ ConVar	sk_metropolice_stitch_behind_hitcount( "sk_metropolice_stitch_behind_hitc
 ConVar	sk_metropolice_stitch_along_hitcount( "sk_metropolice_stitch_along_hitcount","2");
 
 
-ConVar	sk_metropolice_health( "sk_metropolice_health","0");
+ConVar	sk_metropolice_health( "sk_metropolice_health","40");
 ConVar	sk_metropolice_simple_health( "sk_metropolice_simple_health","26");
 ConVar	sk_metropolice_stitch_distance( "sk_metropolice_stitch_distance","1000");
 
