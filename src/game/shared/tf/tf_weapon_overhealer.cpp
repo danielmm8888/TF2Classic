@@ -140,10 +140,10 @@ void CWeaponOverhealer::Precache()
 	BaseClass::Precache();
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
 	PrecacheScriptSound( "WeaponMedigun.Healing" );
-	PrecacheParticleSystem( "medicgun_beam_red" );
-	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+	PrecacheParticleSystem( "overhealer_red_beam" );
+	PrecacheParticleSystem( "overhealer_blue_beam" );
+	PrecacheParticleSystem("overhealer_green_beam");
+	PrecacheParticleSystem("overhealer_yellow_beam");
 }
 
 //-----------------------------------------------------------------------------
@@ -857,19 +857,19 @@ void CWeaponOverhealer::UpdateEffects(void)
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_BLUE:
-			pszEffectName = "medicgun_beam_blue";
+			pszEffectName = "overhealer_blue_beam";
 			break;
 		case TF_TEAM_RED:
-			pszEffectName = "medicgun_beam_red";
+			pszEffectName = "overhealer_red_beam";
 			break;
 		case TF_TEAM_GREEN:
-			pszEffectName = "medicgun_beam_green";
+			pszEffectName = "overhealer_green_beam";
 			break;
 		case TF_TEAM_YELLOW:
-			pszEffectName = "medicgun_beam_yellow";
+			pszEffectName = "overhealer_yellow_beam";
 			break;
 		default:
-			pszEffectName = "medicgun_beam_blue";
+			pszEffectName = "overhealer_blue_beam";
 			break;
 		}
 
