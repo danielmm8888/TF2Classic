@@ -71,7 +71,7 @@ ConVar sk_gunship_burst_min("sk_gunship_burst_min", "800" );
 ConVar sk_gunship_burst_dist("sk_gunship_burst_dist", "768" );
 
 // Number of times the gunship must be struck by explosive damage
-ConVar	sk_gunship_health_increments( "sk_gunship_health_increments", "0" );
+ConVar	sk_gunship_health_increments( "sk_gunship_health_increments", "5" );
 
 /*
 

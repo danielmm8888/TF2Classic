@@ -94,7 +94,7 @@ enum CRATE_TYPES
 
 ConVar	g_debug_dropship( "g_debug_dropship", "0" );
 ConVar  sk_dropship_container_health( "sk_dropship_container_health", "750" );
-ConVar	sk_npc_dmg_dropship( "sk_npc_dmg_dropship","5", FCVAR_NONE, "Dropship container cannon damage." );
+ConVar	sk_npc_dmg_dropship( "sk_npc_dmg_dropship","2", FCVAR_NONE, "Dropship container cannon damage." );
 
 //=====================================
 // Animation Events

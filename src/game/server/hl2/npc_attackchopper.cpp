@@ -130,9 +130,9 @@ ConVar	sk_helicopter_firingcone( "sk_helicopter_firingcone","20.0", 0, "The angl
 ConVar	sk_helicopter_burstcount( "sk_helicopter_burstcount","12", 0, "How many shot bursts to fire after charging up. The bigger the number, the longer the firing is" );
 ConVar	sk_helicopter_roundsperburst( "sk_helicopter_roundsperburst","5", 0, "How many shots to fire in a single burst" );
 
-ConVar	sk_helicopter_grenadedamage( "sk_helicopter_grenadedamage","25.0", 0, "The amount of damage the helicopter grenade deals." );
-ConVar	sk_helicopter_grenaderadius( "sk_helicopter_grenaderadius","275.0", 0, "The damage radius of the helicopter grenade." );
-ConVar	sk_helicopter_grenadeforce( "sk_helicopter_grenadeforce","55000.0", 0, "The physics force that the helicopter grenade exerts." );
+ConVar	sk_helicopter_grenadedamage( "sk_helicopter_grenadedamage","30", 0, "The amount of damage the helicopter grenade deals." );
+ConVar	sk_helicopter_grenaderadius( "sk_helicopter_grenaderadius","275", 0, "The damage radius of the helicopter grenade." );
+ConVar	sk_helicopter_grenadeforce( "sk_helicopter_grenadeforce","55000", 0, "The physics force that the helicopter grenade exerts." );
 ConVar	sk_helicopter_grenade_puntscale( "sk_helicopter_grenade_puntscale","1.5", 0, "When physpunting a chopper's grenade, scale its velocity by this much." );
 
 // Number of bomb hits it takes to kill a chopper on each skill level.

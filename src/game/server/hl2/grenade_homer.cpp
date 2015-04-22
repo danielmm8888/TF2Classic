@@ -30,8 +30,8 @@
 
 extern short	g_sModelIndexFireball;			// (in combatweapon.cpp) holds the index for the smoke cloud
 
-ConVar    sk_dmg_homer_grenade( "sk_dmg_homer_grenade","0" );
-ConVar	  sk_homer_grenade_radius( "sk_homer_grenade_radius","0" );
+ConVar    sk_dmg_homer_grenade( "sk_dmg_homer_grenade","20" );
+ConVar	  sk_homer_grenade_radius( "sk_homer_grenade_radius","100" );
 
 BEGIN_DATADESC( CGrenadeHomer )
 
