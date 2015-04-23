@@ -54,6 +54,18 @@ $Project "Client (TF)"
 				$File	"game_controls\buysubmenu.cpp"
 		}
 		
+		$Folder "HL1 DLL"
+		{
+			$File	"cstrike\fx_cs_weaponfx.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1_basecombatweapon_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1_basecombatweapon_shared.h"
+			$File	"hl1\hl1_fx_shelleject.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1_shareddefs.h"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_basecombatweapon_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_basecombatweapon_shared.h"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_weapon_handgrenade.cpp"
+		}
+		
 		$Folder "HL2 DLL"
 		{
 			$File	"episodic\c_vort_charge_token.cpp"

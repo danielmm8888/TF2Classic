@@ -96,7 +96,7 @@ C_LocalTempEntity::C_LocalTempEntity()
 }
 
 
-#if defined( CSTRIKE_DLL ) || defined (SDK_DLL )
+#if defined( CSTRIKE_DLL ) || defined (SDK_DLL ) || defined( TF_CLASSIC_CLIENT )
 
 #define TE_RIFLE_SHELL 1024
 #define TE_PISTOL_SHELL 2048
@@ -1868,7 +1868,11 @@ void CTempEnts::MuzzleFlash( const Vector& pos1, const QAngle& angles, int type,
 	
 	default:
 		// There's no supported muzzle flash for the type specified!
+#ifdef TF_CLASSIC_CLIENT
+		//Don't assert, it causes isues with HL1 NPCs. We should try to actually fix this later.
+#else
 		Assert(0);
+#endif
 		break;
 	}
 
@@ -2191,7 +2195,7 @@ void CTempEnts::PlaySound ( C_LocalTempEntity *pTemp, float damp )
 		}
 		break;
 
-#ifdef CSTRIKE_DLL
+#if defined( CSTRIKE_DLL ) || defined( TF_CLASSIC_CLIENT )
 
 		case TE_PISTOL_SHELL:
 		{
@@ -2407,12 +2411,12 @@ void CTempEnts::LevelInit()
 	m_pShells[2] = (model_t *) engine->LoadModel( "models/weapons/shotgun_shell.mdl" );
 #endif
 
-#if defined( HL1_CLIENT_DLL )
+#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
 	m_pHL1Shell			= (model_t *)engine->LoadModel( "models/shell.mdl" );
 	m_pHL1ShotgunShell	= (model_t *)engine->LoadModel( "models/shotgunshell.mdl" );
 #endif
 
-#if defined( CSTRIKE_DLL ) || defined ( SDK_DLL )
+#if defined( CSTRIKE_DLL ) || defined ( SDK_DLL )  || defined( TF_CLASSIC_CLIENT )
 	m_pCS_9MMShell		= (model_t *)engine->LoadModel( "models/Shells/shell_9mm.mdl" );
 	m_pCS_57Shell		= (model_t *)engine->LoadModel( "models/Shells/shell_57.mdl" );
 	m_pCS_12GaugeShell	= (model_t *)engine->LoadModel( "models/Shells/shell_12gauge.mdl" );
@@ -2444,12 +2448,12 @@ void CTempEnts::Init (void)
 	m_pShells[1] = NULL;
 	m_pShells[2] = NULL;
 
-#if defined( HL1_CLIENT_DLL )
+#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
 	m_pHL1Shell			= NULL;
 	m_pHL1ShotgunShell	= NULL;
 #endif
 
-#if defined( CSTRIKE_DLL ) || defined ( SDK_DLL )
+#if defined( CSTRIKE_DLL ) || defined ( SDK_DLL )  || defined( TF_CLASSIC_CLIENT )
 	m_pCS_9MMShell		= NULL;
 	m_pCS_57Shell		= NULL;
 	m_pCS_12GaugeShell	= NULL;
@@ -3273,7 +3277,7 @@ void CTempEnts::HL1EjectBrass( const Vector &vecPosition, const QAngle &angAngle
 {
 	const model_t *pModel = NULL;
 
-#if defined( HL1_CLIENT_DLL )
+#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
 	switch ( nType )
 	{
 	case 0:
@@ -3332,7 +3336,7 @@ void CTempEnts::CSEjectBrass( const Vector &vecPosition, const QAngle &angVeloci
 	const model_t *pModel = NULL;
 	int hitsound = TE_BOUNCE_SHELL;
 
-#if defined ( CSTRIKE_DLL ) || defined ( SDK_DLL )
+#if defined ( CSTRIKE_DLL ) || defined ( SDK_DLL )  || defined( TF_CLASSIC_CLIENT )
 
 	switch( shellType )
 	{

@@ -34,6 +34,8 @@ $Project "Server (TF)"
 		$File	"grenadethrown.h"
 		$File	"monstermaker.cpp"
 		$File	"monstermaker.h"
+		$File	"npc_talker.cpp"
+		$File	"npc_talker.h"
 		$File	"physics_bone_follower.h"
 		$File	"$SRCDIR\game\shared\ragdoll_shared.h"
 		$File	"$SRCDIR\game\shared\solidsetdefaults.h"
@@ -57,6 +59,36 @@ $Project "Server (TF)"
 		
 		$File	"$SRCDIR\game\shared\playerclass_info_parse.cpp"
 		$File	"$SRCDIR\game\shared\playerclass_info_parse.h"
+		
+		$Folder "HL1 DLL"
+		{ 
+			$File 	"hl1\hl1_ai_basenpc.cpp"
+			$File 	"hl1\hl1_ai_basenpc.h"
+			$File	"hl1\hl1_basecombatweapon.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1_basecombatweapon_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1_basecombatweapon_shared.h"
+			$File 	"hl1\hl1_basegrenade.cpp"
+			$File 	"hl1\hl1_basegrenade.h"
+			$File 	"hl1\hl1_ents.cpp"
+			$File 	"hl1\hl1_ents.h"
+			$File 	"hl1\hl1_items.cpp"
+			$File 	"hl1\hl1_items.h"
+			$File 	"hl1\hl1_monstermaker.cpp"
+			$File 	"hl1\hl1_monstermaker.h"
+			$File 	"hl1\hl1_npc_barney.cpp"
+			$File 	"hl1\hl1_npc_barney.h"
+			$File 	"hl1\hl1_npc_gman.cpp"
+			$File 	"hl1\hl1_npc_hgrunt.cpp"
+			$File 	"hl1\hl1_npc_hgrunt.h"
+			$File 	"hl1\hl1_npc_scientist.cpp"
+			$File 	"hl1\hl1_npc_scientist.h"
+			$File 	"hl1\hl1_npc_talker.cpp"
+			$File 	"hl1\hl1_npc_talker.h"
+			$File	"$SRCDIR\game\shared\hl1\hl1_shareddefs.h"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_basecombatweapon_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_basecombatweapon_shared.h"
+			$File	"$SRCDIR\game\shared\hl1\hl1mp_weapon_handgrenade.cpp"
+		}
 		
 		$Folder "HL2 DLL"
 		{
@@ -199,6 +231,13 @@ $Project "Server (TF)"
 		{
 			$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.cpp"
 			$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.h"
+		}
+		
+		$Folder	"SDK"
+		{
+			$File	"sdk\sdk_brushentity.cpp"
+			$File	"sdk\sdk_logicalentity.cpp"
+			$File	"sdk\sdk_modelentity.cpp"
 		}
 		
 		$Folder	"TF"
