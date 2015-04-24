@@ -17,7 +17,7 @@
 #include "vstdlib/random.h"
 #include "engine/IEngineSound.h"
 
-ConVar sk_bullsquid_dmg_spit ( "sk_bullsquid_dmg_spit", "0" );
+ConVar sk_bullsquid_dmg_spit ( "sk_bullsquid_dmg_spit", "10" );
 
 BEGIN_DATADESC( CGrenadeSpitHL1 )
 

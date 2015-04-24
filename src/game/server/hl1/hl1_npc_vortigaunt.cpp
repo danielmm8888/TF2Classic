@@ -36,10 +36,10 @@
 #define		ISLAVE_AE_ZAP_DONE		( 5 )
 
 
-ConVar	sk_islave_health( "sk_islave_health","50");
-ConVar	sk_islave_dmg_claw( "sk_islave_dmg_claw","8");
+ConVar	sk_islave_health( "sk_islave_health","30");
+ConVar	sk_islave_dmg_claw( "sk_islave_dmg_claw","10");
 ConVar	sk_islave_dmg_clawrake( "sk_islave_dmg_clawrake","25");
-ConVar	sk_islave_dmg_zap( "sk_islave_dmg_zap","15");
+ConVar	sk_islave_dmg_zap( "sk_islave_dmg_zap","10");
 
 LINK_ENTITY_TO_CLASS( monster_alien_slave, CNPC_VortigauntHL1 );
 

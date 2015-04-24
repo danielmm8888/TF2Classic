@@ -62,8 +62,8 @@ enum StalkerBeamPower_e
 //Animation events
 #define STALKER_AE_MELEE_HIT			1
 
-ConVar	sk_stalker_health( "sk_stalker_health","0");
-ConVar	sk_stalker_melee_dmg( "sk_stalker_melee_dmg","0");
+ConVar	sk_stalker_health( "sk_stalker_health","50");
+ConVar	sk_stalker_melee_dmg( "sk_stalker_melee_dmg","5");
 
 extern void		SpawnBlood(Vector vecSpot, const Vector &vAttackDir, int bloodColor, float flDamage);
 

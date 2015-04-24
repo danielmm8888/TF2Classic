@@ -36,7 +36,7 @@
 #include "tier0/memdbgon.h"
 
 float GetCurrentGravity( void );
-ConVar	sk_barnacle_health( "sk_barnacle_health","0");
+ConVar	sk_barnacle_health( "sk_barnacle_health","35");
 
 static ConVar npc_barnacle_swallow( "npc_barnacle_swallow", "0", 0, "Use prototype swallow code." );
 

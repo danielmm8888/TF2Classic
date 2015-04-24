@@ -259,7 +259,7 @@ void CNPC_BaseTurret::Precache()
 Class_T CNPC_BaseTurret::Classify( void )
 {
 	if (m_iOn || m_iAutoStart)
-		return	CLASS_MACHINE;
+		return	CLASS_MACHINE_HL1;
 	return CLASS_NONE;
 }
 

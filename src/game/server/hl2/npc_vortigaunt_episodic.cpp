@@ -73,10 +73,10 @@ static const char *VORT_EXTRACT_FINISH = "VORT_EXTRACT_FINISH";
 ConVar sk_vortigaunt_armor_charge( "sk_vortigaunt_armor_charge","30");
 ConVar sk_vortigaunt_armor_charge_per_token( "sk_vortigaunt_armor_charge_per_token","5");
 
-ConVar sk_vortigaunt_health( "sk_vortigaunt_health","0");
-ConVar sk_vortigaunt_dmg_claw( "sk_vortigaunt_dmg_claw","0");
-ConVar sk_vortigaunt_dmg_rake( "sk_vortigaunt_dmg_rake","0");
-ConVar sk_vortigaunt_dmg_zap( "sk_vortigaunt_dmg_zap","0");
+ConVar sk_vortigaunt_health( "sk_vortigaunt_health","100");
+ConVar sk_vortigaunt_dmg_claw( "sk_vortigaunt_dmg_claw","10");
+ConVar sk_vortigaunt_dmg_rake( "sk_vortigaunt_dmg_rake","25");
+ConVar sk_vortigaunt_dmg_zap( "sk_vortigaunt_dmg_zap","50");
 ConVar sk_vortigaunt_zap_range( "sk_vortigaunt_zap_range", "100", FCVAR_NONE, "Range of vortigaunt's ranged attack (feet)" );
 ConVar sk_vortigaunt_vital_antlion_worker_dmg("sk_vortigaunt_vital_antlion_worker_dmg", "0.2", FCVAR_NONE, "Vital-ally vortigaunts scale damage taken from antlion workers by this amount." );
 

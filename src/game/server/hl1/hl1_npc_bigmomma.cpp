@@ -31,9 +31,9 @@
 #include	"te_effect_dispatch.h"
 #include	"Sprite.h"
 
-ConVar sk_bigmomma_health_factor( "sk_bigmomma_health_factor", "1" );
-ConVar sk_bigmomma_dmg_slash( "sk_bigmomma_dmg_slash", "50" );
-ConVar sk_bigmomma_dmg_blast( "sk_bigmomma_dmg_blast", "100" );
+ConVar sk_bigmomma_health_factor( "sk_bigmomma_health_factor", "1.5" );
+ConVar sk_bigmomma_dmg_slash( "sk_bigmomma_dmg_slash", "60" );
+ConVar sk_bigmomma_dmg_blast( "sk_bigmomma_dmg_blast", "120" );
 ConVar sk_bigmomma_radius_blast( "sk_bigmomma_radius_blast", "250" );
 
 extern ConVar sv_gravity;

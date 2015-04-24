@@ -24,8 +24,8 @@
 #include "engine/IEngineSound.h"
 #include "hl1_NPC_Ichthyosaur.h"
 
-ConVar sk_ichthyosaurhl1_health ( "sk_ichthyosaurhl1_health", "0" );
-ConVar sk_ichthyosaur_shake ( "sk_ichthyosaur_shake", "0" );
+ConVar sk_ichthyosaurhl1_health ( "sk_ichthyosaurhl1_health", "200" );
+ConVar sk_ichthyosaur_shake ( "sk_ichthyosaur_shake", "35" );
 
 #define	ICH_SWIM_SPEED_WALK		150
 #define	ICH_SWIM_SPEED_RUN		400

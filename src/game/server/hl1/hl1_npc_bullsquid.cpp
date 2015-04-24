@@ -32,9 +32,9 @@
 
 #define		SQUID_SPRINT_DIST	256 // how close the squid has to get before starting to sprint and refusing to swerve
 
-ConVar sk_bullsquid_health ( "sk_bullsquid_health", "0" );
-ConVar sk_bullsquid_dmg_bite ( "sk_bullsquid_dmg_bite", "0" );
-ConVar sk_bullsquid_dmg_whip ( "sk_bullsquid_dmg_whip", "0" );
+ConVar sk_bullsquid_health ( "sk_bullsquid_health", "40" );
+ConVar sk_bullsquid_dmg_bite ( "sk_bullsquid_dmg_bite", "25" );
+ConVar sk_bullsquid_dmg_whip ( "sk_bullsquid_dmg_whip", "35" );
 extern ConVar sk_bullsquid_dmg_spit;
 
 //=========================================================

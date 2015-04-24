@@ -52,9 +52,9 @@
 #define DIST_TO_CHECK	200
 
 ConVar sk_controller_health ( "sk_controller_health", "60" );
-ConVar sk_controller_dmgzap ( "sk_controller_dmgzap", "15" );
-ConVar sk_controller_speedball ( "sk_controller_speedball", "650" );
-ConVar sk_controller_dmgball ( "sk_controller_dmgball", "3" );
+ConVar sk_controller_dmgzap ( "sk_controller_dmgzap", "25" );
+ConVar sk_controller_speedball ( "sk_controller_speedball", "800" );
+ConVar sk_controller_dmgball ( "sk_controller_dmgball", "4" );
 
 int ACT_CONTROLLER_UP;
 int ACT_CONTROLLER_DOWN;

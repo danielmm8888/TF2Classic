@@ -23,6 +23,16 @@ C_BaseHelicopter::C_BaseHelicopter()
 {
 }
 
+#ifdef TF_CLASSIC_CLIENT
+IMPLEMENT_CLIENTCLASS_DT(C_BaseHelicopterHL1, DT_BaseHelicopterHL1, CBaseHelicopterHL1)
+RecvPropTime(RECVINFO(m_flStartupTime)),
+END_RECV_TABLE()
+
+
+C_BaseHelicopterHL1::C_BaseHelicopterHL1()
+{
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Chopper blade fade-in time

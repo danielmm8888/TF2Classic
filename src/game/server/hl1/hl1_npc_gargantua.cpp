@@ -71,9 +71,9 @@ int				gGargGibModel;
 #define ATTACH_EYE					1
 
 ConVar sk_gargantua_health ( "sk_gargantua_health", "800" );
-ConVar sk_gargantua_dmg_slash( "sk_gargantua_dmg_slash", "10" );
-ConVar sk_gargantua_dmg_fire ( "sk_gargantua_dmg_fire", "3" );
-ConVar sk_gargantua_dmg_stomp( "sk_gargantua_dmg_stomp", "50" );
+ConVar sk_gargantua_dmg_slash( "sk_gargantua_dmg_slash", "30" );
+ConVar sk_gargantua_dmg_fire ( "sk_gargantua_dmg_fire", "5" );
+ConVar sk_gargantua_dmg_stomp( "sk_gargantua_dmg_stomp", "100" );
 
 enum
 {

@@ -11,8 +11,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#ifndef	HL1_NPC_BARNACLE_H
-#define	HL1_NPC_BARNACLE_H
+#ifndef	HL1_NPC_BarnacleHL1_H
+#define	HL1_NPC_BarnacleHL1_H
 
 #include "hl1_ai_basenpc.h"
 #include "rope_physics.h"
@@ -30,9 +30,9 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CNPC_Barnacle : public CHL1BaseNPC
+class CNPC_BarnacleHL1 : public CHL1BaseNPC
 {
-	DECLARE_CLASS( CNPC_Barnacle, CHL1BaseNPC );
+	DECLARE_CLASS( CNPC_BarnacleHL1, CHL1BaseNPC );
 
 public:
 	void			Spawn( void );
@@ -60,4 +60,4 @@ public:
 	DEFINE_CUSTOM_AI;
 };
 
-#endif	//HL1_NPC_BARNACLE_H
+#endif	//HL1_NPC_BarnacleHL1_H

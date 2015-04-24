@@ -29,5 +29,20 @@ private:
 	float m_flStartupTime;
 };
 
+#ifdef TF_CLASSIC_CLIENT
+class C_BaseHelicopterHL1 : public C_AI_BaseNPC
+{
+public:
+	DECLARE_CLASS(C_BaseHelicopterHL1, C_AI_BaseNPC);
+	DECLARE_CLIENTCLASS();
 
+	C_BaseHelicopterHL1();
+
+	float StartupTime() const { return m_flStartupTime; }
+
+private:
+	C_BaseHelicopterHL1(const C_BaseHelicopterHL1 &other) {}
+	float m_flStartupTime;
+};
+#endif // TF_CLASSIC_CLIENT
 #endif // C_BASEHELICOPTER_H

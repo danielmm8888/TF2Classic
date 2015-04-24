@@ -19,8 +19,8 @@
 #define	HUMAN_GIB_COUNT			6
 #define ALIEN_GIB_COUNT			4
 
-const char *pHumanGibsModel = "models/gibs/hgibs.mdl";
-const char *pAlienGibsModel = "models/gibs/agibs.mdl";
+const char *pHumanGibsModel = "models/gibs/hghl1.mdl";
+const char *pAlienGibsModel = "models/gibs/aghl1.mdl";
 
 void GetBloodColorHL1( int bloodtype, unsigned char &r, unsigned char &g, unsigned char &b )
 {

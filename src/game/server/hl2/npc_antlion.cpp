@@ -46,7 +46,7 @@
 ConVar	g_debug_antlion( "g_debug_antlion", "0" );
 
 // base antlion stuff
-ConVar	sk_antlion_health( "sk_antlion_health", "35" );
+ConVar	sk_antlion_health( "sk_antlion_health", "30" );
 ConVar	sk_antlion_swipe_damage( "sk_antlion_swipe_damage", "5" );
 ConVar	sk_antlion_jump_damage( "sk_antlion_jump_damage", "5" );
 ConVar  sk_antlion_air_attack_dmg( "sk_antlion_air_attack_dmg", "0" );

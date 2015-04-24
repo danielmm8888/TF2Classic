@@ -37,8 +37,8 @@
 #include    "te.h"
 #include "hl1_ai_basenpc.h"
 
-ConVar sk_agrunt_health( "sk_agrunt_health", "0" );
-ConVar sk_agrunt_dmg_punch( "sk_agrunt_dmg_punch", "0" );
+ConVar sk_agrunt_health( "sk_agrunt_health", "90" );
+ConVar sk_agrunt_dmg_punch( "sk_agrunt_dmg_punch", "20" );
 
 //=========================================================
 // Monster's Anim Events Go Here

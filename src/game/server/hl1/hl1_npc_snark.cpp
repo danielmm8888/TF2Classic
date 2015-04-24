@@ -20,9 +20,9 @@
 #include "soundemittersystem/isoundemittersystembase.h"
 
 
-ConVar sk_snark_health		( "sk_snark_health",				"0" );
-ConVar sk_snark_dmg_bite	( "sk_snark_dmg_bite",				"0" );
-ConVar sk_snark_dmg_pop		( "sk_snark_dmg_pop",				"0" );
+ConVar sk_snark_health		( "sk_snark_health",				"2" );
+ConVar sk_snark_dmg_bite	( "sk_snark_dmg_bite",				"10" );
+ConVar sk_snark_dmg_pop		( "sk_snark_dmg_pop",				"5" );
 
 
 LINK_ENTITY_TO_CLASS( monster_snark, CSnark);

@@ -41,6 +41,8 @@
 #include	"hl1_grenade_mp5.h"
 
 ConVar sk_plr_dmg_mp5_grenade("sk_plr_dmg_mp5_grenade", "100", FCVAR_REPLICATED);
+ConVar sk_max_mp5_grenade			( "sk_max_mp5_grenade",			"10", FCVAR_REPLICATED );
+ConVar sk_mp5_grenade_radius		( "sk_mp5_grenade_radius",		"100", FCVAR_REPLICATED );
 ConVar	sk_hgrunt_health("sk_hgrunt_health", "50");
 ConVar  sk_hgrunt_kick("sk_hgrunt_kick", "10");
 ConVar  sk_hgrunt_pellets("sk_hgrunt_pellets", "5");

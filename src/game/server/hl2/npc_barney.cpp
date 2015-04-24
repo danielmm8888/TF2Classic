@@ -36,7 +36,7 @@
 
 #define BARNEY_MODEL "models/barney.mdl"
 
-ConVar	sk_barney_health( "sk_barney_health","0");
+ConVar	sk_barney_health( "sk_barney_health","35");
 
 //=========================================================
 // Barney activities

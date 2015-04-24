@@ -29,8 +29,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar	sk_ichthyosaur_health( "sk_ichthyosaur_health", "0" );
-ConVar	sk_ichthyosaur_melee_dmg( "sk_ichthyosaur_melee_dmg", "0" );
+ConVar	sk_ichthyosaur_health( "sk_ichthyosaur_health", "200" ); //FIXME: Is this even needed?
+ConVar	sk_ichthyosaur_melee_dmg( "sk_ichthyosaur_melee_dmg", "8" );
 
 #define	ICHTHYOSAUR_MODEL	"models/ichthyosaur.mdl"
 

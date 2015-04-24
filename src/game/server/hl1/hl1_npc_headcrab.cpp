@@ -25,7 +25,7 @@
 extern void ClearMultiDamage(void);
 extern void ApplyMultiDamage( void );
 
-ConVar	sk_headcrabhl1_health( "sk_headcrabhl1_health","20");
+ConVar	sk_headcrabhl1_health( "sk_headcrabhl1_health","10");
 ConVar	sk_headcrab_dmg_bite( "sk_headcrab_dmg_bite","10");
 
 #define CRAB_ATTN_IDLE				(float)1.5
