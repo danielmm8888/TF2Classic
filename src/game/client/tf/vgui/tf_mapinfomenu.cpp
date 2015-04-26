@@ -541,18 +541,18 @@ static s_MapInfo s_Maps[] = {
 	"ctf_well",		"Well",			"#Gametype_CTF",			"VALVe",
 	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"VALVe",
 	//---------------------- TF2C maps ----------------------
-	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM & Nineaxis",
+	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM, Nineaxis",
 	"cp_tidal_v4",		"Tidal",			"#Gametype_CP",					"Heyo",
-	"cp_amaranth_rc2",	"Amaranth",			"#Gametype_AttackDefense",		"Berry & TheoF114",
-	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe & VALVe",
+	"cp_amaranth_rc2",	"Amaranth",			"#Gametype_AttackDefense",		"Berry, TheoF114",
+	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, VALVe",
 	"ctf_push_a4",		"Push",				"#Gametype_CTF",				"DrPyspy",
 	"ctf_upstream_a1",	"Upstream",			"#Gametype_AttackDefense_CTF",	"iiboharz",
 	"cp_callous2",		"Callous",			"#Gametype_VIP",				"Berry",
 	"cp_cragg_a1",		"Cragg",			"#Gametype_CP_Domination",		"Berry",
 	"ctf_casbah",		"Casbah",			"#Gametype_CTF",				"MacD11",
 	"cp_warpath_a2",	"Warpath",			"#Gametype_CP",					"Suomimies55",
-	"ctf_avanti",		"Avanti",			"#Gametype_AttackDefense_CTF",	"Zorbos & MacD11",
-	"cp_avanti",		"Avanti",			"#Gametype_AttackDefense",		"Zorbos & MacD11",
+	"ctf_avanti",		"Avanti",			"#Gametype_AttackDefense_CTF",	"Zorbos, MacD11",
+	"cp_avanti",		"Avanti",			"#Gametype_AttackDefense",		"Zorbos, MacD11",
 	"ctf_landfall_rc"	"Landfall",			"#Gametype_CTF",				"Dr. Spud",
 };
 

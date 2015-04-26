@@ -183,7 +183,7 @@ static const char* const s_BackgroundsWidescreen[] = {
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::SetDefaultSelections()
 {
-	m_iSelectedClass = random->RandomInt(TF_FIRST_NORMAL_CLASS, TF_CLASS_CIVILIAN - 1); //TF_CLASS_UNDEFINED;
+	m_iSelectedClass = random->RandomInt(TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER); //TF_CLASS_UNDEFINED;
 	m_iSelectedBackground = random->RandomInt(1, ARRAYSIZE(s_Backgrounds));
 }
 
