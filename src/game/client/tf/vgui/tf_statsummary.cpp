@@ -147,15 +147,15 @@ void CTFStatsSummaryPanel::Reset()
 }
 
 static const char* const s_ClassImages[] = {
-	"../console/background01", // SCOUT
-	"../console/background01", // SNIPER
-	"../console/background01", // SOLDIER
-	"../console/background01", // DEMOMAN
-	"../console/background01", // MEDIC
-	"../console/background01", // HEAVY_WEAPONS
-	"../console/background01", // PYRO
-	"../console/background01", // SPY
-	"../console/background01", // ENGINEER
+	"../console/background04", // SCOUT
+	"../console/background04", // SNIPER
+	"../console/background04", // SOLDIER
+	"../console/background04", // DEMOMAN
+	"../console/background04", // MEDIC
+	"../console/background04", // HEAVY_WEAPONS
+	"../console/background04", // PYRO
+	"../console/background04", // SPY
+	"../console/background04", // ENGINEER
 };
 
 static const char* const s_ClassImagesWidescreen[] = {
