@@ -178,8 +178,14 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		{
 			if ( stricmp( pVal, "red" ) == 0 )
 				iTeam = TF_TEAM_RED;
+			else if ( stricmp( pVal, "green" ) == 0 )
+				iTeam = TF_TEAM_GREEN;
+			else if ( stricmp( pVal, "yellow" ) == 0 )
+				iTeam = TF_TEAM_YELLOW;
 			else if ( stricmp( pVal, "spectator" ) == 0 )
 				iTeam = TEAM_SPECTATOR;
+			else if ( stricmp( pVal, "random" ) == 0 && TFGameRules()->IsFourTeamGame() )
+				iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
 			else if ( stricmp( pVal, "random" ) == 0 )
 				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
 			else
