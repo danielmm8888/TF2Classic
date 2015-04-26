@@ -176,12 +176,18 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		pVal = args.FindArg( "-team" );
 		if ( pVal )
 		{
-			if ( stricmp( pVal, "red" ) == 0 )
+			if ( stricmp(pVal, "red") == 0 )
 				iTeam = TF_TEAM_RED;
-			else if ( stricmp( pVal, "spectator" ) == 0 )
+			else if ( stricmp(pVal, "blue") == 0 )
+				iTeam = TF_TEAM_BLUE;
+			else if ( stricmp(pVal, "green") == 0 )
+				iTeam = TF_TEAM_GREEN;
+			else if ( stricmp(pVal, "yellow") == 0 )
+				iTeam = TF_TEAM_YELLOW;
+			else if ( stricmp(pVal, "spectator") == 0 )
 				iTeam = TEAM_SPECTATOR;
-			else if ( stricmp( pVal, "random" ) == 0 )
-				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
+			else if ( stricmp(pVal, "random") == 0 )
+				iTeam = RandomInt(TF_TEAM_RED, TF_TEAM_YELLOW);
 			else
 				iTeam = TF_TEAM_BLUE;
 		}
