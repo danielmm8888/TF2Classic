@@ -1,0 +1,89 @@
+"GameInfo"
+{
+	game	"Team Fortress 2 Classic" 
+	gamelogo 1 
+	type 	multiplayer_only 
+	icon	"resource/game"		
+	developer "Team Fortress 2 Classic Team"
+	developer_url "http://facepunch.com/showthread.php?t=1445480"
+	nomodels 0 
+	nohimodel 1	
+	nocrosshair 1 
+	GameData	"tf2c.fgd"
+	hidden_maps 
+	{ 
+		"test_speakers"		1 
+		"test_hardware"		1 
+	} 
+	supportsvr	1	
+	FileSystem 
+	{ 
+		SteamAppId		243750		
+		SearchPaths 
+		{ 
+			// First, mount all user customizations.  This will search for VPKs and subfolders 
+			// and mount them in alphabetical order.  The easiest way to distribute a mod is to 
+			// pack up the custom content into a VPK.  To "install" a mod, just drop it in this 
+			// folder. 
+			// Note that this folder is scanned only when the game is booted.
+			game+mod			|gameinfo_path|custom/* 
+			game+download			|gameinfo_path|download/*			
+			
+			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
+			// as the first "mod" search path (after any user customizations).  This is also the one
+			// that's used when writing to the "mod" path.
+			game+mod+mod_write+default_write_path		|gameinfo_path|.			
+			gamebin				|gameinfo_path|bin
+			
+			// We search VPK files before ordinary folders, because most files will be found in
+			// VPK and we can avoid making thousands of file system calls to attempt to open files
+			// in folders where they don't exist.  (Searching a VPK is much faster than making an operating
+			// system call.)
+			game_lv				hl2/hl2_lv.vpk
+			game+mod			hl2mp/hl2mp_english.vpk			
+			game+mod			hl2mp/hl2mp_pak.vpk			
+			game				|all_source_engine_paths|hl2/hl2_english.vpk			
+			game				|all_source_engine_paths|hl2/hl2_pak.vpk			
+			game				|all_source_engine_paths|hl2/hl2_textures.vpk			
+			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk			
+			game				|all_source_engine_paths|hl2/hl2_sound_misc.vpk			
+			game				|all_source_engine_paths|hl2/hl2_misc.vpk			
+			platform			|all_source_engine_paths|platform/platform_misc.vpk
+			
+			// Add the HL2 directory as a game search path.  This is also where where writes			
+			// to the "game" path go.			
+			game+game_write		hl2mp			
+			game+mod			sourcetest/sourcetest_pak.vpk
+			
+			// Where the game's binaries are			
+			gamebin				hl2mp/bin
+			
+			// Last, mount in shared HL2 loose files			
+			game				|all_source_engine_paths|hl2mp			
+			game				|all_source_engine_paths|hl2			
+			platform			|all_source_engine_paths|platform			
+			game				|all_source_engine_paths|sourcetest
+			
+			//TF2-HL1/HL2 COOP -- Leave EP1/EP2 stuff out until it's ready.
+			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_sound_vo_english.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_pak.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/ep2"
+			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_sound_vo_english.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_pak.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/episodic"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_sound_vo_english.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_pak.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_sound_vo_english.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_pak.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_textures.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_sound_misc.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_misc.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl2"
+			game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/hl1_hd_pak.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/"
+			game				"|all_source_engine_paths|../Half-Life 2/hl1/hl1_pak.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/hl1/"
+		}	
+	}	
+}

@@ -1,0 +1,2 @@
+This is not meant to be installed as it's own SourceMod, this is meant to be installed of on top of your TF2C install.
+Make a back-up of the original TF2C bin folder before installing this.

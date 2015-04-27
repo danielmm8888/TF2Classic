@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	"$envmap" "models/player/PLAYER_Chrome1"
+	"$surfaceprop" "metal"
+	"$envmapsaturation" 0
+	"$envmapcontrast" 0
+
+	"VertexLitGeneric_HDR_DX9"
+	{
+		"$envmap" "env_cubemap"
+	}
+}

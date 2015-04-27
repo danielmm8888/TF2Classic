@@ -1,0 +1,12 @@
+"VertexLitGeneric"
+{
+	"$envmap" "models/hassassin/lens_chrome"
+	//"$basealphaenvmapmask" 1
+	"$envmapsaturation" 1
+	"$envmapcontrast" 0
+
+	"VertexLitGeneric_HDR_DX9"
+	{
+		"$envmap" "env_cubemap"
+	}
+}
