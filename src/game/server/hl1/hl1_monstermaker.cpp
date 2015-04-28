@@ -12,7 +12,7 @@
 #include "mapentities.h"
 
 
-BEGIN_DATADESC( CNPCMakerHL1 )
+BEGIN_DATADESC( CHL1NPCMaker )
 
 	DEFINE_KEYFIELD( m_iMaxNumNPCs,			FIELD_INTEGER,	"monstercount" ),
 	DEFINE_KEYFIELD( m_iMaxLiveChildren,		FIELD_INTEGER,	"MaxLiveChildren" ),
@@ -38,13 +38,13 @@ BEGIN_DATADESC( CNPCMakerHL1 )
 END_DATADESC()
 
 
-LINK_ENTITY_TO_CLASS( monstermaker, CNPCMakerHL1 );
+LINK_ENTITY_TO_CLASS( monstermaker, CHL1NPCMaker );
 
 
 //-----------------------------------------------------------------------------
 // Purpose: Spawn
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::Spawn( void )
+void CHL1NPCMaker::Spawn( void )
 {
 	SetSolid( SOLID_NONE );
 	m_cLiveChildren		= 0;
@@ -59,7 +59,7 @@ void CNPCMakerHL1::Spawn( void )
 	//Start on?
 	if ( m_bDisabled == false )
 	{
-		SetThink ( &CNPCMakerHL1::MakerThink );
+		SetThink ( &CHL1NPCMaker::MakerThink );
 		SetNextThink( gpGlobals->curtime + m_flSpawnFrequency );
 	}
 	else
@@ -74,7 +74,7 @@ void CNPCMakerHL1::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: Returns whether or not it is OK to make an NPC at this instant.
 //-----------------------------------------------------------------------------
-bool CNPCMakerHL1::CanMakeNPC( void )
+bool CHL1NPCMaker::CanMakeNPC( void )
 {
 	if ( m_iMaxLiveChildren > 0 && m_cLiveChildren >= m_iMaxLiveChildren )
 	{// not allowed to make a new one yet. Too many live ones out right now.
@@ -126,7 +126,7 @@ bool CNPCMakerHL1::CanMakeNPC( void )
 // Purpose: If this had a finite number of children, return true if they've all
 //			been created.
 //-----------------------------------------------------------------------------
-bool CNPCMakerHL1::IsDepleted()
+bool CHL1NPCMaker::IsDepleted()
 {
 	if ( (m_spawnflags & SF_NPCMakerHL1_INF_CHILD) || m_iMaxNumNPCs > 0 )
 		return false;
@@ -138,7 +138,7 @@ bool CNPCMakerHL1::IsDepleted()
 //-----------------------------------------------------------------------------
 // Purpose: Toggle the spawner's state
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::Toggle( void )
+void CHL1NPCMaker::Toggle( void )
 {
 	if ( m_bDisabled )
 	{
@@ -154,14 +154,14 @@ void CNPCMakerHL1::Toggle( void )
 //-----------------------------------------------------------------------------
 // Purpose: Start the spawner
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::Enable( void )
+void CHL1NPCMaker::Enable( void )
 {
 	// can't be enabled once depleted
 	if ( IsDepleted() )
 		return;
 
 	m_bDisabled = false;
-	SetThink ( &CNPCMakerHL1::MakerThink );
+	SetThink ( &CHL1NPCMaker::MakerThink );
 	SetNextThink( gpGlobals->curtime );
 }
 
@@ -169,7 +169,7 @@ void CNPCMakerHL1::Enable( void )
 //-----------------------------------------------------------------------------
 // Purpose: Stop the spawner
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::Disable( void )
+void CHL1NPCMaker::Disable( void )
 {
 	m_bDisabled = true;
 	SetThink ( NULL );
@@ -179,7 +179,7 @@ void CNPCMakerHL1::Disable( void )
 //-----------------------------------------------------------------------------
 // Purpose: Input handler that spawns an NPC.
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::InputSpawnNPC( inputdata_t &inputdata )
+void CHL1NPCMaker::InputSpawnNPC( inputdata_t &inputdata )
 {
 	MakeNPC();
 }
@@ -188,7 +188,7 @@ void CNPCMakerHL1::InputSpawnNPC( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: Input hander that starts the spawner
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::InputEnable( inputdata_t &inputdata )
+void CHL1NPCMaker::InputEnable( inputdata_t &inputdata )
 {
 	Enable();
 }
@@ -197,7 +197,7 @@ void CNPCMakerHL1::InputEnable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: Input hander that stops the spawner
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::InputDisable( inputdata_t &inputdata )
+void CHL1NPCMaker::InputDisable( inputdata_t &inputdata )
 {
 	Disable();
 }
@@ -206,7 +206,7 @@ void CNPCMakerHL1::InputDisable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: Input hander that toggles the spawner
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::InputToggle( inputdata_t &inputdata )
+void CHL1NPCMaker::InputToggle( inputdata_t &inputdata )
 {
 	Toggle();
 }
@@ -215,7 +215,7 @@ void CNPCMakerHL1::InputToggle( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: Precache the target NPC
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::Precache( void )
+void CHL1NPCMaker::Precache( void )
 {
 	BaseClass::Precache();
 	UTIL_PrecacheOther( STRING( m_iszNPCClassname ) );
@@ -225,7 +225,7 @@ void CNPCMakerHL1::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: Creates the NPC.
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::MakeNPC( void )
+void CHL1NPCMaker::MakeNPC( void )
 {
 	if (!CanMakeNPC())
 	{
@@ -275,7 +275,7 @@ void CNPCMakerHL1::MakeNPC( void )
 //-----------------------------------------------------------------------------
 // Purpose: Creates a new NPC every so often.
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::MakerThink ( void )
+void CHL1NPCMaker::MakerThink ( void )
 {
 	SetNextThink( gpGlobals->curtime + m_flSpawnFrequency );
 
@@ -287,7 +287,7 @@ void CNPCMakerHL1::MakerThink ( void )
 // Purpose: 
 // Input  : *pVictim - 
 //-----------------------------------------------------------------------------
-void CNPCMakerHL1::DeathNotice( CBaseEntity *pVictim )
+void CHL1NPCMaker::DeathNotice( CBaseEntity *pVictim )
 {
 	// ok, we've gotten the deathnotice from our child, now clear out its owner if we don't want it to fade.
 	m_cLiveChildren--;

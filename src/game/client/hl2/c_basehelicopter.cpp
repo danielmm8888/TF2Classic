@@ -24,12 +24,12 @@ C_BaseHelicopter::C_BaseHelicopter()
 }
 
 #ifdef TF_CLASSIC_CLIENT
-IMPLEMENT_CLIENTCLASS_DT(C_BaseHelicopterHL1, DT_BaseHelicopterHL1, CBaseHelicopterHL1)
+IMPLEMENT_CLIENTCLASS_DT(C_HL1BaseHelicopter, DT_HL1BaseHelicopter, CHL1BaseHelicopter)
 RecvPropTime(RECVINFO(m_flStartupTime)),
 END_RECV_TABLE()
 
 
-C_BaseHelicopterHL1::C_BaseHelicopterHL1()
+C_HL1BaseHelicopter::C_HL1BaseHelicopter()
 {
 }
 #endif

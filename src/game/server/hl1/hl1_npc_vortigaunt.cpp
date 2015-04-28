@@ -41,9 +41,9 @@ ConVar	sk_islave_dmg_claw( "sk_islave_dmg_claw","10");
 ConVar	sk_islave_dmg_clawrake( "sk_islave_dmg_clawrake","25");
 ConVar	sk_islave_dmg_zap( "sk_islave_dmg_zap","10");
 
-LINK_ENTITY_TO_CLASS( monster_alien_slave, CNPC_VortigauntHL1 );
+LINK_ENTITY_TO_CLASS( monster_alien_slave, CNPC_HL1Vortigaunt );
 
-BEGIN_DATADESC( CNPC_VortigauntHL1 )
+BEGIN_DATADESC( CNPC_HL1Vortigaunt )
 	DEFINE_FIELD( m_iBravery, FIELD_INTEGER ),
 	DEFINE_ARRAY( m_pBeam, FIELD_CLASSPTR, VORTIGAUNT_MAX_BEAMS ),
 	DEFINE_FIELD( m_iBeams, FIELD_INTEGER ),
@@ -62,7 +62,7 @@ enum
 //=========================================================
 // Spawn
 //=========================================================
-void CNPC_VortigauntHL1::Spawn()
+void CNPC_HL1Vortigaunt::Spawn()
 {
 	Precache( );
 
@@ -104,7 +104,7 @@ void CNPC_VortigauntHL1::Spawn()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CNPC_VortigauntHL1::Precache()
+void CNPC_HL1Vortigaunt::Precache()
 {
 	BaseClass::Precache();
 
@@ -119,7 +119,7 @@ void CNPC_VortigauntHL1::Precache()
 	PrecacheScriptSound( "Vortigaunt.ZapShoot" );
 }
 
-Disposition_t CNPC_VortigauntHL1::IRelationType ( CBaseEntity *pTarget )
+Disposition_t CNPC_HL1Vortigaunt::IRelationType ( CBaseEntity *pTarget )
 {
 	if ( (pTarget->IsPlayer()) )
 	{
@@ -135,12 +135,12 @@ Disposition_t CNPC_VortigauntHL1::IRelationType ( CBaseEntity *pTarget )
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-Class_T	CNPC_VortigauntHL1::Classify ( void )
+Class_T	CNPC_HL1Vortigaunt::Classify ( void )
 {
 	return	CLASS_ALIEN_MILITARY;
 }
 
-void CNPC_VortigauntHL1::CallForHelp( char *szClassname, float flDist, CBaseEntity * pEnemy, Vector &vecLocation )
+void CNPC_HL1Vortigaunt::CallForHelp( char *szClassname, float flDist, CBaseEntity * pEnemy, Vector &vecLocation )
 {
 	// ALERT( at_aiconsole, "help " );
 
@@ -165,7 +165,7 @@ void CNPC_VortigauntHL1::CallForHelp( char *szClassname, float flDist, CBaseEnti
 //=========================================================
 // ALertSound - scream
 //=========================================================
-void CNPC_VortigauntHL1::AlertSound( void )
+void CNPC_HL1Vortigaunt::AlertSound( void )
 {
 	if ( GetEnemy() != NULL )
 	{
@@ -179,7 +179,7 @@ void CNPC_VortigauntHL1::AlertSound( void )
 //=========================================================
 // IdleSound
 //=========================================================
-void CNPC_VortigauntHL1::IdleSound( void )
+void CNPC_HL1Vortigaunt::IdleSound( void )
 {
 	if ( random->RandomInt( 0, 2 ) == 0)
 	  	 SENTENCEG_PlayRndSz( edict(), "SLV_IDLE", 0.85, SNDLVL_NORM, 0, m_iVoicePitch);
@@ -188,7 +188,7 @@ void CNPC_VortigauntHL1::IdleSound( void )
 //=========================================================
 // PainSound
 //=========================================================
-void CNPC_VortigauntHL1::PainSound( const CTakeDamageInfo &info )
+void CNPC_HL1Vortigaunt::PainSound( const CTakeDamageInfo &info )
 {
 	if ( random->RandomInt( 0, 2 ) == 0)
 	{
@@ -209,7 +209,7 @@ void CNPC_VortigauntHL1::PainSound( const CTakeDamageInfo &info )
 // DieSound
 //=========================================================
 
-void CNPC_VortigauntHL1::DeathSound( const CTakeDamageInfo &info )
+void CNPC_HL1Vortigaunt::DeathSound( const CTakeDamageInfo &info )
 {
 	CPASAttenuationFilter filter( this );
 	CSoundParameters params;
@@ -222,7 +222,7 @@ void CNPC_VortigauntHL1::DeathSound( const CTakeDamageInfo &info )
 	}
 }
 
-int CNPC_VortigauntHL1::GetSoundInterests ( void )
+int CNPC_HL1Vortigaunt::GetSoundInterests ( void )
 {
 	return	SOUND_WORLD	|
 			SOUND_COMBAT	|
@@ -230,7 +230,7 @@ int CNPC_VortigauntHL1::GetSoundInterests ( void )
 			SOUND_PLAYER;
 }
 
-void CNPC_VortigauntHL1::Event_Killed( const CTakeDamageInfo &info )
+void CNPC_HL1Vortigaunt::Event_Killed( const CTakeDamageInfo &info )
 {
 	ClearBeams( );
 	BaseClass::Event_Killed( info );
@@ -240,7 +240,7 @@ void CNPC_VortigauntHL1::Event_Killed( const CTakeDamageInfo &info )
 // SetYawSpeed - allows each sequence to have a different
 // turn rate associated with it.
 //=========================================================
-float CNPC_VortigauntHL1::MaxYawSpeed ( void )
+float CNPC_HL1Vortigaunt::MaxYawSpeed ( void )
 {
 	float flYS;
 
@@ -269,7 +269,7 @@ float CNPC_VortigauntHL1::MaxYawSpeed ( void )
 //
 // Returns number of events handled, 0 if none.
 //=========================================================
-void CNPC_VortigauntHL1::HandleAnimEvent( animevent_t *pEvent )
+void CNPC_HL1Vortigaunt::HandleAnimEvent( animevent_t *pEvent )
 {
 	// ALERT( at_console, "event %d : %f\n", pEvent->event, pev->frame );
 	switch( pEvent->event )
@@ -431,7 +431,7 @@ void CNPC_VortigauntHL1::HandleAnimEvent( animevent_t *pEvent )
 // Input   :
 // Output  :
 //------------------------------------------------------------------------------
-int CNPC_VortigauntHL1::RangeAttack1Conditions( float flDot, float flDist )
+int CNPC_HL1Vortigaunt::RangeAttack1Conditions( float flDot, float flDist )
 {
 	if ( GetEnemy() == NULL )
 		 return( COND_LOST_ENEMY );
@@ -446,7 +446,7 @@ int CNPC_VortigauntHL1::RangeAttack1Conditions( float flDot, float flDist )
 }
 
 
-void CNPC_VortigauntHL1::StartTask( const Task_t *pTask )
+void CNPC_HL1Vortigaunt::StartTask( const Task_t *pTask )
 {
 	ClearBeams();
 	BaseClass::StartTask( pTask );
@@ -456,7 +456,7 @@ void CNPC_VortigauntHL1::StartTask( const Task_t *pTask )
 // TakeDamage - get provoked when injured
 //=========================================================
 
-int CNPC_VortigauntHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
+int CNPC_HL1Vortigaunt::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 {
 	// don't slash one of your own
 	if ( ( inputInfo.GetDamageType() & DMG_SLASH ) && inputInfo.GetAttacker() && IRelationType( inputInfo.GetAttacker() ) == D_NU )
@@ -468,7 +468,7 @@ int CNPC_VortigauntHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 }
 
 
-void CNPC_VortigauntHL1::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
+void CNPC_HL1Vortigaunt::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
 {
 	if ( info.GetDamageType() & DMG_SHOCK )
 		 return;
@@ -478,7 +478,7 @@ void CNPC_VortigauntHL1::TraceAttack( const CTakeDamageInfo &info, const Vector 
 
 //=========================================================
 //=========================================================
-int CNPC_VortigauntHL1::SelectSchedule( void )
+int CNPC_HL1Vortigaunt::SelectSchedule( void )
 {
 	ClearBeams();
 
@@ -511,7 +511,7 @@ int CNPC_VortigauntHL1::SelectSchedule( void )
 	return BaseClass::SelectSchedule( );
 }
 
-int CNPC_VortigauntHL1::TranslateSchedule( int scheduleType )
+int CNPC_HL1Vortigaunt::TranslateSchedule( int scheduleType )
 {
 	//Oops can't get to my enemy.
 	if ( scheduleType == SCHED_CHASE_ENEMY_FAILED )
@@ -550,7 +550,7 @@ int CNPC_VortigauntHL1::TranslateSchedule( int scheduleType )
 //=========================================================
 // ArmBeam - small beam from arm to nearby geometry
 //=========================================================
-void CNPC_VortigauntHL1::ArmBeam( int side )
+void CNPC_HL1Vortigaunt::ArmBeam( int side )
 {
 	trace_t tr;
 	float flDist = 1.0;
@@ -609,7 +609,7 @@ void CNPC_VortigauntHL1::ArmBeam( int side )
 //=========================================================
 // BeamGlow - brighten all beams
 //=========================================================
-void CNPC_VortigauntHL1::BeamGlow( )
+void CNPC_HL1Vortigaunt::BeamGlow( )
 {
 	int b = m_iBeams * 32;
 	
@@ -629,7 +629,7 @@ void CNPC_VortigauntHL1::BeamGlow( )
 //=========================================================
 // WackBeam - regenerate dead colleagues
 //=========================================================
-void CNPC_VortigauntHL1::WackBeam( int side, CBaseEntity *pEntity )
+void CNPC_HL1Vortigaunt::WackBeam( int side, CBaseEntity *pEntity )
 {
 	Vector vecDest;
 	
@@ -655,7 +655,7 @@ void CNPC_VortigauntHL1::WackBeam( int side, CBaseEntity *pEntity )
 //=========================================================
 // ZapBeam - heavy damage directly forward
 //=========================================================
-void CNPC_VortigauntHL1::ZapBeam( int side )
+void CNPC_HL1Vortigaunt::ZapBeam( int side )
 {
 	Vector vecSrc, vecAim;
 	trace_t tr;
@@ -698,7 +698,7 @@ void CNPC_VortigauntHL1::ZapBeam( int side )
 //=========================================================
 // ClearBeams - remove all beams
 //=========================================================
-void CNPC_VortigauntHL1::ClearBeams( )
+void CNPC_HL1Vortigaunt::ClearBeams( )
 {
 	for (int i = 0; i < VORTIGAUNT_MAX_BEAMS; i++)
 	{
@@ -720,7 +720,7 @@ void CNPC_VortigauntHL1::ClearBeams( )
 //
 //------------------------------------------------------------------------------
 
-AI_BEGIN_CUSTOM_NPC( monster_alien_slave, CNPC_VortigauntHL1 )
+AI_BEGIN_CUSTOM_NPC( monster_alien_slave, CNPC_HL1Vortigaunt )
 
 	//=========================================================
 	// > SCHED_VORTIGAUNT_ATTACK

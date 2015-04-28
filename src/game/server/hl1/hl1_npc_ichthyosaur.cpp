@@ -57,9 +57,9 @@ enum
 };
 
 
-LINK_ENTITY_TO_CLASS( monster_ichthyosaur, CNPC_IchthyosaurHL1 );
+LINK_ENTITY_TO_CLASS( monster_ichthyosaur, CNPC_HL1Ichthyosaur );
 
-BEGIN_DATADESC( CNPC_IchthyosaurHL1 )
+BEGIN_DATADESC( CNPC_HL1Ichthyosaur )
 
 	// Function Pointers
 	DEFINE_ENTITYFUNC( BiteTouch ),
@@ -89,7 +89,7 @@ END_DATADESC()
 //=========================================================
 
 
-AI_BEGIN_CUSTOM_NPC( monster_ichthyosaur, CNPC_IchthyosaurHL1 )
+AI_BEGIN_CUSTOM_NPC( monster_ichthyosaur, CNPC_HL1Ichthyosaur )
 
 DECLARE_TASK ( TASK_ICHTHYOSAUR_SWIM )
 DECLARE_TASK ( TASK_ICHTHYOSAUR_CIRCLE_ENEMY )
@@ -166,7 +166,7 @@ AI_END_CUSTOM_NPC()
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CNPC_IchthyosaurHL1::Precache()
+void CNPC_HL1Ichthyosaur::Precache()
 {
 	PrecacheModel("models/icky.mdl");
 
@@ -185,7 +185,7 @@ void CNPC_IchthyosaurHL1::Precache()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CNPC_IchthyosaurHL1::Spawn( void )
+void CNPC_HL1Ichthyosaur::Spawn( void )
 {
 	Precache( );
 
@@ -221,7 +221,7 @@ void CNPC_IchthyosaurHL1::Spawn( void )
 	SetDistLook( 1024 );
 
 	
-	SetTouch( &CNPC_IchthyosaurHL1::BiteTouch );
+	SetTouch( &CNPC_HL1Ichthyosaur::BiteTouch );
 
 	m_idealDist = 384;
 	m_flMinSpeed = 80;
@@ -246,7 +246,7 @@ void CNPC_IchthyosaurHL1::Spawn( void )
 
 //=========================================================
 //=========================================================
-int CNPC_IchthyosaurHL1::TranslateSchedule( int scheduleType )
+int CNPC_HL1Ichthyosaur::TranslateSchedule( int scheduleType )
 {
 	switch	( scheduleType )
 	{
@@ -272,7 +272,7 @@ int CNPC_IchthyosaurHL1::TranslateSchedule( int scheduleType )
 	return BaseClass::TranslateSchedule( scheduleType );
 }
 
-int CNPC_IchthyosaurHL1::SelectSchedule()
+int CNPC_HL1Ichthyosaur::SelectSchedule()
 {
 	switch(m_NPCState)
 	{
@@ -318,7 +318,7 @@ int CNPC_IchthyosaurHL1::SelectSchedule()
 }
 
 
-bool CNPC_IchthyosaurHL1::OverrideMove( float flInterval )
+bool CNPC_HL1Ichthyosaur::OverrideMove( float flInterval )
 {
 	if ( m_lifeState == LIFE_ALIVE )
 	{
@@ -334,7 +334,7 @@ bool CNPC_IchthyosaurHL1::OverrideMove( float flInterval )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CNPC_IchthyosaurHL1::MoveExecute_Alive(float flInterval)
+void CNPC_HL1Ichthyosaur::MoveExecute_Alive(float flInterval)
 {
 	Vector vStart = GetAbsOrigin();
 	Vector vForward, vRight, vUp;
@@ -519,12 +519,12 @@ void CNPC_IchthyosaurHL1::MoveExecute_Alive(float flInterval)
 	SetAbsVelocity( m_SaveVelocity );
 }
 
-void CNPC_IchthyosaurHL1::InputStartCombat( inputdata_t &input )
+void CNPC_HL1Ichthyosaur::InputStartCombat( inputdata_t &input )
 {
 	m_bOnAttack = true;
 }
 
-void CNPC_IchthyosaurHL1::InputEndCombat( inputdata_t &input )
+void CNPC_HL1Ichthyosaur::InputEndCombat( inputdata_t &input )
 {
 	m_bOnAttack = false;
 }
@@ -534,7 +534,7 @@ void CNPC_IchthyosaurHL1::InputEndCombat( inputdata_t &input )
 // any necessary calculations to start the next task on the
 // schedule.
 //=========================================================
-void CNPC_IchthyosaurHL1::StartTask(const Task_t *pTask)
+void CNPC_HL1Ichthyosaur::StartTask(const Task_t *pTask)
 {
 	switch (pTask->iTask)
 	{
@@ -566,7 +566,7 @@ void CNPC_IchthyosaurHL1::StartTask(const Task_t *pTask)
 	}
 }
 
-void CNPC_IchthyosaurHL1::RunTask(const Task_t *pTask )
+void CNPC_HL1Ichthyosaur::RunTask(const Task_t *pTask )
 {
 	QAngle angles = GetAbsAngles();
 
@@ -699,7 +699,7 @@ void CNPC_IchthyosaurHL1::RunTask(const Task_t *pTask )
 //			flDist - 
 // Output : int
 //-----------------------------------------------------------------------------
-int CNPC_IchthyosaurHL1::MeleeAttack1Conditions( float flDot, float flDist )
+int CNPC_HL1Ichthyosaur::MeleeAttack1Conditions( float flDot, float flDist )
 {
 	// Enemy must be submerged with us
 	if ( GetEnemy() && GetEnemy()->GetWaterLevel() != GetWaterLevel() )
@@ -725,7 +725,7 @@ int CNPC_IchthyosaurHL1::MeleeAttack1Conditions( float flDot, float flDist )
 //=========================================================
 // RangeAttack1Conditions
 //=========================================================
-int CNPC_IchthyosaurHL1::RangeAttack1Conditions( float flDot, float flDist )
+int CNPC_HL1Ichthyosaur::RangeAttack1Conditions( float flDot, float flDist )
 {
 	CBaseEntity *pEnemy = GetEnemy();
 	
@@ -742,7 +742,7 @@ int CNPC_IchthyosaurHL1::RangeAttack1Conditions( float flDot, float flDist )
 	return COND_NONE;
 }
 
-void CNPC_IchthyosaurHL1::BiteTouch( CBaseEntity *pOther )
+void CNPC_HL1Ichthyosaur::BiteTouch( CBaseEntity *pOther )
 {
 	// bite if we hit who we want to eat
 	if ( pOther == GetEnemy() ) 
@@ -759,7 +759,7 @@ void CNPC_IchthyosaurHL1::BiteTouch( CBaseEntity *pOther )
 // HandleAnimEvent - catches the monster-specific messages
 // that occur when tagged animation frames are played.
 //=========================================================
-void CNPC_IchthyosaurHL1::HandleAnimEvent( animevent_t *pEvent )
+void CNPC_HL1Ichthyosaur::HandleAnimEvent( animevent_t *pEvent )
 {
 	int bDidAttack = FALSE;
 	Vector vForward, vRight;
@@ -824,12 +824,12 @@ void CNPC_IchthyosaurHL1::HandleAnimEvent( animevent_t *pEvent )
 // Classify - indicates this monster's place in the 
 // relationship table.
 //=========================================================
-Class_T CNPC_IchthyosaurHL1::Classify ( void )
+Class_T CNPC_HL1Ichthyosaur::Classify ( void )
 {
 	return	CLASS_ALIEN_MONSTER;
 }
 
-void CNPC_IchthyosaurHL1::NPCThink ( void )
+void CNPC_HL1Ichthyosaur::NPCThink ( void )
 {
 	// blink the eye
 	if (m_flBlink < gpGlobals->curtime)
@@ -852,7 +852,7 @@ void CNPC_IchthyosaurHL1::NPCThink ( void )
 // Purpose: 
 // Output : speed to move at
 //-----------------------------------------------------------------------------
-float CNPC_IchthyosaurHL1::GetGroundSpeed( void )
+float CNPC_HL1Ichthyosaur::GetGroundSpeed( void )
 {
 	if ( GetIdealActivity() == ACT_GLIDE )
 		return ICH_SWIM_SPEED_WALK;
@@ -860,7 +860,7 @@ float CNPC_IchthyosaurHL1::GetGroundSpeed( void )
 	return ICH_SWIM_SPEED_RUN;
 }
 
-Vector CNPC_IchthyosaurHL1::DoProbe( const Vector &Probe )
+Vector CNPC_HL1Ichthyosaur::DoProbe( const Vector &Probe )
 {
 	Vector WallNormal = Vector(0,0,-1); // WATER normal is Straight Down for fish.
 	float frac = 1.0;
@@ -911,7 +911,7 @@ Vector CNPC_IchthyosaurHL1::DoProbe( const Vector &Probe )
 	return Vector(0, 0, 0);
 }
 
-bool CNPC_IchthyosaurHL1::ProbeZ( const Vector &position, const Vector &probe, float *pFraction)
+bool CNPC_HL1Ichthyosaur::ProbeZ( const Vector &position, const Vector &probe, float *pFraction)
 {
 	int iPositionContents = UTIL_PointContents( position );
 	int iProbeContents = UTIL_PointContents( position );
@@ -960,7 +960,7 @@ bool CNPC_IchthyosaurHL1::ProbeZ( const Vector &position, const Vector &probe, f
 // Input  : *pEntity - 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CNPC_IchthyosaurHL1::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEntity **ppBlocker )
+bool CNPC_HL1Ichthyosaur::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEntity **ppBlocker )
 {
 	// Can't see entities that aren't in water
 	if ( pEntity->GetWaterLevel() < 1 )
@@ -969,44 +969,44 @@ bool CNPC_IchthyosaurHL1::FVisible( CBaseEntity *pEntity, int traceMask, CBaseEn
 	return BaseClass::FVisible( pEntity, traceMask, ppBlocker );
 }
 
-void CNPC_IchthyosaurHL1::IdleSound( void )	
+void CNPC_HL1Ichthyosaur::IdleSound( void )	
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Idle" );
 }
 
-void CNPC_IchthyosaurHL1::AlertSound( void ) 
+void CNPC_HL1Ichthyosaur::AlertSound( void ) 
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Alert" );
 }
 
-void CNPC_IchthyosaurHL1::AttackSound( void ) 
+void CNPC_HL1Ichthyosaur::AttackSound( void ) 
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Attack" );
 }
 
-void CNPC_IchthyosaurHL1::BiteSound( void ) 
+void CNPC_HL1Ichthyosaur::BiteSound( void ) 
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Bite" );
 }
 
-void CNPC_IchthyosaurHL1::DeathSound( const CTakeDamageInfo &info ) 
+void CNPC_HL1Ichthyosaur::DeathSound( const CTakeDamageInfo &info ) 
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Die" );
 }
 
-void CNPC_IchthyosaurHL1::PainSound( const CTakeDamageInfo &info )	
+void CNPC_HL1Ichthyosaur::PainSound( const CTakeDamageInfo &info )	
 { 
 	CPASAttenuationFilter filter( this );
 	EmitSound( filter, entindex(), "Ichthyosaur.Pain" );
 }
 
 //-----------------------------------------------------------------------------
-void CNPC_IchthyosaurHL1::GatherEnemyConditions( CBaseEntity *pEnemy )
+void CNPC_HL1Ichthyosaur::GatherEnemyConditions( CBaseEntity *pEnemy )
 {
 	// Do the base class
 	BaseClass::GatherEnemyConditions( pEnemy );

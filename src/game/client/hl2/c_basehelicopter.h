@@ -30,18 +30,18 @@ private:
 };
 
 #ifdef TF_CLASSIC_CLIENT
-class C_BaseHelicopterHL1 : public C_AI_BaseNPC
+class C_HL1BaseHelicopter : public C_AI_BaseNPC
 {
 public:
-	DECLARE_CLASS(C_BaseHelicopterHL1, C_AI_BaseNPC);
+	DECLARE_CLASS(C_HL1BaseHelicopter, C_AI_BaseNPC);
 	DECLARE_CLIENTCLASS();
 
-	C_BaseHelicopterHL1();
+	C_HL1BaseHelicopter();
 
 	float StartupTime() const { return m_flStartupTime; }
 
 private:
-	C_BaseHelicopterHL1(const C_BaseHelicopterHL1 &other) {}
+	C_HL1BaseHelicopter(const C_HL1BaseHelicopter &other) {}
 	float m_flStartupTime;
 };
 #endif // TF_CLASSIC_CLIENT

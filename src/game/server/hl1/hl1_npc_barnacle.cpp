@@ -33,19 +33,19 @@ int	g_interactionBarnacleVictimDangle	= 0;
 int	g_interactionBarnacleVictimReleased	= 0;
 int	g_interactionBarnacleVictimGrab		= 0;
 
-LINK_ENTITY_TO_CLASS( monster_barnacle, CNPC_BarnacleHL1 );
-IMPLEMENT_CUSTOM_AI( monster_barnacle, CNPC_BarnacleHL1 );
+LINK_ENTITY_TO_CLASS( monster_barnacle, CNPC_HL1Barnacle );
+IMPLEMENT_CUSTOM_AI( monster_barnacle, CNPC_HL1Barnacle );
 
 //-----------------------------------------------------------------------------
 // Purpose: Initialize the custom schedules
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-void CNPC_BarnacleHL1::InitCustomSchedules(void) 
+void CNPC_HL1Barnacle::InitCustomSchedules(void) 
 {
-	INIT_CUSTOM_AI(CNPC_BarnacleHL1);
+	INIT_CUSTOM_AI(CNPC_HL1Barnacle);
 
-	ADD_CUSTOM_ACTIVITY(CNPC_BarnacleHL1, ACT_EAT);
+	ADD_CUSTOM_ACTIVITY(CNPC_HL1Barnacle, ACT_EAT);
 
 	g_interactionBarnacleVictimDangle	= CBaseCombatCharacter::GetInteractionID();
 	g_interactionBarnacleVictimReleased	= CBaseCombatCharacter::GetInteractionID();
@@ -53,7 +53,7 @@ void CNPC_BarnacleHL1::InitCustomSchedules(void)
 }
 
 
-BEGIN_DATADESC( CNPC_BarnacleHL1 )
+BEGIN_DATADESC( CNPC_HL1Barnacle )
 
 	DEFINE_FIELD( m_flAltitude, FIELD_FLOAT ),
 	DEFINE_FIELD( m_flKillVictimTime, FIELD_TIME ),
@@ -72,7 +72,7 @@ END_DATADESC()
 // Classify - indicates this monster's place in the 
 // relationship table.
 //=========================================================
-Class_T	CNPC_BarnacleHL1::Classify ( void )
+Class_T	CNPC_HL1Barnacle::Classify ( void )
 {
 	return	CLASS_ALIEN_MONSTER;
 }
@@ -83,7 +83,7 @@ Class_T	CNPC_BarnacleHL1::Classify ( void )
 //
 // Returns number of events handled, 0 if none.
 //=========================================================
-void CNPC_BarnacleHL1::HandleAnimEvent( animevent_t *pEvent )
+void CNPC_HL1Barnacle::HandleAnimEvent( animevent_t *pEvent )
 {
 	switch( pEvent->event )
 	{
@@ -99,7 +99,7 @@ void CNPC_BarnacleHL1::HandleAnimEvent( animevent_t *pEvent )
 //=========================================================
 // Spawn
 //=========================================================
-void CNPC_BarnacleHL1::Spawn()
+void CNPC_HL1Barnacle::Spawn()
 {
 	Precache( );
 
@@ -126,7 +126,7 @@ void CNPC_BarnacleHL1::Spawn()
 
 	SetActivity ( ACT_IDLE );
 
-	SetThink ( &CNPC_BarnacleHL1::BarnacleThink );
+	SetThink ( &CNPC_HL1Barnacle::BarnacleThink );
 	SetNextThink( gpGlobals->curtime + 0.5f );
 	//Do not have a shadow
 	AddEffects( EF_NOSHADOW );
@@ -139,7 +139,7 @@ void CNPC_BarnacleHL1::Spawn()
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-int	CNPC_BarnacleHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
+int	CNPC_HL1Barnacle::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 {
 	CTakeDamageInfo info = inputInfo;
 	if ( info.GetDamageType() & DMG_CLUB )
@@ -155,7 +155,7 @@ int	CNPC_BarnacleHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-void CNPC_BarnacleHL1::InitTonguePosition( void )
+void CNPC_HL1Barnacle::InitTonguePosition( void )
 {
 	CBaseEntity *pTouchEnt;
 	float flLength;
@@ -174,7 +174,7 @@ void CNPC_BarnacleHL1::InitTonguePosition( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CNPC_BarnacleHL1::BarnacleThink ( void )
+void CNPC_HL1Barnacle::BarnacleThink ( void )
 {
 	CBaseEntity *pTouchEnt;
 	float flLength;
@@ -394,7 +394,7 @@ void CNPC_BarnacleHL1::BarnacleThink ( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CNPC_BarnacleHL1::Event_Killed( const CTakeDamageInfo &info )
+void CNPC_HL1Barnacle::Event_Killed( const CTakeDamageInfo &info )
 {
 	AddSolidFlags( FSOLID_NOT_SOLID );
 	m_takedamage		= DAMAGE_NO;
@@ -420,13 +420,13 @@ void CNPC_BarnacleHL1::Event_Killed( const CTakeDamageInfo &info )
 	StudioFrameAdvance();
 
 	SetNextThink( gpGlobals->curtime + 0.1f );
-	SetThink ( &CNPC_BarnacleHL1::WaitTillDead );
+	SetThink ( &CNPC_HL1Barnacle::WaitTillDead );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CNPC_BarnacleHL1::WaitTillDead ( void )
+void CNPC_HL1Barnacle::WaitTillDead ( void )
 {
 	SetNextThink( gpGlobals->curtime + 0.1f );
 
@@ -444,7 +444,7 @@ void CNPC_BarnacleHL1::WaitTillDead ( void )
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CNPC_BarnacleHL1::Precache()
+void CNPC_HL1Barnacle::Precache()
 {
 	PrecacheModel("models/barnaclehl1.mdl");
 
@@ -462,7 +462,7 @@ void CNPC_BarnacleHL1::Precache()
 // of the trace in the int pointer provided.
 //=========================================================
 #define BARNACLE_CHECK_SPACING	8
-CBaseEntity *CNPC_BarnacleHL1::TongueTouchEnt ( float *pflLength )
+CBaseEntity *CNPC_HL1Barnacle::TongueTouchEnt ( float *pflLength )
 {
 	trace_t		tr;
 	float		length;

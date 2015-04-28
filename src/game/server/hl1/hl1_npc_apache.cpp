@@ -39,9 +39,9 @@
 
 extern short g_sModelIndexFireball;
 
-class CNPC_Apache : public CBaseHelicopterHL1
+class CNPC_Apache : public CHL1BaseHelicopter
 {
-	DECLARE_CLASS( CNPC_Apache, CBaseHelicopterHL1 );
+	DECLARE_CLASS( CNPC_Apache, CHL1BaseHelicopter );
 public:
 	DECLARE_DATADESC();
 

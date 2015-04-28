@@ -34,10 +34,10 @@ enum HelicopterFlags_t
 //=========================================================
 //=========================================================
 #ifdef TF_CLASSIC
-class CBaseHelicopterHL1 : public CAI_BaseNPC
+class CHL1BaseHelicopter : public CAI_BaseNPC
 {
 public:
-	DECLARE_CLASS( CBaseHelicopterHL1, CAI_BaseNPC );
+	DECLARE_CLASS( CHL1BaseHelicopter, CAI_BaseNPC );
 #else
 class CBaseHelicopter : public CAI_BaseNPC
 {
