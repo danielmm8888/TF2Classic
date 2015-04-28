@@ -18,6 +18,9 @@
 #include "physics_saverestore.h"
 #include "vcollide_parse.h"
 #include "engine/IEngineSound.h"
+#ifndef HL1_DLL
+#include "ai_interactions.h"
+#endif
 
 ConVar	sk_barnaclehl1_health( "sk_barnaclehl1_health","25");
 
@@ -29,10 +32,11 @@ static int ACT_EAT = 0;
 //-----------------------------------------------------------------------------
 // Interactions
 //-----------------------------------------------------------------------------
+#ifdef HL1_DLL
 int	g_interactionBarnacleVictimDangle	= 0;
 int	g_interactionBarnacleVictimReleased	= 0;
 int	g_interactionBarnacleVictimGrab		= 0;
-
+#endif
 LINK_ENTITY_TO_CLASS( monster_barnacle, CNPC_HL1Barnacle );
 IMPLEMENT_CUSTOM_AI( monster_barnacle, CNPC_HL1Barnacle );
 
@@ -46,10 +50,11 @@ void CNPC_HL1Barnacle::InitCustomSchedules(void)
 	INIT_CUSTOM_AI(CNPC_HL1Barnacle);
 
 	ADD_CUSTOM_ACTIVITY(CNPC_HL1Barnacle, ACT_EAT);
-
+#ifdef HL1_DLL
 	g_interactionBarnacleVictimDangle	= CBaseCombatCharacter::GetInteractionID();
 	g_interactionBarnacleVictimReleased	= CBaseCombatCharacter::GetInteractionID();
 	g_interactionBarnacleVictimGrab		= CBaseCombatCharacter::GetInteractionID();	
+#endif
 }
 
 
