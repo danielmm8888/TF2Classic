@@ -6,7 +6,7 @@
 
 #include "cbase.h"
 
-#if TF_CLASSIC_CLIENT
+#if 0
 #include "mp3player.h"
 #include "KeyValues.h"
 #include "filesystem.h"
