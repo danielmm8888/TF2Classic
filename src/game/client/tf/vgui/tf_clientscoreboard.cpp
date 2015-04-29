@@ -190,7 +190,7 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	}
 	else
 	{
-		if (TFGameRules()->IsFourTeamGame())
+		if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
 			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, false);
 		}
