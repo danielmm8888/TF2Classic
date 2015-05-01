@@ -386,23 +386,30 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		int nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
 		SetModelIndex( nModelIndex );	
 
-		switch (m_iTeam)
+		if (TFGameRules()->IsDeathmatch())
 		{
+			m_nSkin = 8;
+		}
+		else
+		{
+			switch (m_iTeam)
+			{
 			case TF_TEAM_RED:
 				m_nSkin = 0;
 				break;
 
 			case TF_TEAM_BLUE:
 				m_nSkin = 1;
-					break;
+				break;
 
 			case TF_TEAM_GREEN:
 				m_nSkin = 4;
-					break;
+				break;
 
 			case TF_TEAM_YELLOW:
 				m_nSkin = 5;
-					break;
+				break;
+			}
 		}
 	}
 
@@ -1082,7 +1089,6 @@ public:
 	}
 	void OnBind(void *pC_BaseEntity)
 	{
-		m_pResult->SetIntValue(0);
 	}	
 };
 
@@ -3163,6 +3169,9 @@ int C_TFPlayer::GetSkin()
 	{
 		nSkin += 4 + ( ( m_Shared.GetDisguiseClass() - TF_FIRST_NORMAL_CLASS ) * 2 );
 	}
+
+	if (TFGameRules()->IsDeathmatch())
+		nSkin = 8;
 
 	return nSkin;
 }
