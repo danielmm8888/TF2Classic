@@ -181,14 +181,14 @@ void CWeaponKritzkrieg::Precache()
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
 	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
 	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
-	PrecacheParticleSystem( "medicgun_beam_red_invun" );
-	PrecacheParticleSystem( "medicgun_beam_red" );
-	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
-	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green_invun");
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow_invun");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+	PrecacheParticleSystem( "kritz_beam_blue" );
+	PrecacheParticleSystem( "kritz_beam_red" );
+	PrecacheParticleSystem( "kritz_beam_green" );
+	PrecacheParticleSystem( "kritz_beam_yellow" );
+	PrecacheParticleSystem( "kritz_beam_blue_invun" );
+	PrecacheParticleSystem( "kritz_beam_red_invun" );
+	PrecacheParticleSystem( "kritz_beam_green_invun" );
+	PrecacheParticleSystem( "kritz_beam_yellow_invun" );
 }
 
 //-----------------------------------------------------------------------------
@@ -1142,19 +1142,19 @@ void CWeaponKritzkrieg::UpdateEffects( void )
 			switch (GetTeamNumber())
 			{
 			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue_invun";
+				pszEffectName = "kritz_beam_blue_invun";
 				break;
 			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red_invun";
+				pszEffectName = "kritz_beam_red_invun";
 				break;
 			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green_invun";
+				pszEffectName = "kritz_beam_green_invun";
 				break;
 			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow_invun";
+				pszEffectName = "kritz_beam_yellow_invun";
 				break;
 			default:
-				pszEffectName = "medicgun_beam_blue";
+				pszEffectName = "kritz_beam_blue";
 				break;
 			}
 		}
@@ -1163,19 +1163,19 @@ void CWeaponKritzkrieg::UpdateEffects( void )
 			switch (GetTeamNumber())
 			{
 			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue";
+				pszEffectName = "kritz_beam_blue";
 				break;
 			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red";
+				pszEffectName = "kritz_beam_red";
 				break;
 			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green";
+				pszEffectName = "kritz_beam_green";
 				break;
 			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow";
+				pszEffectName = "kritz_beam_yellow";
 				break;
 			default:
-				pszEffectName = "medicgun_beam_blue";
+				pszEffectName = "kritz_beam_blue";
 				break;
 			}
 		}
