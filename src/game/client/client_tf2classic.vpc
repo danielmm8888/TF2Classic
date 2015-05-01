@@ -45,6 +45,8 @@ $Project "Client (TF)"
 		$File	"hud_base_account.h"
 		$File	"ver_panel.cpp"
 		$File	"ver_panel.h"
+		$File	"hud_vote.cpp"
+		$File	"hud_vote.h"
 		
 		$Folder	"game_controls"
 		{
