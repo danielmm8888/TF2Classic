@@ -126,7 +126,6 @@ void CTFStatsSummaryPanel::OnCommand(const char *command)
 		UpdateDialog();
 		SetVisible(false);
 		SetParent((VPANEL)NULL);
-		SetDefaultSelections();
 	}
 	else if (0 == Q_stricmp(command, "nexttip"))
 	{
@@ -183,8 +182,8 @@ static const char* const s_BackgroundsWidescreen[] = {
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::SetDefaultSelections()
 {
-	m_iSelectedClass = random->RandomInt(TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER); //TF_CLASS_UNDEFINED;
-	m_iSelectedBackground = random->RandomInt(1, ARRAYSIZE(s_Backgrounds));
+	m_iSelectedClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER ); //TF_CLASS_UNDEFINED;
+	m_iSelectedBackground = random->RandomInt( 1, ARRAYSIZE(s_Backgrounds) );
 }
 
 //-----------------------------------------------------------------------------
@@ -198,27 +197,6 @@ void CTFStatsSummaryPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	LoadControlSettings("Resource/UI/StatSummary.res");
 	m_bControlsLoaded = true;
 
-	// determine if we're in widescreen or not
-	int screenWide, screenTall;
-	surface()->GetScreenSize(screenWide, screenTall);
-	float aspectRatio = (float)screenWide / (float)screenTall;
-	bool bIsWidescreen = aspectRatio >= 1.6f;
-
-	// set the background image
-	ImagePanel *pImagePanel = dynamic_cast<ImagePanel *>(FindChildByName("MainBackground"));
-	if (pImagePanel)
-	{
-		pImagePanel->SetImage(bIsWidescreen ? s_BackgroundsWidescreen[m_iSelectedBackground - 1] : s_Backgrounds[m_iSelectedBackground - 1]);
-	}
-
-	// set the class image
-	ImagePanel *pImagePanelClassBackground = dynamic_cast<ImagePanel *>(FindChildByName("ClassBackground"));
-	if (pImagePanelClassBackground)
-	{
-		pImagePanelClassBackground->SetImage(bIsWidescreen ? s_ClassImagesWidescreen[m_iSelectedClass - 1] : s_ClassImages[m_iSelectedClass - 1]);
-	}
-
-	SetDefaultSelections();
 	UpdateDialog();
 	SetVisible(false);
 }
@@ -250,7 +228,7 @@ void CTFStatsSummaryPanel::ClearMapLabel()
 	SetDialogVariable("maptype", "");
 	SetDialogVariable("mapauthor", "");
 
-	vgui::Label *pMapAuthorLabel = dynamic_cast<Label *>(FindChildByName("MapAuthorLabel"));
+	vgui::Label *pMapAuthorLabel = dynamic_cast<Label *>( FindChildByName("MapAuthorLabel") );
 	if ( pMapAuthorLabel && pMapAuthorLabel->IsVisible() )
 		pMapAuthorLabel->SetVisible(false);
 }
@@ -286,10 +264,32 @@ void CTFStatsSummaryPanel::UpdateDialog()
 
 	ClearMapLabel();
 
+	// randomize the class and background
+	SetDefaultSelections();
 	// fill out class details
 	UpdateClassDetails();
 	// update the tip
 	UpdateTip();
+
+	// determine if we're in widescreen or not
+	int screenWide, screenTall;
+	surface()->GetScreenSize( screenWide, screenTall );
+	float aspectRatio = (float) screenWide / (float) screenTall;
+	bool bIsWidescreen = aspectRatio >= 1.6f;
+
+	// set the background image
+	ImagePanel *pImagePanel = dynamic_cast<ImagePanel *>( FindChildByName("MainBackground") );
+	if ( pImagePanel )
+	{
+		pImagePanel->SetImage( bIsWidescreen ? s_BackgroundsWidescreen[m_iSelectedBackground - 1] : s_Backgrounds[m_iSelectedBackground - 1] );
+	}
+
+	// set the class image
+	ImagePanel *pImagePanelClassBackground = dynamic_cast<ImagePanel *>( FindChildByName("ClassImage") );
+	if ( pImagePanelClassBackground )
+	{
+		pImagePanelClassBackground->SetImage( "../cable/white" ); // bIsWidescreen ? s_ClassImagesWidescreen[m_iSelectedClass - 1] : s_ClassImages[m_iSelectedClass - 1] );
+	}
 }
 
 #define MAKEFLAG(x)	( 1 << x )
@@ -308,6 +308,7 @@ void CTFStatsSummaryPanel::UpdateClassDetails()
 		const char* playtime = RenderValue(GetDisplayValue(m_aClassStats[i], TFSTAT_PLAYTIME, SHOW_TOTAL), TFSTAT_PLAYTIME, SHOW_TOTAL);
 
 		SetDialogVariable("playtime", playtime);
+		break;
 	}
 }
 
