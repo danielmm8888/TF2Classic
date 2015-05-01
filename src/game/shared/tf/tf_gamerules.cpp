@@ -3615,6 +3615,9 @@ const char *CTFGameRules::GetGameDescription(void)
 		case TF_GAMETYPE_DM:
 			return "TF2C (Deathmatch)";
 			break;
+		case TF_GAMETYPE_VIP:
+			return "TF2C (Hunted)";
+			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";
 			break;
