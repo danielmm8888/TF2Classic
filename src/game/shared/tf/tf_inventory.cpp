@@ -155,7 +155,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 				TF_WEAPON_SHOTGUN_HWG
 			},
 			{
-				TF_WEAPON_FISTS, TF_WEAPON_PIPE
+				TF_WEAPON_FISTS
 			}
 		},
 		{
