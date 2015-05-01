@@ -138,6 +138,8 @@ $Project "Server (TF)"
 			$File	"tf\tf_turret.h"	
 			$File	"tf\tf_weapon_builder.cpp"
 			$File	"tf\tf_weapon_builder.h"	
+			$File	"tf\entity_weaponspawn.cpp"
+			$File	"tf\entity_weaponspawn.h"
 			
 			$Folder	"Unused"
 			{
