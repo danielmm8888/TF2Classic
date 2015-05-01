@@ -6,6 +6,7 @@
 #include "entitylist.h"
 #include "util.h"
 #include "tf_obj.h"
+#include "tf_gamerules.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -89,8 +90,10 @@ bool CTFTeamManager::Init( void )
 	// Clear the list.
 	Shutdown();
 
+	int iTeamCount = TFGameRules()->IsFourTeamGame() ? 5 : 3;
+
 	// Create the team list.
-	for ( int iTeam = 0; iTeam < TF_TEAM_COUNT; ++iTeam )
+	for ( int iTeam = 0; iTeam <= iTeamCount; ++iTeam )
 	{
 		int index = Create( g_aTeamNames[iTeam], g_aTeamColors[iTeam] );
 		Assert( index == iTeam );

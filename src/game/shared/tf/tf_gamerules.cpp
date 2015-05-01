@@ -43,6 +43,7 @@
 	#include "hl2orange.spa.h"
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
+	#include "vote_controller.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -438,11 +439,11 @@ void CTFGameRulesProxy::InputAddYellowTeamScore(inputdata_t &inputdata)
 //-----------------------------------------------------------------------------
 void CTFGameRulesProxy::Activate()
 {
+	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
+
 	TFGameRules()->Activate();
 
 	TFGameRules()->SetHudType(m_iHud_Type);
-
-	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
 
 	BaseClass::Activate();
 }
@@ -519,8 +520,6 @@ int	CTFGameRules::Damage_GetShouldNotBleed( void )
 CTFGameRules::CTFGameRules()
 {
 #ifdef GAME_DLL
-	// Create teams.
-	TFTeamMgr()->Init();
 
 	ResetMapTime();
 
@@ -662,6 +661,9 @@ static const char *s_PreserveEnts[] =
 //-----------------------------------------------------------------------------
 void CTFGameRules::Activate()
 {
+	// Create teams.
+	TFTeamMgr()->Init();
+
 	m_iBirthdayMode = BIRTHDAY_RECALCULATE;
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
