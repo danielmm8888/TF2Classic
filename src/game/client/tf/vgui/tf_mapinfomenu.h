@@ -40,7 +40,7 @@ public:
 	virtual bool IsVisible(){ return BaseClass::IsVisible(); }
 	virtual void SetParent( vgui::VPANEL parent ){ BaseClass::SetParent( parent ); }
 
-	static const char *GetMapType( const char *mapName );
+	// static const char *GetMapType( const char *mapName );
 
 protected:
 	virtual void OnKeyCodePressed(vgui::KeyCode code);
