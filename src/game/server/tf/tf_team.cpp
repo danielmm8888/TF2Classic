@@ -90,10 +90,8 @@ bool CTFTeamManager::Init( void )
 	// Clear the list.
 	Shutdown();
 
-	int iTeamCount = TFGameRules()->IsFourTeamGame() ? 5 : 3;
-
 	// Create the team list.
-	for ( int iTeam = 0; iTeam <= iTeamCount; ++iTeam )
+	for ( int iTeam = 0; iTeam < TF_TEAM_COUNT; ++iTeam )
 	{
 		int index = Create( g_aTeamNames[iTeam], g_aTeamColors[iTeam] );
 		Assert( index == iTeam );

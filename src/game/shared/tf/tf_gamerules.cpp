@@ -520,6 +520,8 @@ int	CTFGameRules::Damage_GetShouldNotBleed( void )
 CTFGameRules::CTFGameRules()
 {
 #ifdef GAME_DLL
+	// Create teams.
+	TFTeamMgr()->Init();
 
 	ResetMapTime();
 
@@ -661,9 +663,6 @@ static const char *s_PreserveEnts[] =
 //-----------------------------------------------------------------------------
 void CTFGameRules::Activate()
 {
-	// Create teams.
-	TFTeamMgr()->Init();
-
 	m_iBirthdayMode = BIRTHDAY_RECALCULATE;
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
