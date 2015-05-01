@@ -1786,7 +1786,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	{
 		int i = 0;
 
-		for ( i = TF_CLASS_SCOUT; i <= TF_CLASS_ENGINEER; i++ )
+		for ( i = TF_CLASS_SCOUT; i <= TF_LAST_NORMAL_CLASS; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -1805,7 +1805,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		// The player has selected Random class...so let's pick one for them.
 		do{
 			// Don't let them be the same class twice in a row
-			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
+			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER );
 		} while( iClass == GetPlayerClass()->GetClassIndex() );
 	}
 
