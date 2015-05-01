@@ -392,6 +392,7 @@ enum
 	TF_COND_INVULNERABLE_WEARINGOFF,
 	TF_COND_STEALTHED_BLINK,
 	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
 
 	// The following conditions all expire faster when the player is being healed
 	// If you add a new condition that shouldn't have this behavior, add it before this section.
@@ -401,7 +402,6 @@ enum
 	TF_COND_SLOWED,
 
 	// Add new conditions that should be affected by healing here
-	TF_COND_KRITZ,
 
 	TF_COND_LAST
 };

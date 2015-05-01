@@ -748,7 +748,7 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_INVULNERABLE );
 		}
 	}
-	if (InCond(TF_COND_KRITZ))
+	if ( InCond( TF_COND_CRITBOOSTED ) )
 	{
 		bool bRemoveCrits = false;
 
@@ -768,7 +768,7 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		if (bRemoveCrits == true)
 		{
 			m_flCritOffTime = 0;
-			RemoveCond(TF_COND_KRITZ);
+			RemoveCond( TF_COND_CRITBOOSTED );
 		}
 	}
 	if ( InCond( TF_COND_STEALTHED_BLINK ) )
@@ -1811,7 +1811,7 @@ void CTFPlayerShared::SetInvulnerable( bool bState, bool bInstant )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 {
-	bool bCurrentState = InCond(TF_COND_KRITZ);
+	bool bCurrentState = InCond( TF_COND_CRITBOOSTED );
 	if (bCurrentState == bState)
 	{
 		if (bState && m_flCritOffTime)
@@ -1833,7 +1833,7 @@ void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 		}
 
 		// Invulnerable turning on
-		AddCond(TF_COND_KRITZ);
+		AddCond( TF_COND_CRITBOOSTED );
 
 		CSingleUserRecipientFilter filter(m_pOuter);
 		m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn");
@@ -1849,7 +1849,7 @@ void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 		if (bInstant)
 		{
 			m_flCritOffTime = 0;
-			RemoveCond(TF_COND_KRITZ);
+			RemoveCond( TF_COND_CRITBOOSTED );
 		}
 		else
 		{
