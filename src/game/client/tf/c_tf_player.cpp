@@ -959,8 +959,8 @@ public:
 EXPOSE_INTERFACE( CProxyBurnLevel, IMaterialProxy, "BurnLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
-// Purpose: Used for piss
-//			Returns the RGB value for said piss.
+// Purpose: Used for jarate
+//			Returns the RGB value for the appropriate tint condition.
 //-----------------------------------------------------------------------------
 class CProxyYellowLevel : public CResultProxy
 {
@@ -978,17 +978,134 @@ public:
 
 		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
 
+		if (!pPlayer)
+		{
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if (pWeapon)
+			{
+				pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+			}
+			else
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if (pVM)
+				{
+					pPlayer = (C_TFPlayer*)pVM->GetOwner();
+				}
+			}
+		}
+
 		if (pPlayer)
 		{
 			// This should be used to check if the player has the piss condition
 			// If he is, return yellow
 		}
 
-		m_pResult->SetVecValue(1.0f, 1.0f, 1.0f);
+		m_pResult->SetVecValue(1, 1, 1);
 	}
 };
 
 EXPOSE_INTERFACE(CProxyYellowLevel, IMaterialProxy, "YellowLevel" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Used for the weapon glow color when critted
+//-----------------------------------------------------------------------------
+class CProxyModelGlowColor: public CResultProxy
+{
+public:
+	void OnBind(void *pC_BaseEntity)
+	{
+		Assert(m_pResult);
+
+		if (!pC_BaseEntity)
+			return;
+
+		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
+		if (!pEntity)
+			return;
+
+		Vector vecColor = Vector(1, 1, 1);
+
+		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+
+		if (!pPlayer)
+		{
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if (pWeapon)
+			{
+				pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+			}
+			else
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if (pVM)
+				{
+					pPlayer = (C_TFPlayer*)pVM->GetOwner();
+				}
+			}
+		}
+
+		if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED))
+		{
+			switch ( pPlayer->GetTeamNumber() )
+			{
+			case TF_TEAM_RED:
+				vecColor = Vector(255, 5, 1);
+				break;
+			case TF_TEAM_BLUE:
+				vecColor = Vector(1, 70, 255);
+				break;
+			case TF_TEAM_GREEN:
+				vecColor = Vector(1, 28, 9);
+				break;
+			case TF_TEAM_YELLOW:
+				vecColor = Vector(28, 28, 9);
+				break;
+			}
+		}
+
+		m_pResult->SetVecValue( vecColor.Base(), 3 );
+	}
+};
+
+EXPOSE_INTERFACE(CProxyModelGlowColor, IMaterialProxy, "ModelGlowColor" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Stub class for the CommunityWeapon material proxy used by live TF2
+//-----------------------------------------------------------------------------
+class CProxyCommunityWeapon : public CResultProxy
+{
+public:
+	virtual bool Init(IMaterial *pMaterial, KeyValues *pKeyValues)
+	{
+		return true;
+	}
+	void OnBind(void *pC_BaseEntity)
+	{
+		m_pResult->SetIntValue(0);
+	}	
+};
+
+EXPOSE_INTERFACE(CProxyCommunityWeapon, IMaterialProxy, "CommunityWeapon" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Stub class for the AnimatedWeaponSheen material proxy used by live TF2
+//-----------------------------------------------------------------------------
+class CProxyAnimatedWeaponSheen : public CResultProxy
+{
+public:
+	virtual bool Init(IMaterial *pMaterial, KeyValues *pKeyValues)
+	{
+		return true;
+	}
+	void OnBind(void *pC_BaseEntity)
+	{
+		
+	}
+};
+
+EXPOSE_INTERFACE(CProxyAnimatedWeaponSheen, IMaterialProxy, "AnimatedWeaponSheen" IMATERIAL_PROXY_INTERFACE_VERSION);
+
 
 //-----------------------------------------------------------------------------
 // Purpose: RecvProxy that converts the Player's object UtlVector to entindexes
@@ -3118,9 +3235,10 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 		// Release the duck toggle key
 		KeyUp( &in_ducktoggle, NULL ); 
+
+		LoadInventory();
 	}
 
-	LoadInventory();
 	UpdateVisibility();
 
 	m_hFirstGib = NULL;
@@ -3379,7 +3497,7 @@ void C_TFPlayer::Simulate( void )
 void C_TFPlayer::LoadInventory(void)
 {
 	KeyValues* pInventory = Inventory->GetInventory(filesystem);
-	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
+	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
 	{
 		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 		{
