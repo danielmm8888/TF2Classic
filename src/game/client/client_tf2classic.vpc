@@ -163,7 +163,7 @@ $Project "Client (TF)"
 			$File	"tf\tf_tips.h"
 			$File	"tf\tf_viewrender.cpp"
 			$File	"tf\tf_viewrender.h"		
-			$File	"tf\c_entity_weaponspawn.h"		
+			$File	"tf\c_entity_weaponspawn.cpp"		
 
 			$Folder	"Unused"
 			{

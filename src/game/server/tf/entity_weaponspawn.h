@@ -25,10 +25,6 @@ public:
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
 
-	virtual const char *GetPowerupModel(void) { return "models/items/medkit_large.mdl"; }
-
-	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
-
 	int		m_iWeaponNumber;
 
 private:
