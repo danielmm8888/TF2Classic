@@ -202,10 +202,11 @@ bool CWeaponKritzkrieg::Deploy( void )
 
 #ifdef GAME_DLL
 		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
-		if ( m_bChargeRelease && pOwner )
+		if ( pOwner )
 		{
 			pOwner->m_Shared.RecalculateInvuln();
-			pOwner->m_Shared.RecalculateCrits();
+			if ( m_bChargeRelease )
+				pOwner->m_Shared.RecalculateCrits();
 		}
 #endif
 
