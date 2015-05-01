@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright Valve Corporation, All rights reserved. ============// 
 //
 // Purpose: 
 //
@@ -72,3 +72,31 @@ acttable_t	CWeaponCitizenSuitcase::m_acttable[] =
 	{ ACT_WALK,						ACT_WALK_SUITCASE,					false },
 };
 IMPLEMENT_ACTTABLE(CWeaponCitizenSuitcase);
+
+//-----------------------------------------------------------------------------
+// Purpose: HL2 LostCoast Fisherman's harpoon
+//-----------------------------------------------------------------------------
+class CWeaponOldManHarpoon : public CWeaponCitizenPackage
+{
+	DECLARE_CLASS(CWeaponOldManHarpoon, CWeaponCitizenPackage);
+public:
+	DECLARE_SERVERCLASS();
+	DECLARE_DATADESC();
+	DECLARE_ACTTABLE();
+};
+
+IMPLEMENT_SERVERCLASS_ST(CWeaponOldManHarpoon, DT_WeaponOldManHarpoon)
+END_SEND_TABLE()
+
+BEGIN_DATADESC(CWeaponOldManHarpoon)
+END_DATADESC()
+
+LINK_ENTITY_TO_CLASS(Weapon_OldManHarpoon, CWeaponOldManHarpoon);
+PRECACHE_WEAPON_REGISTER(Weapon_OldManHarpoon);
+
+acttable_t	CWeaponOldManHarpoon::m_acttable[] =
+{
+	{ ACT_IDLE, ACT_IDLE_SUITCASE, false },
+	{ ACT_WALK, ACT_WALK_SUITCASE, false },
+};
+IMPLEMENT_ACTTABLE(CWeaponOldManHarpoon);

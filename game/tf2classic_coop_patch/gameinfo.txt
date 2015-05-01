@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game	"Team Fortress 2 Classic" 
+	game	"Team Fortress 2 Classic (Coop)" 
 	gamelogo 1 
 	type 	multiplayer_only 
 	icon	"resource/game"		
@@ -60,16 +60,16 @@
 			platform			|all_source_engine_paths|platform			
 			game				|all_source_engine_paths|sourcetest
 			
-			//TF2-HL1/HL2 COOP -- Leave EP1/EP2 stuff out until it's ready.
+			//TF2-HL COOP -- Leave EP1/EP2 stuff out until it's ready.
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_sound_vo_english.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_pak.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_sound_vo_english.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_pak.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic"
-			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_sound_vo_english.vpk"
-			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_pak.vpk"
-			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
+			game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_sound_vo_english.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_pak.vpk"
+			game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_pak.vpk"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2"
 			game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/hl1_hd_pak.vpk"

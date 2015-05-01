@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------- 
 //	SERVER_TF2CLASSIC.VPC
 //
 //	Project Script
@@ -198,6 +198,7 @@ $Project "Server (TF)"
 			$File	"hl2\npc_citizen17.h"
 			$File	"hl2\npc_combine.cpp"
 			$File	"hl2\npc_combine.h"
+			$File	"hl2\npc_combinecamera.cpp"
 			$File	"hl2\npc_combinedropship.cpp"
 			$File	"hl2\npc_combinegunship.cpp"
 			$File	"hl2\npc_combines.cpp"
@@ -208,6 +209,7 @@ $Project "Server (TF)"
 			$File	"hl2\npc_eli.cpp"
 			$File	"hl2\npc_enemyfinder.cpp"
 			$File	"hl2\npc_fastzombie.cpp"
+			$File	"hl2\npc_fisherman.cpp"
 			$File	"hl2\npc_gman.cpp"
 			$File	"hl2\npc_headcrab.cpp"
 			$File	"hl2\npc_headcrab.h"
@@ -244,6 +246,8 @@ $Project "Server (TF)"
 			$File	"hl2\weapon_ar2.cpp"
 			$File	"hl2\weapon_ar2.h"
 			$File	"hl2\weapon_bugbait.cpp"
+			$File	"hl2\weapon_citizenpackage.cpp"
+			$File	"hl2\weapon_citizenpackage.h"
 			$File	"hl2\weapon_crowbar.cpp"
 			$File	"hl2\weapon_crowbar.h"
 			$File	"hl2\weapon_frag.cpp"
