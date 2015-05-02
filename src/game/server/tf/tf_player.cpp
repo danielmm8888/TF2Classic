@@ -2036,7 +2036,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if (args.ArgC() >= 3)
 		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
+			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])));
 		}
 		return true;
 	}
@@ -2044,7 +2044,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if (args.ArgC() >= 4)
 		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]), atoi(args[3]));
+			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])), abs(atoi(args[3])));
 		}
 		return true;
 	}
