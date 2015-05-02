@@ -671,6 +671,7 @@ void CTFGameRules::Activate()
 	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
+		friendlyfire.SetValue(1);
 		return;
 	}
 
@@ -822,7 +823,7 @@ void CTFGameRules::CleanUpMap( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-//-----------------------------------------------------------------------------ob
+//-----------------------------------------------------------------------------
 void CTFGameRules::RecalculateControlPointState( void )
 {
 	Assert( ObjectiveResource() );
