@@ -95,9 +95,9 @@ void tf2c_setmerccolor_f(const CCommand& args)
 	if (!pPlayer)
 		return;
 
-	pPlayer->m_iPlayerColor[0] = min(atoi(args.Arg(1)), 255);
-	pPlayer->m_iPlayerColor[1] = min(atoi(args.Arg(2)), 255);
-	pPlayer->m_iPlayerColor[2] = min(atoi(args.Arg(3)), 255);
+	pPlayer->m_flPlayerColor[0] = min(atoi(args.Arg(1)), 255) / 255.0f;
+	pPlayer->m_flPlayerColor[1] = min(atoi(args.Arg(2)), 255) / 255.0f;
+	pPlayer->m_flPlayerColor[2] = min(atoi(args.Arg(3)), 255) / 255.0f;
 
 }
 
@@ -519,10 +519,6 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		m_flBurnEffectStartTime = gpGlobals->curtime;
 		ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
 	}
-
-	// Set the ragdoll to the proper mecrenary color
-	if (pPlayer && pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
-		SetRenderColor(pPlayer->m_iPlayerColor[0], pPlayer->m_iPlayerColor[1], pPlayer->m_iPlayerColor[2]);
 
 	// Fade out the ragdoll in a while
 	StartFadeOut( cl_ragdoll_fade_time.GetFloat() );
@@ -1078,6 +1074,41 @@ public:
 EXPOSE_INTERFACE(CProxyModelGlowColor, IMaterialProxy, "ModelGlowColor" IMATERIAL_PROXY_INTERFACE_VERSION);
 
 //-----------------------------------------------------------------------------
+// Purpose: Used for coloring items 
+//			Right now, it's only used for the mercenary
+//-----------------------------------------------------------------------------
+class CProxyItemTintColor : public CResultProxy
+{
+public:
+	void OnBind(void *pC_BaseEntity)
+	{
+		Assert(m_pResult);
+
+		if (!pC_BaseEntity)
+			return;
+
+		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
+		if (!pEntity)
+			return;
+
+		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+
+		if (pPlayer)
+		{
+			if (pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
+			{
+				m_pResult->SetVecValue(pPlayer->m_flPlayerColor[0], pPlayer->m_flPlayerColor[1], pPlayer->m_flPlayerColor[2]);
+				return;
+			}
+		}
+
+		m_pResult->SetVecValue(1, 1, 1);
+	}
+};
+
+EXPOSE_INTERFACE(CProxyItemTintColor, IMaterialProxy, "ItemTintColor" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
 // Purpose: Stub class for the CommunityWeapon material proxy used by live TF2
 //-----------------------------------------------------------------------------
 class CProxyCommunityWeapon : public CResultProxy
@@ -1236,9 +1267,9 @@ C_TFPlayer::C_TFPlayer() :
 
 	m_bUpdateObjectHudState = false;
 
-	m_iPlayerColor[0] = 255;
-	m_iPlayerColor[1] = 255;
-	m_iPlayerColor[2] = 255;
+	m_flPlayerColor[0] = 1;
+	m_flPlayerColor[1] = 1;
+	m_flPlayerColor[2] = 1;
 }
 
 C_TFPlayer::~C_TFPlayer()
@@ -3001,10 +3032,6 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 	m_hSpawnedGibs.Purge();
 	m_hFirstGib = CreateGibsFromList( m_aGibs, GetModelIndex(), NULL, breakParams, this, -1 , false, true, &m_hSpawnedGibs );
 
-	// Set the gibs to the proper mecrenary color
-	if (IsPlayerClass(TF_CLASS_MERCENARY))
-		m_hFirstGib->SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
-
 	DropPartyHat( breakParams, vecBreakVelocity );
 }
 
@@ -3252,11 +3279,6 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
-
-	if (IsPlayerClass(TF_CLASS_MERCENARY))
-	{
-		SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
-	}
 
 }
 

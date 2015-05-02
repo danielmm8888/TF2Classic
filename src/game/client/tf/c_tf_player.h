@@ -254,7 +254,7 @@ private:
 
 public:
 
-	int					m_iPlayerColor[3];
+	float					m_flPlayerColor[3];
 
 private:
 
