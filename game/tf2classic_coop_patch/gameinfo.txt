@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game	"Team Fortress 2 Classic (Coop)" 
+	game	"Team Fortress 2 Classic"
 	gamelogo 1 
 	type 	multiplayer_only 
 	icon	"resource/game"		
