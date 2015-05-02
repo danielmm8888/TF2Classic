@@ -1097,21 +1097,30 @@ public:
 		{
 			EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
 			pPlayer = dynamic_cast<C_TFPlayer*>(hPlayer.Get());
-			if (pPlayer)
-			{
-				m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
-				return;
-			}
 		}
 
-		pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+		C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+		if (pWeapon)
+		{
+			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+		}
+
+		C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+		if (pVM)
+		{
+			pPlayer = (C_TFPlayer*)pVM->GetOwner();
+		}
+
+		if (!pPlayer)
+		{
+			pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+		}
+
+		// Final check to see if it's a player
 		if (pPlayer)
 		{
-			if (pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
-			{
-				m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
-				return;
-			}
+			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+			return;
 		}
 
 		m_pResult->SetVecValue(1, 1, 1);
