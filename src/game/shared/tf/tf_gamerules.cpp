@@ -655,6 +655,7 @@ static const char *s_PreserveEnts[] =
 	"keyframe_rope",
 	"move_rope",
 	"tf_viewmodel",
+	"vote_controller",
 	"", // END Marker
 };
 
@@ -2082,6 +2083,8 @@ void CTFGameRules::CreateStandardEntities()
 	CBaseEntity *pEnt = CBaseEntity::Create( "tf_gamerules", vec3_origin, vec3_angle );
 	Assert( pEnt );
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
+
+	g_voteController = (CVoteController *)CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
 }
 
 //-----------------------------------------------------------------------------
