@@ -254,7 +254,7 @@ private:
 
 public:
 
-	float					m_flPlayerColor[3];
+	Vector					m_vecPlayerColor;
 
 private:
 

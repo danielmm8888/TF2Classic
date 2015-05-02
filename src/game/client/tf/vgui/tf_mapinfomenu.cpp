@@ -263,6 +263,12 @@ void CTFMapInfoMenu::OnCommand(const char *command)
 			}
 			else if (GetLocalPlayerTeam() == TEAM_UNASSIGNED)
 			{
+				if (TFGameRules() && TFGameRules()->IsDeathmatch())
+				{
+					engine->ClientCmd("jointeam red");
+					return;
+				}
+
 				m_pViewPort->ShowPanel(PANEL_TEAM, true);
 			}
 

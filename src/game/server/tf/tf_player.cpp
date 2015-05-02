@@ -303,6 +303,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropEHandle(SENDINFO(m_hItem)),
 
+	SendPropVector(SENDINFO(m_vecPlayerColor)),
+
 	// Ragdoll.
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 
@@ -1479,6 +1481,13 @@ int CTFPlayer::GetAutoTeam( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
+	if (TFGameRules()->IsDeathmatch())
+	{
+		ChangeTeam(TF_TEAM_RED);
+		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		return;
+	}
+
 	int iTeam = TF_TEAM_RED;
 	if ( stricmp( pTeamName, "auto" ) == 0 )
 	{
@@ -1550,12 +1559,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 
 		ChangeTeam( iTeam );
-
-		if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
-			return;
-		}
 
 		switch (iTeam)
 		{
@@ -2191,6 +2194,18 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	else if ( FStrEq( pcmd, "taunt" ) )
 	{
 		Taunt();
+		return true;
+	}
+	else if ( FStrEq(pcmd, "tf2c_setmerccolor") )
+	{
+		if (args.ArgC() < 4)
+		{
+			Warning("Format: tf2c_setmerccolor r g b\n");
+			return true;
+		}
+		m_vecPlayerColor.Set(Vector(min(atoi(args.Arg(1)), 255) / 255.0f,
+			min(atoi(args.Arg(2)), 255) / 255.0f,
+			min(atoi(args.Arg(3)), 255) / 255.0f));
 		return true;
 	}
 	else if ( FStrEq( pcmd, "build" ) )

@@ -83,6 +83,8 @@ ConVar cl_autorezoom( "cl_autorezoom", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Whe
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
+// Moved to the server
+/*
 void tf2c_setmerccolor_f(const CCommand& args)
 {
 	if (args.ArgC() < 4)
@@ -94,14 +96,11 @@ void tf2c_setmerccolor_f(const CCommand& args)
 	
 	if (!pPlayer)
 		return;
-
 	pPlayer->m_flPlayerColor[0] = min(atoi(args.Arg(1)), 255) / 255.0f;
 	pPlayer->m_flPlayerColor[1] = min(atoi(args.Arg(2)), 255) / 255.0f;
 	pPlayer->m_flPlayerColor[2] = min(atoi(args.Arg(3)), 255) / 255.0f;
-
 }
-
-ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0);
+ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0); */
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
@@ -1091,13 +1090,26 @@ public:
 		if (!pEntity)
 			return;
 
-		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+		C_TFPlayer *pPlayer = null;
 
+		C_TFRagdoll *pRagdoll = dynamic_cast< C_TFRagdoll* >(pEntity);
+		if (pRagdoll)
+		{
+			EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
+			pPlayer = dynamic_cast<C_TFPlayer*>(hPlayer.Get());
+			if (pPlayer)
+			{
+				m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+				return;
+			}
+		}
+
+		pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
 		if (pPlayer)
 		{
 			if (pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
 			{
-				m_pResult->SetVecValue(pPlayer->m_flPlayerColor[0], pPlayer->m_flPlayerColor[1], pPlayer->m_flPlayerColor[2]);
+				m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
 				return;
 			}
 		}
@@ -1201,6 +1213,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropDataTable( RECVINFO_DT( m_Shared ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerShared ) ),
 	RecvPropEHandle( RECVINFO(m_hItem ) ),
 
+	RecvPropVector(RECVINFO(m_vecPlayerColor)),
+
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
 
@@ -1266,10 +1280,6 @@ C_TFPlayer::C_TFPlayer() :
 	m_bWaterExitEffectActive = false;
 
 	m_bUpdateObjectHudState = false;
-
-	m_flPlayerColor[0] = 1;
-	m_flPlayerColor[1] = 1;
-	m_flPlayerColor[2] = 1;
 }
 
 C_TFPlayer::~C_TFPlayer()

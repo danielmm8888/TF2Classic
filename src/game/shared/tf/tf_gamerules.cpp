@@ -2084,7 +2084,7 @@ void CTFGameRules::CreateStandardEntities()
 	Assert( pEnt );
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
 
-	g_voteController = (CVoteController *)CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
+	CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
 }
 
 //-----------------------------------------------------------------------------
