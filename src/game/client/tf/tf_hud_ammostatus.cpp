@@ -127,12 +127,7 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
-	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN )
-	{
-		return false;
-	}
-
-	if (pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG)
+	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN || pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG || pWeapon->GetWeaponID() == TF_WEAPON_UBERSAW )
 	{
 		return false;
 	}
