@@ -18,11 +18,13 @@
 
 extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
 
+// We don't have a proper sound yet, so we're using this
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
 
 BEGIN_DATADESC(CWeaponSpawner)
 
 	DEFINE_KEYFIELD(m_iWeaponNumber, FIELD_INTEGER, "WeaponNumber"),
+	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
 
 END_DATADESC()
 
@@ -30,6 +32,13 @@ IMPLEMENT_SERVERCLASS_ST(CWeaponSpawner, DT_WeaponSpawner)
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
+
+
+CWeaponSpawner::CWeaponSpawner()
+{
+	m_iWeaponNumber = TF_WEAPON_SHOTGUN_SOLDIER;
+	m_iRespawnTime = 10;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
@@ -41,6 +50,11 @@ void CWeaponSpawner::Spawn(void)
 
 	SetModel(pWeaponInfo->szWorldModel);
 	BaseClass::Spawn();
+}
+
+float CWeaponSpawner::GetRespawnDelay(void)
+{
+	return (float)m_iRespawnTime;
 }
 
 //-----------------------------------------------------------------------------
@@ -58,9 +72,10 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 {
 	bool bSuccess = false;
 
-	if (ValidTouch(pPlayer))
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
+
+	if (ValidTouch(pTFPlayer) && pTFPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
 	{
-		CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
 		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByType(pWeaponInfo->m_iWeaponType);
 
 		if (pWeapon)
@@ -76,19 +91,18 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 		}
 
-		if (pPlayer->GiveNamedItem(pWeaponInfo->szClassName))
-		{
-			CSingleUserRecipientFilter user(pPlayer);
-			user.MakeReliable();
+		pPlayer->GiveNamedItem(pWeaponInfo->szClassName);
 
-			UserMessageBegin(user, "ItemPickup");
-			WRITE_STRING(GetClassname());
-			MessageEnd();
+		CSingleUserRecipientFilter user(pPlayer);
+		user.MakeReliable();
 
-			EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
+		UserMessageBegin(user, "ItemPickup");
+		WRITE_STRING(GetClassname());
+		MessageEnd();
 
-			bSuccess = true;
-		}
+		EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
+
+		bSuccess = true;
 	}
 
 	return bSuccess;
