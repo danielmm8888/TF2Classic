@@ -671,7 +671,6 @@ void CTFGameRules::Activate()
 	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
-		friendlyfire.SetValue(1);
 		return;
 	}
 
@@ -1531,6 +1530,10 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
+		// Friendly fire is ALWAYS on in DM.
+		if (TFGameRules()->IsDeathmatch())
+			return true;
+		
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
 			return false;
