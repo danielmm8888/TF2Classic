@@ -5120,6 +5120,12 @@ CTFTeam *CTFPlayer::GetOpposingTFTeam( void )
 
 void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 {
+	if (TFGameRules()->IsDeathmatch())
+	{
+		pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+		return;
+	}
+
 	int iTeam = GetTeamNumber();
 	switch (iTeam)
 	{
@@ -5146,8 +5152,13 @@ void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
 			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
 			break;
-
 	}
+	
+	if (friendlyfire.GetInt())
+	{
+		pTeamList->AddToTail(TFTeamMgr()->GetTeam(iTeam));
+	}
+
 }
 
 //-----------------------------------------------------------------------------
