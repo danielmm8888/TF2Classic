@@ -3644,9 +3644,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo &info_modified )
 {
-	// No supporting this for the initial release.
-	return false;
-
 	if ( SelectWeightedSequence( ACT_DIESIMPLE ) == -1 )
 		return false;
 
@@ -3660,18 +3657,12 @@ bool CTFPlayer::PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo
 	// Check for a sniper headshot. (Currently only on Heavy.)
 	if ( pAttacker->GetPlayerClass()->IsClass( TF_CLASS_SNIPER ) && ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT ) )
 	{
-		if ( GetPlayerClass()->IsClass( TF_CLASS_HEAVYWEAPONS ) )
-		{
-			bPlayDeathAnim = true;
-		}
+		bPlayDeathAnim = true;
 	}
 	// Check for a spy backstab. (Currently only on Sniper.)
 	else if ( pAttacker->GetPlayerClass()->IsClass( TF_CLASS_SPY ) && ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB ) )
 	{
-		if ( GetPlayerClass()->IsClass( TF_CLASS_SNIPER ) )
-		{
-			bPlayDeathAnim = true;
-		}
+		bPlayDeathAnim = true;
 	}
 
 	// Play death animation?
