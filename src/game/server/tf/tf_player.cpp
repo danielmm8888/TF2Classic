@@ -49,6 +49,7 @@
 #include "steam/steam_api.h"
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
+#include "tf_powerup.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -655,6 +656,8 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "Game.SuddenDeath" );
 	PrecacheScriptSound( "Game.Stalemate" );
 	PrecacheScriptSound( "TV.Tune" );
+	
+	PrecacheScriptSound( "AmmoPack.Touch" );
 
 	// Precache particle systems
 	PrecacheParticleSystem( "crit_text" );
@@ -1326,7 +1329,10 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	if ( !pSpot )
 	{
 		Warning( "PutClientInServer: no %s on level\n", pSpawnPointName );
-		return CBaseEntity::Instance( INDEXENT(0) );
+		
+		// Fall back to BaseClass
+		return BaseClass::EntSelectSpawnPoint();
+		//return CBaseEntity::Instance( INDEXENT(0) );
 	}
 
 	return pSpot;
@@ -2661,6 +2667,53 @@ void CTFPlayer::DropFlag( void )
 	}
 }
 
+bool CTFPlayer::BumpWeapon( CBaseCombatWeapon *pWeapon )
+{
+	if ( dynamic_cast<CTFWeaponBase*>( pWeapon ) != NULL )
+		return BaseClass::BumpWeapon( pWeapon );
+
+	// TF players must NOT be able to use non-TF weapons. So make them act as small ammo packs for players.
+
+	// Can I have this weapon type?
+	if ( !IsAllowedToPickupWeapons() )
+		return false;
+
+
+	// Don't let the player fetch weapons through walls (use MASK_SOLID so that you can't pickup through windows)
+	if( pWeapon->FVisible( this, MASK_SOLID ) == false && !(GetFlags() & FL_NOTARGET) )
+		return false;
+
+	bool bSuccess = false;
+
+	int iMaxPrimary = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+	if ( GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_SMALL]), TF_AMMO_PRIMARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxSecondary = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+	if ( GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_SMALL]), TF_AMMO_SECONDARY, true ) )
+	{
+		bSuccess = true;
+	}
+
+	int iMaxMetal = GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+	if ( GiveAmmo( ceil(iMaxMetal * PackRatios[POWERUP_SMALL]), TF_AMMO_METAL, true ) )
+	{
+		bSuccess = true;
+	}
+
+	// did we give them anything?
+	if ( bSuccess )
+	{
+		CSingleUserRecipientFilter filter( this );
+		EmitSound( filter, entindex(), "AmmoPack.Touch" );
+		UTIL_Remove( pWeapon );
+	}
+
+	return bSuccess;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3589,6 +3642,11 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		// Look at the sentrygun. 
 		m_hObserverTarget.Set( info.GetAttacker() ); 
 	}
+	else if ( info.GetAttacker() && info.GetAttacker()->IsNPC() )
+	{
+		m_hObserverTarget.Set( info.GetAttacker() ); 
+	}
+
 	else
 	{
 		m_hObserverTarget.Set( NULL );
