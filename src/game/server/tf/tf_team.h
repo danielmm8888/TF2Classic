@@ -12,6 +12,7 @@
 #include "tf_shareddefs.h"
 
 class CBaseObject;
+class CAI_BaseNPC;
 
 //=============================================================================
 // TF Teams.
@@ -43,6 +44,13 @@ public:
 	int				GetNumObjects( int iObjectType = -1 );
 	CBaseObject		*GetObject( int num );
 
+	// NPCs.
+	void			AddNPC( CAI_BaseNPC *pNPC );
+	void			RemoveNPC( CAI_BaseNPC *pNPC );
+	bool			IsNPCOnTeam( CAI_BaseNPC *pNPC ) const;
+	int				GetNumNPCs( void );
+	CAI_BaseNPC		*GetNPC( int num );
+
 	// Flag Captures
 	int				GetFlagCaptures( void ) { return m_nFlagCaptures; }
 	void			SetFlagCaptures( int nCaptures ) { m_nFlagCaptures = nCaptures; }
@@ -56,6 +64,7 @@ private:
 	
 	color32						m_TeamColor;
 	CUtlVector< CHandle<CBaseObject> >	m_aObjects;			// List of team objects.
+	CUtlVector< CHandle<CAI_BaseNPC> >  m_aNPCs;			// List of team NPCs.
 
 	CNetworkVar( int, m_nFlagCaptures );
 	CNetworkVar( int, m_iRole );

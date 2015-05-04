@@ -113,6 +113,7 @@ extern ConVar sk_healthkit;
 #include "tf_player.h"
 #include "tf_shareddefs.h"
 #include "tf_weaponbase.h"
+#include "tf_team.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -11552,6 +11553,13 @@ void CAI_BaseNPC::UpdateOnRemove(void)
 		CleanupOnDeath( NULL, false );
 	}
 
+#ifdef TF_CLASSIC
+	if ( GetTeam() )
+	{
+		((CTFTeam*)GetTeam())->RemoveNPC( this );
+	}
+#endif
+
 	// Chain at end to mimic destructor unwind order
 	BaseClass::UpdateOnRemove();
 }
@@ -14269,3 +14277,54 @@ bool CAI_BaseNPC::IsInChoreo() const
 {
 	return m_bInChoreo;
 }
+
+#ifdef TF_CLASSIC
+void CAI_BaseNPC::ChangeTeam( int iTeamNum )
+{
+	CTFTeam *pTeam = ( CTFTeam * )GetGlobalTeam( iTeamNum );
+	CTFTeam *pExisting = ( CTFTeam * )GetTeam();
+
+	if ( !pTeam )
+	{
+		Warning( "CAI_BaseNPC::ChangeTeam( %d ) - invalid team index.\n", iTeamNum );
+		return;
+	}
+
+	// if this is our current team, just abort
+	if ( iTeamNum == GetTeamNumber() )
+	{
+		return;
+	}
+#if 0
+	// Immediately tell all clients that he's changing team. This has to be done
+	// first, so that all user messages that follow as a result of the team change
+	// come after this one, allowing the client to be prepared for them.
+	IGameEvent * event = gameeventmanager->CreateEvent( "player_team" );
+	if ( event )
+	{
+		event->SetInt("userid", GetUserID() );
+		event->SetInt("team", iTeamNum );
+		event->SetInt("oldteam", GetTeamNumber() );
+		event->SetInt("disconnect", IsDisconnecting());
+		event->SetInt("autoteam", bAutoTeam );
+		event->SetInt("silent", bSilent );
+		event->SetString("name", GetPlayerName() );
+
+		gameeventmanager->FireEvent( event );
+	}
+#endif
+	// Remove him from his current team
+	if ( pExisting )
+	{
+		pExisting->RemoveNPC( this );
+	}
+
+	// Are we being added to a team?
+	if ( pTeam )
+	{
+		pTeam->AddNPC( this );
+	}
+
+	BaseClass::ChangeTeam( iTeamNum );
+}
+#endif

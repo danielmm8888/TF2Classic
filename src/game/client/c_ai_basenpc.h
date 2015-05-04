@@ -11,7 +11,6 @@
 #pragma once
 #endif
 
-
 #include "c_basecombatcharacter.h"
 
 // NOTE: MOved all controller code into c_basestudiomodel

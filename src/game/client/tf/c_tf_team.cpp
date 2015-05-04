@@ -34,6 +34,26 @@ void RecvProxyArrayLength_TeamObjects( void *pStruct, int objectID, int currentA
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: RecvProxy that converts the Player's NPC UtlVector to entindexes
+//-----------------------------------------------------------------------------
+void RecvProxy_TeamNPCList( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	C_TFTeam *pPlayer = (C_TFTeam*)pStruct;
+	CBaseHandle *pHandle = (CBaseHandle*)(&(pPlayer->m_aNPCs[pData->m_iElement])); 
+	RecvProxy_IntToEHandle( pData, pStruct, pHandle );
+}
+
+void RecvProxyArrayLength_TeamNPCs( void *pStruct, int NPCID, int currentArrayLength )
+{
+	C_TFTeam *pPlayer = (C_TFTeam*)pStruct;
+
+	if ( pPlayer->m_aNPCs.Count() != currentArrayLength )
+	{
+		pPlayer->m_aNPCs.SetSize( currentArrayLength );
+	}
+}
+
 IMPLEMENT_CLIENTCLASS_DT( C_TFTeam, DT_TFTeam, CTFTeam )
 
 	RecvPropInt( RECVINFO( m_nFlagCaptures ) ),
@@ -45,6 +65,13 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFTeam, DT_TFTeam, CTFTeam )
 	MAX_PLAYERS * MAX_OBJECTS_PER_PLAYER, 
 	0, 
 	"team_object_array"	),
+
+	RecvPropArray2( 
+	RecvProxyArrayLength_TeamNPCs,
+	RecvPropInt( "team_npc_array_element", 0, SIZEOF_IGNORE, 0, RecvProxy_TeamNPCList ), 
+	1024, 
+	0, 
+	"team_npc_array"	),
 
 END_RECV_TABLE()
 
@@ -133,4 +160,19 @@ CBaseObject *C_TFTeam::GetObject( int num )
 {
 	Assert( num >= 0 && num < m_aObjects.Count() );
 	return m_aObjects[ num ];
+}
+
+
+//-----------------------------------------------------------------------------
+// Gets the ith NPC on the team (may return NULL) 
+//-----------------------------------------------------------------------------
+C_AI_BaseNPC* C_TFTeam::GetNPC( int num )
+{
+	Assert( num >= 0 && num < m_NPCs.Count() );
+	return m_aNPCs[ num ];
+}
+
+int C_TFTeam::GetNumNPCs( void )
+{
+	return m_aNPCs.Count();
 }

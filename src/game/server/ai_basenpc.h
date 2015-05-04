@@ -2124,6 +2124,13 @@ public:
 	void				GetPlayerAvoidBounds( Vector *pMins, Vector *pMaxs );
 
 	void				StartPingEffect( void ) { m_flTimePingEffect = gpGlobals->curtime + 2.0f; DispatchUpdateTransmitState(); }
+
+#ifdef TF_CLASSIC
+public:
+	// Team support for TF2C!
+
+	virtual void		ChangeTeam( int iTeamNum );
+#endif
 };
 
 

@@ -6,6 +6,7 @@
 #include "entitylist.h"
 #include "util.h"
 #include "tf_obj.h"
+#include "ai_basenpc.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -36,6 +37,31 @@ int SendProxyArrayLength_TeamObjects( const void *pStruct, int objectID )
 	return iObjects;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: SendProxy that converts the UtlVector list of NPCs to entindexes, where it's reassembled on the client
+//-----------------------------------------------------------------------------
+void SendProxy_TeamNPCList( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int NPCID )
+{
+	CTFTeam *pTeam = (CTFTeam*)pStruct;
+
+	Assert( iElement < pTeam->GetNumNPCs() );
+
+	CAI_BaseNPC *pNPC = pTeam->GetNPC(iElement);
+
+	EHANDLE hNPC;
+	hNPC = pNPC;
+
+	SendProxy_EHandleToInt( pProp, pStruct, &hNPC, pOut, iElement, NPCID );
+}
+
+int SendProxyArrayLength_TeamNPCs( const void *pStruct, int objectID )
+{
+	CTFTeam *pTeam = (CTFTeam*)pStruct;
+	int iNPCs = pTeam->GetNumNPCs();
+	Assert( iNPCs <= 1024 );
+	return iNPCs;
+}
+
 //=============================================================================
 //
 // TF Team tables.
@@ -51,6 +77,14 @@ IMPLEMENT_SERVERCLASS_ST( CTFTeam, DT_TFTeam )
 	MAX_PLAYERS * MAX_OBJECTS_PER_PLAYER, 
 	0, 
 	"team_object_array"
+	),
+
+	SendPropArray2( 
+	SendProxyArrayLength_TeamNPCs,
+	SendPropInt( "team_npc_array_element", 0, SIZEOF_IGNORE, NUM_NETWORKED_EHANDLE_BITS, SPROP_UNSIGNED, SendProxy_TeamNPCList ), 
+	1024, 
+	0, 
+	"team_npc_array"
 	),
 
 END_SEND_TABLE()
@@ -406,4 +440,51 @@ CTFTeam *GetGlobalTFTeam( int iIndex )
 		return NULL;
 
 	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
+}
+
+//------------------------------------------------------------------------------------------------------------------
+// NPCs
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Purpose: Add the specified NPC to this team. Remove them from their current team, if any.
+//-----------------------------------------------------------------------------
+void CTFTeam::AddNPC( CAI_BaseNPC *pNPC )
+{
+	m_aNPCs.AddToTail( pNPC );
+	NetworkStateChanged();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove this NPC from the team
+//-----------------------------------------------------------------------------
+void CTFTeam::RemoveNPC( CAI_BaseNPC *pNPC )
+{
+	m_aNPCs.FindAndRemove( pNPC );
+	NetworkStateChanged();
+}
+
+//-----------------------------------------------------------------------------
+// Returns true if NPC is in the team's list of NPCs
+//-----------------------------------------------------------------------------
+bool CTFTeam::IsNPCOnTeam( CAI_BaseNPC *pNPC ) const
+{
+	return ( m_aNPCs.Find( pNPC ) != -1 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return the number of NPCs in this team.
+//-----------------------------------------------------------------------------
+int CTFTeam::GetNumNPCs( void )
+{
+	return m_aNPCs.Count();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get a specific NPC
+//-----------------------------------------------------------------------------
+CAI_BaseNPC *CTFTeam::GetNPC( int iIndex )
+{
+	Assert( iIndex >= 0 && iIndex < m_aNPCs.Count() );
+	return m_aNPCs[ iIndex ];
 }

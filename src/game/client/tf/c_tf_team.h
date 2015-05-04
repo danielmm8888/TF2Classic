@@ -14,10 +14,12 @@
 #include "c_team.h"
 #include "shareddefs.h"
 #include "c_baseobject.h"
+#include "c_ai_basenpc.h"
 
 class C_BaseEntity;
 class C_BaseObject;
 class CBaseTechnology;
+class C_AI_BaseNPC;
 
 //-----------------------------------------------------------------------------
 // Purpose: TF's Team manager
@@ -39,7 +41,11 @@ public:
 	int				GetNumObjects( int iObjectType = -1 );
 	CBaseObject		*GetObject( int num );
 
+	int				GetNumNPCs( void );
+	C_AI_BaseNPC	*GetNPC( int num );
+
 	CUtlVector< CHandle<C_BaseObject> > m_aObjects;
+	CUtlVector< CHandle<C_AI_BaseNPC> > m_aNPCs;
 
 private:
 
