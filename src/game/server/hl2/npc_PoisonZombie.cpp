@@ -700,6 +700,8 @@ void CNPC_PoisonZombie::HandleAnimEvent( animevent_t *pEvent )
 			pCrab->Ignite( 100.0 );
 		}
 
+		pCrab->Activate();
+
 		CBaseEntity *pEnemy = GetEnemy();
 		if ( pEnemy )
 		{
@@ -810,6 +812,8 @@ void CNPC_PoisonZombie::EvacuateNest( bool bExplosion, float flDamage, CBaseEnti
 			{
 				pCrab->Ignite( 100.0 );
 			}
+
+			pCrab->Activate();
 
 			pCrab->Eject( vecAngles, flVelocityScale, pAttacker );
 			EnableCrab( i, false );
