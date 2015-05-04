@@ -1428,6 +1428,22 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 			return VEC_DEAD_VIEWHEIGHT_SCALED( player );
 		}
 	}
+#ifdef TF_CLASSIC_CLIENT
+	else if ( target->IsNPC() )
+	{
+		if ( target->IsAlive() )
+		{
+			// Human Hull height in HL2 is 72 and player viewheight is 64.
+			// So let's take that last value and scale it according to NPC's height.
+			float flEyeHeight = 64.0f * ( target->WorldAlignMaxs().z / 72.0f );
+			return Vector(0,0,flEyeHeight);
+		}
+		else
+		{
+			return VEC_DEAD_VIEWHEIGHT;
+		}
+	}
+#endif
 
 	// assume it's the players ragdoll
 	return VEC_DEAD_VIEWHEIGHT;
@@ -1619,6 +1635,13 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	{
 		// Look at their chest, not their head
 		Vector maxs = pTarget->GetBaseAnimating() ? VEC_HULL_MAX_SCALED( pTarget->GetBaseAnimating() ) : VEC_HULL_MAX;
+#ifdef TF_CLASSIC_CLIENT
+		// Obviously you can't apply player height to NPCs.
+		if ( pTarget->IsNPC() )
+		{
+			maxs = pTarget->WorldAlignMaxs();
+		}
+#endif
 		vecCamTarget.z -= (maxs.z * 0.5);
 	}
 	else
@@ -1636,6 +1659,13 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	// Stop a few units away from the target, and shift up to be at the same height
 	vecTargetPos = vecCamTarget - (vecToTarget * m_flFreezeFrameDistance);
 	float flEyePosZ = pTarget->EyePosition().z;
+#ifdef TF_CLASSIC_CLIENT
+	if ( pTarget->IsNPC() )
+	{
+		// Use HL2 player viewheight scaled according to NPC size.
+		flEyePosZ = pTarget->GetAbsOrigin().z + 64.0f * (pTarget->WorldAlignMaxs().z / 72.0f );;
+	}
+#endif
 	vecTargetPos.z = flEyePosZ + m_flFreezeZOffset;
 
 	// Now trace out from the target, so that we're put in front of any walls
@@ -1774,7 +1804,17 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		Vector vKiller = pKiller->EyePosition() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
-	};
+	}
+#ifdef TF_CLASSIC_CLIENT
+	else if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
+	{
+		// EyePosition() is not reliable since not all NPCs have $eyeposition set.
+		// So let's use their center instead.
+		Vector vKiller = pKiller->WorldSpaceCenter() - origin;
+		QAngle aKiller; VectorAngles( vKiller, aKiller );
+		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
+	}
+#endif
 
 	Vector vForward; AngleVectors( eyeAngles, &vForward );
 
