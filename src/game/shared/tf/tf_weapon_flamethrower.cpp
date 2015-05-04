@@ -28,6 +28,7 @@
 	#include "collisionutils.h"
 	#include "tf_team.h"
 	#include "tf_obj.h"
+	#include "ai_basenpc.h"
 
 	ConVar	tf_debug_flamethrower("tf_debug_flamethrower", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Visualize the flamethrower damage." );
 	ConVar  tf_flamethrower_velocity( "tf_flamethrower_velocity", "2300.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Initial velocity of flame damage entities." );
@@ -897,6 +898,19 @@ void CTFFlameEntity::FlameThink( void )
 							return;
 					}
 				}
+
+				// check collision against all enemy NPCs
+				for (int iNPC = 0; iNPC < pTeamList[i]->GetNumNPCs(); iNPC++)
+				{
+					CAI_BaseNPC *pNPC = pTeamList[i]->GetNPC(iNPC);
+					// Is this NPC alive and an enemy?
+					if (pNPC && pNPC->IsAlive())
+					{
+						CheckCollision(pNPC, &bHitWorld);
+						if (bHitWorld)
+							return;
+					}
+				}
 			}
 		}
 	}
@@ -1025,6 +1039,12 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 
 	CTakeDamageInfo info( GetOwnerEntity(), pAttacker, flDamage, m_iDmgType, TF_DMG_CUSTOM_BURNING );
 	info.SetReportedPosition( pAttacker->GetAbsOrigin() );
+
+	// HACKHACK: NPCs only catch fire from DMG_BURN. Gotta add that.
+	if ( pOther->IsNPC() )
+	{
+		info.AddDamageType( DMG_BURN );
+	}
 
 	// We collided with pOther, so try to find a place on their surface to show blood
 	trace_t pTrace;
