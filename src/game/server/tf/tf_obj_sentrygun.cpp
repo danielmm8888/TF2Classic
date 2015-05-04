@@ -15,6 +15,7 @@
 #include "te_effect_dispatch.h"
 #include "tf_gamerules.h"
 #include "ammodef.h"
+#include "ai_basenpc.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -729,6 +730,45 @@ bool CObjectSentrygun::FindTarget()
 				}
 			}
 		}
+
+		// NPCs have lowest priority.
+		if (pTargetCurrent == NULL)
+		{
+			int nTeamNPCCount = pTeamList[i]->GetNumNPCs();
+			for (int iNPC = 0; iNPC < nTeamNPCCount; ++iNPC)
+			{
+				CAI_BaseNPC *pTargetNPC = pTeamList[i]->GetNPC(iNPC);
+				if (!pTargetNPC)
+					continue;
+
+				// Make sure NPC is alive.
+				if (!pTargetNPC->IsAlive())
+					continue;
+
+				vecTargetCenter = pTargetNPC->GetAbsOrigin();
+				vecTargetCenter += pTargetNPC->GetViewOffset();
+				VectorSubtract(vecTargetCenter, vecSentryOrigin, vecSegment);
+				float flDist2 = vecSegment.LengthSqr();
+
+				// Store the current target distance if we come across it
+				if (pTargetNPC == pTargetOld)
+				{
+					flOldTargetDist2 = flDist2;
+				}
+
+				// Check to see if the target is closer than the already validated target.
+				if (flDist2 > flMinDist2)
+					continue;
+
+				// It is closer, check to see if the target is valid.
+				if (ValidTargetNPC(pTargetNPC, vecSentryOrigin, vecTargetCenter))
+				{
+					flMinDist2 = flDist2;
+					pTargetCurrent = pTargetNPC;
+				}
+			}
+		}
+
 		// We have a target.
 		if (pTargetCurrent)
 		{
@@ -789,6 +829,19 @@ bool CObjectSentrygun::ValidTargetObject( CBaseObject *pObject, const Vector &ve
 
 	// Ray trace.
 	return FVisible( pObject, MASK_SHOT | CONTENTS_GRATE );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CObjectSentrygun::ValidTargetNPC( CAI_BaseNPC *pNPC, const Vector &vecStart, const Vector &vecEnd )
+{
+	// Not across water boundary.
+	if ( ( GetWaterLevel() == 0 && pNPC->GetWaterLevel() >= 3 ) || ( GetWaterLevel() == 3 && pNPC->GetWaterLevel() <= 0 ) )
+		return false;
+
+	// Ray trace!!!
+	return FVisible( pNPC, MASK_SHOT | CONTENTS_GRATE );
 }
 
 //-----------------------------------------------------------------------------
