@@ -1428,15 +1428,14 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 			return VEC_DEAD_VIEWHEIGHT_SCALED( player );
 		}
 	}
-
 #ifdef TF_CLASSIC_CLIENT
-	if ( target-IsNPC() )
+	else if ( target->IsNPC() )
 	{
 		if ( target->IsAlive() )
 		{
 			// Human Hull height in HL2 is 72 and player viewheight is 64.
 			// So let's take that last value and scale it according to NPC's height.
-			float flEyeHeight = 64.0f * (target->WorldAlignMaxs().z / 72.0f );
+			float flEyeHeight = 64.0f * ( target->WorldAlignMaxs().z / 72.0f );
 			return Vector(0,0,flEyeHeight);
 		}
 		else
@@ -1805,17 +1804,16 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		Vector vKiller = pKiller->EyePosition() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
-	};
-
+	}
 #ifdef TF_CLASSIC_CLIENT
-	if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
+	else if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
 	{
-		// C_AI_BaseNPC doesn't have it's own EyePosition() so it returns vec3_origin.
-		// Besides, not all NPCs even have eyes. So let's use their center instead.
+		// EyePosition() is not reliable since not all NPCs have $eyeposition set.
+		// So let's use their center instead.
 		Vector vKiller = pKiller->WorldSpaceCenter() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
-	};
+	}
 #endif
 
 	Vector vForward; AngleVectors( eyeAngles, &vForward );

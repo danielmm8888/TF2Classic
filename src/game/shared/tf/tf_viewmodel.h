@@ -38,7 +38,7 @@ public:
 #if defined( CLIENT_DLL )
 	virtual bool ShouldPredict( void )
 	{
-		// FIXME: Prediction causes often causes viewmodels to get bugged so I'm disabling this for now. (Nicknine)
+		// FIXME: Prediction often causes viewmodels to get bugged so I'm disabling this for now. (Nicknine)
 		if ( GetOwner() && GetOwner() == C_BasePlayer::GetLocalPlayer() )
 			return false;
 
