@@ -146,27 +146,27 @@ void CTFStatsSummaryPanel::Reset()
 }
 
 static const char* const s_ClassImages[] = {
-	"../console/background04", // SCOUT
-	"../console/background04", // SNIPER
-	"../console/background04", // SOLDIER
-	"../console/background04", // DEMOMAN
-	"../console/background04", // MEDIC
-	"../console/background04", // HEAVY_WEAPONS
-	"../console/background04", // PYRO
-	"../console/background04", // SPY
-	"../console/background04", // ENGINEER
+	"../console/image_scout",				// SCOUT
+	"../console/image_sniper",				// SNIPER
+	"../console/image_soldier",				// SOLDIER
+	"../console/image_demoman",				// DEMOMAN
+	"../console/image_medic",				// MEDIC
+	"../console/image_heavy_weapons",		// HEAVY_WEAPONS
+	"../console/image_pyro",				// PYRO
+	"../console/image_spy",					// SPY
+	"../console/image_engineer",			// ENGINEER
 };
 
 static const char* const s_ClassImagesWidescreen[] = {
-	"../console/background04_widescreen", // SCOUT
-	"../console/background04_widescreen", // SNIPER
-	"../console/background04_widescreen", // SOLDIER
-	"../console/background04_widescreen", // DEMOMAN
-	"../console/background04_widescreen", // MEDIC
-	"../console/background04_widescreen", // HEAVY_WEAPONS
-	"../console/background04_widescreen", // PYRO
-	"../console/background04_widescreen", // SPY
-	"../console/background04_widescreen"  // ENGINEER
+	"../console/image_widescreen_scout",			// SCOUT
+	"../console/image_widescreen_sniper",			// SNIPER
+	"../console/image_widescreen_soldier",			// SOLDIER
+	"../console/image_widescreen_demoman",			// DEMOMAN
+	"../console/image_widescreen_medic",			// MEDIC
+	"../console/image_widescreen_heavy_weapons",	// HEAVY_WEAPONS
+	"../console/image_widescreen_pyro",				// PYRO
+	"../console/image_widescreen_spy",				// SPY
+	"../console/image_widescreen_engineer",			// ENGINEER
 };
 
 static const char* const s_Backgrounds[] = {
@@ -288,7 +288,7 @@ void CTFStatsSummaryPanel::UpdateDialog()
 	ImagePanel *pImagePanelClassBackground = dynamic_cast<ImagePanel *>( FindChildByName("ClassImage") );
 	if ( pImagePanelClassBackground )
 	{
-		pImagePanelClassBackground->SetImage( "../cable/white" ); // bIsWidescreen ? s_ClassImagesWidescreen[m_iSelectedClass - 1] : s_ClassImages[m_iSelectedClass - 1] );
+		pImagePanelClassBackground->SetImage( bIsWidescreen ? s_ClassImagesWidescreen[m_iSelectedClass - 1] : s_ClassImages[m_iSelectedClass - 1] );
 	}
 }
 
