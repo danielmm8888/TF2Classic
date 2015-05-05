@@ -168,7 +168,7 @@ CBaseObject *C_TFTeam::GetObject( int num )
 //-----------------------------------------------------------------------------
 C_AI_BaseNPC* C_TFTeam::GetNPC( int num )
 {
-	Assert( num >= 0 && num < m_NPCs.Count() );
+	Assert( num >= 0 && num < m_aNPCs.Count() );
 	return m_aNPCs[ num ];
 }
 
