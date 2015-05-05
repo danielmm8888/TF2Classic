@@ -44,6 +44,8 @@ public:
 	void					SetHealth( int health ) { m_iHealth = health; }
 	virtual int				GetMaxHealth() const { return m_iMaxHealth; }
 
+	char const				*GetClassname( void ) { return m_szClassname; }
+
 private:
 	C_AI_BaseNPC( const C_AI_BaseNPC & ); // not defined, not accessible
 	float m_flTimePingEffect;
@@ -61,6 +63,8 @@ private:
 	bool m_bFadeCorpse;
 	bool m_bSpeedModActive;
 	bool m_bImportanRagdoll;
+
+	char m_szClassname[128];
 };
 
 

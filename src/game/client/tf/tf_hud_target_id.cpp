@@ -416,7 +416,7 @@ void CTargetID::UpdateID( void )
 				const char *printFormatString = NULL;
 				wchar_t wszNPCName[ MAX_PLAYER_NAME_LENGTH ];
 
-				g_pVGuiLocalize->ConvertANSIToUnicode( "NPC", wszNPCName, sizeof(wszNPCName) );
+				g_pVGuiLocalize->ConvertANSIToUnicode( pNPC->GetClassname(), wszNPCName, sizeof(wszNPCName) );
 
 				if (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pNPC->InSameTeam(pLocalTFPlayer))
 				{

@@ -10826,6 +10826,7 @@ BEGIN_DATADESC( CAI_BaseNPC )
 	DEFINE_KEYFIELD( m_iszEnemyFilterName,		FIELD_STRING, "enemyfilter" ),
 	DEFINE_FIELD( m_bImportanRagdoll,			FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bPlayerAvoidState,			FIELD_BOOLEAN ),
+	DEFINE_ARRAY( m_szClassname,				FIELD_STRING, 128 ),
 
 	// Satisfy classcheck
 	// DEFINE_FIELD( m_ScheduleHistory, CUtlVector < AIScheduleChoice_t > ),
@@ -10930,6 +10931,7 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropInt( SENDINFO( m_iSpeedModSpeed ) ),
 	SendPropBool( SENDINFO( m_bImportanRagdoll ) ),
 	SendPropFloat( SENDINFO( m_flTimePingEffect ) ),
+	SendPropString( SENDINFO( m_szClassname ) ),
 END_SEND_TABLE()
 
 //-------------------------------------
@@ -10974,6 +10976,7 @@ END_DATADESC()
 void CAI_BaseNPC::PostConstructor( const char *szClassname )
 {
 	BaseClass::PostConstructor( szClassname );
+	Q_strcpy( m_szClassname.GetForModify(), szClassname );
 	CreateComponents();
 }
 

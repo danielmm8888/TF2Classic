@@ -2125,6 +2125,8 @@ public:
 
 	void				StartPingEffect( void ) { m_flTimePingEffect = gpGlobals->curtime + 2.0f; DispatchUpdateTransmitState(); }
 
+	CNetworkString( m_szClassname, 128 );
+
 #ifdef TF_CLASSIC
 public:
 	// Team support for TF2C!
