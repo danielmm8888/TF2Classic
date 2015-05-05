@@ -7784,6 +7784,16 @@ bool CAI_BaseNPC::IsValidEnemy( CBaseEntity *pEnemy )
 	// Test our enemy filter
 	if ( m_hEnemyFilter.Get()!= NULL && m_hEnemyFilter->PassesFilter( this, pEnemy ) == false )
 		return false;
+#ifdef TF_CLASSIC
+	CTFPlayer *pEnemyTFPlayer = ToTFPlayer( pEnemy );
+
+	if ( pEnemyTFPlayer && pEnemyTFPlayer->m_Shared.GetPercentInvisible() > 0.5 )
+		return false;
+
+	// Don't target players disguised as our team member but keep attacking if they disguise while being our target.
+	if ( pEnemyTFPlayer && pEnemyTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pEnemyTFPlayer->m_Shared.GetDisguiseTeam() == GetTeamNumber() && pEnemyTFPlayer != GetEnemy() )
+		return false;
+#endif
 
 	return true;
 }
