@@ -61,9 +61,10 @@ void CTFKnife::PrimaryAttack( void )
 	if ( DoSwingTrace( trace ) == true )
 	{
 		// we will hit something with the attack
-		if( trace.m_pEnt && trace.m_pEnt->IsPlayer() )
+		if( trace.m_pEnt && (trace.m_pEnt->IsPlayer() || trace.m_pEnt->IsNPC()) )
 		{
-			CTFPlayer *pTarget = ToTFPlayer( trace.m_pEnt );
+			//CTFPlayer *pTarget = ToTFPlayer( trace.m_pEnt );
+			CBaseCombatCharacter *pTarget = trace.m_pEnt->MyCombatCharacterPointer();
 
 			if ( pTarget && pTarget->GetTeamNumber() != pPlayer->GetTeamNumber() )
 			{
@@ -101,7 +102,7 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 {
 	float flBaseDamage = BaseClass::GetMeleeDamage( pTarget, iCustomDamage );
 
-	if ( pTarget->IsPlayer() )
+	if ( pTarget->IsPlayer() || pTarget->IsNPC() )
 	{
 		// This counts as a backstab if:
 		// a ) we are behind the target player
@@ -133,6 +134,19 @@ bool CTFKnife::IsBehindTarget( CBaseEntity *pTarget )
 {
 	Assert( pTarget );
 
+	// TODO: Make it so only humanoid NPCs can get backstabbed.
+	// The code below only works server side.
+#if 0
+	// Can only backstab humanoid NPCs.
+	if ( pTarget->IsNPC() )
+	{
+		CBaseCombatCharacter *pBCC = pTarget->MyCombatCharacterPointer();
+		if ( pBCC && (pBCC->GetHullType() != HULL_HUMAN) )
+		{
+			return false;
+		}
+	}
+#endif
 	// Get the forward view vector of the target, ignore Z
 	Vector vecVictimForward;
 	AngleVectors( pTarget->EyeAngles(), &vecVictimForward, NULL, NULL );
