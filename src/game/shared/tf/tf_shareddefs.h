@@ -106,7 +106,7 @@ enum
 #define TF_CLASS_COUNT			( TF_CLASS_COUNT_ALL - 1 )
 
 #define TF_FIRST_NORMAL_CLASS	( TF_CLASS_UNDEFINED + 1 )
-#define TF_LAST_NORMAL_CLASS	(TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
+#define TF_LAST_NORMAL_CLASS	( TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
 
 #define	TF_CLASS_MENU_BUTTONS	( TF_CLASS_RANDOM + 1 )
 
@@ -162,6 +162,7 @@ enum
 	TF_GAMETYPE_ARENA,
 	TF_GAMETYPE_MVM,
 	TF_GAMETYPE_DM,
+	TF_GAMETYPE_VIP,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 
@@ -316,7 +317,6 @@ enum
 	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
 	TF_WEAPON_SMG_SCOUT,
 	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_PIPE,
 	TF_WEAPON_CYCLOPS,
 	TF_WEAPON_OVERHEALER,
 	TF_WEAPON_FISHWHACKER,
@@ -402,6 +402,7 @@ enum
 	TF_COND_INVULNERABLE_WEARINGOFF,
 	TF_COND_STEALTHED_BLINK,
 	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
 
 	// The following conditions all expire faster when the player is being healed
 	// If you add a new condition that shouldn't have this behavior, add it before this section.
@@ -411,7 +412,6 @@ enum
 	TF_COND_SLOWED,
 
 	// Add new conditions that should be affected by healing here
-	TF_COND_KRITZ,
 
 	TF_COND_LAST
 };

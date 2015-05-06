@@ -18,6 +18,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TF_PlayerResource, DT_TFPlayerResource, CTFPlayerRes
 	RecvPropArray3( RECVINFO_ARRAY( m_iTotalScore ), RecvPropInt( RECVINFO( m_iTotalScore[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iMaxHealth ), RecvPropInt( RECVINFO( m_iMaxHealth[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_iPlayerClass ), RecvPropInt( RECVINFO( m_iPlayerClass[0] ) ) ),
+	RecvPropArray3( RECVINFO_ARRAY( m_iColors ), RecvPropVector( RECVINFO( m_iColors[0] ) ) ),
 END_RECV_TABLE()
 
 
@@ -51,6 +52,15 @@ int C_TF_PlayerResource::GetArrayValue( int iIndex, int *pArray, int iDefaultVal
 		return iDefaultVal;
 	}
 	return pArray[iIndex];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Color C_TF_PlayerResource::GetPlayerColor(int iIndex) 
+{ 
+	//Msg("Client %f %f %f\n", m_iColors[iIndex].x, m_iColors[iIndex].y, m_iColors[iIndex].z);
+	return Color(m_iColors[iIndex].x * 255.0, m_iColors[iIndex].y * 255.0, m_iColors[iIndex].z * 255.0, 255);
 }
 
 //-----------------------------------------------------------------------------

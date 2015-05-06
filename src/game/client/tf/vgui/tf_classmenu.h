@@ -97,8 +97,6 @@ protected:
 	virtual void ApplySchemeSettings( IScheme *pScheme );
 	virtual void OnKeyCodePressed( KeyCode code );
 	virtual CImageMouseOverButton<CTFClassInfoPanel> *GetCurrentClassButton();
-	virtual char *CTFClassMenu::GetTeamSound(int iTeam);
-	virtual char *CTFClassMenu::GetClassSound(int iClass, int iTeam);
 	virtual void OnKeyCodeReleased( vgui::KeyCode code );
 	virtual void OnThink();
 	virtual void UpdateNumClassLabels( int iTeam );

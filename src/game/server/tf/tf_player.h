@@ -378,6 +378,8 @@ public:
 
 public:
 
+	CNetworkVar(Vector, m_vecPlayerColor);
+
 	CTFPlayerShared m_Shared;
 
 	int	    item_list;			// Used to keep track of which goalitems are 

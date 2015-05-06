@@ -43,6 +43,7 @@
 	#include "hl2orange.spa.h"
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
+	#include "vote_controller.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -438,11 +439,11 @@ void CTFGameRulesProxy::InputAddYellowTeamScore(inputdata_t &inputdata)
 //-----------------------------------------------------------------------------
 void CTFGameRulesProxy::Activate()
 {
+	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
+
 	TFGameRules()->Activate();
 
 	TFGameRules()->SetHudType(m_iHud_Type);
-
-	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
 
 	BaseClass::Activate();
 }
@@ -654,6 +655,7 @@ static const char *s_PreserveEnts[] =
 	"keyframe_rope",
 	"move_rope",
 	"tf_viewmodel",
+	"vote_controller",
 	"", // END Marker
 };
 
@@ -820,7 +822,7 @@ void CTFGameRules::CleanUpMap( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-//-----------------------------------------------------------------------------ob
+//-----------------------------------------------------------------------------
 void CTFGameRules::RecalculateControlPointState( void )
 {
 	Assert( ObjectiveResource() );
@@ -1528,6 +1530,10 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
+		// Friendly fire is ALWAYS on in DM.
+		if (TFGameRules()->IsDeathmatch())
+			return true;
+		
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
 			return false;
@@ -2081,6 +2087,8 @@ void CTFGameRules::CreateStandardEntities()
 	CBaseEntity *pEnt = CBaseEntity::Create( "tf_gamerules", vec3_origin, vec3_angle );
 	Assert( pEnt );
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
+
+	CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
 }
 
 //-----------------------------------------------------------------------------
@@ -3613,6 +3621,9 @@ const char *CTFGameRules::GetGameDescription(void)
 			break;
 		case TF_GAMETYPE_DM:
 			return "TF2C (Deathmatch)";
+			break;
+		case TF_GAMETYPE_VIP:
+			return "TF2C (Hunted)";
 			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";

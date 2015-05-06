@@ -33,8 +33,6 @@
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
-
-extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
 
 extern ConVar tf_useparticletracers;
@@ -494,6 +492,10 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
+	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
+	{
+		m_bCurrentAttackIsCrit = true;
+	}
 	else if ( IsMeleeWeapon() && ((tf_weapon_criticals_melee.GetInt() == 1 && tf_weapon_criticals.GetBool()) || tf_weapon_criticals_melee.GetInt() == 2))
 	{
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
@@ -502,10 +504,6 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	if (pPlayer->m_Shared.InCond(TF_COND_KRITZ))
-	{
-		m_bCurrentAttackIsCrit = true;
 	}
 	else
 	{
@@ -2409,3 +2407,22 @@ EXPOSE_INTERFACE( CWeaponInvisProxy, IMaterialProxy, "weapon_invis" IMATERIAL_PR
 
 
 #endif // CLIENT_DLL
+
+CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
+{
+	// Get the weapon information.
+	const char *pszWeaponAlias = WeaponIdToAlias(iWeapon);
+	if (!pszWeaponAlias)
+	{
+		return NULL;
+	}
+
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot(pszWeaponAlias);
+	if (hWpnInfo == GetInvalidWeaponInfoHandle())
+	{
+		return NULL;
+	}
+
+	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>(GetFileWeaponInfoFromHandle(hWpnInfo));
+	return pWeaponInfo;
+}
