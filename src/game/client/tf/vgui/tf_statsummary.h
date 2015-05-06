@@ -17,22 +17,22 @@
 class CTFStatsSummaryPanel : public vgui::EditablePanel, public CGameEventListener
 {
 private:
-	DECLARE_CLASS_SIMPLE(CTFStatsSummaryPanel, vgui::EditablePanel);
+	DECLARE_CLASS_SIMPLE( CTFStatsSummaryPanel, vgui::EditablePanel );
 
 public:
 	CTFStatsSummaryPanel();
 
-	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
-	virtual void OnCommand(const char *command);
-	virtual void OnKeyCodePressed(KeyCode code);
+	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
+	virtual void OnCommand( const char *command );
+	virtual void OnKeyCodePressed( KeyCode code );
 	virtual void PerformLayout();
-	void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
+	void SetStats( CUtlVector<ClassStats_t> &vecClassStats );
 	void ShowModal();
 
-	virtual void FireGameEvent(IGameEvent *event);
+	virtual void FireGameEvent( IGameEvent *event );
 private:
-	MESSAGE_FUNC(OnActivate, "activate");
-	MESSAGE_FUNC(OnDeactivate, "deactivate");
+	MESSAGE_FUNC( OnActivate, "activate" );
+	MESSAGE_FUNC( OnDeactivate, "deactivate" );
 
 	enum StatDisplay_t
 	{
@@ -50,12 +50,12 @@ private:
 	void UpdateControls();
 	void ClearMapLabel();
 	//void InitBarChartComboBox( vgui::ComboBox *pComboBox );
-	void SetValueAsClass(const char *pDialogVariable, int iValue, int iPlayerClass);
-	void DisplayBarValue(int iChart, int iClass, ClassStats_t &stats, TFStatType_t statType, StatDisplay_t flags, float flMaxValue);
-	static float GetDisplayValue(ClassStats_t &stats, TFStatType_t statType, StatDisplay_t statDisplay);
-	const char *RenderValue(float flValue, TFStatType_t statType, StatDisplay_t statDisplay);
-	static float SafeCalcFraction(float flNumerator, float flDemoninator);
-	static int __cdecl CompareClassStats(const ClassStats_t *pStats0, const ClassStats_t *pStats1);
+	void SetValueAsClass( const char *pDialogVariable, int iValue, int iPlayerClass );
+	void DisplayBarValue( int iChart, int iClass, ClassStats_t &stats, TFStatType_t statType, StatDisplay_t flags, float flMaxValue );
+	static float GetDisplayValue( ClassStats_t &stats, TFStatType_t statType, StatDisplay_t statDisplay );
+	const char *RenderValue( float flValue, TFStatType_t statType, StatDisplay_t statDisplay );
+	static float SafeCalcFraction( float flNumerator, float flDemoninator );
+	static int __cdecl CompareClassStats( const ClassStats_t *pStats0, const ClassStats_t *pStats1 );
 	//MESSAGE_FUNC_PARAMS( OnTextChanged, "TextChanged", data );
 
 	vgui::EditablePanel *m_pPlayerData;
@@ -65,9 +65,6 @@ private:
 	CExLabel		*m_pTipLabel;
 	CExLabel		*m_pTipText;
 	CExLabel		*m_pPlaytimeText;
-
-	vgui::Button *m_pNextTipButton;
-	vgui::Button *m_pCloseButton;
 
 	bool m_bInteractive;
 	bool m_bControlsLoaded;							// have we loaded controls yet
@@ -81,6 +78,6 @@ private:
 
 CTFStatsSummaryPanel *GStatsSummaryPanel();
 void DestroyStatsSummaryPanel();
-const char *FormatSeconds(int seconds);
+const char *FormatSeconds( int seconds );
 
 #endif // TF_STATSSUMMARY_H

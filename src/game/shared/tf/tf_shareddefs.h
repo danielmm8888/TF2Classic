@@ -14,9 +14,9 @@
 
 // Using MAP_DEBUG mode?
 #ifdef MAP_DEBUG
-#define MDEBUG(x) x
+	#define MDEBUG(x) x
 #else
-#define MDEBUG(x)
+	#define MDEBUG(x)
 #endif
 
 //-----------------------------------------------------------------------------
@@ -24,7 +24,7 @@
 //-----------------------------------------------------------------------------
 enum
 {
-	TF_TEAM_RED = LAST_SHARED_TEAM + 1,
+	TF_TEAM_RED = LAST_SHARED_TEAM+1,
 	TF_TEAM_BLUE,
 	TF_TEAM_GREEN,
 	TF_TEAM_YELLOW,
@@ -41,9 +41,9 @@ extern color32 g_aTeamSkinColors[TF_TEAM_COUNT];
 #define CONTENTS_BLUETEAM	CONTENTS_TEAM2
 #define CONTENTS_GREENTEAM	CONTENTS_UNUSED
 #define CONTENTS_YELLOWTEAM	CONTENTS_UNUSED6
-
+			
 // Team roles
-enum
+enum 
 {
 	TEAM_ROLE_NONE = 0,
 	TEAM_ROLE_DEFENDERS,
@@ -106,7 +106,7 @@ enum
 #define TF_CLASS_COUNT			( TF_CLASS_COUNT_ALL - 1 )
 
 #define TF_FIRST_NORMAL_CLASS	( TF_CLASS_UNDEFINED + 1 )
-#define TF_LAST_NORMAL_CLASS	(TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_MERCENARY - 2 )
+#define TF_LAST_NORMAL_CLASS	( TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
 
 #define	TF_CLASS_MENU_BUTTONS	( TF_CLASS_RANDOM + 1 )
 
@@ -115,8 +115,8 @@ enum
 	TF_CLASS_UNDEFINED = 0,
 
 	TF_CLASS_SCOUT,			// TF_FIRST_NORMAL_CLASS
-	TF_CLASS_SNIPER,
-	TF_CLASS_SOLDIER,
+    TF_CLASS_SNIPER,
+    TF_CLASS_SOLDIER,
 	TF_CLASS_DEMOMAN,
 	TF_CLASS_MEDIC,
 	TF_CLASS_HEAVYWEAPONS,
@@ -162,6 +162,7 @@ enum
 	TF_GAMETYPE_ARENA,
 	TF_GAMETYPE_MVM,
 	TF_GAMETYPE_DM,
+	TF_GAMETYPE_VIP,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 
@@ -170,10 +171,10 @@ extern const char *g_aGameTypeNames[];	// localized gametype names
 //-----------------------------------------------------------------------------
 enum
 {
-	TF_BUILDING_SENTRY = (1 << 0),
-	TF_BUILDING_DISPENSER = (1 << 1),
-	TF_BUILDING_TELEPORT_ENTRY = (1 << 2),
-	TF_BUILDING_TELEPORT_EXIT = (1 << 3),
+	TF_BUILDING_SENTRY				= (1<<0),
+	TF_BUILDING_DISPENSER			= (1<<1),
+	TF_BUILDING_TELEPORT_ENTRY		= (1<<2),
+	TF_BUILDING_TELEPORT_EXIT		= (1<<3),
 };
 
 //-----------------------------------------------------------------------------
@@ -181,12 +182,12 @@ enum
 //-----------------------------------------------------------------------------
 enum
 {
-	TF_ITEM_UNDEFINED = 0,
-	TF_ITEM_CAPTURE_FLAG = (1 << 0),
-	TF_ITEM_HEALTH_KIT = (1 << 1),
-	TF_ITEM_ARMOR = (1 << 2),
-	TF_ITEM_AMMO_PACK = (1 << 3),
-	TF_ITEM_GRENADE_PACK = (1 << 4),
+	TF_ITEM_UNDEFINED		= 0,
+	TF_ITEM_CAPTURE_FLAG	= (1<<0),
+	TF_ITEM_HEALTH_KIT		= (1<<1),
+	TF_ITEM_ARMOR			= (1<<2),
+	TF_ITEM_AMMO_PACK		= (1<<3),
+	TF_ITEM_GRENADE_PACK	= (1<<4),
 };
 
 //-----------------------------------------------------------------------------
@@ -316,12 +317,14 @@ enum
 	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
 	TF_WEAPON_SMG_SCOUT,
 	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_PIPE,
 	TF_WEAPON_CYCLOPS,
 	TF_WEAPON_OVERHEALER,
 	TF_WEAPON_FISHWHACKER,
 	TF_WEAPON_SHOTGUN_MEDIC,
 	TF_WEAPON_HUNTERRIFLE,
+	TF_WEAPON_UMBRELLA,
+	TF_WEAPON_KRITZKRIEG,
+	TF_WEAPON_UBERSAW,
 
 	TF_WEAPON_COUNT
 };
@@ -329,12 +332,12 @@ enum
 extern const char *g_aWeaponNames[];
 extern int g_aWeaponDamageTypes[];
 
-int GetWeaponId(const char *pszWeaponName);
+int GetWeaponId( const char *pszWeaponName );
 #ifdef GAME_DLL
-int GetWeaponFromDamage(const CTakeDamageInfo &info);
+int GetWeaponFromDamage( const CTakeDamageInfo &info );
 #endif
-int GetBuildableId(const char *pszBuildableName);
-const char *WeaponIdToAlias(int iWeapon);
+int GetBuildableId( const char *pszBuildableName );
+const char *WeaponIdToAlias( int iWeapon );
 
 enum
 {
@@ -389,6 +392,7 @@ enum
 	TF_COND_INVULNERABLE_WEARINGOFF,
 	TF_COND_STEALTHED_BLINK,
 	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
 
 	// The following conditions all expire faster when the player is being healed
 	// If you add a new condition that shouldn't have this behavior, add it before this section.
@@ -405,7 +409,7 @@ enum
 //-----------------------------------------------------------------------------
 // TF Player State.
 //-----------------------------------------------------------------------------
-enum
+enum 
 {
 	TF_STATE_ACTIVE = 0,		// Happily running around in the game.
 	TF_STATE_WELCOME,			// First entering the server (shows level intro screen).
@@ -675,7 +679,7 @@ enum
 //--------------------------------------------------------------------------
 enum
 {
-	OBJ_DISPENSER = 0,
+	OBJ_DISPENSER=0,
 	OBJ_TELEPORTER_ENTRANCE,
 	OBJ_TELEPORTER_EXIT,
 	OBJ_SENTRYGUN,
@@ -697,7 +701,7 @@ typedef enum
 	BUILDING_HUD_ALERT_LOW_HEALTH,
 	BUILDING_HUD_ALERT_VERY_LOW_AMMO,
 	BUILDING_HUD_ALERT_VERY_LOW_HEALTH,
-	BUILDING_HUD_ALERT_SAPPER,
+	BUILDING_HUD_ALERT_SAPPER,	
 
 	MAX_BUILDING_HUD_ALERT_LEVEL
 } BuildingHudAlert_t;
@@ -739,7 +743,7 @@ enum
 	TELEPORTER_STATE_IDLE,						// Does not have a matching teleporter yet
 	TELEPORTER_STATE_READY,						// Found match, charged and ready
 	TELEPORTER_STATE_SENDING,					// Teleporting a player away
-	TELEPORTER_STATE_RECEIVING,
+	TELEPORTER_STATE_RECEIVING,					
 	TELEPORTER_STATE_RECEIVING_RELEASE,
 	TELEPORTER_STATE_RECHARGING,				// Waiting for recharge
 };
@@ -767,16 +771,16 @@ enum
 //--------------------------------------------------------------------------
 enum
 {
-	OF_ALLOW_REPEAT_PLACEMENT = 0x01,
-	OF_MUST_BE_BUILT_ON_ATTACHMENT = 0x02,
+	OF_ALLOW_REPEAT_PLACEMENT				= 0x01,
+	OF_MUST_BE_BUILT_ON_ATTACHMENT			= 0x02,
 
-	OF_BIT_COUNT = 2
+	OF_BIT_COUNT	= 2
 };
 
 //--------------------------------------------------------------------------
 // Builder "weapon" states
 //--------------------------------------------------------------------------
-enum
+enum 
 {
 	BS_IDLE = 0,
 	BS_SELECTING,
@@ -849,9 +853,9 @@ enum
 
 #define	MAX_CABLE_CONNECTIONS 4
 
-bool IsObjectAnUpgrade(int iObjectType);
-bool IsObjectAVehicle(int iObjectType);
-bool IsObjectADefensiveBuilding(int iObjectType);
+bool IsObjectAnUpgrade( int iObjectType );
+bool IsObjectAVehicle( int iObjectType );
+bool IsObjectADefensiveBuilding( int iObjectType );
 
 class CHudTexture;
 
@@ -860,7 +864,7 @@ class CHudTexture;
 class CObjectInfo
 {
 public:
-	CObjectInfo(char *pObjectName);
+	CObjectInfo( char *pObjectName );	
 	~CObjectInfo();
 
 	// This is initialized by the code and matched with a section in objects.txt
@@ -901,15 +905,15 @@ public:
 
 // Loads the objects.txt script.
 class IBaseFileSystem;
-void LoadObjectInfos(IBaseFileSystem *pFileSystem);
+void LoadObjectInfos( IBaseFileSystem *pFileSystem );
 
 // Get a CObjectInfo from a TFOBJ_ define.
-const CObjectInfo* GetObjectInfo(int iObject);
+const CObjectInfo* GetObjectInfo( int iObject );
 
 // Object utility funcs
-bool	ClassCanBuild(int iClass, int iObjectType);
-int		CalculateObjectCost(int iObjectType /*, int iNumberOfObjects, int iTeam, bool bLast = false*/);
-int		CalculateObjectUpgrade(int iObjectType, int iObjectLevel);
+bool	ClassCanBuild( int iClass, int iObjectType );
+int		CalculateObjectCost( int iObjectType /*, int iNumberOfObjects, int iTeam, bool bLast = false*/ );
+int		CalculateObjectUpgrade( int iObjectType, int iObjectLevel );
 
 // Shell ejections
 enum

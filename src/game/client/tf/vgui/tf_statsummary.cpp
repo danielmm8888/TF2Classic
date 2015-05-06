@@ -35,7 +35,7 @@ CTFStatsSummaryPanel *g_pTFStatsSummaryPanel = NULL;
 //-----------------------------------------------------------------------------
 CTFStatsSummaryPanel *GStatsSummaryPanel()
 {
-	if (NULL == g_pTFStatsSummaryPanel)
+	if ( NULL == g_pTFStatsSummaryPanel )
 	{
 		g_pTFStatsSummaryPanel = new CTFStatsSummaryPanel();
 	}
@@ -47,7 +47,7 @@ CTFStatsSummaryPanel *GStatsSummaryPanel()
 //-----------------------------------------------------------------------------
 void DestroyStatsSummaryPanel()
 {
-	if (NULL != g_pTFStatsSummaryPanel)
+	if ( NULL != g_pTFStatsSummaryPanel )
 	{
 		delete g_pTFStatsSummaryPanel;
 		g_pTFStatsSummaryPanel = NULL;
@@ -57,22 +57,19 @@ void DestroyStatsSummaryPanel()
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFStatsSummaryPanel::CTFStatsSummaryPanel() : vgui::EditablePanel(NULL, "TFStatsSummary",
-	vgui::scheme()->LoadSchemeFromFile("Resource/ClientScheme.res", "ClientScheme"))
+CTFStatsSummaryPanel::CTFStatsSummaryPanel() : vgui::EditablePanel( NULL, "TFStatsSummary",
+	vgui::scheme()->LoadSchemeFromFile( "Resource/ClientScheme.res", "ClientScheme" ) )
 {
 	m_bControlsLoaded = false;
 	m_bInteractive = false;
 
-	m_pPlayerData = new vgui::EditablePanel(this, "statdata");
-	m_pInteractiveHeaders = new vgui::EditablePanel(m_pPlayerData, "InteractiveHeaders");
-	m_pNonInteractiveHeaders = new vgui::EditablePanel(m_pPlayerData, "NonInteractiveHeaders");
-	m_pTipLabel = new CExLabel(this, "TipLabel", "");
-	m_pTipText = new CExLabel(this, "TipText", "");
+	m_pPlayerData = new vgui::EditablePanel( this, "statdata" );
+	m_pInteractiveHeaders = new vgui::EditablePanel( m_pPlayerData, "InteractiveHeaders" );
+	m_pNonInteractiveHeaders = new vgui::EditablePanel( m_pPlayerData, "NonInteractiveHeaders" );
+	m_pTipLabel = new CExLabel( this, "TipLabel", "" );
+	m_pTipText = new CExLabel( this, "TipText", "" );
 
-	m_pNextTipButton = new vgui::Button(this, "NextTipButton", "");
-	m_pCloseButton = new vgui::Button(this, "CloseButton", "");
-
-	ListenForGameEvent("server_spawn");
+	ListenForGameEvent( "server_spawn" );
 
 	Reset();
 }
@@ -85,9 +82,9 @@ void CTFStatsSummaryPanel::ShowModal()
 	// we are in interactive mode, enable controls
 	m_bInteractive = true;
 
-	SetParent(enginevgui->GetPanel(PANEL_GAMEDLL));
+	SetParent( enginevgui->GetPanel( PANEL_GAMEDLL ) );
 	UpdateDialog();
-	SetVisible(true);
+	SetVisible( true );
 	MoveToFront();
 }
 
@@ -98,41 +95,36 @@ void CTFStatsSummaryPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	if (m_pTipLabel && m_pTipText)
+	if ( m_pTipLabel && m_pTipText )
 	{
 		m_pTipLabel->SizeToContents();
 		int width = m_pTipLabel->GetWide();
 
 		int x, y, w, t;
-		m_pTipText->GetBounds(x, y, w, t);
-		m_pTipText->SetBounds(x + width, y, w - width, t);
-		m_pTipText->InvalidateLayout(false, true); // have it re-layout the contents so it's wrapped correctly now that we've changed the size
-	}
-
-	if (m_pNextTipButton)
-	{
-		m_pNextTipButton->SizeToContents();
+		m_pTipText->GetBounds( x, y, w, t );
+		m_pTipText->SetBounds( x + width, y, w - width, t );
+		m_pTipText->InvalidateLayout( false, true ); // have it re-layout the contents so it's wrapped correctly now that we've changed the size
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Command handler
 //-----------------------------------------------------------------------------
-void CTFStatsSummaryPanel::OnCommand(const char *command)
+void CTFStatsSummaryPanel::OnCommand( const char *command )
 {
-	if (0 == Q_stricmp(command, "vguicancel"))
+	if ( 0 == Q_stricmp( command, "vguicancel" ) )
 	{
 		m_bInteractive = false;
 		UpdateDialog();
-		SetVisible(false);
-		SetParent((VPANEL)NULL);
+		SetVisible( false );
+		SetParent( (VPANEL)NULL );
 	}
-	else if (0 == Q_stricmp(command, "nexttip"))
+	else if ( 0 == Q_stricmp( command, "nexttip" ) )
 	{
 		UpdateTip();
 	}
 
-	BaseClass::OnCommand(command);
+	BaseClass::OnCommand( command );
 }
 
 //-----------------------------------------------------------------------------
@@ -189,31 +181,31 @@ void CTFStatsSummaryPanel::SetDefaultSelections()
 //-----------------------------------------------------------------------------
 // Purpose: Applies scheme settings
 //-----------------------------------------------------------------------------
-void CTFStatsSummaryPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+void CTFStatsSummaryPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 {
-	BaseClass::ApplySchemeSettings(pScheme);
+	BaseClass::ApplySchemeSettings( pScheme );
 
-	SetProportional(true);
-	LoadControlSettings("Resource/UI/StatSummary.res");
+	SetProportional( true );
+	LoadControlSettings( "Resource/UI/StatSummary.res" );
 	m_bControlsLoaded = true;
 
 	UpdateDialog();
-	SetVisible(false);
+	SetVisible( false );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFStatsSummaryPanel::OnKeyCodePressed(KeyCode code)
+void CTFStatsSummaryPanel::OnKeyCodePressed( KeyCode code )
 {}
 
 //-----------------------------------------------------------------------------
 // Purpose: Sets stats to use
 //-----------------------------------------------------------------------------
-void CTFStatsSummaryPanel::SetStats(CUtlVector<ClassStats_t> &vecClassStats)
+void CTFStatsSummaryPanel::SetStats( CUtlVector<ClassStats_t> &vecClassStats )
 {
 	m_aClassStats = vecClassStats;
-	if (m_bControlsLoaded)
+	if ( m_bControlsLoaded )
 	{
 		UpdateDialog();
 	}
@@ -243,22 +235,22 @@ void CTFStatsSummaryPanel::UpdateDialog()
 	m_iTotalSpawns = 0;
 
 	// if we don't have stats for any class, add empty stat entries for them 
-	for (int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_LAST_NORMAL_CLASS; iClass++)
+	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_CLASS_ENGINEER; iClass++ )
 	{
 		int j;
-		for (j = 0; j < m_aClassStats.Count(); j++)
+		for ( j = 0; j < m_aClassStats.Count(); j++ )
 		{
-			if (m_aClassStats[j].iPlayerClass == iClass)
+			if ( m_aClassStats[j].iPlayerClass == iClass )
 			{
 				m_iTotalSpawns += m_aClassStats[j].iNumberOfRounds;
 				break;
 			}
 		}
-		if (j == m_aClassStats.Count())
+		if ( j == m_aClassStats.Count() )
 		{
 			ClassStats_t stats;
 			stats.iPlayerClass = iClass;
-			m_aClassStats.AddToTail(stats);
+			m_aClassStats.AddToTail( stats );
 		}
 	}
 
@@ -301,13 +293,13 @@ void CTFStatsSummaryPanel::UpdateDialog()
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::UpdateClassDetails()
 {
-	for (int i = 0; i < m_aClassStats.Count(); i++)
+	for ( int i = 0; i < m_aClassStats.Count(); i++ )
 	{
-		if (m_aClassStats[i].iPlayerClass != m_iSelectedClass)
+		if ( m_aClassStats[i].iPlayerClass != m_iSelectedClass )
 			continue;
-		const char* playtime = RenderValue(GetDisplayValue(m_aClassStats[i], TFSTAT_PLAYTIME, SHOW_TOTAL), TFSTAT_PLAYTIME, SHOW_TOTAL);
+		const char* playtime = RenderValue( GetDisplayValue( m_aClassStats[i], TFSTAT_PLAYTIME, SHOW_TOTAL ), TFSTAT_PLAYTIME, SHOW_TOTAL );
 
-		SetDialogVariable("playtime", playtime);
+		SetDialogVariable( "playtime", playtime );
 		break;
 	}
 }
@@ -317,7 +309,7 @@ void CTFStatsSummaryPanel::UpdateClassDetails()
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::UpdateTip()
 {
-	SetDialogVariable("tiptext", g_TFTips.GetNextClassTip(m_iSelectedClass));
+	SetDialogVariable( "tiptext", g_TFTips.GetNextClassTip( m_iSelectedClass ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -325,22 +317,22 @@ void CTFStatsSummaryPanel::UpdateTip()
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::UpdateControls()
 {
-	bool bShowPlayerData = (m_bInteractive || m_iTotalSpawns > 0);
+	bool bShowPlayerData = ( m_bInteractive || m_iTotalSpawns > 0 );
 
-	m_pPlayerData->SetVisible(bShowPlayerData);
-	m_pInteractiveHeaders->SetVisible(m_bInteractive);
-	m_pNonInteractiveHeaders->SetVisible(!m_bInteractive);
-	m_pTipText->SetVisible(bShowPlayerData);
-	m_pTipLabel->SetVisible(bShowPlayerData);
+	m_pPlayerData->SetVisible( bShowPlayerData );
+	m_pInteractiveHeaders->SetVisible( m_bInteractive );
+	m_pNonInteractiveHeaders->SetVisible( !m_bInteractive );
+	m_pTipText->SetVisible( bShowPlayerData );
+	m_pTipLabel->SetVisible( bShowPlayerData );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Calculates a fraction and guards from divide by 0.  (Returns 0 if 
 //			denominator is 0.)
 //-----------------------------------------------------------------------------
-float CTFStatsSummaryPanel::SafeCalcFraction(float flNumerator, float flDemoninator)
+float CTFStatsSummaryPanel::SafeCalcFraction( float flNumerator, float flDemoninator )
 {
-	if (0 == flDemoninator)
+	if ( 0 == flDemoninator )
 		return 0;
 	return flNumerator / flDemoninator;
 }
@@ -348,31 +340,31 @@ float CTFStatsSummaryPanel::SafeCalcFraction(float flNumerator, float flDemonina
 //-----------------------------------------------------------------------------
 // Purpose: Formats # of seconds into a string
 //-----------------------------------------------------------------------------
-const char *FormatSeconds(int seconds)
+const char *FormatSeconds( int seconds )
 {
 	static char string[64];
 
 	int hours = 0;
 	int minutes = seconds / 60;
 
-	if (minutes > 0)
+	if ( minutes > 0 )
 	{
 		seconds -= (minutes * 60);
 		hours = minutes / 60;
 
-		if (hours > 0)
+		if ( hours > 0 )
 		{
 			minutes -= (hours * 60);
 		}
 	}
 
-	if (hours > 0)
+	if ( hours > 0 )
 	{
-		Q_snprintf(string, sizeof(string), "%2i:%02i:%02i", hours, minutes, seconds);
+		Q_snprintf( string, sizeof(string), "%2i:%02i:%02i", hours, minutes, seconds );
 	}
 	else
 	{
-		Q_snprintf(string, sizeof(string), "%02i:%02i", minutes, seconds);
+		Q_snprintf( string, sizeof(string), "%02i:%02i", minutes, seconds );
 	}
 
 	return string;
@@ -381,9 +373,9 @@ const char *FormatSeconds(int seconds)
 //-----------------------------------------------------------------------------
 // Purpose: Returns the stat value for specified display type
 //-----------------------------------------------------------------------------
-float CTFStatsSummaryPanel::GetDisplayValue(ClassStats_t &stats, TFStatType_t statType, StatDisplay_t statDisplay)
+float CTFStatsSummaryPanel::GetDisplayValue( ClassStats_t &stats, TFStatType_t statType, StatDisplay_t statDisplay )
 {
-	switch (statDisplay)
+	switch ( statDisplay )
 	{
 	case SHOW_MAX:
 		return stats.max.m_iStat[statType];
@@ -392,10 +384,10 @@ float CTFStatsSummaryPanel::GetDisplayValue(ClassStats_t &stats, TFStatType_t st
 		return stats.accumulated.m_iStat[statType];
 		break;
 	case SHOW_AVG:
-		return SafeCalcFraction(stats.accumulated.m_iStat[statType], stats.iNumberOfRounds);
+		return SafeCalcFraction( stats.accumulated.m_iStat[statType], stats.iNumberOfRounds );
 		break;
 	default:
-		AssertOnce(false);
+		AssertOnce( false );
 		return 0;
 	}
 }
@@ -403,50 +395,50 @@ float CTFStatsSummaryPanel::GetDisplayValue(ClassStats_t &stats, TFStatType_t st
 //-----------------------------------------------------------------------------
 // Purpose: Gets the text representation of this value
 //-----------------------------------------------------------------------------
-const char *CTFStatsSummaryPanel::RenderValue(float flValue, TFStatType_t statType, StatDisplay_t statDisplay)
+const char *CTFStatsSummaryPanel::RenderValue( float flValue, TFStatType_t statType, StatDisplay_t statDisplay )
 {
 	static char szValue[64];
-	if (TFSTAT_PLAYTIME == statType)
+	if ( TFSTAT_PLAYTIME == statType )
 	{
 		// the playtime stat is shown in seconds
-		return FormatSeconds((int)flValue);
+		return FormatSeconds( (int) flValue );
 	}
 	else if (SHOW_AVG == statDisplay)
 	{
 		// if it's an average, render as a float w/2 decimal places
-		Q_snprintf(szValue, ARRAYSIZE(szValue), "%.2f", flValue);
+		Q_snprintf( szValue, ARRAYSIZE( szValue ), "%.2f", flValue );
 	}
 	else
 	{
 		// otherwise, render as an integer
-		Q_snprintf(szValue, ARRAYSIZE(szValue), "%d", (int)flValue);
+		Q_snprintf( szValue, ARRAYSIZE( szValue ), "%d", (int) flValue );
 	}
 
 	return szValue;
 }
 
-extern const char *GetMapDisplayName(const char *mapName);
-extern const char *GetMapType(const char *mapName);
-extern const char *GetMapAuthor(const char *mapName);
+extern const char *GetMapDisplayName( const char *mapName );
+extern const char *GetMapType( const char *mapName );
+extern const char *GetMapAuthor( const char *mapName );
 
 //-----------------------------------------------------------------------------
 // Purpose: Event handler
 //-----------------------------------------------------------------------------
-void CTFStatsSummaryPanel::FireGameEvent(IGameEvent *event)
+void CTFStatsSummaryPanel::FireGameEvent( IGameEvent *event )
 {
 	const char *pEventName = event->GetName();
 
 	// when we are changing levels and 
-	if (0 == Q_strcmp(pEventName, "server_spawn"))
+	if ( 0 == Q_strcmp( pEventName, "server_spawn" ) )
 	{
-		if (!m_bInteractive)
+		if ( !m_bInteractive )
 		{
-			const char *pMapName = event->GetString("mapname");
-			if (pMapName)
+			const char *pMapName = event->GetString( "mapname" );
+			if ( pMapName )
 			{
 				// If we're loading a background map, don't display anything
 				// HACK: Client doesn't get gpGlobals->eLoadType, so just do string compare for now.
-				if (Q_stristr(pMapName, "background"))
+				if ( Q_stristr( pMapName, "background" ) )
 				{
 					ClearMapLabel();
 				}
@@ -454,23 +446,23 @@ void CTFStatsSummaryPanel::FireGameEvent(IGameEvent *event)
 				{
 					// set the map name in the UI
 					wchar_t wzMapName[255] = L"";
-					g_pVGuiLocalize->ConvertANSIToUnicode(GetMapDisplayName(pMapName), wzMapName, sizeof(wzMapName));
+					g_pVGuiLocalize->ConvertANSIToUnicode( GetMapDisplayName( pMapName ), wzMapName, sizeof( wzMapName ) );
 
-					SetDialogVariable("maplabel", wzMapName);
+					SetDialogVariable( "maplabel", wzMapName );
 
 					// set the map type in the UI
-					const char *szMapType = GetMapType(pMapName);
-					SetDialogVariable("maptype", g_pVGuiLocalize->Find(szMapType));
+					const char *szMapType = GetMapType( pMapName );
+					SetDialogVariable( "maptype", g_pVGuiLocalize->Find( szMapType ) );
 
 					// set the map author name in the UI
-					const char *szMapAuthor = GetMapAuthor(pMapName);
+					const char *szMapAuthor = GetMapAuthor( pMapName );
 					if ( szMapAuthor[0] != '\0' )
 					{
-						SetDialogVariable("mapauthor", szMapAuthor);
+						SetDialogVariable( "mapauthor", szMapAuthor );
 
-						Label *pMapAuthorLabel = dynamic_cast<Label *>(FindChildByName("MapAuthorLabel"));
-						if (pMapAuthorLabel && !pMapAuthorLabel->IsVisible())
-							pMapAuthorLabel->SetVisible(true);
+						Label *pMapAuthorLabel = dynamic_cast<Label *>( FindChildByName( "MapAuthorLabel" ) );
+						if ( pMapAuthorLabel && !pMapAuthorLabel->IsVisible() )
+							pMapAuthorLabel->SetVisible( true );
 					}
 				}
 			}
@@ -496,7 +488,7 @@ void CTFStatsSummaryPanel::OnDeactivate()
 	ClearMapLabel();
 }
 
-CON_COMMAND(showstatsdlg, "Shows the player stats dialog")
+CON_COMMAND( showstatsdlg, "Shows the player stats dialog" )
 {
 	GStatsSummaryPanel()->ShowModal();
 }
