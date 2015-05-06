@@ -325,7 +325,7 @@ void CTFWeaponBaseMelee::Smack( void )
 
 
 		CWeaponMedigun *pMedigun = static_cast<CWeaponMedigun*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_MEDIGUN));
-		if (pMedigun && pWpn->HasAttribute(1))
+		if (pMedigun && pWpn->HasAttribute(1) == true)
 		{	
 			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
 			{
@@ -333,7 +333,7 @@ void CTFWeaponBaseMelee::Smack( void )
 			}
 		}
 		CWeaponKritzkrieg *pKritzkrieg = static_cast<CWeaponKritzkrieg*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG));
-		if (pKritzkrieg && pWpn->HasAttribute(1))
+		if (pKritzkrieg && pWpn->HasAttribute(1) == true)
 		{
 				if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
 				{

@@ -3209,21 +3209,26 @@ bool CTFGameRules::ShouldCollide( int collisionGroup0, int collisionGroup1 )
 int	CTFGameRules::GetCaptureValueForPlayer( CBasePlayer *pPlayer )
 {
 	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	int cap_value = BaseClass::GetCaptureValueForPlayer(pPlayer);
 	if ( pTFPlayer->IsPlayerClass( TF_CLASS_SCOUT ) )
 	{
 		if ( mp_capstyle.GetInt() == 1 )
 		{
 			// Scouts count for 2 people in timebased capping.
-			return 2;
+			cap_value += 2;
 		}
 		else
 		{
 			// Scouts can cap all points on their own.
-			return 10;
+			cap_value += 10;
 		}
 	}
-
-	return BaseClass::GetCaptureValueForPlayer( pPlayer );
+	CTFWeaponBase *pWpn = pTFPlayer->GetActiveTFWeapon();
+	if (pWpn && pWpn->HasAttribute(2) == true) // +1 capture speed attribute
+	{
+		cap_value += 1;
+	}
+	return cap_value;
 }
 
 //-----------------------------------------------------------------------------

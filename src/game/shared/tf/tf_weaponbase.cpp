@@ -190,13 +190,9 @@ CTFWeaponBase::CTFWeaponBase()
 
 bool CTFWeaponBase::HasAttribute(int iAttribute)
 {
-	int i;
-	for (i = 0; i < TF_NUM_ATTRIBUTES; i++)
+	if (m_pWeaponInfo->GetWeaponData(m_iWeaponMode).m_iAttribute == iAttribute)
 	{
-		if (iAttribute == i)
-		{
-			return true;
-		}
+		return true;
 	}
 	return false;
 }
