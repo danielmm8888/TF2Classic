@@ -50,6 +50,7 @@
 
 #include "tf_overview.h"
 #include "tf_fourteamscoreboard.h"
+#include "tf_deathmatchscoreboard.h"
 
 /*
 CON_COMMAND( spec_help, "Show spectator help screen")
@@ -279,6 +280,10 @@ IViewPortPanel* TFViewport::CreatePanelByName(const char *szPanelName)
 	{
 		newpanel = new CTFFourTeamMenu(this);
 	}
+	else if (Q_strcmp(PANEL_DEATHMATCHSCOREBOARD, szPanelName) == 0)
+	{
+		newpanel = new CTFDeathMatchScoreBoardDialog(this);
+	}
 	else
 	{
 		// create a generic base panel, don't add twice
@@ -300,6 +305,7 @@ void TFViewport::CreateDefaultPanels( void )
 	AddNewPanel( CreatePanelByName( PANEL_ROUNDINFO ), "PANEL_ROUNDINFO" );
 	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSCOREBOARD ), "PANEL_FOURTEAMSCOREBOARD" );
 	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSELECT ), "PANEL_FOURTEAMSELECT" );
+	AddNewPanel( CreatePanelByName( PANEL_DEATHMATCHSCOREBOARD ), "PANEL_FOURTEAMSCOREBOARD" );
 
 	BaseClass::CreateDefaultPanels();
 }
