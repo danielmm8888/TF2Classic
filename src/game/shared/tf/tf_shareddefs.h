@@ -79,6 +79,7 @@ enum
 #define PANEL_ROUNDINFO			"roundinfo"
 #define PANEL_FOURTEAMSCOREBOARD "fourteamscoreboard"
 #define PANEL_FOURTEAMSELECT	"fourteamselect"
+#define PANEL_DEATHMATCHSCOREBOARD "deathmatchscoreboard"
 
 // file we'll save our list of viewed intro movies in
 #define MOVIES_FILE				"viewed.res"

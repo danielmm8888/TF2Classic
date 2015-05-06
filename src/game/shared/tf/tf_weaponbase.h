@@ -38,6 +38,8 @@
 
 #define MAX_TRACER_NAME		128
 
+CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
+
 class CTFPlayer;
 class CBaseObject;
 class CTFWeaponBaseGrenadeProj;

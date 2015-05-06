@@ -34,6 +34,7 @@
 
 #if defined( TF_CLASSIC_CLIENT )
 #include "ver_panel.h"
+#include "tf_mainmenu.h"
 #endif
 
 using namespace vgui;
@@ -211,7 +212,8 @@ void VGui_CreateGlobalPanels( void )
 	messagechars->Create( gameToolParent );
 
 #if defined (TF_CLASSIC_CLIENT)
-	verPanel->Create(GameUiDll);
+	//verPanel->Create(GameUiDll);
+	MainMenu->Create(GameUiDll);
 #endif
 
 	// Debugging or related tool
@@ -251,7 +253,8 @@ void VGui_Shutdown()
 	internalCenterPrint->Destroy();
 
 #if defined (TF_CLASSIC_CLIENT)
-	verPanel->Destroy();
+	//verPanel->Destroy();
+	MainMenu->Destroy();
 #endif
 
 	if ( g_pClientMode )

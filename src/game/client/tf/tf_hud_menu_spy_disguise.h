@@ -42,6 +42,7 @@ private:
 	void SelectDisguise( int iClass, int iTeam );
 	void ToggleDisguiseTeam( void );
 	void FlipFourTeams( void );
+	CON_COMMAND_MEMBER_F(CHudMenuSpyDisguise, "disguiseteam", DisguiseTeam, "Toggles the team in the Spy PDA", 0)
 private:
 	EditablePanel *m_pClassItems_Red[9];
 	EditablePanel *m_pClassItems_Blue[9];

@@ -603,6 +603,9 @@ void CTFTeamMenu::OnCommand( const char *command )
 //-----------------------------------------------------------------------------
 void CTFTeamMenu::OnTick()
 {
+	if (TFGameRules() && TFGameRules()->IsFourTeamGame())
+		return;
+
 	// update the number of players on each team
 
 	// enable or disable buttons based on team limit
@@ -730,6 +733,7 @@ void CTFFourTeamMenu::ShowPanel(bool bShow)
 
 	if (!C_TFPlayer::GetLocalTFPlayer())
 		return;
+
 	if (!gameuifuncs || !gViewPortInterface || !engine)
 		return;
 
@@ -984,6 +988,9 @@ void CTFFourTeamMenu::OnCommand(const char *command)
 //-----------------------------------------------------------------------------
 void CTFFourTeamMenu::OnTick()
 {
+	if (TFGameRules() && !TFGameRules()->IsFourTeamGame())
+		return; // How did you even get here?
+
 	// update the number of players on each team
 	C_Team *pRed = GetGlobalTeam(TF_TEAM_RED);
 	C_Team *pBlue = GetGlobalTeam(TF_TEAM_BLUE);

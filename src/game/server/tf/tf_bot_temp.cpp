@@ -178,8 +178,14 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		{
 			if ( stricmp( pVal, "red" ) == 0 )
 				iTeam = TF_TEAM_RED;
+			else if ( stricmp( pVal, "green" ) == 0 )
+				iTeam = TF_TEAM_GREEN;
+			else if ( stricmp( pVal, "yellow" ) == 0 )
+				iTeam = TF_TEAM_YELLOW;
 			else if ( stricmp( pVal, "spectator" ) == 0 )
 				iTeam = TEAM_SPECTATOR;
+			else if ( stricmp( pVal, "random" ) == 0 && TFGameRules()->IsFourTeamGame() )
+				iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
 			else if ( stricmp( pVal, "random" ) == 0 )
 				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
 			else
@@ -323,6 +329,12 @@ void Bot_Think( CTFPlayer *pBot )
 			break;
 		case TF_TEAM_BLUE:
 			pszTeam = "blue";
+			break;
+		case TF_TEAM_GREEN:
+			TFGameRules()->IsFourTeamGame() ? pszTeam = "green" : pszTeam = "red";
+			break;
+		case TF_TEAM_YELLOW:
+			TFGameRules()->IsFourTeamGame() ? pszTeam = "yellow" : pszTeam = "red";
 			break;
 		case TEAM_SPECTATOR:
 			pszTeam = "spectator";
@@ -675,14 +687,24 @@ CON_COMMAND_F( bot_changeteams, "Make all bots change teams", FCVAR_CHEAT )
 		if ( pPlayer && (pPlayer->GetFlags() & FL_FAKECLIENT) )
 		{
 			int iTeam = pPlayer->GetTeamNumber();
-			if ( TF_TEAM_BLUE == iTeam || TF_TEAM_RED == iTeam )
+			if ( TFGameRules()->IsFourTeamGame() )
 			{
-				// toggle team between red & blue
-				pPlayer->ChangeTeam( TF_TEAM_BLUE + TF_TEAM_RED - iTeam );
+				int iNewTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+				while ( iNewTeam == iTeam )
+					iNewTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+				pPlayer->ChangeTeam( iNewTeam );
 			}
-			else if (iTeam == TEAM_UNASSIGNED || iTeam == TEAM_SPECTATOR)
+			else
 			{
-				pPlayer->ChangeTeam(RandomInt(TF_TEAM_BLUE, TF_TEAM_RED));
+				if ( TF_TEAM_BLUE == iTeam || TF_TEAM_RED == iTeam )
+				{
+					// toggle team between red & blue
+					pPlayer->ChangeTeam( TF_TEAM_BLUE + TF_TEAM_RED - iTeam );
+				}
+				else if (iTeam == TEAM_UNASSIGNED || iTeam == TEAM_SPECTATOR)
+				{
+					pPlayer->ChangeTeam( RandomInt(TF_TEAM_BLUE, TF_TEAM_RED) );
+				}
 			}
 		}
 	}

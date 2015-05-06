@@ -4,8 +4,8 @@
 //
 //=============================================================================
 
-#ifndef TF_WEAPON_MEDIGUN_H
-#define TF_WEAPON_MEDIGUN_H
+#ifndef TF_WEAPON_KRITZKRIEG_H
+#define TF_WEAPON_KRITZKRIEG_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -13,7 +13,7 @@
 #include "tf_weaponbase_gun.h"
 
 #if defined( CLIENT_DLL )
-#define CWeaponMedigun C_WeaponMedigun
+#define CWeaponKritzkrieg C_WeaponKritzkrieg
 #endif
 
 #define MAX_HEALING_TARGETS			1	//6
@@ -23,15 +23,15 @@
 //=========================================================
 // Beam healing gun
 //=========================================================
-class CWeaponMedigun : public CTFWeaponBaseGun
+class CWeaponKritzkrieg : public CTFWeaponBaseGun
 {
-	DECLARE_CLASS( CWeaponMedigun, CTFWeaponBaseGun );
+	DECLARE_CLASS( CWeaponKritzkrieg, CTFWeaponBaseGun );
 public:
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
-	CWeaponMedigun( void );
-	~CWeaponMedigun( void );
+	CWeaponKritzkrieg( void );
+	~CWeaponKritzkrieg( void );
 
 	virtual void	Precache();
 
@@ -45,7 +45,7 @@ public:
 	virtual void	SecondaryAttack( void );
 	virtual void	WeaponIdle( void );
 	void			DrainCharge( void );
-	void			AddCharge(void);
+	void			AddCharge( void );
 	virtual void	WeaponReset( void );
 
 	virtual float	GetTargetRange( void );
@@ -53,7 +53,7 @@ public:
 	virtual float	GetHealRate( void );
 	virtual bool	AppliesModifier( void ) { return true; }
 
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_MEDIGUN; }
+	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_KRITZKRIEG; }
 
 	bool			IsReleasingCharge( void ) { return (m_bChargeRelease && !m_bHolstered); }
 
@@ -133,14 +133,14 @@ protected:
 #endif
 
 private:														
-	CWeaponMedigun( const CWeaponMedigun & );
+	CWeaponKritzkrieg( const CWeaponKritzkrieg & );
 };
 
 // Now make sure there isn't something other than team players in the way.
-class CMedigunFilter : public CTraceFilterSimple
+class CKritzkriegFilter : public CTraceFilterSimple
 {
 public:
-	CMedigunFilter(CBaseEntity *pShooter) : CTraceFilterSimple(pShooter, COLLISION_GROUP_WEAPON)
+	CKritzkriegFilter(CBaseEntity *pShooter) : CTraceFilterSimple(pShooter, COLLISION_GROUP_WEAPON)
 	{
 		m_pShooter = pShooter;
 	}
@@ -163,4 +163,4 @@ public:
 	CBaseEntity	*m_pShooter;
 };
 
-#endif // TF_WEAPON_MEDIGUN_H
+#endif // TF_WEAPON_KRITZKRIEG_H

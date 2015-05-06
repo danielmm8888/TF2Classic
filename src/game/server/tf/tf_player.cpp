@@ -303,6 +303,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropEHandle(SENDINFO(m_hItem)),
 
+	SendPropVector(SENDINFO(m_vecPlayerColor)),
+
 	// Ragdoll.
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 
@@ -1479,6 +1481,13 @@ int CTFPlayer::GetAutoTeam( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
+	if (TFGameRules()->IsDeathmatch())
+	{
+		ChangeTeam(TF_TEAM_RED);
+		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		return;
+	}
+
 	int iTeam = TF_TEAM_RED;
 	if ( stricmp( pTeamName, "auto" ) == 0 )
 	{
@@ -1550,12 +1559,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 
 		ChangeTeam( iTeam );
-
-		if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
-			return;
-		}
 
 		switch (iTeam)
 		{
@@ -1786,7 +1789,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	{
 		int i = 0;
 
-		for ( i = TF_CLASS_SCOUT ; i < TF_CLASS_COUNT_ALL ; i++ )
+		for ( i = TF_CLASS_SCOUT; i <= TF_LAST_NORMAL_CLASS; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -1805,7 +1808,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		// The player has selected Random class...so let's pick one for them.
 		do{
 			// Don't let them be the same class twice in a row
-			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
+			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER );
 		} while( iClass == GetPlayerClass()->GetClassIndex() );
 	}
 
@@ -2036,7 +2039,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if (args.ArgC() >= 3)
 		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
+			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])));
 		}
 		return true;
 	}
@@ -2044,7 +2047,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if (args.ArgC() >= 4)
 		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]), atoi(args[3]));
+			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])), abs(atoi(args[3])));
 		}
 		return true;
 	}
@@ -2191,6 +2194,18 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	else if ( FStrEq( pcmd, "taunt" ) )
 	{
 		Taunt();
+		return true;
+	}
+	else if ( FStrEq(pcmd, "tf2c_setmerccolor") )
+	{
+		if (args.ArgC() < 4)
+		{
+			Warning("Format: tf2c_setmerccolor r g b\n");
+			return true;
+		}
+		m_vecPlayerColor.Set(Vector(min(atoi(args.Arg(1)), 255) / 255.0f,
+			min(atoi(args.Arg(2)), 255) / 255.0f,
+			min(atoi(args.Arg(3)), 255) / 255.0f));
 		return true;
 	}
 	else if ( FStrEq( pcmd, "build" ) )
@@ -3629,9 +3644,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo &info_modified )
 {
-	// No supporting this for the initial release.
-	return false;
-
 	if ( SelectWeightedSequence( ACT_DIESIMPLE ) == -1 )
 		return false;
 
@@ -3645,18 +3657,12 @@ bool CTFPlayer::PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo
 	// Check for a sniper headshot. (Currently only on Heavy.)
 	if ( pAttacker->GetPlayerClass()->IsClass( TF_CLASS_SNIPER ) && ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT ) )
 	{
-		if ( GetPlayerClass()->IsClass( TF_CLASS_HEAVYWEAPONS ) )
-		{
-			bPlayDeathAnim = true;
-		}
+		bPlayDeathAnim = true;
 	}
 	// Check for a spy backstab. (Currently only on Sniper.)
 	else if ( pAttacker->GetPlayerClass()->IsClass( TF_CLASS_SPY ) && ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB ) )
 	{
-		if ( GetPlayerClass()->IsClass( TF_CLASS_SNIPER ) )
-		{
-			bPlayDeathAnim = true;
-		}
+		bPlayDeathAnim = true;
 	}
 
 	// Play death animation?
@@ -5114,6 +5120,12 @@ CTFTeam *CTFPlayer::GetOpposingTFTeam( void )
 
 void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 {
+	if (TFGameRules()->IsDeathmatch())
+	{
+		pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+		return;
+	}
+
 	int iTeam = GetTeamNumber();
 	switch (iTeam)
 	{
@@ -5140,8 +5152,13 @@ void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
 			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
 			break;
-
 	}
+	
+	if (friendlyfire.GetInt())
+	{
+		pTeamList->AddToTail(TFTeamMgr()->GetTeam(iTeam));
+	}
+
 }
 
 //-----------------------------------------------------------------------------

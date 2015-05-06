@@ -6,6 +6,7 @@
 #include "entitylist.h"
 #include "util.h"
 #include "tf_obj.h"
+#include "tf_gamerules.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

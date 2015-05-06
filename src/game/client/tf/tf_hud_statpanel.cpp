@@ -518,7 +518,7 @@ int CTFStatPanel::CalcCRC( int iSteamID )
 	// make a CRC of stat data
 	CRC32_ProcessBuffer( &crc, &iSteamID, sizeof( iSteamID ) );
 
-	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_LAST_NORMAL_CLASS; iClass++ )
+	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_CLASS_ENGINEER; iClass++ )
 	{
 		// add each class' data to the CRC
 		ClassStats_t &classStats = GetClassStats( iClass );
