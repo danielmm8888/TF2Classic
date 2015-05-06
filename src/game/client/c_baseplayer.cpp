@@ -54,6 +54,10 @@
 #include "econ_wearable.h"
 #endif
 
+#ifdef TF_CLASSIC_CLIENT
+#include "c_ai_basenpc.h"
+#endif
+
 // NVNT haptics system interface
 #include "haptics/ihaptics.h"
 
@@ -1429,13 +1433,15 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 		}
 	}
 #ifdef TF_CLASSIC_CLIENT
-	else if ( target->IsNPC() )
+	C_AI_BaseNPC *NPC = target->MyNPCPointer();
+
+	if ( NPC )
 	{
-		if ( target->IsAlive() )
+		if ( NPC->IsAlive() )
 		{
 			// Human Hull height in HL2 is 72 and player viewheight is 64.
 			// So let's take that last value and scale it according to NPC's height.
-			float flEyeHeight = 64.0f * ( target->WorldAlignMaxs().z / 72.0f );
+			float flEyeHeight = 64.0f * ( NPC->WorldAlignMaxs().z / 72.0f );
 			return Vector(0,0,flEyeHeight);
 		}
 		else

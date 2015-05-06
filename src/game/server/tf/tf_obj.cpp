@@ -1883,7 +1883,8 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 Class_T	CBaseObject::Classify( void )
 {
-	return CLASS_NONE;
+	//return CLASS_NONE;
+	return CLASS_PLAYER_ALLY;
 }
 
 //-----------------------------------------------------------------------------

@@ -54,6 +54,11 @@
 	#include "portal_shareddefs.h"
 #endif
 
+#ifdef TF_CLASSIC
+#include "tf_shareddefs.h"
+#include "tf_obj.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -2752,7 +2757,53 @@ Relationship_t *CBaseCombatCharacter::FindEntityRelationship( CBaseEntity *pTarg
 Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef TF_CLASSIC
+		// Change relationship based on our and their teams.
+		// Note that this does not affect NPC-to-NPC relatioships.
+		// BUGBUG: NPCs still don't target buildings.
+		bool bTeamOverride = ( ( (IsPlayer() && pTarget->IsNPC()) || 
+			(IsNPC() && (pTarget->IsPlayer() || pTarget->IsBaseObject())) ) &&
+			(GetTeamNumber() && pTarget->GetTeamNumber()) );
+
+		// We always like teammates.
+		if ( bTeamOverride && InSameTeam( pTarget ) )
+		{
+			return D_LI;
+		}
+
+		// Hate characters from enemy teams but check custom relatioships first.
+		if ( bTeamOverride && !InSameTeam( pTarget ) )
+		{
+			// First check for specific relationship with this edict
+			int i;
+			for (i=0;i<m_Relationship.Count();i++) 
+			{
+				if (pTarget == (CBaseEntity *)m_Relationship[i].entity) 
+				{
+					return FindEntityRelationship( pTarget )->disposition;
+				}
+			}
+
+			if (pTarget->Classify() != CLASS_NONE)
+			{
+				// Then check for relationship with this edict's class
+				for (i=0;i<m_Relationship.Count();i++) 
+				{
+					if (pTarget->Classify() == m_Relationship[i].classType) 
+					{
+						return FindEntityRelationship( pTarget )->disposition;
+					}
+				}
+			}
+
+			// If none found hate them.
+			return D_HT;
+		}
+#endif
+
 		return FindEntityRelationship( pTarget )->disposition;
+	}
 	return D_NU;
 }
 
@@ -2764,7 +2815,21 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 {
 	if ( pTarget )
+	{
+#ifdef TF_CLASSIC
+		// Special case for TF2 buildings: if this is not a sentry gun they have
+		// lower priority so NPCs don't attack dispensers and teleporters over players.
+		if ( pTarget->IsBaseObject() )
+		{
+			CBaseObject *pObject = assert_cast<CBaseObject *>(pTarget);
+			if ( pObject->GetType() != OBJ_SENTRYGUN )
+				return -1;
+
+			return 0;
+		}
+#endif
 		return FindEntityRelationship( pTarget )->priority;
+	}
 	return 0;
 }
 
