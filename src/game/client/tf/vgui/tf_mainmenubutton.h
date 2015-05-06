@@ -42,9 +42,14 @@ public:
 	void SendAnimation(MouseState flag);
 	void SetDefaultAnimation();
 
+	bool OnlyInGame(void){ return m_bOnlyInGame; };
+
 private:
 	bool			m_bOnlyInGame;
-	char			m_szImage[64];
+	bool			m_bImageVisible;
+	char			pImageIdle[64];
+	char			pImageHover[64];
+	char			pImageClick[64];
 	char			m_szCommand[64];
 	char			m_szText[64];
 	CTFImagePanel	*pImage;
@@ -68,6 +73,7 @@ public:
 	void OnCursorExited();
 	void OnCursorEntered();
 	void OnMousePressed(vgui::MouseCode code);
+	void OnMouseReleased(vgui::MouseCode code);
 
 private:
 	void SetMouseEnteredState(MouseState flag);
@@ -77,6 +83,7 @@ private:
 	float			m_flHoverTime;			// when should a "hover" message be sent?
 	bool			m_bMouseEntered;		// used to track when the mouse is over a button
 	CTFMainMenuButton *m_pParent;
+	MouseState iState;
 };
 
 #endif // TF_MAINMENUBUTTON_H

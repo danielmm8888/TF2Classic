@@ -47,12 +47,15 @@ void CTFMainMenuButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(m_szImage, inResourceData->GetString("image", ""), sizeof(m_szImage));
+	Q_strncpy(pImageIdle, inResourceData->GetString("imageIdle", ""), sizeof(pImageIdle));
+	Q_strncpy(pImageHover, inResourceData->GetString("imageHover", ""), sizeof(pImageHover));
+	Q_strncpy(pImageClick, inResourceData->GetString("imageClick", ""), sizeof(pImageClick));
 	Q_strncpy(m_szCommand, inResourceData->GetString("command", ""), sizeof(m_szCommand));
 
 	m_bOnlyInGame = inResourceData->GetFloat("onlyingame", false);
+	m_bImageVisible = inResourceData->GetFloat("imagevisible", false);	
 
-	pImage->SetImage(m_szImage);
+	pImage->SetImage(pImageIdle);
 	pButton->SetCommand(m_szCommand);
 
 	GetText(m_szText, sizeof(m_szText));
@@ -66,7 +69,7 @@ void CTFMainMenuButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pImage->SetVisible(true);
+	pImage->SetVisible(m_bImageVisible);
 	pImage->SetEnabled(true);
 	pImage->SetPos(0, 0);
 	pImage->SetZPos(1);
@@ -92,7 +95,6 @@ void CTFMainMenuButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 	pButton->SetArmedColor(GetFgColor(), Color(0, 0, 0, 0));
 	pButton->SetDepressedColor(GetFgColor(), Color(0, 0, 0, 0));
 	pButton->SetSelectedColor(GetFgColor(), Color(0, 0, 0, 0));
-
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +102,7 @@ void CTFMainMenuButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 //-----------------------------------------------------------------------------
 void CTFMainMenuButton::SetDefaultAnimation()
 {
-	pImage->SetFillColor(Color(0, 0, 0, 0));
+	pImage->SetImage(pImageIdle);
 }
 
 
@@ -112,17 +114,16 @@ void CTFMainMenuButton::SendAnimation(MouseState flag)
 	switch (flag)
 	{
 	case MOUSE_DEFAULT:
-		pImage->SetFillColor(Color(0, 0, 0, 0));
+		pImage->SetImage(pImageIdle);
 		break;
 	case MOUSE_ENTERED:
-		pImage->SetFgColor(Color(200, 20, 150, 150));
-		//pImage->SetFillColor(Color(200, 20, 150, 150));
+		pImage->SetImage(pImageHover);
 		break;
 	case MOUSE_EXITED:
-		pImage->SetFillColor(Color(0, 0, 0, 0));
+		pImage->SetImage(pImageIdle);
 		break;
 	case MOUSE_PRESSED:
-		pImage->SetFillColor(Color(0, 255, 255, 255));
+		pImage->SetImage(pImageClick);
 		break;
 	default:
 		break;
@@ -138,6 +139,7 @@ CTFButton::CTFButton(vgui::Panel *parent, const char *panelName, const char *tex
 	m_flHoverTimeToWait = -1;
 	m_flHoverTime = -1;
 	m_bMouseEntered = false;
+	iState = MOUSE_DEFAULT;
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
@@ -157,7 +159,10 @@ void CTFButton::ApplySettings(KeyValues *inResourceData)
 void CTFButton::OnCursorEntered()
 {
 	BaseClass::OnCursorEntered();
-	SetMouseEnteredState(MOUSE_ENTERED);
+	if (iState != MOUSE_ENTERED)
+	{
+		SetMouseEnteredState(MOUSE_ENTERED);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -166,7 +171,10 @@ void CTFButton::OnCursorEntered()
 void CTFButton::OnCursorExited()
 {
 	BaseClass::OnCursorExited();
-	SetMouseEnteredState(MOUSE_EXITED);
+	if (iState != MOUSE_EXITED)
+	{
+		SetMouseEnteredState(MOUSE_EXITED);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -175,15 +183,36 @@ void CTFButton::OnCursorExited()
 void CTFButton::OnMousePressed(vgui::MouseCode code)
 {
 	BaseClass::OnMousePressed(code);
-	engine->ExecuteClientCmd(m_pParent->m_szCommand);
-	SetMouseEnteredState(MOUSE_PRESSED);
+	if (iState != MOUSE_PRESSED)
+	{
+		SetMouseEnteredState(MOUSE_PRESSED);
+	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFButton::OnMouseReleased(vgui::MouseCode code)
+{
+	BaseClass::OnMouseReleased(code);
+	if (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED)
+	{
+		engine->ExecuteClientCmd(m_pParent->m_szCommand);
+	}
+	if (iState != MOUSE_ENTERED)
+	{
+		SetMouseEnteredState(MOUSE_ENTERED);
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFButton::SetMouseEnteredState(MouseState flag)
 {
+	iState = flag;
+
 	if (flag == MOUSE_ENTERED)
 	{
 		m_bMouseEntered = true;
@@ -196,7 +225,6 @@ void CTFButton::SetMouseEnteredState(MouseState flag)
 		{
 			m_flHoverTime = -1;
 		}
-
 		m_pParent->SendAnimation(flag);
 	}
 	else

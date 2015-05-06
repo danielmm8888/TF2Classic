@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "tf_mainmenu.h"
+#include "tf_mainmenubutton.h"
 #include "vgui_controls/Frame.h"
 #include <vgui/ISurface.h>
 #include <vgui/IVGui.h>
@@ -18,7 +19,7 @@ using namespace vgui;
 #include "tier0/memdbgon.h"
 
 //-----------------------------------------------------------------------------
-// Purpose: Displays the logo panel
+// Purpose: 
 //-----------------------------------------------------------------------------
 class CMainMenuPanel : public vgui::EditablePanel
 {
@@ -59,12 +60,11 @@ public:
 	void GameLayout();
 
 private:
-	CExLabel		*m_pVersionLabel;
-	CExButton		*m_pDisconnectButton;
-	CTFImagePanel	*m_pBackground;
-	CTFImagePanel	*m_pLogo;
-	bool			InGameLayout;
-	
+	CExLabel			*m_pVersionLabel;
+	CTFMainMenuButton	*m_pDisconnectButton;
+	CTFImagePanel		*m_pBackground;
+	CTFImagePanel		*m_pLogo;
+	bool			InGameLayout;	
 	//CExButton		*m_pQuitButton;
 
 };
@@ -86,13 +86,11 @@ CMainMenuPanel::CMainMenuPanel(vgui::VPANEL parent) : BaseClass(NULL, "CMainMenu
 	// Loading the .res file.
 	LoadControlSettings("resource/UI/MainMenu.res");
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
-	//Panel *pParent = g_pClientMode->GetViewport();
-	//SetParent(pParent);
 
 	InGameLayout = false;
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel")); 
 	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
-	m_pDisconnectButton = dynamic_cast<CExButton *>(FindChildByName("DisconnectButton"));
+	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
 	m_pLogo = dynamic_cast<CTFImagePanel *>(FindChildByName("Logo"));
 
 	if (m_pVersionLabel)
@@ -146,15 +144,18 @@ void CMainMenuPanel::OnThink()
 
 void CMainMenuPanel::DefaultLayout()
 {
-	m_pBackground->SetVisible(true);
-	m_pDisconnectButton->SetVisible(false);
-	//vgui::GetAnimationController()->StartAnimationSequence("MainMenuIntro");
+	if (m_pDisconnectButton->OnlyInGame())
+	{
+		m_pDisconnectButton->SetVisible(false);
+	};
 }
 
 void CMainMenuPanel::GameLayout()
 {
-	m_pBackground->SetVisible(false);
-	m_pDisconnectButton->SetVisible(true);
+	if (m_pDisconnectButton->OnlyInGame())
+	{
+		m_pDisconnectButton->SetVisible(true);
+	};
 }
 
 // Class
