@@ -436,7 +436,8 @@ void CTFWeaponBuilder::StartPlacement( void )
 	m_hObjectBeingBuilt = (CBaseObject*)CreateEntityByName( GetObjectInfo( m_iObjectType )->m_pClassName );
 	if ( m_hObjectBeingBuilt )
 	{
-		m_hObjectBeingBuilt->Spawn();
+		//m_hObjectBeingBuilt->Spawn();
+		DispatchSpawn( m_hObjectBeingBuilt );
 		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
 
 		// Stomp this here in the same frame we make the object, so prevent clientside warnings that it's under attack

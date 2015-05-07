@@ -2761,7 +2761,6 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 #ifdef TF_CLASSIC
 		// Change relationship based on our and their teams.
 		// Note that this does not affect NPC-to-NPC relatioships.
-		// BUGBUG: NPCs still don't target buildings.
 		bool bTeamOverride = ( ( (IsPlayer() && pTarget->IsNPC()) || 
 			(IsNPC() && (pTarget->IsPlayer() || pTarget->IsBaseObject())) ) &&
 			(GetTeamNumber() && pTarget->GetTeamNumber()) );
@@ -2821,8 +2820,10 @@ int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 		// lower priority so NPCs don't attack dispensers and teleporters over players.
 		if ( pTarget->IsBaseObject() )
 		{
-			CBaseObject *pObject = assert_cast<CBaseObject *>(pTarget);
-			if ( pObject->GetType() != OBJ_SENTRYGUN )
+			CBaseObject *pObject = dynamic_cast<CBaseObject *>(pTarget);
+			Assert( pEnemyObject );
+
+			if ( pObject && pObject->GetType() != OBJ_SENTRYGUN )
 				return -1;
 
 			return 0;

@@ -114,6 +114,7 @@ extern ConVar sk_healthkit;
 #include "tf_shareddefs.h"
 #include "tf_weaponbase.h"
 #include "tf_team.h"
+#include "tf_obj.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -1246,7 +1247,7 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		// If we're attacked by a TF2 player then only the sniper can do headshot damage.
 		if ( info.GetAttacker()->IsPlayer() )
 		{
-			CTFPlayer *pAttacker = (CTFPlayer*)ToTFPlayer( info.GetAttacker() );
+			CTFPlayer *pAttacker = ToTFPlayer( info.GetAttacker() );
 			if ( (subInfo.GetDamageType() & DMG_USE_HITLOCATIONS) )
 			{
 				CTFWeaponBase *pWpn = pAttacker->GetActiveTFWeapon();
@@ -7793,6 +7794,21 @@ bool CAI_BaseNPC::IsValidEnemy( CBaseEntity *pEnemy )
 	// Don't target players disguised as our team member but keep attacking if they disguise while being our target.
 	if ( pEnemyTFPlayer && pEnemyTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pEnemyTFPlayer->m_Shared.GetDisguiseTeam() == GetTeamNumber() && pEnemyTFPlayer != GetEnemy() )
 		return false;
+
+	if ( pEnemy->IsBaseObject() )
+	{
+		CBaseObject *pEnemyObject = dynamic_cast<CBaseObject *>(pEnemy);
+
+		Assert( pEnemyObject );
+
+		// Ignore objects being placed, they are not real objects yet.
+		if ( pEnemyObject && pEnemyObject->IsPlacing() )
+			return false;
+
+		// Ignore sappers.
+		if ( pEnemyObject && pEnemyObject->MustBeBuiltOnAttachmentPoint() )
+			return false;
+	}
 #endif
 
 	return true;
