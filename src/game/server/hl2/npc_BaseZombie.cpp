@@ -821,7 +821,11 @@ int CNPC_BaseZombie::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		// If a zombie is on fire it only takes damage from the fire that's attached to it. (DMG_DIRECT)
 		// This is to stop zombies from burning to death 10x faster when they're standing around
 		// 10 fire entities.
-		if( IsOnFire() && !(inputInfo.GetDamageType() & DMG_DIRECT) )
+		if( IsOnFire() && !(inputInfo.GetDamageType() & DMG_DIRECT)
+#ifdef TF_CLASSIC
+			&& !(inputInfo.GetAttacker()->IsPlayer())
+#endif
+			)
 		{
 			return 0;
 		}
