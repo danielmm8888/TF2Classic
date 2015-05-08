@@ -160,9 +160,12 @@ bool CTargetID::ShouldDraw( void )
 					bDisguisedEnemy = (ToTFPlayer( pPlayer->m_Shared.GetDisguiseTarget() ) != NULL);
 				}
 
-				bReturn = (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pLocalTFPlayer->InSameTeam(pEnt) || (bDisguisedEnemy && pPlayer->m_Shared.GetDisguiseTeam() == pLocalTFPlayer->GetTeamNumber()) );
+				bReturn = (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || 
+					pLocalTFPlayer->InSameTeam(pEnt) || 
+					(bDisguisedEnemy && pPlayer->m_Shared.GetDisguiseTeam() == pLocalTFPlayer->GetTeamNumber()) || 
+					pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) );
 			}
-			else if ( pEnt->IsBaseObject() && pLocalTFPlayer->InSameTeam( pEnt ) )
+			else if ( pEnt->IsBaseObject() && (pLocalTFPlayer->InSameTeam( pEnt ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR) )
 			{
 				bReturn = true;
 			}
@@ -213,8 +216,9 @@ void CTargetID::PerformLayout( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-Color CTargetID::GetColorForTargetTeam( int iTeamNumber )
+void CTargetID::SetColorForTargetTeam( int iTeamNumber )
 {
+#if 0
 	switch( iTeamNumber )
 	{
 	case TF_TEAM_BLUE:
@@ -237,6 +241,26 @@ Color CTargetID::GetColorForTargetTeam( int iTeamNumber )
 		return m_cSpecColor;
 		break;
 	}
+#else
+	switch ( iTeamNumber )
+	{
+	case TF_TEAM_RED:
+		m_pBGPanel->SetImage("../hud/freezecam_red_bg");
+		break;
+	case TF_TEAM_BLUE:
+		m_pBGPanel->SetImage("../hud/freezecam_blue_bg");
+		break;
+	case TF_TEAM_GREEN:
+		m_pBGPanel->SetImage("../hud/freezecam_green_bg");
+		break;
+	case TF_TEAM_YELLOW:
+		m_pBGPanel->SetImage("../hud/freezecam_yellow_bg");
+		break;
+	default:
+		m_pBGPanel->SetImage("../hud/freezecam_black_bg");
+		break;
+	}
+#endif
 } 
 
 //-----------------------------------------------------------------------------
@@ -321,6 +345,9 @@ void CTargetID::UpdateID( void )
 						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 						// change the team  / team color
 					}
+					
+					// Show their disguise team color.
+					SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
 				}
 				else
 				{
@@ -335,7 +362,14 @@ void CTargetID::UpdateID( void )
 					// build a string with disguise information
 					g_pVGuiLocalize->ConstructString( sDataString, sizeof(sDataString), g_pVGuiLocalize->Find( "#TF_playerid_friendlyspy_disguise" ), 
 						2, wszAlignment, wszClassName );
+						
+					// Show their real team color.
+					SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 				}
+			}
+			else
+			{
+				SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 			}
 
 			if ( pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
@@ -351,9 +385,9 @@ void CTargetID::UpdateID( void )
 				printFormatString = "#TF_playerid_sameteam";
 				bShowHealth = true;
 			}
-			else if ( pLocalTFPlayer->m_Shared.GetState() == TF_STATE_DYING )
+			else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) )
 			{
-				// We're looking at an enemy who killed us.
+				// Spy can see enemy's health.
 				printFormatString = "#TF_playerid_diffteam";
 				bShowHealth = true;
 			}			
@@ -404,6 +438,7 @@ void CTargetID::UpdateID( void )
 				bShowHealth = true;
 				flHealth = pObj->GetHealth();
 				flMaxHealth = pObj->GetMaxHealth();
+				SetColorForTargetTeam( pObj->GetTeamNumber() );
 			}
 		}
 
