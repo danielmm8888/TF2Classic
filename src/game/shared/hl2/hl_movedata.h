@@ -13,15 +13,16 @@
 
 
 #include "igamemovement.h"
+#include "func_ladder.h"
 
-
+#if defined (HL2_DLL) || defined (HL2_CLIENT_DLL)
 // This class contains HL2-specific prediction data.
 class CHLMoveData : public CMoveData
 {
 public:
 	bool		m_bIsSprinting;
 };
-
+#endif
 class CFuncLadder;
 class CReservePlayerSpot;
 

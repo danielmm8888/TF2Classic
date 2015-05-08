@@ -21,6 +21,7 @@
 #include "hintsystem.h"
 #include "c_playerattachedmodel.h"
 #include "iinput.h"
+#include "hl_movedata.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -177,6 +178,10 @@ public:
 
 	bool			GetMedigunAutoHeal( void ){ return tf_medigun_autoheal.GetBool(); }
 	bool			ShouldAutoRezoom( void ){ return cl_autorezoom.GetBool(); }
+
+	// HL2 ladder related methods
+	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
+	virtual void		ExitLadder();
 
 public:
 	// Shared functions
@@ -358,6 +363,10 @@ public:
 
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
+
+	// HL2 Ladder related data
+	EHANDLE			m_hLadder;
+	LadderMove_t	m_LadderMove;
 
 private:
 

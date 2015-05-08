@@ -261,6 +261,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayer, DT_TFLocalPlayerExclusive )
 
 	SendPropFloat( SENDINFO_VECTORELEM(m_angEyeAngles, 0), 8, SPROP_CHANGES_OFTEN, -90.0f, 90.0f ),
 //	SendPropAngle( SENDINFO_VECTORELEM(m_angEyeAngles, 1), 10, SPROP_CHANGES_OFTEN ),
+	SendPropEHandle( SENDINFO( m_hLadder ) ),
 
 END_SEND_TABLE()
 
@@ -6654,4 +6655,34 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 	}
 
 	return true; 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Helper to remove from ladder
+//-----------------------------------------------------------------------------
+void CTFPlayer::ExitLadder()
+{
+	if ( MOVETYPE_LADDER != GetMoveType() )
+		return;
+	
+	SetMoveType( MOVETYPE_WALK );
+	SetMoveCollide( MOVECOLLIDE_DEFAULT );
+	// Remove from ladder
+	m_hLadder.Set( NULL );
+}
+
+
+surfacedata_t *CTFPlayer::GetLadderSurface( const Vector &origin )
+{
+	extern const char *FuncLadder_GetSurfaceprops(CBaseEntity *pLadderEntity);
+
+	CBaseEntity *pLadder = m_hLadder.Get();
+	if ( pLadder )
+	{
+		const char *pSurfaceprops = FuncLadder_GetSurfaceprops(pLadder);
+		// get ladder material from func_ladder
+		return physprops->GetSurfaceData( physprops->GetSurfaceIndex( pSurfaceprops ) );
+
+	}
+	return BaseClass::GetLadderSurface(origin);
 }

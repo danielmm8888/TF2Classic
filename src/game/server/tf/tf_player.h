@@ -13,6 +13,7 @@
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
+#include "hl_movedata.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -377,6 +378,11 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	// HL2 ladder related methods
+	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
+	virtual void		ExitLadder();
+	virtual surfacedata_t *GetLadderSurface( const Vector &origin );
+
 public:
 
 	CTFPlayerShared m_Shared;
@@ -587,6 +593,11 @@ private:
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 
 	COutputEvent		m_OnDeath;
+
+public:
+	// HL2 Ladder related data
+	CNetworkVar( EHANDLE, m_hLadder );
+	LadderMove_t			m_LadderMove;
 
 public:
 	bool				SetPowerplayEnabled( bool bOn );
