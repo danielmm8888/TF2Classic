@@ -351,6 +351,12 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 		return;
 	}
 
+	if( !m_bHasWarnedAI && gpGlobals->curtime >= m_flWarnAITime )
+	{
+		CSoundEnt::InsertSound ( SOUND_DANGER, GetAbsOrigin(), 400, 1.5, this );
+		m_bHasWarnedAI = true;
+	}
+
 	if ( gpGlobals->curtime > m_flCollideWithTeammatesTime && m_bCollideWithTeammates == false )
 	{
 		m_bCollideWithTeammates = true;
@@ -393,6 +399,7 @@ void CTFWeaponBaseGrenadeProj::Detonate( void )
 void CTFWeaponBaseGrenadeProj::SetDetonateTimerLength( float timer )
 {
 	m_flDetonateTime = gpGlobals->curtime + timer;
+	m_flWarnAITime = gpGlobals->curtime + (timer - 1.5);
 }
 
 //-----------------------------------------------------------------------------
