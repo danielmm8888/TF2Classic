@@ -195,6 +195,7 @@ public:
 	void				DropFlag( void );
 	void				TFWeaponRemove( int iWeaponID );
 	bool				TFWeaponDrop( CTFWeaponBase *pWeapon, bool bThrowForward );
+	virtual bool		BumpWeapon( CBaseCombatWeapon *pWeapon );
 
 	// Class.
 	CTFPlayerClass		*GetPlayerClass( void ) 					{ return &m_PlayerClass; }

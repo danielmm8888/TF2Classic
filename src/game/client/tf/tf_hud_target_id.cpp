@@ -13,6 +13,7 @@
 #include "c_team.h"
 #include "tf_gamerules.h"
 #include "tf_hud_statpanel.h"
+#include "c_ai_basenpc.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -165,6 +166,10 @@ bool CTargetID::ShouldDraw( void )
 			else if ( pEnt->IsBaseObject() && pLocalTFPlayer->InSameTeam( pEnt ) )
 			{
 				bReturn = true;
+			}
+			else if ( pEnt->IsNPC() )
+			{
+				bReturn = (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pLocalTFPlayer->InSameTeam(pEnt));
 			}
 		}
 	}
@@ -404,6 +409,42 @@ void CTargetID::UpdateID( void )
 				bShowHealth = true;
 				flHealth = pObj->GetHealth();
 				flMaxHealth = pObj->GetMaxHealth();
+			}
+			else if ( pEnt->IsNPC() )
+			{
+				C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pEnt );
+				const char *printFormatString = NULL;
+				wchar_t wszNPCName[ MAX_PLAYER_NAME_LENGTH ];
+
+				g_pVGuiLocalize->ConvertANSIToUnicode( "NPC", wszNPCName, sizeof(wszNPCName) );
+
+				if (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pNPC->InSameTeam(pLocalTFPlayer))
+				{
+					printFormatString = "#TF_playerid_sameteam";
+					bShowHealth = true;
+				}
+				else if ( pLocalTFPlayer->m_Shared.GetState() == TF_STATE_DYING )
+				{
+					// We're looking at an enemy who killed us.
+					printFormatString = "#TF_playerid_diffteam";
+					bShowHealth = true;
+				}
+
+				if ( bShowHealth )
+				{
+					flHealth = pNPC->GetHealth();
+					flMaxHealth = pNPC->GetMaxHealth();
+				}
+
+				if ( printFormatString )
+				{
+					wchar_t *pszPrepend = GetPrepend();
+					if ( !pszPrepend || !pszPrepend[0] )
+					{
+						pszPrepend = L"";
+					}
+					g_pVGuiLocalize->ConstructString( sIDString, sizeof(sIDString), g_pVGuiLocalize->Find(printFormatString), 2, pszPrepend, wszNPCName );
+				}
 			}
 		}
 

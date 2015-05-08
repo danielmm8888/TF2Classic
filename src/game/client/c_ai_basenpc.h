@@ -41,11 +41,18 @@ public:
 	void					OnDataChanged( DataUpdateType_t type );
 	bool					ImportantRagdoll( void ) { return m_bImportanRagdoll;	}
 
+	virtual int				GetHealth() const { return m_iHealth; }
+	void					SetHealth( int health ) { m_iHealth = health; }
+	virtual int				GetMaxHealth() const { return m_iMaxHealth; }
+
 private:
 	C_AI_BaseNPC( const C_AI_BaseNPC & ); // not defined, not accessible
 	float m_flTimePingEffect;
 	int  m_iDeathPose;
 	int	 m_iDeathFrame;
+
+	int	 m_iHealth;
+	int	 m_iMaxHealth;
 
 	int m_iSpeedModRadius;
 	int m_iSpeedModSpeed;

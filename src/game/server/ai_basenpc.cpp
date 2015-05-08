@@ -10800,6 +10800,8 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropBool( SENDINFO( m_bFadeCorpse ) ),
 	SendPropInt( SENDINFO( m_iDeathPose ), ANIMATION_SEQUENCE_BITS ),
 	SendPropInt( SENDINFO( m_iDeathFrame ), 5 ),
+	SendPropInt(SENDINFO(m_iHealth), 13 ),
+	SendPropInt(SENDINFO(m_iMaxHealth), 13 ),
 	SendPropBool( SENDINFO( m_bSpeedModActive ) ),
 	SendPropInt( SENDINFO( m_iSpeedModRadius ) ),
 	SendPropInt( SENDINFO( m_iSpeedModSpeed ) ),
