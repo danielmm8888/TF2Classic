@@ -2708,6 +2708,9 @@ void C_BaseEntity::SetModelByIndex( int nModelIndex )
 	SetModelIndex( nModelIndex );
 }
 
+#ifdef TF_CLASSIC_CLIENT
+ConVar tf2c_use_classic_models("tf2c_use_classic_models", "0", NULL, "Enable the use of custom classic models if available. "); // 0 = never, 1 = if available
+#endif
 
 //-----------------------------------------------------------------------------
 // Set model... (NOTE: Should only be used by client-only entities
@@ -2716,6 +2719,20 @@ bool C_BaseEntity::SetModel( const char *pModelName )
 {
 	if ( pModelName )
 	{
+#ifdef TF_CLASSIC_CLIENT
+		if ( tf2c_use_classic_models.GetBool() )
+		{
+			char szClassicModelName[256];
+			Q_strncpy( szClassicModelName, pModelName, sizeof(szClassicModelName) );
+			Q_strncat( szClassicModelName, "_classic", sizeof(szClassicModelName) );
+
+			int nClassicModelIndex = modelinfo->GetModelIndex( szClassicModelName );
+			SetModelByIndex( nClassicModelIndex );
+
+			if ( nClassicModelIndex != -1 )
+				return true;
+		}
+#endif
 		int nModelIndex = modelinfo->GetModelIndex( pModelName );
 		SetModelByIndex( nModelIndex );
 		return ( nModelIndex != -1 );
