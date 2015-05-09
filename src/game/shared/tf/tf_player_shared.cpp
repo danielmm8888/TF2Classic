@@ -1914,7 +1914,7 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 	Vector vecStart = info.m_vecSrc;
 	Vector vecEnd = vecStart + info.m_vecDirShooting * info.m_flDistance;
 	trace_t trace;
-	UTIL_TraceLine( vecStart, vecEnd, ( MASK_SOLID | CONTENTS_HITBOX ), this, COLLISION_GROUP_NONE, &trace );
+	UTIL_TraceLine( vecStart, vecEnd, ( MASK_SHOT ), this, COLLISION_GROUP_NONE, &trace );
 
 #ifdef GAME_DLL
 	if ( tf_debug_bullets.GetBool() )
