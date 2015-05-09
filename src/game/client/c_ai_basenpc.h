@@ -44,7 +44,10 @@ public:
 	void					SetHealth( int health ) { m_iHealth = health; }
 	virtual int				GetMaxHealth() const { return m_iMaxHealth; }
 
-	char const				*GetClassname( void ) { return m_szClassname; }
+	inline const char		*GetClassname( void ) { return m_szClassname; }
+#ifdef TF_CLASSIC_CLIENT
+	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
+#endif
 
 private:
 	C_AI_BaseNPC( const C_AI_BaseNPC & ); // not defined, not accessible

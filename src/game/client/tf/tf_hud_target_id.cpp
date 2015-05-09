@@ -448,40 +448,12 @@ void CTargetID::UpdateID( void )
 			else if ( pEnt->IsNPC() )
 			{
 				C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pEnt );
-				const char *printFormatString = NULL;
-				wchar_t wszNPCName[ MAX_PLAYER_NAME_LENGTH ];
 
-				g_pVGuiLocalize->ConvertANSIToUnicode( pNPC->GetClassname(), wszNPCName, sizeof(wszNPCName) );
-
-				if (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pNPC->InSameTeam(pLocalTFPlayer))
-				{
-					printFormatString = "#TF_playerid_sameteam";
-					bShowHealth = true;
-				}
-				else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) )
-				{
-					// Spy can see enemy's health.
-					printFormatString = "#TF_playerid_diffteam";
-					bShowHealth = true;
-				}
-
-				if ( bShowHealth )
-				{
-					flHealth = pNPC->GetHealth();
-					flMaxHealth = pNPC->GetMaxHealth();
-				}
-
+				pNPC->GetTargetIDString( sIDString, sizeof(sIDString) );
+				bShowHealth = true;
+				flHealth = pNPC->GetHealth();
+				flMaxHealth = pNPC->GetMaxHealth();
 				SetColorForTargetTeam( pNPC->GetTeamNumber() );
-
-				if ( printFormatString )
-				{
-					wchar_t *pszPrepend = GetPrepend();
-					if ( !pszPrepend || !pszPrepend[0] )
-					{
-						pszPrepend = L"";
-					}
-					g_pVGuiLocalize->ConstructString( sIDString, sizeof(sIDString), g_pVGuiLocalize->Find(printFormatString), 2, pszPrepend, wszNPCName );
-				}
 			}
 		}
 

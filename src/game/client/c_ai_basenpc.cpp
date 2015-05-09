@@ -14,6 +14,13 @@
 
 #include "death_pose.h"
 
+#ifdef TF_CLASSIC_CLIENT
+#include "c_tf_player.h"
+#include "tf_shareddefs.h"
+#include "iclientmode.h"
+#include "vgui/ILocalize.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -174,3 +181,48 @@ void C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x
 		SetupBones( pCurrentBones, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, gpGlobals->curtime );
 	}
 }
+
+#ifdef TF_CLASSIC_CLIENT
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
+{
+	sIDString[0] = '\0';
+
+	C_TFPlayer *pLocalTFPlayer = C_TFPlayer::GetLocalTFPlayer();
+	
+	if ( !pLocalTFPlayer )
+		return;
+
+	if ( InSameTeam( pLocalTFPlayer ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+	{
+		const char *pszClassname = GetClassname();
+		wchar_t *wszNPCName = g_pVGuiLocalize->Find( pszClassname );
+
+		if ( !wszNPCName )
+		{
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszClassname, wszNPCName, sizeof(wszNPCName) );
+		}
+
+		const char *printFormatString = NULL;
+
+		if (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || InSameTeam(pLocalTFPlayer))
+		{
+			printFormatString = "#TF_playerid_sameteam";
+		}
+		else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) )
+		{
+			// Spy can see enemy's health.
+			printFormatString = "#TF_playerid_diffteam";
+		}
+
+		wchar_t *wszPrepend = L"";
+
+		if ( printFormatString )
+		{
+			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString), 2, wszPrepend, wszNPCName );
+		}
+	}
+}
+#endif

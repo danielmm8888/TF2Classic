@@ -2821,7 +2821,7 @@ int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 		if ( pTarget->IsBaseObject() )
 		{
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>(pTarget);
-			Assert( pEnemyObject );
+			Assert( pObject );
 
 			if ( pObject && pObject->GetType() != OBJ_SENTRYGUN )
 				return -1;

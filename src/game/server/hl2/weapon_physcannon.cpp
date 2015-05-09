@@ -2757,7 +2757,7 @@ bool CGrabController::UpdateObject( CBasePlayer *pPlayer, float flError )
 	Vector forward, right, up;
 	QAngle playerAngles = pPlayer->EyeAngles();
 	AngleVectors( playerAngles, &forward, &right, &up );
-
+#ifdef HL2_DLL
 	if ( HL2GameRules()->MegaPhyscannonActive() )
 	{
 		Vector los = ( pEntity->WorldSpaceCenter() - pPlayer->Weapon_ShootPosition() );
@@ -2769,7 +2769,7 @@ bool CGrabController::UpdateObject( CBasePlayer *pPlayer, float flError )
 		if ( flDot <= 0.35f )
 			return false;
 	}
-	
+#endif
 	float pitch = AngleDistance(playerAngles.x,0);
 
 	if( !m_bAllowObjectOverhead )

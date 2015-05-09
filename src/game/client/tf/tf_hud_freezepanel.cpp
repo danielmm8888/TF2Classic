@@ -335,7 +335,17 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 					m_pFreezeLabel->SetText( "#FreezePanel_Killer" );
 				}
 
-				m_pBasePanel->SetDialogVariable( "killername", pNPC->GetClassname() );
+				const char *pszClassname = pNPC->GetClassname();
+				wchar_t *wszLocalized = g_pVGuiLocalize->Find( pszClassname );
+
+				if ( !wszLocalized )
+				{
+					m_pBasePanel->SetDialogVariable( "killername", pszClassname );
+				}
+				else
+				{
+					m_pBasePanel->SetDialogVariable( "killername", wszLocalized );
+				}
 			}
 			else if ( m_pFreezeLabel )
 			{
