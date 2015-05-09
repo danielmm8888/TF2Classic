@@ -984,6 +984,14 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// ---------------------------------------------------------------
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 1024, 0.5, this, SOUNDENT_CHANNEL_INJURY );
 
+#ifdef TF_CLASSIC
+	CBaseEntity *pAttacker = info.GetAttacker();
+	if ( pAttacker && pAttacker->IsPlayer() )
+	{
+		ToTFPlayer( pAttacker )->RecordDamageEvent( info, (m_iHealth <= 0) );
+	}
+#endif
+
 	return 1;
 }
 

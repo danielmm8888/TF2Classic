@@ -3492,6 +3492,37 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
 			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
 		}
+		else if ( pVictim->IsNPC() )
+		{
+			// Custom death handlers
+			const char *pszCustomDeath = "customdeath:none";
+			if ( info.GetAttacker() && info.GetAttacker()->IsBaseObject() )
+			{
+				pszCustomDeath = "customdeath:sentrygun";
+			}
+			else if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
+			{
+				pszCustomDeath = "customdeath:sentrygun";
+			}
+			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT )
+			{				
+				pszCustomDeath = "customdeath:headshot";
+			}
+			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
+			{
+				pszCustomDeath = "customdeath:backstab";
+			}
+			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
+			{
+				pszCustomDeath = "customdeath:burning";
+			}
+
+			// No dominating NPCs.
+			const char *pszDomination = "domination:none";
+
+			CFmtStrN<128> modifiers( "%s,%s,victimclass:Undefined", pszCustomDeath, pszDomination );
+			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
+		}
 	}
 }
 
