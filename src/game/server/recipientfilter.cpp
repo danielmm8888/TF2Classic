@@ -366,10 +366,19 @@ CTeamRecipientFilter::CTeamRecipientFilter( int team, bool isReliable )
 //-----------------------------------------------------------------------------
 void CPASAttenuationFilter::Filter( const Vector& origin, float attenuation /*= ATTN_NORM*/ )
 {
+#ifdef TF_CLASSIC
+	//SecobMod__Information: Try as we might, this was the only fix for getting breencasts.
+	// Don't crop for attenuation 
+	if ( gpGlobals->maxClients >= 1 )
+	{
+		AddAllPlayers();
+		return;
+	}
+#else
 	// Don't crop for attenuation in single player
 	if ( gpGlobals->maxClients == 1 )
 		return;
-
+#endif
 	// CPASFilter adds them by pure PVS in constructor
 	if ( attenuation <= 0 )
 		return;
