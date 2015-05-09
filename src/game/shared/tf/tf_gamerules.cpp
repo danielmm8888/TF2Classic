@@ -700,7 +700,8 @@ CTFGameRules::CTFGameRules()
 	InitPlayerClasses();
 
 	// Set turbo physics on.  Do it here for now.
-	sv_turbophysics.SetValue( 1 );
+	// Breaks shit in HL2 maps so no. (Nicknine)
+	//sv_turbophysics.SetValue( 1 );
 
 	// Initialize the team manager here, etc...
 
@@ -786,8 +787,8 @@ static const char *s_PreserveEnts[] =
 	"tf_player_manager",
 	"tf_team",
 	"tf_objective_resource",
-	"keyframe_rope",
-	"move_rope",
+	//"keyframe_rope",
+	//"move_rope",
 	"tf_viewmodel",
 	"", // END Marker
 };
