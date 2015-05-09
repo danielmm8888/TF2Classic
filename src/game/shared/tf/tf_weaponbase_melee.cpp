@@ -311,7 +311,7 @@ void CTFWeaponBaseMelee::Smack( void )
 		// Do Damage.
 		int iCustomDamage = TF_DMG_CUSTOM_NONE;
 		float flDamage = GetMeleeDamage( trace.m_pEnt, iCustomDamage );
-		int iDmgType = DMG_BULLET | DMG_NEVERGIB | DMG_CLUB;
+		int iDmgType = DMG_NEVERGIB | DMG_CLUB;
 		if ( IsCurrentAttackACrit() )
 		{
 			// TODO: Not removing the old critical path yet, but the new custom damage is marking criticals as well for melee now.
