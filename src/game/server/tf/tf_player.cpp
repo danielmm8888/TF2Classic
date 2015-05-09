@@ -50,6 +50,9 @@
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
 #include "tf_powerup.h"
+#include "player_pickup.h"
+#include "weapon_physcannon.h"
+#include "eventqueue.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -6716,4 +6719,77 @@ surfacedata_t *CTFPlayer::GetLadderSurface( const Vector &origin )
 
 	}
 	return BaseClass::GetLadderSurface(origin);
+}
+
+void CTFPlayer::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
+{
+	// can't pick up what you're standing on
+	if ( GetGroundEntity() == pObject )
+		return;
+	
+	if ( bLimitMassAndSize == true )
+	{
+		if ( CBasePlayer::CanPickupObject( pObject, 35, 128 ) == false )
+			 return;
+	}
+
+	// Can't be picked up if NPCs are on me
+	if ( pObject->HasNPCsOnIt() )
+		return;
+
+	PlayerPickupObject( this, pObject );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : CBaseEntity
+//-----------------------------------------------------------------------------
+bool CTFPlayer::IsHoldingEntity( CBaseEntity *pEnt )
+{
+	return PlayerPickupControllerIsHoldingEntity( m_hUseEntity, pEnt );
+}
+
+float CTFPlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
+{
+	float mass = PlayerPickupGetHeldObjectMass( m_hUseEntity, pHeldObject );
+	if ( mass == 0.0f )
+	{
+		mass = PhysCannonGetHeldObjectMass( GetActiveWeapon(), pHeldObject );
+	}
+	return mass;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Force the player to drop any physics objects he's carrying
+//-----------------------------------------------------------------------------
+void CTFPlayer::ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldingThis )
+{
+	if ( PhysIsInCallback() )
+	{
+		variant_t value;
+		g_EventQueue.AddEvent( this, "ForceDropPhysObjects", value, 0.01f, pOnlyIfHoldingThis, this );
+		return;
+	}
+
+#ifdef HL2_EPISODIC
+	if ( hl2_episodic.GetBool() )
+	{
+		CBaseEntity *pHeldEntity = PhysCannonGetHeldEntity( GetActiveWeapon() );
+		if( pHeldEntity && pHeldEntity->ClassMatches( "grenade_helicopter" ) )
+		{
+			return;
+		}
+	}
+#endif
+
+	// Drop any objects being handheld.
+	ClearUseEntity();
+
+	// Then force the physcannon to drop anything it's holding, if it's our active weapon
+	PhysCannonForceDrop( GetActiveWeapon(), NULL );
+}
+
+void CTFPlayer::InputForceDropPhysObjects( inputdata_t &data )
+{
+	ForceDropOfCarriedPhysObjects( data.pActivator );
 }

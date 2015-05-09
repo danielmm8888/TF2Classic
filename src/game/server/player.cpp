@@ -77,7 +77,7 @@
 // NVNT haptic utils
 #include "haptics/haptic_utils.h"
 
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 #include "combine_mine.h"
 #include "weapon_physcannon.h"
 #endif
@@ -2791,7 +2791,7 @@ bool CBasePlayer::IsUseableEntity( CBaseEntity *pEntity, unsigned int requiredCa
 bool CBasePlayer::CanPickupObject( CBaseEntity *pObject, float massLimit, float sizeLimit )
 {
 	// UNDONE: Make this virtual and move to HL2 player
-#ifdef HL2_DLL
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	//Must be valid
 	if ( pObject == NULL )
 		return false;

@@ -1036,14 +1036,7 @@ bool CTFWeaponBase::Lower( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::SetWeaponVisible( bool visible )
 {
-	if ( visible )
-	{
-		RemoveEffects( EF_NODRAW );
-	}
-	else
-	{
-		AddEffects( EF_NODRAW );
-	}
+	BaseClass::SetWeaponVisible( visible );
 	
 #ifdef CLIENT_DLL
 	UpdateVisibility();

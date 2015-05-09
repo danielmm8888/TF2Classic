@@ -14,6 +14,7 @@
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
 #include "hl_movedata.h"
+#include "hl2_player.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -382,6 +383,15 @@ public:
 	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
 	virtual void		ExitLadder();
 	virtual surfacedata_t *GetLadderSurface( const Vector &origin );
+
+	// physics interactions
+	virtual void		PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize );
+	virtual	bool		IsHoldingEntity( CBaseEntity *pEnt );
+	virtual void		ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldindThis );
+	virtual float		GetHeldObjectMass( IPhysicsObject *pHeldObject );
+
+	virtual bool		IsFollowingPhysics( void ) { return (m_afPhysicsFlags & PFLAG_ONBARNACLE) > 0; }
+	void				InputForceDropPhysObjects( inputdata_t &data );
 
 public:
 
