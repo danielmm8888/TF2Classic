@@ -47,7 +47,7 @@ public:
 	virtual int		GetRenderGroupPriority( void );
 
 protected:
-	Color			GetColorForTargetTeam( int iTeamNumber );
+	void			SetColorForTargetTeam( int iTeamNumber );
 
 	vgui::HFont		m_hFont;
 	int				m_iLastEntIndex;

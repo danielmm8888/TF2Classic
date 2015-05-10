@@ -1,4 +1,4 @@
-//========= Copyright � 1996-2006, Valve Corporation, All rights reserved. ============//
+﻿//========= Copyright © 1996-2006, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -26,7 +26,7 @@
 
 #include "tf_controls.h"
 #include "tf_shareddefs.h"
-#include "tf_clientscoreboard.h"
+#include "tf_deathmatchscoreboard.h"
 #include "tf_gamestats_shared.h"
 #include "tf_hud_statpanel.h"
 #include "c_playerresource.h"
@@ -35,7 +35,6 @@
 #include "c_tf_player.h"
 #include "vgui_avatarimage.h"
 #include "tf_gamerules.h"
-#include "tf_shareddefs.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -51,22 +50,18 @@ extern const char *GetMapDisplayName(const char *mapName);
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFClientScoreBoardDialog::CTFClientScoreBoardDialog( IViewPort *pViewPort ) : CClientScoreBoardDialog( pViewPort )
+CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPort) : CClientScoreBoardDialog(pViewPort)
 {
 	SetProportional(true);
 	SetKeyBoardInputEnabled(false);
 	SetMouseInputEnabled(false);
 	SetScheme( "ClientScheme" );
 
-	m_pPlayerListBlue = new SectionedListPanel( this, "BluePlayerList" );
 	m_pPlayerListRed = new SectionedListPanel( this, "RedPlayerList" );
 	m_pLabelPlayerName = new CExLabel(this, "PlayerNameLabel", "");
-	m_pLabelMapName = new CExLabel(this, "MapName", "");
 	m_pImagePanelHorizLine = new ImagePanel( this, "HorizontalLine" );
 	m_pClassImage = new CTFClassImage( this, "ClassImage" );
-	m_pLocalPlayerStatsPanel = new EditablePanel( this, "LocalPlayerStatsPanel" );
-	m_pLocalPlayerDuelStatsPanel = new EditablePanel(this, "LocalPlayerDuelStatsPanel");
-	m_pSpectatorsInQueue = new CExLabel(this, "SpectatorsInQueue", "");
+	m_pRedScoreBG = new ImagePanel(this, "RedScoreBG");
 	m_iImageDead = 0;
 	m_iImageDominated = 0;
 	m_iImageNemesis = 0;
@@ -81,14 +76,14 @@ CTFClientScoreBoardDialog::CTFClientScoreBoardDialog( IViewPort *pViewPort ) : C
 //-----------------------------------------------------------------------------
 // Purpose: Destructor
 //-----------------------------------------------------------------------------
-CTFClientScoreBoardDialog::~CTFClientScoreBoardDialog()
+CTFDeathMatchScoreBoardDialog::~CTFDeathMatchScoreBoardDialog()
 {
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::PerformLayout()
+void CTFDeathMatchScoreBoardDialog::PerformLayout()
 {
 	BaseClass::PerformLayout();
 }
@@ -96,11 +91,11 @@ void CTFClientScoreBoardDialog::PerformLayout()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
+void CTFDeathMatchScoreBoardDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
-	LoadControlSettings("Resource/UI/scoreboard.res");
+	LoadControlSettings("Resource/UI/DeathMatchScoreBoard.res");
 
 	if ( m_pImageList )
 	{
@@ -123,21 +118,12 @@ void CTFClientScoreBoardDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 		}
 	}
 
-	SetPlayerListImages( m_pPlayerListBlue );
 	SetPlayerListImages( m_pPlayerListRed );
+
 
 	SetBgColor( Color( 0, 0, 0, 0) );
 	SetBorder( NULL );
 	SetVisible( false );
-
-	// Dueling isn't in yet, so we don't need it.
-	if (m_pLocalPlayerDuelStatsPanel)
-		m_pLocalPlayerDuelStatsPanel->SetVisible(false);
-
-	// This is the panel used by Arena to show people who are waiting to play.
-	// Since we don't have Arena yet, disable it fo rnow
-	if (m_pSpectatorsInQueue)
-		m_pSpectatorsInQueue->SetVisible(false);
 
 	Reset();
 }
@@ -145,7 +131,7 @@ void CTFClientScoreBoardDialog::ApplySchemeSettings( vgui::IScheme *pScheme )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
+void CTFDeathMatchScoreBoardDialog::ShowPanel(bool bShow)
 {
 	// Catch the case where we call ShowPanel before ApplySchemeSettings, eg when
 	// going from windowed <-> fullscreen
@@ -160,70 +146,47 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 		bShow = false;
 	}
 	
-//	if ( IsVisible() == bShow )
-//	{
-//		return;
-//	}
+	if ( IsVisible() == bShow )
+	{
+		return;
+	}
 
 	int iRenderGroup = gHUD.LookupRenderGroupIndexByName( "global" );
 
 	if ( bShow )
 	{		
-		if (TFGameRules()->IsFourTeamGame())
-		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, true);
-		}
-		else if (TFGameRules()->IsDeathmatch())
-		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, true);
-		}
-		else
-		{
-			SetVisible(true);
-			MoveToFront();
+		SetVisible(true);
+		MoveToFront();
 
-			gHUD.LockRenderGroup(iRenderGroup);
+		gHUD.LockRenderGroup(iRenderGroup);
 
-			// Clear the selected item, this forces the default to the local player
-			SectionedListPanel *pList = GetSelectedPlayerList();
-			if (pList)
-			{
-				pList->ClearSelection();
-			}
+		// Clear the selected item, this forces the default to the local player
+		SectionedListPanel *pList = GetSelectedPlayerList();
+		if (pList)
+		{
+			pList->ClearSelection();
 		}
 	}
 	else
 	{
-		if (TFGameRules() && TFGameRules()->IsFourTeamGame())
-		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, false);
-		}
-		else if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, false);
-		}
-		else
-		{
-			SetVisible(false);
+		SetVisible( false );
 
-			gHUD.UnlockRenderGroup(iRenderGroup);
-		}
+		gHUD.UnlockRenderGroup( iRenderGroup );
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Resets the scoreboard panel
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::Reset()
+void CTFDeathMatchScoreBoardDialog::Reset()
 {
-	InitPlayerList( m_pPlayerListBlue );
 	InitPlayerList( m_pPlayerListRed );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Inits the player list in a list panel
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList )
+void CTFDeathMatchScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerList)
 {
 	pPlayerList->SetVerticalScrollbar( false );
 	pPlayerList->RemoveAll();
@@ -237,20 +200,30 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	// Avatars are always displayed at 32x32 regardless of resolution
 	if ( ShowAvatars() )
 	{
-		pPlayerList->AddColumnToSection( 0, "avatar", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iAvatarWidth );
+		pPlayerList->AddColumnToSection( 0, "avatar", "", SectionedListPanel::COLUMN_IMAGE/* | SectionedListPanel::COLUMN_CENTER*/, m_iAvatarWidth );
 	}
-	pPlayerList->AddColumnToSection( 0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth );
-	pPlayerList->AddColumnToSection( 0, "status", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iStatusWidth );
-	pPlayerList->AddColumnToSection( 0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth );
-	pPlayerList->AddColumnToSection( 0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth);
-	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
-	pPlayerList->AddColumnToSection( 0, "ping", "#TF_Scoreboard_Ping", SectionedListPanel::COLUMN_RIGHT, m_iPingWidth );
+
+	pPlayerList->AddColumnToSection(0, "name", "", 0, m_iNameWidth);
+	pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
+	pPlayerList->AddColumnToSection(0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth);
+	pPlayerList->AddColumnToSection(0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth);
+	pPlayerList->AddColumnToSection(0, "score", "", 0, m_iScoreWidth);
+	pPlayerList->AddColumnToSection(0, "ping", "", 0, m_iPingWidth);
+
+
+
+//	pPlayerList->AddColumnToSection( 0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth );
+//	pPlayerList->AddColumnToSection( 0, "status", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iStatusWidth );
+//	pPlayerList->AddColumnToSection( 0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth );
+//	pPlayerList->AddColumnToSection( 0, "class", "", 0, m_iClassWidth );
+//	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
+//	pPlayerList->AddColumnToSection( 0, "ping", "#TF_Scoreboard_Ping", SectionedListPanel::COLUMN_RIGHT, m_iPingWidth );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Builds the image list to use in the player list
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::SetPlayerListImages( vgui::SectionedListPanel *pPlayerList )
+void CTFDeathMatchScoreBoardDialog::SetPlayerListImages(vgui::SectionedListPanel *pPlayerList)
 {
 	pPlayerList->SetImageList( m_pImageList, false );
 	pPlayerList->SetVisible( true );
@@ -259,62 +232,13 @@ void CTFClientScoreBoardDialog::SetPlayerListImages( vgui::SectionedListPanel *p
 //-----------------------------------------------------------------------------
 // Purpose: Updates the dialog
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::Update()
+void CTFDeathMatchScoreBoardDialog::Update()
 {
 	UpdateTeamInfo();
 	UpdatePlayerList();
 	UpdateSpectatorList();
 	UpdatePlayerDetails();
 	MoveToCenterOfScreen();
-
-	// Not really sure where to put this
-	if (TFGameRules())
-	{
-		if (mp_timelimit.GetInt() > 0)
-		{
-			int iTimeLeft = TFGameRules()->GetTimeLeft();
-
-			char szHours[5];
-			char szMinutes[3];
-			char szSeconds[3];
-
-			wchar_t wszHours[5] = L"";
-			wchar_t wszMinutes[3] = L"";
-			wchar_t wszSeconds[3] = L"";
-
-			if (iTimeLeft <= 0)
-			{
-				Q_snprintf(szHours, sizeof(szHours), "0");
-				Q_snprintf(szMinutes, sizeof(szMinutes), "0");
-				Q_snprintf(szSeconds, sizeof(szSeconds), "00");
-			}
-			else
-			{
-				Q_snprintf(szHours,   sizeof(szHours), "%d", iTimeLeft / 3600);
-				Q_snprintf(szMinutes, sizeof(szMinutes), "%d", iTimeLeft / 60);
-				Q_snprintf(szSeconds, sizeof(szSeconds), "%02d", iTimeLeft % 60);
-			}
-
-			g_pVGuiLocalize->ConvertANSIToUnicode(szHours, wszHours, sizeof(wszHours));
-			g_pVGuiLocalize->ConvertANSIToUnicode(szMinutes, wszMinutes, sizeof(wszMinutes));
-			g_pVGuiLocalize->ConvertANSIToUnicode(szSeconds, wszSeconds, sizeof(wszSeconds));
-
-			wchar_t wzServerLabel[256] = L"";
-			if (iTimeLeft / 3600 > 0)
-			{
-				g_pVGuiLocalize->ConstructString(wzServerLabel, sizeof(wzServerLabel), g_pVGuiLocalize->Find("#Scoreboard_TimeLeft"), 3, wszHours, wszMinutes, wszSeconds);
-			}
-			else
-			{
-				g_pVGuiLocalize->ConstructString(wzServerLabel, sizeof(wzServerLabel), g_pVGuiLocalize->Find("#Scoreboard_TimeLeftNoHours"), 2, wszMinutes, wszSeconds);
-			}
-			SetDialogVariable("servertimeleft", wzServerLabel);
-		}
-		else
-		{
-			SetDialogVariable("servertimeleft", g_pVGuiLocalize->Find("#Scoreboard_NoTimeLimit"));
-		}
-	}
 
 	// update every second
 	m_fNextUpdateTime = gpGlobals->curtime + 1.0f; 
@@ -323,10 +247,10 @@ void CTFClientScoreBoardDialog::Update()
 //-----------------------------------------------------------------------------
 // Purpose: Updates information about teams
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::UpdateTeamInfo()
+void CTFDeathMatchScoreBoardDialog::UpdateTeamInfo()
 {
 	// update the team sections in the scoreboard
-	for ( int teamIndex = TF_TEAM_RED; teamIndex <= TF_TEAM_BLUE; teamIndex++ )
+	for (int teamIndex = TF_TEAM_RED; teamIndex <= TF_TEAM_YELLOW; teamIndex++)
 	{
 		wchar_t *teamName = NULL;
 		C_Team *team = GetGlobalTeam( teamIndex );
@@ -336,16 +260,12 @@ void CTFClientScoreBoardDialog::UpdateTeamInfo()
 			const char *pDialogVarTeamScore = NULL;
 			const char *pDialogVarTeamPlayerCount = NULL;
 			const char *pDialogVarTeamName = NULL;
-			switch ( teamIndex ) {
+			switch ( teamIndex ) 
+			{
 				case TF_TEAM_RED:
 					pDialogVarTeamScore = "redteamscore";
 					pDialogVarTeamPlayerCount = "redteamplayercount";
 					pDialogVarTeamName = "redteamname";
-					break;
-				case TF_TEAM_BLUE:
-					pDialogVarTeamScore = "blueteamscore";
-					pDialogVarTeamPlayerCount = "blueteamplayercount";
-					pDialogVarTeamName = "blueteamname";
 					break;
 				default:
 					Assert( false );
@@ -375,7 +295,7 @@ void CTFClientScoreBoardDialog::UpdateTeamInfo()
 			SetDialogVariable( pDialogVarTeamPlayerCount, string1 );
 
 			// set team score in dialog
-			SetDialogVariable( pDialogVarTeamScore, team->Get_Score() );	
+			SetDialogVariable( pDialogVarTeamScore, team->Get_Score() );		
 
 			// set team name
 			SetDialogVariable( pDialogVarTeamName, team->Get_Name() );
@@ -383,27 +303,10 @@ void CTFClientScoreBoardDialog::UpdateTeamInfo()
 	}
 }
 
-bool AreEnemyTeams(int iTeam1, int iTeam2)
-{
-	if (iTeam1 == TF_TEAM_RED && (iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_GREEN || iTeam2 == TF_TEAM_YELLOW))
-		return true;
-
-	if (iTeam1 == TF_TEAM_BLUE && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_GREEN || iTeam2 == TF_TEAM_YELLOW))
-		return true;
-
-	if (iTeam1 == TF_TEAM_GREEN && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_YELLOW))
-		return true;
-
-	if (iTeam1 == TF_TEAM_YELLOW && (iTeam2 == TF_TEAM_RED || iTeam2 == TF_TEAM_BLUE || iTeam2 == TF_TEAM_GREEN))
-		return true;
-
-	return false;
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: Updates the player list
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::UpdatePlayerList()
+void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 {
 	int iSelectedPlayerIndex = GetLocalPlayerIndex();
 
@@ -425,7 +328,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 	}	
 
 	m_pPlayerListRed->RemoveAll();
-	m_pPlayerListBlue->RemoveAll();
 
 	C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>( g_PR );
 	if ( !tf_PR )
@@ -445,9 +347,6 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			SectionedListPanel *pPlayerList = NULL;
 			switch ( g_PR->GetTeam( playerIndex ) )
 			{
-			case TF_TEAM_BLUE:
-				pPlayerList = m_pPlayerListBlue;
-				break;
 			case TF_TEAM_RED:
 				pPlayerList = m_pPlayerListRed;
 				break;
@@ -490,8 +389,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 
 					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
 					{
-						//pKeyValues->SetString( "class", g_aPlayerClassNames[iClass] );
-						pKeyValues->SetInt( "class", tf_PR->IsAlive(playerIndex) ? m_iClassEmblem[iClass] : m_iClassEmblemDead[iClass]);
+						pKeyValues->SetInt("class", tf_PR->IsAlive(playerIndex) ? m_iClassEmblem[iClass] : m_iClassEmblemDead[iClass]);
 					}
 					else
 					{
@@ -502,9 +400,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			else
 			{
 				C_TFPlayer *pPlayerOther = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
-
 				bool bUseTruncatedNames = false;
-
 				if ( pPlayerOther && pPlayerOther->m_Shared.IsPlayerDominated( pLocalPlayer->entindex() ) )
 				{
 					// if local player is dominated by this player, show a nemesis icon
@@ -542,7 +438,10 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 			UpdatePlayerAvatar( playerIndex, pKeyValues );
 			
 			int itemID = pPlayerList->AddItem( 0, pKeyValues );
-			Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+
+			//Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+			Color clr = tf_PR->GetPlayerColor(playerIndex);
 			pPlayerList->SetItemFgColor( itemID, clr );
 
 			if ( iSelectedPlayerIndex == playerIndex )
@@ -558,11 +457,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 	// If we're on spectator, find a default selection
 	if ( !bMadeSelection )
 	{
-		if ( m_pPlayerListBlue->GetItemCount() > 0 )
-		{
-			m_pPlayerListBlue->SetSelectedItem( 0 );
-		}
-		else if ( m_pPlayerListRed->GetItemCount() > 0 )
+		if ( m_pPlayerListRed->GetItemCount() > 0 )
 		{
 			m_pPlayerListRed->SetSelectedItem( 0 );
 		}
@@ -572,9 +467,8 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 //-----------------------------------------------------------------------------
 // Purpose: Updates the spectator list
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::UpdateSpectatorList()
+void CTFDeathMatchScoreBoardDialog::UpdateSpectatorList()
 {
-	// Spectators
 	char szSpectatorList[512] = "" ;
 	int nSpectators = 0;
 	for( int playerIndex = 1 ; playerIndex <= MAX_PLAYERS; playerIndex++ )
@@ -608,7 +502,7 @@ void CTFClientScoreBoardDialog::UpdateSpectatorList()
 //-----------------------------------------------------------------------------
 // Purpose: Updates details about a player
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::UpdatePlayerDetails()
+void CTFDeathMatchScoreBoardDialog::UpdatePlayerDetails()
 {
 	ClearPlayerDetails();
 
@@ -633,32 +527,26 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 
 	RoundStats_t &roundStats = GetStatPanel()->GetRoundStatsCurrentGame();
 
-	if (m_pLocalPlayerStatsPanel)
-	{
-		m_pLocalPlayerStatsPanel->SetDialogVariable("kills", tf_PR->GetPlayerScore(playerIndex));
-		m_pLocalPlayerStatsPanel->SetDialogVariable("deaths", tf_PR->GetDeaths(playerIndex));
-		m_pLocalPlayerStatsPanel->SetDialogVariable("assists", roundStats.m_iStat[TFSTAT_KILLASSISTS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("destruction", roundStats.m_iStat[TFSTAT_BUILDINGSDESTROYED]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("captures", roundStats.m_iStat[TFSTAT_CAPTURES]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("defenses", roundStats.m_iStat[TFSTAT_DEFENSES]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("dominations", roundStats.m_iStat[TFSTAT_DOMINATIONS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("revenge", roundStats.m_iStat[TFSTAT_REVENGE]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("healing", roundStats.m_iStat[TFSTAT_HEALING]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("invulns", roundStats.m_iStat[TFSTAT_INVULNS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("teleports", roundStats.m_iStat[TFSTAT_TELEPORTS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("headshots", roundStats.m_iStat[TFSTAT_HEADSHOTS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("backstabs", roundStats.m_iStat[TFSTAT_BACKSTABS]);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("bonus", 0);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("support", 0);
-		m_pLocalPlayerStatsPanel->SetDialogVariable("damage", roundStats.m_iStat[TFSTAT_DAMAGE]);
-
-	}
-	SetDialogVariable("playername", tf_PR->GetPlayerName(playerIndex));
-	SetDialogVariable("playerscore", GetPointsString(tf_PR->GetTotalScore(playerIndex)));
-
-	Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+	SetDialogVariable( "kills", tf_PR->GetPlayerScore( playerIndex ) );
+	SetDialogVariable( "deaths", tf_PR->GetDeaths( playerIndex ) );
+	SetDialogVariable( "assists", roundStats.m_iStat[TFSTAT_KILLASSISTS] );
+	SetDialogVariable( "destruction", roundStats.m_iStat[TFSTAT_BUILDINGSDESTROYED] );
+	SetDialogVariable( "captures", roundStats.m_iStat[TFSTAT_CAPTURES] );
+	SetDialogVariable( "defenses", roundStats.m_iStat[TFSTAT_DEFENSES] );
+	SetDialogVariable( "dominations", roundStats.m_iStat[TFSTAT_DOMINATIONS] );
+	SetDialogVariable( "revenge", roundStats.m_iStat[TFSTAT_REVENGE] );
+	SetDialogVariable( "healing", roundStats.m_iStat[TFSTAT_HEALING] );
+	SetDialogVariable( "invulns", roundStats.m_iStat[TFSTAT_INVULNS] );
+	SetDialogVariable( "teleports", roundStats.m_iStat[TFSTAT_TELEPORTS] );
+	SetDialogVariable( "headshots", roundStats.m_iStat[TFSTAT_HEADSHOTS] );
+	SetDialogVariable( "backstabs", roundStats.m_iStat[TFSTAT_BACKSTABS] );
+	SetDialogVariable( "playername", tf_PR->GetPlayerName( playerIndex ) );
+	SetDialogVariable( "playerscore", GetPointsString( tf_PR->GetTotalScore( playerIndex ) ) );
+	//Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+	Color clr = tf_PR->GetPlayerColor(playerIndex);
 	m_pLabelPlayerName->SetFgColor( clr );
 	m_pImagePanelHorizLine->SetFillColor( clr );
+	m_pRedScoreBG->SetFillColor(clr);
 
 	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
 	int iTeam = pLocalPlayer->GetTeamNumber();
@@ -674,61 +562,104 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDeathMatchScoreBoardDialog::UpdatePlayerAvatar(int playerIndex, KeyValues *kv)
+{
+	// Update their avatar
+	if (kv && ShowAvatars() && steamapicontext->SteamFriends() && steamapicontext->SteamUtils())
+	{
+		player_info_t pi;
+		if (engine->GetPlayerInfo(playerIndex, &pi))
+		{
+			if (pi.friendsID)
+			{
+				CSteamID steamIDForPlayer(pi.friendsID, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual);
+
+				// See if we already have that avatar in our list
+				int iMapIndex = m_mapAvatarsToImageList.Find(steamIDForPlayer);
+				int iImageIndex;
+				if (iMapIndex == m_mapAvatarsToImageList.InvalidIndex())
+				{
+					CAvatarImage *pImage = new CAvatarImage();
+					pImage->SetAvatarSteamID(steamIDForPlayer);
+					pImage->SetAvatarSize(32, 32);	// Deliberately non scaling
+					pImage->SetDrawFriend(false);
+					iImageIndex = m_pImageList->AddImage(pImage);
+
+					m_mapAvatarsToImageList.Insert(steamIDForPlayer, iImageIndex);
+				}
+				else
+				{
+					iImageIndex = m_mapAvatarsToImageList[iMapIndex];
+				}
+
+				kv->SetInt("avatar", iImageIndex);
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Clears score details
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::ClearPlayerDetails()
+void CTFDeathMatchScoreBoardDialog::ClearPlayerDetails()
 {
 	m_pClassImage->SetVisible( false );
 
 	// HLTV has no game stats
 	bool bVisible = !engine->IsHLTV();
 
-	if (m_pLocalPlayerStatsPanel)
-	{
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "kills", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "deaths", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "assists", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "destruction", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "captures", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "defenses", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "dominations", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "revenge", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "invulns", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "headshots", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "teleports", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "healing", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "backstabs", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "bonus", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "support", "" );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "damage", "" );
+	SetDialogVariable( "kills", "" ); 
+	SetControlVisible( "KillsLabel", bVisible );
 
-		m_pLocalPlayerStatsPanel->SetControlVisible( "KillsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "DeathsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "AssistsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "DestructionLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "CapturesLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "DefensesLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "DominationLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "RevengeLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "InvulnLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "HeadshotsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "TeleportsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "HealingLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "BackstabsLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "BonusLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "SupportLabel", bVisible );
-		m_pLocalPlayerStatsPanel->SetControlVisible( "DamageLabel", bVisible );
-	}
-	SetDialogVariable("playername", "");
-	SetDialogVariable("playerscore", "");
+	SetDialogVariable( "deaths", "" );
+	SetControlVisible( "DeathsLabel", bVisible );
 
+	SetDialogVariable( "captures", "" );
+	SetControlVisible( "CapturesLabel", bVisible );
 
+	SetDialogVariable( "defenses", "" );
+	SetControlVisible( "DefensesLabel", bVisible );
+
+	SetDialogVariable( "dominations", "" );
+	SetControlVisible( "DominationLabel", bVisible );
+
+	SetDialogVariable( "revenge", "" );
+	SetControlVisible( "RevengeLabel", bVisible );
+
+	SetDialogVariable( "assists", "" );
+	SetControlVisible( "AssistsLabel", bVisible );
+
+	SetDialogVariable( "destruction", "" );
+	SetControlVisible( "DestructionLabel", bVisible );
+
+	SetDialogVariable( "healing", "" );
+	SetControlVisible( "HealingLabel", bVisible );
+
+	SetDialogVariable( "invulns", "" );
+	SetControlVisible( "InvulnLabel", bVisible );
+
+	SetDialogVariable( "teleports", "" );
+	SetControlVisible( "TeleportsLabel", bVisible );
+
+	SetDialogVariable( "headshots", "" );
+	SetControlVisible( "HeadshotsLabel", bVisible );
+
+	SetDialogVariable( "backstabs", "" );
+	SetControlVisible( "BackstabsLabel", bVisible );
+
+	SetDialogVariable( "playername", "" );
+
+	SetDialogVariable( "playerscore", "" );
+
+	
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Used for sorting players
 //-----------------------------------------------------------------------------
-bool CTFClientScoreBoardDialog::TFPlayerSortFunc( vgui::SectionedListPanel *list, int itemID1, int itemID2 )
+bool CTFDeathMatchScoreBoardDialog::TFPlayerSortFunc(vgui::SectionedListPanel *list, int itemID1, int itemID2)
 {
 	KeyValues *it1 = list->GetItemData(itemID1);
 	KeyValues *it2 = list->GetItemData(itemID2);
@@ -749,28 +680,9 @@ bool CTFClientScoreBoardDialog::TFPlayerSortFunc( vgui::SectionedListPanel *list
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns a localized string of form "1 point", "2 points", etc for specified # of points
-//-----------------------------------------------------------------------------
-const wchar_t *GetPointsString( int iPoints )
-{
-	wchar_t wzScoreVal[128];
-	static wchar_t wzScore[128];
-	_snwprintf( wzScoreVal, ARRAYSIZE( wzScoreVal ), L"%i", iPoints );
-	if ( 1 == iPoints ) 
-	{
-		g_pVGuiLocalize->ConstructString( wzScore, sizeof(wzScore), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Point" ), 1, wzScoreVal );
-	}
-	else
-	{
-		g_pVGuiLocalize->ConstructString( wzScore, sizeof(wzScore), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Points" ), 1, wzScoreVal );
-	}
-	return wzScore;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Returns whether the specified player index is a spectator
 //-----------------------------------------------------------------------------
-bool CTFClientScoreBoardDialog::ShouldShowAsSpectator( int iPlayerIndex )
+bool CTFDeathMatchScoreBoardDialog::ShouldShowAsSpectator(int iPlayerIndex)
 {
 	C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>( g_PR );
 	if ( !tf_PR )
@@ -781,38 +693,16 @@ bool CTFClientScoreBoardDialog::ShouldShowAsSpectator( int iPlayerIndex )
 	{
 		// either spectating or unassigned team should show in spectator list
 		int iTeam = tf_PR->GetTeam( iPlayerIndex );
-		if ( TEAM_SPECTATOR == iTeam )
+		if ( TEAM_SPECTATOR == iTeam || TEAM_UNASSIGNED == iTeam )
 			return true;
 	}
 	return false;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Returns whether the specified player is waiting to play/unassigned
-//-----------------------------------------------------------------------------
-bool CTFClientScoreBoardDialog::ShouldShowAsUnassigned(int iPlayerIndex)
-{
-	C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
-	if (!tf_PR)
-		return false;
-
-	// If the player hasn't connected yet, show him in the status bar
-	if (!tf_PR->IsConnected(iPlayerIndex))
-		return true;
-
-	// If the player has connected, but hasn't picked anything.
-	int iTeam = tf_PR->GetTeam(iPlayerIndex);
-	if (TEAM_UNASSIGNED == iTeam)
-		return true;
-
-	return false;
-}
-
-
-//-----------------------------------------------------------------------------
 // Purpose: Event handler
 //-----------------------------------------------------------------------------
-void CTFClientScoreBoardDialog::FireGameEvent( IGameEvent *event )
+void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 {
 	const char *type = event->GetName();
 
@@ -829,7 +719,7 @@ void CTFClientScoreBoardDialog::FireGameEvent( IGameEvent *event )
 		char szMapName[MAX_MAP_NAME];
 		Q_FileBase(engine->GetLevelName(), szMapName, sizeof(szMapName));
 		Q_strlower(szMapName);
-		SetDialogVariable( "mapname", GetMapDisplayName(szMapName) );
+		SetDialogVariable("mapname", GetMapDisplayName(szMapName));
 	}
 
 	if( IsVisible() )
@@ -841,194 +731,15 @@ void CTFClientScoreBoardDialog::FireGameEvent( IGameEvent *event )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-SectionedListPanel *CTFClientScoreBoardDialog::GetSelectedPlayerList( void )
+SectionedListPanel *CTFDeathMatchScoreBoardDialog::GetSelectedPlayerList(void)
 {
 	SectionedListPanel *pList = NULL;
 
 	// navigation
-	if ( m_pPlayerListBlue->GetSelectedItem() >= 0 )
-	{
-		pList = m_pPlayerListBlue;
-	}
-	else if ( m_pPlayerListRed->GetSelectedItem() >= 0 )
+	if ( m_pPlayerListRed->GetSelectedItem() >= 0 )
 	{
 		pList = m_pPlayerListRed;
 	}
 
 	return pList;
 }
-
-#if defined ( _X360 )
-
-//-----------------------------------------------------------------------------
-// Purpose: Event handler
-//-----------------------------------------------------------------------------
-int	CTFClientScoreBoardDialog::HudElementKeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding )
-{
-	if ( !IsVisible() )
-		return 1;
-
-	if ( !down )
-	{
-		return 1;
-	}
-
-	SectionedListPanel *pList = GetSelectedPlayerList();
-
-	switch( keynum )
-	{
-	case KEY_XBUTTON_UP:
-		{
-			if ( pList )
-			{
-				pList->MoveSelectionUp();
-			}			
-		}
-		return 0;
-
-	case KEY_XBUTTON_DOWN:
-		{
-			if ( pList )
-			{
-				pList->MoveSelectionDown();
-			}		
-		}
-		return 0;
-
-	case KEY_XBUTTON_RIGHT:
-		{
-			if ( m_pPlayerListRed->GetItemCount() == 0 )
-				return 0;
-
-			// move to the red list
-
-			// get the row we're in now
-			int iSelectedBlueItem = m_pPlayerListBlue->GetSelectedItem();
-
-			m_pPlayerListBlue->ClearSelection();
-
-			if ( iSelectedBlueItem >= 0 )
-			{
-				int row = m_pPlayerListBlue->GetRowFromItemID( iSelectedBlueItem );
-
-				if ( row >= 0 )
-				{
-					int iNewItem = m_pPlayerListRed->GetItemIDFromRow( row );
-
-					if ( iNewItem >= 0 )
-					{
-						m_pPlayerListRed->SetSelectedItem( iNewItem );
-					}
-					else
-					{
-						// we have fewer items. Select the last one
-						int iLastRow = m_pPlayerListRed->GetItemCount()-1;
-
-						iNewItem = m_pPlayerListRed->GetItemIDFromRow( iLastRow );
-
-						if ( iNewItem >= 0 )
-						{
-							m_pPlayerListRed->SetSelectedItem( iNewItem );
-						}
-					}
-				}
-			}
-		}
-		return 0;
-
-	case KEY_XBUTTON_LEFT:
-		{
-			if ( m_pPlayerListBlue->GetItemCount() == 0 )
-				return 0;
-
-			// move to the blue list
-
-			// get the row we're in now
-			int iSelectedRedItem = m_pPlayerListRed->GetSelectedItem();
-
-			if ( iSelectedRedItem < 0 )
-				iSelectedRedItem = 0;
-
-			m_pPlayerListRed->ClearSelection();
-
-			if ( iSelectedRedItem >= 0 )
-			{
-				int row = m_pPlayerListRed->GetRowFromItemID( iSelectedRedItem );
-
-				if ( row >= 0 )
-				{
-					int iNewItem = m_pPlayerListBlue->GetItemIDFromRow( row );
-
-					if ( iNewItem >= 0 )
-					{
-						m_pPlayerListBlue->SetSelectedItem( iNewItem );
-					}
-					else
-					{
-						// we have fewer items. Select the last one
-						int iLastRow = m_pPlayerListBlue->GetItemCount()-1;
-
-						iNewItem = m_pPlayerListBlue->GetItemIDFromRow( iLastRow );
-
-						if ( iNewItem >= 0 )
-						{
-							m_pPlayerListBlue->SetSelectedItem( iNewItem );
-						}
-					}
-				}
-			}
-		}
-		return 0;
-
-	case KEY_XBUTTON_B:
-		{
-			ShowPanel( false );
-		}
-		return 0;
-
-	case KEY_XBUTTON_A:	// Show GamerCard for the selected player
-		{
-			if ( pList )
-			{
-				int iSelectedItem = pList->GetSelectedItem();
-
-				if ( iSelectedItem >= 0 )
-				{
-					KeyValues *pInfo = pList->GetItemData( iSelectedItem );
-
-					DevMsg( 1, "XShowGamerCardUI for player '%s'\n", pInfo->GetString( "name" ) );
-
-					uint64 xuid = matchmaking->PlayerIdToXuid( pInfo->GetInt( "playerIndex" ) );
-					XShowGamerCardUI( XBX_GetPrimaryUserId(), xuid );
-				}
-			}
-		}
-		return 0;
-
-	case KEY_XBUTTON_X:	// Show player review for the selected player
-		{
-			if ( pList )
-			{
-				int iSelectedItem = pList->GetSelectedItem();
-
-				if ( iSelectedItem >= 0 )
-				{
-					KeyValues *pInfo = pList->GetItemData( iSelectedItem );
-
-					DevMsg( 1, "XShowPlayerReviewUI for player '%s'\n", pInfo->GetString( "name" ) );
-
-					uint64 xuid = matchmaking->PlayerIdToXuid( pInfo->GetInt( "playerIndex" ) );
-					XShowPlayerReviewUI( XBX_GetPrimaryUserId(), xuid );
-				}
-			}
-		}
-		return 0;
-	
-	default:
-		break;
-	}
-
-	return 1;
-}
-
-#endif //_X360

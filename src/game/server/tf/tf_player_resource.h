@@ -29,6 +29,7 @@ protected:
 	CNetworkArray( int,	m_iTotalScore, MAX_PLAYERS+1 );
 	CNetworkArray( int, m_iMaxHealth, MAX_PLAYERS+1 );
 	CNetworkArray( int, m_iPlayerClass, MAX_PLAYERS+1 );
+	CNetworkArray(Vector, m_iColors, MAX_PLAYERS + 1);
 };
 
 #endif // TF_PLAYER_RESOURCE_H

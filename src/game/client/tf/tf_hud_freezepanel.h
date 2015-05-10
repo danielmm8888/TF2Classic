@@ -93,6 +93,7 @@ protected:
 
 private:
 	void ShowNemesisPanel( bool bShow );
+	void SetColorForTargetTeam( int iTeamNumber );
 
 	int						m_iYBase;
 	int						m_iKillerIndex;

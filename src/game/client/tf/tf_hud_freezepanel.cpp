@@ -238,24 +238,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				CTFPlayer *pTFKiller = ToTFPlayer( pKiller );
 
 				// Set the BG according to the team they're on
-				switch (pTFKiller->GetTeamNumber())
-				{
-					case TF_TEAM_RED:
-						m_pFreezePanelBG->SetImage("../hud/freezecam_red_bg");
-						break;
-					case TF_TEAM_BLUE:
-						m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
-						break;
-					case TF_TEAM_GREEN:
-						m_pFreezePanelBG->SetImage("../hud/freezecam_green_bg");
-						break;
-					case TF_TEAM_YELLOW:
-						m_pFreezePanelBG->SetImage("../hud/freezecam_yellow_bg");
-						break;
-					default:
-						m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
-						break;
-				}
+				SetColorForTargetTeam( pTFKiller->GetTeamNumber() );
 
 				//If this was just a regular kill but this guy is our nemesis then just show it.
 				if ( pVictim && pTFKiller && pTFKiller->m_Shared.IsPlayerDominated( pVictim->entindex() ) )
@@ -294,6 +277,9 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				C_TFPlayer *pOwner = pObj->GetOwner();
 
 				Assert( pOwner && "Why does this object not have an owner?" );
+				
+				// Set the BG according to the team it's on
+				SetColorForTargetTeam( pObj->GetTeamNumber() );
 
 				if ( pOwner )
 				{
@@ -764,6 +750,28 @@ void CTFFreezePanel::ShowNemesisPanel( bool bShow )
 		}
 	}
 #endif
+}
+
+void CTFFreezePanel::SetColorForTargetTeam( int iTeamNumber )
+{
+	switch ( iTeamNumber )
+	{
+	case TF_TEAM_RED:
+		m_pFreezePanelBG->SetImage("../hud/freezecam_red_bg");
+		break;
+	case TF_TEAM_BLUE:
+		m_pFreezePanelBG->SetImage("../hud/freezecam_blue_bg");
+		break;
+	case TF_TEAM_GREEN:
+		m_pFreezePanelBG->SetImage("../hud/freezecam_green_bg");
+		break;
+	case TF_TEAM_YELLOW:
+		m_pFreezePanelBG->SetImage("../hud/freezecam_yellow_bg");
+		break;
+	default:
+		m_pFreezePanelBG->SetImage("../hud/freezecam_black_bg");
+		break;
+	}
 }
 
 //-----------------------------------------------------------------------------
