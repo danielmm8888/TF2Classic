@@ -51,17 +51,29 @@ char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
 	Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
 	CUtlDict< CHudTexture *, int > tempList;
 	LoadHudTextures(tempList, sz, g_pGameRules->GetEncryptionKey());
-	CHudTexture *p;
+	CHudTexture *pHudDefaultTexture = FindHudTextureInDict(tempList, "weapon");
+	CHudTexture *pHudTexture;
 	switch (iTeam)
 	{
-	case 0: p = FindHudTextureInDict(tempList, "weapon");
-	case 1: p = FindHudTextureInDict(tempList, "weapon_s");
-	case 2: p = FindHudTextureInDict(tempList, "weapon_g");
-	case 3: p = FindHudTextureInDict(tempList, "weapon_y");
+	case TF_TEAM_RED:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon");
+		break;
+	case TF_TEAM_BLUE:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_s");
+		break;
+	case TF_TEAM_GREEN:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_g");
+		break;
+	case TF_TEAM_YELLOW:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_y");
+		break;
 	default:
-		p = FindHudTextureInDict(tempList, "weapon");
+		pHudTexture = pHudDefaultTexture;
+		break;
 	}
-	char* sTextureFile = p->szTextureFile;
+	if (!pHudTexture) //prevent from crashing
+		pHudTexture = pHudDefaultTexture;
+	char* sTextureFile = pHudTexture->szTextureFile;
 	return sTextureFile;
 };
 
