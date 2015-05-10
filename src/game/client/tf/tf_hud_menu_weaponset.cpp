@@ -198,7 +198,7 @@ void CHudMenuWeaponSet::OnThink()
 	{
 		for (int iPreset = 0; iPreset < COLNUM; iPreset++)
 		{
-			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, iSlot, iPreset);
+			int iWeapon = m_pInvenory->GetWeapon(pClass->GetClassIndex() - 1, iSlot, iPreset);
 				if (iWeapon > 0)
 				{
 					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetEnabled(1);
@@ -206,7 +206,7 @@ void CHudMenuWeaponSet::OnThink()
 					m_pWeaponIcons[COLNUM * iSlot + iPreset]->SetPos(iPreset * m_fWide + m_fWide - 100, iSlot * m_fTall + m_fTall - 80);
 					m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("WeaponBucket"));
 					m_pWeaponBucket->SetVisible(1);
-					char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
+					char* cIcon = m_pInvenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
 					char szIcon[64];
 					Q_snprintf(szIcon, sizeof(szIcon), "../%s", cIcon);
 					if (szIcon)
@@ -221,7 +221,7 @@ void CHudMenuWeaponSet::OnThink()
 
 					m_pActiveWeaponBG = dynamic_cast<CTFImagePanel *>(m_pWeaponIcons[COLNUM * iSlot + iPreset]->FindChildByName("ActiveWeapon"));
 
-					int iWeaponPreset = Invenory->GetWeaponPreset(filesystem, iClass, iSlot);
+					int iWeaponPreset = m_pInvenory->GetWeaponPreset(filesystem, iClass, iSlot);
 					if (iPreset == iWeaponPreset)
 					{
 						m_pActiveWeaponBG->SetVisible(true);

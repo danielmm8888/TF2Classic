@@ -14,7 +14,27 @@ CTFInventory::CTFInventory(){};
 
 int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 {
-	return Weapons[iClass][iSlot][iNum];
+	int	iNewSlot = iSlot;
+
+	if (iClass == TF_CLASS_SPY - 1)
+	{
+		switch (iSlot)
+		{
+		case TF_WPN_TYPE_PRIMARY:
+			iNewSlot = TF_WPN_TYPE_SECONDARY;
+			break;
+		case TF_WPN_TYPE_SECONDARY:
+			iNewSlot = TF_WPN_TYPE_MELEE;
+			break;
+		case TF_WPN_TYPE_MELEE:
+			iNewSlot = TF_WPN_TYPE_PRIMARY;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return Weapons[iClass][iNewSlot][iNum];
 };
 
 #if defined( CLIENT_DLL )

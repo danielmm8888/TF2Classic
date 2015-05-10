@@ -49,7 +49,7 @@ private:
 
 
 private:
-	CTFInventory* Invenory;
+	CTFInventory* m_pInvenory;
 	CTFImagePanel* m_pWeaponBucket;
 	CTFImagePanel* m_pSelection;
 	CExLabel* m_pWeaponLabel;
