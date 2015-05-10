@@ -5153,11 +5153,6 @@ void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
 			break;
 	}
-	
-	if (friendlyfire.GetInt())
-	{
-		pTeamList->AddToTail(TFTeamMgr()->GetTeam(iTeam));
-	}
 
 }
 
@@ -6272,7 +6267,7 @@ bool CTFPlayer::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const 
 		}
 	}
 
-	if ( pPlayer->GetTeamNumber() == GetTeamNumber() && bIsMedic == false )
+	if ( pPlayer->GetTeamNumber() == GetTeamNumber() && bIsMedic == false && !TFGameRules()->IsDeathmatch() )
 		return false;
 	
 	// If this entity hasn't been transmitted to us and acked, then don't bother lag compensating it.
