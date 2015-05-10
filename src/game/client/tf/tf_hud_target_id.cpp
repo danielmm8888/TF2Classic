@@ -453,6 +453,7 @@ void CTargetID::UpdateID( void )
 				bShowHealth = true;
 				flHealth = pNPC->GetHealth();
 				flMaxHealth = pNPC->GetMaxHealth();
+				iMaxBuffedHealth = pNPC->GetMaxBuffedHealth();
 				SetColorForTargetTeam( pNPC->GetTeamNumber() );
 			}
 		}

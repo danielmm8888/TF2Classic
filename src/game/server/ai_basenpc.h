@@ -36,6 +36,9 @@
 #include "soundent.h"
 #include "ai_navigator.h"
 #include "tier1/functors.h"
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#endif
 
 #define PLAYER_SQUADNAME "player_squad"
 
@@ -2130,8 +2133,36 @@ public:
 #ifdef TF_CLASSIC
 public:
 	// Team support for TF2C!
-
 	virtual void		ChangeTeam( int iTeamNum );
+
+	// TF2 Healer handling
+public:
+	void	ConditionGameRulesThink( void );
+	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
+	void	StopHealing( CTFPlayer *pPlayer );
+	//void	RecalculateInvuln( bool bInstantRemove = false );
+	int		FindHealerIndex( CTFPlayer *pPlayer );
+	EHANDLE	GetFirstHealer();
+	int		GetNumHealers( void ) { return m_nNumHealers; }
+
+	int		TakeHealth( float flHealth, int bitsDamageType );
+	int		GetMaxBuffedHealth( void );
+
+private:
+	bool m_bHealthBuff;
+
+	struct healers_t
+	{
+		EHANDLE	pPlayer;
+		float	flAmount;
+		bool	bDispenserHeal;
+	};
+	CUtlVector< healers_t >	m_aHealers;	
+	float					m_flHealFraction;	// Store fractional health amounts
+
+	float m_flInvulnerableOffTime;
+
+	CNetworkVar( int, m_nNumHealers );
 #endif
 };
 

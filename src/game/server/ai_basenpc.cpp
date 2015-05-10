@@ -101,6 +101,7 @@
 #include "collisionutils.h"
 
 extern ConVar sk_healthkit;
+extern ConVar tf_boost_drain_time;
 
 // dvs: for opening doors -- these should probably not be here
 #include "ai_route.h"
@@ -4052,6 +4053,7 @@ void CAI_BaseNPC::NPCThink( void )
 	UpdateSleepState( bInPVS );
 
 	//---------------------------------
+
 	bool bRanDecision = false;
 
 	if ( GetEfficiency() < AIE_DORMANT && GetSleepState() == AISS_AWAKE )
@@ -10966,6 +10968,7 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropBool( SENDINFO( m_bImportanRagdoll ) ),
 	SendPropFloat( SENDINFO( m_flTimePingEffect ) ),
 	SendPropString( SENDINFO( m_szClassname ) ),
+	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 END_SEND_TABLE()
 
 //-------------------------------------
@@ -14363,5 +14366,206 @@ void CAI_BaseNPC::ChangeTeam( int iTeamNum )
 	}
 
 	BaseClass::ChangeTeam( iTeamNum );
+}
+
+int CAI_BaseNPC::TakeHealth( float flHealth, int bitsDamageType )
+{
+	int bResult = false;
+
+	// If the bit's set, add over the max health
+	if ( bitsDamageType & DMG_IGNORE_MAXHEALTH )
+	{
+		m_iHealth += flHealth;
+		bResult = true;
+	}
+	else
+	{
+		float flHealthToAdd = flHealth;
+		float flMaxHealth = GetMaxHealth();
+		
+		// don't want to add more than we're allowed to have
+		if ( flHealthToAdd > flMaxHealth - m_iHealth )
+		{
+			flHealthToAdd = flMaxHealth - m_iHealth;
+		}
+
+		if ( flHealthToAdd <= 0 )
+		{
+			bResult = false;
+		}
+		else
+		{
+			bResult = BaseClass::TakeHealth( flHealthToAdd, bitsDamageType );
+		}
+	}
+
+	return bResult;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Heal NPCs.
+// pPlayer is person who healed us
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal /* = false */ )
+{
+	Assert( FindHealerIndex(pPlayer) == m_aHealers.InvalidIndex() );
+
+	healers_t newHealer;
+	newHealer.pPlayer = pPlayer;
+	newHealer.flAmount = flAmount;
+	newHealer.bDispenserHeal = bDispenserHeal;
+	m_aHealers.AddToTail( newHealer );
+
+	m_bHealthBuff = true;
+	m_flHealFraction = 0;
+
+	//RecalculateInvuln();
+
+	m_nNumHealers = m_aHealers.Count();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Heal NPCs.
+// pPlayer is person who healed us
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::StopHealing( CTFPlayer *pPlayer )
+{
+	int iIndex = FindHealerIndex(pPlayer);
+	Assert( iIndex != m_aHealers.InvalidIndex() );
+
+	m_aHealers.Remove( iIndex );
+
+	if ( !m_aHealers.Count() )
+	{
+		m_bHealthBuff = false;
+		m_flHealFraction = 0;
+	}
+
+	//RecalculateInvuln();
+
+	m_nNumHealers = m_aHealers.Count();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int	CAI_BaseNPC::FindHealerIndex( CTFPlayer *pPlayer )
+{
+	for ( int i = 0; i < m_aHealers.Count(); i++ )
+	{
+		if ( m_aHealers[i].pPlayer == pPlayer )
+			return i;
+	}
+
+	return m_aHealers.InvalidIndex();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the first healer in the healer array.  Note that this
+//		is an arbitrary healer.
+//-----------------------------------------------------------------------------
+EHANDLE CAI_BaseNPC::GetFirstHealer()
+{
+	if ( m_aHealers.Count() > 0 )
+		return m_aHealers.Head().pPlayer;
+
+	return NULL;
+}
+
+void CAI_BaseNPC::ConditionGameRulesThink( void )
+{
+	// Our health will only decay ( from being medic buffed ) if we are not being healed by a medic
+	// Dispensers can give us the TF_COND_HEALTH_BUFF, but will not maintain or give us health above 100%s
+	bool bDecayHealth = true;
+
+	// If we're being healed, heal ourselves
+	if ( m_bHealthBuff )
+	{
+		// Heal faster if we haven't been in combat for a while
+		float flTimeSinceDamage = gpGlobals->curtime - GetLastDamageTime();
+		float flScale = RemapValClamped( flTimeSinceDamage, 10, 15, 1.0, 3.0 );
+
+		bool bHasFullHealth = GetHealth() >= GetMaxHealth();
+
+		float fTotalHealAmount = 0.0f;
+		for ( int i = 0; i < m_aHealers.Count(); i++ )
+		{
+			Assert( m_aHealers[i].pPlayer );
+
+			// Dispensers don't heal above 100%
+			if ( bHasFullHealth && m_aHealers[i].bDispenserHeal )
+			{
+				continue;
+			}
+
+			// Being healed by a medigun, don't decay our health
+			bDecayHealth = false;
+
+			// Dispensers heal at a constant rate
+			if ( m_aHealers[i].bDispenserHeal )
+			{
+				// Dispensers heal at a slower rate, but ignore flScale
+				m_flHealFraction += gpGlobals->frametime * m_aHealers[i].flAmount;
+			}
+			else	// player heals are affected by the last damage time
+			{
+				m_flHealFraction += gpGlobals->frametime * m_aHealers[i].flAmount * flScale;
+			}
+
+			fTotalHealAmount += m_aHealers[i].flAmount;
+		}
+
+		int nHealthToAdd = (int)m_flHealFraction;
+		if ( nHealthToAdd > 0 )
+		{
+			m_flHealFraction -= nHealthToAdd;
+
+			int iBoostMax = GetMaxBuffedHealth();
+
+			// Cap it to the max we'll boost a player's health
+			nHealthToAdd = clamp( nHealthToAdd, 0, iBoostMax - GetHealth() );
+
+			
+			TakeHealth( nHealthToAdd, DMG_IGNORE_MAXHEALTH );
+#if 0
+			// split up total healing based on the amount each healer contributes
+			for ( int i = 0; i < m_aHealers.Count(); i++ )
+			{
+				Assert( m_aHealers[i].pPlayer );
+				if ( m_aHealers[i].pPlayer.IsValid () )
+				{
+					CTFPlayer *pPlayer = static_cast<CTFPlayer *>( static_cast<CBaseEntity *>( m_aHealers[i].pPlayer ) );
+					if ( IsAlly( pPlayer ) )
+					{
+						CTF_GameStats.Event_PlayerHealedOther( pPlayer, nHealthToAdd * ( m_aHealers[i].flAmount / fTotalHealAmount ) );
+					}
+					else
+					{
+						CTF_GameStats.Event_PlayerLeachedHealth( m_pOuter, m_aHealers[i].bDispenserHeal, nHealthToAdd * ( m_aHealers[i].flAmount / fTotalHealAmount ) );
+					}
+				}
+			}
+#endif
+		}
+	}
+
+	if ( bDecayHealth )
+	{
+		// If we're not being buffed, our health drains back to our max
+		if ( GetHealth() > GetMaxHealth() )
+		{
+			float flBoostMaxAmount = GetMaxBuffedHealth() - GetMaxHealth();
+			m_flHealFraction += (gpGlobals->frametime * (flBoostMaxAmount / tf_boost_drain_time.GetFloat()));
+
+			int nHealthToDrain = (int)m_flHealFraction;
+			if ( nHealthToDrain > 0 )
+			{
+				m_flHealFraction -= nHealthToDrain;
+
+				// Manually subtract the health so we don't generate pain sounds / etc
+				m_iHealth -= nHealthToDrain;
+			}
+		}
+	}
 }
 #endif

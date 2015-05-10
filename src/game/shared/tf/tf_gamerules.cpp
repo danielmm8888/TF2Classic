@@ -44,6 +44,7 @@
 	#include "hl2orange.spa.h"
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
+	#include "ai_basenpc.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -2715,6 +2716,26 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			if ( pPlayer )
 			{
 				pPlayer->m_Shared.ConditionGameRulesThink();
+			}
+		}
+
+		// Run through all NPCs as well.
+		for ( int i = TF_TEAM_RED; i < TF_TEAM_COUNT; i++ )
+		{
+			CTFTeam *pTeam = TFTeamMgr()->GetTeam( i );
+			if ( pTeam )
+			{
+				int nTeamNPCCount = pTeam->GetNumNPCs();
+				for (int iNPC = 0; iNPC < nTeamNPCCount; ++iNPC)
+				{
+					CAI_BaseNPC *pNPC = pTeam->GetNPC(iNPC);
+					if ( !pNPC )
+					{
+						continue;
+					}
+
+					pNPC->ConditionGameRulesThink();
+				}
 			}
 		}
 	}

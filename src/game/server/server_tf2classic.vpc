@@ -23,7 +23,7 @@ $Configuration
 $Project "Server (TF)"
 {
 	$Folder	"Source Files"
-	{	
+	{
 		$File	"ai_relationship.cpp"
 		$File	"basegrenade_concussion.cpp"
 		$File	"basegrenade_contact.cpp"

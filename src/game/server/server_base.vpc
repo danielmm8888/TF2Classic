@@ -115,6 +115,8 @@ $Project
 		$File	"ai_behavior_lead.h"
 		$File	"ai_behavior_rappel.cpp"
 		$File	"ai_behavior_rappel.h"
+		$File	"$SRCDIR\game\shared\ai_basenpc_shared.cpp"
+		$File	"$SRCDIR\game\shared\ai_basenpc_shared.h"
 		$File	"ai_behavior_standoff.cpp"
 		$File	"ai_behavior_standoff.h"
 		$File	"ai_blended_movement.cpp"

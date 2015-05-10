@@ -41,6 +41,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_AI_BaseNPC, DT_AI_BaseNPC, CAI_BaseNPC )
 	RecvPropBool( RECVINFO( m_bImportanRagdoll ) ),
 	RecvPropFloat( RECVINFO( m_flTimePingEffect ) ),
 	RecvPropString( RECVINFO( m_szClassname ) ),
+	RecvPropInt( RECVINFO( m_nNumHealers ) ),
 END_RECV_TABLE()
 
 extern ConVar cl_npc_speedmod_intime;

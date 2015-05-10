@@ -187,6 +187,7 @@ $Project
 		$File	"achievement_notification_panel.cpp"
 		$File	"achievement_notification_panel.h"
 		$File	"$SRCDIR\game\shared\activitylist.cpp"
+		$File	"$SRCDIR\game\shared\ai_basenpc_shared.cpp"
 		$File	"alphamaterialproxy.cpp"
 		$File	"$SRCDIR\game\shared\ammodef.cpp"
 		$File	"animatedentitytextureproxy.cpp"
@@ -1107,6 +1108,7 @@ $Project
 	{
 		$File	"$SRCDIR\game\shared\activitylist.h"
 		$File	"$SRCDIR\game\shared\ai_activity.h"
+		$File	"$SRCDIR\game\shared\ai_basenpc_shared.h"
 		$File	"$SRCDIR\game\shared\ai_debug_shared.h"
 		$File	"$SRCDIR\game\shared\ammodef.h"
 		$File	"$SRCDIR\game\shared\animation.h"

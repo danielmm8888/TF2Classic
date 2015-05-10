@@ -47,6 +47,9 @@ public:
 	inline const char		*GetClassname( void ) { return m_szClassname; }
 #ifdef TF_CLASSIC_CLIENT
 	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
+
+	int						GetNumHealers( void ) { return m_nNumHealers; }
+	int						GetMaxBuffedHealth( void );
 #endif
 
 private:
@@ -68,6 +71,10 @@ private:
 	bool m_bImportanRagdoll;
 
 	char m_szClassname[128];
+
+#ifdef TF_CLASSIC_CLIENT
+	int m_nNumHealers;
+#endif
 };
 
 
