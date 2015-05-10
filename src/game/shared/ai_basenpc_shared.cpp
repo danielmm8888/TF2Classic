@@ -10,7 +10,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#ifdef TF_CLASSIC
+#if defined(TF_CLASSIC) || defined(TF_CLASSIC_CLIENT)
 extern ConVar tf_max_health_boost;
 
 int CAI_BaseNPC::GetMaxBuffedHealth( void )
