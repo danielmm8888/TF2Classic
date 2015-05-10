@@ -1,98 +1,199 @@
 #include "cbase.h"
 #include "tf_mainmenu.h"
-#include "tf_mainmenubutton.h"
-#include "vgui_controls/Frame.h"
-#include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
-#include <vgui/IInput.h>
+#include "tf_mainmenu_interface.h"
 
-#include "vgui_controls/Button.h"
-#include "vgui_controls/ImagePanel.h"
-#include "tf_controls.h"
+#include "tf_gamerules.h"
+#include "tf_shareddefs.h"
 #include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
 
-
 using namespace vgui;
-
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-class CMainMenuPanel : public vgui::EditablePanel
+// See interface.h/.cpp for specifics:  basically this ensures that we actually Sys_UnloadModule the dll and that we don't call Sys_LoadModule 
+//  over and over again.
+static CDllDemandLoader g_GameUIDLL("GameUI");
+
+CMainMenuPanel *guiroot = NULL;
+
+void OverrideMainMenu()
 {
-	typedef vgui::EditablePanel BaseClass;
-
-public:
-	CMainMenuPanel(vgui::VPANEL parent);
-	~CMainMenuPanel();
-
-	virtual void ApplySchemeSettings(vgui::IScheme *pScheme)
+	if (!MainMenu->GetPanel())
 	{
-
-		BaseClass::ApplySchemeSettings(pScheme);
+		MainMenu->Create(NULL);
 	}
-
-	// We want the panel background image to be square, not rounded.
-	virtual void PaintBackground()
+	if (guiroot->GetGameUI())
 	{
-		SetPaintBackgroundType(0);
-		BaseClass::PaintBackground();
+		guiroot->GetGameUI()->SetMainMenuOverride(guiroot->GetVPanel());
+		return;
 	}
-	bool InGame()
-	{
-		C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-
-		if (pPlayer && IsVisible())
-		{
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	void OnCommand(const char* command);
-	void OnThink();
-	void DefaultLayout();
-	void GameLayout();
-
-private:
-	CExLabel			*m_pVersionLabel;
-	CTFMainMenuButton	*m_pDisconnectButton;
-	CTFImagePanel		*m_pBackground;
-	CTFImagePanel		*m_pLogo;
-	bool			InGameLayout;	
-	//CExButton		*m_pQuitButton;
-
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CMainMenuPanel::CMainMenuPanel(vgui::VPANEL parent) : BaseClass(NULL, "CMainMenuPanel")
+CMainMenuPanel::CMainMenuPanel(VPANEL parent) : Frame(NULL, "MainMenuPanel")
 {
 	SetParent(parent);
+	guiroot = this;
+	gameui = NULL;
+	LoadGameUI();
+
+	SetScheme("ClientScheme");
 	SetProportional(false);
 	SetVisible(true);
-	SetScheme("ClientScheme");
-
-	// Size of the panel, since your logo is a VTF, you should set this (width,height) to the proper dimensions
-	SetSize(1920, 1080);
+	int width, height;
+	surface()->GetScreenSize(width, height);
+	SetSize(width, height);
 	SetPos(0, 0);
-
-	// Loading the .res file.
 	LoadControlSettings("resource/UI/MainMenu.res");
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 
 	InGameLayout = false;
+	b_ShowVideo = true;
+	m_flActionThink = -1;
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel")); 
 	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
 	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
+	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
 	m_pLogo = dynamic_cast<CTFImagePanel *>(FindChildByName("Logo"));
+	SetVersionLabel();
 
+	vgui::ivgui()->AddTickSignal(GetVPanel());
+	DefaultLayout();
+}
+
+IGameUI *CMainMenuPanel::GetGameUI()
+{
+	if (!gameui)
+	{
+		if (!LoadGameUI())
+			return NULL;
+	}
+
+	return gameui;
+}
+
+bool CMainMenuPanel::LoadGameUI()
+{
+	if (!gameui)
+	{
+		CreateInterfaceFn gameUIFactory = g_GameUIDLL.GetFactory();
+		if (gameUIFactory)
+		{
+			gameui = (IGameUI *)gameUIFactory(GAMEUI_INTERFACE_VERSION, NULL);
+			if (!gameui)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+void CMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CMainMenuPanel::~CMainMenuPanel()
+{
+	gameui = NULL;
+	g_GameUIDLL.Unload();
+}
+
+void CMainMenuPanel::OnCommand(const char* command)
+{
+	engine->ExecuteClientCmd(command);
+}
+
+void CMainMenuPanel::OnTick()
+{
+	if (m_pVideo && !InGameLayout && m_flActionThink < gpGlobals->curtime)
+		{
+			m_pVideo->Activate();
+			m_pVideo->BeginPlayback("media/bg_01.bik");
+			m_pVideo->MoveToFront();
+			m_flActionThink = gpGlobals->curtime + m_pVideo->GetEndDelay();
+			b_ShowVideo = false;
+		}
+};
+
+void CMainMenuPanel::OnThink()
+{
+	if (!InGame() && InGameLayout)
+	{
+		DefaultLayout();
+		InGameLayout = false;
+	} 
+	else if (InGame() && !InGameLayout)
+	{
+		GameLayout();
+		InGameLayout = true;
+	}
+	/*
+	if (TFGameRules())
+	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			//Draw deathmatch additions :v
+		}
+	}
+	*/
+};
+
+void CMainMenuPanel::DefaultLayout()
+{
+	//something with animations when I'll get them to work
+	//vgui::GetAnimationController()->StartAnimationSequence("MainMenuIntro");
+
+	//we need to find better way to show/hide stuff
+	if (m_pDisconnectButton)
+	{
+		if (m_pDisconnectButton->OnlyInGame())
+		{
+			m_pDisconnectButton->SetVisible(false);
+		}
+		else if (m_pDisconnectButton->OnlyAtMenu())
+		{
+			m_pDisconnectButton->SetVisible(true);
+		}
+	}
+	if (m_pVideo)
+	{
+		m_pVideo->SetVisible(true);
+	}	
+};
+
+void CMainMenuPanel::GameLayout()
+{
+	if (m_pDisconnectButton)
+	{
+		if (m_pDisconnectButton->OnlyInGame())
+		{
+			m_pDisconnectButton->SetVisible(true);
+		}
+		else if (m_pDisconnectButton->OnlyAtMenu())
+		{
+			m_pDisconnectButton->SetVisible(false);
+		}
+	}
+	if (m_pVideo)
+	{
+		m_pVideo->SetVisible(false);
+	}
+};
+
+void CMainMenuPanel::SetVersionLabel()
+{
 	if (m_pVersionLabel)
 	{
 		char verString[30];
@@ -113,80 +214,23 @@ CMainMenuPanel::CMainMenuPanel(vgui::VPANEL parent) : BaseClass(NULL, "CMainMenu
 		}
 		m_pVersionLabel->SetText(verString);
 	}
-	DefaultLayout();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Destructor
-//-----------------------------------------------------------------------------
-CMainMenuPanel::~CMainMenuPanel()
-{
-}
-
-void CMainMenuPanel::OnCommand(const char* command)
-{
-	engine->ExecuteClientCmd(command);
-}
-
-void CMainMenuPanel::OnThink()
-{
-	if (!InGame() && InGameLayout)
-	{
-		DefaultLayout();
-		InGameLayout = false;
-	} 
-	else if (InGame() && !InGameLayout)
-	{
-		GameLayout();
-		InGameLayout = true;
-	}
 };
 
-void CMainMenuPanel::DefaultLayout()
+void CMainMenuPanel::PaintBackground()
 {
-	if (m_pDisconnectButton->OnlyInGame())
-	{
-		m_pDisconnectButton->SetVisible(false);
-	};
+	SetPaintBackgroundType(0);
+	BaseClass::PaintBackground();
 }
 
-void CMainMenuPanel::GameLayout()
+bool CMainMenuPanel::InGame()
 {
-	if (m_pDisconnectButton->OnlyInGame())
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	if (pPlayer && IsVisible())
 	{
-		m_pDisconnectButton->SetVisible(true);
-	};
+		return true;
+	}
+	else {
+		return false;
+	}
 }
-
-// Class
-class CMainMenu : public IMainMenu
-{
-private:
-	CMainMenuPanel *MainMenuPanel;
-	vgui::VPANEL m_hParent;
-
-public:
-	CMainMenu(void)
-	{
-		MainMenuPanel = NULL;
-	}
-
-	void Create(vgui::VPANEL parent)
-	{
-		// Create immediately
-		MainMenuPanel = new CMainMenuPanel(parent);
-	}
-
-	void Destroy(void)
-	{
-		if (MainMenuPanel)
-		{
-			MainMenuPanel->SetParent((vgui::Panel *)NULL);	
-			delete MainMenuPanel;
-		}
-	}
-
-};
-
-static CMainMenu g_MainMenu;
-IMainMenu *MainMenu = (IMainMenu *)&g_MainMenu;
