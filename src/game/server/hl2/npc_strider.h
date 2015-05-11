@@ -514,6 +514,10 @@ private:
 	static int		gm_CannonAttachment;
 	static int		gm_BodyHeightPoseParam;
 
+#ifdef TF_CLASSIC
+	int m_iHealthAlt;
+#endif
+
 	DEFINE_CUSTOM_AI;
 
 	DECLARE_DATADESC();

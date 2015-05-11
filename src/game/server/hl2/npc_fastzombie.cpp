@@ -918,8 +918,11 @@ void CFastZombie::DeathSound( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CFastZombie::AlertSound( void )
 {
+#ifndef TF_CLASSIC
 	CBaseEntity *pPlayer = AI_GetSinglePlayer();
-
+#else
+	CBaseEntity *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() );
+#endif
 	if( pPlayer )
 	{
 		// Measure how far the player is, and play the appropriate type of alert sound. 

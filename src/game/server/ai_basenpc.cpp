@@ -762,10 +762,9 @@ bool CAI_BaseNPC::PassesDamageFilter( const CTakeDamageInfo &info )
 // Input  :
 // Output :
 //-----------------------------------------------------------------------------
-int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
+int CAI_BaseNPC::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 {
-	Forget( bits_MEMORY_INCOVER );
-	CTakeDamageInfo newInfo = info;
+	CTakeDamageInfo info = inputInfo;
 
 #ifdef TF_CLASSIC
 	int bitsDamage = info.GetDamageType();
@@ -797,11 +796,23 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			}
 		}
 
-		newInfo.SetDamage( flDamage );
+		info.SetDamage( flDamage );
 	}
 #endif
 
-	if ( !BaseClass::OnTakeDamage_Alive( newInfo ) )
+	return BaseClass::OnTakeDamage( info );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+// Input  :
+// Output :
+//-----------------------------------------------------------------------------
+int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
+{
+	Forget( bits_MEMORY_INCOVER );
+
+	if ( !BaseClass::OnTakeDamage_Alive( info ) )
 		return 0;
 
 	if ( GetSleepState() == AISS_WAITING_FOR_THREAT )

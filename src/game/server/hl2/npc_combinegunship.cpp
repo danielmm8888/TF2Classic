@@ -72,7 +72,9 @@ ConVar sk_gunship_burst_dist("sk_gunship_burst_dist", "768" );
 
 // Number of times the gunship must be struck by explosive damage
 ConVar	sk_gunship_health_increments( "sk_gunship_health_increments", "5" );
-
+#ifdef TF_CLASSIC
+ConVar	sk_gunship_health_alt( "sk_gunship_health_alt", "200" );
+#endif
 /*
 
 Wedge's notes:
@@ -406,6 +408,10 @@ private:
 	// If true, playing patrol loop.
 	// Else, playing angry.
 	bool			m_fPatrolLoopPlaying;
+
+#ifdef TF_CLASSIC
+	int				m_iHealthAlt;
+#endif
 };
 
 LINK_ENTITY_TO_CLASS( npc_combinegunship, CNPC_CombineGunship );
@@ -551,6 +557,9 @@ void CNPC_CombineGunship::Spawn( void )
 	SetHullSizeNormal();
 
 	m_iMaxHealth = m_iHealth = 100;
+#ifdef TF_CLASSIC
+	m_iHealthAlt = sk_gunship_health_alt.GetFloat();
+#endif
 
 	m_flFieldOfView = -0.707; // 270 degrees
 
@@ -2859,8 +2868,9 @@ void CNPC_CombineGunship::TraceAttack( const CTakeDamageInfo &info, const Vector
 			NPCEventResponse()->TriggerEvent( "TLK_CITIZEN_RESPONSE_SHOT_GUNSHIP", false, false );
 #endif
 		}
-
+#ifndef TF_CLASSIC
 		return;
+#endif
 	}
 
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
@@ -2914,6 +2924,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	// Allow npc_kill to kill me
 	if ( inputInfo.GetDamageType() != DMG_GENERIC )
 	{
+#ifndef TF_CLASSIC
 		// Ignore mundane bullet damage.
 		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) == false )
 			return 0;
@@ -2921,11 +2932,41 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		// Ignore blasts less than this amount
 		if ( inputInfo.GetDamage() < GUNSHIP_MIN_DAMAGE_THRESHOLD )
 			return 0;
+#else
+		// Ignore anything that is not bullet or blast damage.
+		if ( !(inputInfo.GetDamageType() & (DMG_BLAST|DMG_BULLET)) )
+			return 0;
+
+		// Ignore blasts less than this amount
+		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) && (inputInfo.GetDamage() < GUNSHIP_MIN_DAMAGE_THRESHOLD) )
+			return 0;
+#endif
 	}
 
 	// Only take blast damage
 	CTakeDamageInfo info = inputInfo;
 
+#ifdef TF_CLASSIC
+	// Bullet damage reduces alternative health counter.
+	// Once alt health reaches 0 explosion is spawned and alt health is reset.
+	if ( info.GetDamageType() & DMG_BULLET )
+	{
+		m_iHealthAlt -= info.GetDamage();
+		if ( m_iHealthAlt <= 0 )
+		{
+			// HACK: create fake explosion, change damage type to DMG_BLAST and set damage to 100.
+			ExplosionCreate( info.GetDamagePosition(), GetAbsAngles(), this, 100, 200, false );
+			info.SetDamageType( DMG_BLAST );
+			info.SetDamage( 100 );
+			info.SetMaxDamage( 100 );
+			m_iHealthAlt = sk_gunship_health_alt.GetFloat();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+#endif
 	// Make a pain sound
 	if ( !HasSpawnFlags( SF_GUNSHIP_USE_CHOPPER_MODEL ) )
 	{

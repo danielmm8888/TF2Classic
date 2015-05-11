@@ -3472,6 +3472,7 @@ void CNPC_AttackHelicopter::DropCorpse( int nDamage )
 //-----------------------------------------------------------------------------
 void CNPC_AttackHelicopter::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
+#ifndef TF_CLASSIC
 	// Take no damage from trace attacks unless it's blast damage. RadiusDamage() sometimes calls
 	// TraceAttack() as a means for delivering blast damage. Usually when the explosive penetrates
 	// the target. (RPG missiles do this sometimes).
@@ -3481,6 +3482,9 @@ void CNPC_AttackHelicopter::TraceAttack( const CTakeDamageInfo &info, const Vect
 	{
 		BaseClass::BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 	}
+#else
+	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
+#endif
 }
 
 
@@ -3489,6 +3493,7 @@ void CNPC_AttackHelicopter::TraceAttack( const CTakeDamageInfo &info, const Vect
 //-----------------------------------------------------------------------------
 int CNPC_AttackHelicopter::OnTakeDamage( const CTakeDamageInfo &info )
 {
+#ifndef TF_CLASSIC
 	// We don't take blast damage from anything but the airboat or missiles (or myself!)
 	if( info.GetInflictor() != this )
 	{
@@ -3497,7 +3502,7 @@ int CNPC_AttackHelicopter::OnTakeDamage( const CTakeDamageInfo &info )
 			( info.GetAttacker()->Classify() != CLASS_MISSILE ) )
 			return 0;
 	}
-
+#endif
 	if ( m_bIndestructible )
 	{
 		if ( GetHealth() < info.GetDamage() )
