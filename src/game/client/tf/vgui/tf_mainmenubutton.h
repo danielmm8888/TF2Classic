@@ -45,25 +45,31 @@ public:
 	void SetDefaultAnimation();
 
 	bool OnlyInGame(void){ return m_bOnlyInGame; };
-	//void OnThink();
+	bool OnlyAtMenu(void){ return m_bOnlyAtMenu; };
+	void OnThink();
 
 private:
 	bool			m_bOnlyInGame;
+	bool			m_bOnlyAtMenu;
 	bool			m_bImageVisible;
 	bool			m_bBorderVisible;
-	char			pDefaulImage[64];
+	float			m_fXShift;
+	float			m_fYShift;
+	char			pDefaultImage[64];
 	char			pArmedImage[64];
 	char			pDepressedImage[64];
-	char			pDefaulBorder[64];
+	char			pDefaultBorder[64];
 	char			pArmedBorder[64];
 	char			pDepressedBorder[64];
-	char			pDefaulText[64];
+	char			pDefaultText[64];
 	char			pArmedText[64];
 	char			pDepressedText[64];
 	char			m_szCommand[64];
 	char			m_szText[64];
+	char			m_szTextAlignment[64];
 	CTFImagePanel	*pImage;
 	CTFButton		*pButton;
+	vgui::Label::Alignment GetAlignment(char* m_szAlignment);
 };
 
 
@@ -99,9 +105,6 @@ private:
 	IBorder			  *_armedBorder;
 	IBorder			  *_selectedBorder;
 
-	float			m_flHoverTimeToWait;	// length of time to wait before reporting a "hover" message (-1 = no hover)
-	float			m_flHoverTime;			// when should a "hover" message be sent?
-	bool			m_bMouseEntered;		// used to track when the mouse is over a button
 	CTFMainMenuButton *m_pParent;
 	MouseState iState;
 };

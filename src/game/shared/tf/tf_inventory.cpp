@@ -14,27 +14,7 @@ CTFInventory::CTFInventory(){};
 
 int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 {
-	int	iNewSlot = iSlot;
-
-	if (iClass == TF_CLASS_SPY - 1)
-	{
-		switch (iSlot)
-		{
-		case TF_WPN_TYPE_PRIMARY:
-			iNewSlot = TF_WPN_TYPE_SECONDARY;
-			break;
-		case TF_WPN_TYPE_SECONDARY:
-			iNewSlot = TF_WPN_TYPE_MELEE;
-			break;
-		case TF_WPN_TYPE_MELEE:
-			iNewSlot = TF_WPN_TYPE_PRIMARY;
-			break;
-		default:
-			break;
-		}
-	}
-
-	return Weapons[iClass][iNewSlot][iNum];
+	return Weapons[iClass][iSlot][iNum];
 };
 
 #if defined( CLIENT_DLL )
@@ -66,6 +46,9 @@ void CTFInventory::SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInvent
 
 char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
 {
+	if (iWeapon == TF_WEAPON_BUILDER) //shit but works
+		return "sprites/bucket_sapper";
+
 	const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 	char sz[128];
 	Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
@@ -203,10 +186,13 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 		},
 		{
 			{
-				TF_WEAPON_KNIFE
+				TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
 			},
 			{
-				TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
+				TF_WEAPON_BUILDER
+			},
+			{
+				TF_WEAPON_KNIFE
 			},
 			{
 				TF_WEAPON_PDA_SPY

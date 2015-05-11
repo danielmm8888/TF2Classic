@@ -47,23 +47,28 @@ void CTFMainMenuButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaulImage, inResourceData->GetString("DefaulImage", ""), sizeof(pDefaulImage));
+	Q_strncpy(pDefaultImage, inResourceData->GetString("DefaultImage", ""), sizeof(pDefaultImage));
 	Q_strncpy(pArmedImage, inResourceData->GetString("ArmedImage", ""), sizeof(pArmedImage));
 	Q_strncpy(pDepressedImage, inResourceData->GetString("DepressedImage", ""), sizeof(pDepressedImage));
 
-	Q_strncpy(pDefaulBorder, inResourceData->GetString("DefaultBorder", ""), sizeof(pDefaulBorder));
+	Q_strncpy(pDefaultBorder, inResourceData->GetString("DefaultBorder", ""), sizeof(pDefaultBorder));
 	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ""), sizeof(pArmedBorder));
 	Q_strncpy(pDepressedBorder, inResourceData->GetString("DepressedBorder", ""), sizeof(pDepressedBorder));
 
-	Q_strncpy(pDefaulText, inResourceData->GetString("DefaultText", ""), sizeof(pDefaulText));
+	Q_strncpy(pDefaultText, inResourceData->GetString("DefaultText", ""), sizeof(pDefaultText));
 	Q_strncpy(pArmedText, inResourceData->GetString("ArmedText", ""), sizeof(pArmedText));
 	Q_strncpy(pDepressedText, inResourceData->GetString("DepressedText", ""), sizeof(pDepressedText));
 
 	Q_strncpy(m_szCommand, inResourceData->GetString("command", ""), sizeof(m_szCommand));
+	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		
 
-	m_bOnlyInGame = inResourceData->GetFloat("onlyingame", false);
-	m_bImageVisible = inResourceData->GetFloat("imagevisible", false);	
-	m_bBorderVisible = inResourceData->GetFloat("bordervisible", false);
+	m_bOnlyInGame = inResourceData->GetBool("onlyingame", false);
+	m_bOnlyAtMenu = inResourceData->GetBool("onlyatmenu", false);
+	m_bImageVisible = inResourceData->GetBool("imagevisible", false);	
+	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
+
+	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
+	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
@@ -75,11 +80,10 @@ void CTFMainMenuButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pImage->SetImage(pDefaulImage);
 	pButton->SetCommand(m_szCommand);
-
 	GetText(m_szText, sizeof(m_szText));
 	pButton->SetText(m_szText);
+	pImage->SetImage(pDefaultImage);
 
 	pImage->SetVisible(m_bImageVisible);
 	pImage->SetEnabled(true);
@@ -95,34 +99,50 @@ void CTFMainMenuButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 	pButton->SetZPos(2);
 	pButton->SetWide(GetWide());
 	pButton->SetTall(GetTall());
-	pButton->SetContentAlignment(a_center);
+	pButton->SetContentAlignment(GetAlignment(m_szTextAlignment));
+
 	pButton->SetFont(GetFont());
+
+	SetWide(GetWide() + 30);
 
 	SetDefaultColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetArmedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetDepressedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetSelectedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 
-	pButton->SetDefaultColor(pScheme->GetColor(pDefaulText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDefaultColor(pScheme->GetColor(pDefaultText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 	pButton->SetArmedColor(pScheme->GetColor(pArmedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 	pButton->SetDepressedColor(pScheme->GetColor(pDepressedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 	pButton->SetSelectedColor(pScheme->GetColor(pDepressedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 
 	if (m_bBorderVisible)
 	{
-		pButton->SetDefaultBorder(pScheme->GetBorder(pDefaulBorder));
+		pButton->SetDefaultBorder(pScheme->GetBorder(pDefaultBorder));
 		pButton->SetArmedBorder(pScheme->GetBorder(pArmedBorder));
 		pButton->SetDepressedBorder(pScheme->GetBorder(pDepressedBorder));
 		pButton->SetSelectedBorder(pScheme->GetBorder(pDepressedBorder));
 	}
+
+	pButton->SetArmedSound("ui/buttonrollover.wav");
+	pButton->SetDepressedSound("ui/buttonclick.wav");
+	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFMainMenuButton::OnThink()
+{
+	BaseClass::OnThink();
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFMainMenuButton::SetDefaultAnimation()
 {
-	pImage->SetImage(pDefaulImage);
+	pImage->SetImage(pDefaultImage);
 }
 
 
@@ -131,17 +151,21 @@ void CTFMainMenuButton::SetDefaultAnimation()
 //-----------------------------------------------------------------------------
 void CTFMainMenuButton::SendAnimation(MouseState flag)
 {
+	AnimationController::PublicValue_t p_AnimLeave = { 0, 0, 0, 0 };
+	AnimationController::PublicValue_t p_AnimHover = { m_fXShift, m_fYShift, 0, 0 };
 	switch (flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pImage->SetImage(pDefaulImage);
+		pImage->SetImage(pDefaultImage);
 		break;
 	case MOUSE_ENTERED:
 		pImage->SetImage(pArmedImage);
+		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_EXITED:
-		pImage->SetImage(pDefaulImage);
+		pImage->SetImage(pDefaultImage);
+		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_PRESSED:
 		pImage->SetImage(pDepressedImage);
@@ -157,9 +181,6 @@ void CTFMainMenuButton::SendAnimation(MouseState flag)
 //-----------------------------------------------------------------------------
 CTFButton::CTFButton(vgui::Panel *parent, const char *panelName, const char *text) : CExButton(parent, panelName, text)
 {
-	m_flHoverTimeToWait = -1;
-	m_flHoverTime = -1;
-	m_bMouseEntered = false;
 	iState = MOUSE_DEFAULT;
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
@@ -170,10 +191,7 @@ CTFButton::CTFButton(vgui::Panel *parent, const char *panelName, const char *tex
 void CTFButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
-	//m_flHoverTimeToWait = inResourceData->GetFloat("hover", -1);
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: Set armed button border attributes.
@@ -205,7 +223,6 @@ void CTFButton::ApplySchemeSettings(IScheme *pScheme)
 	InvalidateLayout();
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: Get button border attributes.
 //-----------------------------------------------------------------------------
@@ -220,9 +237,6 @@ IBorder *CTFButton::GetBorder(bool depressed, bool armed, bool selected, bool ke
 
 	return _defaultBorder;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -268,11 +282,15 @@ void CTFButton::OnMouseReleased(vgui::MouseCode code)
 	BaseClass::OnMouseReleased(code);
 	if (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED)
 	{
-		engine->ExecuteClientCmd(m_pParent->m_szCommand);
+		m_pParent->GetParent()->OnCommand(m_pParent->m_szCommand);
 	}
-	if (iState != MOUSE_ENTERED)
+	if (iState == MOUSE_ENTERED)
 	{
 		SetMouseEnteredState(MOUSE_ENTERED);
+	} 
+	else
+	{
+		SetMouseEnteredState(MOUSE_EXITED);
 	}
 }
 
@@ -284,28 +302,59 @@ void CTFButton::SetMouseEnteredState(MouseState flag)
 {
 	iState = flag;
 	m_pParent->SendAnimation(flag);
+}
 
-	/*
-	if (flag == MOUSE_ENTERED)
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+vgui::Label::Alignment CTFMainMenuButton::GetAlignment(char* m_szAlignment)
+{
+	// text alignment
+	const char *alignmentString = m_szAlignment;
+	int align = -1;
+
+	if (!stricmp(alignmentString, "north-west"))
 	{
-		m_bMouseEntered = true;
-
-		if (m_flHoverTimeToWait > 0)
-		{
-			m_flHoverTime = gpGlobals->curtime + m_flHoverTimeToWait;
-		}
-		else
-		{
-			m_flHoverTime = -1;
-		}
-
+		align = a_northwest;
 	}
-	else
+	else if (!stricmp(alignmentString, "north"))
 	{
-		m_bMouseEntered = false;
-		m_flHoverTime = -1;
-
-		m_pParent->SendAnimation(flag);
+		align = a_north;
 	}
-	*/
+	else if (!stricmp(alignmentString, "north-east"))
+	{
+		align = a_northeast;
+	}
+	else if (!stricmp(alignmentString, "west"))
+	{
+		align = a_west;
+	}
+	else if (!stricmp(alignmentString, "center"))
+	{
+		align = a_center;
+	}
+	else if (!stricmp(alignmentString, "east"))
+	{
+		align = a_east;
+	}
+	else if (!stricmp(alignmentString, "south-west"))
+	{
+		align = a_southwest;
+	}
+	else if (!stricmp(alignmentString, "south"))
+	{
+		align = a_south;
+	}
+	else if (!stricmp(alignmentString, "south-east"))
+	{
+		align = a_southeast;
+	}
+
+	if (align != -1)
+	{
+		return (Alignment)align;
+	}
+
+	return a_center;
 }
