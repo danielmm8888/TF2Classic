@@ -35,7 +35,7 @@ public:
 	virtual void OnKeyCodePressed( vgui::KeyCode code );
 	virtual void OnClose( void );
 	virtual void GetPanelPos( int &xpos, int &ypos );
-	float GetActiveVideoLength();
+	virtual float GetActiveVideoLength();
 
 	void SetExitCommand( const char *pExitCommand )
 	{

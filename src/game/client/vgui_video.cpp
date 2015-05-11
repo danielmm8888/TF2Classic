@@ -235,7 +235,10 @@ void VideoPanel::GetPanelPos( int &xpos, int &ypos )
 float VideoPanel::GetActiveVideoLength()
 {
 	if ( m_VideoMaterial != NULL )
-		return m_VideoMaterial->GetVideoDuration();
+	{
+		return ( m_VideoMaterial->GetFrameCount() / m_VideoMaterial->GetVideoFrameRate().GetFPS() );
+	}
+		
 	return NULL;
 }
 
