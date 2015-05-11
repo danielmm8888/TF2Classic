@@ -4,7 +4,6 @@
 #include "GameUI/IGameUI.h"
 #include "vgui_controls/Frame.h"
 #include "tf_mainmenubutton.h"
-#include "tf_mainmenuvideo.h"
 #include "tf_controls.h"
 
 #include <vgui/ISurface.h>
