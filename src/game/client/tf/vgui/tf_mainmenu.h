@@ -1,63 +1,48 @@
 #ifndef TFMAINMENU_H
 #define TFMAINMENU_H
 
+#include "vgui_controls/Frame.h"
 #include "vgui_controls/Panel.h"
 #include "GameUI/IGameUI.h"
+#include "tf_mainmenupanel.h"
+#include "tf_testmenupanel.h"
 
-#include "tf_mainmenubutton.h"
-#include "vgui_controls/Frame.h"
-#include "vgui_controls/Button.h"
-#include "vgui_controls/ImagePanel.h"
-#include "tf_mainmenubutton.h"
-#include "tf_mainmenuvideo.h"
-#include "tf_controls.h"
-
-#include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
-#include <vgui/IInput.h>
-#include "tf_vgui_video.h"
-
-#include "hud.h"
-#include "hudelement.h"
-#include "ienginevgui.h"
+enum MenuPanel 
+{
+	NONE_MENU,
+	MAIN_MENU,
+	TEST_MENU,
+	COUNT_MENU
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CMainMenuPanel : public vgui::Frame
+class CTFMainMenu : public vgui::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE(CMainMenuPanel, vgui::Frame);
+	DECLARE_CLASS_SIMPLE(CTFMainMenu, vgui::EditablePanel);
 
 public:
-	CMainMenuPanel(vgui::VPANEL parent);
-	virtual ~CMainMenuPanel();
-	IGameUI* GetGameUI();
-
+	CTFMainMenu(vgui::VPANEL parent);
+	virtual ~CTFMainMenu();
+	IGameUI*	 GetGameUI();
+	virtual void PerformLayout();
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void PaintBackground();
-	bool InGame();
-	void OnCommand(const char* command);
-	void OnThink();
-	void OnTick();
-	void DefaultLayout();
-	void GameLayout();
-	void SetVersionLabel();
+	virtual void OnCommand(const char* command);
+	virtual void OnThink();
+	virtual void OnTick();
+	virtual void ShowPanel(MenuPanel iPanel);
+	virtual void HidePanel(MenuPanel iPanel);
 
 private:
-	CExLabel			*m_pVersionLabel;
-	CTFMainMenuButton	*m_pDisconnectButton;
-	CTFImagePanel		*m_pBackground;
-	CTFImagePanel		*m_pLogo;
-	bool				InGameLayout;
-	EditablePanel		*m_pWeaponIcon;
-	CTFVideoPanel		*m_pVideo;
-	bool				b_ShowVideo;
-	float			m_flActionThink;
-
-	bool			LoadGameUI();
-	IGameUI*		gameui;
+	CTFMainMenuPanel	*MainMenuPanel;
+	CTFTestMenuPanel	*TestMenuPanel;
+	bool				LoadGameUI();
+	bool				InGame();
+	IGameUI*			gameui;
 };
 
-extern CMainMenuPanel *guiroot;
+extern CTFMainMenu *guiroot;
 
 #endif // TFMAINMENU_H

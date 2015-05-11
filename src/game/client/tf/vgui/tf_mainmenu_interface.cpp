@@ -6,7 +6,7 @@
 class CMainMenu : public IMainMenu
 {
 private:
-	CMainMenuPanel *MainMenu;
+	CTFMainMenu *MainMenu;
 
 public:
 	void UI_Interface(void)
@@ -17,7 +17,7 @@ public:
 	void Create(vgui::VPANEL parent)
 	{
 		// Create immediately
-		MainMenu = new CMainMenuPanel(parent);
+		MainMenu = new CTFMainMenu(parent);
 	}
 
 	vgui::VPANEL GetPanel(void)

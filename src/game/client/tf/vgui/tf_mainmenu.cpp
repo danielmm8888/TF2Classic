@@ -15,7 +15,7 @@ using namespace vgui;
 //  over and over again.
 static CDllDemandLoader g_GameUIDLL("GameUI");
 
-CMainMenuPanel *guiroot = NULL;
+CTFMainMenu *guiroot = NULL;
 
 void OverrideMainMenu()
 {
@@ -33,37 +33,72 @@ void OverrideMainMenu()
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CMainMenuPanel::CMainMenuPanel(VPANEL parent) : Frame(NULL, "MainMenuPanel")
+CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 {
 	SetParent(parent);
+
 	guiroot = this;
 	gameui = NULL;
 	LoadGameUI();
-
 	SetScheme("ClientScheme");
+
+	SetDragEnabled(false);
+	SetShowDragHelper(false);
 	SetProportional(false);
 	SetVisible(true);
+
 	int width, height;
 	surface()->GetScreenSize(width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
-	LoadControlSettings("resource/UI/MainMenu.res");
 
-	InGameLayout = false;
-	b_ShowVideo = true;
-	m_flActionThink = -1;
-	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel")); 
-	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
-	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
-	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
-	m_pLogo = dynamic_cast<CTFImagePanel *>(FindChildByName("Logo"));
-	SetVersionLabel();
+	MainMenuPanel = new CTFMainMenuPanel(this);
+	TestMenuPanel = new CTFTestMenuPanel(this);
+	TestMenuPanel->SetVisible(false);
 
-	vgui::ivgui()->AddTickSignal(GetVPanel());
-	DefaultLayout();
+	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
 
-IGameUI *CMainMenuPanel::GetGameUI()
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CTFMainMenu::~CTFMainMenu()
+{
+	gameui = NULL;
+	g_GameUIDLL.Unload();
+}
+
+void CTFMainMenu::ShowPanel(MenuPanel iPanel)
+{
+	switch (iPanel)
+	{
+	case MAIN_MENU:
+		MainMenuPanel->SetVisible(true);
+		break;
+	case TEST_MENU:
+		TestMenuPanel->SetVisible(true);
+		break;
+	default:
+		break;
+	}
+}
+
+void CTFMainMenu::HidePanel(MenuPanel iPanel)
+{
+	switch (iPanel)
+	{
+	case MAIN_MENU:
+		MainMenuPanel->SetVisible(false);
+		break;
+	case TEST_MENU:
+		TestMenuPanel->SetVisible(false);
+		break;
+	default:
+		break;
+	}
+}
+
+IGameUI *CTFMainMenu::GetGameUI()
 {
 	if (!gameui)
 	{
@@ -74,7 +109,7 @@ IGameUI *CMainMenuPanel::GetGameUI()
 	return gameui;
 }
 
-bool CMainMenuPanel::LoadGameUI()
+bool CTFMainMenu::LoadGameUI()
 {
 	if (!gameui)
 	{
@@ -96,133 +131,47 @@ bool CMainMenuPanel::LoadGameUI()
 }
 
 
-void CMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+void CTFMainMenu::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Destructor
-//-----------------------------------------------------------------------------
-CMainMenuPanel::~CMainMenuPanel()
+void CTFMainMenu::PerformLayout()
 {
-	gameui = NULL;
-	g_GameUIDLL.Unload();
-}
+	BaseClass::PerformLayout();
+};
 
-void CMainMenuPanel::OnCommand(const char* command)
+void CTFMainMenu::OnCommand(const char* command)
 {
 	engine->ExecuteClientCmd(command);
 }
 
-void CMainMenuPanel::OnTick()
+void CTFMainMenu::OnTick()
 {
-	if (m_pVideo && !InGameLayout && m_flActionThink < gpGlobals->curtime)
-		{
-			m_pVideo->Activate();
-			m_pVideo->BeginPlayback("media/bg_01.bik");
-			m_pVideo->MoveToFront();
-			m_flActionThink = gpGlobals->curtime + m_pVideo->GetEndDelay();
-			b_ShowVideo = false;
-		}
-};
-
-void CMainMenuPanel::OnThink()
-{
-	if (!InGame() && InGameLayout)
+	BaseClass::OnTick();
+	if (!engine->IsDrawingLoadingImage() && !IsVisible())
 	{
-		DefaultLayout();
-		InGameLayout = false;
-	} 
-	else if (InGame() && !InGameLayout)
-	{
-		GameLayout();
-		InGameLayout = true;
-	}
-	/*
-	if (TFGameRules())
-	{
-		if (TFGameRules()->IsDeathmatch())
-		{
-			//Draw deathmatch additions :v
-		}
-	}
-	*/
-};
-
-void CMainMenuPanel::DefaultLayout()
-{
-	//something with animations when I'll get them to work
-	//vgui::GetAnimationController()->StartAnimationSequence("MainMenuIntro");
-
-	//we need to find better way to show/hide stuff
-	if (m_pDisconnectButton)
-	{
-		if (m_pDisconnectButton->OnlyInGame())
-		{
-			m_pDisconnectButton->SetVisible(false);
-		}
-		else if (m_pDisconnectButton->OnlyAtMenu())
-		{
-			m_pDisconnectButton->SetVisible(true);
-		}
-	}
-	if (m_pVideo)
-	{
-		m_pVideo->SetVisible(true);
-	}	
-};
-
-void CMainMenuPanel::GameLayout()
-{
-	if (m_pDisconnectButton)
-	{
-		if (m_pDisconnectButton->OnlyInGame())
-		{
-			m_pDisconnectButton->SetVisible(true);
-		}
-		else if (m_pDisconnectButton->OnlyAtMenu())
-		{
-			m_pDisconnectButton->SetVisible(false);
-		}
-	}
-	if (m_pVideo)
-	{
-		m_pVideo->SetVisible(false);
+		SetVisible(true);
 	}
 };
 
-void CMainMenuPanel::SetVersionLabel()
+void CTFMainMenu::OnThink()
 {
-	if (m_pVersionLabel)
+	BaseClass::OnThink();
+
+	if (engine->IsDrawingLoadingImage() && IsVisible())
 	{
-		char verString[30];
-		if (g_pFullFileSystem->FileExists("version.txt"))
-		{
-			FileHandle_t fh = filesystem->Open("version.txt", "r", "MOD");
-			int file_len = filesystem->Size(fh);
-			char* GameInfo = new char[file_len + 1];
-
-			filesystem->Read((void*)GameInfo, file_len, fh);
-			GameInfo[file_len] = 0; // null terminator
-
-			filesystem->Close(fh);
-
-			Q_snprintf(verString, sizeof(verString), "Version: %s", GameInfo + 8);
-
-			delete[] GameInfo;
-		}
-		m_pVersionLabel->SetText(verString);
+		SetVisible(false);
 	}
 };
 
-void CMainMenuPanel::PaintBackground()
+void CTFMainMenu::PaintBackground()
 {
 	SetPaintBackgroundType(0);
 	BaseClass::PaintBackground();
 }
 
-bool CMainMenuPanel::InGame()
+bool CTFMainMenu::InGame()
 {
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 
