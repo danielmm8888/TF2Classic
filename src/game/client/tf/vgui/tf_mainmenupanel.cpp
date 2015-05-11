@@ -82,7 +82,7 @@ void CTFMainMenuPanel::OnTick()
 		m_pVideo->Activate();
 		m_pVideo->BeginPlayback(m_pzVideoLink);
 		m_pVideo->MoveToFront();
-		m_flActionThink = gpGlobals->curtime + m_pVideo->GetEndDelay();
+		m_flActionThink = gpGlobals->curtime + m_pVideo->GetActiveVideoLength() - 0.21f;
 		b_ShowVideo = false;
 	}
 	if (m_pVersionLabel && m_flAnimationThink < gpGlobals->curtime)
