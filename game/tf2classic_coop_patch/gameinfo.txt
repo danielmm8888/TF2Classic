@@ -1,6 +1,6 @@
 "GameInfo"
 {
-	game	"Team Fortress 2 Classic"
+	game	"Team Fortress 2 Classic (HL Coop)" 
 	gamelogo 1 
 	type 	multiplayer_only 
 	icon	"resource/game"		
@@ -39,10 +39,7 @@
 			// VPK and we can avoid making thousands of file system calls to attempt to open files
 			// in folders where they don't exist.  (Searching a VPK is much faster than making an operating
 			// system call.)
-			game_lv				hl2/hl2_lv.vpk
-			game+mod			hl2mp/hl2mp_english.vpk			
-			game+mod			hl2mp/hl2mp_pak.vpk			
-			game				|all_source_engine_paths|hl2/hl2_english.vpk			
+			game_lv				hl2/hl2_lv.vpk	
 			game				|all_source_engine_paths|hl2/hl2_pak.vpk			
 			game				|all_source_engine_paths|hl2/hl2_textures.vpk			
 			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk			
@@ -50,26 +47,20 @@
 			game				|all_source_engine_paths|hl2/hl2_misc.vpk			
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
 			
-			// Add the HL2MP directory as a game search path.  This is also where where writes			
-			// to the "game" path go.			
-			game+game_write		hl2mp
-			
-			// Last, mount in shared HL2 loose files			
-			game				|all_source_engine_paths|hl2mp			
 			game				|all_source_engine_paths|hl2			
 			platform			|all_source_engine_paths|platform			
 			game				|all_source_engine_paths|sourcetest
 			
-			//TF2-HL COOP -- Leave EP1/EP2 stuff out until it's ready.
+			//TF2-HL1/HL2 COOP -- Leave EP1/EP2 stuff out until it's ready.
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_sound_vo_english.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_pak.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_sound_vo_english.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic/ep1_pak.vpk"
 			//game				"|all_source_engine_paths|../Half-Life 2/episodic"
-			game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_sound_vo_english.vpk"
-			game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_pak.vpk"
-			game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_sound_vo_english.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast/lostcoast_pak.vpk"
+			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_pak.vpk"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2"
 			game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/hl1_hd_pak.vpk"
