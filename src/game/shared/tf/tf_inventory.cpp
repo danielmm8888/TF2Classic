@@ -17,6 +17,48 @@ int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 	return Weapons[iClass][iSlot][iNum];
 };
 
+
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot)
+{
+	return CheckValidSlot(iClass, iSlot, 0);
+}
+
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon)
+{
+	return CheckValidWeapon(iClass, iSlot, iWeapon, 0);
+}
+
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool HudCheck)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+		return false;
+	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	if (iSlot >= iCount || iSlot < 0)
+		return false;
+	bool bWeapon = false;
+	for (int i = 0; i < iCount; i++) //if there's at least one weapon in slot
+	{
+		if (Weapons[iClass][iSlot][i])
+		{
+			bWeapon = true;
+			break;
+		}
+	}
+	return bWeapon;
+};
+
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+		return false;
+	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	if (iSlot >= iCount || iSlot < 0)
+		return false;
+	if (!Weapons[iClass][iSlot][iWeapon])
+		return false;
+	return true;
+};
+
 #if defined( CLIENT_DLL )
 const char* CTFInventory::GetSlotName(int iSlot)
 {
@@ -107,6 +149,9 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] = 
 {
+		{
+
+		},
 		{
 			{
 				TF_WEAPON_SCATTERGUN, TF_WEAPON_NAILGUN
@@ -216,6 +261,28 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			},
 			{
 				TF_WEAPON_PDA_ENGINEER_DESTROY
+			}
+		},
+		{
+			{
+				
+			},
+			{
+				
+			},
+			{
+				TF_WEAPON_UMBRELLA
+			}
+		},
+		{
+			{
+
+			},
+			{
+				TF_WEAPON_PISTOL_SCOUT
+			},
+			{
+				TF_WEAPON_CROWBAR
 			}
 		}
 };

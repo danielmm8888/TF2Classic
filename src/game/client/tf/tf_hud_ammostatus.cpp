@@ -187,9 +187,9 @@ void CTFHudWeaponAmmo::OnThink()
 		return;
 
 	if (tf2c_ammobucket.GetBool()){
-		for (int j = 0; j < COLNUM; j++)
+		for (int j = 0; j < INVENTORY_WEAPONS; j++)
 		{
-			int iWeapon = m_pInventory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
+			int iWeapon = m_pInventory->GetWeapon(pClass->GetClassIndex(), pWeapon->GetWpnData().iSlot, j);
 			if (pPlayer->Weapon_OwnsThisID(iWeapon))
 			{
 				char* cIcon = m_pInventory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());

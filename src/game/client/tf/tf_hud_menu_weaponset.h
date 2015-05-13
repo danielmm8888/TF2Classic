@@ -35,7 +35,8 @@ public:
 	virtual void	FireGameEvent(IGameEvent *event);
 
 	virtual void	SetVisible(bool state);
-	virtual void	OnThink();
+	void			DefaultLayout();
+	void			UpdateLayout();
 
 	int	HudElementKeyInput(int down, ButtonCode_t keynum, const char *pszCurrentBinding);
 
@@ -49,38 +50,30 @@ private:
 
 
 private:
-	CTFInventory* m_pInvenory;
-	CTFImagePanel* m_pWeaponBucket;
-	CTFImagePanel* m_pSelection;
-	CExLabel* m_pWeaponLabel;
-	EditablePanel *m_pWeaponIcon;
-	EditablePanel *m_pWeaponIconT;
-	CUtlVector<EditablePanel*> m_pWeaponIcons;
+	CTFInventory				*m_pInventory;
+	CTFImagePanel				*m_pWeaponBucket;
+	CTFImagePanel				*m_pSelection;
+	CExLabel					*m_pWeaponLabel;
+	EditablePanel				*m_pWeaponIconBase;
+	EditablePanel				*m_pMainBackground;
+	CTFImagePanel				*m_pSelectedSlot;
+	CExLabel					*m_pStatusLabel;
+	CUtlVector<EditablePanel*>	m_pWeaponIcons;
 
-	EditablePanel *m_pActiveSelection;
 	int m_iSelectedSlot;
-
 	int m_iShowingTeam;
-
-	int m_iSelectedItem;
 
 	float m_fWide;
 	float m_fTall;
-
 	int m_iSelect_X;
 	int m_iSelect_Y;
 
-	bool m_bInConsoleMode;
-
-	int m_iDemoModeSlot;
 	CTFImagePanel *m_pActiveWeaponBG;
 	int m_iBGImage_Inactive;
 	int m_iBGImage_Blue;
 	int m_iBGImage_Red;
 	int m_iBGImage_Green;
 	int m_iBGImage_Yellow;
-
-
 };
 
 #endif	// TF_HUD_MENU_WEAPONSET_H

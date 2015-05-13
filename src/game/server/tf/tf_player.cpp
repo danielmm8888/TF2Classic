@@ -397,7 +397,7 @@ CTFPlayer::CTFPlayer()
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
 
-	for (int i = TF_CLASS_SCOUT; i < TF_CLASS_COUNT_ALL; i++){
+	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++){
 		m_WeaponPresetPrimary.AddToTail(0);
 		m_WeaponPresetSecondary.AddToTail(0);
 		m_WeaponPresetMelee.AddToTail(0);
@@ -1125,13 +1125,9 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
-	// Since the civilian has no weapons, the game will just crash
-	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN || GetPlayerClass()->GetClassIndex() == TF_CLASS_MERCENARY)
-		return;
-
 	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 	{
-		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, iSlot, GetWeaponPreset(iSlot));
+		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex(), iSlot, GetWeaponPreset(iSlot));
 		if (iWeapon != 0)
 			pData->m_aWeapons[iSlot] = iWeapon;
 	}
@@ -1285,6 +1281,82 @@ void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
 				}
 			}
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get preset from the vector
+//-----------------------------------------------------------------------------
+int CTFPlayer::GetWeaponPreset(int iSlotNum){
+	int iClass = GetPlayerClass()->GetClassIndex();
+
+	if (iSlotNum == 0){
+		return m_WeaponPresetPrimary[iClass];
+	}
+	else if (iSlotNum == 1){
+		return m_WeaponPresetSecondary[iClass];
+	}
+	else if (iSlotNum == 2){
+		return m_WeaponPresetMelee[iClass];
+	}
+
+	return 0;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Get preset from the vector
+//-----------------------------------------------------------------------------
+int CTFPlayer::GetWeaponPreset(int iClass, int iSlotNum){
+	if (iSlotNum == 0){
+		return m_WeaponPresetPrimary[iClass];
+	}
+	else if (iSlotNum == 1){
+		return m_WeaponPresetSecondary[iClass];
+	}
+	else if (iSlotNum == 2){
+		return m_WeaponPresetMelee[iClass];
+	}
+
+	return 0;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: WeaponPreset command handle
+//-----------------------------------------------------------------------------
+void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
+{
+	int iClass = GetPlayerClass()->GetClassIndex();
+
+	if (!Inventory->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+		return;
+
+	if (iSlotNum == 0){
+		m_WeaponPresetPrimary[iClass] = iPresetNum;
+	}
+	else if (iSlotNum == 1){
+		m_WeaponPresetSecondary[iClass] = iPresetNum;
+	}
+	else if (iSlotNum == 2){
+		m_WeaponPresetMelee[iClass] = iPresetNum;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: WeaponPreset command handle
+//-----------------------------------------------------------------------------
+void CTFPlayer::HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
+{
+	if (!Inventory->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+		return;
+
+	if (iSlotNum == 0){
+		m_WeaponPresetPrimary[iClass] = iPresetNum;
+	}
+	else if (iSlotNum == 1){
+		m_WeaponPresetSecondary[iClass] = iPresetNum;
+	}
+	else if (iSlotNum == 2){
+		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
 }
 
