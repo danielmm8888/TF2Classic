@@ -1,0 +1,29 @@
+// pyro napalm grenade
+"grenade_napalm"
+{
+	"base"		"grenade"
+	"friction"		"0.05"
+	"elasticity"	"2"
+
+//	"audiohardnessfactor" "1.0"
+//	"audioroughnessfactor" "0.4"
+
+//	"bulletimpact"	"Grenade.ImpactHard"
+//	"scraperough"	"Grenade.ScrapeRough"
+//	"scrapesmooth"	"Grenade.ScrapeSmooth"
+//	"impacthard"	"Grenade.ImpactHard"
+//	"impactsoft"	"Grenade.ImpactSoft"
+//	"roll"		"Grenade.Roll"
+}
+
+"demoman_grenade"
+{
+	"base"		"metal"
+
+	"bulletimpact"	"Grenade.ImpactHard"
+	"scraperough"	"Grenade.ScrapeRough"
+	"scrapesmooth"	"Grenade.ScrapeSmooth"
+	"impacthard"	"Grenade.ImpactHard"
+	"impactsoft"	"Grenade.ImpactSoft"
+	"rolling"	"Grenade.Roll"
+}

@@ -1,0 +1,90 @@
+"options_x360"
+{
+//
+// BASIC OPTIONS
+//
+
+	"English Vocals"
+	{
+		"disable"	"1"
+	}
+
+//
+// CONTROL OPTIONS
+//
+
+	"Bind Prev Weapon"
+	{
+		"control"	"1"
+
+		"name"		"#Valve_Previous_Weapon"
+		"command"	"invprev"
+		"priority"	"3110"
+		"type"		"bind"
+	}
+	"Bind Next Weapon"
+	{
+		"control"	"1"
+
+		"name"		"#Valve_Next_Weapon"
+		"command"	"invnext"
+		"priority"	"3120"
+		"type"		"bind"
+	}
+	"Bind Call Medic"
+	{
+		"control"	"1"
+
+		"name"		"#TF_Call_For_Medic"
+		"command"	"voicemenu 0 0"
+		"priority"	"3130"
+		"type"		"bind"
+	}
+	"Bind Taunt"
+	{
+		"control"	"1"
+
+		"name"		"#TF_Taunt"
+		"command"	"taunt"
+		"priority"	"3140"
+		"type"		"bind"
+	}
+
+	"Sprint Mode"
+	{
+		"disable"	"1"
+	}
+
+
+	"Bind Use"
+	{
+		"disable"	"1"
+	}
+
+	"Bind Flashlight"
+	{
+		"disable"	"1"
+	}
+	
+	"Bind Sprint"
+	{
+		"disable"	"1"
+	}
+
+	"Bind Slot 1"
+	{
+		"disable"	"1"
+	}
+	"Bind Slot 2"
+	{
+		"disable"	"1"
+	}
+	"Bind Slot 3"
+	{
+		"disable"	"1"
+	}
+	"Bind Slot 4"
+	{
+		"disable"	"1"
+	}
+}

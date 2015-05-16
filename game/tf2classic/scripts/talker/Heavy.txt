@@ -1,0 +1,758 @@
+//--------------------------------------------------------------------------------------------------------------
+// Heavy Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "HeavyIsKillSpeechObject" "HeavyKillSpeechObject" "1" "required" weight 0
+Criterion "HeavyIsNotStillonFire" "HeavyOnFire" "!=1" "required" weight 0
+Criterion "HeavyIsStillonFire" "HeavyOnFire" "1" "required" weight 0
+Criterion "HeavyNotInvulnerableSpeech" "HeavyInvulnerableSpeech" "!=1" "required" weight 0
+Criterion "HeavyNotKillSpeech" "HeavyKillSpeech" "!=1" "required" weight 0
+Criterion "HeavyNotKillSpeechMelee" "HeavyKillSpeechMelee" "!=1" "required" weight 0
+Criterion "HeavyNotSaidHealThanks" "HeavySaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapHeavy" "HeavyHelpCap" "1" "required" weight 0
+
+
+Response PlayerCloakedSpyDemomanHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpyDemomanHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnDemoman
+	Response PlayerCloakedSpyDemomanHeavy
+}
+
+Response PlayerCloakedSpyEngineerHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpyEngineerHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnEngineer
+	Response PlayerCloakedSpyEngineerHeavy
+}
+
+Response PlayerCloakedSpyHeavyHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavyHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnHeavy
+	Response PlayerCloakedSpyHeavyHeavy
+}
+
+Response PlayerCloakedSpyMedicHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyMedicHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnMedic
+	Response PlayerCloakedSpyMedicHeavy
+}
+
+Response PlayerCloakedSpyPyroHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyPyroHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnPyro
+	Response PlayerCloakedSpyPyroHeavy
+}
+
+Response PlayerCloakedSpySniperHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpySniperHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnSniper
+	Response PlayerCloakedSpySniperHeavy
+}
+
+Response PlayerCloakedSpySoldierHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnSoldier
+	Response PlayerCloakedSpySoldierHeavy
+}
+
+Response PlayerCloakedSpySpyHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpyIdentify06.vcd" 
+}
+Rule PlayerCloakedSpySpyHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy IsOnSpy
+	Response PlayerCloakedSpySpyHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksHeavy
+{
+	scene "scenes/Player/Heavy/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Heavy/low/ThanksForTheHeal02.vcd" 
+	scene "scenes/Player/Heavy/low/ThanksForTheHeal03.vcd" 
+}
+Rule HealThanksHeavy
+{
+	criteria ConceptMedicChargeStopped IsHeavy SuperHighHealthContext HeavyNotSaidHealThanks 50PercentChance
+	ApplyContext "HeavySaidHealThanks:1:20"
+	Response HealThanksHeavy
+}
+
+Response PlayerRoundStartHeavy
+{
+	scene "scenes/Player/Heavy/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Heavy/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Heavy/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Heavy/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Heavy/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Heavy/low/BattleCry06.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartHeavy
+{
+	criteria ConceptPlayerRoundStart IsHeavy
+	Response PlayerRoundStartHeavy
+}
+
+Response PlayerCappedIntelligenceHeavy
+{
+	scene "scenes/Player/Heavy/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Heavy/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Heavy/low/AutoCappedIntelligence03.vcd" 
+}
+Rule PlayerCappedIntelligenceHeavy
+{
+	criteria ConceptPlayerCapturedIntelligence IsHeavy
+	Response PlayerCappedIntelligenceHeavy
+}
+
+Response PlayerCapturedPointHeavy
+{
+	scene "scenes/Player/Heavy/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Heavy/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Heavy/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointHeavy
+{
+	criteria ConceptPlayerCapturedPoint IsHeavy
+	Response PlayerCapturedPointHeavy
+}
+
+Response PlayerSuddenDeathHeavy
+{
+	scene "scenes/Player/Heavy/low/Jeers01.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers02.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers03.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers04.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers05.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers06.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers07.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers08.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers09.vcd" 
+}
+Rule PlayerSuddenDeathHeavy
+{
+	criteria ConceptPlayerSuddenDeathStart IsHeavy
+	Response PlayerSuddenDeathHeavy
+}
+
+Response PlayerStalemateHeavy
+{
+	scene "scenes/Player/Heavy/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Heavy/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Heavy/low/AutoDejectedTie03.vcd" 
+}
+Rule PlayerStalemateHeavy
+{
+	criteria ConceptPlayerStalemate IsHeavy
+	Response PlayerStalemateHeavy
+}
+
+Response PlayerTeleporterThanksHeavy
+{
+	scene "scenes/Player/Heavy/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Heavy/low/ThanksForTheTeleporter02.vcd" 
+	scene "scenes/Player/Heavy/low/ThanksForTheTeleporter03.vcd" 
+}
+Rule PlayerTeleporterThanksHeavy
+{
+	criteria ConceptTeleported IsNotEngineer IsHeavy 30PercentChance
+	Response PlayerTeleporterThanksHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response InvulnerableSpeechHeavy
+{
+	scene "scenes/Player/Heavy/low/SpecialCompleted04.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted05.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted06.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts03.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts16.vcd" 
+}
+Rule InvulnerableSpeechHeavy
+{
+	criteria ConceptFireMinigun IsHeavy WeaponIsMinigun IsInvulnerable HeavyNotInvulnerableSpeech
+	ApplyContext "HeavyInvulnerableSpeech:1:30"
+	Response InvulnerableSpeechHeavy
+}
+
+Response KilledPlayerManyHeavy
+{
+	scene "scenes/Player/Heavy/low/SpecialCompleted09.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted10.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted11.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts04.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts05.vcd" 
+}
+Rule KilledPlayerManyHeavy
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay HeavyNotKillSpeech IsHeavy
+	ApplyContext "HeavyKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManyHeavy
+}
+
+Response KilledPlayerMeleeHeavy
+{
+	scene "scenes/Player/Heavy/low/LaughShort01.vcd" 
+	scene "scenes/Player/Heavy/low/LaughShort02.vcd" 
+}
+Rule KilledPlayerMeleeHeavy
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee HeavyNotKillSpeechMelee IsHeavy
+	ApplyContext "HeavyKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeHeavy
+}
+
+Response KilledPlayerVeryManyHeavy
+{
+	scene "scenes/Player/Heavy/low/SpecialCompleted07.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted08.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts01.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts14.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts19.vcd" 
+}
+Rule KilledPlayerVeryManyHeavy
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay HeavyNotKillSpeech IsHeavy
+	ApplyContext "HeavyKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManyHeavy
+}
+
+Response PlayerKilledCapperHeavy
+{
+	scene "scenes/Player/Heavy/low/GoodJob04.vcd" 
+	scene "scenes/Player/Heavy/low/NiceShot02.vcd" 
+	scene "scenes/Player/Heavy/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts08.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts09.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts15.vcd" 
+	scene "scenes/Player/Heavy/low/Taunts18.vcd" 
+}
+Rule PlayerKilledCapperHeavy
+{
+	criteria ConceptCapBlocked IsHeavy
+	ApplyContext "HeavyKillSpeech:1:10"
+	Response PlayerKilledCapperHeavy
+}
+
+Response PlayerKilledDominatingHeavy
+{
+	scene "scenes/Player/Heavy/low/GoodJob02.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/Jeers06.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughEvil01.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughHappy02.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughHappy03.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughHappy04.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughHappy05.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/LaughLong02.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/PositiveVocalization01.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/PositiveVocalization02.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/Taunts12.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingHeavy
+{
+	criteria ConceptKilledPlayer IsHeavy IsDominated
+	ApplyContext "HeavyKillSpeech:1:10"
+	Response PlayerKilledDominatingHeavy
+}
+
+Response PlayerKilledForRevengeHeavy
+{
+	scene "scenes/Player/Heavy/low/Cheers03.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/Cheers06.vcd" predelay "2.5"
+	scene "scenes/Player/Heavy/low/PositiveVocalization03.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeHeavy
+{
+	criteria ConceptKilledPlayer IsHeavy IsRevenge
+	ApplyContext "HeavyKillSpeech:1:10"
+	Response PlayerKilledForRevengeHeavy
+}
+
+Response PlayerKilledObjectHeavy
+{
+	scene "scenes/Player/Heavy/low/SpecialCompleted01.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted02.vcd" 
+	scene "scenes/Player/Heavy/low/SpecialCompleted03.vcd" 
+}
+Rule PlayerKilledObjectHeavy
+{
+	criteria ConceptKilledObject IsHeavy 30PercentChance IsARecentKill
+	ApplyContext "HeavyKillSpeechObject:1:30"
+	applycontexttoworld
+	Response PlayerKilledObjectHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainHeavy
+{
+	scene "scenes/Player/Heavy/low/PainSevere01.vcd" 
+	scene "scenes/Player/Heavy/low/PainSevere02.vcd" 
+	scene "scenes/Player/Heavy/low/PainSevere03.vcd" 
+}
+Rule PlayerAttackerPainHeavy
+{
+	criteria ConceptAttackerPain IsHeavy
+	Response PlayerAttackerPainHeavy
+}
+
+Response PlayerOnFireHeavy
+{
+	scene "scenes/Player/Heavy/low/AutoOnFire01.vcd" 
+	scene "scenes/Player/Heavy/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Heavy/low/AutoOnFire05.vcd" 
+}
+Rule PlayerOnFireHeavy
+{
+	criteria ConceptFire IsHeavy HeavyIsNotStillonFire
+	ApplyContext "HeavyOnFire:1:7"
+	Response PlayerOnFireHeavy
+}
+
+Response PlayerOnFireRareHeavy
+{
+	scene "scenes/Player/Heavy/low/AutoOnFire03.vcd" 
+	scene "scenes/Player/Heavy/low/AutoOnFire04.vcd" 
+}
+Rule PlayerOnFireRareHeavy
+{
+	criteria ConceptFire IsHeavy 10PercentChance HeavyIsNotStillonFire
+	ApplyContext "HeavyOnFire:1:7"
+	Response PlayerOnFireRareHeavy
+}
+
+Response PlayerPainHeavy
+{
+	scene "scenes/Player/Heavy/low/PainSharp01.vcd" 
+	scene "scenes/Player/Heavy/low/PainSharp02.vcd" 
+	scene "scenes/Player/Heavy/low/PainSharp03.vcd" 
+	scene "scenes/Player/Heavy/low/PainSharp04.vcd" 
+	scene "scenes/Player/Heavy/low/PainSharp05.vcd" 
+}
+Rule PlayerPainHeavy
+{
+	criteria ConceptPain IsHeavy
+	Response PlayerPainHeavy
+}
+
+Response PlayerStillOnFireHeavy
+{
+	scene "scenes/Player/Heavy/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireHeavy
+{
+	criteria ConceptFire IsHeavy  HeavyIsStillonFire
+	ApplyContext "HeavyOnFire:1:7"
+	Response PlayerStillOnFireHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoHeavy
+{
+	scene "scenes/Player/Heavy/low/Go01.vcd" 
+	scene "scenes/Player/Heavy/low/Go02.vcd" 
+	scene "scenes/Player/Heavy/low/Go03.vcd" 
+}
+Rule PlayerGoHeavy
+{
+	criteria ConceptPlayerGo IsHeavy
+	Response PlayerGoHeavy
+}
+
+Response PlayerHeadLeftHeavy
+{
+	scene "scenes/Player/Heavy/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Heavy/low/HeadLeft02.vcd" 
+	scene "scenes/Player/Heavy/low/HeadLeft03.vcd" 
+}
+Rule PlayerHeadLeftHeavy
+{
+	criteria ConceptPlayerLeft  IsHeavy
+	Response PlayerHeadLeftHeavy
+}
+
+Response PlayerHeadRightHeavy
+{
+	scene "scenes/Player/Heavy/low/HeadRight01.vcd" 
+	scene "scenes/Player/Heavy/low/HeadRight02.vcd" 
+	scene "scenes/Player/Heavy/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightHeavy
+{
+	criteria ConceptPlayerRight  IsHeavy
+	Response PlayerHeadRightHeavy
+}
+
+Response PlayerHelpHeavy
+{
+	scene "scenes/Player/Heavy/low/HelpMe01.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMe02.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpHeavy
+{
+	criteria ConceptPlayerHelp IsHeavy
+	Response PlayerHelpHeavy
+}
+
+Response PlayerHelpCaptureHeavy
+{
+	scene "scenes/Player/Heavy/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMeCapture02.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMeCapture03.vcd" 
+}
+Rule PlayerHelpCaptureHeavy
+{
+	criteria ConceptPlayerHelp IsHeavy IsOnCappableControlPoint
+	ApplyContext "HeavyHelpCap:1:10"
+	Response PlayerHelpCaptureHeavy
+}
+
+Response PlayerHelpCapture2Heavy
+{
+	scene "scenes/Player/Heavy/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Heavy/low/StandOnThePoint02.vcd" 
+	scene "scenes/Player/Heavy/low/StandOnThePoint03.vcd" 
+	scene "scenes/Player/Heavy/low/StandOnThePoint04.vcd" 
+}
+Rule PlayerHelpCapture2Heavy
+{
+	criteria ConceptPlayerHelp IsHeavy IsOnCappableControlPoint IsHelpCapHeavy
+	Response PlayerHelpCapture2Heavy
+}
+
+Response PlayerHelpDefendHeavy
+{
+	scene "scenes/Player/Heavy/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Heavy/low/HelpMeDefend03.vcd" 
+}
+Rule PlayerHelpDefendHeavy
+{
+	criteria ConceptPlayerHelp IsHeavy IsOnFriendlyControlPoint
+	Response PlayerHelpDefendHeavy
+}
+
+Response PlayerMedicHeavy
+{
+	scene "scenes/Player/Heavy/low/Medic01.vcd" 
+	scene "scenes/Player/Heavy/low/Medic02.vcd" 
+	scene "scenes/Player/Heavy/low/Medic03.vcd" 
+}
+Rule PlayerMedicHeavy
+{
+	criteria ConceptPlayerMedic IsHeavy
+	Response PlayerMedicHeavy
+}
+
+Response PlayerMoveUpHeavy
+{
+	scene "scenes/Player/Heavy/low/MoveUp01.vcd" 
+	scene "scenes/Player/Heavy/low/MoveUp02.vcd" 
+	scene "scenes/Player/Heavy/low/MoveUp03.vcd" 
+}
+Rule PlayerMoveUpHeavy
+{
+	criteria ConceptPlayerMoveUp  IsHeavy
+	Response PlayerMoveUpHeavy
+}
+
+Response PlayerNoHeavy
+{
+	scene "scenes/Player/Heavy/low/No01.vcd" 
+	scene "scenes/Player/Heavy/low/No02.vcd" 
+	scene "scenes/Player/Heavy/low/No03.vcd" 
+}
+Rule PlayerNoHeavy
+{
+	criteria ConceptPlayerNo  IsHeavy
+	Response PlayerNoHeavy
+}
+
+Response PlayerThanksHeavy
+{
+	scene "scenes/Player/Heavy/low/Thanks01.vcd" 
+	scene "scenes/Player/Heavy/low/Thanks02.vcd" 
+	scene "scenes/Player/Heavy/low/Thanks03.vcd" 
+}
+Rule PlayerThanksHeavy
+{
+	criteria ConceptPlayerThanks IsHeavy
+	Response PlayerThanksHeavy
+}
+
+Response PlayerYesHeavy
+{
+	scene "scenes/Player/Heavy/low/Yes01.vcd" 
+	scene "scenes/Player/Heavy/low/Yes02.vcd" 
+	scene "scenes/Player/Heavy/low/Yes03.vcd" 
+}
+Rule PlayerYesHeavy
+{
+	criteria ConceptPlayerYes  IsHeavy
+	Response PlayerYesHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeHeavy
+{
+	scene "scenes/Player/Heavy/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Heavy/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Heavy/low/ActivateCharge03.vcd" 
+	scene "scenes/Player/Heavy/low/ActivateCharge04.vcd" 
+}
+Rule PlayerActivateChargeHeavy
+{
+	criteria ConceptPlayerActivateCharge IsHeavy
+	Response PlayerActivateChargeHeavy
+}
+
+Response PlayerCloakedSpyHeavy
+{
+	scene "scenes/Player/Heavy/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Heavy/low/CloakedSpy02.vcd" 
+	scene "scenes/Player/Heavy/low/CloakedSpy03.vcd" 
+	scene "scenes/Player/Heavy/low/CloakedSpy04.vcd" 
+}
+Rule PlayerCloakedSpyHeavy
+{
+	criteria ConceptPlayerCloakedSpy IsHeavy
+	Response PlayerCloakedSpyHeavy
+}
+
+Response PlayerDispenserHereHeavy
+{
+	scene "scenes/Player/Heavy/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereHeavy
+{
+	criteria ConceptPlayerDispenserHere IsHeavy
+	Response PlayerDispenserHereHeavy
+}
+
+Response PlayerIncomingHeavy
+{
+	scene "scenes/Player/Heavy/low/Incoming01.vcd" 
+	scene "scenes/Player/Heavy/low/Incoming02.vcd" 
+	scene "scenes/Player/Heavy/low/Incoming03.vcd" 
+}
+Rule PlayerIncomingHeavy
+{
+	criteria ConceptPlayerIncoming IsHeavy
+	Response PlayerIncomingHeavy
+}
+
+Response PlayerSentryAheadHeavy
+{
+	scene "scenes/Player/Heavy/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Heavy/low/SentryAhead02.vcd" 
+}
+Rule PlayerSentryAheadHeavy
+{
+	criteria ConceptPlayerSentryAhead IsHeavy
+	Response PlayerSentryAheadHeavy
+}
+
+Response PlayerSentryHereHeavy
+{
+	scene "scenes/Player/Heavy/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereHeavy
+{
+	criteria ConceptPlayerSentryHere IsHeavy
+	Response PlayerSentryHereHeavy
+}
+
+Response PlayerTeleporterHereHeavy
+{
+	scene "scenes/Player/Heavy/low/NeedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterHereHeavy
+{
+	criteria ConceptPlayerTeleporterHere IsHeavy
+	Response PlayerTeleporterHereHeavy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCryHeavy
+{
+	scene "scenes/Player/Heavy/low/BattleCry01.vcd" 
+	scene "scenes/Player/Heavy/low/BattleCry02.vcd" 
+	scene "scenes/Player/Heavy/low/BattleCry03.vcd" 
+	scene "scenes/Player/Heavy/low/BattleCry04.vcd" 
+	scene "scenes/Player/Heavy/low/BattleCry05.vcd" 
+	scene "scenes/Player/Heavy/low/BattleCry06.vcd" 
+}
+Rule PlayerBattleCryHeavy
+{
+	criteria ConceptPlayerBattleCry IsHeavy
+	Response PlayerBattleCryHeavy
+}
+
+Response PlayerCheersHeavy
+{
+	scene "scenes/Player/Heavy/low/Cheers01.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers02.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers03.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers04.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers05.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers06.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers07.vcd" 
+	scene "scenes/Player/Heavy/low/Cheers08.vcd" 
+}
+Rule PlayerCheersHeavy
+{
+	criteria ConceptPlayerCheers IsHeavy
+	Response PlayerCheersHeavy
+}
+
+Response PlayerGoodJobHeavy
+{
+	scene "scenes/Player/Heavy/low/GoodJob01.vcd" 
+	scene "scenes/Player/Heavy/low/GoodJob02.vcd" 
+	scene "scenes/Player/Heavy/low/GoodJob03.vcd" 
+	scene "scenes/Player/Heavy/low/GoodJob04.vcd" 
+}
+Rule PlayerGoodJobHeavy
+{
+	criteria ConceptPlayerGoodJob IsHeavy
+	Response PlayerGoodJobHeavy
+}
+
+Response PlayerJeersHeavy
+{
+	scene "scenes/Player/Heavy/low/Jeers01.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers02.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers03.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers04.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers05.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers06.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers07.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers08.vcd" 
+	scene "scenes/Player/Heavy/low/Jeers09.vcd" 
+}
+Rule PlayerJeersHeavy
+{
+	criteria ConceptPlayerJeers IsHeavy
+	Response PlayerJeersHeavy
+}
+
+Response PlayerLostPointHeavy
+{
+	scene "scenes/Player/Heavy/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerLostPointHeavy
+{
+	criteria ConceptPlayerLostPoint IsHeavy
+	Response PlayerLostPointHeavy
+}
+
+Response PlayerNegativeHeavy
+{
+	scene "scenes/Player/Heavy/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Heavy/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerNegativeHeavy
+{
+	criteria ConceptPlayerNegative IsHeavy
+	Response PlayerNegativeHeavy
+}
+
+Response PlayerNiceShotHeavy
+{
+	scene "scenes/Player/Heavy/low/NiceShot01.vcd" 
+	scene "scenes/Player/Heavy/low/NiceShot02.vcd" 
+	scene "scenes/Player/Heavy/low/NiceShot03.vcd" 
+}
+Rule PlayerNiceShotHeavy
+{
+	criteria ConceptPlayerNiceShot IsHeavy
+	Response PlayerNiceShotHeavy
+}
+
+Response PlayerPositiveHeavy
+{
+	scene "scenes/Player/Heavy/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Heavy/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Heavy/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Heavy/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Heavy/low/PositiveVocalization05.vcd" 
+}
+Rule PlayerPositiveHeavy
+{
+	criteria ConceptPlayerPositive IsHeavy
+	Response PlayerPositiveHeavy
+}
+
+Response PlayerTauntsHeavy
+{
+	scene "scenes/Player/Heavy/low/LaughEvil02.vcd" 
+	scene "scenes/Player/Heavy/low/LaughEvil03.vcd" 
+	scene "scenes/Player/Heavy/low/LaughEvil04.vcd" 
+	scene "scenes/Player/Heavy/low/LaughShort03.vcd" 
+}
+Rule PlayerTauntsHeavy
+{
+	criteria ConceptPlayerTaunts IsHeavy
+	Response PlayerTauntsHeavy
+}
+

@@ -1,0 +1,16 @@
+soundscapes_manifest
+{
+
+		"file"		"scripts/soundscapes.txt"
+
+		// List additional soundscape files here
+
+		"file"		"scripts/soundscapes_2fort.txt"
+		"file"		"scripts/soundscapes_dustbowl.txt"
+		"file"		"scripts/soundscapes_well.txt"
+		"file"		"scripts/soundscapes_badlands.txt"
+		"file"		"scripts/soundscapes_gravelpit.txt"
+		"file"		"scripts/soundscapes_hydro.txt"
+		"file"		"scripts/soundscapes_granary.txt"
+
+}
