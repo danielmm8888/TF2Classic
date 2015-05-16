@@ -96,23 +96,30 @@ END_DATADESC()
 
 
 IMPLEMENT_SERVERCLASS_ST(CBaseObject, DT_BaseObject)
-	SendPropInt(SENDINFO(m_iUpgradeLevel), 3),
 	SendPropInt(SENDINFO(m_iHealth), 13 ),
 	SendPropInt(SENDINFO(m_iMaxHealth), 13 ),
 	SendPropBool(SENDINFO(m_bHasSapper) ),
 	SendPropInt(SENDINFO(m_iObjectType), Q_log2( OBJ_LAST ) + 1, SPROP_UNSIGNED ),
 	SendPropBool(SENDINFO(m_bBuilding) ),
 	SendPropBool(SENDINFO(m_bPlacing) ),
-	SendPropFloat(SENDINFO(m_flPercentageConstructed), 8, 0, 0.0, 1.0f ),
-	SendPropInt(SENDINFO(m_fObjectFlags), OF_BIT_COUNT, SPROP_UNSIGNED ),
-	SendPropEHandle(SENDINFO(m_hBuiltOnEntity)),
+	//SendPropBool(SENDINFO(m_bCarried)),		// Used by live TF2 for carrying
+	//SendPropBool(SENDINFO(m_bCarryDeploy)),
+	//SendPropBool(SENDINFO(m_bMiniBuilding)),	// No idea (wrangler sentry maybe?)
+	SendPropFloat( SENDINFO(m_flPercentageConstructed), 8, 0, 0.0, 1.0f ),
+	SendPropInt( SENDINFO(m_fObjectFlags), OF_BIT_COUNT, SPROP_UNSIGNED ),
+	SendPropEHandle( SENDINFO(m_hBuiltOnEntity)),
 	SendPropBool( SENDINFO( m_bDisabled ) ),
 	SendPropEHandle( SENDINFO( m_hBuilder ) ),
 	SendPropVector( SENDINFO( m_vecBuildMaxs ), -1, SPROP_COORD ),
 	SendPropVector( SENDINFO( m_vecBuildMins ), -1, SPROP_COORD ),
 	SendPropInt( SENDINFO( m_iDesiredBuildRotations ), 2, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bServerOverridePlacement ) ),
+	SendPropInt( SENDINFO(m_iUpgradeLevel), 3),
 	SendPropInt( SENDINFO(m_iUpgradeMetal), 10),
+	SendPropInt( SENDINFO(m_iUpgradeMetalRequired) ),
+	//SendPropInt( SENDINFO(m_iHighestUpgradeLevel) ),	//???
+	SendPropInt( SENDINFO(m_iObjectMode), 2),
+	//SendPropBool(SENDINFO(m_bDisposableBuilding)),	//???
 END_SEND_TABLE();
 
 bool PlayerIndexLessFunc( const int &lhs, const int &rhs )	
@@ -262,6 +269,7 @@ void CBaseObject::Precache()
 	PrecacheMaterial( SCREEN_OVERLAY_MATERIAL );
 
 	PrecacheScriptSound( GetObjectInfo( ObjectType() )->m_pExplodeSound );
+	PrecacheScriptSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
 
 	const char *pEffect = GetObjectInfo( ObjectType() )->m_pExplosionParticleEffect;
 
@@ -300,6 +308,8 @@ void CBaseObject::Spawn( void )
 		VPhysicsInitStatic();
 	}
 
+	m_iUpgradeMetalRequired = GetObjectInfo( ObjectType() )->m_UpgradeCost;
+
 	m_RepairerList.SetLessFunc( PlayerIndexLessFunc );
 
 	m_iDesiredBuildRotations = 0;
@@ -312,6 +322,7 @@ void CBaseObject::Spawn( void )
 
 	// assume valid placement
 	m_bServerOverridePlacement = true;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -1068,8 +1079,7 @@ const char *CBaseObject::GetResponseRulesModifier( void )
 	switch ( GetType() )
 	{
 	case OBJ_DISPENSER: return "objtype:dispenser"; break;
-	case OBJ_TELEPORTER_ENTRANCE: return "objtype:teleporter_entrance"; break;
-	case OBJ_TELEPORTER_EXIT: return "objtype:teleporter_exit"; break;
+	case OBJ_TELEPORTER: return "objtype:teleporter"; break;
 	case OBJ_SENTRYGUN: return "objtype:sentrygun"; break;
 	case OBJ_ATTACHMENT_SAPPER: return "objtype:sapper"; break;
 	default:

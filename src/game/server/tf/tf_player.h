@@ -252,7 +252,7 @@ public:
 	void RemoveObject( CBaseObject *pObject );
 	bool PlayerOwnsObject( CBaseObject *pObject );
 	void DetonateOwnedObjectsOfType( int iType );
-	void StartBuildingObjectOfType( int iType );
+	void StartBuildingObjectOfType( int iType, int iMode );
 
 	CTFTeam *GetTFTeam( void );
 	CTFTeam *GetOpposingTFTeam( void );

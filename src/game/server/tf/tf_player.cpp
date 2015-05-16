@@ -344,7 +344,7 @@ bool HintCallbackNeedsResources_Dispenser( CBasePlayer *pPlayer )
 }
 bool HintCallbackNeedsResources_Teleporter( CBasePlayer *pPlayer )
 {
-	return ( pPlayer->GetAmmoCount( TF_AMMO_METAL ) > CalculateObjectCost( OBJ_TELEPORTER_ENTRANCE ) );
+	return ( pPlayer->GetAmmoCount( TF_AMMO_METAL ) > CalculateObjectCost( OBJ_TELEPORTER ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -2282,12 +2282,23 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "build" ) )
 	{
-		if ( args.ArgC() == 2 )
+		if ( args.ArgC() == 3 )
 		{
 			// player wants to build something
 			int iBuilding = atoi( args[ 1 ] );
+			int iMode = atoi( args[2] );
 
-			StartBuildingObjectOfType( iBuilding );
+			StartBuildingObjectOfType( iBuilding, iMode );
+		}
+		else if (args.ArgC() == 2)
+		{
+			int iBuilding = atoi(args[1]);
+			int iMode = 0;
+
+			if (iBuilding == 3)
+				iBuilding = iMode = 1;
+
+			StartBuildingObjectOfType(iBuilding, iMode);
 		}
 		return true;
 	}
@@ -2521,7 +2532,7 @@ void CTFPlayer::DetonateOwnedObjectsOfType( int iType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::StartBuildingObjectOfType( int iType )
+void CTFPlayer::StartBuildingObjectOfType( int iType, int iMode )
 {
 	// early out if we can't build this type of object
 	if ( CanBuild( iType ) != CB_CAN_BUILD )

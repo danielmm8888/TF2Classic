@@ -301,6 +301,7 @@ protected:
 	// Upgrade Level ( 1, 2, 3 )
 	CNetworkVar(int, m_iUpgradeLevel);
 	CNetworkVar(int, m_iUpgradeMetal);
+	CNetworkVar(int, m_iUpgradeMetalRequired);
 
 	bool	m_bDying;
 
@@ -326,6 +327,7 @@ private:
 	Activity	m_Activity;
 
 	CNetworkVar( int, m_iObjectType );
+	CNetworkVar( int, m_iObjectMode ); // Presumably used by live tf2 for switching between teleporter modes
 
 
 	// True if players shouldn't do collision avoidance, but should just collide exactly with the object.

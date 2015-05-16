@@ -43,8 +43,8 @@ public:
 	void TeleporterThink( void );
 	void TeleporterTouch( CBaseEntity *pOther );
 
-	virtual void TeleporterSend( CTFPlayer *pPlayer ) { Assert(0); }
-	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay ) { Assert(0); }
+	virtual void TeleporterSend( CTFPlayer *pPlayer );
+	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 
 	CObjectTeleporter *GetMatchingTeleporter( void );
 	CObjectTeleporter *FindMatch( void );	// Find the teleport partner to this object
@@ -83,28 +83,6 @@ protected:
 
 private:
 	DECLARE_DATADESC();
-};
-
-class CObjectTeleporter_Entrance : public CObjectTeleporter
-{
-public:
-	DECLARE_CLASS( CObjectTeleporter_Entrance, CObjectTeleporter );
-
-	CObjectTeleporter_Entrance();
-
-	virtual void Spawn();
-	virtual void TeleporterSend( CTFPlayer *pPlayer );
-};
-
-class CObjectTeleporter_Exit : public CObjectTeleporter
-{
-public:
-	DECLARE_CLASS( CObjectTeleporter_Exit, CObjectTeleporter );
-
-	CObjectTeleporter_Exit();
-
-	virtual void Spawn();
-	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 };
 
 #endif // TF_OBJ_TELEPORTER_H
