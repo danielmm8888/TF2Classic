@@ -2282,15 +2282,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "build" ) )
 	{
-		if ( args.ArgC() == 3 )
-		{
-			// player wants to build something
-			int iBuilding = atoi( args[ 1 ] );
-			int iMode = atoi( args[2] );
-
-			StartBuildingObjectOfType( iBuilding, iMode );
-		}
-		else if (args.ArgC() == 2)
+		if (args.ArgC() == 2)
 		{
 			int iBuilding = atoi(args[1]);
 			int iMode = 0;
@@ -2298,7 +2290,15 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if (iBuilding == 3)
 				iBuilding = iMode = 1;
 
-			StartBuildingObjectOfType(iBuilding, iMode);
+			StartBuildingObjectOfType( iBuilding, iMode );
+		}
+		else if(args.ArgC() == 3)
+		{
+			// player wants to build something
+			int iBuilding = atoi( args[ 1 ] );
+			int iMode = atoi( args[2] );
+
+			StartBuildingObjectOfType( iBuilding, iMode );
 		}
 		return true;
 	}
@@ -2553,7 +2553,7 @@ void CTFPlayer::StartBuildingObjectOfType( int iType, int iMode )
 		// Is this the builder that builds the object we're looking for?
 		if ( pBuilder )
 		{
-			pBuilder->SetSubType( iType );
+			pBuilder->SetSubType( iType, iMode );
 
 			if ( GetActiveTFWeapon() == pBuilder )
 			{

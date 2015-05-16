@@ -54,9 +54,10 @@ CTFWeaponBuilder::~CTFWeaponBuilder()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFWeaponBuilder::SetSubType( int iSubType )
+void CTFWeaponBuilder::SetSubType( int iSubType, int iObjectMode )
 {
 	m_iObjectType = iSubType;
+	m_iObjectMode = iObjectMode;
 
 	BaseClass::SetSubType( iSubType );
 }
