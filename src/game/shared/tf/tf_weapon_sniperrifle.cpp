@@ -75,6 +75,36 @@ LINK_ENTITY_TO_CLASS( tf_weapon_sniperrifle, CTFSniperRifle );
 PRECACHE_WEAPON_REGISTER( tf_weapon_sniperrifle );
 
 //=============================================================================
+IMPLEMENT_NETWORKCLASS_ALIASED(TFSniperRifle_DM, DT_TFSniperRifle_DM)
+
+BEGIN_NETWORK_TABLE_NOBASE(CTFSniperRifle_DM, DT_SniperRifle_DMLocalData)
+#if !defined( CLIENT_DLL )
+	SendPropFloat( SENDINFO(m_flChargedDamage), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+#else
+	RecvPropFloat( RECVINFO(m_flChargedDamage) ),
+#endif
+END_NETWORK_TABLE()
+
+BEGIN_NETWORK_TABLE(CTFSniperRifle_DM, DT_TFSniperRifle_DM)
+#if !defined( CLIENT_DLL )
+	SendPropDataTable( "SniperRifle_DMLocalData", 0, &REFERENCE_SEND_TABLE( DT_SniperRifle_DMLocalData ), SendProxy_SendLocalWeaponDataTable ),
+#else
+	RecvPropDataTable("SniperRifle_DMLocalData", 0, 0, &REFERENCE_RECV_TABLE(DT_SniperRifle_DMLocalData)),
+#endif
+END_NETWORK_TABLE()
+
+BEGIN_PREDICTION_DATA(CTFSniperRifle_DM)
+#ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_flUnzoomTime, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_flRezoomTime, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_bRezoomAfterShot, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_flChargedDamage, FIELD_FLOAT, 0 ),
+#endif
+END_PREDICTION_DATA()
+
+LINK_ENTITY_TO_CLASS(tf_weapon_sniperrifle_dm, CTFSniperRifle_DM);
+PRECACHE_WEAPON_REGISTER( tf_weapon_sniperrifle_dm );
+//=============================================================================
 //
 // Weapon Sniper Rifles funcions.
 //
