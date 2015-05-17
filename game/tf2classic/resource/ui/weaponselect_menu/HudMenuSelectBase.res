@@ -1,20 +1,20 @@
 "Resource/UI/weaponselect_menu/HudMenuSelectBase.res"
 {
-	"MainBackground"	
+	"MainBG"
 	{
-		"ControlName"	"CIconPanel"
-		"fieldName"		"MainBackground"
+		"ControlName"	"EditablePanel"
+		"fieldName"		"MainBG"
 		"xpos"			"0"
 		"ypos"			"20"
 		"zpos"			"0"
 		"wide"			"355"
 		"tall"			"290"
+		"autoResize"	"0"
+		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"scaleImage"	"1"	
-		"icon"			"hud_menu_bg"
-		"iconColor"		"255 255 255 255"
-	}	
+		"border"		"TFFatLineBorder"
+	}		
 	"SelectedSlot"	
 	{
 		"ControlName"	"CTFImagePanel"

@@ -1,6 +1,6 @@
 "Inventory"
 {
-	"Undefined"
+	"undefined"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
@@ -10,7 +10,7 @@
 	}
 	"scout"
 	{
-		"Primary"		"1"
+		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
 		"building"		"0"
@@ -32,7 +32,7 @@
 		"building"		"0"
 		"PDA"		"0"
 	}
-	"Demoman"
+	"demoman"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
@@ -43,8 +43,8 @@
 	"medic"
 	{
 		"Primary"		"0"
-		"Secondary"		"2"
-		"Melee"		"1"
+		"Secondary"		"0"
+		"Melee"		"0"
 		"building"		"0"
 		"PDA"		"0"
 	}
@@ -80,7 +80,15 @@
 		"building"		"0"
 		"PDA"		"0"
 	}
-	"Civilian"
+	"civilian"
+	{
+		"Primary"		"0"
+		"Secondary"		"0"
+		"Melee"		"0"
+		"building"		"0"
+		"PDA"		"0"
+	}
+	"mercenary"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
