@@ -14,6 +14,7 @@
 #ifdef CLIENT_DLL
 #define CTFSMG C_TFSMG
 #define CTFSMG_Scout C_TFSMG_Scout
+#define CTFSMG_DM C_TFSMG_DM
 #endif
 
 //=============================================================================
@@ -52,5 +53,16 @@ public:
 
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SMG_SCOUT; }
 };
+
+class CTFSMG_DM : public CTFSMG
+{
+public:
+	DECLARE_CLASS(CTFSMG_DM, CTFSMG);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SMG_DM; }
+};
+
 
 #endif // TF_WEAPON_SMG_H

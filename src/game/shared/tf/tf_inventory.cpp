@@ -276,10 +276,10 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 		},
 		{
 			{
-
+				
 			},
 			{
-				TF_WEAPON_PISTOL_SCOUT
+				TF_WEAPON_PISTOL_DM
 			},
 			{
 				TF_WEAPON_CROWBAR

@@ -19,6 +19,8 @@
 #define CTFShotgun_Pyro C_TFShotgun_Pyro
 #define CTFShotgun_Medic C_TFShotgun_Medic
 #define CTFScatterGun C_TFScatterGun
+#define CTFShotgun_DM C_TFShotgun_DM
+#define CTFScatterGun_DM C_TFScatterGun_DM
 #endif
 
 // Reload Modes
@@ -107,6 +109,27 @@ public:
 	DECLARE_PREDICTABLE();
 
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SHOTGUN_MEDIC; }
+};
+
+// DM shotguns.
+class CTFScatterGun_DM : public CTFShotgun
+{
+public:
+	DECLARE_CLASS(CTFScatterGun_DM, CTFShotgun);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SCATTERGUN_DM; }
+};
+
+class CTFShotgun_DM : public CTFShotgun
+{
+public:
+	DECLARE_CLASS(CTFShotgun_DM, CTFShotgun);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SHOTGUN_DM; }
 };
 
 #endif // TF_WEAPON_SHOTGUN_H
