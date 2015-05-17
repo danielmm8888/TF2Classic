@@ -878,7 +878,7 @@ void CTFFlameEntity::FlameThink( void )
 				{
 					CBasePlayer *pPlayer = pTeamList[i]->GetPlayer(iPlayer);
 					// Is this player connected, alive, and an enemy?
-					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive())
+					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive() && pPlayer!=pAttacker)
 					{
 						CheckCollision(pPlayer, &bHitWorld);
 						if (bHitWorld)
