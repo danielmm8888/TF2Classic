@@ -86,7 +86,7 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 
 void CTFMainMenuPanel::VideoReplay()
 {
-	if (m_pzVideoLink)
+	if (m_pzVideoLink[0] != '\0')
 	{
 		m_pVideo->Activate();
 		m_pVideo->BeginPlaybackNoAudio(m_pzVideoLink);
@@ -97,13 +97,13 @@ void CTFMainMenuPanel::VideoReplay()
 void CTFMainMenuPanel::OnTick()
 {
 	BaseClass::OnTick();
-	if (!m_bMusicPlay && m_pzMusicLink)
+	if (!m_bMusicPlay && m_pzMusicLink[0] != '\0')
 	{
 		m_bMusicPlay = true;
 		enginesound->NotifyBeginMoviePlayback();
 		surface()->PlaySound(m_pzMusicLink);
 	}
-	if (m_flMusicThink < gpGlobals->curtime)
+	if (m_flMusicThink < gpGlobals->curtime && m_pzMusicLink[0] != '\0')
 	{
 		m_bMusicPlay = false;
 		Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
@@ -232,19 +232,20 @@ char* CTFMainMenuPanel::GetRandomVideo()
 		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 		Q_strncat(szPath, szNumber, sizeof(szPath));
 		Q_strncat(szPath, ".bik", sizeof(szPath));
-		if (g_pFullFileSystem->FileExists(szPath))
-			iCount++;
-		else
-			break;
+		if (!g_pFullFileSystem->FileExists(szPath))
+		{
+			if (iCount)
+				break; 
+			else
+				return "";
+		}
+		iCount++;
 	}
-
-	if (iCount == 0)
-		return "";
 
 	int iRand = rand() % iCount;
 	char szPath[MAX_PATH];
 	char szNumber[5];
-	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand);
+	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand + 1);
 	Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 	Q_strncat(szPath, szNumber, sizeof(szPath));
 	Q_strncat(szPath, ".bik", sizeof(szPath));
@@ -265,20 +266,21 @@ char* CTFMainMenuPanel::GetRandomMusic()
 		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 		Q_strncat(szPath, szNumber, sizeof(szPath));
 		Q_strncat(szPath, ".mp3", sizeof(szPath));
-		if (g_pFullFileSystem->FileExists(szPath))
-			iCount++;
-		else
-			break;
+		if (!g_pFullFileSystem->FileExists(szPath))
+		{
+			if (iCount)
+				break;
+			else
+				return "";
+		}
+		iCount++;
 	}
 
-	if (iCount == 0)
-		return "";
-
 	char* pszSoundPath = "ui/gamestartup";
-	int iRand = rand() % iCount + 1;
+	int iRand = rand() % iCount;
 	char szPath[MAX_PATH];
 	char szNumber[5];
-	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand);
+	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand + 1);
 	Q_strncpy(szPath, pszSoundPath, sizeof(szPath));
 	Q_strncat(szPath, szNumber, sizeof(szPath));
 	Q_strncat(szPath, ".mp3", sizeof(szPath));
