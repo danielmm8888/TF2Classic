@@ -437,6 +437,7 @@ void CTFWeaponBuilder::StartPlacement( void )
 	m_hObjectBeingBuilt = (CBaseObject*)CreateEntityByName( GetObjectInfo( m_iObjectType )->m_pClassName );
 	if ( m_hObjectBeingBuilt )
 	{
+		m_hObjectBeingBuilt->SetObjectMode( m_iObjectMode );
 		m_hObjectBeingBuilt->Spawn();
 		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
 

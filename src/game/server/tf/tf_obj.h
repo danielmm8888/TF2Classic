@@ -78,6 +78,9 @@ public:
 
 	virtual int		BloodColor( void ) { return BLOOD_COLOR_MECH; }
 
+	virtual void	SetObjectMode(int iObjectMode) { m_iObjectMode = iObjectMode; }
+	int				GetObjectMode() { return m_iObjectMode; }
+
 	// Building
 	virtual float	GetTotalTime( void );
 	virtual void	StartPlacement( CTFPlayer *pPlayer );

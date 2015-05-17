@@ -182,6 +182,7 @@ CBaseObject::CBaseObject()
 	m_SolidToPlayers = SOLID_TO_PLAYER_USE_DEFAULT;
 	m_bPlacementOK = false;
 	m_aGibs.Purge();
+	m_iObjectMode = 0;
 }
 
 //-----------------------------------------------------------------------------
