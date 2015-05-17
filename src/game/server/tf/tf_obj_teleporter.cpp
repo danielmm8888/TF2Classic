@@ -33,10 +33,8 @@
 IMPLEMENT_SERVERCLASS_ST( CObjectTeleporter, DT_ObjectTeleporter )
 	SendPropInt( SENDINFO(m_iState), 5 ),
 	SendPropTime( SENDINFO(m_flRechargeTime) ),
-	//SendPropFloat ( SENDINFO(m_flCurrentRechargeDuration) ), Live tf2 has this, not sure what it's used for
 	SendPropInt( SENDINFO(m_iTimesUsed), 6 ),
 	SendPropFloat( SENDINFO(m_flYawToExit), 8, 0, 0.0, 360.0f ),
-	//SendPropBool ( SENDINFO(m_bMatchBuilding) ), Live tf2 has this, not sure what it's used for
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectTeleporter )
@@ -64,12 +62,30 @@ PRECACHE_REGISTER( obj_teleporter_entrance );
 ConVar tf_teleporter_fov_start( "tf_teleporter_fov_start", "120", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Starting FOV for teleporter zoom.", true, 1, false, 0 );
 ConVar tf_teleporter_fov_time( "tf_teleporter_fov_time", "0.5", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "How quickly to restore FOV after teleport.", true, 0.0, false, 0 );
 
-LINK_ENTITY_TO_CLASS( obj_teleporter,	CObjectTeleporter );
+LINK_ENTITY_TO_CLASS( obj_teleporter_entrance,	CObjectTeleporter_Entrance );
+LINK_ENTITY_TO_CLASS( obj_teleporter_exit,		CObjectTeleporter_Exit );
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+CObjectTeleporter_Entrance::CObjectTeleporter_Entrance()
+{
+	SetType( OBJ_TELEPORTER_ENTRANCE );
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CObjectTeleporter_Entrance::Spawn()
+{
+	SetModel( TELEPORTER_MODEL_ENTRANCE_PLACEMENT );
+	BaseClass::Spawn();
+}
 
 //-----------------------------------------------------------------------------
 // Teleport the passed player to our destination
 //-----------------------------------------------------------------------------
-void CObjectTeleporter::TeleporterSend( CTFPlayer *pPlayer )
+void CObjectTeleporter_Entrance::TeleporterSend( CTFPlayer *pPlayer )
 {
 	if ( !pPlayer )
 		return;
@@ -111,9 +127,26 @@ void CObjectTeleporter::TeleporterSend( CTFPlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+CObjectTeleporter_Exit::CObjectTeleporter_Exit()
+{
+	SetType( OBJ_TELEPORTER_EXIT );
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CObjectTeleporter_Exit::Spawn()
+{
+	SetModel( TELEPORTER_MODEL_EXIT_PLACEMENT );
+	BaseClass::Spawn();
+}
+
+//-----------------------------------------------------------------------------
 // Receive a teleporting player 
 //-----------------------------------------------------------------------------
-void CObjectTeleporter::TeleporterReceive( CTFPlayer *pPlayer, float flDelay )
+void CObjectTeleporter_Exit::TeleporterReceive( CTFPlayer *pPlayer, float flDelay )
 {
 	if ( !pPlayer )
 		return;
@@ -165,15 +198,6 @@ CObjectTeleporter::CObjectTeleporter()
 //-----------------------------------------------------------------------------
 void CObjectTeleporter::Spawn()
 {
-	if (GetType() == OBJ_TELEPORTER_ENTRANCE)
-	{
-		SetModel(TELEPORTER_MODEL_ENTRANCE_PLACEMENT);
-	}
-	else
-	{
-		SetModel(TELEPORTER_MODEL_EXIT_PLACEMENT);
-	}
-
 	SetSolid( SOLID_BBOX );
 	
 	m_takedamage = DAMAGE_NO;

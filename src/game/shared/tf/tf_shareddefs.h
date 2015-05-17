@@ -681,7 +681,8 @@ enum
 enum
 {
 	OBJ_DISPENSER=0,
-	OBJ_TELEPORTER,
+	OBJ_TELEPORTER_ENTRANCE,
+	OBJ_TELEPORTER_EXIT,
 	OBJ_SENTRYGUN,
 
 	// Attachment Objects
@@ -878,14 +879,12 @@ public:
 	int		m_Cost;							// Base object resource cost
 	float	m_CostMultiplierPerInstance;	// Cost multiplier
 	int		m_UpgradeCost;					// Base object resource cost for upgrading
-	float	m_flUpgradeDuration;			
 	int		m_MaxUpgradeLevel;				// Max object upgrade level
 	char	*m_pBuilderWeaponName;			// Names shown for each object onscreen when using the builder weapon
 	char	*m_pBuilderPlacementString;		// String shown to player during placement of this object
 	int		m_SelectionSlot;				// Weapon selection slots for objects
 	int		m_SelectionPosition;			// Weapon selection positions for objects
 	bool	m_bSolidToPlayerMovement;
-	bool	m_bUseItemInfo;					// ???
 	char    *m_pViewModel;					// View model to show in builder weapon for this object
 	char    *m_pPlayerModel;				// World model to show attached to the player
 	int		m_iDisplayPriority;				// Priority for ordering in the hud display ( higher is closer to top )
@@ -893,14 +892,10 @@ public:
 	char	*m_pExplodeSound;				// gamesound to play when object explodes
 	char	*m_pExplosionParticleEffect;	// particle effect to play when object explodes
 	bool	m_bAutoSwitchTo;				// should we let players switch back to the builder weapon representing this?
-	char	*m_pUpgradeSound;				// gamesound to play when upgrading
-	int		m_BuildCount;
-	bool	m_bRequiresOwnBuilder;			// ???
 
 	// HUD weapon selection menu icon ( from hud_textures.txt )
 	char	*m_pIconActive;
 	char	*m_pIconInactive;
-	char	*m_pIconMenu;					// ???
 
 	// HUD building status icon
 	char	*m_pHudStatusIcon;

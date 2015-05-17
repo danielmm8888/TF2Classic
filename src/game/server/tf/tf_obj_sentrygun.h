@@ -109,6 +109,8 @@ private:
 	// Time when the upgrade animation will complete
 	float m_flUpgradeCompleteTime;
 
+	CNetworkVar( int, m_iUpgradeMetalRequired );
+
 	// Ammo
 	CNetworkVar( int, m_iAmmoShells );
 	CNetworkVar( int, m_iMaxAmmoShells );

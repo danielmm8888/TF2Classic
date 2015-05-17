@@ -141,6 +141,8 @@ void CObjectSentrygun::Spawn()
 	
 	m_takedamage = DAMAGE_YES;
 
+	m_iUpgradeMetalRequired = SENTRYGUN_UPGRADE_METAL;
+
 	SetMaxHealth( SENTRYGUN_MAX_HEALTH );
 	SetHealth( SENTRYGUN_MAX_HEALTH );
 
