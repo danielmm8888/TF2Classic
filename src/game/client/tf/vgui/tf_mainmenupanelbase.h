@@ -32,6 +32,8 @@ public:
 	virtual void OnCommand(const char* command);
 	virtual void OnThink();
 	virtual void OnTick();
+	virtual void Show();
+	virtual void Hide();
 	virtual void SetMainMenu(Panel *m_pPanel);
 	virtual Panel* GetMainMenu();
 	virtual void DefaultLayout();

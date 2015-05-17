@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenu.h"
+#include "engine/IEngineSound.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -21,23 +22,28 @@ CTFMainMenuPanel::CTFMainMenuPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(p
 	surface()->GetScreenSize(width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
-	LoadControlSettings("resource/UI/MainMenu.res");
+	LoadControlSettings("resource/UI/main_menu/MainMenu.res");
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 
 	InGameLayout = false;
-	b_ShowVideo = true;
+	m_bMusicPlay = true;
 	m_flActionThink = -1;
 	m_flAnimationThink = -1;
+	m_flMusicThink = -1;
 	m_bAnimationIn = true;
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
 	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
 	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
 	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
 	m_pLogo = dynamic_cast<CTFImagePanel *>(FindChildByName("Logo"));
+	m_pCardsPanel = new CTFMainMenuCardsPanel(this);
+	m_pCardsPanel->SetVisible(false);
+	m_pCardsPanel->SetZPos(4);
 
 	Q_strncpy(m_pzVideoLink, GetRandomVideo(), sizeof(m_pzVideoLink));
-	SetVersionLabel();
-
+	Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+	SetVersionLabel();	
+	
 	DefaultLayout();
 }
 
@@ -62,9 +68,15 @@ void CTFMainMenuPanel::PerformLayout()
 
 void CTFMainMenuPanel::OnCommand(const char* command)
 {
-	if (!Q_strcmp(command, "opentestmenu"))
+	if (!Q_strcmp(command, "newquit"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(TEST_MENU);
+		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(QUIT_MENU);
+	}
+	else if (!Q_strcmp(command, "randommusic"))
+	{
+		m_bMusicPlay = false;
+		Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+		m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
 	}
 	else
 	{
@@ -72,18 +84,31 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 }
 
+void CTFMainMenuPanel::VideoReplay()
+{
+	if (m_pzVideoLink)
+	{
+		m_pVideo->Activate();
+		m_pVideo->BeginPlaybackNoAudio(m_pzVideoLink);
+		m_pVideo->MoveToFront();
+	}
+}
 
 void CTFMainMenuPanel::OnTick()
 {
 	BaseClass::OnTick();
-
-	if (m_pVideo && m_pVideo->IsVisible() && !InGameLayout && m_flActionThink < gpGlobals->curtime)
+	if (!m_bMusicPlay && m_pzMusicLink)
 	{
-		m_pVideo->Activate();
-		m_pVideo->BeginPlayback(m_pzVideoLink);
-		m_pVideo->MoveToFront();
-		m_flActionThink = gpGlobals->curtime + m_pVideo->GetActiveVideoLength() - 0.21f;
-		b_ShowVideo = false;
+		m_bMusicPlay = true;
+		enginesound->NotifyBeginMoviePlayback();
+		surface()->PlaySound(m_pzMusicLink);
+	}
+	if (m_flMusicThink < gpGlobals->curtime)
+	{
+		m_bMusicPlay = false;
+		Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+		m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
+		//Msg("LENGTH %f\n", enginesound->GetSoundDuration(m_pzMusicLink));
 	}
 	if (m_pVersionLabel && m_flAnimationThink < gpGlobals->curtime)
 	{
@@ -93,8 +118,12 @@ void CTFMainMenuPanel::OnTick()
 		m_bAnimationIn = !m_bAnimationIn;
 		m_flAnimationThink = gpGlobals->curtime + 0.25f;
 	}
-
 };
+
+void CTFMainMenuPanel::PlayMusic()
+{
+	///
+}
 
 void CTFMainMenuPanel::OnThink()
 {
@@ -124,6 +153,8 @@ void CTFMainMenuPanel::OnThink()
 void CTFMainMenuPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
+
+	VideoReplay();
 
 	//we need to find better way to show/hide stuff
 	if (m_pDisconnectButton)
@@ -201,18 +232,56 @@ char* CTFMainMenuPanel::GetRandomVideo()
 		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 		Q_strncat(szPath, szNumber, sizeof(szPath));
 		Q_strncat(szPath, ".bik", sizeof(szPath));
-		if (!g_pFullFileSystem->FileExists(szPath))
+		if (g_pFullFileSystem->FileExists(szPath))
+			iCount++;
+		else
 			break;
-		iCount++;
 	}
 
-	int iRand = rand() % iCount + 1;
+	if (iCount == 0)
+		return "";
+
+	int iRand = rand() % iCount;
 	char szPath[MAX_PATH];
 	char szNumber[5];
 	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand);
 	Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 	Q_strncat(szPath, szNumber, sizeof(szPath));
 	Q_strncat(szPath, ".bik", sizeof(szPath));
+	char *szResult = szPath;
+	return szResult;
+}
+
+char* CTFMainMenuPanel::GetRandomMusic()
+{
+	char* pszBasePath = "sound/ui/gamestartup";
+	int iCount = 0;
+
+	for (int i = 0; i < 27; i++)
+	{
+		char szPath[MAX_PATH];
+		char szNumber[5];
+		Q_snprintf(szNumber, sizeof(szNumber), "%d", iCount + 1);
+		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
+		Q_strncat(szPath, szNumber, sizeof(szPath));
+		Q_strncat(szPath, ".mp3", sizeof(szPath));
+		if (g_pFullFileSystem->FileExists(szPath))
+			iCount++;
+		else
+			break;
+	}
+
+	if (iCount == 0)
+		return "";
+
+	char* pszSoundPath = "ui/gamestartup";
+	int iRand = rand() % iCount + 1;
+	char szPath[MAX_PATH];
+	char szNumber[5];
+	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand);
+	Q_strncpy(szPath, pszSoundPath, sizeof(szPath));
+	Q_strncat(szPath, szNumber, sizeof(szPath));
+	Q_strncat(szPath, ".mp3", sizeof(szPath));
 	char *szResult = szPath;
 	return szResult;
 }

@@ -1,5 +1,5 @@
-#ifndef TFTESTMENU_H
-#define TFTESTMENU_H
+#ifndef TFMAINMENUQUITPANEL_H
+#define TFMAINMENUQUITPANEL_H
 
 #include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
@@ -7,14 +7,16 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFTestMenuPanel : public CTFMainMenuPanelBase
+class CTFMainMenuQuitPanel : public CTFMainMenuPanelBase
 {
-	DECLARE_CLASS_SIMPLE(CTFTestMenuPanel, CTFMainMenuPanelBase);
+	DECLARE_CLASS_SIMPLE(CTFMainMenuQuitPanel, CTFMainMenuPanelBase);
 
 public:
-	CTFTestMenuPanel(vgui::Panel* parent);
-	virtual ~CTFTestMenuPanel();
+	CTFMainMenuQuitPanel(vgui::Panel* parent);
+	virtual ~CTFMainMenuQuitPanel();
 
+	void Show();
+	void Hide();
 	void PerformLayout();
 	void OnCommand(const char* command);
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);

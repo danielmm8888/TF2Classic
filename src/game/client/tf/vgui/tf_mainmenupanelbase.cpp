@@ -57,6 +57,16 @@ void CTFMainMenuPanelBase::OnThink()
 	BaseClass::OnThink();
 };
 
+void CTFMainMenuPanelBase::Show()
+{
+	SetVisible(true);
+};
+
+void CTFMainMenuPanelBase::Hide()
+{
+	SetVisible(false);
+};
+
 void CTFMainMenuPanelBase::DefaultLayout()
 {
 
@@ -86,7 +96,6 @@ void CTFMainMenuPanelBase::PaintBackground()
 bool CTFMainMenuPanelBase::InGame()
 {
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-
 	if (pPlayer && IsVisible())
 	{
 		return true;

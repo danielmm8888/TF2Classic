@@ -268,7 +268,7 @@ void CTFButton::OnCursorExited()
 void CTFButton::OnMousePressed(vgui::MouseCode code)
 {
 	BaseClass::OnMousePressed(code);
-	if (iState != MOUSE_PRESSED)
+	if (code == MOUSE_LEFT && iState != MOUSE_PRESSED)
 	{
 		SetMouseEnteredState(MOUSE_PRESSED);
 	}
@@ -280,11 +280,11 @@ void CTFButton::OnMousePressed(vgui::MouseCode code)
 void CTFButton::OnMouseReleased(vgui::MouseCode code)
 {
 	BaseClass::OnMouseReleased(code);
-	if (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED)
+	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED))
 	{
 		m_pParent->GetParent()->OnCommand(m_pParent->m_szCommand);
 	}
-	if (iState == MOUSE_ENTERED)
+	if (code == MOUSE_LEFT && iState == MOUSE_ENTERED)
 	{
 		SetMouseEnteredState(MOUSE_ENTERED);
 	} 
