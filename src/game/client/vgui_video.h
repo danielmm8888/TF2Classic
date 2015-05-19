@@ -46,6 +46,7 @@ public:
 	}
 
 	bool BeginPlayback( const char *pFilename );
+	bool BeginPlaybackNoAudio(const char *pFilename);
 
 	void SetBlackBackground( bool bBlack ){ m_bBlackBackground = bBlack; }
 

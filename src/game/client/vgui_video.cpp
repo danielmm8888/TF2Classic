@@ -134,6 +134,60 @@ bool VideoPanel::BeginPlayback( const char *pFilename )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Begins playback of a movie
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool VideoPanel::BeginPlaybackNoAudio(const char *pFilename)
+{
+	// need working video services
+	if (g_pVideo == NULL)
+		return false;
+
+	// Create a new video material
+	if (m_VideoMaterial != NULL)
+	{
+		g_pVideo->DestroyVideoMaterial(m_VideoMaterial);
+		m_VideoMaterial = NULL;
+	}
+
+	m_VideoMaterial = g_pVideo->CreateVideoMaterial("VideoMaterial", pFilename, "GAME",
+		VideoPlaybackFlags::DEFAULT_MATERIAL_OPTIONS,
+		VideoSystem::DETERMINE_FROM_FILE_EXTENSION, m_bAllowAlternateMedia);
+
+	if (m_VideoMaterial == NULL)
+		return false;
+
+	//No audio
+
+	int nWidth, nHeight;
+	m_VideoMaterial->GetVideoImageSize(&nWidth, &nHeight);
+	m_VideoMaterial->GetVideoTexCoordRange(&m_flU, &m_flV);
+	m_pMaterial = m_VideoMaterial->GetMaterial();
+
+
+	float flFrameRatio = ((float)GetWide() / (float)GetTall());
+	float flVideoRatio = ((float)nWidth / (float)nHeight);
+
+	if (flVideoRatio > flFrameRatio)
+	{
+		m_nPlaybackWidth = GetWide();
+		m_nPlaybackHeight = (GetWide() / flVideoRatio);
+	}
+	else if (flVideoRatio < flFrameRatio)
+	{
+		m_nPlaybackWidth = (GetTall() * flVideoRatio);
+		m_nPlaybackHeight = GetTall();
+	}
+	else
+	{
+		m_nPlaybackWidth = GetWide();
+		m_nPlaybackHeight = GetTall();
+	}
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void VideoPanel::Activate( void )
