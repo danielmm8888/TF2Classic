@@ -5,13 +5,13 @@
 #include "vgui_controls/Panel.h"
 #include "GameUI/IGameUI.h"
 #include "tf_mainmenupanel.h"
-#include "tf_testmenupanel.h"
+#include "tf_mainmenuquitpanel.h"
 
 enum MenuPanel 
 {
 	NONE_MENU,
 	MAIN_MENU,
-	TEST_MENU,
+	QUIT_MENU,
 	COUNT_MENU
 };
 
@@ -36,8 +36,8 @@ public:
 	virtual void HidePanel(MenuPanel iPanel);
 
 private:
-	CTFMainMenuPanel	*MainMenuPanel;
-	CTFTestMenuPanel	*TestMenuPanel;
+	CTFMainMenuPanel		*MainMenuPanel;
+	CTFMainMenuQuitPanel	*QuitMenuPanel;
 	bool				LoadGameUI();
 	bool				InGame();
 	IGameUI*			gameui;

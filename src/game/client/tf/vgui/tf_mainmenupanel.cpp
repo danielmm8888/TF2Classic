@@ -36,9 +36,6 @@ CTFMainMenuPanel::CTFMainMenuPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(p
 	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
 	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
 	m_pLogo = dynamic_cast<CTFImagePanel *>(FindChildByName("Logo"));
-	m_pCardsPanel = new CTFMainMenuCardsPanel(this);
-	m_pCardsPanel->SetVisible(false);
-	m_pCardsPanel->SetZPos(4);
 
 	Q_strncpy(m_pzVideoLink, GetRandomVideo(), sizeof(m_pzVideoLink));
 	Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));

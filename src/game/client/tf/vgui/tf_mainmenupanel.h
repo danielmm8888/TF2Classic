@@ -3,7 +3,6 @@
 
 #include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
-#include "tf_mainmenucardspanel.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -43,7 +42,6 @@ private:
 	char*				GetRandomVideo();
 	char*				GetRandomMusic();
 	bool				m_bMusicPlay;
-	CTFMainMenuCardsPanel	*m_pCardsPanel;
 };
 
 #endif // TFMAINMENUPANEL_H

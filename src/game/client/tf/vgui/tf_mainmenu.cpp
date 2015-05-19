@@ -53,8 +53,8 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	SetPos(0, 0);
 
 	MainMenuPanel = new CTFMainMenuPanel(this);
-	TestMenuPanel = new CTFTestMenuPanel(this);
-	TestMenuPanel->SetVisible(false);
+	QuitMenuPanel = new CTFMainMenuQuitPanel(this);
+	QuitMenuPanel->SetVisible(false);
 
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
@@ -73,10 +73,12 @@ void CTFMainMenu::ShowPanel(MenuPanel iPanel)
 	switch (iPanel)
 	{
 	case MAIN_MENU:
-		MainMenuPanel->SetVisible(true);
+		MainMenuPanel->Show();
 		break;
-	case TEST_MENU:
-		TestMenuPanel->SetVisible(true);
+		break;
+	case QUIT_MENU:
+		QuitMenuPanel->Show();
+		break;
 		break;
 	default:
 		break;
@@ -88,10 +90,10 @@ void CTFMainMenu::HidePanel(MenuPanel iPanel)
 	switch (iPanel)
 	{
 	case MAIN_MENU:
-		MainMenuPanel->SetVisible(false);
+		MainMenuPanel->Hide();
 		break;
-	case TEST_MENU:
-		TestMenuPanel->SetVisible(false);
+	case QUIT_MENU:
+		QuitMenuPanel->Hide();
 		break;
 	default:
 		break;
@@ -158,11 +160,6 @@ void CTFMainMenu::OnTick()
 void CTFMainMenu::OnThink()
 {
 	BaseClass::OnThink();
-
-	if (engine->IsDrawingLoadingImage() && IsVisible())
-	{
-		SetVisible(false);
-	}
 };
 
 void CTFMainMenu::PaintBackground()
