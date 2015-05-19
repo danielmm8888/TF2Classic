@@ -1795,6 +1795,11 @@ void C_TFPlayer::OnPlayerClassChange( void )
 	// Init the anim movement vars
 	m_PlayerAnimState->SetRunSpeed( GetPlayerClass()->GetMaxSpeed() );
 	m_PlayerAnimState->SetWalkSpeed( GetPlayerClass()->GetMaxSpeed() * 0.5 );
+
+	// Execute the class cfg
+	char szCommand[128];
+	Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
+	engine->ExecuteClientCmd(szCommand);
 }
 
 //-----------------------------------------------------------------------------
