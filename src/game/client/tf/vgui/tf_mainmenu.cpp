@@ -52,10 +52,19 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	SetSize(width, height);
 	SetPos(0, 0);
 
-	MainMenuPanel = new CTFMainMenuPanel(this);
-	QuitMenuPanel = new CTFMainMenuQuitPanel(this);
-	QuitMenuPanel->SetVisible(false);
+	m_pPanels.SetSize(COUNT_MENU);
+	AddMenuPanel(new CTFMainMenuPanel(this), MAIN_MENU);
+	AddMenuPanel(new CTFMainMenuPausePanel(this), PAUSE_MENU);
+	AddMenuPanel(new CTFMainMenuBackgroundPanel(this), BACKGROUND_MENU);
+	AddMenuPanel(new CTFMainMenuQuitPanel(this), QUIT_MENU);
+	AddMenuPanel(new CTFMainMenuOptionsPanel(this), OPTIONS_MENU);
 
+	GetMenuPanel(MAIN_MENU)->SetVisible(true);
+	GetMenuPanel(PAUSE_MENU)->SetVisible(false);
+	GetMenuPanel(BACKGROUND_MENU)->SetVisible(true);
+	GetMenuPanel(QUIT_MENU)->SetVisible(false);
+	GetMenuPanel(OPTIONS_MENU)->SetVisible(false);
+	bInGameLayout = false;
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
 
@@ -64,40 +73,30 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 //-----------------------------------------------------------------------------
 CTFMainMenu::~CTFMainMenu()
 {
+	m_pPanels.RemoveAll();
 	gameui = NULL;
 	g_GameUIDLL.Unload();
 }
 
+void CTFMainMenu::AddMenuPanel(CTFMainMenuPanelBase *m_pPanel, int iPanel)
+{
+	m_pPanels[iPanel] = m_pPanel;
+	m_pPanel->SetZPos(iPanel);
+}
+
+CTFMainMenuPanelBase* CTFMainMenu::GetMenuPanel(int iPanel)
+{
+	return m_pPanels[iPanel];
+}
+
 void CTFMainMenu::ShowPanel(MenuPanel iPanel)
 {
-	switch (iPanel)
-	{
-	case MAIN_MENU:
-		MainMenuPanel->Show();
-		break;
-		break;
-	case QUIT_MENU:
-		QuitMenuPanel->Show();
-		break;
-		break;
-	default:
-		break;
-	}
+	GetMenuPanel(iPanel)->Show();
 }
 
 void CTFMainMenu::HidePanel(MenuPanel iPanel)
 {
-	switch (iPanel)
-	{
-	case MAIN_MENU:
-		MainMenuPanel->Hide();
-		break;
-	case QUIT_MENU:
-		QuitMenuPanel->Hide();
-		break;
-	default:
-		break;
-	}
+	GetMenuPanel(iPanel)->Hide();
 }
 
 IGameUI *CTFMainMenu::GetGameUI()
@@ -155,11 +154,40 @@ void CTFMainMenu::OnTick()
 	{
 		SetVisible(true);
 	}
+	if (!InGame() && bInGameLayout)
+	{
+		DefaultLayout();
+		bInGameLayout = false;
+	}
+	else if (InGame() && !bInGameLayout)
+	{
+		GameLayout();
+		bInGameLayout = true;
+	}
 };
 
 void CTFMainMenu::OnThink()
 {
 	BaseClass::OnThink();
+};
+
+
+void CTFMainMenu::DefaultLayout()
+{
+	//set all panels to default layout
+	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
+	{
+		GetMenuPanel(i)->DefaultLayout();
+	}		
+};
+
+void CTFMainMenu::GameLayout()
+{
+	//set all panels to game layout
+	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
+	{
+		GetMenuPanel(i)->GameLayout();
+	}
 };
 
 void CTFMainMenu::PaintBackground()
@@ -171,12 +199,12 @@ void CTFMainMenu::PaintBackground()
 bool CTFMainMenu::InGame()
 {
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-
 	if (pPlayer && IsVisible())
 	{
 		return true;
 	}
-	else {
+	else 
+	{
 		return false;
 	}
 }

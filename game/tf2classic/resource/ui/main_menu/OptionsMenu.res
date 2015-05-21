@@ -1,4 +1,4 @@
-"Resource/UI/QuitMenu.res"
+"Resource/UI/OptionsMenu.res"
 {
 	"ShadedBG"
 	{
@@ -35,22 +35,22 @@
 		"border"		"TFFatLineBorderOpaque"
 	}		
 	
-	"Logo"
+	"MainBG"
 	{
-		"ControlName"	"CTFImagePanel"
-		"fieldName"		"Logo"
-		"xpos"			"c-300"
-		"ypos"			"c-75"	
-		"zpos"			"2"		
-		"wide"			"150"
-		"tall"			"150"
+		"ControlName"	"ScrollBar"
+		"fieldName"		"MainBG"
+		"xpos"			"c-350"
+		"ypos"			"c-200"
+		"zpos"			"1"
+		"wide"			"700"
+		"tall"			"400"
+		"autoResize"	"0"
+		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"image"			"../hud/eng_eureka_tele_home"
-		"alpha"			"255"
-		"scaleImage"	"1"	
-	}		
-		
+		"border"		"TFFatLineBorderOpaque"
+	}	
+	
 	"QuitLabel"
 	{
 		"ControlName"		"CExLabel"
@@ -64,37 +64,17 @@
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText"			"Are you sure?"
+		"labelText"			"Settings :v"
 		"textAlignment"		"west"
 		"font"				"ScoreboardTeamNameLarge"
 		"fgcolor"			"White"
 	}	
 	
-	"ConfirmButton"
-	{
-		"ControlName"		"CTFMainMenuButton"
-		"fieldName"			"ConfirmButton"
-		"xpos"				"c100"
-		"ypos"				"c150"
-		"zpos"				"6"
-		"wide"				"110"
-		"tall"				"45"
-		"visible"			"1"
-		"enabled"			"1"
-		"labelText" 		"QUIT"
-		"DefaultText"		"Button.ArmedTextColor"
-		"ArmedText" 		"HudWhite"
-		"DepressedText" 	"Gray"	
-		"textAlignment"		"center"
-		"font"				"MenuSmallFont"
-		"command"			"quitconfirm"		
-	}			
-
 	"CancelButton"
 	{
 		"ControlName"		"CTFMainMenuButton"
 		"fieldName"			"CancelButton"
-		"xpos"				"c210"
+		"xpos"				"c200"
 		"ypos"				"c150"
 		"zpos"				"6"
 		"wide"				"130"
@@ -105,7 +85,7 @@
 		"DefaultText"		"Button.ArmedTextColor"
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
-		"textAlignment"		"center"
+		"textAlignment"		"west"
 		"font"				"MenuSmallFont"
 		"command"			"vguicancel"		
 	}		
