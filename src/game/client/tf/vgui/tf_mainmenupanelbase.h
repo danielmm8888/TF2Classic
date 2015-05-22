@@ -40,8 +40,10 @@ public:
 	virtual void GameLayout();
 
 protected:
-	bool				InGameLayout;
 	Panel				*m_pMainMenu;
+	bool				bInGame;
+	bool				bInMenu;
+	bool				bInGameLayout;
 };
 
 #endif // TFMAINMENUPANELBASE_H

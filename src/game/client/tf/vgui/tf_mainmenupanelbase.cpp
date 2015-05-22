@@ -20,8 +20,17 @@ CTFMainMenuPanelBase::CTFMainMenuPanelBase(vgui::Panel* parent) : EditablePanel(
 	surface()->GetScreenSize(width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
-
+	bInGameLayout = false;
+	
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CTFMainMenuPanelBase::~CTFMainMenuPanelBase()
+{
+
 }
 
 void CTFMainMenuPanelBase::ApplySchemeSettings(vgui::IScheme *pScheme)
@@ -33,14 +42,6 @@ void CTFMainMenuPanelBase::PerformLayout()
 {
 	BaseClass::PerformLayout();
 };
-
-//-----------------------------------------------------------------------------
-// Purpose: Destructor
-//-----------------------------------------------------------------------------
-CTFMainMenuPanelBase::~CTFMainMenuPanelBase()
-{
-
-}
 
 void CTFMainMenuPanelBase::OnCommand(const char* command)
 {
@@ -69,12 +70,16 @@ void CTFMainMenuPanelBase::Hide()
 
 void CTFMainMenuPanelBase::DefaultLayout()
 {
-
+	bInGameLayout = false;
+	if (bInMenu || bInGame)
+		SetVisible(bInMenu);
 };
 
 void CTFMainMenuPanelBase::GameLayout()
 {
-
+	bInGameLayout = true;
+	if (bInMenu || bInGame)
+		SetVisible(bInGame);
 };
 
 void CTFMainMenuPanelBase::SetMainMenu(Panel *m_pPanel)
@@ -95,12 +100,5 @@ void CTFMainMenuPanelBase::PaintBackground()
 
 bool CTFMainMenuPanelBase::InGame()
 {
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	if (pPlayer && IsVisible())
-	{
-		return true;
-	}
-	else {
-		return false;
-	}
+	return dynamic_cast<CTFMainMenu*>(m_pMainMenu)->InGame();
 }

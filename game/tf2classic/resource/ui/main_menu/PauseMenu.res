@@ -1,21 +1,45 @@
-"Resource/UI/MainMenu.res"
+"Resource/UI/PauseMenu.res"
 {
-	"Logo"
+	"RGBPanel"
 	{
-		"ControlName"	"CTFImagePanel"
-		"fieldName"		"Logo"
-		"xpos"			"20"
-		"ypos"			"100"	
-		"zpos"			"3"		
-		"wide"			"1024"
-		"tall"			"512"
+		"ControlName"	"CTFMainMenuRGBPanel"
+		"fieldName"		"RGBPanel"
+		"xpos"			"1000"
+		"ypos"			"250"
+		"zpos"			"20"
+		"wide"			"1920"
+		"tall"			"600"
+		"autoResize"	"0"
+		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"image"			"../logo/TF2_Classic_Logo"
-		"alpha"			"255"
-		"scaleImage"	"1"	
-	}	
+		"border"		"TFFatLineBorder"
+	}		
 	
+		
+	"DisconnectButton"
+	{
+		"ControlName"		"CTFMainMenuButton"
+		"fieldName"			"DisconnectButton"
+		"xpos"				"30"
+		"ypos"				"600"
+		"zpos"				"5"
+		"wide"				"260"
+		"tall"				"65"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText" 		"#GameUI_GameMenu_Disconnect"
+		"xshift" 			"10"
+		"yshift" 			"0"		
+		"DefaultText"		"Button.ArmedTextColor"
+		"ArmedText" 		"HudWhite"
+		"DepressedText" 	"Gray"	
+		"textAlignment"		"west"
+		"command"			"gamemenucommand Disconnect"
+		"font"				"MenuSmallFont"
+	}		
+	
+		
 	"ServerBrowserButton"
 	{
 		"ControlName"		"CTFMainMenuButton"
@@ -122,25 +146,7 @@
 		"font"				"MenuSmallFont"
 	}	
 	
-	"MusicButton"
-	{
-		"ControlName"		"CTFMainMenuButton"
-		"fieldName"			"MusicButton"
-		"xpos"				"650"
-		"ypos"				"r45"
-		"zpos"				"5"
-		"wide"				"300"
-		"tall"				"45"
-		"visible"			"1"
-		"enabled"			"1"
-		"labelText" 		"Random music‎"
-		"DefaultText"		"Button.ArmedTextColor"
-		"ArmedText" 		"HudWhite"
-		"DepressedText" 	"Gray"	
-		"textAlignment"		"center"
-		"command"			"randommusic"
-		"font"				"MenuSmallFont"
-	}	
+	
 
 	"QuitButton"
 	{
@@ -161,25 +167,7 @@
 		"command"			"newquit"
 		"font"				"MenuSmallFont"
 	}	
-	
-	"VersionLabel"
-	{
-		"ControlName"		"CExLabel"
-		"fieldName"			"VersionLabel"
-		"xpos"				"30"
-		"ypos"				"r40"
-		"zpos"				"5"
-		"wide"				"450"
-		"tall"				"30"
-		"autoResize"		"0"
-		"pinCorner"			"0"
-		"visible"			"1"
-		"enabled"			"1"
-		"labelText"			"VersionLabel"
-		"textAlignment"		"west"
-		"font"				"MenuMainTitle"
-		"fgcolor"			"HudOffWhite"
-	}	
+
 	
 	"ShadedBar"
 	{

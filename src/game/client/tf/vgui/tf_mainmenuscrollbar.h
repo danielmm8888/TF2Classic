@@ -1,5 +1,5 @@
-﻿#ifndef TF_MAINMENUBUTTON_H
-#define TF_MAINMENUBUTTON_H
+﻿#ifndef TF_MAINMENU_SCROLLBAR_H
+#define TF_MAINMENU_SCROLLBAR_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -10,56 +10,62 @@
 
 using namespace vgui;
 
-class CTFButton;
+class CTFScrollButton;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFMainMenuButton : public CTFMainMenuButtonBase
+class CTFMainMenuScrollBar : public CTFMainMenuButtonBase
 {
-	friend CTFButton;
+	friend CTFScrollButton;
 public:
-	DECLARE_CLASS_SIMPLE(CTFMainMenuButton, CTFMainMenuButtonBase);
+	DECLARE_CLASS_SIMPLE(CTFMainMenuScrollBar, CTFMainMenuButtonBase);
 
-	CTFMainMenuButton(vgui::Panel *parent, const char *panelName, const char *text);
+	CTFMainMenuScrollBar(vgui::Panel *parent, const char *panelName, const char *text);
 
 	void ApplySettings(KeyValues *inResourceData);
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
-	void PerformLayout();
 
 	void SendAnimation(MouseState flag);
 	void SetDefaultAnimation();
 
 	void OnTick();
+	float GetPercentage();
+	float GetValue();
+	void SetPercentage();
+	void SetPercentage(float fPerc);
+	void SetMinMax(float fMin, float fMax) { fMinValue = fMin; fMaxValue = fMax; };
+	void RunCommand();
+	void GetGlobalPosition(Panel *pPanel);
 
 protected:
-	CTFButton		*pButton;
-	float			m_fXShift;
-	float			m_fYShift;
+	CTFScrollButton	*pButton;
+	float	fMinValue;
+	float	fMaxValue;
 };
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFButton : public CTFButtonBase
+class CTFScrollButton : public CTFButtonBase
 {
 public:
-	DECLARE_CLASS_SIMPLE(CTFButton, CTFButtonBase);
+	DECLARE_CLASS_SIMPLE(CTFScrollButton, CTFButtonBase);
 
-	CTFButton(vgui::Panel *parent, const char *panelName, const char *text);
+	CTFScrollButton(vgui::Panel *parent, const char *panelName, const char *text);
 
 	void OnCursorExited();
 	void OnCursorEntered();
 	void OnMousePressed(vgui::MouseCode code);
 	void OnMouseReleased(vgui::MouseCode code);
 	void SetMouseEnteredState(MouseState flag);
-	void SetParent(CTFMainMenuButton *m_pButton) { m_pParent = m_pButton; };
+	void SetParent(CTFMainMenuScrollBar *m_pButton) { m_pParent = m_pButton; };
 	char *GetCommandStr() { return m_pParent->m_szCommand; };
 
 private:
-	CTFMainMenuButton *m_pParent;
+	CTFMainMenuScrollBar *m_pParent;
 };
 
 
-#endif // TF_MAINMENUBUTTON_H
+#endif // TF_MAINMENU_SCROLLBAR_H

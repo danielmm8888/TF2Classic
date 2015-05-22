@@ -1,5 +1,5 @@
 #include "cbase.h"
-#include "tf_mainmenuquitpanel.h"
+#include "tf_mainmenuoptionspanel.h"
 #include "tf_mainmenu.h"
 
 using namespace vgui;
@@ -9,7 +9,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuQuitPanel::CTFMainMenuQuitPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
+CTFMainMenuOptionsPanel::CTFMainMenuOptionsPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
@@ -20,19 +20,19 @@ CTFMainMenuQuitPanel::CTFMainMenuQuitPanel(vgui::Panel* parent) : CTFMainMenuPan
 	surface()->GetScreenSize(width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
-	LoadControlSettings("resource/UI/main_menu/QuitMenu.res");
+	LoadControlSettings("resource/UI/main_menu/OptionsMenu.res");
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Destructor
 //-----------------------------------------------------------------------------
-CTFMainMenuQuitPanel::~CTFMainMenuQuitPanel()
+CTFMainMenuOptionsPanel::~CTFMainMenuOptionsPanel()
 {
 
 }
 
-void CTFMainMenuQuitPanel::OnCommand(const char* command)
+void CTFMainMenuOptionsPanel::OnCommand(const char* command)
 {
 	if (!Q_strcmp(command, "vguicancel"))
 	{
@@ -48,30 +48,28 @@ void CTFMainMenuQuitPanel::OnCommand(const char* command)
 	}
 }
 
-
-void CTFMainMenuQuitPanel::Show()
+void CTFMainMenuOptionsPanel::Show()
 {
 	BaseClass::Show();
 	ImagePanel *m_bShadedBG = dynamic_cast<ImagePanel *>(FindChildByName("ShadedBG"));
 	vgui::GetAnimationController()->RunAnimationCommand(m_bShadedBG, "Alpha", 220, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->HidePanel(CURRENT_MENU);
+	//dynamic_cast<CTFMainMenu*>(GetMainMenu())->HidePanel(CURRENT_MENU);
 };
 
-void CTFMainMenuQuitPanel::Hide()
+void CTFMainMenuOptionsPanel::Hide()
 {
 	BaseClass::Hide();
 	ImagePanel *m_bShadedBG = dynamic_cast<ImagePanel *>(FindChildByName("ShadedBG"));
 	vgui::GetAnimationController()->RunAnimationCommand(m_bShadedBG, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(CURRENT_MENU);
+	//dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(CURRENT_MENU);
 };
 
-
-void CTFMainMenuQuitPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+void CTFMainMenuOptionsPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 }
 
-void CTFMainMenuQuitPanel::PerformLayout()
+void CTFMainMenuOptionsPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 };
