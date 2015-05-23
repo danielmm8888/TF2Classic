@@ -121,7 +121,11 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 			m_flRemoveAt = gpGlobals->curtime + 1.0f;
 			// Set text to amount of damage
 			char buffer[5]; // Up to four digits
+#if defined( OSX ) || defined( LINUX ) 
 			snprintf( buffer, sizeof(buffer), "%d",  event->GetInt( "amount" ) * -1 );
+#elif WIN32
+			itoa(event->GetInt("amount") * -1, buffer, 10);
+#endif
 			m_pDamageAccountLabel->SetText( buffer );
 			m_pDamageAccountLabel->SetVisible( true );
 
