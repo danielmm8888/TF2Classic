@@ -62,4 +62,4 @@ src/lib/public/vgui_controls.lib
 
 # misc files
 fgdlib.lib
-ttsapp.RES
+src/utils/sapi51/Samples/VB/TTSAppVB/ttsapp.RES
