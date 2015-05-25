@@ -12,7 +12,7 @@ WeaponData
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
 	"Spread"		"0.5"
-	"TimeFireDelay"		"1.0"
+	"TimeFireDelay"		"0.7"
 	"TimeReload"		"1.5"
 	"ProjectileType"	"projectile_bullet"
 	"HasTeamSkins_Viewmodel"	"1"

@@ -27,9 +27,9 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 
 #define TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC	600.0
 #define TF_WEAPON_HUNTERRIFLE_UNCHARGE_PER_SEC	20.0
-#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			85
+#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			60
 #define TF_WEAPON_HUNTERRIFLE_RELOAD_TIME		1.0f
-#define TF_WEAPON_HUNTERRIFLE_ZOOM_TIME			0.2f
+#define TF_WEAPON_HUNTERRIFLE_ZOOM_TIME			0.3f
 #define TF_WEAPON_HUNTERRIFLE_SHOOT_TIME		0.15f
 #define TF_WEAPON_HUNTERRIFLE_SPREAD_MIN		0
 #define TF_WEAPON_HUNTERRIFLE_SPREAD_MAX		300
@@ -456,7 +456,7 @@ int	CTFHunterRifle::GetDamageType( void ) const
 {
 	// Only do hit location damage if we're zoomed
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
+	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_AIMING ) )
 		return BaseClass::GetDamageType();
 
 	return ( BaseClass::GetDamageType() & ~DMG_USE_HITLOCATIONS );

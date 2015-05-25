@@ -374,8 +374,11 @@ CBaseEntity *CTFWeaponBaseGun::FireNail( CTFPlayer *pPlayer, int iSpecificNail )
 
 	// Add some spread
 	float flSpread = 1.5;
-	angForward.x += RandomFloat( -flSpread, flSpread );
-	angForward.y += RandomFloat( -flSpread, flSpread );
+	// Tranquilizer Gun darts no spread
+	if (iSpecificNail == TF_PROJECTILE_DART) flSpread = 0.0;
+
+	angForward.x += RandomFloat(-flSpread, flSpread);
+	angForward.y += RandomFloat(-flSpread, flSpread);
 
 	CTFBaseProjectile *pProjectile = NULL;
 	switch( iSpecificNail )
