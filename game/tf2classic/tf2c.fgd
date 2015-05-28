@@ -711,16 +711,16 @@
 [
 	WeaponNumber(Choices) : "Weapon" : 0 =
 	[
-		12 : "Shotgun"
-		38 : "Pistol"
-		21 : "Rocket launcher"
-		18 : "SMG"
-		16 : "Sniper rifle"
-		24 : "Flamethrower"
-		17 : "Minigun"
 		5 : "Crowbar"
-		22 : "Pipebomb launcher"
-		57 : "Cyclops"
+		65 : "Shotgun"
+		66 : "Scattergun"
+		67 : "Flamethrower"
+		68 : "Pistol"
+		69 : "SMG"
+		70 : "Sniper rifle"
+		71 : "Pipebomb launcher"
+		21 : "Rocket launcher"
+		17 : "Minigun"
 	]
 	
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 10
