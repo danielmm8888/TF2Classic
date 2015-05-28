@@ -434,7 +434,7 @@
 //====================================================================================================================
 // CAPTURE POINT HANDLING
 //====================================================================================================================
-@PointClass base(Targetname, EnableDisable, Angles) studio("models/effects/cappoint_hologram.mdl") = team_control_point :
+@PointClass base(Targetname, EnableDisable, Angles, Parentname) studio("models/effects/cappoint_hologram.mdl") = team_control_point :
 	"Control Point"
 [
 	spawnflags(flags) =
