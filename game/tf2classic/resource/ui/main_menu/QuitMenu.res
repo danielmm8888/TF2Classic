@@ -1,28 +1,9 @@
 "Resource/UI/QuitMenu.res"
 {
-	"ShadedBG"
-	{
-		"ControlName"		"ImagePanel"
-		"fieldName"			"ShadedBG"
-		"xpos"				"0"
-		"ypos"				"0"
-		"zpos"				"0"
-		"wide"				"f0"
-		"tall"				"f0"
-		"autoResize"		"0"
-		"pinCorner"			"0"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"	
-		"fillcolor"			"0 0 0 255"
-		"alpha"				"0"
-		"PaintBackgroundType"	"0"
-	}		
-
-	"MainBG"
+	"QuitMenu"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldName"		"MainBG"
+		"fieldName"		"QuitMenu"
 		"xpos"			"c-350"
 		"ypos"			"c-200"
 		"zpos"			"1"
@@ -33,7 +14,7 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"border"		"TFFatLineBorderOpaque"
-	}		
+	}
 	
 	"Logo"
 	{
@@ -55,8 +36,8 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"			"QuitLabel"
-		"xpos"				"c-130"
-		"ypos"				"c-50"
+		"xpos"				"c-120"
+		"ypos"				"c-70"
 		"zpos"				"5"
 		"wide"				"600"
 		"tall"				"50"
@@ -86,7 +67,8 @@
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"center"
-		"font"				"MenuSmallFont"
+		"imagevisible"		"0"
+		"bordervisible"		"0"
 		"command"			"quitconfirm"		
 	}			
 
@@ -106,8 +88,9 @@
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"center"
-		"font"				"MenuSmallFont"
+		"imagevisible"		"0"
+		"bordervisible"		"0"
 		"command"			"vguicancel"		
-	}		
+	}	
 }
 		

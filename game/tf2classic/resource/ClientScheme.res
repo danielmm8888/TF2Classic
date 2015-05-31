@@ -4264,6 +4264,18 @@ Scheme
 		ReplayBrowser.ScrollBar.SliderButton.Border
 		{
 		}
+		AdvSettingsTitleBorder
+		{
+			"inset" "0 0 1 1"
+			Bottom
+			{
+				"1"
+				{
+					"color" "Button.ArmedTextColor"
+					"offset" "0 0"
+				}
+			}
+		}
 	}
 
 	//////////////////////// CUSTOM FONT FILES /////////////////////////////

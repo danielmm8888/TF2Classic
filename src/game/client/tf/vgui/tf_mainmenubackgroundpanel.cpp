@@ -10,27 +10,13 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuBackgroundPanel::CTFMainMenuBackgroundPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
+CTFMainMenuBackgroundPanel::CTFMainMenuBackgroundPanel(vgui::Panel* parent, const char *panelName) : CTFMainMenuPanelBase(parent, panelName)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
 	SetProportional(false);
 	SetVisible(true);
 	SetMainMenu(GetParent());
-
-	int width, height;
-	surface()->GetScreenSize(width, height);
-	SetSize(width, height);
-	SetPos(0, 0);
-	LoadControlSettings("resource/UI/main_menu/BackgroundMenu.res");
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
-
-	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
-	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
-
-	Q_strncpy(m_pzVideoLink, GetRandomVideo(), sizeof(m_pzVideoLink));
-
-	DefaultLayout();
 }
 
 //-----------------------------------------------------------------------------
@@ -44,6 +30,17 @@ CTFMainMenuBackgroundPanel::~CTFMainMenuBackgroundPanel()
 void CTFMainMenuBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+
+	LoadControlSettings("resource/UI/main_menu/BackgroundMenu.res");
+	m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
+	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
+
+	int width, height;
+	surface()->GetScreenSize(width, height);
+	float fRatio = (float)width / (float)height;
+	bool bWidescreen = (fRatio < 1.5 ? false : true);
+	Q_strncpy(m_pzVideoLink, GetRandomVideo(bWidescreen), sizeof(m_pzVideoLink));
+	DefaultLayout();
 }
 
 void CTFMainMenuBackgroundPanel::PerformLayout()
@@ -98,7 +95,7 @@ void CTFMainMenuBackgroundPanel::GameLayout()
 	}
 };
 
-char* CTFMainMenuBackgroundPanel::GetRandomVideo()
+char* CTFMainMenuBackgroundPanel::GetRandomVideo(bool bWidescreen)
 {
 	char* pszBasePath = "media/bg_0";
 	int iCount = 0;
@@ -110,6 +107,8 @@ char* CTFMainMenuBackgroundPanel::GetRandomVideo()
 		Q_snprintf(szNumber, sizeof(szNumber), "%d", iCount + 1);
 		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 		Q_strncat(szPath, szNumber, sizeof(szPath));
+		if (bWidescreen)
+			Q_strncat(szPath, "_widescreen", sizeof(szPath));
 		Q_strncat(szPath, ".bik", sizeof(szPath));
 		if (!g_pFullFileSystem->FileExists(szPath))
 		{
@@ -127,6 +126,8 @@ char* CTFMainMenuBackgroundPanel::GetRandomVideo()
 	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand + 1);
 	Q_strncpy(szPath, pszBasePath, sizeof(szPath));
 	Q_strncat(szPath, szNumber, sizeof(szPath));
+	if (bWidescreen)
+		Q_strncat(szPath, "_widescreen", sizeof(szPath));
 	Q_strncat(szPath, ".bik", sizeof(szPath));
 	char *szResult = (char*)malloc(sizeof(szPath));
 	Q_strncpy(szResult, szPath, sizeof(szPath));

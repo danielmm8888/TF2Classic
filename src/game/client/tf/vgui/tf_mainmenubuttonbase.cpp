@@ -24,11 +24,47 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFMainMenuButtonBase, CTFMainMenuButtonBase)
 //-----------------------------------------------------------------------------
 CTFMainMenuButtonBase::CTFMainMenuButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : CExButton(parent, panelName, text)
 {
-	pImage = new CTFImagePanel(this, "TestImage");
+	SetProportional(true);
+	pImage = new CTFImagePanel(this, "BackgroundImage");
+	Init();
+	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
+}	
 
-	vgui::ivgui()->AddTickSignal(GetVPanel());
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CTFMainMenuButtonBase::~CTFMainMenuButtonBase()
+{
+	delete pImage;
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFMainMenuButtonBase::Init()
+{ 
+	SetTall(50);
+	SetWide(100);
+	Q_strncpy(pDefaultImage, DEFAULT_IMAGE, sizeof(pDefaultImage));
+	Q_strncpy(pArmedImage, ARMED_IMAGE, sizeof(pArmedImage));
+	Q_strncpy(pDepressedImage, DEPRESSED_IMAGE, sizeof(pDepressedImage));
+	Q_strncpy(pDefaultBorder, DEFAULT_BORDER, sizeof(pDefaultBorder));
+	Q_strncpy(pArmedBorder, ARMED_BORDER, sizeof(pArmedBorder));
+	Q_strncpy(pDepressedBorder, DEPRESSED_BORDER, sizeof(pDepressedBorder));
+	Q_strncpy(pDefaultText, DEFAULT_TEXT, sizeof(pDefaultText));
+	Q_strncpy(pArmedText, ARMED_TEXT, sizeof(pArmedText));
+	Q_strncpy(pDepressedText, DEPRESSED_TEXT, sizeof(pDepressedText));
+	Q_strncpy(m_szFont, DEFAULT_FONT, sizeof(m_szFont));
+	Q_strncpy(m_szCommand, EMPTY_STRING, sizeof(m_szCommand));
+	Q_strncpy(m_szTextAlignment, "west", sizeof(m_szCommand));
+	m_bImageVisible = false;
+	m_bBorderVisible = false;
+	m_bAutoChange = false;
+	m_bDisabled = false;
+	pFont = NULL;
+	//Q_strncpy(m_szCommand, GetCommand()->GetString(), sizeof(m_szCommand));
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -37,25 +73,26 @@ void CTFMainMenuButtonBase::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaultImage, inResourceData->GetString("DefaultImage", ""), sizeof(pDefaultImage));
-	Q_strncpy(pArmedImage, inResourceData->GetString("ArmedImage", ""), sizeof(pArmedImage));
-	Q_strncpy(pDepressedImage, inResourceData->GetString("DepressedImage", ""), sizeof(pDepressedImage));
+	Q_strncpy(pDefaultImage, inResourceData->GetString("DefaultImage", DEFAULT_IMAGE), sizeof(pDefaultImage));
+	Q_strncpy(pArmedImage, inResourceData->GetString("ArmedImage", ARMED_IMAGE), sizeof(pArmedImage));
+	Q_strncpy(pDepressedImage, inResourceData->GetString("DepressedImage", DEPRESSED_IMAGE), sizeof(pDepressedImage));
 
-	Q_strncpy(pDefaultBorder, inResourceData->GetString("DefaultBorder", ""), sizeof(pDefaultBorder));
-	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ""), sizeof(pArmedBorder));
-	Q_strncpy(pDepressedBorder, inResourceData->GetString("DepressedBorder", ""), sizeof(pDepressedBorder));
+	Q_strncpy(pDefaultBorder, inResourceData->GetString("DefaultBorder", DEFAULT_BORDER), sizeof(pDefaultBorder));
+	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ARMED_BORDER), sizeof(pArmedBorder));
+	Q_strncpy(pDepressedBorder, inResourceData->GetString("DepressedBorder", DEPRESSED_BORDER), sizeof(pDepressedBorder));
 
-	Q_strncpy(pDefaultText, inResourceData->GetString("DefaultText", ""), sizeof(pDefaultText));
-	Q_strncpy(pArmedText, inResourceData->GetString("ArmedText", ""), sizeof(pArmedText));
-	Q_strncpy(pDepressedText, inResourceData->GetString("DepressedText", ""), sizeof(pDepressedText));
+	Q_strncpy(pDefaultText, inResourceData->GetString("DefaultText", DEFAULT_TEXT), sizeof(pDefaultText));
+	Q_strncpy(pArmedText, inResourceData->GetString("ArmedText", ARMED_TEXT), sizeof(pArmedText));
+	Q_strncpy(pDepressedText, inResourceData->GetString("DepressedText", DEPRESSED_TEXT), sizeof(pDepressedText));
 
-	Q_strncpy(m_szCommand, inResourceData->GetString("command", ""), sizeof(m_szCommand));
+	Q_strncpy(m_szCommand, inResourceData->GetString("command", EMPTY_STRING), sizeof(m_szCommand));
 	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		
+	Q_strncpy(m_szFont, inResourceData->GetString("font", DEFAULT_FONT), sizeof(m_szFont));
 
-	m_bImageVisible = inResourceData->GetBool("imagevisible", false);	
-	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
+	m_bImageVisible = inResourceData->GetBool("imagevisible", true);	
+	m_bBorderVisible = inResourceData->GetBool("bordervisible", true);
 
-	//InvalidateLayout(false, true); // force ApplySchemeSettings to run
+	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
 
 //-----------------------------------------------------------------------------
@@ -64,7 +101,17 @@ void CTFMainMenuButtonBase::ApplySettings(KeyValues *inResourceData)
 void CTFMainMenuButtonBase::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-	
+
+	pFont = pScheme->GetFont(m_szFont);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFMainMenuButtonBase::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
 	pImage->SetImage(pDefaultImage);
 	pImage->SetVisible(m_bImageVisible);
 	pImage->SetEnabled(true);
@@ -78,6 +125,31 @@ void CTFMainMenuButtonBase::ApplySchemeSettings(vgui::IScheme *pScheme)
 	SetArmedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetDepressedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetSelectedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
+}
+
+const char* CTFMainMenuButtonBase::GetCommandString()
+{
+	KeyValues *pCommands = GetCommand();
+	if (pCommands)
+		return pCommands->FindKey("command")->GetString();
+	return "";
+}
+
+void CTFMainMenuButtonBase::SetFont(const char *sFont)
+{
+	Q_strncpy(m_szFont, sFont, sizeof(m_szFont));
+	PerformLayout();
+}
+
+void CTFMainMenuButtonBase::SetBorder(const char *sBorder)
+{
+	Q_strncpy(pDefaultBorder, sBorder, sizeof(pDefaultBorder));
+	if (m_bDisabled)
+	{
+		Q_strncpy(pArmedBorder, sBorder, sizeof(pArmedBorder));
+		Q_strncpy(pDepressedBorder, sBorder, sizeof(pDepressedBorder));
+	}
+	PerformLayout();
 }
 
 //-----------------------------------------------------------------------------

@@ -9,13 +9,11 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuRGBPanel::CTFMainMenuRGBPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
+CTFMainMenuRGBPanel::CTFMainMenuRGBPanel(vgui::Panel* parent, const char *panelName) : CTFMainMenuPanelBase(parent, panelName)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
 	SetProportional(false);	
-
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
 
 //-----------------------------------------------------------------------------
@@ -26,26 +24,6 @@ CTFMainMenuRGBPanel::~CTFMainMenuRGBPanel()
 
 }
 
-void CTFMainMenuRGBPanel::OnCommand(const char* command)
-{
-	if (!Q_strcmp(command, "vguicancel"))
-	{
-		SetVisible(false);
-	}
-	if (!Q_strcmp(command, "scrolled"))
-	{
-		//Msg("Got the values: %f %f %f\n", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
-		Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
-		m_pColorBG->SetFillColor(clr);
-		char szCommand[MAX_PATH];
-		Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %f %f %f", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
-		GetParent()->OnCommand(szCommand);
-	}
-	else
-	{
-		BaseClass::OnCommand(command);
-	}
-}
 
 
 void CTFMainMenuRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
@@ -63,9 +41,15 @@ void CTFMainMenuRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pRedScrollBar = dynamic_cast<CTFMainMenuScrollBar *>(FindChildByName("RedScrollBar"));
 	m_pGrnScrollBar = dynamic_cast<CTFMainMenuScrollBar *>(FindChildByName("GrnScrollBar"));
 	m_pBluScrollBar = dynamic_cast<CTFMainMenuScrollBar *>(FindChildByName("BluScrollBar"));
-	m_pRedScrollBar->SetMinMax(0, 255);
-	m_pGrnScrollBar->SetMinMax(0, 255);
-	m_pBluScrollBar->SetMinMax(0, 255);
+	m_pRedScrollBar->SetMinMax(0.0, 255.0);
+	m_pGrnScrollBar->SetMinMax(0.0, 255.0);
+	m_pBluScrollBar->SetMinMax(0.0, 255.0);
+	m_pRedScrollBar->SetValue(0.0);
+	m_pGrnScrollBar->SetValue(0.0);
+	m_pBluScrollBar->SetValue(0.0);
+	//m_pRedScrollBar->SetAutoChange(true);
+	//m_pGrnScrollBar->SetAutoChange(true);
+	//m_pBluScrollBar->SetAutoChange(true);
 	m_pColorBG = dynamic_cast<ImagePanel *>(FindChildByName("ColorBG"));
 }
 
@@ -73,3 +57,26 @@ void CTFMainMenuRGBPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 };
+
+void CTFMainMenuRGBPanel::OnCommand(const char* command)
+{
+	if (!Q_strcmp(command, "vguicancel"))
+	{
+		SetVisible(false);
+	}
+	if (!Q_strcmp(command, "scrolled"))
+	{
+		//Msg("Got the values: %i %i %i\n", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
+		Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
+		m_pColorBG->SetFillColor(clr);
+		char szCommand[MAX_PATH];
+		Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
+		engine->ExecuteClientCmd(szCommand);
+		//GetParent()->OnCommand(szCommand);
+	}
+	else
+	{
+		BaseClass::OnCommand(command);
+	}
+}
+

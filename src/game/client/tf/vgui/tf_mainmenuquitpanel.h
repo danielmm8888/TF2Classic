@@ -12,7 +12,7 @@ class CTFMainMenuQuitPanel : public CTFMainMenuPanelBase
 	DECLARE_CLASS_SIMPLE(CTFMainMenuQuitPanel, CTFMainMenuPanelBase);
 
 public:
-	CTFMainMenuQuitPanel(vgui::Panel* parent);
+	CTFMainMenuQuitPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFMainMenuQuitPanel();
 
 	void Show();

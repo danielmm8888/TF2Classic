@@ -9,18 +9,13 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuPanelBase::CTFMainMenuPanelBase(vgui::Panel* parent) : EditablePanel(NULL, "MainMenuPanel")
+CTFMainMenuPanelBase::CTFMainMenuPanelBase(vgui::Panel* parent, const char *panelName) : EditablePanel(NULL, panelName)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
 	SetProportional(false);
 	SetVisible(true);
-
-	int width, height;
-	surface()->GetScreenSize(width, height);
-	SetSize(width, height);
-	SetPos(0, 0);
-	bInGameLayout = false;
+	Init();
 	
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
@@ -31,6 +26,16 @@ CTFMainMenuPanelBase::CTFMainMenuPanelBase(vgui::Panel* parent) : EditablePanel(
 CTFMainMenuPanelBase::~CTFMainMenuPanelBase()
 {
 
+}
+
+bool CTFMainMenuPanelBase::Init()
+{
+	int width, height;
+	surface()->GetScreenSize(width, height);
+	SetSize(width, height);
+	SetPos(0, 0);
+	bInGameLayout = false;
+	return true;
 }
 
 void CTFMainMenuPanelBase::ApplySchemeSettings(vgui::IScheme *pScheme)

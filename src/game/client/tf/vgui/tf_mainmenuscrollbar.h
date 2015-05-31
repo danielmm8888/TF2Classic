@@ -11,6 +11,18 @@
 using namespace vgui;
 
 class CTFScrollButton;
+#undef	DEFAULT_IMAGE
+#undef	ARMED_IMAGE
+#undef	DEPRESSED_IMAGE
+#undef	DEFAULT_BORDER
+#undef	ARMED_BORDER
+#undef	DEPRESSED_BORDER
+#define DEFAULT_IMAGE				DEFAULT_PATH	"scroll_bg"
+#define ARMED_IMAGE					DEFAULT_PATH	"scroll_bg"
+#define DEPRESSED_IMAGE				DEFAULT_PATH	"scroll_bg"
+#define DEFAULT_BORDER				"TFFatLineBorder"
+#define ARMED_BORDER				"TFFatLineBorderOpaque"
+#define DEPRESSED_BORDER			"TFFatLineBorderRedBGOpaque"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -22,26 +34,35 @@ public:
 	DECLARE_CLASS_SIMPLE(CTFMainMenuScrollBar, CTFMainMenuButtonBase);
 
 	CTFMainMenuScrollBar(vgui::Panel *parent, const char *panelName, const char *text);
-
+	~CTFMainMenuScrollBar();
+	void Init();
 	void ApplySettings(KeyValues *inResourceData);
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
+	void PerformLayout();
 
 	void SendAnimation(MouseState flag);
 	void SetDefaultAnimation();
 
-	void OnTick();
+	void OnThink();
 	float GetPercentage();
-	float GetValue();
+	int GetValue();
+	int GetScrollValue();
 	void SetPercentage();
 	void SetPercentage(float fPerc);
+	void SetValue(float fVal);
 	void SetMinMax(float fMin, float fMax) { fMinValue = fMin; fMaxValue = fMax; };
 	void RunCommand();
 	void GetGlobalPosition(Panel *pPanel);
+	void UpdateValue();
 
 protected:
 	CTFScrollButton	*pButton;
-	float	fMinValue;
-	float	fMaxValue;
+	CExLabel		*pTitleLabel;
+	CExLabel		*pValueLabel;
+	float			fMinValue;
+	float			fMaxValue;
+	float			fLabelWidth;
+	float			fValue;
 };
 
 

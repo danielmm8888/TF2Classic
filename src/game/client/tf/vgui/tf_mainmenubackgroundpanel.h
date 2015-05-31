@@ -13,9 +13,8 @@ class CTFMainMenuBackgroundPanel : public CTFMainMenuPanelBase
 	DECLARE_CLASS_SIMPLE(CTFMainMenuBackgroundPanel, CTFMainMenuPanelBase);
 
 public:
-	CTFMainMenuBackgroundPanel(vgui::Panel* parent);
+	CTFMainMenuBackgroundPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFMainMenuBackgroundPanel();
-
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void OnThink();
@@ -29,7 +28,7 @@ private:
 	CTFImagePanel		*m_pBackground;
 	CTFVideoPanel		*m_pVideo;
 	char				m_pzVideoLink[64];
-	char*				GetRandomVideo();
+	char*				GetRandomVideo(bool bWidescreen);
 };
 
 #endif // TFMAINMENUBACKGROUNDPANEL_H

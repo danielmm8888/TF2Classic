@@ -22,10 +22,10 @@ class CTFMainMenuPanelBase : public vgui::EditablePanel, public CAutoGameSystem
 	DECLARE_CLASS_SIMPLE(CTFMainMenuPanelBase, vgui::EditablePanel);
 
 public:
-	CTFMainMenuPanelBase(vgui::Panel* parent);
+	CTFMainMenuPanelBase(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFMainMenuPanelBase();
-
-	void PerformLayout();
+	virtual bool Init();
+	virtual void PerformLayout();
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void PaintBackground();
 	virtual bool InGame();

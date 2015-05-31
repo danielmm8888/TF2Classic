@@ -10,33 +10,14 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuPanel::CTFMainMenuPanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
+CTFMainMenuPanel::CTFMainMenuPanel(vgui::Panel* parent, const char *panelName) : CTFMainMenuPanelBase(parent, panelName)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
 	SetProportional(false);
 	SetVisible(true);
 	SetMainMenu(GetParent());
-
-	int width, height;
-	surface()->GetScreenSize(width, height);
-	SetSize(width, height);
-	SetPos(0, 0);
-	LoadControlSettings("resource/UI/main_menu/MainMenu.res");
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
-
-	m_bMusicPlay = true;
-	m_flActionThink = -1;
-	m_flAnimationThink = -1;
-	m_flMusicThink = -1;
-	m_bAnimationIn = true;
-	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
-
-	Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
-	SetVersionLabel();	
-	
-	bInMenu = true;
-	DefaultLayout();
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -47,14 +28,36 @@ CTFMainMenuPanel::~CTFMainMenuPanel()
 
 }
 
+bool CTFMainMenuPanel::Init()
+{
+	BaseClass::Init();
+
+	m_bMusicPlay = true;
+	m_flActionThink = -1;
+	m_flAnimationThink = -1;
+	m_flMusicThink = -1;
+	m_bAnimationIn = true;
+
+	Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+
+	bInMenu = true;
+	return true;
+}
+
+
 void CTFMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+
+	LoadControlSettings("resource/UI/main_menu/MainMenu.res");
+	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
+	SetVersionLabel();
 }
 
 void CTFMainMenuPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	DefaultLayout();
 };
 
 
@@ -111,7 +114,7 @@ void CTFMainMenuPanel::OnTick()
 
 void CTFMainMenuPanel::PlayMusic()
 {
-	
+
 }
 
 void CTFMainMenuPanel::OnThink()
@@ -121,7 +124,7 @@ void CTFMainMenuPanel::OnThink()
 
 void CTFMainMenuPanel::DefaultLayout()
 {
-	BaseClass::DefaultLayout();	
+	BaseClass::DefaultLayout();
 };
 
 void CTFMainMenuPanel::GameLayout()
@@ -189,3 +192,104 @@ char* CTFMainMenuPanel::GetRandomMusic()
 	Q_strncpy(szResult, szPath, sizeof(szPath));
 	return szResult;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: SPINNING SHIT
+//-----------------------------------------------------------------------------
+DECLARE_BUILD_FACTORY(CTFRotationPanel);
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : CTFImagePanel(parent, name)
+{
+	///
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFRotationPanel::ApplySettings(KeyValues *inResourceData)
+{
+	BaseClass::ApplySettings(inResourceData);
+	Q_strncpy(pImage, inResourceData->GetString("image", ""), sizeof(pImage));
+	m_Material.Init(pImage, TEXTURE_GROUP_VGUI);
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+float CTFRotationPanel::GetAngleRotation(void)
+{
+	int _x, _y;
+	surface()->SurfaceGetCursorPos(_x, _y);
+	GetParent()->LocalToScreen(_x, _y);
+	int x, y;
+	GetPos(x, y);
+	x += GetWide() / 2.0;
+	y += GetTall() / 2.0;
+	float deltaY = y - _y;
+	float deltaX = x - _x;
+	return atan2(deltaY, deltaX) * 180 / 3.1415;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFRotationPanel::Paint()
+{
+	IMaterial *pMaterial = m_Material;
+	int x = 0;
+	int y = 0;
+	ipanel()->GetAbsPos(GetVPanel(), x, y);
+	int nWidth = GetWide();
+	int nHeight = GetTall();
+
+	CMatRenderContextPtr pRenderContext(materials);
+	pRenderContext->MatrixMode(MATERIAL_MODEL);
+	pRenderContext->PushMatrix();
+
+	VMatrix panelRotation;
+	panelRotation.Identity();
+	MatrixBuildRotationAboutAxis(panelRotation, Vector(0, 0, 1), GetAngleRotation());
+	//	MatrixRotate( panelRotation, Vector( 1, 0, 0 ), 5 );
+	panelRotation.SetTranslation(Vector(x + nWidth / 2, y + nHeight / 2, 0));
+	pRenderContext->LoadMatrix(panelRotation);
+
+	IMesh *pMesh = pRenderContext->GetDynamicMesh(true, NULL, NULL, pMaterial);
+
+	CMeshBuilder meshBuilder;
+	meshBuilder.Begin(pMesh, MATERIAL_QUADS, 1);
+
+	meshBuilder.TexCoord2f(0, 0, 0);
+	meshBuilder.Position3f(-nWidth / 2, -nHeight / 2, 0);
+	meshBuilder.Color4ub(255, 255, 255, 255);
+	meshBuilder.AdvanceVertex();
+
+	meshBuilder.TexCoord2f(0, 1, 0);
+	meshBuilder.Position3f(nWidth / 2, -nHeight / 2, 0);
+	meshBuilder.Color4ub(255, 255, 255, 255);
+	meshBuilder.AdvanceVertex();
+
+	meshBuilder.TexCoord2f(0, 1, 1);
+	meshBuilder.Position3f(nWidth / 2, nHeight / 2, 0);
+	meshBuilder.Color4ub(255, 255, 255, 255);
+	meshBuilder.AdvanceVertex();
+
+	meshBuilder.TexCoord2f(0, 0, 1);
+	meshBuilder.Position3f(-nWidth / 2, nHeight / 2, 0);
+	meshBuilder.Color4ub(255, 255, 255, 255);
+	meshBuilder.AdvanceVertex();
+
+	meshBuilder.End();
+
+	pMesh->Draw();
+	pRenderContext->PopMatrix();
+}
+
+

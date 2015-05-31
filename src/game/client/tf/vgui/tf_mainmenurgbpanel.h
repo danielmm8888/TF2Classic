@@ -13,7 +13,7 @@ class CTFMainMenuRGBPanel : public CTFMainMenuPanelBase
 	DECLARE_CLASS_SIMPLE(CTFMainMenuRGBPanel, CTFMainMenuPanelBase);
 
 public:
-	CTFMainMenuRGBPanel(vgui::Panel* parent);
+	CTFMainMenuRGBPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFMainMenuRGBPanel();
 
 	void PerformLayout();

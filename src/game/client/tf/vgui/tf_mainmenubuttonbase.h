@@ -21,6 +21,20 @@ enum MouseState
 	MOUSE_RELEASED
 };
 
+#define DEFAULT_PATH		"../vgui/main_menu/"
+#define DEFAULT_IMAGE		DEFAULT_PATH	"button_bg"
+#define ARMED_IMAGE			DEFAULT_PATH	"button_bg"
+#define DEPRESSED_IMAGE		DEFAULT_PATH	"button_bg_depressed"
+#define DEFAULT_BORDER		"TFFatLineBorder"
+#define ARMED_BORDER		"TFFatLineBorderOpaque"
+#define DEPRESSED_BORDER	"TFFatLineBorderRedBGOpaque"
+#define DEFAULT_TEXT		"Button.ArmedTextColor"
+#define ARMED_TEXT			"HudWhite"
+#define DEPRESSED_TEXT		"Gray"
+#define DEFAULT_FONT		"MenuMainTitle"
+#define EMPTY_STRING		""
+#define GETSCHEME()			scheme()->GetIScheme(GetScheme())
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -31,18 +45,30 @@ public:
 	DECLARE_CLASS_SIMPLE(CTFMainMenuButtonBase, CExButton);
 
 	CTFMainMenuButtonBase(vgui::Panel *parent, const char *panelName, const char *text);
-
+	virtual ~CTFMainMenuButtonBase();
+	virtual void Init();
 	virtual void ApplySettings(KeyValues *inResourceData);
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
+	virtual void PerformLayout();
 
 	virtual void SendAnimation(MouseState flag);
 	virtual void SetDefaultAnimation();
+	virtual const char* GetCommandString();
+	virtual void SetAutoChange(bool bAutoChange) { m_bAutoChange = bAutoChange; };
+	virtual bool IsAutoChange() { return m_bAutoChange; };
+	virtual void SetBorderVisible(bool bVisible){ m_bBorderVisible = bVisible; };
+	virtual void SetImageVisible(bool bVisible){ m_bImageVisible = bVisible; };
+	virtual void SetDisabled(bool bDisabled){ m_bDisabled = bDisabled; };
+	virtual bool IsDisabled() { return m_bDisabled; };
+	virtual void SetFont(const char *sFont);
+	virtual void SetBorder(const char *sBorder);
 
 	virtual void OnThink();
 
 protected:
 	bool			m_bImageVisible;
 	bool			m_bBorderVisible;
+	bool			m_bDisabled;
 	char			pDefaultImage[64];
 	char			pArmedImage[64];
 	char			pDepressedImage[64];
@@ -54,9 +80,12 @@ protected:
 	char			pDepressedText[64];
 	char			m_szCommand[64];
 	char			m_szText[64];
+	char			m_szFont[64];
 	char			m_szTextAlignment[64];
+	HFont			pFont;
 	CTFImagePanel	*pImage;
 	virtual			vgui::Label::Alignment GetAlignment(char* m_szAlignment);
+	bool			m_bAutoChange;
 	//CTFButtonBase	*pButton;
 };
 

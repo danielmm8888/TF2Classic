@@ -7,6 +7,7 @@
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenupausepanel.h"
 #include "tf_mainmenubackgroundpanel.h"
+#include "tf_mainmenushadebackgroundpanel.h"
 #include "tf_mainmenuoptionspanel.h"
 #include "tf_mainmenuquitpanel.h"
 
@@ -16,8 +17,9 @@ enum MenuPanel //position in this enum = zpos on the screen
 	BACKGROUND_MENU,
 	MAIN_MENU,
 	PAUSE_MENU,
-	QUIT_MENU,
+	SHADEBACKGROUND_MENU,
 	OPTIONS_MENU,
+	QUIT_MENU,
 	COUNT_MENU,
 	FIRST_MENU = NONE_MENU + 1
 };
@@ -53,6 +55,7 @@ private:
 	CTFMainMenuPanel					*m_pMainMenuPanel;
 	CTFMainMenuPanel					*m_pPauseMenuPanel;
 	CTFMainMenuBackgroundPanel			*m_pBackgroundMenuPanel;
+	CTFMainMenuShadeBackgroundPanel		*m_pShadeBackgroundMenuPanel;
 	CTFMainMenuQuitPanel				*m_pQuitMenuPanel;
 	CTFMainMenuOptionsPanel				*m_pOptionsMenuPanel;
 

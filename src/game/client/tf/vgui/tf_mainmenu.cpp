@@ -30,6 +30,9 @@ void OverrideMainMenu()
 	}
 }
 
+class CLoadingDialog;
+vgui::DHANDLE<CLoadingDialog> g_hLoadingDialog;
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -53,17 +56,19 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	SetPos(0, 0);
 
 	m_pPanels.SetSize(COUNT_MENU);
-	AddMenuPanel(new CTFMainMenuPanel(this), MAIN_MENU);
-	AddMenuPanel(new CTFMainMenuPausePanel(this), PAUSE_MENU);
-	AddMenuPanel(new CTFMainMenuBackgroundPanel(this), BACKGROUND_MENU);
-	AddMenuPanel(new CTFMainMenuQuitPanel(this), QUIT_MENU);
-	AddMenuPanel(new CTFMainMenuOptionsPanel(this), OPTIONS_MENU);
+	AddMenuPanel(new CTFMainMenuPanel(this, "CTFMainMenuPanel"), MAIN_MENU);
+	AddMenuPanel(new CTFMainMenuPausePanel(this, "CTFMainMenuPausePanel"), PAUSE_MENU);
+	AddMenuPanel(new CTFMainMenuBackgroundPanel(this, "CTFMainMenuBackgroundPanel"), BACKGROUND_MENU);
+	AddMenuPanel(new CTFMainMenuShadeBackgroundPanel(this, "CTFMainMenuShadeBackgroundPanel"), SHADEBACKGROUND_MENU);
+	AddMenuPanel(new CTFMainMenuQuitPanel(this, "CTFMainMenuQuitPanel"), QUIT_MENU);
+	AddMenuPanel(new CTFMainMenuOptionsPanel(this, "CTFMainMenuOptionsPanel"), OPTIONS_MENU);
+	ShowPanel(MAIN_MENU);
+	ShowPanel(PAUSE_MENU);
+	ShowPanel(BACKGROUND_MENU);
+	HidePanel(SHADEBACKGROUND_MENU);
+	HidePanel(QUIT_MENU);
+	HidePanel(OPTIONS_MENU);
 
-	GetMenuPanel(MAIN_MENU)->SetVisible(true);
-	GetMenuPanel(PAUSE_MENU)->SetVisible(false);
-	GetMenuPanel(BACKGROUND_MENU)->SetVisible(true);
-	GetMenuPanel(QUIT_MENU)->SetVisible(false);
-	GetMenuPanel(OPTIONS_MENU)->SetVisible(false);
 	bInGameLayout = false;
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
@@ -164,6 +169,7 @@ void CTFMainMenu::OnTick()
 		GameLayout();
 		bInGameLayout = true;
 	}
+
 };
 
 void CTFMainMenu::OnThink()

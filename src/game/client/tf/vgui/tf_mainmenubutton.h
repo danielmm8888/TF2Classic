@@ -22,6 +22,8 @@ public:
 	DECLARE_CLASS_SIMPLE(CTFMainMenuButton, CTFMainMenuButtonBase);
 
 	CTFMainMenuButton(vgui::Panel *parent, const char *panelName, const char *text);
+	~CTFMainMenuButton();
+	void Init();
 
 	void ApplySettings(KeyValues *inResourceData);
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
@@ -29,6 +31,8 @@ public:
 
 	void SendAnimation(MouseState flag);
 	void SetDefaultAnimation();
+	void SetText(const char *tokenName);
+	void SetCommand(const char *command);
 
 	void OnTick();
 

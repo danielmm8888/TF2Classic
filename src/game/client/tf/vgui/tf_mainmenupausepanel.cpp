@@ -10,29 +10,14 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFMainMenuPausePanel::CTFMainMenuPausePanel(vgui::Panel* parent) : CTFMainMenuPanelBase(parent)
+CTFMainMenuPausePanel::CTFMainMenuPausePanel(vgui::Panel* parent, const char *panelName) : CTFMainMenuPanelBase(parent, panelName)
 {
 	SetParent(parent);
 	SetScheme("ClientScheme");
 	SetProportional(false);
 	SetVisible(true);
-	SetMainMenu(GetParent());
-
-	int width, height;
-	surface()->GetScreenSize(width, height);
-	SetSize(width, height);
-	SetPos(0, 0);
-	LoadControlSettings("resource/UI/main_menu/PauseMenu.res");
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
-
-	m_pDisconnectButton = dynamic_cast<CTFMainMenuButton *>(FindChildByName("DisconnectButton"));
-
-	m_pRGBPanel = new CTFMainMenuRGBPanel(this);
-	m_pRGBPanel->SetVisible(false);
-	m_pRGBPanel->SetZPos(4);
-	
-	bInGame = true;
-	DefaultLayout();
+	SetMainMenu(GetParent());	
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -43,14 +28,29 @@ CTFMainMenuPausePanel::~CTFMainMenuPausePanel()
 
 }
 
+bool CTFMainMenuPausePanel::Init()
+{
+	BaseClass::Init();
+
+	bInGame = true;
+	return true;
+};
+
+
 void CTFMainMenuPausePanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+
+	m_pRGBPanel = new CTFMainMenuRGBPanel(this, "CTFMainMenuRGBPanel");
+	LoadControlSettings("resource/UI/main_menu/PauseMenu.res");
+	//m_pRGBPanel->SetVisible(false);
+	//m_pRGBPanel->SetZPos(4);
 }
 
 void CTFMainMenuPausePanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	DefaultLayout();
 };
 
 
@@ -89,12 +89,17 @@ void CTFMainMenuPausePanel::DefaultLayout()
 void CTFMainMenuPausePanel::GameLayout()
 {
 	BaseClass::GameLayout();
-
+	
 	if (m_pRGBPanel && TFGameRules())
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
 			m_pRGBPanel->SetVisible(true);
 		}
+		else
+		{
+			m_pRGBPanel->SetVisible(false);
+		}
 	}
+
 };

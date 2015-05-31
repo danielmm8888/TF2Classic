@@ -4,6 +4,7 @@
 #include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
 #include "tf_mainmenurgbpanel.h"
+#include "tf_mainmenupanellistpanel.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -13,9 +14,9 @@ class CTFMainMenuPanel : public CTFMainMenuPanelBase
 	DECLARE_CLASS_SIMPLE(CTFMainMenuPanel, CTFMainMenuPanelBase);
 
 public:
-	CTFMainMenuPanel(vgui::Panel* parent);
+	CTFMainMenuPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFMainMenuPanel();
-
+	bool Init();
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void OnThink();
@@ -36,7 +37,30 @@ private:
 	bool				m_bMusicPlay;
 	char*				GetRandomMusic();
 
+	CPanelListPanel		*m_pListPanel;
+	CTFMainMenuButton		*m_pTestButton;
 	CTFMainMenuRGBPanel	*m_pRGBPanel;
 };
+
+
+//-----------------------------------------------------------------------------
+// Purpose:  Draws the rotated arrow panels
+//-----------------------------------------------------------------------------
+class CTFRotationPanel : public CTFImagePanel
+{
+public:
+	DECLARE_CLASS_SIMPLE(CTFRotationPanel, CTFImagePanel);
+
+	CTFRotationPanel(vgui::Panel *parent, const char *name);
+	virtual void Paint();
+	virtual void ApplySettings(KeyValues *inResourceData);
+	float GetAngleRotation(void);
+
+private:
+	float				flRetVal;
+	char				pImage[64];
+	CMaterialReference	m_Material;
+};
+
 
 #endif // TFMAINMENUPANEL_H
