@@ -570,7 +570,7 @@ void CPointServerCommand::InputCommand( inputdata_t& inputdata )
 		return;
 
 #ifdef TF_CLASSIC
-	CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >(inputdata.pActivator);
+	CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >(inputdata.pCaller);
 	if (pPlayer)
 	{
 		//Only allow people with RCON access to use this
