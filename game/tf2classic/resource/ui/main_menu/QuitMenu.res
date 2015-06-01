@@ -67,7 +67,7 @@
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"center"
-		"imagevisible"		"0"
+		"bgvisible"		"0"
 		"bordervisible"		"0"
 		"command"			"quitconfirm"		
 	}			
@@ -88,7 +88,7 @@
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"center"
-		"imagevisible"		"0"
+		"bgvisible"		"0"
 		"bordervisible"		"0"
 		"command"			"vguicancel"		
 	}	

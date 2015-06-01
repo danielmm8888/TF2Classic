@@ -22,9 +22,9 @@ enum MouseState
 };
 
 #define DEFAULT_PATH		"../vgui/main_menu/"
-#define DEFAULT_IMAGE		DEFAULT_PATH	"button_bg"
-#define ARMED_IMAGE			DEFAULT_PATH	"button_bg"
-#define DEPRESSED_IMAGE		DEFAULT_PATH	"button_bg_depressed"
+#define DEFAULT_IMAGE		"MainMenuNewButtonDefault"
+#define ARMED_IMAGE			"MainMenuNewButtonArmed"
+#define DEPRESSED_IMAGE		"MainMenuNewButtonDepressed"
 #define DEFAULT_BORDER		"TFFatLineBorder"
 #define ARMED_BORDER		"TFFatLineBorderOpaque"
 #define DEPRESSED_BORDER	"TFFatLineBorderRedBGOpaque"
@@ -83,7 +83,7 @@ protected:
 	char			m_szFont[64];
 	char			m_szTextAlignment[64];
 	HFont			pFont;
-	CTFImagePanel	*pImage;
+	EditablePanel	*pImage;
 	virtual			vgui::Label::Alignment GetAlignment(char* m_szAlignment);
 	bool			m_bAutoChange;
 	//CTFButtonBase	*pButton;

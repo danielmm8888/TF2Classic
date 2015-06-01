@@ -25,7 +25,7 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFMainMenuButtonBase, CTFMainMenuButtonBase)
 CTFMainMenuButtonBase::CTFMainMenuButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : CExButton(parent, panelName, text)
 {
 	SetProportional(true);
-	pImage = new CTFImagePanel(this, "BackgroundImage");
+	pImage = new EditablePanel(this, "BackgroundImage");
 	Init();
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }	
@@ -73,9 +73,9 @@ void CTFMainMenuButtonBase::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaultImage, inResourceData->GetString("DefaultImage", DEFAULT_IMAGE), sizeof(pDefaultImage));
-	Q_strncpy(pArmedImage, inResourceData->GetString("ArmedImage", ARMED_IMAGE), sizeof(pArmedImage));
-	Q_strncpy(pDepressedImage, inResourceData->GetString("DepressedImage", DEPRESSED_IMAGE), sizeof(pDepressedImage));
+	Q_strncpy(pDefaultImage, inResourceData->GetString("DefaultBG", DEFAULT_IMAGE), sizeof(pDefaultImage));
+	Q_strncpy(pArmedImage, inResourceData->GetString("ArmedBG", ARMED_IMAGE), sizeof(pArmedImage));
+	Q_strncpy(pDepressedImage, inResourceData->GetString("DepressedBG", DEPRESSED_IMAGE), sizeof(pDepressedImage));
 
 	Q_strncpy(pDefaultBorder, inResourceData->GetString("DefaultBorder", DEFAULT_BORDER), sizeof(pDefaultBorder));
 	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ARMED_BORDER), sizeof(pArmedBorder));
@@ -89,8 +89,8 @@ void CTFMainMenuButtonBase::ApplySettings(KeyValues *inResourceData)
 	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		
 	Q_strncpy(m_szFont, inResourceData->GetString("font", DEFAULT_FONT), sizeof(m_szFont));
 
-	m_bImageVisible = inResourceData->GetBool("imagevisible", true);	
-	m_bBorderVisible = inResourceData->GetBool("bordervisible", true);
+	m_bImageVisible = inResourceData->GetBool("bgvisible", true);	
+	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
@@ -112,14 +112,13 @@ void CTFMainMenuButtonBase::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	pImage->SetImage(pDefaultImage);
+	pImage->SetBorder(GETSCHEME()->GetBorder(pDefaultImage));
 	pImage->SetVisible(m_bImageVisible);
 	pImage->SetEnabled(true);
 	pImage->SetPos(0, 0);
 	pImage->SetZPos(1);
 	pImage->SetWide(GetWide());
 	pImage->SetTall(GetTall());
-	pImage->SetShouldScaleImage(true);
 
 	SetDefaultColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 	SetArmedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
@@ -166,7 +165,7 @@ void CTFMainMenuButtonBase::OnThink()
 //-----------------------------------------------------------------------------
 void CTFMainMenuButtonBase::SetDefaultAnimation()
 {
-	pImage->SetImage(pDefaultImage);
+	pImage->SetBorder(GETSCHEME()->GetBorder(pDefaultImage));
 }
 
 
@@ -179,19 +178,19 @@ void CTFMainMenuButtonBase::SendAnimation(MouseState flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pImage->SetImage(pDefaultImage);
+		pImage->SetBorder(GETSCHEME()->GetBorder(pDefaultImage));
 		break;
 	case MOUSE_ENTERED:
-		pImage->SetImage(pArmedImage);
+		pImage->SetBorder(GETSCHEME()->GetBorder(pArmedImage));
 		break;
 	case MOUSE_EXITED:
-		pImage->SetImage(pDefaultImage);
+		pImage->SetBorder(GETSCHEME()->GetBorder(pDefaultImage));
 		break;
 	case MOUSE_PRESSED:
-		pImage->SetImage(pDepressedImage);
+		pImage->SetBorder(GETSCHEME()->GetBorder(pDepressedImage));
 		break;
 	default:
-		pImage->SetImage(pDefaultImage);
+		pImage->SetBorder(GETSCHEME()->GetBorder(pDefaultImage));
 		break;
 	}
 }

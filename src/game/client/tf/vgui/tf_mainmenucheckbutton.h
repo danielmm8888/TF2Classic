@@ -14,9 +14,9 @@ class CTFCheckButton;
 #undef	DEFAULT_IMAGE
 #undef	ARMED_IMAGE
 #undef	DEPRESSED_IMAGE
-#define DEFAULT_IMAGE				DEFAULT_PATH	"check_bg"
-#define ARMED_IMAGE					DEFAULT_PATH	"check_bg"
-#define DEPRESSED_IMAGE				DEFAULT_PATH	"check_bg_depressed"
+#define DEFAULT_IMAGE				"MainMenuNewCheckButtonDefault"
+#define ARMED_IMAGE					"MainMenuNewCheckButtonArmed"
+#define DEPRESSED_IMAGE				"MainMenuNewCheckButtonDepressed"
 #define DEFAULT_CHECKIMAGE			DEFAULT_PATH	"check_icon"
 #define ARMED_CHECKIMAGE			DEFAULT_PATH	"check_icon"
 #define DEPRESSED_CHECKIMAGE		DEFAULT_PATH	"check_icon"

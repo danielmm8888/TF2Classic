@@ -17,9 +17,9 @@ class CTFScrollButton;
 #undef	DEFAULT_BORDER
 #undef	ARMED_BORDER
 #undef	DEPRESSED_BORDER
-#define DEFAULT_IMAGE				DEFAULT_PATH	"scroll_bg"
-#define ARMED_IMAGE					DEFAULT_PATH	"scroll_bg"
-#define DEPRESSED_IMAGE				DEFAULT_PATH	"scroll_bg"
+#define DEFAULT_IMAGE				"MainMenuNewScrollBar"
+#define ARMED_IMAGE					"MainMenuNewScrollBar"
+#define DEPRESSED_IMAGE				"MainMenuNewScrollBar"
 #define DEFAULT_BORDER				"TFFatLineBorder"
 #define ARMED_BORDER				"TFFatLineBorderOpaque"
 #define DEPRESSED_BORDER			"TFFatLineBorderRedBGOpaque"

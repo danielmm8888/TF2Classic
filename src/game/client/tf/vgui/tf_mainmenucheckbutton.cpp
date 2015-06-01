@@ -195,28 +195,24 @@ void CTFMainMenuCheckButton::SetDefaultAnimation()
 //-----------------------------------------------------------------------------
 void CTFMainMenuCheckButton::SendAnimation(MouseState flag)
 {
+	BaseClass::SendAnimation(flag);
 	pCheckImage->SetVisible(m_bState);
 	switch (flag)
 	{
 		//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pImage->SetImage(pDefaultImage);
 		pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	case MOUSE_ENTERED:
-		pImage->SetImage(pArmedImage);
 		pCheckImage->SetImage(pArmedCheckImage);
 		break;
 	case MOUSE_EXITED:
-		pImage->SetImage(pDefaultImage);
 		pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	case MOUSE_PRESSED:
-		pImage->SetImage(pDepressedImage);
 		pCheckImage->SetImage(pDepressedCheckImage);
 		break;
 	default:
-		pImage->SetImage(pDefaultImage);
 		pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	}
