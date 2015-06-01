@@ -1,28 +1,11 @@
 "Resource/UI/RGBMenu.res"
 {
-	"RGBMenu"
+	"CTFMainMenuRGBPanel"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldName"		"RGBMenu"
-		"xpos"			"1000"
+		"fieldName"		"CTFMainMenuRGBPanel"
+		"xpos"			"r720"
 		"ypos"			"200"
-		"zpos"			"0"
-		"wide"			"580"
-		"tall"			"450"
-		"autoResize"	"0"
-		"pinCorner"		"0"
-		"visible"		"0"
-		"enabled"		"0"
-		"border"		""
-	}	
-
-	"MainBG"
-	{
-		"ControlName"	"EditablePanel"
-		"fieldName"		"MainBG"
-		"xpos"			"0"
-		"ypos"			"0"
-		"zpos"			"0"
 		"wide"			"580"
 		"tall"			"450"
 		"autoResize"	"0"
@@ -30,8 +13,8 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"border"		"TFFatLineBorder"
-	}		
-	
+	}	
+
 	"ColorLabel"
 	{
 		"ControlName"		"CExLabel"
@@ -77,20 +60,20 @@
 		"xpos"				"50"
 		"ypos"				"100"
 		"zpos"				"6"
-		"wide"				"460"
+		"wide"				"480"
 		"tall"				"35"
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		"R"
 		"labelWidth" 		"20"
 		"bordervisible"		"1"
-		"bgvisible"		"1"
+		"bgvisible"			"1"
 		"DefaultText"		"Button.ArmedTextColor"
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"west"
 		"command"			""
-		"font"				"MenuSmallFont"
+		"font"				"MenuMainTitle"
 	}	
 	
 	"GrnScrollBar"
@@ -100,20 +83,20 @@
 		"xpos"				"50"
 		"ypos"				"150"
 		"zpos"				"6"
-		"wide"				"460"
+		"wide"				"480"
 		"tall"				"35"
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		"G"
 		"labelWidth" 		"20"
 		"bordervisible"		"1"
-		"bgvisible"		"1"
+		"bgvisible"			"1"
 		"DefaultText"		"Button.ArmedTextColor"
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"west"
 		"command"			""
-		"font"				"MenuSmallFont"
+		"font"				"MenuMainTitle"
 	}	
 	
 	"BluScrollBar"
@@ -123,20 +106,20 @@
 		"xpos"				"50"
 		"ypos"				"200"
 		"zpos"				"6"
-		"wide"				"460"
+		"wide"				"480"
 		"tall"				"35"
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		"B"
 		"labelWidth" 		"20"
 		"bordervisible"		"1"
-		"bgvisible"		"1"
+		"bgvisible"			"1"
 		"DefaultText"		"Button.ArmedTextColor"
 		"ArmedText" 		"HudWhite"
 		"DepressedText" 	"Gray"	
 		"textAlignment"		"west"
 		"command"			""
-		"font"				"MenuSmallFont"
+		"font"				"MenuMainTitle"
 	}	
 	
 	"ColorBG"
@@ -146,7 +129,7 @@
 		"xpos"				"50"
 		"ypos"				"250"
 		"zpos"				"6"
-		"wide"				"450"
+		"wide"				"480"
 		"tall"				"150"
 		"autoResize"		"0"
 		"pinCorner"			"0"
@@ -155,7 +138,7 @@
 		"image"				""
 		"scaleImage"		"1"
 		"fillcolor"			"0 0 0 255"
-		"PaintBackgroundType"	"0"
+		"PaintBackgroundType"	"2"
 	}
 						
 }

@@ -1,12 +1,11 @@
 "Resource/UI/QuitMenu.res"
 {
-	"QuitMenu"
+	"CTFMainMenuQuitPanel"
 	{
 		"ControlName"	"EditablePanel"
-		"fieldName"		"QuitMenu"
+		"fieldName"		"CTFMainMenuQuitPanel"
 		"xpos"			"c-350"
 		"ypos"			"c-200"
-		"zpos"			"1"
 		"wide"			"700"
 		"tall"			"400"
 		"autoResize"	"0"
@@ -20,8 +19,8 @@
 	{
 		"ControlName"	"CTFImagePanel"
 		"fieldName"		"Logo"
-		"xpos"			"c-300"
-		"ypos"			"c-75"	
+		"xpos"			"50"
+		"ypos"			"125"	
 		"zpos"			"2"		
 		"wide"			"150"
 		"tall"			"150"
@@ -36,8 +35,8 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"			"QuitLabel"
-		"xpos"				"c-120"
-		"ypos"				"c-70"
+		"xpos"				"230"
+		"ypos"				"130"
 		"zpos"				"5"
 		"wide"				"600"
 		"tall"				"50"
@@ -55,8 +54,8 @@
 	{
 		"ControlName"		"CTFMainMenuButton"
 		"fieldName"			"ConfirmButton"
-		"xpos"				"c100"
-		"ypos"				"c150"
+		"xpos"				"450"
+		"ypos"				"350"
 		"zpos"				"6"
 		"wide"				"110"
 		"tall"				"45"
@@ -76,8 +75,8 @@
 	{
 		"ControlName"		"CTFMainMenuButton"
 		"fieldName"			"CancelButton"
-		"xpos"				"c210"
-		"ypos"				"c150"
+		"xpos"				"560"
+		"ypos"				"350"
 		"zpos"				"6"
 		"wide"				"130"
 		"tall"				"45"

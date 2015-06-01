@@ -18,8 +18,8 @@ class CTFCheckButton;
 #define ARMED_IMAGE					"MainMenuNewCheckButtonArmed"
 #define DEPRESSED_IMAGE				"MainMenuNewCheckButtonDepressed"
 #define DEFAULT_CHECKIMAGE			DEFAULT_PATH	"check_icon"
-#define ARMED_CHECKIMAGE			DEFAULT_PATH	"check_icon"
-#define DEPRESSED_CHECKIMAGE		DEFAULT_PATH	"check_icon"
+#define ARMED_CHECKIMAGE			DEFAULT_PATH	"check_icon_armed"
+#define DEPRESSED_CHECKIMAGE		DEFAULT_PATH	"check_icon_depressed"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

@@ -1,7 +1,6 @@
 #ifndef TFMAINMENUQUITPANEL_H
 #define TFMAINMENUQUITPANEL_H
 
-#include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
 
 //-----------------------------------------------------------------------------

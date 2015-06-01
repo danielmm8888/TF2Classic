@@ -1,10 +1,9 @@
 #ifndef TFMAINMENURGBPANEL_H
 #define TFMAINMENURGBPANEL_H
 
-#include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
-#include "tf_mainmenuscrollbar.h"
 
+class CTFMainMenuScrollBar;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

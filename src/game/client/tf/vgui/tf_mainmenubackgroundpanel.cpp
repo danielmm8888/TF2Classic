@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "tf_mainmenupanel.h"
+#include "tf_mainmenubackgroundpanel.h"
 #include "tf_mainmenu.h"
 #include "engine/IEngineSound.h"
 

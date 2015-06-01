@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "tf_mainmenupausepanel.h"
 #include "tf_mainmenu.h"
+#include "tf_mainmenurgbpanel.h"
 #include "engine/IEngineSound.h"
 
 using namespace vgui;
@@ -43,8 +44,6 @@ void CTFMainMenuPausePanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 	m_pRGBPanel = new CTFMainMenuRGBPanel(this, "CTFMainMenuRGBPanel");
 	LoadControlSettings("resource/UI/main_menu/PauseMenu.res");
-	//m_pRGBPanel->SetVisible(false);
-	//m_pRGBPanel->SetZPos(4);
 }
 
 void CTFMainMenuPausePanel::PerformLayout()

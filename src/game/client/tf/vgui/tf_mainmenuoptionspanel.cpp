@@ -9,8 +9,10 @@
 #include <time.h>
 
 #include "tf_mainmenuoptionspanel.h"
-#include "tf_mainmenuoptionspanel.h"
 #include "tf_mainmenu.h"
+#include "tf_mainmenuscrollbar.h"
+#include "tf_mainmenupanellistpanel.h"
+#include "tf_mainmenucheckbutton.h"
 #include "filesystem.h"
 
 #include <vgui/ILocalize.h>
@@ -23,8 +25,6 @@
 #include <vgui_controls/CheckButton.h>
 #include <vgui_controls/ComboBox.h>
 #include <vgui_controls/TextEntry.h>
-#include "tf_mainmenupanellistpanel.h"
-#include "tf_mainmenucheckbutton.h"
 #include <vgui/IInput.h>
 
 #include "FileSystem.h"

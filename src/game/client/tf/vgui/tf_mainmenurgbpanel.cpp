@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "tf_mainmenurgbpanel.h"
 #include "tf_mainmenu.h"
+#include "tf_mainmenuscrollbar.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -32,11 +33,6 @@ void CTFMainMenuRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 	LoadControlSettings("resource/UI/main_menu/RGBMenu.res");
 	SetMainMenu(GetParent());
-	EditablePanel *m_pPanel = dynamic_cast<EditablePanel *>(FindChildByName("RGBMenu"));
-	int xpos, ypos, width, height;
-	m_pPanel->GetBounds(xpos, ypos, width, height);
-	SetSize(width, height);
-	SetPos(xpos, ypos);
 
 	m_pRedScrollBar = dynamic_cast<CTFMainMenuScrollBar *>(FindChildByName("RedScrollBar"));
 	m_pGrnScrollBar = dynamic_cast<CTFMainMenuScrollBar *>(FindChildByName("GrnScrollBar"));
@@ -47,9 +43,6 @@ void CTFMainMenuRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pRedScrollBar->SetValue(0.0);
 	m_pGrnScrollBar->SetValue(0.0);
 	m_pBluScrollBar->SetValue(0.0);
-	//m_pRedScrollBar->SetAutoChange(true);
-	//m_pGrnScrollBar->SetAutoChange(true);
-	//m_pBluScrollBar->SetAutoChange(true);
 	m_pColorBG = dynamic_cast<ImagePanel *>(FindChildByName("ColorBG"));
 }
 

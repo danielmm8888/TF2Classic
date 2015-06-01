@@ -1,15 +1,10 @@
 ﻿#include "cbase.h"
 #include "tf_mainmenuscrollbar.h"
-#include "vgui_controls/Frame.h"
 #include <vgui/ISurface.h>
 #include <vgui/IVGui.h>
 #include <vgui/IInput.h>
-#include "vgui_controls/Button.h"
-#include "vgui_controls/ImagePanel.h"
-#include "tf_controls.h"
 #include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
-#include "basemodelpanel.h"
 
 using namespace vgui;
 

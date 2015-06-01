@@ -2,10 +2,13 @@
 #include "tf_mainmenu.h"
 #include "tf_mainmenu_interface.h"
 
-#include "tf_gamerules.h"
-#include "tf_shareddefs.h"
-#include <filesystem.h>
-#include <vgui_controls/AnimationController.h>
+#include "tf_mainmenupanel.h"
+#include "tf_mainmenupausepanel.h"
+#include "tf_mainmenubackgroundpanel.h"
+#include "tf_mainmenuloadoutpanel.h"
+#include "tf_mainmenushadebackgroundpanel.h"
+#include "tf_mainmenuoptionspanel.h"
+#include "tf_mainmenuquitpanel.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -59,12 +62,14 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	AddMenuPanel(new CTFMainMenuPanel(this, "CTFMainMenuPanel"), MAIN_MENU);
 	AddMenuPanel(new CTFMainMenuPausePanel(this, "CTFMainMenuPausePanel"), PAUSE_MENU);
 	AddMenuPanel(new CTFMainMenuBackgroundPanel(this, "CTFMainMenuBackgroundPanel"), BACKGROUND_MENU);
+	AddMenuPanel(new CTFMainMenuLoadoutPanel(this, "CTFMainMenuLoadoutPanel"), LOADOUT_MENU);
 	AddMenuPanel(new CTFMainMenuShadeBackgroundPanel(this, "CTFMainMenuShadeBackgroundPanel"), SHADEBACKGROUND_MENU);
 	AddMenuPanel(new CTFMainMenuQuitPanel(this, "CTFMainMenuQuitPanel"), QUIT_MENU);
 	AddMenuPanel(new CTFMainMenuOptionsPanel(this, "CTFMainMenuOptionsPanel"), OPTIONS_MENU);
 	ShowPanel(MAIN_MENU);
 	ShowPanel(PAUSE_MENU);
 	ShowPanel(BACKGROUND_MENU);
+	HidePanel(LOADOUT_MENU);
 	HidePanel(SHADEBACKGROUND_MENU);
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONS_MENU);

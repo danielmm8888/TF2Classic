@@ -45,6 +45,31 @@
 		"font"				"MenuMainTitle"
 	}	
 	
+	"LoadoutButton"
+	{
+		"ControlName"		"CTFMainMenuButton"
+		"fieldName"			"LoadoutButton"
+		"xpos"				"300"
+		"ypos"				"r410"
+		"zpos"				"5"
+		"wide"				"65"
+		"tall"				"65"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText" 		"L"
+		"bgvisible"			"1"
+		"bordervisible"		"0"		
+		"DefaultBG"			"MainMenuSquareButtonDefault"
+		"ArmedBG" 			"MainMenuSquareButtonArmed"
+		"DepressedBG"		"MainMenuSquareButtonDepressed"	
+		"DefaultText"		"Button.ArmedTextColor"
+		"ArmedText" 		"HudWhite"
+		"DepressedText" 	"Gray"	
+		"textAlignment"		"center"
+		"command"			"newloadout"
+		"font"				"HudFontGiantBold"
+	}	
+	
 	"ServerBrowserButton"
 	{
 		"ControlName"		"CTFMainMenuButton"

@@ -4284,16 +4284,16 @@ Scheme
 			
 			"image"					"main_menu/button_bg"
 			"src_corner_height"		"32"				// pixels inside the image
-			"src_corner_width"		"32"
-			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"4"	
+			"src_corner_width"		"0"
+			"draw_corner_width"		"0"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"5"	
 		}
 		MainMenuNewButtonArmed
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
 			
-			"image"					"main_menu/button_bg"
+			"image"					"main_menu/button_bg_armed"
 			"src_corner_height"		"32"				// pixels inside the image
 			"src_corner_width"		"32"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
@@ -4326,7 +4326,7 @@ Scheme
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
 			
-			"image"					"main_menu/check_bg"
+			"image"					"main_menu/check_bg_armed"
 			"src_corner_height"		"32"				// pixels inside the image
 			"src_corner_width"		"32"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
@@ -4353,6 +4353,39 @@ Scheme
 			"src_corner_width"		"32"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
+		}
+		MainMenuSquareButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"../hud/color_panel_brown"
+			"src_corner_height"		"65"				// pixels inside the image
+			"src_corner_width"		"65"
+			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"10"	
+		}
+		MainMenuSquareButtonArmed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"../hud/color_panel_browner"
+			"src_corner_height"		"65"				// pixels inside the image
+			"src_corner_width"		"65"
+			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"10"	
+		}
+		MainMenuSquareButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"../hud/color_panel_red_opaque"
+			"src_corner_height"		"65"				// pixels inside the image
+			"src_corner_width"		"65"
+			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"10"	
 		}
 	}
 

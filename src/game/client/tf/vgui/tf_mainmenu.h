@@ -1,15 +1,9 @@
 #ifndef TFMAINMENU_H
 #define TFMAINMENU_H
 
-#include "vgui_controls/Frame.h"
-#include "vgui_controls/Panel.h"
 #include "GameUI/IGameUI.h"
-#include "tf_mainmenupanel.h"
-#include "tf_mainmenupausepanel.h"
-#include "tf_mainmenubackgroundpanel.h"
-#include "tf_mainmenushadebackgroundpanel.h"
-#include "tf_mainmenuoptionspanel.h"
-#include "tf_mainmenuquitpanel.h"
+#include "tf_mainmenupanelbase.h"
+#include "vgui_controls/Panel.h"
 
 enum MenuPanel //position in this enum = zpos on the screen
 {
@@ -17,10 +11,12 @@ enum MenuPanel //position in this enum = zpos on the screen
 	BACKGROUND_MENU,
 	MAIN_MENU,
 	PAUSE_MENU,
-	SHADEBACKGROUND_MENU,
+	SHADEBACKGROUND_MENU, //add popup/additional menus below:		
+	LOADOUT_MENU,
 	OPTIONS_MENU,
 	QUIT_MENU,
 	COUNT_MENU,
+
 	FIRST_MENU = NONE_MENU + 1
 };
 
@@ -51,13 +47,6 @@ public:
 
 private:
 	CUtlVector<CTFMainMenuPanelBase*>	m_pPanels;
-
-	CTFMainMenuPanel					*m_pMainMenuPanel;
-	CTFMainMenuPanel					*m_pPauseMenuPanel;
-	CTFMainMenuBackgroundPanel			*m_pBackgroundMenuPanel;
-	CTFMainMenuShadeBackgroundPanel		*m_pShadeBackgroundMenuPanel;
-	CTFMainMenuQuitPanel				*m_pQuitMenuPanel;
-	CTFMainMenuOptionsPanel				*m_pOptionsMenuPanel;
 
 	void								AddMenuPanel(CTFMainMenuPanelBase *m_pPanel, int iPanel);
 	CTFMainMenuPanelBase*				GetMenuPanel(int iPanel);

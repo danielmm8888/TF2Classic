@@ -1,9 +1,7 @@
 #ifndef TFMAINMENUSHADEBACKGROUNDPANEL_H
 #define TFMAINMENUSHADEBACKGROUNDPANEL_H
 
-#include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
-#include "vgui_controls/CheckButton.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

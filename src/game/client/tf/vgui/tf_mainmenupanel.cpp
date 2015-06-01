@@ -71,6 +71,10 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	{
 		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONS_MENU);
 	}
+	else if (!Q_strcmp(command, "newloadout"))
+	{
+		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(LOADOUT_MENU);
+	}
 	else if (!Q_strcmp(command, "randommusic"))
 	{
 		m_bMusicPlay = false;

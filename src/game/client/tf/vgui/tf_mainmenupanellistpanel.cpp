@@ -18,9 +18,15 @@
 #include <vgui/IScheme.h>
 #include <vgui/ISurface.h>
 #include "tf_mainmenupanellistpanel.h"
+#include "tf_mainmenubuttonbase.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#define UPARROW_IMAGE		"../vgui/scroll_up_on"
+#define DOWNARROW_IMAGE		"../vgui/scroll_down_on"
+#define LINE_IMAGE			"../vgui/scroll_well"
+#define BOX_IMAGE			"../vgui/scroll_button_on"
 
 using namespace vgui;
 
@@ -41,6 +47,10 @@ void VScrollBarReversedButtons::ApplySchemeSettings(IScheme *pScheme)
 
 	Button *pButton;
 	pButton = GetButton(0);
+
+	//pButton->SetDefaultBorder(pScheme->GetBorder(DEFAULT_BORDER));
+	//pButton->SetDepressedBorder(pScheme->GetBorder(DEPRESSED_BORDER));
+
 	pButton->SetArmedColor(pButton->GetSchemeColor("DimBaseText", pScheme), pButton->GetBgColor());
 	pButton->SetDepressedColor(pButton->GetSchemeColor("DimBaseText", pScheme), pButton->GetBgColor());
 	pButton->SetDefaultColor(pButton->GetFgColor(), pButton->GetBgColor());
@@ -64,14 +74,14 @@ CPanelListPanel::CPanelListPanel(vgui::Panel *parent, char const *panelName, boo
 	SetBounds(0, 0, 100, 100);
 	_sliderYOffset = 0;
 
-	if (inverseButtons)
-	{
-		_vbar = new VScrollBarReversedButtons(this, "CPanelListPanelVScroll", true);
-	}
-	else
-	{
-		_vbar = new ScrollBar(this, "CPanelListPanelVScroll", true);
-	}
+	//if (inverseButtons)
+	//{
+	//	_vbar = new VScrollBarReversedButtons(this, "CPanelListPanelVScroll", true);
+	//}
+	//else
+	//{
+	_vbar = new ScrollBar(this, "CPanelListPanelVScroll", true);
+	//}
 	_vbar->SetBounds(0, 0, 20, 20);
 	_vbar->SetVisible(false);
 	_vbar->AddActionSignalTarget(this);
@@ -251,6 +261,7 @@ void CPanelListPanel::PerformLayout()
 	_vbar->SetButtonPressedScrollValue(24);
 	_vbar->SetPos(wide - 20, _sliderYOffset);
 	_vbar->SetSize(18, tall - 2 - _sliderYOffset);
+	_vbar->UseImages(UPARROW_IMAGE, DOWNARROW_IMAGE, LINE_IMAGE, BOX_IMAGE);
 	_vbar->InvalidateLayout();
 
 	int top = _vbar->GetValue();

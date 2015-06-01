@@ -1,10 +1,7 @@
 #ifndef TFMAINMENUPANEL_H
 #define TFMAINMENUPANEL_H
 
-#include "vgui_controls/Panel.h"
 #include "tf_mainmenupanelbase.h"
-#include "tf_mainmenurgbpanel.h"
-#include "tf_mainmenupanellistpanel.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -36,10 +33,6 @@ private:
 	bool				m_bAnimationIn;
 	bool				m_bMusicPlay;
 	char*				GetRandomMusic();
-
-	CPanelListPanel		*m_pListPanel;
-	CTFMainMenuButton		*m_pTestButton;
-	CTFMainMenuRGBPanel	*m_pRGBPanel;
 };
 
 
