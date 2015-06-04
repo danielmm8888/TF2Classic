@@ -79,6 +79,12 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 			bSuccess = true;
 		}
 
+		if (pTFPlayer->m_Shared.GetSpyCloakMeter() < 100.0f)
+		{
+			pTFPlayer->m_Shared.SetSpyCloakMeter(min(100.0f, pTFPlayer->m_Shared.GetSpyCloakMeter() + ceil(100.0f * PackRatios[GetPowerupSize()])));
+			bSuccess = true;
+		}
+
 		// did we give them anything?
 		if ( bSuccess )
 		{
@@ -87,5 +93,5 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		}
 	}
 
-	return bSuccess;
+	return bSuccess; 
 }
