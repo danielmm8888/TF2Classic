@@ -1030,8 +1030,8 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	}
 	else
 	{
-		// make damage ramp down from 100% to 25% from half the max dist to the max dist
-		flMultiplier = RemapValClamped( flDistance, tf_flamethrower_maxdamagedist.GetFloat()/2, tf_flamethrower_maxdamagedist.GetFloat(), 1.0, 0.25 );
+		// make damage ramp down from 100% to 60% from half the max dist to the max dist
+		flMultiplier = RemapValClamped( flDistance, tf_flamethrower_maxdamagedist.GetFloat()/2, tf_flamethrower_maxdamagedist.GetFloat(), 1.0, 0.6 );
 	}
 	float flDamage = m_flDmgAmount * flMultiplier;
 	flDamage = max( flDamage, 1.0 );
