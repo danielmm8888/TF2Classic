@@ -2381,14 +2381,14 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
-	// if they're a sniper, and they're aiming, their speed must be 80 or less
+	// if they're aiming or spun up, reduce their speed
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
-		// Pyro's move faster while firing their flamethrower
-		if ( playerclass == TF_CLASS_PYRO )
+		// Heavy moves slightly faster spun-up
+		if ( playerclass == TF_CLASS_HEAVYWEAPONS )
 		{
-			if (maxfbspeed > 200)
-				maxfbspeed = 200;
+			if (maxfbspeed > 110)
+				maxfbspeed = 110;
 		}
 		else
 		{
