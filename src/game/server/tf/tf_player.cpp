@@ -1067,6 +1067,14 @@ void CTFPlayer::GiveDefaultItems()
 	// Give a builder weapon for each object the playerclass is allowed to build
 	ManageBuilderWeapons( pData );
 
+	// Equip weapons set by tf_player_equip
+	CBaseEntity	*pWeaponEntity = NULL;
+	while ((pWeaponEntity = gEntList.FindEntityByClassname(pWeaponEntity, "tf_player_equip")) != NULL)
+	{
+		pWeaponEntity->Touch(this);
+	}
+
+	SwitchToNextBestWeapon(NULL);
 }
 
 //-----------------------------------------------------------------------------
