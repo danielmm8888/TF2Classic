@@ -49,6 +49,15 @@ public:
 	virtual const char *GetPowerupModel( void ) { return "models/items/medkit_medium.mdl"; }
 };
 
+class CHealthKitTiny : public CHealthKit
+{
+public:
+	DECLARE_CLASS(CHealthKitTiny, CHealthKit);
+	powerupsize_t	GetPowerupSize(void) { return POWERUP_TINY; }
+
+	virtual const char *GetPowerupModel(void) { return "models/items/medkit_small.mdl"; } // TODO unique model
+};
+
 #endif // ENTITY_HEALTHKIT_H
 
 
