@@ -149,7 +149,7 @@
 	output OnForceRespawn(void) : "Sent when the entity respawns the players."
 ]
 
-@PointClass base(Targetname, GameType, TeamNum, EnableDisable, Angles) studio("models/flag/briefcase.mdl") = item_teamflag : "Team Fortress flag entity."
+@PointClass base(Targetname, Parentname, GameType, TeamNum, EnableDisable, Angles) studio("models/flag/briefcase.mdl") = item_teamflag : "Team Fortress flag entity."
 [
 	ReturnTime(integer) : "Return time (in seconds)" : 60 : "Length of time (in seconds) before dropped flag/intelligence returns to base."
 
@@ -435,7 +435,7 @@
 //====================================================================================================================
 // CAPTURE POINT HANDLING
 //====================================================================================================================
-@PointClass base(Targetname, EnableDisable, Angles) studio("models/effects/cappoint_hologram.mdl") = team_control_point :
+@PointClass base(Targetname, EnableDisable, Angles, Parentname) studio("models/effects/cappoint_hologram.mdl") = team_control_point :
 	"Control Point"
 [
 	spawnflags(flags) =
@@ -712,16 +712,16 @@
 [
 	WeaponNumber(Choices) : "Weapon" : 0 =
 	[
-		12 : "Shotgun"
-		38 : "Pistol"
-		21 : "Rocket launcher"
-		18 : "SMG"
-		16 : "Sniper rifle"
-		24 : "Flamethrower"
-		17 : "Minigun"
 		5 : "Crowbar"
-		22 : "Pipebomb launcher"
-		57 : "Cyclops"
+		65 : "Shotgun"
+		66 : "Scattergun"
+		67 : "Flamethrower"
+		68 : "Pistol"
+		69 : "SMG"
+		70 : "Sniper rifle"
+		71 : "Pipebomb launcher"
+		21 : "Rocket launcher"
+		17 : "Minigun"
 	]
 	
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 10
