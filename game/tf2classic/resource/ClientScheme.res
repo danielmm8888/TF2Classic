@@ -318,11 +318,11 @@ Scheme
 		ScrollBarSlider.FgColor				"Gray"		// nob color
 		ScrollBarSlider.BgColor				"Blank"		// slider background color
 
-		SectionedListPanel.HeaderTextColor	"Orange"
+		SectionedListPanel.HeaderTextColor	"Button.ArmedTextColor"
 		SectionedListPanel.HeaderBgColor	"Blank"
 		SectionedListPanel.DividerColor		"Black"
-		SectionedListPanel.TextColor		"Orange"
-		SectionedListPanel.BrightTextColor	"Orange"
+		SectionedListPanel.TextColor		"Button.ArmedTextColor"
+		SectionedListPanel.BrightTextColor	"Button.ArmedTextColor"
 		SectionedListPanel.BgColor			"TransparentLightBlack"
 		SectionedListPanel.SelectedTextColor			"Black"
 		SectionedListPanel.SelectedBgColor				"Red"
@@ -411,6 +411,14 @@ Scheme
 		"Main.BottomBorder"	"32"
 		
 		"VguiScreenCursor"			"255 208 64 255"
+		
+		//TF2C Custom Colors
+		"AdvTextDefault"			"TanLight"
+		"AdvTextArmed"				"HudWhite"
+		"AdvTextDepressed"			"Gray"
+		"MainMenuTextDefault"		"46 43 42 255"
+		"MainMenuTextArmed" 		"235 226 202 255"
+		"MainMenuTextDepressed" 	"235 226 202 255"
 	}
 
 	//////////////////////// BITMAP FONT FILES /////////////////////////////
@@ -4265,6 +4273,7 @@ Scheme
 		{
 		}
 		///TF2C Stuff:
+		/////VGUI:
 		AdvSettingsTitleBorder
 		{
 			"inset" "0 0 1 1"
@@ -4277,40 +4286,189 @@ Scheme
 				}
 			}
 		}
-		MainMenuNewButtonDefault
+		///
+		MainMenuAdvButtonDefault
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
 			
-			"image"					"main_menu/button_bg"
-			"src_corner_height"		"32"				// pixels inside the image
-			"src_corner_width"		"0"
-			"draw_corner_width"		"0"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"5"	
-		}
-		MainMenuNewButtonArmed
-		{
-			"bordertype"			"scalable_image"
-			"backgroundtype"		"2"
-			
-			"image"					"main_menu/button_bg_armed"
-			"src_corner_height"		"32"				// pixels inside the image
-			"src_corner_width"		"32"
+			"image"					"button_central"
+			"src_corner_height"		"64"			// pixels inside the image
+			"src_corner_width"		"64"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuNewButtonDepressed
+		MainMenuAdvButtonArmed
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
 			
-			"image"					"main_menu/button_bg_depressed"
-			"src_corner_height"		"32"				// pixels inside the image
-			"src_corner_width"		"32"
+			"image"					"button_central_hover"
+			"src_corner_height"		"64"				// pixels inside the image
+			"src_corner_width"		"64"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuNewCheckButtonDefault
+		MainMenuAdvButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"button_holder_central"
+			"src_corner_height"		"64"				// pixels inside the image
+			"src_corner_width"		"64"
+			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"4"	
+		}
+		///
+		AdvSquareButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_square"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvSquareButtonArmed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_square_armed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvSquareButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_square_depressed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		///
+		AdvLeftButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_left"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvLeftButtonArmed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_left_armed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvLeftButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_left_depressed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		///
+		AdvRightButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_right"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvRightButtonArmed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_right_armed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvRightButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_right_depressed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		///
+		AdvRoundedButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_rounded"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvRoundedButtonArmed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_rounded_armed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvRoundedButtonDepressed
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"main_menu/button_rounded_depressed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		///
+		AdvFooterButtonDefault
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"
+			
+			"image"					"../hud/color_panel_brown"
+			"src_corner_height"		"65"				// pixels inside the image
+			"src_corner_width"		"65"
+			"draw_corner_width"		"20"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"20"	
+		}
+		AdvCheckButtonDefault
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
@@ -4321,7 +4479,7 @@ Scheme
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuNewCheckButtonArmed
+		AdvCheckButtonArmed
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
@@ -4332,7 +4490,7 @@ Scheme
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuNewCheckButtonDepressed
+		AdvCheckButtonDepressed
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
@@ -4343,7 +4501,7 @@ Scheme
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuNewScrollBar
+		AdvSlider
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
@@ -4354,34 +4512,13 @@ Scheme
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
-		MainMenuSquareButtonDefault
+		/////HUD:		
+		FourTeamScoreBoardBLUTitle
 		{
 			"bordertype"			"scalable_image"
 			"backgroundtype"		"2"
 			
-			"image"					"../hud/color_panel_brown"
-			"src_corner_height"		"65"				// pixels inside the image
-			"src_corner_width"		"65"
-			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"10"	
-		}
-		MainMenuSquareButtonArmed
-		{
-			"bordertype"			"scalable_image"
-			"backgroundtype"		"2"
-			
-			"image"					"../hud/color_panel_browner"
-			"src_corner_height"		"65"				// pixels inside the image
-			"src_corner_width"		"65"
-			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
-			"draw_corner_height" 	"10"	
-		}
-		MainMenuSquareButtonDepressed
-		{
-			"bordertype"			"scalable_image"
-			"backgroundtype"		"2"
-			
-			"image"					"../hud/color_panel_red_opaque"
+			"image"					"../hud/objectives_deathmatchpanel_bg_left"
 			"src_corner_height"		"65"				// pixels inside the image
 			"src_corner_width"		"65"
 			"draw_corner_width"		"10"				// screen size of the corners ( and sides ), proportional
