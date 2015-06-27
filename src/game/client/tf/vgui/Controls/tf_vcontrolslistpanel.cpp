@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "tf_vcontrolslistpanel.h"
 //#include "GameUI_Interface.h"
-#include "EngineInterface.h"
+//#include "EngineInterface.h"
 
 #include <vgui/IInput.h>
 #include <vgui/IScheme.h>

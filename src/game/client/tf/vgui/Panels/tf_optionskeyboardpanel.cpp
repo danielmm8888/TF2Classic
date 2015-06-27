@@ -7,7 +7,6 @@
 
 #include "tf_optionskeyboardpanel.h"
 #include "tf_mainmenu.h"
-#include "EngineInterface.h"
 #include "controls/tf_vcontrolslistpanel.h"
 #include "controls/tf_advbutton.h"
 

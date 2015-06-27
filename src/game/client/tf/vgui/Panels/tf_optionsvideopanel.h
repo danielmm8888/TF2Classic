@@ -65,6 +65,9 @@ private:
    vgui::ComboBox *m_pColorCorrection;
    vgui::ComboBox *m_pMotionBlur;
    vgui::ComboBox *m_pDXLevel;
+   CCvarSlider	  *m_pFOVSlider;
+   vgui::ComboBox *m_pQueuedMode;
+
    void MarkDefaultSettingsAsRecommended();
    void SetComboItemAsRecommended(vgui::ComboBox *combo, int iItem);
    int FindMSAAMode(int nAASamples, int nAAQuality);

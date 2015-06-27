@@ -8,7 +8,7 @@
 #include "cbase.h"
 #include "tf_cvarslider.h"
 #include <stdio.h>
-#include "EngineInterface.h"
+//#include "EngineInterface.h"
 #include "tier1/KeyValues.h"
 #include "tier1/convar.h"
 #include <vgui/IVGui.h>

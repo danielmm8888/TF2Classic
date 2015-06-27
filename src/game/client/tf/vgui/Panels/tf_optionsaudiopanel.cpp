@@ -15,8 +15,6 @@
 #include "controls/tf_advbutton.h"
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/QueryBox.h"
-#include "EngineInterface.h"
-
 #include "tier1/KeyValues.h"
 #include "tier1/convar.h"
 #include "ivoicetweak.h"
@@ -204,17 +202,17 @@ void CTFOptionsAudioPanel::OnResetData()
    // Fallback to current engine language
    engine->GetUILanguage( szCurrentLanguage, sizeof( szCurrentLanguage ));
 
+   
    // In a Steam environment we get the current language 
 #if !defined( NO_STEAM )
    // When Steam isn't running we can't get the language info... 
-   if ( SteamApps() )
+   if ( steamapicontext->SteamApps() )
    {
-      const int nAppID = engine->GetAppID();
-      SteamApps()->GetAppData( nAppID, "language", szCurrentLanguage, sizeof(szCurrentLanguage) );
-      SteamApps()->GetAppData( nAppID, "languages", szAvailableLanguages, sizeof( szAvailableLanguages ) );
+		Q_strncpy(szCurrentLanguage, steamapicontext->SteamApps()->GetCurrentGameLanguage(), sizeof(szCurrentLanguage));
+		Q_strncpy(szAvailableLanguages, steamapicontext->SteamApps()->GetAvailableGameLanguages(), sizeof(szAvailableLanguages));
    }
 #endif
-
+   
    // Get the spoken language and store it for comparison purposes
    m_nCurrentAudioLanguage = PchLanguageToELanguage( szCurrentLanguage );
 

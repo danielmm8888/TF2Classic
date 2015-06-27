@@ -14,8 +14,6 @@
 #include "controls/tf_advpanellistpanel.h"
 #include "controls/tf_advbutton.h"
 #include "vgui_controls/ComboBox.h"
-#include "EngineInterface.h"
-
 #include <KeyValues.h>
 #include <vgui/IScheme.h>
 #include "tier1/convar.h"

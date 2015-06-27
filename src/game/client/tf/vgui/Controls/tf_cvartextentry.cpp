@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "tf_cvartextentry.h"
-#include "EngineInterface.h"
+//#include "EngineInterface.h"
 #include <vgui/IVGui.h>
 #include "IGameUIFuncs.h"
 #include "tier1/KeyValues.h"

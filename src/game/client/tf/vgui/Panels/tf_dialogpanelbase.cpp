@@ -14,7 +14,7 @@
 #include "controls/tf_cvartogglecheckbutton.h"
 #include "controls/tf_cvarslider.h"
 #include "vgui_controls/ComboBox.h"
-#include "EngineInterface.h"
+//#include "EngineInterface.h"
 
 #include <KeyValues.h>
 #include <vgui/IScheme.h>

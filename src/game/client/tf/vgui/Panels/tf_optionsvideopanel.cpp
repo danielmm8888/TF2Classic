@@ -10,13 +10,10 @@
 #include "controls/tf_scriptobject.h"
 #include "controls/tf_advpanellistpanel.h"
 #include "controls/tf_advbutton.h"
-#include "EngineInterface.h"
-//#include "BasePanel.h"
 #include "igameuifuncs.h"
 #include "modes.h"
 #include "materialsystem/materialsystem_config.h"
 #include "filesystem.h"
-//#include "GameUI_Interface.h"
 #include "vgui_controls/CheckButton.h"
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/Frame.h"
@@ -29,7 +26,6 @@
 #include "vgui/ISystem.h"
 #include "tier0/ICommandLine.h"
 #include "tier1/convar.h"
-//#include "ModInfo.h"
 
 #include "inetchannelinfo.h"
 
@@ -372,6 +368,12 @@ void CTFOptionsVideoPanel::CreateControls()
 	m_pMotionBlur->AddItem("#gameui_disabled", NULL);
 	m_pMotionBlur->AddItem("#gameui_enabled", NULL);
 
+	m_pQueuedMode = new ComboBox(this, "Multicore", 2, false);
+	m_pQueuedMode->AddItem("#gameui_disabled", NULL);
+	m_pQueuedMode->AddItem("#gameui_enabled", NULL);
+
+	m_pFOVSlider = new CCvarSlider(NULL, "FOV", "#GameUI_FOV", 75.0f, 90.0f, "fov_desired");
+
 	m_pDXLevel->SetVisible(false);
 
 	m_pColorCorrection->SetEnabled(mat_dxlevel.GetInt() >= 90);
@@ -389,8 +391,10 @@ void CTFOptionsVideoPanel::CreateControls()
 	AddControl(m_pColorCorrection, O_LIST, "#GameUI_Color_Correction");
 	AddControl(m_pAntialiasingMode, O_LIST, "#GameUI_Antialiasing_Mode");
 	AddControl(m_pFilteringMode, O_LIST, "#GameUI_Filtering_Mode");
+	AddControl(m_pVSync, O_LIST, "#GameUI_Wait_For_VSync");
 	AddControl(m_pMotionBlur, O_LIST, "#GameUI_MotionBlur");
-	AddControl(m_pVSync, O_LIST, "#GameUI_Wait_For_VSync");	
+	AddControl(m_pFOVSlider, O_SLIDER);
+	AddControl(m_pQueuedMode, O_LIST, "#GameUI_MulticoreRendering");
 	AddControl(m_pHDR, O_LIST, "#GameUI_HDR");
 }
 
@@ -529,6 +533,7 @@ void CTFOptionsVideoPanel::OnResetData()
 	ConVarRef mat_dxlevel("mat_dxlevel");
 	ConVarRef r_rootlod("r_rootlod");
 	ConVarRef mat_picmip("mat_picmip");
+	ConVarRef mat_queue_mode("mat_queue_mode");
 	ConVarRef mat_trilinear("mat_trilinear");
 	ConVarRef mat_forceaniso("mat_forceaniso");
 	ConVarRef mat_antialias("mat_antialias");
@@ -544,6 +549,7 @@ void CTFOptionsVideoPanel::OnResetData()
 	ConVarRef mat_colorcorrection("mat_colorcorrection");
 	ConVarRef mat_motion_blur_enabled("mat_motion_blur_enabled");
 	ConVarRef r_shadowrendertotexture("r_shadowrendertotexture");
+	ConVarRef fov_desired("fov_desired");
 
 	ResetDXLevelCombo();
 
@@ -625,6 +631,10 @@ void CTFOptionsVideoPanel::OnResetData()
 	m_pColorCorrection->ActivateItem(mat_colorcorrection.GetInt());
 
 	m_pMotionBlur->ActivateItem(mat_motion_blur_enabled.GetInt());
+
+	m_pQueuedMode->ActivateItem(abs(mat_queue_mode.GetInt()));
+
+	m_pFOVSlider->Reset();
 
 	// get current hardware dx support level
 	char dxVer[64];
@@ -843,9 +853,13 @@ void CTFOptionsVideoPanel::OnApplyChanges()
 		break;
 	}
 
+	m_pFOVSlider->ApplyChanges();
+
 	ApplyChangesToConVar("mat_vsync", m_pVSync->GetActiveItem());
 
 	ApplyChangesToConVar("mat_colorcorrection", m_pColorCorrection->GetActiveItem());
+
+	ApplyChangesToConVar("mat_queue_mode", m_pQueuedMode->GetActiveItem() * -1);
 
 	ApplyChangesToConVar("mat_motion_blur_enabled", m_pMotionBlur->GetActiveItem());
 }
@@ -874,6 +888,16 @@ void CTFOptionsVideoPanel::MarkDefaultSettingsAsRecommended()
 	int nDXLevel = pKeyValues->GetInt("ConVar.mat_dxlevel", 0);
 	int nColorCorrection = pKeyValues->GetInt("ConVar.mat_colorcorrection", 0);
 	int nMotionBlur = pKeyValues->GetInt("ConVar.mat_motion_blur_enabled", 0);
+
+	int nQueuedMode;
+	if (GetCPUInformation()->m_nPhysicalProcessors >= 2)
+	{
+		nQueuedMode = -1;
+	}
+	else
+	{
+		nQueuedMode = 0;
+	}
 
 	// Only recommend a dxlevel if there is more than one available
 	if (m_pDXLevel->GetItemCount() > 1)
@@ -959,6 +983,8 @@ void CTFOptionsVideoPanel::MarkDefaultSettingsAsRecommended()
 	SetComboItemAsRecommended(m_pColorCorrection, nColorCorrection);
 
 	SetComboItemAsRecommended(m_pMotionBlur, nMotionBlur);
+
+	SetComboItemAsRecommended(m_pQueuedMode, nQueuedMode);
 
 	pKeyValues->deleteThis();
 }
