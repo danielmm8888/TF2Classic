@@ -674,6 +674,13 @@ void CTFGameRules::Activate()
 		return;
 	}
 
+	if (gEntList.FindEntityByClassname(NULL, "tf_logic_vip"))
+	{
+		// TODO: make a global pointer to this and access its settings
+		m_nGameType.Set(TF_GAMETYPE_VIP);
+		return;
+	}
+
 	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> (gEntList.FindEntityByClassname(NULL, "item_teamflag"));
 	if (pFlag)
 	{
@@ -3679,6 +3686,55 @@ public:
 LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
 
 void CTFLogicDeathmatch::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
+class CTFLogicVIP : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CTFLogicVIP, CBaseEntity );
+	DECLARE_DATADESC();
+
+	void	Spawn(void);
+
+	inline bool GetEnableCivilian() { return m_bEnableCivilian; }
+	inline bool GetCivilianCountStyle() { return m_bCivilianCountStyle; }
+	inline int GetCivilianAbsoluteCount() { return m_nCivilianAbsoluteCount; }
+	inline int GetCivilianPercentageCount() { return m_nCivilianPercentageCount; }
+	inline bool GetForceCivilian() { return m_bForceCivilian; }
+	inline bool GetEnableCivilianRed() { return m_bEnableCivilianRed; }
+	inline bool GetEnableCivilianBlue() { return m_bEnableCivilianBlue; }
+	inline bool GetEnableCivilianGreen() { return m_bEnableCivilianGreen; }
+	inline bool GetEnableCivilianYellow() { return m_bEnableCivilianYellow; }
+
+private:
+	bool	m_bEnableCivilian;
+	bool	m_bCivilianCountStyle;
+	int		m_nCivilianAbsoluteCount;
+	int		m_nCivilianPercentageCount;
+	bool	m_bForceCivilian;
+	bool	m_bEnableCivilianRed;
+	bool	m_bEnableCivilianBlue;
+	bool	m_bEnableCivilianGreen;
+	bool	m_bEnableCivilianYellow;
+};
+
+LINK_ENTITY_TO_CLASS( tf_logic_vip, CTFLogicVIP );
+
+BEGIN_DATADESC(CTFLogicVIP)
+	DEFINE_KEYFIELD( m_bEnableCivilian, FIELD_BOOLEAN, "EnableCivilian" ),
+	DEFINE_KEYFIELD( m_bCivilianCountStyle, FIELD_BOOLEAN, "CivilianCountStyle" ),
+	DEFINE_KEYFIELD( m_nCivilianAbsoluteCount, FIELD_INTEGER, "CivilianAbsoluteCount" ),
+	DEFINE_KEYFIELD( m_nCivilianPercentageCount, FIELD_INTEGER, "CivilianPercentageCount" ),
+	DEFINE_KEYFIELD( m_bForceCivilian, FIELD_BOOLEAN, "ForceCivilian" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianRed" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianBlue" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianGreen" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianYellow" ),
+END_DATADESC()
+
+void CTFLogicVIP::Spawn(void)
 {
 	BaseClass::Spawn();
 }
