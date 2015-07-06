@@ -283,6 +283,16 @@ void CObjectSentrygun::OnGoActive( void )
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_R] = 0;
 
 	BaseClass::OnGoActive();
+	
+	// Rapidly go through upgrade levels if the keyvalue is set.
+	if ( m_iDefaultUpgrade > 1 )
+	{
+		for ( int i = 2; i <= m_iDefaultUpgrade && i <= 3; i++ )
+		{
+			StartUpgrading();
+			FinishUpgrading();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -973,7 +983,7 @@ bool CObjectSentrygun::Fire()
 		// Setup next rocket shot
 		m_flNextRocketAttack = gpGlobals->curtime + 3;
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoRockets--;
 		}
@@ -1069,7 +1079,7 @@ bool CObjectSentrygun::Fire()
 			break;
 		}
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoShells--;
 		}

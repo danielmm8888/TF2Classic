@@ -78,6 +78,7 @@ ConVar  object_deterioration_time( "object_deterioration_time", "30", 0, "Time i
 BEGIN_DATADESC( CBaseObject )
 	// keys 
 	DEFINE_KEYFIELD_NOT_SAVED( m_SolidToPlayers,		FIELD_INTEGER, "SolidToPlayer" ),
+	DEFINE_KEYFIELD( m_iDefaultUpgrade, FIELD_INTEGER, "defaultupgrade" ),
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHealth", InputSetHealth ),
@@ -1513,6 +1514,9 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 		return info.GetDamage();
 
 	if ( m_takedamage == DAMAGE_NO )
+		return 0;
+	
+	if ( HasSpawnFlags( SF_OBJ_INVULNERABLE ) )
 		return 0;
 
 	if ( IsPlacing() )
