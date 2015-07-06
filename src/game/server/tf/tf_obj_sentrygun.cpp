@@ -369,6 +369,11 @@ bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
 	{
 		return false;
 	}
+	
+	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
+	{
+		return false;
+	}
 
 	return true;
 }
