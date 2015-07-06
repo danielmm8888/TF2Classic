@@ -239,13 +239,14 @@ bool CObjectSentrygun::StartBuilding( CBaseEntity *pBuilder )
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::OnGoActive( void )
 {
+	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
 
 	if ( !pBuilder )
 		return;
-
+	*/
 	SetModel( SENTRY_MODEL_LEVEL_1 );
 
 	m_iState.Set( SENTRY_STATE_SEARCHING );
@@ -636,15 +637,28 @@ bool CObjectSentrygun::FindTarget()
 
 	// Find the opposing team list.
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-	if ( !pPlayer )
-		return false;
-
 	CUtlVector<CTFTeam *> pTeamList;
-	pPlayer->GetOpposingTFTeamList( &pTeamList );
+	CTFTeam *pTeam = NULL;
 
 	//CTFTeam *pTeam = pPlayer->GetOpposingTFTeam();
 	//if ( !pTeam )
 	//	return false;
+
+	if ( pPlayer )
+	{
+		// Try builder's team.
+		pTeam = pPlayer->GetTFTeam();
+	}
+	else
+	{
+		// If we have no builder use our own team number instead.
+		pTeam = GetTFTeam();
+	}
+
+	if ( pTeam )
+		pTeam->GetOpposingTFTeamList( &pTeamList );
+	else
+		return false;
 
 	// If we have an enemy get his minimum distance to check against.
 	Vector vecSegment;

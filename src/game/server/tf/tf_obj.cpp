@@ -620,6 +620,13 @@ CTFPlayer *CBaseObject::GetOwner()
 void CBaseObject::Activate( void )
 {
 	BaseClass::Activate();
+	
+	// This only ever gets called if a building is spawned in a non-standard way.
+	// So just go through all contruction phases rapidly.
+	StartPlacement( NULL );
+	StartBuilding( NULL );
+	SetHealth( GetMaxHealth() );
+	FinishedBuilding();
 
 	Assert( 0 );
 }
