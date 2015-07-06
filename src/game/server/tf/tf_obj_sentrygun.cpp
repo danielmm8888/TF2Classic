@@ -240,13 +240,14 @@ bool CObjectSentrygun::StartBuilding( CBaseEntity *pBuilder )
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::OnGoActive( void )
 {
+	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
 
 	if ( !pBuilder )
 		return;
-
+	*/
 	SetModel( SENTRY_MODEL_LEVEL_1 );
 
 	m_iState.Set( SENTRY_STATE_SEARCHING );
@@ -283,6 +284,16 @@ void CObjectSentrygun::OnGoActive( void )
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_R] = 0;
 
 	BaseClass::OnGoActive();
+
+	// Rapidly go through upgrade levels if the keyvalue is set.
+	if ( m_iDefaultUpgrade > 0 )
+	{
+		for ( int i = 0; i < m_iDefaultUpgrade && i < 2; i++ )
+		{
+			StartUpgrading();
+			FinishUpgrading();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -356,6 +367,11 @@ bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
 
 	// max upgraded
 	if ( m_iUpgradeLevel >= 3 )
+	{
+		return false;
+	}
+
+	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
 	{
 		return false;
 	}
@@ -637,15 +653,28 @@ bool CObjectSentrygun::FindTarget()
 
 	// Find the opposing team list.
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-	if ( !pPlayer )
-		return false;
-
 	CUtlVector<CTFTeam *> pTeamList;
-	pPlayer->GetOpposingTFTeamList( &pTeamList );
+	CTFTeam *pTeam = NULL;
 
 	//CTFTeam *pTeam = pPlayer->GetOpposingTFTeam();
 	//if ( !pTeam )
 	//	return false;
+
+	if ( pPlayer )
+	{
+		// Try builder's team.
+		pTeam = pPlayer->GetTFTeam();
+	}
+	else
+	{
+		// If we have no builder use our own team number instead.
+		pTeam = GetTFTeam();
+	}
+
+	if ( pTeam )
+		pTeam->GetOpposingTFTeamList( &pTeamList );
+	else
+		return false;
 
 	// If we have an enemy get his minimum distance to check against.
 	Vector vecSegment;
@@ -1014,7 +1043,7 @@ bool CObjectSentrygun::Fire()
 		// Setup next rocket shot
 		m_flNextRocketAttack = gpGlobals->curtime + 3;
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoRockets--;
 		}
@@ -1079,7 +1108,10 @@ bool CObjectSentrygun::Fire()
 		info.m_vecDirShooting = vecAimDir;
 		info.m_iTracerFreq = 1;
 		info.m_iShots = 1;
-		info.m_pAttacker = GetBuilder();
+		if ( GetBuilder() )
+			info.m_pAttacker = GetBuilder();
+		else
+			info.m_pAttacker = this;
 		info.m_vecSpread = vec3_origin;
 		info.m_flDistance = flDistToTarget + 100;
 		info.m_iAmmoType = m_iAmmoType;
@@ -1110,7 +1142,7 @@ bool CObjectSentrygun::Fire()
 			break;
 		}
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoShells--;
 		}

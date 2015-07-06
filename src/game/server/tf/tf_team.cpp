@@ -488,3 +488,42 @@ CAI_BaseNPC *CTFTeam::GetNPC( int iIndex )
 	Assert( iIndex >= 0 && iIndex < m_aNPCs.Count() );
 	return m_aNPCs[ iIndex ];
 }
+
+void CTFTeam::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
+{
+	int iTeam = GetTeamNumber();
+	switch (iTeam)
+	{
+		case TF_TEAM_RED:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_BLUE:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_GREEN:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_YELLOW:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			break;
+
+		default:
+			// Makes unassigned sentries shoot everyone, hehe.
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+	}
+}

@@ -83,15 +83,6 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 		CPASAttenuationFilter filter( pPlayer, "HealthKit.Touch" );
 		EmitSound( filter, pPlayer->entindex(), "HealthKit.Touch" );
 
-		if ( g_pGameRules->ItemShouldRespawn( this ) )
-		{
-			Respawn();
-		}
-		else
-		{
-			UTIL_Remove(this);	
-		}
-
 		return true;
 	}
 
@@ -128,7 +119,8 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 			pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
 		}
 
-		// Healthkits respawn by default in multiplayer. We don't want this so don't check ItemShouldRespawn.
+		// Healthkits respawn by default in multiplayer.
+		// We don't want this for HL2 healthkits so remove it here.
 		UTIL_Remove(this);
 	}
 

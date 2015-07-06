@@ -5204,38 +5204,6 @@ CTFTeam *CTFPlayer::GetOpposingTFTeam( void )
 	}
 }
 
-void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
-{
-	int iTeam = GetTeamNumber();
-	switch (iTeam)
-	{
-		case TF_TEAM_RED:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
-
-		case TF_TEAM_BLUE:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
-
-		case TF_TEAM_GREEN:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
-
-		case TF_TEAM_YELLOW:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			break;
-
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: Give this player the "i just teleported" effect for 12 seconds
 //-----------------------------------------------------------------------------

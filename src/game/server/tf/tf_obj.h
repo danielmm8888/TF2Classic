@@ -45,6 +45,9 @@ if ( object_verbose.GetInt() )									\
 #define TRACE_OBJECT( string )
 #endif
 
+#define SF_OBJ_INVULNERABLE			0x0002
+#define SF_OBJ_UPGRADABLE			0x0004
+
 // ------------------------------------------------------------------------ //
 // Resupply object that's built by the player
 // ------------------------------------------------------------------------ //
@@ -301,6 +304,7 @@ protected:
 	// Upgrade Level ( 1, 2, 3 )
 	CNetworkVar(int, m_iUpgradeLevel);
 	CNetworkVar(int, m_iUpgradeMetal);
+	int		m_iDefaultUpgrade;
 
 	bool	m_bDying;
 

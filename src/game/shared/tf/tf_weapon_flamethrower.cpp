@@ -862,7 +862,11 @@ void CTFFlameEntity::FlameThink( void )
 			return;
 
 		CUtlVector<CTFTeam *> pTeamList;
-		pAttacker->GetOpposingTFTeamList(&pTeamList);
+		CTFTeam *pTeam = pAttacker->GetTFTeam();
+		if ( pTeam )
+			pTeam->GetOpposingTFTeamList(&pTeamList);
+		else
+			return;
 
 		//CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
 		//if ( !pTeam )

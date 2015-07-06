@@ -13,6 +13,7 @@
 #include "world.h"
 #include "explode.h"
 #include "triggers.h"
+#include "ai_basenpc.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -107,7 +108,7 @@ public:
 	void Spawn( void )
 	{
 		BaseClass::Spawn();
-		AddSpawnFlags( SF_TRIGGER_ALLOW_CLIENTS );
+		AddSpawnFlags( SF_TRIGGER_ALLOW_CLIENTS | SF_TRIGGER_ALLOW_NPCS );
 		InitTrigger();
 		SetSolid( SOLID_BBOX );
 		UTIL_SetSize(this, Vector(-70,-70,-70), Vector(70,70,70) );
@@ -207,13 +208,13 @@ void CObjectDispenser::SetModel( const char *pModel )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::OnGoActive( void )
 {
+	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
-
 	if ( !pBuilder )
 		return;
-
+	*/
 	SetModel( DISPENSER_MODEL_LEVEL_1 );
 
 	// Put some ammo in the Dispenser
@@ -581,6 +582,11 @@ void CObjectDispenser::StartHealing( CBaseEntity *pOther )
 	{
 		pPlayer->m_Shared.Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
 	}
+	else if ( pOther->IsNPC() )
+	{
+		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+		pNPC->Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -600,6 +606,11 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 		if ( pPlayer )
 		{
 			pPlayer->m_Shared.StopHealing( GetOwner() );
+		}
+		else if ( pOther->IsNPC() )
+		{
+			CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+			pNPC->StopHealing( GetOwner() );
 		}
 	}
 }
@@ -626,6 +637,19 @@ bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 		}
 
 		if ( iPlayerTeam != iTeam )
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	if ( pTarget->IsNPC() && pTarget->IsAlive() )
+	{
+		CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
+
+		// Heal teammates only
+		if ( !InSameTeam( pNPC ) )
 		{
 			return false;
 		}
