@@ -567,6 +567,12 @@ void CTFGameStats::Event_PlayerDamage( CBasePlayer *pBasePlayer, const CTakeDama
 			return;
 
 		pAttacker = pSentry->GetOwner();
+		if ( !pAttacker )
+		{
+			// Sentry with no builder? Must be a pre-placed sentry.
+			// It's easier to just cut off here and don't count damage.
+			return;
+		}
 	}
 	// don't count damage to yourself
 	if ( pTarget == pAttacker )
