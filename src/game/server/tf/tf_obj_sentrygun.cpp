@@ -285,9 +285,9 @@ void CObjectSentrygun::OnGoActive( void )
 	BaseClass::OnGoActive();
 	
 	// Rapidly go through upgrade levels if the keyvalue is set.
-	if ( m_iDefaultUpgrade > 1 )
+	if ( m_iDefaultUpgrade > 0 )
 	{
-		for ( int i = 2; i <= m_iDefaultUpgrade && i <= 3; i++ )
+		for ( int i = 0; i < m_iDefaultUpgrade && i < 2; i++ )
 		{
 			StartUpgrading();
 			FinishUpgrading();
