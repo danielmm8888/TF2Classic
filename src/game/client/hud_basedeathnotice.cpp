@@ -21,6 +21,7 @@
 #include "tf_shareddefs.h"
 #include "tf_shareddefs.h"
 #include "tf_gamerules.h"
+#include "c_ai_basenpc.h"
 
 #include "hud_basedeathnotice.h"
 
@@ -380,7 +381,11 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		int killer = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 		const char *killedwith = event->GetString( "weapon" );
 		const char *killedwithweaponlog = event->GetString( "weapon_logclassname" );
-
+#ifdef TF_CLASSIC_CLIENT
+		// Just use a pointer for NPCs.
+		int npc_killer = event->GetInt( "npc_attacker" );
+		C_AI_BaseNPC *pNPCKiller = ClientEntityList().GetEnt( npc_killer )->MyNPCPointer();
+#endif
 		if ( bObjectDeath && victim == 0 )
 		{
 			// for now, no death notices of map placed objects
@@ -391,6 +396,29 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		// Get the names of the players
 		const char *killer_name = ( killer > 0 ) ? g_PR->GetPlayerName( killer ) : "";
 		const char *victim_name = g_PR->GetPlayerName( victim );
+#ifdef TF_CLASSIC_CLIENT
+		if ( killer <= 0 && pNPCKiller )
+		{
+			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( pNPCKiller->GetClassname() );
+
+			if ( pLocalizedName )
+			{
+				// Ugh...
+				char temp[MAX_PLAYER_NAME_LENGTH*2];
+				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, temp, sizeof(temp) );
+				killer_name = temp;
+			}
+			else
+			{
+				killer_name = pNPCKiller->GetClassname();
+			}
+
+			if ( !killer_name )
+			{
+				killer_name = "";
+			}
+		}
+#endif
 		if ( !killer_name )
 		{
 			killer_name = "";
@@ -429,6 +457,12 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 		m_DeathNotices[iMsg].bLocalPlayerInvolved = bLocalPlayerInvolved;
 		m_DeathNotices[iMsg].Killer.iTeam = ( killer > 0 ) ? g_PR->GetTeam( killer ) : 0;
+#ifdef TF_CLASSIC_CLIENT
+		if ( killer <= 0 )
+		{
+			m_DeathNotices[iMsg].Killer.iTeam = ( pNPCKiller ) ? pNPCKiller->GetTeamNumber() : 0;
+		}
+#endif
 		m_DeathNotices[iMsg].Victim.iTeam = g_PR->GetTeam( victim );
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, killer_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
 		Q_strncpy( m_DeathNotices[iMsg].Victim.szName, victim_name, ARRAYSIZE( m_DeathNotices[iMsg].Victim.szName ) );
@@ -436,7 +470,13 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		{
 			Q_snprintf( m_DeathNotices[iMsg].szIcon, sizeof(m_DeathNotices[iMsg].szIcon), "d_%s", killedwith );
 		}			
-		if ( !killer || killer == victim )
+		if (
+#ifdef TF_CLASSIC_CLIENT
+			( !killer && !pNPCKiller )
+#else
+			!killer
+#endif
+			|| killer == victim )
 		{
 			m_DeathNotices[iMsg].bSelfInflicted = true;
 			m_DeathNotices[iMsg].Killer.szName[0] = 0;
