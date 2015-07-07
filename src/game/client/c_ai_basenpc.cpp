@@ -199,11 +199,13 @@ void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 	if ( InSameTeam( pLocalTFPlayer ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 	{
 		const char *pszClassname = GetClassname();
-		wchar_t *wszNPCName = g_pVGuiLocalize->Find( pszClassname );
+		wchar_t *wszNPCName, wszNPCNameText[64];
+		wszNPCName = g_pVGuiLocalize->Find( pszClassname );
 
 		if ( !wszNPCName )
 		{
-			g_pVGuiLocalize->ConvertANSIToUnicode( pszClassname, wszNPCName, sizeof(wszNPCName) );
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszClassname, wszNPCNameText, sizeof(wszNPCNameText) );
+			wszNPCName = wszNPCNameText;
 		}
 
 		const char *printFormatString = NULL;
