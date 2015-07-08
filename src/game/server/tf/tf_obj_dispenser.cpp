@@ -582,7 +582,7 @@ void CObjectDispenser::StartHealing( CBaseEntity *pOther )
 	{
 		pPlayer->m_Shared.Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
 	}
-	else if ( pOther->IsNPC() )
+	else if ( pOther && pOther->IsNPC() )
 	{
 		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
 		pNPC->Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
@@ -607,7 +607,7 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 		{
 			pPlayer->m_Shared.StopHealing( GetOwner() );
 		}
-		else if ( pOther->IsNPC() )
+		else if ( pOther && pOther->IsNPC() )
 		{
 			CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
 			pNPC->StopHealing( GetOwner() );

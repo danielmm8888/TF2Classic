@@ -116,6 +116,7 @@ extern ConVar tf_boost_drain_time;
 #include "tf_weaponbase.h"
 #include "tf_team.h"
 #include "tf_obj.h"
+#include "tf_gamerules.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -677,6 +678,50 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	// catch the change of state if we set this to whatever the ideal state is.
 	if ( CanBecomeRagdoll() || IsRagdoll() )
 		 SetState( NPC_STATE_DEAD );
+
+#ifdef TF_CLASSIC
+	int killer_ID = 0;
+	int npc_killer_ID = 0;
+
+	// Find the killer & the scorer
+	CAI_BaseNPC *pVictim = this;
+	//CBaseEntity *pInflictor = info.GetInflictor();
+	CBaseEntity *pKiller = info.GetAttacker();
+	CBasePlayer *pScorer = ToBasePlayer( pKiller );
+	//CBaseEntity *pAssister = TFGameRules()->GetAssister( pNPCVictim, pKiller, pInflictor );
+	//CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
+	//CAI_BaseNPC *pNPCAssister = ( pAssister ) ? pAssister->MyNPCPointer() : NULL;
+
+	// Work out what killed NPC, and send a message to all clients about it
+	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
+
+	if ( pScorer )	// Is the killer a client?
+	{
+		killer_ID = pScorer->GetUserID();
+	}
+	else if ( pKiller && pKiller->IsNPC() )
+	{
+		// If this is NPC then use its entindex.
+		npc_killer_ID = pKiller->entindex();
+	}
+
+	IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
+
+	if ( event )
+	{
+		event->SetInt( "npc_victim", pVictim->entindex() );
+		event->SetInt( "attacker", killer_ID );
+		//event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
+		event->SetInt( "npc_attacker", npc_killer_ID );
+		//event->SetInt( "npc_assister", pNPCAssister ? pNPCAssister->entindex() : -1 );
+		event->SetString( "weapon", killer_weapon_name );
+		event->SetInt( "damagebits", info.GetDamageType() );
+		event->SetInt( "customkill", info.GetDamageCustom() );
+		event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
+
+		gameeventmanager->FireEvent( event );
+	}
+#endif
 
 	// If the remove-no-ragdoll flag is set in the damage type, we're being
 	// told to remove ourselves immediately on death. This is used when something

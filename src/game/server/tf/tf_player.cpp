@@ -53,6 +53,7 @@
 #include "player_pickup.h"
 #include "weapon_physcannon.h"
 #include "eventqueue.h"
+#include "ai_basenpc.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -3393,7 +3394,8 @@ void CTFPlayer::AddDamagerToHistory( EHANDLE hDamager )
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
 	CTFPlayer *pDamager = ToTFPlayer( hDamager );
-	if ( !pDamager || ( pDamager->GetTeam() == GetTeam() ) )
+	CAI_BaseNPC *pNPCDamager = (hDamager) ? hDamager->MyNPCPointer() : NULL;
+	if ( (!pDamager || ( pDamager->GetTeam() == GetTeam() )) && !pNPCDamager )
 		return;
 
 	// If this damager is different from the most recent damager, shift the

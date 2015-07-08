@@ -63,6 +63,7 @@ void CHudBaseDeathNotice::Init( void )
 {
 	ListenForGameEvent( "player_death" );
 	ListenForGameEvent( "object_destroyed" );	
+	ListenForGameEvent( "npc_death" );
 	ListenForGameEvent( "teamplay_point_captured" );
 	ListenForGameEvent( "teamplay_capture_blocked" );
 	ListenForGameEvent( "teamplay_flag_event" );
@@ -332,6 +333,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 	
 	bool bPlayerDeath = EventIsPlayerDeath( pszEventName );
 	bool bObjectDeath = FStrEq( pszEventName, "object_destroyed" );
+	bool bNPCDeath = FStrEq( pszEventName, "npc_death" );
 
 #if defined (TF_CLIENT_DLL)
 
@@ -375,7 +377,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		iMsg = AddDeathNoticeItem();
 	}
 
-	if ( bPlayerDeath || bObjectDeath )
+	if ( bPlayerDeath || bObjectDeath || bNPCDeath )
 	{
 		int victim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
 		int killer = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
@@ -383,8 +385,10 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		const char *killedwithweaponlog = event->GetString( "weapon_logclassname" );
 #ifdef TF_CLASSIC_CLIENT
 		// Just use a pointer for NPCs.
+		int npc_victim = event->GetInt( "npc_victim" );
 		int npc_killer = event->GetInt( "npc_attacker" );
-		C_AI_BaseNPC *pNPCKiller = ClientEntityList().GetEnt( npc_killer )->MyNPCPointer();
+		C_AI_BaseNPC *pNPCKiller = ( ClientEntityList().GetEnt( npc_killer ) ) ? ClientEntityList().GetEnt( npc_killer )->MyNPCPointer() : NULL;
+		C_AI_BaseNPC *pNPCVictim = ( ClientEntityList().GetEnt( npc_victim ) ) ? ClientEntityList().GetEnt( npc_victim )->MyNPCPointer() : NULL;
 #endif
 		if ( bObjectDeath && victim == 0 )
 		{
@@ -395,15 +399,15 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 
 		// Get the names of the players
 		const char *killer_name = ( killer > 0 ) ? g_PR->GetPlayerName( killer ) : "";
-		const char *victim_name = g_PR->GetPlayerName( victim );
+		const char *victim_name = ( victim > 0 ) ? g_PR->GetPlayerName( victim ) : "";
 #ifdef TF_CLASSIC_CLIENT
+		// If the killer is not a player see if this is NPC.
 		if ( killer <= 0 && pNPCKiller )
 		{
 			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( pNPCKiller->GetClassname() );
 
 			if ( pLocalizedName )
 			{
-				// Ugh...
 				char temp[MAX_PLAYER_NAME_LENGTH*2];
 				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, temp, sizeof(temp) );
 				killer_name = temp;
@@ -424,6 +428,29 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			killer_name = "";
 		}
 
+#ifdef TF_CLASSIC_CLIENT
+		// If the victim is not a player see if this is NPC.
+		if ( victim <= 0 && pNPCVictim )
+		{
+			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( pNPCVictim->GetClassname() );
+
+			if ( pLocalizedName )
+			{
+				char temp[MAX_PLAYER_NAME_LENGTH*2];
+				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, temp, sizeof(temp) );
+				victim_name = temp;
+			}
+			else
+			{
+				victim_name = pNPCVictim->GetClassname();
+			}
+
+			if ( !victim_name )
+			{
+				victim_name = "";
+			}
+		}
+#endif
 		if ( !victim_name )
 		{
 			victim_name = "";
@@ -456,27 +483,50 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 		m_DeathNotices[iMsg].bLocalPlayerInvolved = bLocalPlayerInvolved;
+#ifndef TF_CLASSIC_CLIENT
 		m_DeathNotices[iMsg].Killer.iTeam = ( killer > 0 ) ? g_PR->GetTeam( killer ) : 0;
-#ifdef TF_CLASSIC_CLIENT
-		if ( killer <= 0 )
+#else
+		if ( killer > 0 )
 		{
-			m_DeathNotices[iMsg].Killer.iTeam = ( pNPCKiller ) ? pNPCKiller->GetTeamNumber() : 0;
+			m_DeathNotices[iMsg].Killer.iTeam = g_PR->GetTeam( killer );
+		}
+		else if ( pNPCKiller )
+		{
+			m_DeathNotices[iMsg].Killer.iTeam = pNPCKiller->GetTeamNumber();
+		}
+		else
+		{
+			m_DeathNotices[iMsg].Killer.iTeam = 0;
 		}
 #endif
-		m_DeathNotices[iMsg].Victim.iTeam = g_PR->GetTeam( victim );
+#ifndef TF_CLASSIC_CLIENT
+		m_DeathNotices[iMsg].Victim.iTeam = (victim > 0 ) g_PR->GetTeam( victim );
+#else
+		if ( victim > 0 )
+		{
+			m_DeathNotices[iMsg].Victim.iTeam = g_PR->GetTeam( victim );
+		}
+		else if ( pNPCVictim )
+		{
+			m_DeathNotices[iMsg].Victim.iTeam = pNPCVictim->GetTeamNumber();
+		}
+		else
+		{
+			m_DeathNotices[iMsg].Victim.iTeam = 0;
+		}
+#endif
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, killer_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
 		Q_strncpy( m_DeathNotices[iMsg].Victim.szName, victim_name, ARRAYSIZE( m_DeathNotices[iMsg].Victim.szName ) );
 		if ( killedwith && *killedwith )
 		{
 			Q_snprintf( m_DeathNotices[iMsg].szIcon, sizeof(m_DeathNotices[iMsg].szIcon), "d_%s", killedwith );
-		}			
-		if (
-#ifdef TF_CLASSIC_CLIENT
-			( !killer && !pNPCKiller )
+		}	
+
+#ifndef TF_CLASSIC_CLIENT
+		if ( !killer || killer == victim )
 #else
-			!killer
+		if ( (!killer && !npc_killer) || (killer == victim && npc_killer == npc_victim) )
 #endif
-			|| killer == victim )
 		{
 			m_DeathNotices[iMsg].bSelfInflicted = true;
 			m_DeathNotices[iMsg].Killer.szName[0] = 0;
@@ -533,7 +583,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			}
 		}
 
-		if ( FStrEq( pszEventName, "player_death" ) )
+		if ( FStrEq( pszEventName, "player_death" ) || FStrEq( pszEventName, "npc_death" ) )
 		{
 			if ( m_DeathNotices[iMsg].bCrit )
 			{

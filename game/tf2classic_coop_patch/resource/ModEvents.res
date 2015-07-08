@@ -60,6 +60,18 @@
 		"assister_revenge" "short"	// did assister get revenge on victim with this kill
 	}
 	
+	"npc_death"
+	{ 
+		"npc_victim"	"short"   	// NPC entindex who died				
+		"attacker"	"short"	 	// user ID who killed
+		"npc_attacker" "short"	// NPC entindex who killed
+		"weapon"	"string" 	// weapon name killer used 
+		"damagebits"	"long"		// bits of type of damage
+		"customkill"	"short"		// type of custom kill
+		"assister"	"short"		// user ID of assister
+		"npc_assister" "short"	// NPC entindex of assister
+	}
+	
 	"object_destroyed"
 	{			
 		"userid"	"short"   	// user ID who died				

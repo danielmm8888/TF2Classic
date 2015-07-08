@@ -1479,6 +1479,16 @@
 			"width"	"96"
 			"height"	"32"
 		}
+		
+		"grenade_frag"
+		{
+			"dfile"	"HUD/d_images_hl2"
+			"dnegfile"	"HUD/dneg_images_hl2"
+			"x"	"0"
+			"y"	"96"
+			"width"	"96"
+			"height"	"32"
+		}
 
 		"crowbar"
 		{
@@ -1530,7 +1540,7 @@
 			"height"	"32"
 		}
 
-		"physics"
+		"prop_physics"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
