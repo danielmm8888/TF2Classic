@@ -240,7 +240,6 @@ $Project "Client (TF)"
 				}	
 				$File	"tf\vgui\backgroundpanel.cpp"
 				$File	"tf\vgui\backgroundpanel.h"
-				$File	"tf\vgui\EngineInterface.h"
 				$File	"tf\vgui\tf_deathmatchscoreboard.cpp"
 				$File	"tf\vgui\tf_deathmatchscoreboard.h"
 				$File	"tf\vgui\ObjectControlPanel.cpp"
