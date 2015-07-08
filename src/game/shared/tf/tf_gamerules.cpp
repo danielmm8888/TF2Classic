@@ -3407,6 +3407,7 @@ void CTFGameRules::CreateStandardEntities()
 //-----------------------------------------------------------------------------
 const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim )
 {
+	CBaseEntity *pAttacker = info.GetAttacker();
 	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
 	CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim );
@@ -3426,13 +3427,27 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = pScorer->GetActiveWeapon()->GetClassname(); 
 		}
 	}
+	else if ( pAttacker && pAttacker->IsNPC() && pInflictor && ( pInflictor == pAttacker ) )
+	{
+		// Similar case for NPCs.
+		CAI_BaseNPC *pNPC = pAttacker->MyNPCPointer();
+
+		if ( pNPC->GetActiveWeapon() )
+		{
+			killer_weapon_name = pNPC->GetActiveWeapon()->GetClassname(); 
+		}
+		else
+		{
+			killer_weapon_name = STRING( pInflictor->m_iClassname );
+		}
+	}
 	else if ( pInflictor )
 	{
 		killer_weapon_name = STRING( pInflictor->m_iClassname );
 	}
 
 	// strip certain prefixes from inflictor's classname
-	const char *prefix[] = { "TF_WEAPON_GRENADE_", "TF_WEAPON_", "NPC_", "func_" };
+	const char *prefix[] = { "TF_WEAPON_GRENADE_", "TF_WEAPON_", "weapon_", "npc_", "func_" };
 	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix
@@ -3448,6 +3463,26 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
 		killer_weapon_name = "obj_sentrygun";
+	}
+
+	// Some special cases for NPCs.
+	if ( 0 == Q_strcmp( killer_weapon_name, "strider" ) )
+	{
+		if ( info.GetDamageType() & DMG_BULLET )
+		{
+			killer_weapon_name = "strider_minigun";
+		}
+		else if ( info.GetDamageType() & DMG_CRUSH )
+		{
+			killer_weapon_name = "strider_skewer";
+		}
+	}
+	else if ( 0 == Q_strcmp( killer_weapon_name, "vortigaunt" ) )
+	{
+		if ( info.GetDamageType() & DMG_SHOCK )
+		{
+			killer_weapon_name = "vortigaunt_beam";
+		}
 	}
 
 	return killer_weapon_name;
