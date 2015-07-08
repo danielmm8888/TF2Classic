@@ -152,6 +152,7 @@ public:
 	void			InputEnable( inputdata_t &inputdata );
 	void			InputDisable( inputdata_t &inputdata );
 	void			InputRoundActivate( inputdata_t &inputdata );
+	void			InputForceReset( inputdata_t &inputdata );
 
 	void			Think( void );
 	
