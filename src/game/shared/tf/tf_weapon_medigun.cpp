@@ -331,9 +331,9 @@ bool CWeaponMedigun::AllowedToHealTarget( CBaseEntity *pTarget )
 	}
 
 	// See if this is NPC.
-	CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
-	if ( pNPC )
+	if ( pTarget && pTarget->IsNPC() )
 	{
+		CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
 		// We can heal teammates only
 		if ( pNPC->InSameTeam( pOwner ) )
 		{
@@ -520,7 +520,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 	if ( pNewTarget && pNewTarget->IsAlive() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( pNewTarget );
-		CAI_BaseNPC *pNPC = pNewTarget->MyNPCPointer();
+		CAI_BaseNPC *pNPC = pNewTarget->IsNPC() ? pNewTarget->MyNPCPointer() : NULL;
 
 #ifdef GAME_DLL
 		if ( pTFPlayer )
