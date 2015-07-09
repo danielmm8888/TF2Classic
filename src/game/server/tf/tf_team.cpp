@@ -409,7 +409,7 @@ CTFTeam *GetGlobalTFTeam( int iIndex )
 	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
 }
 
-void CTFPlayer::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
+void CTFTeam::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
 {
 	if (TFGameRules()->IsDeathmatch())
 	{
