@@ -163,7 +163,7 @@ bool CTargetID::ShouldDraw( void )
 				bReturn = (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || 
 					pLocalTFPlayer->InSameTeam(pEnt) || 
 					(bDisguisedEnemy && pPlayer->m_Shared.GetDisguiseTeam() == pLocalTFPlayer->GetTeamNumber()) || 
-					pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) );
+					(pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.InCond( TF_COND_STEALTHED )) );
 			}
 			else if ( pEnt->IsBaseObject() && (pLocalTFPlayer->InSameTeam( pEnt ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR) )
 			{
@@ -343,11 +343,9 @@ void CTargetID::UpdateID( void )
 						bDisguisedEnemy = true;
 						// change the player name
 						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
-						// change the team  / team color
+						// Show their disguise team color.
+						SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
 					}
-					
-					// Show their disguise team color.
-					SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
 				}
 				else
 				{
@@ -385,7 +383,7 @@ void CTargetID::UpdateID( void )
 				printFormatString = "#TF_playerid_sameteam";
 				bShowHealth = true;
 			}
-			else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) )
+			else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
 			{
 				// Spy can see enemy's health.
 				printFormatString = "#TF_playerid_diffteam";
