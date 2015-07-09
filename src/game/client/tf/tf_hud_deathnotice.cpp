@@ -134,34 +134,39 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 		// if there was an assister, put both the killer's and assister's names in the death message
 		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
 		int iNPCAssisterID = event->GetInt( "npc_assister" );
-		C_AI_BaseNPC *pNPCAssister = ( iNPCAssisterID > 0 ) ? ClientEntityList().GetEnt( iNPCAssisterID )->MyNPCPointer() : NULL;
+		const char *npc_assister_name = event->GetString( "assister_name" );
 		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
-		if ( iAssisterID <= 0 && pNPCAssister )
+		int assister_team = event->GetInt( "assister_team" );
+		if ( iAssisterID <= 0 && iNPCAssisterID > 0 )
 		{
-			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( pNPCAssister->GetClassname() );
+			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_assister_name );
 
 			if ( pLocalizedName )
 			{
-				// Ugh...
-				char temp[MAX_PLAYER_NAME_LENGTH*2];
-				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, temp, sizeof(temp) );
-				assister_name = temp;
+				char nameBuf[MAX_PLAYER_NAME_LENGTH];
+				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, nameBuf, sizeof(nameBuf) );
+				assister_name = nameBuf;
 			}
 			else
 			{
-				assister_name = pNPCAssister->GetClassname();
+				assister_name = npc_assister_name;
 			}
 		}
+
 		if ( assister_name )
 		{
 			// Base TF2 assumes that the assister and killer are the same team, thus it 
 			// writes both of the same string, which in turn gives them both the killers team color
 			// wether or not the assister is on the killers team or not. -danielmm8888
-			m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = (iAssisterID > 0) ? g_PR->GetTeam(iAssisterID) : 0;
-			if ( iAssisterID <= 0 && pNPCAssister )
+			if ( iAssisterID > 0 )
 			{
-				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = pNPCAssister->GetTeamNumber();
+				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = g_PR->GetTeam(iAssisterID);
 			}
+			else if ( iNPCAssisterID > 0 )
+			{
+				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = assister_team;
+			}
+
 			char szKillerBuf[MAX_PLAYER_NAME_LENGTH];
 			Q_snprintf(szKillerBuf, ARRAYSIZE(szKillerBuf), "%s", assister_name);
 			Q_strncpy(m_DeathNotices[iDeathNoticeMsg].Assister.szName, szKillerBuf, ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].Assister.szName));

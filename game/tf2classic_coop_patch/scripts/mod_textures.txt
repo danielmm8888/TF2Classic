@@ -1820,7 +1820,7 @@
 			"height"	"32"
 		}
 
-		"floorturret"
+		"turret_floor"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"

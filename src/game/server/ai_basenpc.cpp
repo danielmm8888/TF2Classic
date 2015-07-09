@@ -709,11 +709,17 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 	if ( event )
 	{
-		event->SetInt( "npc_victim", pVictim->entindex() );
+		event->SetInt( "victim", pVictim->entindex() );
+		event->SetString( "victim_name", pVictim->GetClassname() );
+		event->SetInt( "victim_team", pVictim->GetTeamNumber() );
 		event->SetInt( "attacker", killer_ID );
-		//event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
 		event->SetInt( "npc_attacker", npc_killer_ID );
+		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
+		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
+		//event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
 		//event->SetInt( "npc_assister", pNPCAssister ? pNPCAssister->entindex() : -1 );
+		//event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
+		//event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
 		event->SetString( "weapon", killer_weapon_name );
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );

@@ -3542,7 +3542,7 @@ CBaseEntity *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBaseEntity *pKill
 
 		// See who has damaged the victim 2nd most recently (most recent is the killer), and if that is within a certain time window.
 		// If so, give that player an assist.  (Only 1 assist granted, to single other most recent damager.)
-		CTFPlayer *pRecentDamager = ToTFPlayer( GetRecentDamager( pTFVictim, 1, TF_TIME_ASSIST_KILL ) );
+		CBaseEntity *pRecentDamager = GetRecentDamager( pTFVictim, 1, TF_TIME_ASSIST_KILL );
 		if ( pRecentDamager && ( pRecentDamager != pTFScorer ) )
 			return pRecentDamager;
 	}
@@ -3560,7 +3560,7 @@ CBaseEntity *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBaseEntity *pKill
 		// If so, give that player an assist.  (Only 1 assist granted, to single other most recent damager.)
 		CBaseEntity *pRecentDamager = GetRecentDamager( pTFVictim, 1, TF_TIME_ASSIST_KILL );
 		if ( pRecentDamager && ( pRecentDamager != pKiller ) )
-			return pRecentDamager->MyNPCPointer();
+			return pRecentDamager;
 	}
 	return NULL;
 }
@@ -3641,9 +3641,13 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	{
 		event->SetInt( "userid", pVictim->GetUserID() );
 		event->SetInt( "attacker", killer_ID );
-		event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
 		event->SetInt( "npc_attacker", npc_killer_ID );
+		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
+		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
+		event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
 		event->SetInt( "npc_assister", pNPCAssister ? pNPCAssister->entindex() : -1 );
+		event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
+		event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
 		event->SetString( "weapon", killer_weapon_name );
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );
