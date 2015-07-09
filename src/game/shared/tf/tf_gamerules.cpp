@@ -3005,10 +3005,13 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 	CBaseEntity *pSpawnSpot = pPlayer->EntSelectSpawnPoint();
 
 	// drop down to ground
-	Vector GroundPos = DropToGround( pPlayer, pSpawnSpot->GetAbsOrigin(), VEC_HULL_MIN, VEC_HULL_MAX );
+	// BUGBUG: This causes players to spawn underground if the spawn point is not at least 1 unit above ground.
+	// So I'm commenting this out for now. (Nicknine)
+	//Vector GroundPos = DropToGround( pPlayer, pSpawnSpot->GetAbsOrigin(), VEC_HULL_MIN, VEC_HULL_MAX );
 
 	// Move the player to the place it said.
-	pPlayer->SetLocalOrigin( GroundPos + Vector(0,0,1) );
+	//pPlayer->SetLocalOrigin( GroundPos + Vector(0,0,1) );
+	pPlayer->SetLocalOrigin( pSpawnSpot->GetAbsOrigin() + Vector(0,0,1) );
 	pPlayer->SetAbsVelocity( vec3_origin );
 	pPlayer->SetLocalAngles( pSpawnSpot->GetLocalAngles() );
 	pPlayer->m_Local.m_vecPunchAngle = vec3_angle;
