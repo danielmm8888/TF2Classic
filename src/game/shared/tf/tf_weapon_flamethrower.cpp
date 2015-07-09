@@ -1044,10 +1044,11 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	CTakeDamageInfo info( GetOwnerEntity(), pAttacker, flDamage, m_iDmgType, TF_DMG_CUSTOM_BURNING );
 	info.SetReportedPosition( pAttacker->GetAbsOrigin() );
 
-	// HACKHACK: NPCs only catch fire from DMG_BURN. Gotta add that.
+	// HACKHACK: Need to ignite NPCs here.
 	if ( pOther->IsNPC() )
 	{
-		info.AddDamageType( DMG_BURN );
+		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+		pNPC->Ignite( 10.0f );
 	}
 
 	// We collided with pOther, so try to find a place on their surface to show blood
