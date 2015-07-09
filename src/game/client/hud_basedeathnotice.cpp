@@ -409,11 +409,14 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 		// Get the names of the players
-		const char *killer_name = ( killer > 0 ) ? g_PR->GetPlayerName( killer ) : "";
-		const char *victim_name = ( victim > 0 ) ? g_PR->GetPlayerName( victim ) : "";
+		const char *killer_name = NULL;
+		const char *victim_name = NULL;
 #ifdef TF_CLASSIC_CLIENT
-		// If the killer is not a player see if this is NPC.
-		if ( killer <= 0 && npc_killer > 0 )
+		if ( killer > 0 )
+		{
+			killer_name = g_PR->GetPlayerName( killer );
+		}
+		else if ( npc_killer > 0 )	// If the killer is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
 			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_killer_name );
@@ -428,11 +431,6 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			{
 				killer_name = npc_killer_name;
 			}
-
-			if ( !killer_name )
-			{
-				killer_name = "";
-			}
 		}
 #endif
 		if ( !killer_name )
@@ -441,8 +439,11 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		}
 
 #ifdef TF_CLASSIC_CLIENT
-		// If the victim is not a player see if this is NPC.
-		if ( victim <= 0 && npc_victim > 0 )
+		if ( victim > 0 )
+		{
+			killer_name = g_PR->GetPlayerName( victim );
+		}
+		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
 			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_victim_name );
@@ -456,11 +457,6 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			else
 			{
 				victim_name = npc_victim_name;
-			}
-
-			if ( !victim_name )
-			{
-				victim_name = "";
 			}
 		}
 #endif

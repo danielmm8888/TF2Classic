@@ -135,9 +135,14 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
 		int iNPCAssisterID = event->GetInt( "npc_assister" );
 		const char *npc_assister_name = event->GetString( "assister_name" );
-		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
 		int assister_team = event->GetInt( "assister_team" );
-		if ( iAssisterID <= 0 && iNPCAssisterID > 0 )
+
+		const char *assister_name = NULL;
+		if ( iAssisterID > 0 )
+		{
+			assister_name = g_PR->GetPlayerName( iAssisterID );
+		}
+		else if ( iNPCAssisterID > 0 )
 		{
 			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_assister_name );
 
@@ -155,9 +160,9 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 
 		if ( assister_name )
 		{
-			// Base TF2 assumes that the assister and killer are the same team, thus it 
-			// writes both of the same string, which in turn gives them both the killers team color
-			// wether or not the assister is on the killers team or not. -danielmm8888
+			// Base TF2 assumes that the assister and killer are on the same team, thus it 
+			// writes both in the same string, which in turn gives them both the killer's team color
+			// whether or not the assister is on the killer's team or not. -danielmm8888
 			if ( iAssisterID > 0 )
 			{
 				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = g_PR->GetTeam(iAssisterID);
