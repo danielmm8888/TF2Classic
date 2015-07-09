@@ -774,10 +774,9 @@ bool CObjectSentrygun::FindTarget()
 				if (!pTargetNPC->IsAlive())
 					continue;
 
-				//vecTargetCenter = pTargetNPC->GetAbsOrigin();
-				//vecTargetCenter += pTargetNPC->GetViewOffset();
-				// GetViewOffset() is not reliable for NPCs.
-				vecTargetCenter = pTargetNPC->WorldSpaceCenter();
+				vecTargetCenter = pTargetNPC->GetAbsOrigin();
+				vecTargetCenter += pTargetNPC->GetViewOffset();
+				//vecTargetCenter = pTargetNPC->WorldSpaceCenter();
 				VectorSubtract(vecTargetCenter, vecSentryOrigin, vecSegment);
 				float flDist2 = vecSegment.LengthSqr();
 
