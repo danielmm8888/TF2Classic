@@ -301,8 +301,9 @@ public:
 	const char *GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim );
 	CBasePlayer *GetAssister( CBasePlayer *pVictim, CBasePlayer *pScorer, CBaseEntity *pInflictor );
 	CBaseEntity *GetAssister( CBasePlayer *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor );
-	//CBaseEntity *GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor );
+	CBaseEntity *GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor );
 	CBaseEntity *GetRecentDamager( CTFPlayer *pVictim, int iDamager, float flMaxElapsed );
+	CBaseEntity *GetRecentDamager( CAI_BaseNPC *pVictim, int iDamager, float flMaxElapsed );
 
 	virtual void ClientDisconnected( edict_t *pClient );
 

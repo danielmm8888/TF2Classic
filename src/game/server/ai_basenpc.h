@@ -1796,6 +1796,9 @@ public:
 	virtual int			OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	virtual int			OnTakeDamage_Dying( const CTakeDamageInfo &info );
 	virtual int			OnTakeDamage_Dead( const CTakeDamageInfo &info );
+	void				AddDamagerToHistory( EHANDLE hDamager );
+	void				ClearDamagerHistory();
+	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
 
 	virtual void		NotifyFriendsOfDamage( CBaseEntity *pAttackerEntity );
 	virtual void		OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CBaseEntity *pAttacker );
@@ -2164,6 +2167,8 @@ private:
 	float m_flInvulnerableOffTime;
 
 	CNetworkVar( int, m_nNumHealers );
+
+	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this NPC
 #endif
 };
 

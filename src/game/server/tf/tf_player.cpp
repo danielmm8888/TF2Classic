@@ -3393,9 +3393,7 @@ void CTFPlayer::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	CTFPlayer *pDamager = ToTFPlayer( hDamager );
-	CAI_BaseNPC *pNPCDamager = (hDamager) ? hDamager->MyNPCPointer() : NULL;
-	if ( (!pDamager || ( pDamager->GetTeam() == GetTeam() )) && !pNPCDamager )
+	if ( !hDamager || (!hDamager->IsPlayer() && !hDamager->IsNPC()) || hDamager->GetTeam() == GetTeam() )
 		return;
 
 	// If this damager is different from the most recent damager, shift the

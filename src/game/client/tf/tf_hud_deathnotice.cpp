@@ -125,7 +125,7 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 {
 	const char *pszEventName = event->GetName();
 
-	if ( FStrEq( pszEventName, "player_death" ) || FStrEq( pszEventName, "object_destroyed" ) )
+	if ( FStrEq( pszEventName, "player_death" ) || FStrEq( pszEventName, "object_destroyed" ) || FStrEq( pszEventName, "npc_death" ) )
 	{
 		bool bIsObjectDestroyed = FStrEq( pszEventName, "object_destroyed" );
 		int iCustomDamage = event->GetInt( "customkill" );
@@ -441,7 +441,7 @@ void CTFHudDeathNotice::Paint()
 		{
 			// Draw a + between the names
 			DrawText(x, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), L" + ");
-			x += 20;
+			x += 30;
 
 			// Draw assister's name
 			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Assister.iTeam, msg.bLocalPlayerInvolved), assister);

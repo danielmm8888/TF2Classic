@@ -685,12 +685,11 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 	// Find the killer & the scorer
 	CAI_BaseNPC *pVictim = this;
-	//CBaseEntity *pInflictor = info.GetInflictor();
+	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
 	CBasePlayer *pScorer = ToBasePlayer( pKiller );
-	//CBaseEntity *pAssister = TFGameRules()->GetAssister( pNPCVictim, pKiller, pInflictor );
-	//CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
-	//CAI_BaseNPC *pNPCAssister = ( pAssister ) ? pAssister->MyNPCPointer() : NULL;
+	CBaseEntity *pAssister = TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
+	CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
 
 	// Work out what killed NPC, and send a message to all clients about it
 	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
@@ -716,10 +715,10 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 		event->SetInt( "npc_attacker", npc_killer_ID );
 		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
 		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-		//event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
-		//event->SetInt( "npc_assister", pNPCAssister ? pNPCAssister->entindex() : -1 );
-		//event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
-		//event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
+		event->SetInt( "assister", ( pPlayerAssister ) ? pPlayerAssister->GetUserID() : -1 );
+		event->SetInt( "npc_assister", ( pAssister ) ? pAssister->entindex() : -1 );
+		event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
+		event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
 		event->SetString( "weapon", killer_weapon_name );
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );
@@ -818,6 +817,8 @@ int CAI_BaseNPC::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	CTakeDamageInfo info = inputInfo;
 
 #ifdef TF_CLASSIC
+	AddDamagerToHistory( info.GetAttacker() );
+
 	int bitsDamage = info.GetDamageType();
 
 	// Crit modifier
@@ -14628,6 +14629,43 @@ void CAI_BaseNPC::ConditionGameRulesThink( void )
 				m_iHealth -= nHealthToDrain;
 			}
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Adds this damager to the history list of characters who damaged NPC
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::AddDamagerToHistory( EHANDLE hDamager )
+{
+	// sanity check: ignore damager if it is on our team.  (Catch-all for 
+	// damaging self in rocket jumps, etc.)
+	if ( !hDamager || (!hDamager->IsPlayer() && !hDamager->IsNPC()) || hDamager->GetTeam() == GetTeam() )
+		return;
+
+	// If this damager is different from the most recent damager, shift the
+	// damagers down and drop the oldest damager.  (If this damager is already
+	// the most recent, we will just update the damage time but not remove
+	// other damagers from history.)
+	if ( m_DamagerHistory[0].hDamager != hDamager )
+	{
+		for ( int i = 1; i < ARRAYSIZE( m_DamagerHistory ); i++ )
+		{
+			m_DamagerHistory[i] = m_DamagerHistory[i-1];
+		}		
+	}	
+	// set this damager as most recent and note the time
+	m_DamagerHistory[0].hDamager = hDamager;
+	m_DamagerHistory[0].flTimeDamage = gpGlobals->curtime;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Clears damager history
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::ClearDamagerHistory()
+{
+	for ( int i = 0; i < ARRAYSIZE( m_DamagerHistory ); i++ )
+	{
+		m_DamagerHistory[i].Reset();
 	}
 }
 #endif
