@@ -195,29 +195,21 @@ void CTFOptionsAudioPanel::OnResetData()
    //
    // Audio Languages
    //
-   char szCurrentLanguage[50];
-   char szAvailableLanguages[512];
-   szAvailableLanguages[0] = NULL;
+	const char *szCurrentLanguage = NULL;
+	const char *szAvailableLanguages = NULL;
 
-   // Fallback to current engine language
-   engine->GetUILanguage( szCurrentLanguage, sizeof( szCurrentLanguage ));
-
-   
-   // In a Steam environment we get the current language 
-#if !defined( NO_STEAM )
-   // When Steam isn't running we can't get the language info... 
-   if ( steamapicontext->SteamApps() )
-   {
-		Q_strncpy(szCurrentLanguage, steamapicontext->SteamApps()->GetCurrentGameLanguage(), sizeof(szCurrentLanguage));
-		Q_strncpy(szAvailableLanguages, steamapicontext->SteamApps()->GetAvailableGameLanguages(), sizeof(szAvailableLanguages));
-   }
-#endif
+	// When Steam isn't running we can't get the language info... 
+	if (steamapicontext->SteamApps())
+	{
+		szCurrentLanguage = steamapicontext->SteamApps()->GetCurrentGameLanguage();
+		szAvailableLanguages = szCurrentLanguage; /*steamapicontext->SteamApps()->GetAvailableGameLanguages()*/
+	}
    
    // Get the spoken language and store it for comparison purposes
    m_nCurrentAudioLanguage = PchLanguageToELanguage( szCurrentLanguage );
 
    // Check to see if we have a list of languages from Steam
-   if ( V_strlen( szAvailableLanguages ) )
+   if (szAvailableLanguages)
    {
       // Populate the combo box with each available language
       CUtlVector<char*> languagesList;
