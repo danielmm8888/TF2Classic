@@ -3625,6 +3625,15 @@ void CNPC_Citizen::Heal()
 				EmitSound( filter, pTarget->entindex(), "HealthKit.Touch" );
 			}
 
+#ifdef TF_CLASSIC
+			CTFPlayer *pTFPlayer = ToTFPlayer( pTarget );
+			if ( pTFPlayer )
+			{
+				// Thank you, doctor!
+				pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
+			}
+#endif
+
 			pTarget->TakeHealth( healAmt, DMG_GENERIC );
 			pTarget->RemoveAllDecals();
 		}
