@@ -376,6 +376,7 @@ void CTFHudDeathNotice::Paint()
 		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPreKillerTall = 0;
 
 		int iAssisterTextWide = assister[0] ? UTIL_ComputeStringWidth(m_hTextFont, assister) + xSpacing : 0;
+		int iPlusTextWide = assister[0] ? UTIL_ComputeStringWidth(m_hTextFont, L"+") + xSpacing : 0;
 
 		// Get the local position for this notice
 		if (icon)
@@ -408,7 +409,7 @@ void CTFHudDeathNotice::Paint()
 			iconPrekillerWide *= flScale;
 		}
 
-		int iTotalWide = iKillerTextWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + (xMargin * 2);
+		int iTotalWide = iKillerTextWide + iPlusTextWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + (xMargin * 2);
 		iTotalWide += iconPrekillerWide + iPreKillerTextWide;
 
 		int y = yStart + ((iLineTall + m_flLineSpacing) * i);
@@ -440,8 +441,8 @@ void CTFHudDeathNotice::Paint()
 		if (assister[0])
 		{
 			// Draw a + between the names
-			DrawText(x, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), L" + ");
-			x += 30;
+			DrawText(x, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), L"+");
+			x += iPlusTextWide;
 
 			// Draw assister's name
 			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Assister.iTeam, msg.bLocalPlayerInvolved), assister);
