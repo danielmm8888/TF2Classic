@@ -18,6 +18,7 @@ public:
 	virtual bool Init();
 	virtual void OnResetData();
 	virtual void OnApplyChanges();
+	virtual void OnSetDefaults();
 	virtual void OnCommand(const char *command);
 	virtual void OnCreateControls() { CreateControls(); OnResetData(); };
 	virtual void OnDestroyControls() { DestroyControls(); };

@@ -93,6 +93,8 @@ void CTFOptionsDialog::SetCurrentPanel(OptionPanel pCurrentPanel)
 	GetPanel(m_pOptionsCurrent)->Hide();
 	GetPanel(pCurrentPanel)->Show();
 	m_pOptionsCurrent = pCurrentPanel;
+
+	dynamic_cast<CTFAdvButton *>(FindChildByName("Defaults"))->SetVisible((pCurrentPanel == PANEL_KEYBOARD));
 }
 
 CTFDialogPanelBase*	CTFOptionsDialog::GetPanel(int iPanel)
@@ -105,6 +107,7 @@ void CTFOptionsDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 
 	LoadControlSettings("resource/UI/main_menu/OptionsDialog.res");
+	dynamic_cast<CTFAdvButton *>(FindChildByName("Defaults"))->SetVisible(false);
 	SetCurrentPanel(PANEL_ADV);
 }
 
@@ -135,6 +138,10 @@ void CTFOptionsDialog::OnCommand(const char* command)
 	else if (!stricmp(command, "Ok"))
 	{
 		OnOkPressed();
+	}
+	else if (!stricmp(command, "DefaultsOK"))
+	{
+		OnDefaultPressed();
 	}
 	else if (!Q_strcmp(command, "newoptionsadv"))
 	{
@@ -181,6 +188,16 @@ void CTFOptionsDialog::OnCancelPressed()
 	for (int i = 0; i < PANEL_COUNT; i++)
 		GetPanel(i)->OnResetData();
 	Hide();
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFOptionsDialog::OnDefaultPressed()
+{
+	for (int i = 0; i < PANEL_COUNT; i++)
+		GetPanel(i)->OnSetDefaults();
 }
 
 //-----------------------------------------------------------------------------

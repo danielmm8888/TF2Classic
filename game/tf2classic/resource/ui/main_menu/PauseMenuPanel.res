@@ -30,7 +30,6 @@
 		"border"		"TFFatLineBorder"
 	}			
 	
-	
 	"MainMenuBG"
 	{
 		"ControlName"		"EditablePanel"
@@ -67,8 +66,8 @@
 		"DefaultText"		"MainMenuTextDefault"
 		"ArmedText"			"MainMenuTextArmed"
 		"DepressedText"		"MainMenuTextDepressed"		
-		"font"				"TeamMenuBold"
-	}		
+		"font"				"HudFontSmallBold"
+	}	
 	
 	"ServerBrowserButton"
 	{
@@ -91,7 +90,7 @@
 		"DefaultText"		"MainMenuTextDefault"
 		"ArmedText"			"MainMenuTextArmed"
 		"DepressedText"		"MainMenuTextDepressed"		
-		"font"				"TeamMenuBold"
+		"font"				"HudFontSmallBold"
 	}	
 	
 	"MultiplayerGameButton"
@@ -111,11 +110,12 @@
 		"bgvisible"			"1"
 		"bordervisible"		"0"
 		"textAlignment"		"west"
+		"use_proportional_insets"	"1"
 		"command"			"gamemenucommand OpenCreateMultiplayerGameDialog"
 		"DefaultText"		"MainMenuTextDefault"
 		"ArmedText"			"MainMenuTextArmed"
 		"DepressedText"		"MainMenuTextDepressed"		
-		"font"				"TeamMenuBold"
+		"font"				"HudFontSmallBold"
 	}	
 	
 	"OptionsDialogButton"
@@ -140,8 +140,8 @@
 		"DefaultText"		"MainMenuTextDefault"
 		"ArmedText"			"MainMenuTextArmed"
 		"DepressedText"		"MainMenuTextDepressed"		
-		"font"				"TeamMenuBold"
-	}			
+		"font"				"HudFontSmallBold"
+	}				
 	
 	
 	"ShadedBar"
@@ -186,31 +186,9 @@
 		"DepressedBG"		"AdvLeftButtonDepressed"	
 		"DefaultText"		"Button.ArmedTextColor"
 		"command"			"toggleconsole"
-		"font"				"HudFontGiantBold"		
+		"font"				"MenuSmallFont"		
 	}	
-	
-	"ConsoleButton1"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"ConsoleButton1"
-		"xpos"				"c-200"
-		"ypos"				"r21"
-		"zpos"				"6"
-		"wide"				"20"
-		"tall"				"20"
-		"visible"			"1"
-		"enabled"			"1"
-		"bgvisible"			"1"
-		"bordervisible"		"0"
-		"labelText" 		"C"
-		"DefaultBG"			"AdvSquareButtonDefault"
-		"ArmedBG" 			"AdvSquareButtonArmed"
-		"DepressedBG"		"AdvSquareButtonDepressed"	
-		"textAlignment"		"center"
-		"command"			"toggleconsole"
-		"font"				"HudFontGiantBold"
-	}	
-	
+
 	"QuitButton"
 	{
 		"ControlName"		"CTFAdvButton"
@@ -227,9 +205,7 @@
 		"labelText" 		"#GameUI_GameMenu_Quit"
 		"textAlignment"		"west"
 		"command"			"newquit"
-		"font"				"MenuMainTitle"
-	}	
-		
-				
+		"font"				"MenuSmallFont"
+	}					
 }
 		

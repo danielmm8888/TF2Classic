@@ -520,7 +520,7 @@ void CTFOptionsVideoPanel::OnResetData()
 
     // reset UI elements
     m_pWindowed->ActivateItem(config.Windowed() ? 1 : 0);
-	Msg("WINDOWED %i\n", config.Windowed());
+	//Msg("WINDOWED %i\n", config.Windowed());
 
 	// reset gamma control
 	m_pGammaSlider->SetEnabled(!config.Windowed());

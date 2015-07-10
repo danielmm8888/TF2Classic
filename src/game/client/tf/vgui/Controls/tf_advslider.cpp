@@ -148,7 +148,7 @@ void CTFAdvSlider::PerformLayout()
 	//pValueLabel->SetFont(GetFont());
 	pValueLabel->SetContentAlignment(GetAlignment("center"));
 
-	Msg("LAYOUT slide %s\n", m_szText);
+	//Msg("LAYOUT slide %s\n", m_szText);
 	UpdateValue();
 }
 

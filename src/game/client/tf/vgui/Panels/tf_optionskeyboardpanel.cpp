@@ -115,12 +115,25 @@ void CTFOptionsKeyboardPanel::OnApplyChanges()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: saves out keybinding changes
+//-----------------------------------------------------------------------------
+void CTFOptionsKeyboardPanel::OnSetDefaults()
+{
+	BaseClass::OnSetDefaults();
+
+	// Restore defaults from default keybindings file
+	FillInDefaultBindings();
+	m_pKeyBindList->RequestFocus();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Create key bindings list control
 //-----------------------------------------------------------------------------
 void CTFOptionsKeyboardPanel::CreateKeyBindingList()
 {
 	// Create the control
 	m_pKeyBindList = new vcontrolslistpanel(this, "listpanel_keybindlist");
+	m_pKeyBindList->SetBounds(0, 0, 1000, 1000);
 }
 
 //-----------------------------------------------------------------------------
@@ -154,8 +167,7 @@ void CTFOptionsKeyboardPanel::OnCommand( const char *command )
 	else if ( !stricmp(command, "DefaultsOK"))
 	{
 		// Restore defaults from default keybindings file
-		FillInDefaultBindings();
-		m_pKeyBindList->RequestFocus();
+		OnSetDefaults();
 	}
 	else if ( !m_pKeyBindList->IsCapturing() && !stricmp( command, "ChangeKey" ) )
 	{

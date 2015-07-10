@@ -174,6 +174,14 @@ void CTFDialogPanelBase::OnApplyChanges()
 
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDialogPanelBase::OnSetDefaults()
+{
+
+}
+
 void CTFDialogPanelBase::OnThink()
 {
 

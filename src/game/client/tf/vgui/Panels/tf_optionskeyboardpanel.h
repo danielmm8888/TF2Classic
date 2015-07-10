@@ -31,6 +31,7 @@ public:
 	virtual bool Init();
 	virtual void OnResetData();
 	virtual void OnApplyChanges();
+	virtual void OnSetDefaults();
 	virtual void OnKeyCodePressed( vgui::KeyCode code );
 	virtual void OnCommand(const char *command);
 	virtual void OnThink();
