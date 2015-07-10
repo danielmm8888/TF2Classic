@@ -1,10 +1,3 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
-//
-// Purpose: 
-//
-// $NoKeywords: $
-//
-//=============================================================================//
 #include "cbase.h"
 #include "tf_dialogpanelbase.h"
 #include "tf_mainmenu.h"
@@ -147,8 +140,8 @@ void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* t
 	}
 	panel->SetParent(pCtrl);
 	pCtrl->pControl = panel;
-	pCtrl->SetProportional(true);
-	pCtrl->SetSize(800, 50);
+	int h = m_pListPanel->GetTall() / 13.0; //(float)GetParent()->GetTall() / 15.0;
+	pCtrl->SetSize(800, h);
 	m_pListPanel->AddItem(pCtrl);
 }
 

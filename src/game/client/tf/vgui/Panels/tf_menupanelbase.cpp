@@ -30,8 +30,10 @@ CTFMenuPanelBase::~CTFMenuPanelBase()
 
 bool CTFMenuPanelBase::Init()
 {
+	int x, y;
 	int width, height;
-	surface()->GetScreenSize(width, height);
+	//surface()->GetScreenSize(width, height);
+	GetParent()->GetBounds(x, y, width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
 	bInGameLayout = false;

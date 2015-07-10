@@ -261,7 +261,7 @@ void CPanelListPanel::PerformLayout()
 	_vbar->SetButtonPressedScrollValue(24);
 	_vbar->SetPos(wide - 20, _sliderYOffset);
 	_vbar->SetSize(18, tall - 2 - _sliderYOffset);
-	_vbar->UseImages(UPARROW_IMAGE, DOWNARROW_IMAGE, LINE_IMAGE, BOX_IMAGE);
+	//_vbar->UseImages(UPARROW_IMAGE, DOWNARROW_IMAGE, LINE_IMAGE, BOX_IMAGE);
 	_vbar->InvalidateLayout();
 
 	int top = _vbar->GetValue();
@@ -278,7 +278,7 @@ void CPanelListPanel::PerformLayout()
 		if (!item || !item->panel)
 			continue;
 
-		h = item->panel->GetTall();
+		h = item->panel->GetTall(); //28
 		item->panel->SetBounds(8, y, wide - 36, h);
 	}
 }

@@ -59,26 +59,6 @@ void CTFPauseMenuPanel::OnCommand(const char* command)
 	{
 		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSDIALOG_MENU);
 	}
-	else if (!Q_strcmp(command, "newoptionsadv"))
-	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSADV_MENU);
-	}
-	else if (!Q_strcmp(command, "newoptionsmouse"))
-	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSMOUSE_MENU);
-	}
-	else if (!Q_strcmp(command, "newoptionskeyboard"))
-	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSKEYBOARD_MENU);
-	}
-	else if (!Q_strcmp(command, "newoptionsaudio"))
-	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSAUDIO_MENU);
-	}
-	else if (!Q_strcmp(command, "newoptionsvideo"))
-	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSVIDEO_MENU);
-	}
 	else if (!Q_strcmp(command, "newloadout"))
 	{
 		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(LOADOUT_MENU);

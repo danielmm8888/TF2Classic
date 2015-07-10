@@ -294,7 +294,8 @@ void CTFOptionsAdvancedPanel::CreateControls()
 		}
 
 		pCtrl->pScrObj = pObj;
-		pCtrl->SetSize(800, 50);
+		int h = m_pListPanel->GetTall() / 13.0; //(float)GetParent()->GetTall() / 15.0;
+		pCtrl->SetSize(800, h);
 		//pCtrl->SetBorder( scheme()->GetBorder(1, "DepressedButtonBorder") );
 		m_pListPanel->AddItem(pCtrl);
 

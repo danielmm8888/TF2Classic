@@ -7,6 +7,9 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define DEFAULT_RATIO_WIDE 1920.0 / 1080.0
+#define DEFAULT_RATIO 1024.0 / 768.0
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -29,16 +32,20 @@ void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 
 	LoadControlSettings("resource/UI/main_menu/BackgroundPanel.res");
-	//m_pBackground = dynamic_cast<CTFImagePanel *>(FindChildByName("Background"));
 	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
 
 	int width, height;
 	surface()->GetScreenSize(width, height);
+
 	float fRatio = (float)width / (float)height;
 	bool bWidescreen = (fRatio < 1.5 ? false : true);
+
 	Q_strncpy(m_pzVideoLink, GetRandomVideo(bWidescreen), sizeof(m_pzVideoLink));
-	int iMax = max(width, height) + 2;
-	m_pVideo->SetSize(iMax, iMax);
+
+	float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
+	int iWide = (float)height * iRatio + 2;
+	m_pVideo->SetSize(iWide, iWide);
+
 	DefaultLayout();
 }
 
@@ -112,7 +119,7 @@ char* CTFBackgroundPanel::GetRandomVideo(bool bWidescreen)
 		if (!g_pFullFileSystem->FileExists(szPath))
 		{
 			if (iCount)
-				break; 
+				break;
 			else
 				return "";
 		}
