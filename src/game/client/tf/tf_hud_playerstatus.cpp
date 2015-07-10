@@ -338,6 +338,7 @@ CTFHudPlayerHealth::CTFHudPlayerHealth( Panel *parent, const char *name ) : Edit
 	m_pHealthImage = new CTFHealthPanel( this, "PlayerStatusHealthImage" );	
 	m_pHealthImageBG = new ImagePanel( this, "PlayerStatusHealthImageBG" );
 	m_pHealthBonusImage = new CTFImagePanel( this, "PlayerStatusHealthBonusImage" );
+	m_pBuildigHealthImageBG = new vgui::ImagePanel( this, "BuildingStatusHealthImageBG" );
 
 	m_flNextThink = 0.0f;
 }
@@ -491,6 +492,14 @@ void CTFHudPlayerHealth::HideHealthBonusImage( void )
 		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudHealthBonusPulseStop" );
 		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudHealthDyingPulseStop" );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFHudPlayerHealth::ShowBuildingHealthBG( bool bNewState )
+{
+	m_pBuildigHealthImageBG->SetVisible( bNewState );
 }
 
 //-----------------------------------------------------------------------------

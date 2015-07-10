@@ -105,6 +105,8 @@ public:
 	void	SetHealth( int iNewHealth, int iMaxHealth, int iMaxBuffedHealth );
 	void	HideHealthBonusImage( void );
 
+	void	ShowBuildingHealthBG( bool bNewState );
+
 protected:
 
 	virtual void OnThink();
@@ -116,6 +118,7 @@ private:
 	CTFHealthPanel		*m_pHealthImage;
 	CTFImagePanel		*m_pHealthBonusImage;
 	vgui::ImagePanel	*m_pHealthImageBG;
+	vgui::ImagePanel	*m_pBuildigHealthImageBG;
 
 	int					m_nHealth;
 	int					m_nMaxHealth;
