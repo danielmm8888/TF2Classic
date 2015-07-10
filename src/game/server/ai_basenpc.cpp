@@ -640,6 +640,59 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	}
 
 	Wake( false );
+
+#ifdef TF_CLASSIC
+	// Bullseyes shouldn't send death notices.
+	if ( !FClassnameIs( this, "npc_bullseye" ) )
+	{
+		int killer_ID = 0;
+		int npc_killer_ID = 0;
+
+		// Find the killer & the scorer
+		CAI_BaseNPC *pVictim = this;
+		CBaseEntity *pInflictor = info.GetInflictor();
+		CBaseEntity *pKiller = info.GetAttacker();
+		CBasePlayer *pScorer = ToBasePlayer( pKiller );
+		CBaseEntity *pAssister = TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
+		CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
+
+		// Work out what killed NPC, and send a message to all clients about it
+		const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
+
+		if ( pScorer )	// Is the killer a client?
+		{
+			killer_ID = pScorer->GetUserID();
+		}
+		else if ( pKiller && pKiller->IsNPC() )
+		{
+			// If this is NPC then use its entindex.
+			npc_killer_ID = pKiller->entindex();
+		}
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
+
+		if ( event )
+		{
+			event->SetInt( "victim", pVictim->entindex() );
+			event->SetString( "victim_name", pVictim->GetClassname() );
+			event->SetInt( "victim_team", pVictim->GetTeamNumber() );
+			event->SetInt( "attacker", killer_ID );
+			event->SetInt( "npc_attacker", npc_killer_ID );
+			event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
+			event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
+			event->SetInt( "assister", ( pPlayerAssister ) ? pPlayerAssister->GetUserID() : -1 );
+			event->SetInt( "npc_assister", ( pAssister ) ? pAssister->entindex() : -1 );
+			event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
+			event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
+			event->SetString( "weapon", killer_weapon_name );
+			event->SetInt( "damagebits", info.GetDamageType() );
+			event->SetInt( "customkill", info.GetDamageCustom() );
+			event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
+
+			gameeventmanager->FireEvent( event );
+		}
+	}
+#endif
 	
 	//Adrian: Select a death pose to extrapolate the ragdoll's velocity.
 	SelectDeathPose( info );
@@ -678,55 +731,6 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	// catch the change of state if we set this to whatever the ideal state is.
 	if ( CanBecomeRagdoll() || IsRagdoll() )
 		 SetState( NPC_STATE_DEAD );
-
-#ifdef TF_CLASSIC
-	int killer_ID = 0;
-	int npc_killer_ID = 0;
-
-	// Find the killer & the scorer
-	CAI_BaseNPC *pVictim = this;
-	CBaseEntity *pInflictor = info.GetInflictor();
-	CBaseEntity *pKiller = info.GetAttacker();
-	CBasePlayer *pScorer = ToBasePlayer( pKiller );
-	CBaseEntity *pAssister = TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
-	CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
-
-	// Work out what killed NPC, and send a message to all clients about it
-	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
-
-	if ( pScorer )	// Is the killer a client?
-	{
-		killer_ID = pScorer->GetUserID();
-	}
-	else if ( pKiller && pKiller->IsNPC() )
-	{
-		// If this is NPC then use its entindex.
-		npc_killer_ID = pKiller->entindex();
-	}
-
-	IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
-
-	if ( event )
-	{
-		event->SetInt( "victim", pVictim->entindex() );
-		event->SetString( "victim_name", pVictim->GetClassname() );
-		event->SetInt( "victim_team", pVictim->GetTeamNumber() );
-		event->SetInt( "attacker", killer_ID );
-		event->SetInt( "npc_attacker", npc_killer_ID );
-		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
-		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-		event->SetInt( "assister", ( pPlayerAssister ) ? pPlayerAssister->GetUserID() : -1 );
-		event->SetInt( "npc_assister", ( pAssister ) ? pAssister->entindex() : -1 );
-		event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
-		event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
-		event->SetString( "weapon", killer_weapon_name );
-		event->SetInt( "damagebits", info.GetDamageType() );
-		event->SetInt( "customkill", info.GetDamageCustom() );
-		event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
-
-		gameeventmanager->FireEvent( event );
-	}
-#endif
 
 	// If the remove-no-ragdoll flag is set in the damage type, we're being
 	// told to remove ourselves immediately on death. This is used when something
