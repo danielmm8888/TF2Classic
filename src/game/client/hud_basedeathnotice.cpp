@@ -441,7 +441,7 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 #ifdef TF_CLASSIC_CLIENT
 		if ( victim > 0 )
 		{
-			killer_name = g_PR->GetPlayerName( victim );
+			victim_name = g_PR->GetPlayerName( victim );
 		}
 		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
 		{
