@@ -600,6 +600,15 @@
 				"width"		"48"
 				"height"	"32"
 		}
+		"crit"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"192"
+				"y"		"409"
+				"width"		"64"
+				"height"	"34"
+		}
 		"bluedefend"
 		{
 				"dfile"	"HUD/d_images"
