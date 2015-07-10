@@ -395,10 +395,10 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		// We can't fetch NPC's name and team on client side since NPCs outside of PVS don't exist on client side.
 		// So we're sending those over in the net message.
 		int npc_victim = event->GetInt( "victim" );
-		int npc_killer = event->GetInt( "npc_attacker" );
 		const char *npc_victim_name = event->GetString( "victim_name" );
-		const char *npc_killer_name = event->GetString( "attacker_name" );
 		int victim_team = event->GetInt( "victim_team" );
+		int npc_killer = event->GetInt( "npc_attacker" );
+		const char *npc_killer_name = event->GetString( "attacker_name" );
 		int killer_team = event->GetInt( "attacker_team" );
 #endif
 		if ( bObjectDeath && victim == 0 )

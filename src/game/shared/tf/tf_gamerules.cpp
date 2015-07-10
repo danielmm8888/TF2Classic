@@ -3677,7 +3677,7 @@ CBasePlayer *CTFGameRules::GetDeathScorer( CBaseEntity *pKiller, CBaseEntity *pI
 void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &info )
 {
 	int killer_ID = 0;
-	int npc_killer_ID = 0;
+	int killer_index = 0;
 
 	// Find the killer & the scorer
 	CTFPlayer *pTFPlayerVictim = ToTFPlayer( pVictim );
@@ -3694,10 +3694,10 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	{
 		killer_ID = pScorer->GetUserID();
 	}
-	else if ( pKiller && pKiller->IsNPC() )
+	if ( pKiller && pKiller->IsNPC() )
 	{
-		// If this is NPC then use its entindex.
-		npc_killer_ID = pKiller->entindex();
+		// If the killer is NPC then store its entindex.
+		killer_index = pKiller->entindex();
 	}
 
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_death" );
@@ -3706,11 +3706,11 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	{
 		event->SetInt( "userid", pVictim->GetUserID() );
 		event->SetInt( "attacker", killer_ID );
-		event->SetInt( "npc_attacker", npc_killer_ID );
+		event->SetInt( "npc_attacker", killer_index );
 		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
 		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-		event->SetInt( "assister", pPlayerAssister ? pPlayerAssister->GetUserID() : -1 );
-		event->SetInt( "npc_assister", pAssister ? pAssister->entindex() : -1 );
+		event->SetInt( "assister", ( pPlayerAssister ) ? pPlayerAssister->GetUserID() : -1 );
+		event->SetInt( "npc_assister", ( pAssister && pAssister->IsNPC() ) ? pAssister->entindex() : -1 );
 		event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
 		event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
 		event->SetString( "weapon", killer_weapon_name );
