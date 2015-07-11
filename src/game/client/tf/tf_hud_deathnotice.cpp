@@ -414,7 +414,17 @@ void CTFHudDeathNotice::Paint()
 		if (assister[0])
 		{
 			// Draw a + between the names
-			DrawText(x, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), L"+");
+			// If both killer and assister are on the same team paint + with team color
+			Color plusColor;
+			if ( msg.Killer.iTeam == msg.Assister.iTeam )
+			{
+				plusColor = GetTeamColor(msg.Killer.iTeam, msg.bLocalPlayerInvolved);
+			}
+			else
+			{
+				plusColor = GetInfoTextColor(i, msg.bLocalPlayerInvolved);
+			}
+			DrawText(x, yText, m_hTextFont, plusColor, L"+");
 			x += iPlusIconWide;
 
 			// Draw assister's name
