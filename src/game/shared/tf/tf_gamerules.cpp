@@ -2140,10 +2140,29 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 	}
 
-	// look out for sentry rocket as weapon and map it to sentry gun, so we get the sentry death icon
+	// In case of a sentry kill change the icon according to sentry level.
+	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
+	{
+		CBaseObject* pObject = assert_cast<CBaseObject * >( pInflictor );
+
+		if ( pObject )
+		{
+			switch ( pObject->GetUpgradeLevel() )
+			{
+				case 2:
+					killer_weapon_name = "obj_sentrygun2";
+					break;
+				case 3:
+					killer_weapon_name = "obj_sentrygun3";
+					break;
+			}
+		}
+	}
+
+	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
-		killer_weapon_name = "obj_sentrygun";
+		killer_weapon_name = "obj_sentrygun3";
 	}
 
 	return killer_weapon_name;
