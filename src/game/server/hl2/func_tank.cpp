@@ -803,6 +803,8 @@ void CFuncTank::Spawn( void )
 			{
 				pProp->m_bUseHitboxesForRenderBox = true;
 #ifdef TF_CLASSIC
+				// prop_dynamic use client side animation in multiplayer which breaks the model of func_tank. (Nicknine)
+				// Fix from SecobMod.
 				pProp->SetClientSideAnimation( false );
 #endif
 			}
@@ -2163,7 +2165,7 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_nEntIndex = pAnim->entindex();
 #ifdef TF_CLASSIC
-			data.m_vOrigin = WorldBarrelPosition();
+			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
 #endif
 			// FIXME: Create a custom entry here!
 			DispatchEffect( "ChopperMuzzleFlash", data );
@@ -2176,7 +2178,7 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_flScale = 1.0f;
 			data.m_fFlags = MUZZLEFLASH_COMBINE;
 #ifdef TF_CLASSIC
-			data.m_vOrigin = WorldBarrelPosition();
+			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
 #endif
 
 			DispatchEffect( "MuzzleFlash", data );
@@ -2445,6 +2447,10 @@ LINK_ENTITY_TO_CLASS( func_tank, CFuncTankGun );
 //-----------------------------------------------------------------------------
 void CFuncTankGun::Fire( int bulletCount, const Vector &barrelEnd, const Vector &forward, CBaseEntity *pAttacker, bool bIgnoreSpread )
 {
+	//SecobMod__Information: This is required so that tracers show up for mounted guns.
+	IPredictionSystem::SuppressHostEvents( NULL );
+	/**/
+
 	int i;
 
 	FireBulletsInfo_t info;
@@ -2972,7 +2978,7 @@ void CFuncTankAirboatGun::DoMuzzleFlash( void )
 		data.m_nAttachmentIndex = m_nGunBarrelAttachment;
 		data.m_flScale = 1.0f;
 #ifdef TF_CLASSIC
-		data.m_vOrigin = WorldBarrelPosition();
+		 m_hAirboatGunModel->GetAttachment( m_nGunBarrelAttachment, data.m_vOrigin );
 #endif
 		DispatchEffect( "AirboatMuzzleFlash", data );
 	}
