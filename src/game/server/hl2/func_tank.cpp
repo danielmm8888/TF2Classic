@@ -2159,7 +2159,9 @@ void CFuncTank::DoMuzzleFlash( void )
 			CEffectData data;
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_nEntIndex = pAnim->entindex();
-			
+#ifdef TF_CLASSIC
+			data.m_vOrigin = WorldBarrelPosition();
+#endif
 			// FIXME: Create a custom entry here!
 			DispatchEffect( "ChopperMuzzleFlash", data );
 		}
@@ -2170,6 +2172,9 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_flScale = 1.0f;
 			data.m_fFlags = MUZZLEFLASH_COMBINE;
+#ifdef TF_CLASSIC
+			data.m_vOrigin = WorldBarrelPosition();
+#endif
 
 			DispatchEffect( "MuzzleFlash", data );
 		}
@@ -2963,6 +2968,9 @@ void CFuncTankAirboatGun::DoMuzzleFlash( void )
 		data.m_nEntIndex = m_hAirboatGunModel->entindex();
 		data.m_nAttachmentIndex = m_nGunBarrelAttachment;
 		data.m_flScale = 1.0f;
+#ifdef TF_CLASSIC
+		data.m_vOrigin = WorldBarrelPosition();
+#endif
 		DispatchEffect( "AirboatMuzzleFlash", data );
 	}
 }

@@ -1766,6 +1766,12 @@ void CNPC_CombineGunship::DoMuzzleFlash( void )
 
 	data.m_nAttachmentIndex = LookupAttachment( "muzzle" );
 	data.m_nEntIndex = entindex();
+#ifdef TF_CLASSIC
+	// m_vOrigin must be set in multiplayer so AddRecipientsByPAS() adds players properly.
+	Vector muzzlePos;
+	GetAttachment( "muzzle", muzzlePos );
+	data.m_vOrigin = muzzlePos;
+#endif
 	DispatchEffect( "GunshipMuzzleFlash", data );
 }
 
