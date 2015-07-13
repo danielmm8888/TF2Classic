@@ -6761,3 +6761,32 @@ void CTFPlayer::InputForceDropPhysObjects( inputdata_t &data )
 {
 	ForceDropOfCarriedPhysObjects( data.pActivator );
 }
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+Vector CTFPlayer::EyeDirection2D( void )
+{
+	Vector vecReturn = EyeDirection3D();
+	vecReturn.z = 0;
+	vecReturn.AsVector2D().NormalizeInPlace();
+
+	return vecReturn;
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+Vector CTFPlayer::EyeDirection3D( void )
+{
+	Vector vecForward;
+
+	// Return the vehicle angles if we request them
+	if ( GetVehicle() != NULL )
+	{
+		CacheVehicleView();
+		EyeVectors( &vecForward );
+		return vecForward;
+	}
+	
+	AngleVectors( EyeAngles(), &vecForward );
+	return vecForward;
+}

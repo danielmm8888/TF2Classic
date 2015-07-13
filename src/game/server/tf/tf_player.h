@@ -392,6 +392,10 @@ public:
 	virtual bool		IsFollowingPhysics( void ) { return (m_afPhysicsFlags & PFLAG_ONBARNACLE) > 0; }
 	void				InputForceDropPhysObjects( inputdata_t &data );
 
+	// Required for func_tank and some other things.
+	virtual Vector		EyeDirection2D( void );
+	virtual Vector		EyeDirection3D( void );
+
 public:
 
 	CTFPlayerShared m_Shared;
