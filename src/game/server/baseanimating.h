@@ -76,6 +76,9 @@ public:
 	// the transmission of animtime.
 	bool	IsUsingClientSideAnimation()	{ return m_bClientSideAnimation; }
 
+	//SecobMod__Information: Set to match DutchMegas' Collaborate mod code.
+	void SetClientSideAnimation( bool bNewValue ) { m_bClientSideAnimation = bNewValue; };
+
 
 	// Basic NPC Animation functions
 	virtual float	GetIdealSpeed( ) const;

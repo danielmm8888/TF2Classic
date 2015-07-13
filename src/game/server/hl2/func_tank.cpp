@@ -802,6 +802,9 @@ void CFuncTank::Spawn( void )
 			if ( pProp )
 			{
 				pProp->m_bUseHitboxesForRenderBox = true;
+#ifdef TF_CLASSIC
+				pProp->SetClientSideAnimation( false );
+#endif
 			}
 		}
 	}
