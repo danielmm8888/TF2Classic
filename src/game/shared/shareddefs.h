@@ -947,4 +947,7 @@ enum
 };
 #endif // TF_DLL || TF_CLIENT_DLL
 
+//SecobMod__Information: Here we add in the Source Engine Co-Operative Base Mod shared definitions file.
+#include "secobmod_shareddefs.h"
+
 #endif // SHAREDDEFS_H

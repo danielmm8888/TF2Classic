@@ -21,6 +21,11 @@ $Configuration
 
 $Project "Client (TF)"
 {
+	$Folder "Game Shared Header Files"
+	{
+		$File	"$SRCDIR\game\shared\secobmod_shareddefs.h"
+	}
+
 	$Folder	"Source Files"
 	{
 		-$File	"$SRCDIR\game\shared\weapon_parse_default.cpp"

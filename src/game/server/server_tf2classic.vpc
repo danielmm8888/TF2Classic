@@ -22,6 +22,11 @@ $Configuration
 
 $Project "Server (TF)"
 {
+	$Folder "Header Files"
+	{
+		$File	"$SRCDIR\game\shared\secobmod_shareddefs.h"
+	}
+
 	$Folder	"Source Files"
 	{
 		$File	"ai_relationship.cpp"
