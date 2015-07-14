@@ -1,0 +1,824 @@
+//--------------------------------------------------------------------------------------------------------------
+// Engineer Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "EngineerIsNotStillonFire" "EngineerOnFire" "!=1" "required" weight 0
+Criterion "EngineerIsStillonFire" "EngineerOnFire" "1" "required" weight 0
+Criterion "EngineerNotKillSpeech" "EngineerKillSpeech" "!=1" "required" weight 0
+Criterion "EngineerNotKillSpeechMelee" "EngineerKillSpeechMelee" "!=1" "required" weight 0
+Criterion "EngineerNotSaidHealThanks" "EngineerSaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapEngineer" "EngineerHelpCap" "1" "required" weight 0
+
+
+Response PlayerCloakedSpyDemomanEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpyDemomanEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnDemoman
+	Response PlayerCloakedSpyDemomanEngineer
+}
+
+Response PlayerCloakedSpyEngineerEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpyEngineerEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnEngineer
+	Response PlayerCloakedSpyEngineerEngineer
+}
+
+Response PlayerCloakedSpyHeavyEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavyEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnHeavy
+	Response PlayerCloakedSpyHeavyEngineer
+}
+
+Response PlayerCloakedSpyMedicEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyMedicEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnMedic
+	Response PlayerCloakedSpyMedicEngineer
+}
+
+Response PlayerCloakedSpyPyroEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyPyroEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnPyro
+	Response PlayerCloakedSpyPyroEngineer
+}
+
+Response PlayerCloakedSpySniperEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpySniperEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnSniper
+	Response PlayerCloakedSpySniperEngineer
+}
+
+Response PlayerCloakedSpySoldierEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnSoldier
+	Response PlayerCloakedSpySoldierEngineer
+}
+
+Response PlayerCloakedSpySpyEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify06.vcd" 
+	scene "scenes/Player/Engineer/low/CloakedSpyIdentify10.vcd" 
+}
+Rule PlayerCloakedSpySpyEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer IsOnSpy
+	Response PlayerCloakedSpySpyEngineer
+}
+
+Response PlayerDispenserDownEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoDestroyedDispenser01.vcd" 
+}
+Rule PlayerDispenserDownEngineer
+{
+	criteria ConceptLostObject IsDispenser IsEngineer
+	Response PlayerDispenserDownEngineer
+}
+
+Response PlayerSentryDownEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoDestroyedSentry01.vcd" 
+}
+Rule PlayerSentryDownEngineer
+{
+	criteria ConceptLostObject IsSentryGun IsEngineer
+	Response PlayerSentryDownEngineer
+}
+
+Response PlayerTeleporterDownEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoDestroyedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterDownEngineer
+{
+	criteria ConceptLostObject IsTeleporterEntrance IsEngineer
+	Response PlayerTeleporterDownEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksEngineer
+{
+	scene "scenes/Player/Engineer/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Engineer/low/ThanksForTheHeal02.vcd" 
+}
+Rule HealThanksEngineer
+{
+	criteria ConceptMedicChargeStopped IsEngineer SuperHighHealthContext EngineerNotSaidHealThanks 50PercentChance
+	ApplyContext "EngineerSaidHealThanks:1:20"
+	Response HealThanksEngineer
+}
+
+Response PlayerRoundStartEngineer
+{
+	scene "scenes/Player/Engineer/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Engineer/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Engineer/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Engineer/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Engineer/low/BattleCry06.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Engineer/low/BattleCry07.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartEngineer
+{
+	criteria ConceptPlayerRoundStart IsEngineer
+	Response PlayerRoundStartEngineer
+}
+
+Response PlayerCappedIntelligenceEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Engineer/low/AutoCappedIntelligence03.vcd" 
+}
+Rule PlayerCappedIntelligenceEngineer
+{
+	criteria ConceptPlayerCapturedIntelligence IsEngineer
+	Response PlayerCappedIntelligenceEngineer
+}
+
+Response PlayerCapturedPointEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Engineer/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointEngineer
+{
+	criteria ConceptPlayerCapturedPoint IsEngineer
+	Response PlayerCapturedPointEngineer
+}
+
+Response PlayerSuddenDeathEngineer
+{
+	scene "scenes/Player/Engineer/low/Jeers01.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers02.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers03.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers04.vcd" 
+}
+Rule PlayerSuddenDeathEngineer
+{
+	criteria ConceptPlayerSuddenDeathStart IsEngineer
+	Response PlayerSuddenDeathEngineer
+}
+
+Response PlayerStalemateEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Engineer/low/AutoDejectedTie03.vcd" 
+}
+Rule PlayerStalemateEngineer
+{
+	criteria ConceptPlayerStalemate IsEngineer
+	Response PlayerStalemateEngineer
+}
+
+Response PlayerTeleporterThanksEngineer
+{
+	scene "scenes/Player/Engineer/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Engineer/low/ThanksForTheTeleporter02.vcd" 
+}
+Rule PlayerTeleporterThanksEngineer
+{
+	criteria ConceptTeleported IsNotEngineer IsEngineer 30PercentChance
+	Response PlayerTeleporterThanksEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response KillTauntsEngineerSpecial
+{
+	scene "scenes/Player/Engineer/low/SpecialCompleted02.vcd" 
+	scene "scenes/Player/Engineer/low/SpecialCompleted06.vcd" 
+	scene "scenes/Player/Engineer/low/SpecialCompleted08.vcd" 
+	scene "scenes/Player/Engineer/low/SpecialCompleted09.vcd" 
+}
+Rule KillTauntsEngineerSpecial
+{
+	criteria ConceptKilledPlayer IsManyRecentKills WeaponIsSentrygun KilledPlayerDelay EngineerNotKillSpeech IsEngineer 30PercentChance
+	ApplyContext "EngineerKillSpeech:1:10"
+	applycontexttoworld
+	Response KillTauntsEngineerSpecial
+}
+
+Response KilledPlayerManyEngineer
+{
+	scene "scenes/Player/Engineer/low/SpecialCompleted05.vcd" 
+	scene "scenes/Player/Engineer/low/SpecialCompleted10.vcd" 
+	scene "scenes/Player/Engineer/low/SpecialCompleted11.vcd" 
+}
+Rule KilledPlayerManyEngineer
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay EngineerNotKillSpeech IsEngineer
+	ApplyContext "EngineerKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManyEngineer
+}
+
+Response KilledPlayerMeleeEngineerEngineer
+{
+	scene "scenes/Player/Engineer/low/SpecialCompleted07.vcd" 
+}
+Rule KilledPlayerMeleeEngineerEngineer
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee EngineerNotKillSpeechMelee IsEngineer WeaponIsNotSentrygun
+	ApplyContext "EngineerKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeEngineerEngineer
+}
+
+Response KilledPlayerVeryManyEngineer
+{
+	scene "scenes/Player/Engineer/low/SpecialCompleted01.vcd" 
+}
+Rule KilledPlayerVeryManyEngineer
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay EngineerNotKillSpeech IsEngineer
+	ApplyContext "EngineerKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManyEngineer
+}
+
+Response PlayerKilledCapperEngineer
+{
+	scene "scenes/Player/Engineer/low/BattleCry06.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers02.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers03.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers04.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers05.vcd" 
+}
+Rule PlayerKilledCapperEngineer
+{
+	criteria ConceptCapBlocked IsEngineer
+	ApplyContext "EngineerKillSpeech:1:10"
+	Response PlayerKilledCapperEngineer
+}
+
+Response PlayerKilledDominatingEngineer
+{
+	scene "scenes/Player/Engineer/low/Cheers01.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/Cheers06.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/Jeers04.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughEvil01.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughEvil02.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughEvil05.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughEvil06.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughHappy02.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughHappy03.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/SpecialCompleted03.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/Taunts02.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/Taunts04.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingEngineer
+{
+	criteria ConceptKilledPlayer IsEngineer IsDominated
+	ApplyContext "EngineerKillSpeech:1:10"
+	Response PlayerKilledDominatingEngineer
+}
+
+Response PlayerKilledForRevengeEngineer
+{
+	scene "scenes/Player/Engineer/low/BattleCry07.vcd" predelay "2.5"
+	scene "scenes/Player/Engineer/low/Cheers07.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeEngineer
+{
+	criteria ConceptKilledPlayer IsEngineer IsRevenge
+	ApplyContext "EngineerKillSpeech:1:10"
+	Response PlayerKilledForRevengeEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Engineer
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBuildingDispenserEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoBuildingDispenser01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoBuildingDispenser02.vcd" 
+}
+Rule PlayerBuildingDispenserEngineer
+{
+	criteria ConceptPlayerBuildingObject IsDispenser IsEngineer
+	Response PlayerBuildingDispenserEngineer
+}
+
+Response PlayerBuildingSentryEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoBuildingSentry01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoBuildingSentry02.vcd" 
+}
+Rule PlayerBuildingSentryEngineer
+{
+	criteria ConceptPlayerBuildingObject IsSentryGun IsEngineer
+	Response PlayerBuildingSentryEngineer
+}
+
+Response PlayerBuildingTeleporterEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoBuildingTeleporter01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoBuildingTeleporter02.vcd" 
+}
+Rule PlayerBuildingTeleporterEngineer
+{
+	criteria ConceptPlayerBuildingObject IsTeleporterEntrance IsEngineer
+	Response PlayerBuildingTeleporterEngineer
+}
+
+Response PlayerDispenserSappedEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoAttackedBySpy02.vcd" 
+}
+Rule PlayerDispenserSappedEngineer
+{
+	criteria ConceptSpySapping IsEngineer IsDispenser
+	Response PlayerDispenserSappedEngineer
+}
+
+Response PlayerSentrySappedEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoAttackedBySpy03.vcd" 
+}
+Rule PlayerSentrySappedEngineer
+{
+	criteria ConceptSpySapping IsEngineer IsSentryGun
+	Response PlayerSentrySappedEngineer
+}
+
+Response PlayerTeleporterEntranceSappedEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoAttackedBySpy01.vcd" 
+}
+Rule PlayerTeleporterEntranceSappedEngineer
+{
+	criteria ConceptSpySapping IsEngineer IsTeleporterEntrance
+	Response PlayerTeleporterEntranceSappedEngineer
+}
+
+Response PlayerTeleporterExitSappedEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoAttackedBySpy01.vcd" 
+}
+Rule PlayerTeleporterExitSappedEngineer
+{
+	criteria ConceptSpySapping IsEngineer IsTeleporterExit
+	Response PlayerTeleporterExitSappedEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainEngineer
+{
+	scene "scenes/Player/Engineer/low/PainSevere01.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere02.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere03.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere04.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere05.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere06.vcd" 
+	scene "scenes/Player/Engineer/low/PainSevere07.vcd" 
+}
+Rule PlayerAttackerPainEngineer
+{
+	criteria ConceptAttackerPain IsEngineer
+	Response PlayerAttackerPainEngineer
+}
+
+Response PlayerOnFireEngineer
+{
+	scene "scenes/Player/Engineer/low/AutoOnFire01.vcd" 
+	scene "scenes/Player/Engineer/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Engineer/low/AutoOnFire03.vcd" 
+}
+Rule PlayerOnFireEngineer
+{
+	criteria ConceptFire IsEngineer EngineerIsNotStillonFire
+	ApplyContext "EngineerOnFire:1:7"
+	Response PlayerOnFireEngineer
+}
+
+Response PlayerPainEngineer
+{
+	scene "scenes/Player/Engineer/low/PainSharp01.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp02.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp03.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp04.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp05.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp06.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp07.vcd" 
+	scene "scenes/Player/Engineer/low/PainSharp08.vcd" 
+}
+Rule PlayerPainEngineer
+{
+	criteria ConceptPain IsEngineer
+	Response PlayerPainEngineer
+}
+
+Response PlayerStillOnFireEngineer
+{
+	scene "scenes/Player/Engineer/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireEngineer
+{
+	criteria ConceptFire IsEngineer  EngineerIsStillonFire
+	ApplyContext "EngineerOnFire:1:7"
+	Response PlayerStillOnFireEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoEngineer
+{
+	scene "scenes/Player/Engineer/low/Go01.vcd" 
+	scene "scenes/Player/Engineer/low/Go02.vcd" 
+	scene "scenes/Player/Engineer/low/Go03.vcd" 
+}
+Rule PlayerGoEngineer
+{
+	criteria ConceptPlayerGo IsEngineer
+	Response PlayerGoEngineer
+}
+
+Response PlayerHeadLeftEngineer
+{
+	scene "scenes/Player/Engineer/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Engineer/low/HeadLeft02.vcd" 
+}
+Rule PlayerHeadLeftEngineer
+{
+	criteria ConceptPlayerLeft  IsEngineer
+	Response PlayerHeadLeftEngineer
+}
+
+Response PlayerHeadRightEngineer
+{
+	scene "scenes/Player/Engineer/low/HeadRight01.vcd" 
+	scene "scenes/Player/Engineer/low/HeadRight02.vcd" 
+	scene "scenes/Player/Engineer/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightEngineer
+{
+	criteria ConceptPlayerRight  IsEngineer
+	Response PlayerHeadRightEngineer
+}
+
+Response PlayerHelpEngineer
+{
+	scene "scenes/Player/Engineer/low/HelpMe01.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMe02.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpEngineer
+{
+	criteria ConceptPlayerHelp IsEngineer
+	Response PlayerHelpEngineer
+}
+
+Response PlayerHelpCaptureEngineer
+{
+	scene "scenes/Player/Engineer/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMeCapture02.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMeCapture03.vcd" 
+}
+Rule PlayerHelpCaptureEngineer
+{
+	criteria ConceptPlayerHelp IsEngineer IsOnCappableControlPoint
+	ApplyContext "EngineerHelpCap:1:10"
+	Response PlayerHelpCaptureEngineer
+}
+
+Response PlayerHelpCapture2Engineer
+{
+	scene "scenes/Player/Engineer/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Engineer/low/StandOnThePoint02.vcd" 
+}
+Rule PlayerHelpCapture2Engineer
+{
+	criteria ConceptPlayerHelp IsEngineer IsOnCappableControlPoint IsHelpCapEngineer
+	Response PlayerHelpCapture2Engineer
+}
+
+Response PlayerHelpDefendEngineer
+{
+	scene "scenes/Player/Engineer/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Engineer/low/HelpMeDefend03.vcd" 
+}
+Rule PlayerHelpDefendEngineer
+{
+	criteria ConceptPlayerHelp IsEngineer IsOnFriendlyControlPoint
+	Response PlayerHelpDefendEngineer
+}
+
+Response PlayerMedicEngineer
+{
+	scene "scenes/Player/Engineer/low/Medic01.vcd" 
+	scene "scenes/Player/Engineer/low/Medic02.vcd" 
+	scene "scenes/Player/Engineer/low/Medic03.vcd" 
+}
+Rule PlayerMedicEngineer
+{
+	criteria ConceptPlayerMedic IsEngineer
+	Response PlayerMedicEngineer
+}
+
+Response PlayerMoveUpEngineer
+{
+	scene "scenes/Player/Engineer/low/MoveUp01.vcd" 
+}
+Rule PlayerMoveUpEngineer
+{
+	criteria ConceptPlayerMoveUp  IsEngineer
+	Response PlayerMoveUpEngineer
+}
+
+Response PlayerNoEngineer
+{
+	scene "scenes/Player/Engineer/low/No01.vcd" 
+	scene "scenes/Player/Engineer/low/No02.vcd" 
+	scene "scenes/Player/Engineer/low/No03.vcd" 
+}
+Rule PlayerNoEngineer
+{
+	criteria ConceptPlayerNo  IsEngineer
+	Response PlayerNoEngineer
+}
+
+Response PlayerThanksEngineer
+{
+	scene "scenes/Player/Engineer/low/Thanks01.vcd" 
+}
+Rule PlayerThanksEngineer
+{
+	criteria ConceptPlayerThanks IsEngineer
+	Response PlayerThanksEngineer
+}
+
+Response PlayerYesEngineer
+{
+	scene "scenes/Player/Engineer/low/Yes01.vcd" 
+	scene "scenes/Player/Engineer/low/Yes02.vcd" 
+	scene "scenes/Player/Engineer/low/Yes03.vcd" 
+}
+Rule PlayerYesEngineer
+{
+	criteria ConceptPlayerYes  IsEngineer
+	Response PlayerYesEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeEngineer
+{
+	scene "scenes/Player/Engineer/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Engineer/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Engineer/low/ActivateCharge03.vcd" 
+}
+Rule PlayerActivateChargeEngineer
+{
+	criteria ConceptPlayerActivateCharge IsEngineer
+	Response PlayerActivateChargeEngineer
+}
+
+Response PlayerCloakedSpyEngineer
+{
+	scene "scenes/Player/Engineer/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Engineer/low/CloakedSpy02.vcd" 
+	scene "scenes/Player/Engineer/low/CloakedSpy03.vcd" 
+}
+Rule PlayerCloakedSpyEngineer
+{
+	criteria ConceptPlayerCloakedSpy IsEngineer
+	Response PlayerCloakedSpyEngineer
+}
+
+Response PlayerDispenserHereEngineer
+{
+	scene "scenes/Player/Engineer/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereEngineer
+{
+	criteria ConceptPlayerDispenserHere IsEngineer
+	Response PlayerDispenserHereEngineer
+}
+
+Response PlayerIncomingEngineer
+{
+	scene "scenes/Player/Engineer/low/Incoming01.vcd" 
+	scene "scenes/Player/Engineer/low/Incoming02.vcd" 
+	scene "scenes/Player/Engineer/low/Incoming03.vcd" 
+}
+Rule PlayerIncomingEngineer
+{
+	criteria ConceptPlayerIncoming IsEngineer
+	Response PlayerIncomingEngineer
+}
+
+Response PlayerSentryAheadEngineer
+{
+	scene "scenes/Player/Engineer/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Engineer/low/SentryAhead02.vcd" 
+}
+Rule PlayerSentryAheadEngineer
+{
+	criteria ConceptPlayerSentryAhead IsEngineer
+	Response PlayerSentryAheadEngineer
+}
+
+Response PlayerSentryHereEngineer
+{
+	scene "scenes/Player/Engineer/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereEngineer
+{
+	criteria ConceptPlayerSentryHere IsEngineer
+	Response PlayerSentryHereEngineer
+}
+
+Response PlayerTeleporterHereEngineer
+{
+	scene "scenes/Player/Engineer/low/NeedTeleporter01.vcd" 
+	scene "scenes/Player/Engineer/low/NeedTeleporter02.vcd" 
+}
+Rule PlayerTeleporterHereEngineer
+{
+	criteria ConceptPlayerTeleporterHere IsEngineer
+	Response PlayerTeleporterHereEngineer
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCryEngineer
+{
+	scene "scenes/Player/Engineer/low/BattleCry01.vcd" 
+	scene "scenes/Player/Engineer/low/BattleCry03.vcd" 
+	scene "scenes/Player/Engineer/low/BattleCry04.vcd" 
+	scene "scenes/Player/Engineer/low/BattleCry05.vcd" 
+	scene "scenes/Player/Engineer/low/BattleCry06.vcd" 
+	scene "scenes/Player/Engineer/low/BattleCry07.vcd" 
+}
+Rule PlayerBattleCryEngineer
+{
+	criteria ConceptPlayerBattleCry IsEngineer
+	Response PlayerBattleCryEngineer
+}
+
+Response PlayerCheersEngineer
+{
+	scene "scenes/Player/Engineer/low/Cheers01.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers02.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers03.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers04.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers05.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers06.vcd" 
+	scene "scenes/Player/Engineer/low/Cheers07.vcd" 
+}
+Rule PlayerCheersEngineer
+{
+	criteria ConceptPlayerCheers IsEngineer
+	Response PlayerCheersEngineer
+}
+
+Response PlayerGoodJobEngineer
+{
+	scene "scenes/Player/Engineer/low/GoodJob01.vcd" 
+	scene "scenes/Player/Engineer/low/GoodJob02.vcd" 
+	scene "scenes/Player/Engineer/low/GoodJob03.vcd" 
+}
+Rule PlayerGoodJobEngineer
+{
+	criteria ConceptPlayerGoodJob IsEngineer
+	Response PlayerGoodJobEngineer
+}
+
+Response PlayerJeersEngineer
+{
+	scene "scenes/Player/Engineer/low/Jeers01.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers02.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers03.vcd" 
+	scene "scenes/Player/Engineer/low/Jeers04.vcd" 
+}
+Rule PlayerJeersEngineer
+{
+	criteria ConceptPlayerJeers IsEngineer
+	Response PlayerJeersEngineer
+}
+
+Response PlayerLostPointEngineer
+{
+	scene "scenes/Player/Engineer/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization07.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization08.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization09.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization10.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization11.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization12.vcd" 
+}
+Rule PlayerLostPointEngineer
+{
+	criteria ConceptPlayerLostPoint IsEngineer
+	Response PlayerLostPointEngineer
+}
+
+Response PlayerNegativeEngineer
+{
+	scene "scenes/Player/Engineer/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization07.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization08.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization09.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization10.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization11.vcd" 
+	scene "scenes/Player/Engineer/low/NegativeVocalization12.vcd" 
+}
+Rule PlayerNegativeEngineer
+{
+	criteria ConceptPlayerNegative IsEngineer
+	Response PlayerNegativeEngineer
+}
+
+Response PlayerNiceShotEngineer
+{
+	scene "scenes/Player/Engineer/low/NiceShot01.vcd" 
+	scene "scenes/Player/Engineer/low/NiceShot02.vcd" 
+	scene "scenes/Player/Engineer/low/NiceShot03.vcd" 
+}
+Rule PlayerNiceShotEngineer
+{
+	criteria ConceptPlayerNiceShot IsEngineer
+	Response PlayerNiceShotEngineer
+}
+
+Response PlayerPositiveEngineer
+{
+	scene "scenes/Player/Engineer/low/PositiveVocalization01.vcd" 
+}
+Rule PlayerPositiveEngineer
+{
+	criteria ConceptPlayerPositive IsEngineer
+	Response PlayerPositiveEngineer
+}
+
+Response PlayerTauntsEngineer
+{
+	scene "scenes/Player/Engineer/low/LaughEvil03.vcd" 
+	scene "scenes/Player/Engineer/low/LaughEvil04.vcd" 
+	scene "scenes/Player/Engineer/low/LaughShort01.vcd" 
+	scene "scenes/Player/Engineer/low/LaughShort02.vcd" 
+	scene "scenes/Player/Engineer/low/LaughShort03.vcd" 
+	scene "scenes/Player/Engineer/low/LaughShort04.vcd" 
+}
+Rule PlayerTauntsEngineer
+{
+	criteria ConceptPlayerTaunts IsEngineer
+	Response PlayerTauntsEngineer
+}
+

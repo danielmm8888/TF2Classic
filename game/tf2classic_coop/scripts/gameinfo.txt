@@ -1,0 +1,17 @@
+// Valve Game Info file
+//  These are key/value pairs.  Certain mods will use different settings.
+//
+GameInfo
+{
+	game	"Team Fortress"
+	title	"Team Fortress"
+	type multiplayer_only
+	nomodels 1
+	nohimodel 1
+	nocrosshair 0
+	hidden_maps
+	{
+		"test_speakers"		1
+		"test_hardware"		1
+	}
+}

@@ -1,0 +1,737 @@
+//--------------------------------------------------------------------------------------------------------------
+// Soldier Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "SoldierIsKillSpeechObject" "SoldierKillSpeechObject" "1" "required" weight 0
+Criterion "SoldierIsNotStillonFire" "SoldierOnFire" "!=1" "required" weight 0
+Criterion "SoldierIsStillonFire" "SoldierOnFire" "1" "required" weight 0
+Criterion "SoldierNotKillSpeech" "SoldierKillSpeech" "!=1" "required" weight 0
+Criterion "SoldierNotKillSpeechMelee" "SoldierKillSpeechMelee" "!=1" "required" weight 0
+Criterion "SoldierNotSaidHealThanks" "SoldierSaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapSoldier" "SoldierHelpCap" "1" "required" weight 0
+
+
+Response PlayerCloakedSpyDemomanSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpyDemomanSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnDemoman
+	Response PlayerCloakedSpyDemomanSoldier
+}
+
+Response PlayerCloakedSpyEngineerSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyEngineerSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnEngineer
+	Response PlayerCloakedSpyEngineerSoldier
+}
+
+Response PlayerCloakedSpyHeavySoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavySoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnHeavy
+	Response PlayerCloakedSpyHeavySoldier
+}
+
+Response PlayerCloakedSpyMedicSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify06.vcd" 
+}
+Rule PlayerCloakedSpyMedicSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnMedic
+	Response PlayerCloakedSpyMedicSoldier
+}
+
+Response PlayerCloakedSpyPyroSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyPyroSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnPyro
+	Response PlayerCloakedSpyPyroSoldier
+}
+
+Response PlayerCloakedSpySniperSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpySniperSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnSniper
+	Response PlayerCloakedSpySniperSoldier
+}
+
+Response PlayerCloakedSpySoldierSoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierSoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnSoldier
+	Response PlayerCloakedSpySoldierSoldier
+}
+
+Response PlayerCloakedSpySpySoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpySpySoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier IsOnSpy
+	Response PlayerCloakedSpySpySoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksSoldier
+{
+	scene "scenes/Player/Soldier/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Soldier/low/ThanksForTheHeal02.vcd" 
+	scene "scenes/Player/Soldier/low/ThanksForTheHeal03.vcd" 
+}
+Rule HealThanksSoldier
+{
+	criteria ConceptMedicChargeStopped IsSoldier SuperHighHealthContext SoldierNotSaidHealThanks 50PercentChance
+	ApplyContext "SoldierSaidHealThanks:1:20"
+	Response HealThanksSoldier
+}
+
+Response PlayerRoundStartSoldier
+{
+	scene "scenes/Player/Soldier/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Soldier/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Soldier/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Soldier/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Soldier/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Soldier/low/BattleCry06.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartSoldier
+{
+	criteria ConceptPlayerRoundStart IsSoldier
+	Response PlayerRoundStartSoldier
+}
+
+Response PlayerCappedIntelligenceSoldier
+{
+	scene "scenes/Player/Soldier/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Soldier/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Soldier/low/AutoCappedIntelligence03.vcd" 
+}
+Rule PlayerCappedIntelligenceSoldier
+{
+	criteria ConceptPlayerCapturedIntelligence IsSoldier
+	Response PlayerCappedIntelligenceSoldier
+}
+
+Response PlayerCapturedPointSoldier
+{
+	scene "scenes/Player/Soldier/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Soldier/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Soldier/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointSoldier
+{
+	criteria ConceptPlayerCapturedPoint IsSoldier
+	Response PlayerCapturedPointSoldier
+}
+
+Response PlayerSuddenDeathSoldier
+{
+	scene "scenes/Player/Soldier/low/Jeers01.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers02.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers03.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers04.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers05.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers06.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers07.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers08.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers09.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers10.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers11.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers12.vcd" 
+}
+Rule PlayerSuddenDeathSoldier
+{
+	criteria ConceptPlayerSuddenDeathStart IsSoldier
+	Response PlayerSuddenDeathSoldier
+}
+
+Response PlayerStalemateSoldier
+{
+	scene "scenes/Player/Soldier/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Soldier/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Soldier/low/AutoDejectedTie03.vcd" 
+}
+Rule PlayerStalemateSoldier
+{
+	criteria ConceptPlayerStalemate IsSoldier
+	Response PlayerStalemateSoldier
+}
+
+Response PlayerTeleporterThanksSoldier
+{
+	scene "scenes/Player/Soldier/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Soldier/low/ThanksForTheTeleporter02.vcd" 
+	scene "scenes/Player/Soldier/low/ThanksForTheTeleporter03.vcd" 
+}
+Rule PlayerTeleporterThanksSoldier
+{
+	criteria ConceptTeleported IsNotEngineer IsSoldier 30PercentChance
+	Response PlayerTeleporterThanksSoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response KilledPlayerManySoldier
+{
+	scene "scenes/Player/Soldier/low/SpecialCompleted03.vcd" 
+	scene "scenes/Player/Soldier/low/Taunts01.vcd" 
+	scene "scenes/Player/Soldier/low/Taunts02.vcd" 
+	scene "scenes/Player/Soldier/low/Taunts09.vcd" 
+	scene "scenes/Player/Soldier/low/Taunts10.vcd" 
+}
+Rule KilledPlayerManySoldier
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay SoldierNotKillSpeech IsSoldier
+	ApplyContext "SoldierKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManySoldier
+}
+
+Response KilledPlayerMeleeSoldier
+{
+	scene "scenes/Player/Soldier/low/SpecialCompleted05.vcd" 
+}
+Rule KilledPlayerMeleeSoldier
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee SoldierNotKillSpeechMelee IsSoldier
+	ApplyContext "SoldierKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeSoldier
+}
+
+Response KilledPlayerVeryManySoldier
+{
+	scene "scenes/Player/Soldier/low/Taunts17.vcd" 
+}
+Rule KilledPlayerVeryManySoldier
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay SoldierNotKillSpeech IsSoldier
+	ApplyContext "SoldierKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManySoldier
+}
+
+Response PlayerKilledCapperSoldier
+{
+	scene "scenes/Player/Soldier/low/Cheers04.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers05.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers06.vcd" 
+}
+Rule PlayerKilledCapperSoldier
+{
+	criteria ConceptCapBlocked IsSoldier
+	ApplyContext "SoldierKillSpeech:1:10"
+	Response PlayerKilledCapperSoldier
+}
+
+Response PlayerKilledDominatingSoldier
+{
+	scene "scenes/Player/Soldier/low/LaughEvil01.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughEvil02.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughEvil03.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughHappy02.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughHappy03.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/LaughLong03.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/Taunts07.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/Taunts13.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingSoldier
+{
+	criteria ConceptKilledPlayer IsSoldier IsDominated
+	ApplyContext "SoldierKillSpeech:1:10"
+	Response PlayerKilledDominatingSoldier
+}
+
+Response PlayerKilledForRevengeSoldier
+{
+	scene "scenes/Player/Soldier/low/BattleCry06.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/Cheers01.vcd" predelay "2.5"
+	scene "scenes/Player/Soldier/low/GoodJob02.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeSoldier
+{
+	criteria ConceptKilledPlayer IsSoldier IsRevenge
+	ApplyContext "SoldierKillSpeech:1:10"
+	Response PlayerKilledForRevengeSoldier
+}
+
+Response PlayerKilledObjectSoldier
+{
+	scene "scenes/Player/Soldier/low/BattleCry01.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Soldier/low/SpecialCompleted04.vcd" 
+}
+Rule PlayerKilledObjectSoldier
+{
+	criteria ConceptKilledObject IsSoldier 30PercentChance IsARecentKill
+	ApplyContext "SoldierKillSpeechObject:1:30"
+	applycontexttoworld
+	Response PlayerKilledObjectSoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainSoldier
+{
+	scene "scenes/Player/Soldier/low/PainSevere01.vcd" 
+	scene "scenes/Player/Soldier/low/PainSevere02.vcd" 
+	scene "scenes/Player/Soldier/low/PainSevere03.vcd" 
+	scene "scenes/Player/Soldier/low/PainSevere04.vcd" 
+	scene "scenes/Player/Soldier/low/PainSevere05.vcd" 
+	scene "scenes/Player/Soldier/low/PainSevere06.vcd" 
+}
+Rule PlayerAttackerPainSoldier
+{
+	criteria ConceptAttackerPain IsSoldier
+	Response PlayerAttackerPainSoldier
+}
+
+Response PlayerOnFireSoldier
+{
+	scene "scenes/Player/Soldier/low/AutoOnFire01.vcd" 
+}
+Rule PlayerOnFireSoldier
+{
+	criteria ConceptFire IsSoldier SoldierIsNotStillonFire
+	ApplyContext "SoldierOnFire:1:7"
+	Response PlayerOnFireSoldier
+}
+
+Response PlayerOnFireRareSoldier
+{
+	scene "scenes/Player/Soldier/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Soldier/low/AutoOnFire03.vcd" 
+}
+Rule PlayerOnFireRareSoldier
+{
+	criteria ConceptFire IsSoldier 10PercentChance SoldierIsNotStillonFire
+	ApplyContext "SoldierOnFire:1:7"
+	Response PlayerOnFireRareSoldier
+}
+
+Response PlayerPainSoldier
+{
+	scene "scenes/Player/Soldier/low/PainSharp01.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp02.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp03.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp04.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp05.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp06.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp07.vcd" 
+	scene "scenes/Player/Soldier/low/PainSharp08.vcd" 
+}
+Rule PlayerPainSoldier
+{
+	criteria ConceptPain IsSoldier
+	Response PlayerPainSoldier
+}
+
+Response PlayerStillOnFireSoldier
+{
+	scene "scenes/Player/Soldier/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireSoldier
+{
+	criteria ConceptFire IsSoldier  SoldierIsStillonFire
+	ApplyContext "SoldierOnFire:1:7"
+	Response PlayerStillOnFireSoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoSoldier
+{
+	scene "scenes/Player/Soldier/low/Go01.vcd" 
+	scene "scenes/Player/Soldier/low/Go02.vcd" 
+	scene "scenes/Player/Soldier/low/Go03.vcd" 
+}
+Rule PlayerGoSoldier
+{
+	criteria ConceptPlayerGo IsSoldier
+	Response PlayerGoSoldier
+}
+
+Response PlayerHeadLeftSoldier
+{
+	scene "scenes/Player/Soldier/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Soldier/low/HeadLeft02.vcd" 
+	scene "scenes/Player/Soldier/low/HeadLeft03.vcd" 
+}
+Rule PlayerHeadLeftSoldier
+{
+	criteria ConceptPlayerLeft  IsSoldier
+	Response PlayerHeadLeftSoldier
+}
+
+Response PlayerHeadRightSoldier
+{
+	scene "scenes/Player/Soldier/low/HeadRight01.vcd" 
+	scene "scenes/Player/Soldier/low/HeadRight02.vcd" 
+	scene "scenes/Player/Soldier/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightSoldier
+{
+	criteria ConceptPlayerRight  IsSoldier
+	Response PlayerHeadRightSoldier
+}
+
+Response PlayerHelpSoldier
+{
+	scene "scenes/Player/Soldier/low/HelpMe01.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMe02.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpSoldier
+{
+	criteria ConceptPlayerHelp IsSoldier
+	Response PlayerHelpSoldier
+}
+
+Response PlayerHelpCaptureSoldier
+{
+	scene "scenes/Player/Soldier/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMeCapture02.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMeCapture03.vcd" 
+}
+Rule PlayerHelpCaptureSoldier
+{
+	criteria ConceptPlayerHelp IsSoldier IsOnCappableControlPoint
+	ApplyContext "SoldierHelpCap:1:10"
+	Response PlayerHelpCaptureSoldier
+}
+
+Response PlayerHelpCapture2Soldier
+{
+	scene "scenes/Player/Soldier/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Soldier/low/StandOnThePoint02.vcd" 
+	scene "scenes/Player/Soldier/low/StandOnThePoint03.vcd" 
+}
+Rule PlayerHelpCapture2Soldier
+{
+	criteria ConceptPlayerHelp IsSoldier IsOnCappableControlPoint IsHelpCapSoldier
+	Response PlayerHelpCapture2Soldier
+}
+
+Response PlayerHelpDefendSoldier
+{
+	scene "scenes/Player/Soldier/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMeDefend03.vcd" 
+	scene "scenes/Player/Soldier/low/HelpMeDefend04.vcd" 
+}
+Rule PlayerHelpDefendSoldier
+{
+	criteria ConceptPlayerHelp IsSoldier IsOnFriendlyControlPoint
+	Response PlayerHelpDefendSoldier
+}
+
+Response PlayerMedicSoldier
+{
+	scene "scenes/Player/Soldier/low/Medic01.vcd" 
+	scene "scenes/Player/Soldier/low/Medic02.vcd" 
+	scene "scenes/Player/Soldier/low/Medic03.vcd" 
+}
+Rule PlayerMedicSoldier
+{
+	criteria ConceptPlayerMedic IsSoldier
+	Response PlayerMedicSoldier
+}
+
+Response PlayerMoveUpSoldier
+{
+	scene "scenes/Player/Soldier/low/MoveUp01.vcd" 
+	scene "scenes/Player/Soldier/low/MoveUp02.vcd" 
+	scene "scenes/Player/Soldier/low/MoveUp03.vcd" 
+}
+Rule PlayerMoveUpSoldier
+{
+	criteria ConceptPlayerMoveUp  IsSoldier
+	Response PlayerMoveUpSoldier
+}
+
+Response PlayerNoSoldier
+{
+	scene "scenes/Player/Soldier/low/No01.vcd" 
+	scene "scenes/Player/Soldier/low/No02.vcd" 
+	scene "scenes/Player/Soldier/low/No03.vcd" 
+}
+Rule PlayerNoSoldier
+{
+	criteria ConceptPlayerNo  IsSoldier
+	Response PlayerNoSoldier
+}
+
+Response PlayerThanksSoldier
+{
+	scene "scenes/Player/Soldier/low/Thanks01.vcd" 
+	scene "scenes/Player/Soldier/low/Thanks02.vcd" 
+}
+Rule PlayerThanksSoldier
+{
+	criteria ConceptPlayerThanks IsSoldier
+	Response PlayerThanksSoldier
+}
+
+Response PlayerYesSoldier
+{
+	scene "scenes/Player/Soldier/low/Yes01.vcd" 
+	scene "scenes/Player/Soldier/low/Yes02.vcd" 
+	scene "scenes/Player/Soldier/low/Yes03.vcd" 
+	scene "scenes/Player/Soldier/low/Yes04.vcd" 
+}
+Rule PlayerYesSoldier
+{
+	criteria ConceptPlayerYes  IsSoldier
+	Response PlayerYesSoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeSoldier
+{
+	scene "scenes/Player/Soldier/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Soldier/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Soldier/low/ActivateCharge03.vcd" 
+}
+Rule PlayerActivateChargeSoldier
+{
+	criteria ConceptPlayerActivateCharge IsSoldier
+	Response PlayerActivateChargeSoldier
+}
+
+Response PlayerCloakedSpySoldier
+{
+	scene "scenes/Player/Soldier/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Soldier/low/CloakedSpy02.vcd" 
+	scene "scenes/Player/Soldier/low/CloakedSpy03.vcd" 
+}
+Rule PlayerCloakedSpySoldier
+{
+	criteria ConceptPlayerCloakedSpy IsSoldier
+	Response PlayerCloakedSpySoldier
+}
+
+Response PlayerDispenserHereSoldier
+{
+	scene "scenes/Player/Soldier/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereSoldier
+{
+	criteria ConceptPlayerDispenserHere IsSoldier
+	Response PlayerDispenserHereSoldier
+}
+
+Response PlayerIncomingSoldier
+{
+	scene "scenes/Player/Soldier/low/Incoming01.vcd" 
+}
+Rule PlayerIncomingSoldier
+{
+	criteria ConceptPlayerIncoming IsSoldier
+	Response PlayerIncomingSoldier
+}
+
+Response PlayerSentryAheadSoldier
+{
+	scene "scenes/Player/Soldier/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Soldier/low/SentryAhead02.vcd" 
+	scene "scenes/Player/Soldier/low/SentryAhead03.vcd" 
+}
+Rule PlayerSentryAheadSoldier
+{
+	criteria ConceptPlayerSentryAhead IsSoldier
+	Response PlayerSentryAheadSoldier
+}
+
+Response PlayerSentryHereSoldier
+{
+	scene "scenes/Player/Soldier/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereSoldier
+{
+	criteria ConceptPlayerSentryHere IsSoldier
+	Response PlayerSentryHereSoldier
+}
+
+Response PlayerTeleporterHereSoldier
+{
+	scene "scenes/Player/Soldier/low/NeedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterHereSoldier
+{
+	criteria ConceptPlayerTeleporterHere IsSoldier
+	Response PlayerTeleporterHereSoldier
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCrySoldier
+{
+	scene "scenes/Player/Soldier/low/BattleCry01.vcd" 
+	scene "scenes/Player/Soldier/low/BattleCry02.vcd" 
+	scene "scenes/Player/Soldier/low/BattleCry03.vcd" 
+	scene "scenes/Player/Soldier/low/BattleCry04.vcd" 
+	scene "scenes/Player/Soldier/low/BattleCry05.vcd" 
+	scene "scenes/Player/Soldier/low/BattleCry06.vcd" 
+}
+Rule PlayerBattleCrySoldier
+{
+	criteria ConceptPlayerBattleCry IsSoldier
+	Response PlayerBattleCrySoldier
+}
+
+Response PlayerCheersSoldier
+{
+	scene "scenes/Player/Soldier/low/Cheers01.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers02.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers03.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers04.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers05.vcd" 
+	scene "scenes/Player/Soldier/low/Cheers06.vcd" 
+}
+Rule PlayerCheersSoldier
+{
+	criteria ConceptPlayerCheers IsSoldier
+	Response PlayerCheersSoldier
+}
+
+Response PlayerGoodJobSoldier
+{
+	scene "scenes/Player/Soldier/low/GoodJob01.vcd" 
+	scene "scenes/Player/Soldier/low/GoodJob02.vcd" 
+	scene "scenes/Player/Soldier/low/GoodJob03.vcd" 
+}
+Rule PlayerGoodJobSoldier
+{
+	criteria ConceptPlayerGoodJob IsSoldier
+	Response PlayerGoodJobSoldier
+}
+
+Response PlayerJeersSoldier
+{
+	scene "scenes/Player/Soldier/low/Jeers01.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers02.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers03.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers04.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers05.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers06.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers07.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers08.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers09.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers10.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers11.vcd" 
+	scene "scenes/Player/Soldier/low/Jeers12.vcd" 
+}
+Rule PlayerJeersSoldier
+{
+	criteria ConceptPlayerJeers IsSoldier
+	Response PlayerJeersSoldier
+}
+
+Response PlayerLostPointSoldier
+{
+	scene "scenes/Player/Soldier/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerLostPointSoldier
+{
+	criteria ConceptPlayerLostPoint IsSoldier
+	Response PlayerLostPointSoldier
+}
+
+Response PlayerNegativeSoldier
+{
+	scene "scenes/Player/Soldier/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Soldier/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerNegativeSoldier
+{
+	criteria ConceptPlayerNegative IsSoldier
+	Response PlayerNegativeSoldier
+}
+
+Response PlayerNiceShotSoldier
+{
+	scene "scenes/Player/Soldier/low/NiceShot01.vcd" 
+	scene "scenes/Player/Soldier/low/NiceShot02.vcd" 
+	scene "scenes/Player/Soldier/low/NiceShot03.vcd" 
+}
+Rule PlayerNiceShotSoldier
+{
+	criteria ConceptPlayerNiceShot IsSoldier
+	Response PlayerNiceShotSoldier
+}
+
+Response PlayerPositiveSoldier
+{
+	scene "scenes/Player/Soldier/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Soldier/low/PositiveVocalization05.vcd" 
+}
+Rule PlayerPositiveSoldier
+{
+	criteria ConceptPlayerPositive IsSoldier
+	Response PlayerPositiveSoldier
+}
+
+Response PlayerTauntsSoldier
+{
+	scene "scenes/Player/Soldier/low/LaughLong02.vcd" 
+	scene "scenes/Player/Soldier/low/LaughShort01.vcd" 
+	scene "scenes/Player/Soldier/low/LaughShort02.vcd" 
+	scene "scenes/Player/Soldier/low/LaughShort03.vcd" 
+	scene "scenes/Player/Soldier/low/LaughShort04.vcd" 
+}
+Rule PlayerTauntsSoldier
+{
+	criteria ConceptPlayerTaunts IsSoldier
+	Response PlayerTauntsSoldier
+}
+
