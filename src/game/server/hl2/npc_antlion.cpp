@@ -372,6 +372,8 @@ void CNPC_Antlion::Spawn( void )
 //-----------------------------------------------------------------------------
 void CNPC_Antlion::Activate( void )
 {
+	// This is redundant in TF2C since relationships are controlled by teams.
+#ifndef TF_CLASSIC
 	// If we're friendly to the player, setup a relationship to reflect it
 	if ( IsAllied() )
 	{
@@ -386,6 +388,7 @@ void CNPC_Antlion::Activate( void )
 			}
 		}
 	}
+#endif //TF_CLASSIC
 
 	BaseClass::Activate();
 

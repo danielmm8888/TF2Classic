@@ -23,12 +23,12 @@
 
 inline CBasePlayer *AI_GetSinglePlayer()
 {
-#ifndef TF_CLASSIC
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( gpGlobals->maxClients > 1 )
 	{
 		return NULL;
 	}
-#endif // TF_CLASSIC
+#endif // SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	return UTIL_GetLocalPlayer();
 }

@@ -617,7 +617,7 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 // Return the local player.
 // If this is a multiplayer game, return NULL.
 // 
-#ifdef TF_CLASSIC
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
 
@@ -666,7 +666,7 @@ CBasePlayer *UTIL_GetOtherNearestPlayer( const Vector &origin )
 
 CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
 {
-	float distToNearest = 99999999999999999999999999999999999999.0f;
+	float distToNearest = FLT_MAX;
 	CBasePlayer *pNearest = NULL;
 
 	for (int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -691,7 +691,7 @@ CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
 
 CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
 {															
-	float distToNearest = 99999999999999999999999999999999999999.0f;
+	float distToNearest = FLT_MAX;
 	CBasePlayer *pNearest = NULL;
 
 	for (int i = 1; i <= gpGlobals->maxClients; i++ )
@@ -729,7 +729,7 @@ CBasePlayer *UTIL_GetLocalPlayer( void )
 
 	return UTIL_PlayerByIndex( 1 );
 }
-#endif
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 //
 // Get the local player on a listen server - this is for multiplayer use only
 // 

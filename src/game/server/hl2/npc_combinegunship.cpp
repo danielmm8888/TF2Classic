@@ -2959,7 +2959,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		if ( m_iHealthAlt <= 0 )
 		{
 			// HACK: create fake explosion, change damage type to DMG_BLAST and set damage to 100.
-			ExplosionCreate( info.GetDamagePosition(), GetAbsAngles(), this, 100, 200, false );
+			ExplosionCreate( info.GetDamagePosition(), GetAbsAngles(), info.GetAttacker(), 100, 200, false );
 			info.SetDamageType( DMG_BLAST );
 			info.SetDamage( 100 );
 			info.SetMaxDamage( 100 );
@@ -2967,6 +2967,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		}
 		else
 		{
+			// Don't count this as real damage.
 			return 0;
 		}
 	}

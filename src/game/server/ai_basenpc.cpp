@@ -935,9 +935,15 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		{
 			// See if the person that injured me is an NPC.
 			CAI_BaseNPC *pAttacker = dynamic_cast<CAI_BaseNPC *>( info.GetAttacker() );
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 			CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+			if( pAttacker && pAttacker->IsAlive() && UTIL_GetNearestPlayer(GetAbsOrigin()) ) 
+#else
 			if( pAttacker && pAttacker->IsAlive() && pPlayer )
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 			{
 				if( pAttacker->GetSquad() != NULL && pAttacker->IsInPlayerSquad() )
 				{
@@ -1053,10 +1059,10 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 1024, 0.5, this, SOUNDENT_CHANNEL_INJURY );
 
 #ifdef TF_CLASSIC
-	CBaseEntity *pAttacker = info.GetAttacker();
-	if ( pAttacker && pAttacker->IsPlayer() )
+	CTFPlayer *pTFAttacker = ToTFPlayer( info.GetAttacker() );
+	if ( pTFAttacker )
 	{
-		ToTFPlayer( pAttacker )->RecordDamageEvent( info, (m_iHealth <= 0) );
+		pTFAttacker->RecordDamageEvent( info, (m_iHealth <= 0) );
 	}
 #endif
 
@@ -3310,7 +3316,11 @@ void CAI_BaseNPC::UpdateEfficiency( bool bInPVS )
 
 	//---------------------------------
 
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() );  
+#else
 	CBasePlayer *pPlayer = AI_GetSinglePlayer(); 
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	static Vector vPlayerEyePosition;
 	static Vector vPlayerForward;
 	static int iPrevFrame = -1;
@@ -3554,7 +3564,11 @@ void CAI_BaseNPC::UpdateSleepState( bool bInPVS )
 {
 	if ( GetSleepState() > AISS_AWAKE )
 	{
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pLocalPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() ); 
+#else
 		CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( !pLocalPlayer )
 		{
 			if ( gpGlobals->maxClients > 1 )
@@ -3754,7 +3768,11 @@ void CAI_BaseNPC::RebalanceThinks()
 
 		int i;
 
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		Vector vPlayerForward;
 		Vector vPlayerEyePosition;
 
@@ -4035,7 +4053,11 @@ void CAI_BaseNPC::SetPlayerAvoidState( void )
 
 		GetPlayerAvoidBounds( &vMins, &vMaxs );
 
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pLocalPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() ); 
+#else
 		CBasePlayer *pLocalPlayer = AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 		if ( pLocalPlayer )
 		{
@@ -10134,7 +10156,11 @@ CBaseEntity *CAI_BaseNPC::FindNamedEntity( const char *name, IEntityFindFilter *
 {
 	if ( !stricmp( name, "!player" ))
 	{
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		return UTIL_GetNearestPlayer( GetAbsOrigin() ); 
+#else
 		return ( CBaseEntity * )AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 	else if ( !stricmp( name, "!enemy" ) )
 	{
@@ -10149,7 +10175,11 @@ CBaseEntity *CAI_BaseNPC::FindNamedEntity( const char *name, IEntityFindFilter *
 	{
 		// FIXME: look at CBaseEntity *CNPCSimpleTalker::FindNearestFriend(bool fPlayer)
 		// punt for now
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		return UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		return ( CBaseEntity * )AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 	else if (!stricmp( name, "self" ))
 	{
@@ -10169,7 +10199,11 @@ CBaseEntity *CAI_BaseNPC::FindNamedEntity( const char *name, IEntityFindFilter *
 		{
 			DevMsg( "ERROR: \"player\" is no longer used, use \"!player\" in vcd instead!\n" );
 		}
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		return UTIL_GetNearestPlayer( GetAbsOrigin() ); 
+#else
 		return ( CBaseEntity * )AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	}
 	else
 	{
@@ -12160,7 +12194,11 @@ bool CAI_BaseNPC::CineCleanup()
 			{
 				SetLocalOrigin( origin );
 
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+				int drop = UTIL_DropToFloor( this, MASK_NPCSOLID, UTIL_GetNearestVisiblePlayer( this ) ); 
+#else
 				int drop = UTIL_DropToFloor( this, MASK_NPCSOLID, UTIL_GetLocalPlayer() );
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 				// Origin in solid?  Set to org at the end of the sequence
 				if ( ( drop < 0 ) || sv_test_scripted_sequences.GetBool() )
@@ -12237,7 +12275,11 @@ void CAI_BaseNPC::Teleport( const Vector *newPosition, const QAngle *newAngles, 
 
 bool CAI_BaseNPC::FindSpotForNPCInRadius( Vector *pResult, const Vector &vStartPos, CAI_BaseNPC *pNPC, float radius, bool bOutOfPlayerViewcone )
 {
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pNPC->GetAbsOrigin()); 
+#else
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	QAngle fan;
 
 	fan.x = 0;
@@ -12771,6 +12813,12 @@ bool CAI_BaseNPC::IsPlayerAlly( CBasePlayer *pPlayer )
 { 
 	if ( pPlayer == NULL )
 	{
+#ifdef TF_CLASSIC
+		// Difficult to handle in TF2C since players can join different teams
+		// to ally themselves with different factions. For now, just check if they are on RED.
+		if ( GetTeamNumber() == TF_TEAM_RED )
+			return true;
+#endif
 		// in multiplayer mode we need a valid pPlayer 
 		// or override this virtual function
 		if ( !AI_IsSinglePlayer() )
@@ -13071,7 +13119,11 @@ bool CAI_BaseNPC::FindNearestValidGoalPos( const Vector &vTestPoint, Vector *pRe
 
 	if ( vCandidate != vec3_invalid )
 	{
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		AI_Waypoint_t *pPathToPoint = GetPathfinder()->BuildRoute( GetAbsOrigin(), vCandidate, UTIL_GetNearestPlayer( GetAbsOrigin() ), 5*12, NAV_NONE, true ); 
+#else
 		AI_Waypoint_t *pPathToPoint = GetPathfinder()->BuildRoute( GetAbsOrigin(), vCandidate, AI_GetSinglePlayer(), 5*12, NAV_NONE, true );
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( pPathToPoint )
 		{
 			GetPathfinder()->UnlockRouteNodes( pPathToPoint );
