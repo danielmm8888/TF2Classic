@@ -346,7 +346,7 @@ void CNPC_EnemyFinder::StartNPC ( void )
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	if ( m_PlayerFreePass.GetParams().duration > 0.1 ) 
 	{
-		m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) ); 
+		m_PlayerFreePass.SetPassTarget( UTIL_GetNearestPlayer( GetAbsOrigin() ) ); 
 #else
 	if ( AI_IsSinglePlayer() && m_PlayerFreePass.GetParams().duration > 0.1 )
 	{
@@ -420,7 +420,7 @@ bool CNPC_EnemyFinder::ShouldAlwaysThink()
 	if ( BaseClass::ShouldAlwaysThink() )
 		return true;
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() ); 
 #else
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI

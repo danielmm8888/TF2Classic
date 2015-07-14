@@ -685,7 +685,6 @@ CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
 		}
 	}
 
-
 	return pNearest;
 }
 
@@ -698,6 +697,55 @@ CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();
+		if ( flDist < distToNearest && pLooker->FVisible( pPlayer, mask ) )
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}	
+	}
+
+	return pNearest; 
+}
+
+CBasePlayer *UTIL_GetNearestAlliedPlayer( const Vector &origin, int iTeamNum )
+{
+	float distToNearest = FLT_MAX;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer || pPlayer->GetTeamNumber() != iTeamNum )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if ( flDist < distToNearest )
+
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+
+		}
+	}
+
+	return pNearest;
+}
+
+CBasePlayer *UTIL_GetNearestVisibleAlliedPlayer( CBaseEntity *pLooker, int mask )
+{															
+	float distToNearest = FLT_MAX;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		if ( pLooker->GetTeamNumber() != pPlayer->GetTeamNumber() )
 			continue;
 
 		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();

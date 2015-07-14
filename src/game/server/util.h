@@ -230,8 +230,10 @@ CBasePlayer* UTIL_GetLocalPlayer( void );
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 // helper functions added for replacing the above 
-CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin ); 
-CBasePlayer *UTIL_GetNearestVisiblePlayer(CBaseEntity *pLooker, int mask = MASK_SOLID_BRUSHONLY); 
+CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin );
+CBasePlayer *UTIL_GetNearestVisiblePlayer(CBaseEntity *pLooker, int mask = MASK_SOLID_BRUSHONLY);
+CBasePlayer *UTIL_GetNearestAlliedPlayer( const Vector &origin, int iTeamNum );
+CBasePlayer *UTIL_GetNearestVisibleAlliedPlayer(CBaseEntity *pLooker, int mask = MASK_SOLID_BRUSHONLY);
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 // get the local player on a listen server

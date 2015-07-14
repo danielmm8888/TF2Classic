@@ -54,6 +54,7 @@
 #include "weapon_physcannon.h"
 #include "eventqueue.h"
 #include "ai_basenpc.h"
+#include "ai_squad.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -95,6 +96,10 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY
 
 // Team Fortress 2 Classic commands
 ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
+
+// Cvars from HL2 player
+ConVar player_squad_transient_commands( "player_squad_transient_commands", "1", FCVAR_REPLICATED );
+ConVar player_squad_double_tap_time( "player_squad_double_tap_time", "0.25" );
 
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
@@ -397,6 +402,8 @@ CTFPlayer::CTFPlayer()
 
 	m_bSpeakingConceptAsDisguisedSpy = false;
 
+	m_pPlayerAISquad = NULL;
+
 	m_WeaponPresetPrimary.RemoveAll();
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
@@ -510,6 +517,8 @@ void CTFPlayer::PreThink()
 
 	// Reset bullet force accumulator, only lasts one frame, for ragdoll forces from multiple shots.
 	m_vecTotalBulletForce = vec3_origin;
+
+	CommanderUpdate();
 
 	CheckForIdle();
 }
@@ -926,6 +935,8 @@ void CTFPlayer::Spawn()
 	{
 		m_Local.m_iHideHUD |= HIDEHUD_CHAT;
 	}
+
+	m_pPlayerAISquad = g_AI_SquadManager.FindCreateSquad(AllocPooledString(PLAYER_SQUADNAME));
 }
 
 //-----------------------------------------------------------------------------
@@ -2817,6 +2828,12 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			Warning( "    ABORTED: Player can't take damage from that attacker.\n" );
 		}
 		return 0;
+	}
+
+	if ( info.GetDamage() > 0.0f )
+	{
+		if ( info.GetAttacker() )
+			NotifyFriendsOfDamage( info.GetAttacker() );
 	}
 
 	AddDamagerToHistory( info.GetAttacker() );
@@ -6220,6 +6237,12 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 		{
 			SaveMe();
 		}
+
+		if ( iConcept == MP_CONCEPT_PLAYER_GO )
+		{
+			// TF2 characters don't have telepathy skills so you have to use voice commands to command rebels.
+			CommanderMode();
+		}
 	}
 
 	return bReturn;
@@ -6789,4 +6812,346 @@ Vector CTFPlayer::EyeDirection3D( void )
 	
 	AngleVectors( EyeAngles(), &vecForward );
 	return vecForward;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::NotifyFriendsOfDamage( CBaseEntity *pAttackerEntity )
+{
+	CAI_BaseNPC *pAttacker = pAttackerEntity->MyNPCPointer();
+	if ( pAttacker )
+	{
+		const Vector &origin = GetAbsOrigin();
+		for ( int i = 0; i < g_AI_Manager.NumAIs(); i++ )
+		{
+			const float NEAR_Z = 12*12;
+			const float NEAR_XY_SQ = Square( 50*12 );
+			CAI_BaseNPC *pNpc = g_AI_Manager.AccessAIs()[i];
+			if ( pNpc->IsPlayerAlly() )
+			{
+				const Vector &originNpc = pNpc->GetAbsOrigin();
+				if ( fabsf( originNpc.z - origin.z ) < NEAR_Z )
+				{
+					if ( (originNpc.AsVector2D() - origin.AsVector2D()).LengthSqr() < NEAR_XY_SQ )
+					{
+						pNpc->OnFriendDamaged( this, pAttacker );
+					}
+				}
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+bool CTFPlayer::CommanderFindGoal( commandgoal_t *pGoal )
+{
+	CAI_BaseNPC *pAllyNpc;
+	trace_t	tr;
+	Vector	vecTarget;
+	Vector	forward;
+
+	EyeVectors( &forward );
+	
+	//---------------------------------
+	// MASK_SHOT on purpose! So that you don't hit the invisible hulls of the NPCs.
+	CTraceFilterSkipTwoEntities filter( this, PhysCannonGetHeldEntity( GetActiveWeapon() ), COLLISION_GROUP_INTERACTIVE_DEBRIS );
+
+	UTIL_TraceLine( EyePosition(), EyePosition() + forward * MAX_COORD_RANGE, MASK_SHOT, &filter, &tr );
+
+	if( !tr.DidHitWorld() )
+	{
+		CUtlVector<CAI_BaseNPC *> Allies;
+		AISquadIter_t iter;
+		for ( pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
+		{
+			if ( pAllyNpc->IsCommandable() )
+				Allies.AddToTail( pAllyNpc );
+		}
+
+		for( int i = 0 ; i < Allies.Count() ; i++ )
+		{
+			if( Allies[ i ]->IsValidCommandTarget( tr.m_pEnt ) )
+			{
+				pGoal->m_pGoalEntity = tr.m_pEnt;
+				return true;
+			}
+		}
+	}
+
+	if( tr.fraction == 1.0 || (tr.surface.flags & SURF_SKY) )
+	{
+		// Move commands invalid against skybox.
+		pGoal->m_vecGoalLocation = tr.endpos;
+		return false;
+	}
+
+	if ( tr.m_pEnt->IsNPC() && ((CAI_BaseNPC *)(tr.m_pEnt))->IsCommandable() )
+	{
+		pGoal->m_vecGoalLocation = tr.m_pEnt->GetAbsOrigin();
+	}
+	else
+	{
+		vecTarget = tr.endpos;
+
+		Vector mins( -16, -16, 0 );
+		Vector maxs( 16, 16, 0 );
+
+		// Back up from whatever we hit so that there's enough space at the 
+		// target location for a bounding box.
+		// Now trace down. 
+		//UTIL_TraceLine( vecTarget, vecTarget - Vector( 0, 0, 8192 ), MASK_SOLID, this, COLLISION_GROUP_NONE, &tr );
+		UTIL_TraceHull( vecTarget + tr.plane.normal * 24,
+						vecTarget - Vector( 0, 0, 8192 ),
+						mins,
+						maxs,
+						MASK_SOLID_BRUSHONLY,
+						this,
+						COLLISION_GROUP_NONE,
+						&tr );
+
+
+		if ( !tr.startsolid )
+			pGoal->m_vecGoalLocation = tr.endpos;
+		else
+			pGoal->m_vecGoalLocation = vecTarget;
+	}
+
+	pAllyNpc = GetSquadCommandRepresentative();
+	if ( !pAllyNpc )
+		return false;
+
+	vecTarget = pGoal->m_vecGoalLocation;
+	if ( !pAllyNpc->FindNearestValidGoalPos( vecTarget, &pGoal->m_vecGoalLocation ) )
+		return false;
+
+	return ( ( vecTarget - pGoal->m_vecGoalLocation ).LengthSqr() < Square( 15*12 ) );
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+CAI_BaseNPC *CTFPlayer::GetSquadCommandRepresentative()
+{
+	if ( m_pPlayerAISquad != NULL )
+	{
+		CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember();
+		
+		if ( pAllyNpc )
+		{
+			return pAllyNpc->GetSquadCommandRepresentative();
+		}
+	}
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CTFPlayer::GetNumSquadCommandables()
+{
+	AISquadIter_t iter;
+	int c = 0;
+	for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
+	{
+		if ( pAllyNpc->IsCommandable() )
+			c++;
+	}
+	return c;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+int CTFPlayer::GetNumSquadCommandableMedics()
+{
+	AISquadIter_t iter;
+	int c = 0;
+	for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
+	{
+		if ( pAllyNpc->IsCommandable() && pAllyNpc->IsMedic() )
+			c++;
+	}
+	return c;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void CTFPlayer::CommanderUpdate()
+{
+	CAI_BaseNPC *pCommandRepresentative = GetSquadCommandRepresentative();
+	bool bFollowMode = false;
+	if ( pCommandRepresentative )
+	{
+		bFollowMode = ( pCommandRepresentative->GetCommandGoal() == vec3_invalid );
+
+		// set the variables for network transmission (to show on the hud)
+		m_iSquadMemberCount = GetNumSquadCommandables();
+		m_iSquadMedicCount = GetNumSquadCommandableMedics();
+		m_fSquadInFollowMode = bFollowMode;
+
+		// debugging code for displaying extra squad indicators
+		/*
+		char *pszMoving = "";
+		AISquadIter_t iter;
+		for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
+		{
+			if ( pAllyNpc->IsCommandMoving() )
+			{
+				pszMoving = "<-";
+				break;
+			}
+		}
+
+		NDebugOverlay::ScreenText(
+			0.932, 0.919, 
+			CFmtStr( "%d|%c%s", GetNumSquadCommandables(), ( bFollowMode ) ? 'F' : 'S', pszMoving ),
+			255, 128, 0, 128,
+			0 );
+		*/
+
+	}
+	else
+	{
+		m_iSquadMemberCount = 0;
+		m_iSquadMedicCount = 0;
+		m_fSquadInFollowMode = true;
+	}
+
+	if ( m_QueuedCommand != CC_NONE && ( m_QueuedCommand == CC_FOLLOW || gpGlobals->realtime - m_RealTimeLastSquadCommand >= player_squad_double_tap_time.GetFloat() ) )
+	{
+		CommanderExecute( m_QueuedCommand );
+		m_QueuedCommand = CC_NONE;
+	}
+	else if ( !bFollowMode && pCommandRepresentative && m_CommanderUpdateTimer.Expired() && player_squad_transient_commands.GetBool() )
+	{
+		m_CommanderUpdateTimer.Set(2.5);
+
+		if ( pCommandRepresentative->ShouldAutoSummon() )
+			CommanderExecute( CC_FOLLOW );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//
+// bHandled - indicates whether to continue delivering this order to
+// all allies. Allows us to stop delivering certain types of orders once we find
+// a suitable candidate. (like picking up a single weapon. We don't wish for
+// all allies to respond and try to pick up one weapon).
+//----------------------------------------------------------------------------- 
+bool CTFPlayer::CommanderExecuteOne( CAI_BaseNPC *pNpc, const commandgoal_t &goal, CAI_BaseNPC **Allies, int numAllies )
+{
+	if ( goal.m_pGoalEntity )
+	{
+		return pNpc->TargetOrder( goal.m_pGoalEntity, Allies, numAllies );
+	}
+	else if ( pNpc->IsInPlayerSquad() )
+	{
+		pNpc->MoveOrder( goal.m_vecGoalLocation, Allies, numAllies );
+	}
+	
+	return true;
+}
+
+//---------------------------------------------------------
+//---------------------------------------------------------
+void CTFPlayer::CommanderExecute( CommanderCommand_t command )
+{
+	CAI_BaseNPC *pPlayerSquadLeader = GetSquadCommandRepresentative();
+
+	if ( !pPlayerSquadLeader )
+	{
+		EmitSound( "HL2Player.UseDeny" );
+		return;
+	}
+
+	int i;
+	CUtlVector<CAI_BaseNPC *> Allies;
+	commandgoal_t goal;
+
+	if ( command == CC_TOGGLE )
+	{
+		if ( pPlayerSquadLeader->GetCommandGoal() != vec3_invalid )
+			command = CC_FOLLOW;
+		else
+			command = CC_SEND;
+	}
+	else
+	{
+		if ( command == CC_FOLLOW && pPlayerSquadLeader->GetCommandGoal() == vec3_invalid )
+			return;
+	}
+
+	if ( command == CC_FOLLOW )
+	{
+		goal.m_pGoalEntity = this;
+		goal.m_vecGoalLocation = vec3_invalid;
+	}
+	else
+	{
+		goal.m_pGoalEntity = NULL;
+		goal.m_vecGoalLocation = vec3_invalid;
+
+		// Find a goal for ourselves.
+		if( !CommanderFindGoal( &goal ) )
+		{
+			EmitSound( "HL2Player.UseDeny" );
+			return; // just keep following
+		}
+	}
+
+#ifdef _DEBUG
+	if( goal.m_pGoalEntity == NULL && goal.m_vecGoalLocation == vec3_invalid )
+	{
+		DevMsg( 1, "**ERROR: Someone sent an invalid goal to CommanderExecute!\n" );
+	}
+#endif // _DEBUG
+
+	AISquadIter_t iter;
+	for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
+	{
+		if ( pAllyNpc->IsCommandable() )
+			Allies.AddToTail( pAllyNpc );
+	}
+
+	//---------------------------------
+	// If the trace hits an NPC, send all ally NPCs a "target" order. Always
+	// goes to targeted one first
+#ifdef DBGFLAG_ASSERT
+	int nAIs = g_AI_Manager.NumAIs();
+#endif
+	CAI_BaseNPC * pTargetNpc = (goal.m_pGoalEntity) ? goal.m_pGoalEntity->MyNPCPointer() : NULL;
+	
+	bool bHandled = false;
+	if( pTargetNpc )
+	{
+		bHandled = !CommanderExecuteOne( pTargetNpc, goal, Allies.Base(), Allies.Count() );
+	}
+	
+	for ( i = 0; !bHandled && i < Allies.Count(); i++ )
+	{
+		if ( Allies[i] != pTargetNpc && Allies[i]->IsPlayerAlly() )
+		{
+			bHandled = !CommanderExecuteOne( Allies[i], goal, Allies.Base(), Allies.Count() );
+		}
+		Assert( nAIs == g_AI_Manager.NumAIs() ); // not coded to support mutating set of NPCs
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Enter/exit commander mode, manage ally selection.
+//-----------------------------------------------------------------------------
+void CTFPlayer::CommanderMode()
+{
+	float commandInterval = gpGlobals->realtime - m_RealTimeLastSquadCommand;
+	m_RealTimeLastSquadCommand = gpGlobals->realtime;
+	if ( commandInterval < player_squad_double_tap_time.GetFloat() )
+	{
+		m_QueuedCommand = CC_FOLLOW;
+	}
+	else
+	{
+		m_QueuedCommand = (player_squad_transient_commands.GetBool()) ? CC_SEND : CC_TOGGLE;
+	}
 }

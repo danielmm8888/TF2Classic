@@ -940,7 +940,7 @@ int CAI_BaseNPC::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-			if( pAttacker && pAttacker->IsAlive() && UTIL_GetNearestPlayer(GetAbsOrigin()) ) 
+			if( pAttacker && pAttacker->IsAlive() && UTIL_GetNearestPlayer( GetAbsOrigin() ) ) 
 #else
 			if( pAttacker && pAttacker->IsAlive() && pPlayer )
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -3769,7 +3769,7 @@ void CAI_BaseNPC::RebalanceThinks()
 		int i;
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() ); 
 #else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -10176,7 +10176,7 @@ CBaseEntity *CAI_BaseNPC::FindNamedEntity( const char *name, IEntityFindFilter *
 		// FIXME: look at CBaseEntity *CNPCSimpleTalker::FindNearestFriend(bool fPlayer)
 		// punt for now
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		return UTIL_GetNearestPlayer(GetAbsOrigin()); 
+		return UTIL_GetNearestPlayer( GetAbsOrigin() ); 
 #else
 		return ( CBaseEntity * )AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -12972,7 +12972,8 @@ void CAI_BaseNPC::TestPlayerPushing( CBaseEntity *pEntity )
 
 	// Heuristic for determining if the player is pushing me away
 	CBasePlayer *pPlayer = ToBasePlayer( pEntity );
-	if ( pPlayer && !( pPlayer->GetFlags() & FL_NOTARGET ) )
+	// Added IsAlive() check - don't move away from spectators. (Nicknine)
+	if ( pPlayer && !( pPlayer->GetFlags() & FL_NOTARGET ) && pPlayer->IsAlive() )
 	{
 		if ( (pPlayer->m_nButtons & (IN_FORWARD|IN_BACK|IN_MOVELEFT|IN_MOVERIGHT)) || 
 			 pPlayer->GetAbsVelocity().AsVector2D().LengthSqr() > 50*50 )

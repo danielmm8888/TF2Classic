@@ -396,6 +396,24 @@ public:
 	virtual Vector		EyeDirection2D( void );
 	virtual Vector		EyeDirection3D( void );
 
+	// Commander Mode for controller NPCs
+	enum CommanderCommand_t
+	{
+		CC_NONE,
+		CC_TOGGLE,
+		CC_FOLLOW,
+		CC_SEND,
+	};
+
+	virtual void CommanderMode();
+	void CommanderUpdate();
+	void CommanderExecute( CommanderCommand_t command = CC_TOGGLE );
+	bool CommanderFindGoal( commandgoal_t *pGoal );
+	void NotifyFriendsOfDamage( CBaseEntity *pAttackerEntity );
+	CAI_BaseNPC *GetSquadCommandRepresentative();
+	int GetNumSquadCommandables();
+	int GetNumSquadCommandableMedics();
+
 public:
 
 	CTFPlayerShared m_Shared;
@@ -525,6 +543,8 @@ private:
 
 	void				ChangeWeapon( TFPlayerClassData_t *pData );
 
+	bool				CommanderExecuteOne( CAI_BaseNPC *pNpc, const commandgoal_t &goal, CAI_BaseNPC **Allies, int numAllies );
+
 private:
 	// Map introductions
 	int					m_iIntroStep;
@@ -606,6 +626,16 @@ private:
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 
 	COutputEvent		m_OnDeath;
+
+	// HL2 squad stuff
+	CAI_Squad *			m_pPlayerAISquad;
+	CSimpleSimTimer		m_CommanderUpdateTimer;
+	float				m_RealTimeLastSquadCommand;
+	CommanderCommand_t	m_QueuedCommand;
+
+	CNetworkVar( int,	m_iSquadMemberCount );
+	CNetworkVar( int,	m_iSquadMedicCount );
+	CNetworkVar( bool,	m_fSquadInFollowMode );
 
 public:
 	// HL2 Ladder related data
