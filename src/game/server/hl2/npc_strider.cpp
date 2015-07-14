@@ -3830,9 +3830,7 @@ void CNPC_Strider::DoMuzzleFlash( void )
 	data.m_nEntIndex = entindex();
 #ifdef TF_CLASSIC
 	// m_vOrigin must be set in multiplayer so AddRecipientsByPAS() adds players properly.
-	Vector muzzlePos;
-	GetAttachment( "minigun", muzzlePos );
-	data.m_vOrigin = muzzlePos;
+	GetAttachment( "minigun", data.m_vOrigin );
 #endif
 	DispatchEffect( "StriderMuzzleFlash", data );
 }

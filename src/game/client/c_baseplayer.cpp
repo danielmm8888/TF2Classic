@@ -1433,15 +1433,14 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 		}
 	}
 #ifdef TF_CLASSIC_CLIENT
-	C_AI_BaseNPC *NPC = target->MyNPCPointer();
-
-	if ( NPC )
+	if ( target && target->IsNPC() )
 	{
+		C_AI_BaseNPC *NPC = target->MyNPCPointer();
+
 		if ( NPC->IsAlive() )
 		{
-			// Human Hull height in HL2 is 72 and player viewheight is 64.
-			// So let's take that last value and scale it according to NPC's height.
-			float flEyeHeight = 64.0f * ( NPC->WorldAlignMaxs().z / 72.0f );
+			// NPC eye height varies so use GetViewOffset().
+			float flEyeHeight = NPC->GetViewOffset().z;
 			return Vector(0,0,flEyeHeight);
 		}
 		else
@@ -1665,13 +1664,6 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	// Stop a few units away from the target, and shift up to be at the same height
 	vecTargetPos = vecCamTarget - (vecToTarget * m_flFreezeFrameDistance);
 	float flEyePosZ = pTarget->EyePosition().z;
-#ifdef TF_CLASSIC_CLIENT
-	if ( pTarget->IsNPC() )
-	{
-		// Use HL2 player viewheight scaled according to NPC size.
-		flEyePosZ = pTarget->GetAbsOrigin().z + 64.0f * (pTarget->WorldAlignMaxs().z / 72.0f );;
-	}
-#endif
 	vecTargetPos.z = flEyePosZ + m_flFreezeZOffset;
 
 	// Now trace out from the target, so that we're put in front of any walls
@@ -1805,22 +1797,12 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		origin.z += VEC_DEAD_VIEWHEIGHT_SCALED( this ).z;
 	}
 	
-	if ( pKiller && pKiller->IsPlayer() && (pKiller != this) ) 
+	if ( pKiller && (pKiller->IsPlayer() || pKiller->IsNPC()) && (pKiller != this) ) 
 	{														
 		Vector vKiller = pKiller->EyePosition() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
 		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
 	}
-#ifdef TF_CLASSIC_CLIENT
-	else if ( pKiller && pKiller->IsNPC() && (pKiller != this) ) 
-	{
-		// EyePosition() is not reliable since not all NPCs have $eyeposition set.
-		// So let's use their center instead.
-		Vector vKiller = pKiller->WorldSpaceCenter() - origin;
-		QAngle aKiller; VectorAngles( vKiller, aKiller );
-		InterpolateAngles( aForward, aKiller, eyeAngles, interpolation );
-	}
-#endif
 
 	Vector vForward; AngleVectors( eyeAngles, &vForward );
 

@@ -7921,8 +7921,8 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 
 		SendPropDataTable	( SENDINFO_DT(m_Local), &REFERENCE_SEND_TABLE(DT_Local) ),
 		
-// If HL2_DLL is defined, then baseflex.cpp already sends these.
-#ifndef HL2_DLL
+// If HL2_DLL or TF_CLASSIC is defined, then baseflex.cpp already sends these.
+#if !defined (HL2_DLL) && !defined (TF_CLASSIC)
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecViewOffset, 0), 8, SPROP_ROUNDDOWN, -32.0, 32.0f),
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecViewOffset, 1), 8, SPROP_ROUNDDOWN, -32.0, 32.0f),
 		SendPropFloat		( SENDINFO_VECTORELEM(m_vecViewOffset, 2), 20, SPROP_CHANGES_OFTEN,	0.0f, 256.0f),

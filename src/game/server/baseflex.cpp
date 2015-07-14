@@ -61,7 +61,8 @@ IMPLEMENT_SERVERCLASS_ST(CBaseFlex, DT_BaseFlex)
 	SendPropArray3	(SENDINFO_ARRAY3(m_flexWeight), SendPropFloat(SENDINFO_ARRAY(m_flexWeight), 12, SPROP_ROUNDDOWN, 0.0f, 1.0f ) /*, SendProxy_FlexWeights*/ ),
 	SendPropInt		(SENDINFO(m_blinktoggle), 1, SPROP_UNSIGNED ),
 	SendPropVector	(SENDINFO(m_viewtarget), -1, SPROP_COORD),
-#ifdef HL2_DLL
+// I'm enabling these for TF2C since NPCs need them. (Nicknine)
+#if defined (HL2_DLL) || defined (TF_CLASSIC)
 	SendPropFloat	( SENDINFO_VECTORELEM(m_vecViewOffset, 0), 0, SPROP_NOSCALE ),
 	SendPropFloat	( SENDINFO_VECTORELEM(m_vecViewOffset, 1), 0, SPROP_NOSCALE ),
 	SendPropFloat	( SENDINFO_VECTORELEM(m_vecViewOffset, 2), 0, SPROP_NOSCALE ),

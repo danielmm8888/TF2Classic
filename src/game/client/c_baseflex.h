@@ -285,7 +285,7 @@ private:
 	bool			SetupEmphasisBlend( Emphasized_Phoneme *classes, int phoneme );
 	void			ComputeBlendedSetting( Emphasized_Phoneme *classes, float emphasis_intensity );
 
-#ifdef HL2_CLIENT_DLL
+#if defined (HL2_CLIENT_DLL) || defined (TF_CLASSIC_CLIENT)
 public:
 
 	Vector			m_vecLean;

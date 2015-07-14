@@ -41,7 +41,7 @@ IMPLEMENT_CLIENTCLASS_DT(C_BaseFlex, DT_BaseFlex, CBaseFlex)
 	RecvPropInt(RECVINFO(m_blinktoggle)),
 	RecvPropVector(RECVINFO(m_viewtarget)),
 
-#ifdef HL2_CLIENT_DLL
+#if defined (HL2_CLIENT_DLL) || defined (TF_CLASSIC_CLIENT)
 	RecvPropFloat( RECVINFO(m_vecViewOffset[0]) ),
 	RecvPropFloat( RECVINFO(m_vecViewOffset[1]) ),
 	RecvPropFloat( RECVINFO(m_vecViewOffset[2]) ),
