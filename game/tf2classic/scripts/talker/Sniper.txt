@@ -1,0 +1,766 @@
+//--------------------------------------------------------------------------------------------------------------
+// Sniper Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "SniperIsNotStillonFire" "SniperOnFire" "!=1" "required" weight 0
+Criterion "SniperIsStillonFire" "SniperOnFire" "1" "required" weight 0
+Criterion "SniperNotKillSpeech" "SniperKillSpeech" "!=1" "required" weight 0
+Criterion "SniperNotKillSpeechMelee" "SniperKillSpeechMelee" "!=1" "required" weight 0
+Criterion "SniperNotSaidHealThanks" "SniperSaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapSniper" "SniperHelpCap" "1" "required" weight 0
+
+
+Response PlayerCloakedSpyDemomanSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpyDemomanSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnDemoman
+	Response PlayerCloakedSpyDemomanSniper
+}
+
+Response PlayerCloakedSpyEngineerSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyEngineerSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnEngineer
+	Response PlayerCloakedSpyEngineerSniper
+}
+
+Response PlayerCloakedSpyHeavySniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavySniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnHeavy
+	Response PlayerCloakedSpyHeavySniper
+}
+
+Response PlayerCloakedSpyMedicSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify06.vcd" 
+}
+Rule PlayerCloakedSpyMedicSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnMedic
+	Response PlayerCloakedSpyMedicSniper
+}
+
+Response PlayerCloakedSpyPyroSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyPyroSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnPyro
+	Response PlayerCloakedSpyPyroSniper
+}
+
+Response PlayerCloakedSpySniperSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpySniperSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnSniper
+	Response PlayerCloakedSpySniperSniper
+}
+
+Response PlayerCloakedSpySoldierSniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierSniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnSoldier
+	Response PlayerCloakedSpySoldierSniper
+}
+
+Response PlayerCloakedSpySpySniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpySpySniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper IsOnSpy
+	Response PlayerCloakedSpySpySniper
+}
+
+Response SniperHeadShotKillSoldier
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted08.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted14.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted16.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted20.vcd" predelay "1.75"
+}
+Rule SniperHeadShotKillSoldier
+{
+	criteria ConceptKilledPlayer IsSniper WeaponIsSniperrifle IsHeadShot 50PercentChance IsVictimSoldier
+	ApplyContext "SniperKillSpeech:1:10"
+	Response SniperHeadShotKillSoldier
+}
+
+Response SniperHeadShotKillSpy
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted01.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted12.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted18.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted21.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted40.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted41.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted43.vcd" predelay "1.75"
+}
+Rule SniperHeadShotKillSpy
+{
+	criteria ConceptKilledPlayer IsSniper WeaponIsSniperrifle IsHeadShot 50PercentChance IsVictimSpy
+	ApplyContext "SniperKillSpeech:1:10"
+	Response SniperHeadShotKillSpy
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksSniper
+{
+	scene "scenes/Player/Sniper/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Sniper/low/ThanksForTheHeal02.vcd" 
+	scene "scenes/Player/Sniper/low/ThanksForTheHeal03.vcd" 
+}
+Rule HealThanksSniper
+{
+	criteria ConceptMedicChargeStopped IsSniper SuperHighHealthContext SniperNotSaidHealThanks 50PercentChance
+	ApplyContext "SniperSaidHealThanks:1:20"
+	Response HealThanksSniper
+}
+
+Response PlayerRoundStartSniper
+{
+	scene "scenes/Player/Sniper/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Sniper/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Sniper/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Sniper/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Sniper/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Sniper/low/BattleCry06.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartSniper
+{
+	criteria ConceptPlayerRoundStart IsSniper
+	Response PlayerRoundStartSniper
+}
+
+Response PlayerCappedIntelligenceSniper
+{
+	scene "scenes/Player/Sniper/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedIntelligence03.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedIntelligence04.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedIntelligence05.vcd" 
+}
+Rule PlayerCappedIntelligenceSniper
+{
+	criteria ConceptPlayerCapturedIntelligence IsSniper
+	Response PlayerCappedIntelligenceSniper
+}
+
+Response PlayerCapturedPointSniper
+{
+	scene "scenes/Player/Sniper/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Sniper/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointSniper
+{
+	criteria ConceptPlayerCapturedPoint IsSniper
+	Response PlayerCapturedPointSniper
+}
+
+Response PlayerSuddenDeathSniper
+{
+	scene "scenes/Player/Sniper/low/Jeers01.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers02.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers03.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers04.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers05.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers06.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers07.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers08.vcd" 
+}
+Rule PlayerSuddenDeathSniper
+{
+	criteria ConceptPlayerSuddenDeathStart IsSniper
+	Response PlayerSuddenDeathSniper
+}
+
+Response PlayerStalemateSniper
+{
+	scene "scenes/Player/Sniper/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Sniper/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Sniper/low/AutoDejectedTie03.vcd" 
+}
+Rule PlayerStalemateSniper
+{
+	criteria ConceptPlayerStalemate IsSniper
+	Response PlayerStalemateSniper
+}
+
+Response PlayerTeleporterThanksSniper
+{
+	scene "scenes/Player/Sniper/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Sniper/low/ThanksForTheTeleporter02.vcd" 
+	scene "scenes/Player/Sniper/low/ThanksForTheTeleporter03.vcd" 
+}
+Rule PlayerTeleporterThanksSniper
+{
+	criteria ConceptTeleported IsNotEngineer IsSniper 30PercentChance
+	Response PlayerTeleporterThanksSniper
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response KilledPlayerManySniper
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted04.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted15.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted45.vcd" 
+}
+Rule KilledPlayerManySniper
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay SniperNotKillSpeech IsSniper
+	ApplyContext "SniperKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManySniper
+}
+
+Response KilledPlayerMeleeSniper
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted06.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted09.vcd" 
+}
+Rule KilledPlayerMeleeSniper
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee SniperNotKillSpeechMelee IsSniper
+	ApplyContext "SniperKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeSniper
+}
+
+Response KilledPlayerVeryManySniper
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted03.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted07.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted10.vcd" 
+	scene "scenes/Player/Sniper/low/Taunts05.vcd" 
+	scene "scenes/Player/Sniper/low/Taunts06.vcd" 
+	scene "scenes/Player/Sniper/low/Taunts07.vcd" 
+	scene "scenes/Player/Sniper/low/Taunts11.vcd" 
+	scene "scenes/Player/Sniper/low/Taunts18.vcd" 
+}
+Rule KilledPlayerVeryManySniper
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay SniperNotKillSpeech IsSniper
+	ApplyContext "SniperKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManySniper
+}
+
+Response PlayerKilledCapperSniper
+{
+	scene "scenes/Player/Sniper/low/BattleCry03.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers02.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers03.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization05.vcd" 
+	scene "scenes/Player/Sniper/low/SpecialCompleted22.vcd" 
+}
+Rule PlayerKilledCapperSniper
+{
+	criteria ConceptCapBlocked IsSniper
+	ApplyContext "SniperKillSpeech:1:10"
+	Response PlayerKilledCapperSniper
+}
+
+Response PlayerKilledDominatingSniper
+{
+	scene "scenes/Player/Sniper/low/LaughEvil01.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/LaughEvil02.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/LaughHappy02.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/LaughLong02.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/PositiveVocalization09.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/SpecialCompleted05.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/SpecialCompleted29.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/SpecialCompleted32.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/SpecialCompleted35.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingSniper
+{
+	criteria ConceptKilledPlayer IsSniper IsDominated
+	ApplyContext "SniperKillSpeech:1:10"
+	Response PlayerKilledDominatingSniper
+}
+
+Response PlayerKilledForRevengeSniper
+{
+	scene "scenes/Player/Sniper/low/Cheers05.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/GoodJob01.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/PositiveVocalization03.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/PositiveVocalization04.vcd" predelay "2.5"
+	scene "scenes/Player/Sniper/low/Taunts04.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeSniper
+{
+	criteria ConceptKilledPlayer IsSniper IsRevenge
+	ApplyContext "SniperKillSpeech:1:10"
+	Response PlayerKilledForRevengeSniper
+}
+
+Response SniperHeadShotKill
+{
+	scene "scenes/Player/Sniper/low/SpecialCompleted25.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted30.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted36.vcd" predelay "1.75"
+	scene "scenes/Player/Sniper/low/SpecialCompleted37.vcd" predelay "1.75"
+}
+Rule SniperHeadShotKill
+{
+	criteria ConceptKilledPlayer IsSniper WeaponIsSniperrifle IsHeadShot 50PercentChance
+	ApplyContext "SniperKillSpeech:1:10"
+	Response SniperHeadShotKill
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainSniper
+{
+	scene "scenes/Player/Sniper/low/PainSevere01.vcd" 
+	scene "scenes/Player/Sniper/low/PainSevere02.vcd" 
+	scene "scenes/Player/Sniper/low/PainSevere03.vcd" 
+	scene "scenes/Player/Sniper/low/PainSevere04.vcd" 
+}
+Rule PlayerAttackerPainSniper
+{
+	criteria ConceptAttackerPain IsSniper
+	Response PlayerAttackerPainSniper
+}
+
+Response PlayerOnFireSniper
+{
+	scene "scenes/Player/Sniper/low/AutoOnFire01.vcd" 
+	scene "scenes/Player/Sniper/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Sniper/low/AutoOnFire03.vcd" 
+}
+Rule PlayerOnFireSniper
+{
+	criteria ConceptFire IsSniper SniperIsNotStillonFire
+	ApplyContext "SniperOnFire:1:7"
+	Response PlayerOnFireSniper
+}
+
+Response PlayerPainSniper
+{
+	scene "scenes/Player/Sniper/low/PainSharp01.vcd" 
+	scene "scenes/Player/Sniper/low/PainSharp02.vcd" 
+	scene "scenes/Player/Sniper/low/PainSharp03.vcd" 
+	scene "scenes/Player/Sniper/low/PainSharp04.vcd" 
+}
+Rule PlayerPainSniper
+{
+	criteria ConceptPain IsSniper
+	Response PlayerPainSniper
+}
+
+Response PlayerStillOnFireSniper
+{
+	scene "scenes/Player/Sniper/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireSniper
+{
+	criteria ConceptFire IsSniper  SniperIsStillonFire
+	ApplyContext "SniperOnFire:1:7"
+	Response PlayerStillOnFireSniper
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoSniper
+{
+	scene "scenes/Player/Sniper/low/Go01.vcd" 
+	scene "scenes/Player/Sniper/low/Go02.vcd" 
+	scene "scenes/Player/Sniper/low/Go03.vcd" 
+}
+Rule PlayerGoSniper
+{
+	criteria ConceptPlayerGo IsSniper
+	Response PlayerGoSniper
+}
+
+Response PlayerHeadLeftSniper
+{
+	scene "scenes/Player/Sniper/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Sniper/low/HeadLeft02.vcd" 
+	scene "scenes/Player/Sniper/low/HeadLeft03.vcd" 
+}
+Rule PlayerHeadLeftSniper
+{
+	criteria ConceptPlayerLeft  IsSniper
+	Response PlayerHeadLeftSniper
+}
+
+Response PlayerHeadRightSniper
+{
+	scene "scenes/Player/Sniper/low/HeadRight01.vcd" 
+	scene "scenes/Player/Sniper/low/HeadRight02.vcd" 
+	scene "scenes/Player/Sniper/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightSniper
+{
+	criteria ConceptPlayerRight  IsSniper
+	Response PlayerHeadRightSniper
+}
+
+Response PlayerHelpSniper
+{
+	scene "scenes/Player/Sniper/low/HelpMe01.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMe02.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpSniper
+{
+	criteria ConceptPlayerHelp IsSniper
+	Response PlayerHelpSniper
+}
+
+Response PlayerHelpCaptureSniper
+{
+	scene "scenes/Player/Sniper/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMeCapture02.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMeCapture03.vcd" 
+}
+Rule PlayerHelpCaptureSniper
+{
+	criteria ConceptPlayerHelp IsSniper IsOnCappableControlPoint
+	ApplyContext "SniperHelpCap:1:10"
+	Response PlayerHelpCaptureSniper
+}
+
+Response PlayerHelpCapture2Sniper
+{
+	scene "scenes/Player/Sniper/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Sniper/low/StandOnThePoint02.vcd" 
+}
+Rule PlayerHelpCapture2Sniper
+{
+	criteria ConceptPlayerHelp IsSniper IsOnCappableControlPoint IsHelpCapSniper
+	Response PlayerHelpCapture2Sniper
+}
+
+Response PlayerHelpDefendSniper
+{
+	scene "scenes/Player/Sniper/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Sniper/low/HelpMeDefend03.vcd" 
+}
+Rule PlayerHelpDefendSniper
+{
+	criteria ConceptPlayerHelp IsSniper IsOnFriendlyControlPoint
+	Response PlayerHelpDefendSniper
+}
+
+Response PlayerMedicSniper
+{
+	scene "scenes/Player/Sniper/low/Medic01.vcd" 
+	scene "scenes/Player/Sniper/low/Medic02.vcd" 
+}
+Rule PlayerMedicSniper
+{
+	criteria ConceptPlayerMedic IsSniper
+	Response PlayerMedicSniper
+}
+
+Response PlayerMoveUpSniper
+{
+	scene "scenes/Player/Sniper/low/MoveUp01.vcd" 
+	scene "scenes/Player/Sniper/low/MoveUp02.vcd" 
+}
+Rule PlayerMoveUpSniper
+{
+	criteria ConceptPlayerMoveUp  IsSniper
+	Response PlayerMoveUpSniper
+}
+
+Response PlayerNoSniper
+{
+	scene "scenes/Player/Sniper/low/No01.vcd" 
+	scene "scenes/Player/Sniper/low/No02.vcd" 
+	scene "scenes/Player/Sniper/low/No03.vcd" 
+	scene "scenes/Player/Sniper/low/No04.vcd" 
+}
+Rule PlayerNoSniper
+{
+	criteria ConceptPlayerNo  IsSniper
+	Response PlayerNoSniper
+}
+
+Response PlayerThanksSniper
+{
+	scene "scenes/Player/Sniper/low/Thanks01.vcd" 
+	scene "scenes/Player/Sniper/low/Thanks02.vcd" 
+}
+Rule PlayerThanksSniper
+{
+	criteria ConceptPlayerThanks IsSniper
+	Response PlayerThanksSniper
+}
+
+Response PlayerYesSniper
+{
+	scene "scenes/Player/Sniper/low/Yes01.vcd" 
+	scene "scenes/Player/Sniper/low/Yes02.vcd" 
+	scene "scenes/Player/Sniper/low/Yes03.vcd" 
+}
+Rule PlayerYesSniper
+{
+	criteria ConceptPlayerYes  IsSniper
+	Response PlayerYesSniper
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeSniper
+{
+	scene "scenes/Player/Sniper/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Sniper/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Sniper/low/ActivateCharge03.vcd" 
+	scene "scenes/Player/Sniper/low/ActivateCharge04.vcd" 
+}
+Rule PlayerActivateChargeSniper
+{
+	criteria ConceptPlayerActivateCharge IsSniper
+	Response PlayerActivateChargeSniper
+}
+
+Response PlayerCloakedSpySniper
+{
+	scene "scenes/Player/Sniper/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Sniper/low/CloakedSpy02.vcd" 
+	scene "scenes/Player/Sniper/low/CloakedSpy03.vcd" 
+}
+Rule PlayerCloakedSpySniper
+{
+	criteria ConceptPlayerCloakedSpy IsSniper
+	Response PlayerCloakedSpySniper
+}
+
+Response PlayerDispenserHereSniper
+{
+	scene "scenes/Player/Sniper/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereSniper
+{
+	criteria ConceptPlayerDispenserHere IsSniper
+	Response PlayerDispenserHereSniper
+}
+
+Response PlayerIncomingSniper
+{
+	scene "scenes/Player/Sniper/low/Incoming01.vcd" 
+	scene "scenes/Player/Sniper/low/Incoming02.vcd" 
+	scene "scenes/Player/Sniper/low/Incoming03.vcd" 
+	scene "scenes/Player/Sniper/low/Incoming04.vcd" 
+}
+Rule PlayerIncomingSniper
+{
+	criteria ConceptPlayerIncoming IsSniper
+	Response PlayerIncomingSniper
+}
+
+Response PlayerSentryAheadSniper
+{
+	scene "scenes/Player/Sniper/low/SentryAhead01.vcd" 
+}
+Rule PlayerSentryAheadSniper
+{
+	criteria ConceptPlayerSentryAhead IsSniper
+	Response PlayerSentryAheadSniper
+}
+
+Response PlayerSentryHereSniper
+{
+	scene "scenes/Player/Sniper/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereSniper
+{
+	criteria ConceptPlayerSentryHere IsSniper
+	Response PlayerSentryHereSniper
+}
+
+Response PlayerTeleporterHereSniper
+{
+	scene "scenes/Player/Sniper/low/NeedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterHereSniper
+{
+	criteria ConceptPlayerTeleporterHere IsSniper
+	Response PlayerTeleporterHereSniper
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCrySniper
+{
+	scene "scenes/Player/Sniper/low/BattleCry01.vcd" 
+	scene "scenes/Player/Sniper/low/BattleCry02.vcd" 
+	scene "scenes/Player/Sniper/low/BattleCry03.vcd" 
+	scene "scenes/Player/Sniper/low/BattleCry04.vcd" 
+	scene "scenes/Player/Sniper/low/BattleCry05.vcd" 
+	scene "scenes/Player/Sniper/low/BattleCry06.vcd" 
+}
+Rule PlayerBattleCrySniper
+{
+	criteria ConceptPlayerBattleCry IsSniper
+	Response PlayerBattleCrySniper
+}
+
+Response PlayerCheersSniper
+{
+	scene "scenes/Player/Sniper/low/Cheers01.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers02.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers03.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers04.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers05.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers06.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers07.vcd" 
+	scene "scenes/Player/Sniper/low/Cheers08.vcd" 
+}
+Rule PlayerCheersSniper
+{
+	criteria ConceptPlayerCheers IsSniper
+	Response PlayerCheersSniper
+}
+
+Response PlayerGoodJobSniper
+{
+	scene "scenes/Player/Sniper/low/GoodJob01.vcd" 
+	scene "scenes/Player/Sniper/low/GoodJob02.vcd" 
+	scene "scenes/Player/Sniper/low/GoodJob03.vcd" 
+}
+Rule PlayerGoodJobSniper
+{
+	criteria ConceptPlayerGoodJob IsSniper
+	Response PlayerGoodJobSniper
+}
+
+Response PlayerJeersSniper
+{
+	scene "scenes/Player/Sniper/low/Jeers01.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers02.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers03.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers04.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers05.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers06.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers07.vcd" 
+	scene "scenes/Player/Sniper/low/Jeers08.vcd" 
+}
+Rule PlayerJeersSniper
+{
+	criteria ConceptPlayerJeers IsSniper
+	Response PlayerJeersSniper
+}
+
+Response PlayerLostPointSniper
+{
+	scene "scenes/Player/Sniper/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization07.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization08.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization09.vcd" 
+}
+Rule PlayerLostPointSniper
+{
+	criteria ConceptPlayerLostPoint IsSniper
+	Response PlayerLostPointSniper
+}
+
+Response PlayerNegativeSniper
+{
+	scene "scenes/Player/Sniper/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization07.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization08.vcd" 
+	scene "scenes/Player/Sniper/low/NegativeVocalization09.vcd" 
+}
+Rule PlayerNegativeSniper
+{
+	criteria ConceptPlayerNegative IsSniper
+	Response PlayerNegativeSniper
+}
+
+Response PlayerNiceShotSniper
+{
+	scene "scenes/Player/Sniper/low/NiceShot01.vcd" 
+	scene "scenes/Player/Sniper/low/NiceShot02.vcd" 
+	scene "scenes/Player/Sniper/low/NiceShot03.vcd" 
+}
+Rule PlayerNiceShotSniper
+{
+	criteria ConceptPlayerNiceShot IsSniper
+	Response PlayerNiceShotSniper
+}
+
+Response PlayerPositiveSniper
+{
+	scene "scenes/Player/Sniper/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization05.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization06.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization07.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization08.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization09.vcd" 
+	scene "scenes/Player/Sniper/low/PositiveVocalization10.vcd" 
+}
+Rule PlayerPositiveSniper
+{
+	criteria ConceptPlayerPositive IsSniper
+	Response PlayerPositiveSniper
+}
+
+Response PlayerTauntsSniper
+{
+	scene "scenes/Player/Sniper/low/LaughEvil03.vcd" 
+	scene "scenes/Player/Sniper/low/LaughShort01.vcd" 
+	scene "scenes/Player/Sniper/low/LaughShort02.vcd" 
+	scene "scenes/Player/Sniper/low/LaughShort03.vcd" 
+	scene "scenes/Player/Sniper/low/LaughShort04.vcd" 
+	scene "scenes/Player/Sniper/low/LaughShort05.vcd" 
+}
+Rule PlayerTauntsSniper
+{
+	criteria ConceptPlayerTaunts IsSniper
+	Response PlayerTauntsSniper
+}
+

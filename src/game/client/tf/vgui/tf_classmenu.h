@@ -91,6 +91,7 @@ public:
 	virtual void OnClose();
 	virtual void ShowPanel( bool bShow );
 	virtual void UpdateClassCounts( void ){}
+	virtual int GetTeamNumber(void){ return 0; };
 
 protected:
 	virtual void ApplySchemeSettings( IScheme *pScheme );

@@ -488,6 +488,15 @@ void CHudMenuSpyDisguise::SetVisible( bool state )
 
 		SetDialogVariable( "lastinv", key );
 
+		// set the %disguiseteam% dialog var
+		key = engine->Key_LookupBinding("disguiseteam");
+		if (!key)
+		{
+			key = "< not bound >";
+		}
+
+		SetDialogVariable("disguiseteam", key);
+
 		HideLowerPriorityHudElementsInGroup( "mid" );
 	}
 	else
@@ -496,4 +505,11 @@ void CHudMenuSpyDisguise::SetVisible( bool state )
 	}
 
 	BaseClass::SetVisible( state );
+}
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudMenuSpyDisguise::DisguiseTeam(const CCommand &args)
+{
+	ToggleDisguiseTeam();
 }

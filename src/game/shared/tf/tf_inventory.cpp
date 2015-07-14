@@ -17,6 +17,48 @@ int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 	return Weapons[iClass][iSlot][iNum];
 };
 
+
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot)
+{
+	return CheckValidSlot(iClass, iSlot, 0);
+}
+
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon)
+{
+	return CheckValidWeapon(iClass, iSlot, iWeapon, 0);
+}
+
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool HudCheck)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+		return false;
+	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	if (iSlot >= iCount || iSlot < 0)
+		return false;
+	bool bWeapon = false;
+	for (int i = 0; i < iCount; i++) //if there's at least one weapon in slot
+	{
+		if (Weapons[iClass][iSlot][i])
+		{
+			bWeapon = true;
+			break;
+		}
+	}
+	return bWeapon;
+};
+
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+		return false;
+	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	if (iSlot >= iCount || iSlot < 0)
+		return false;
+	if (!Weapons[iClass][iSlot][iWeapon])
+		return false;
+	return true;
+};
+
 #if defined( CLIENT_DLL )
 const char* CTFInventory::GetSlotName(int iSlot)
 {
@@ -46,22 +88,37 @@ void CTFInventory::SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInvent
 
 char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
 {
+	if (iWeapon == TF_WEAPON_BUILDER) //shit but works
+		return "sprites/bucket_sapper";
+
 	const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 	char sz[128];
 	Q_snprintf(sz, sizeof(sz), "scripts/%s", pszWeaponName);
 	CUtlDict< CHudTexture *, int > tempList;
 	LoadHudTextures(tempList, sz, g_pGameRules->GetEncryptionKey());
-	CHudTexture *p;
+	CHudTexture *pHudDefaultTexture = FindHudTextureInDict(tempList, "weapon");
+	CHudTexture *pHudTexture;
 	switch (iTeam)
 	{
-	case 0: p = FindHudTextureInDict(tempList, "weapon");
-	case 1: p = FindHudTextureInDict(tempList, "weapon_s");
-	case 2: p = FindHudTextureInDict(tempList, "weapon_g");
-	case 3: p = FindHudTextureInDict(tempList, "weapon_y");
+	case TF_TEAM_RED:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon");
+		break;
+	case TF_TEAM_BLUE:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_s");
+		break;
+	case TF_TEAM_GREEN:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_g");
+		break;
+	case TF_TEAM_YELLOW:
+		pHudTexture = FindHudTextureInDict(tempList, "weapon_y");
+		break;
 	default:
-		p = FindHudTextureInDict(tempList, "weapon");
+		pHudTexture = pHudDefaultTexture;
+		break;
 	}
-	char* sTextureFile = p->szTextureFile;
+	if (!pHudTexture) //prevent from crashing
+		pHudTexture = pHudDefaultTexture;
+	char* sTextureFile = pHudTexture->szTextureFile;
 	return sTextureFile;
 };
 
@@ -92,6 +149,9 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] = 
 {
+		{
+
+		},
 		{
 			{
 				TF_WEAPON_SCATTERGUN, TF_WEAPON_NAILGUN
@@ -141,10 +201,10 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 				TF_WEAPON_SYRINGEGUN_MEDIC, TF_WEAPON_SHOTGUN_MEDIC
 			},
 			{
-				TF_WEAPON_MEDIGUN, TF_WEAPON_OVERHEALER
+				TF_WEAPON_MEDIGUN, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
 			},
 			{
-				TF_WEAPON_BONESAW
+				TF_WEAPON_BONESAW, TF_WEAPON_UBERSAW
 			}
 		},
 		{
@@ -155,7 +215,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 				TF_WEAPON_SHOTGUN_HWG
 			},
 			{
-				TF_WEAPON_FISTS, TF_WEAPON_PIPE
+				TF_WEAPON_FISTS
 			}
 		},
 		{
@@ -171,10 +231,13 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 		},
 		{
 			{
-				TF_WEAPON_KNIFE
+				TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
 			},
 			{
-				TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
+				TF_WEAPON_BUILDER
+			},
+			{
+				TF_WEAPON_KNIFE
 			},
 			{
 				TF_WEAPON_PDA_SPY
@@ -198,6 +261,28 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			},
 			{
 				TF_WEAPON_PDA_ENGINEER_DESTROY
+			}
+		},
+		{
+			{
+				
+			},
+			{
+				
+			},
+			{
+				TF_WEAPON_UMBRELLA
+			}
+		},
+		{
+			{
+				
+			},
+			{
+				TF_WEAPON_PISTOL_DM
+			},
+			{
+				TF_WEAPON_CROWBAR
 			}
 		}
 };

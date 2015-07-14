@@ -569,6 +569,25 @@ void CPointServerCommand::InputCommand( inputdata_t& inputdata )
 	if ( !inputdata.value.String()[0] )
 		return;
 
+#ifdef TF_CLASSIC
+	CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >(inputdata.pCaller);
+	if (pPlayer)
+	{
+		//Only allow people with RCON access to use this
+		if (engine->IsDedicatedServer())
+		{
+			if (pPlayer->IsAutoKickDisabled() == false)
+				return;
+		}
+		else if (gpGlobals->maxClients > 1)
+		{
+			CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
+			if (pPlayer != pHostPlayer)
+				return;
+		}
+	}
+#endif
+
 	engine->ServerCommand( UTIL_VarArgs( "%s\n", inputdata.value.String() ) );
 }
 

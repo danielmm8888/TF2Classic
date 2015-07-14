@@ -1,0 +1,778 @@
+//--------------------------------------------------------------------------------------------------------------
+// Medic Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "MedicIsKillSpeechObject" "MedicKillSpeechObject" "1" "required" weight 0
+Criterion "MedicIsNotStillonFire" "MedicOnFire" "!=1" "required" weight 0
+Criterion "MedicIsStillonFire" "MedicOnFire" "1" "required" weight 0
+Criterion "MedicNotInvulnerableSpeech" "MedicInvulnerableSpeech" "!=1" "required" weight 0
+Criterion "MedicNotKillSpeech" "MedicKillSpeech" "!=1" "required" weight 0
+Criterion "MedicNotKillSpeechMelee" "MedicKillSpeechMelee" "!=1" "required" weight 0
+Criterion "MedicNotSaidHealThanks" "MedicSaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapMedic" "MedicHelpCap" "1" "required" weight 0
+
+
+Response MedicChargeReady
+{
+	scene "scenes/Player/Medic/low/AutoChargeReady02.vcd" 
+	scene "scenes/Player/Medic/low/AutoChargeReady03.vcd" 
+}
+Rule MedicChargeReady
+{
+	criteria ConceptMedicChargeReady IsMedic
+	Response MedicChargeReady
+}
+
+Response PlayerCloakedSpyDemomanMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpyDemomanMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnDemoman
+	Response PlayerCloakedSpyDemomanMedic
+}
+
+Response PlayerCloakedSpyEngineerMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpyEngineerMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnEngineer
+	Response PlayerCloakedSpyEngineerMedic
+}
+
+Response PlayerCloakedSpyHeavyMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavyMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnHeavy
+	Response PlayerCloakedSpyHeavyMedic
+}
+
+Response PlayerCloakedSpyMedicMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyMedicMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnMedic
+	Response PlayerCloakedSpyMedicMedic
+}
+
+Response PlayerCloakedSpyPyroMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyPyroMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnPyro
+	Response PlayerCloakedSpyPyroMedic
+}
+
+Response PlayerCloakedSpySniperMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpySniperMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnSniper
+	Response PlayerCloakedSpySniperMedic
+}
+
+Response PlayerCloakedSpySoldierMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnSoldier
+	Response PlayerCloakedSpySoldierMedic
+}
+
+Response PlayerCloakedSpySpyMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpyIdentify06.vcd" 
+}
+Rule PlayerCloakedSpySpyMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic IsOnSpy
+	Response PlayerCloakedSpySpyMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksMedic
+{
+	scene "scenes/Player/Medic/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Medic/low/ThanksForTheHeal02.vcd" 
+}
+Rule HealThanksMedic
+{
+	criteria ConceptMedicChargeStopped IsMedic SuperHighHealthContext MedicNotSaidHealThanks 50PercentChance
+	ApplyContext "MedicSaidHealThanks:1:20"
+	Response HealThanksMedic
+}
+
+Response PlayerRoundStartMedic
+{
+	scene "scenes/Player/Medic/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Medic/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Medic/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Medic/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Medic/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Medic/low/BattleCry06.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartMedic
+{
+	criteria ConceptPlayerRoundStart IsMedic
+	Response PlayerRoundStartMedic
+}
+
+Response PlayerCappedIntelligenceMedic
+{
+	scene "scenes/Player/Medic/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Medic/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Medic/low/AutoCappedIntelligence03.vcd" 
+}
+Rule PlayerCappedIntelligenceMedic
+{
+	criteria ConceptPlayerCapturedIntelligence IsMedic
+	Response PlayerCappedIntelligenceMedic
+}
+
+Response PlayerCapturedPointMedic
+{
+	scene "scenes/Player/Medic/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Medic/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Medic/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointMedic
+{
+	criteria ConceptPlayerCapturedPoint IsMedic
+	Response PlayerCapturedPointMedic
+}
+
+Response PlayerSuddenDeathMedic
+{
+	scene "scenes/Player/Medic/low/Jeers01.vcd" 
+	scene "scenes/Player/Medic/low/Jeers02.vcd" 
+	scene "scenes/Player/Medic/low/Jeers03.vcd" 
+	scene "scenes/Player/Medic/low/Jeers04.vcd" 
+	scene "scenes/Player/Medic/low/Jeers05.vcd" 
+	scene "scenes/Player/Medic/low/Jeers06.vcd" 
+	scene "scenes/Player/Medic/low/Jeers07.vcd" 
+	scene "scenes/Player/Medic/low/Jeers08.vcd" 
+	scene "scenes/Player/Medic/low/Jeers09.vcd" 
+	scene "scenes/Player/Medic/low/Jeers10.vcd" 
+	scene "scenes/Player/Medic/low/Jeers11.vcd" 
+	scene "scenes/Player/Medic/low/Jeers12.vcd" 
+}
+Rule PlayerSuddenDeathMedic
+{
+	criteria ConceptPlayerSuddenDeathStart IsMedic
+	Response PlayerSuddenDeathMedic
+}
+
+Response PlayerStalemateMedic
+{
+	scene "scenes/Player/Medic/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie03.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie04.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie05.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie06.vcd" 
+	scene "scenes/Player/Medic/low/AutoDejectedTie07.vcd" 
+}
+Rule PlayerStalemateMedic
+{
+	criteria ConceptPlayerStalemate IsMedic
+	Response PlayerStalemateMedic
+}
+
+Response PlayerTeleporterThanksMedic
+{
+	scene "scenes/Player/Medic/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Medic/low/ThanksForTheTeleporter02.vcd" 
+	scene "scenes/Player/Medic/low/ThanksForTheTeleporter03.vcd" 
+}
+Rule PlayerTeleporterThanksMedic
+{
+	criteria ConceptTeleported IsNotEngineer IsMedic 30PercentChance
+	Response PlayerTeleporterThanksMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response InvulnerableSpeechMedic
+{
+	scene "scenes/Player/Medic/low/SpecialCompleted04.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted05.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted06.vcd" 
+}
+Rule InvulnerableSpeechMedic
+{
+	criteria ConceptMedicChargeDeployed IsMedic  IsInvulnerable MedicNotInvulnerableSpeech
+	ApplyContext "MedicInvulnerableSpeech:1:30"
+	Response InvulnerableSpeechMedic
+}
+
+Response KilledPlayerManyMedic
+{
+	scene "scenes/Player/Medic/low/SpecialCompleted12.vcd" 
+}
+Rule KilledPlayerManyMedic
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay MedicNotKillSpeech IsMedic
+	ApplyContext "MedicKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManyMedic
+}
+
+Response KilledPlayerMeleeMedic
+{
+	scene "scenes/Player/Medic/low/SpecialCompleted01.vcd" 
+}
+Rule KilledPlayerMeleeMedic
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee MedicNotKillSpeechMelee IsMedic
+	ApplyContext "MedicKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeMedic
+}
+
+Response KilledPlayerVeryManyMedic
+{
+	scene "scenes/Player/Medic/low/SpecialCompleted02.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted09.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted10.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted11.vcd" 
+}
+Rule KilledPlayerVeryManyMedic
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay MedicNotKillSpeech IsMedic
+	ApplyContext "MedicKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManyMedic
+}
+
+Response PlayerKilledCapperMedic
+{
+	scene "scenes/Player/Medic/low/AutoDejectedTie04.vcd" 
+	scene "scenes/Player/Medic/low/Cheers02.vcd" 
+	scene "scenes/Player/Medic/low/Cheers05.vcd" 
+	scene "scenes/Player/Medic/low/Cheers06.vcd" 
+	scene "scenes/Player/Medic/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Medic/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Medic/low/Taunts08.vcd" 
+}
+Rule PlayerKilledCapperMedic
+{
+	criteria ConceptCapBlocked IsMedic
+	ApplyContext "MedicKillSpeech:1:10"
+	Response PlayerKilledCapperMedic
+}
+
+Response PlayerKilledDominatingMedic
+{
+	scene "scenes/Player/Medic/low/LaughEvil02.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughEvil05.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughHappy02.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughHappy03.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughLong02.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/LaughShort03.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/Taunts12.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/Taunts14.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingMedic
+{
+	criteria ConceptKilledPlayer IsMedic IsDominated
+	ApplyContext "MedicKillSpeech:1:10"
+	Response PlayerKilledDominatingMedic
+}
+
+Response PlayerKilledForRevengeMedic
+{
+	scene "scenes/Player/Medic/low/GoodJob02.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/NegativeVocalization02.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/NegativeVocalization06.vcd" predelay "2.5"
+	scene "scenes/Player/Medic/low/NegativeVocalization07.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeMedic
+{
+	criteria ConceptKilledPlayer IsMedic IsRevenge
+	ApplyContext "MedicKillSpeech:1:10"
+	Response PlayerKilledForRevengeMedic
+}
+
+Response PlayerKilledObjectMedic
+{
+	scene "scenes/Player/Medic/low/SpecialCompleted07.vcd" 
+	scene "scenes/Player/Medic/low/SpecialCompleted08.vcd" 
+}
+Rule PlayerKilledObjectMedic
+{
+	criteria ConceptKilledObject IsMedic 30PercentChance IsARecentKill
+	ApplyContext "MedicKillSpeechObject:1:30"
+	applycontexttoworld
+	Response PlayerKilledObjectMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainMedic
+{
+	scene "scenes/Player/Medic/low/PainSevere01.vcd" 
+	scene "scenes/Player/Medic/low/PainSevere02.vcd" 
+	scene "scenes/Player/Medic/low/PainSevere03.vcd" 
+	scene "scenes/Player/Medic/low/PainSevere04.vcd" 
+}
+Rule PlayerAttackerPainMedic
+{
+	criteria ConceptAttackerPain IsMedic
+	Response PlayerAttackerPainMedic
+}
+
+Response PlayerOnFireMedic
+{
+	scene "scenes/Player/Medic/low/AutoOnFire01.vcd" 
+	scene "scenes/Player/Medic/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Medic/low/AutoOnFire03.vcd" 
+}
+Rule PlayerOnFireMedic
+{
+	criteria ConceptFire IsMedic MedicIsNotStillonFire
+	ApplyContext "MedicOnFire:1:7"
+	Response PlayerOnFireMedic
+}
+
+Response PlayerOnFireRareMedic
+{
+	scene "scenes/Player/Medic/low/AutoOnFire04.vcd" 
+	scene "scenes/Player/Medic/low/AutoOnFire05.vcd" 
+}
+Rule PlayerOnFireRareMedic
+{
+	criteria ConceptFire IsMedic 10PercentChance MedicIsNotStillonFire
+	ApplyContext "MedicOnFire:1:7"
+	Response PlayerOnFireRareMedic
+}
+
+Response PlayerPainMedic
+{
+	scene "scenes/Player/Medic/low/PainSharp01.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp02.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp03.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp04.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp05.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp06.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp07.vcd" 
+	scene "scenes/Player/Medic/low/PainSharp08.vcd" 
+}
+Rule PlayerPainMedic
+{
+	criteria ConceptPain IsMedic
+	Response PlayerPainMedic
+}
+
+Response PlayerStillOnFireMedic
+{
+	scene "scenes/Player/Medic/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireMedic
+{
+	criteria ConceptFire IsMedic  MedicIsStillonFire
+	ApplyContext "MedicOnFire:1:7"
+	Response PlayerStillOnFireMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoMedic
+{
+	scene "scenes/Player/Medic/low/Go01.vcd" 
+	scene "scenes/Player/Medic/low/Go02.vcd" 
+	scene "scenes/Player/Medic/low/Go03.vcd" 
+	scene "scenes/Player/Medic/low/Go04.vcd" 
+	scene "scenes/Player/Medic/low/Go05.vcd" 
+}
+Rule PlayerGoMedic
+{
+	criteria ConceptPlayerGo IsMedic
+	Response PlayerGoMedic
+}
+
+Response PlayerHeadLeftMedic
+{
+	scene "scenes/Player/Medic/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Medic/low/HeadLeft02.vcd" 
+	scene "scenes/Player/Medic/low/HeadLeft03.vcd" 
+}
+Rule PlayerHeadLeftMedic
+{
+	criteria ConceptPlayerLeft  IsMedic
+	Response PlayerHeadLeftMedic
+}
+
+Response PlayerHeadRightMedic
+{
+	scene "scenes/Player/Medic/low/HeadRight01.vcd" 
+	scene "scenes/Player/Medic/low/HeadRight02.vcd" 
+	scene "scenes/Player/Medic/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightMedic
+{
+	criteria ConceptPlayerRight  IsMedic
+	Response PlayerHeadRightMedic
+}
+
+Response PlayerHelpMedic
+{
+	scene "scenes/Player/Medic/low/HelpMe01.vcd" 
+	scene "scenes/Player/Medic/low/HelpMe02.vcd" 
+	scene "scenes/Player/Medic/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpMedic
+{
+	criteria ConceptPlayerHelp IsMedic
+	Response PlayerHelpMedic
+}
+
+Response PlayerHelpCaptureMedic
+{
+	scene "scenes/Player/Medic/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Medic/low/HelpMeCapture02.vcd" 
+}
+Rule PlayerHelpCaptureMedic
+{
+	criteria ConceptPlayerHelp IsMedic IsOnCappableControlPoint
+	ApplyContext "MedicHelpCap:1:10"
+	Response PlayerHelpCaptureMedic
+}
+
+Response PlayerHelpCapture2Medic
+{
+	scene "scenes/Player/Medic/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Medic/low/StandOnThePoint02.vcd" 
+	scene "scenes/Player/Medic/low/StandOnThePoint03.vcd" 
+	scene "scenes/Player/Medic/low/StandOnThePoint04.vcd" 
+	scene "scenes/Player/Medic/low/StandOnThePoint05.vcd" 
+}
+Rule PlayerHelpCapture2Medic
+{
+	criteria ConceptPlayerHelp IsMedic IsOnCappableControlPoint IsHelpCapMedic
+	Response PlayerHelpCapture2Medic
+}
+
+Response PlayerHelpDefendMedic
+{
+	scene "scenes/Player/Medic/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Medic/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Medic/low/HelpMeDefend03.vcd" 
+}
+Rule PlayerHelpDefendMedic
+{
+	criteria ConceptPlayerHelp IsMedic IsOnFriendlyControlPoint
+	Response PlayerHelpDefendMedic
+}
+
+Response PlayerMedicMedic
+{
+	scene "scenes/Player/Medic/low/Medic01.vcd" 
+	scene "scenes/Player/Medic/low/Medic02.vcd" 
+	scene "scenes/Player/Medic/low/Medic03.vcd" 
+}
+Rule PlayerMedicMedic
+{
+	criteria ConceptPlayerMedic IsMedic
+	Response PlayerMedicMedic
+}
+
+Response PlayerMoveUpMedic
+{
+	scene "scenes/Player/Medic/low/MoveUp01.vcd" 
+	scene "scenes/Player/Medic/low/MoveUp02.vcd" 
+}
+Rule PlayerMoveUpMedic
+{
+	criteria ConceptPlayerMoveUp  IsMedic
+	Response PlayerMoveUpMedic
+}
+
+Response PlayerNoMedic
+{
+	scene "scenes/Player/Medic/low/No01.vcd" 
+	scene "scenes/Player/Medic/low/No02.vcd" 
+	scene "scenes/Player/Medic/low/No03.vcd" 
+}
+Rule PlayerNoMedic
+{
+	criteria ConceptPlayerNo  IsMedic
+	Response PlayerNoMedic
+}
+
+Response PlayerThanksMedic
+{
+	scene "scenes/Player/Medic/low/Thanks01.vcd" 
+	scene "scenes/Player/Medic/low/Thanks02.vcd" 
+}
+Rule PlayerThanksMedic
+{
+	criteria ConceptPlayerThanks IsMedic
+	Response PlayerThanksMedic
+}
+
+Response PlayerYesMedic
+{
+	scene "scenes/Player/Medic/low/Yes01.vcd" 
+	scene "scenes/Player/Medic/low/Yes02.vcd" 
+	scene "scenes/Player/Medic/low/Yes03.vcd" 
+}
+Rule PlayerYesMedic
+{
+	criteria ConceptPlayerYes  IsMedic
+	Response PlayerYesMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeMedic
+{
+	scene "scenes/Player/Medic/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Medic/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Medic/low/ActivateCharge03.vcd" 
+}
+Rule PlayerActivateChargeMedic
+{
+	criteria ConceptPlayerActivateCharge IsMedic
+	Response PlayerActivateChargeMedic
+}
+
+Response PlayerChargeReadyMedic
+{
+	scene "scenes/Player/Medic/low/AutoChargeReady02.vcd" 
+	scene "scenes/Player/Medic/low/AutoChargeReady03.vcd" 
+}
+Rule PlayerChargeReadyMedic
+{
+	criteria ConceptPlayerChargeReady IsMedic
+	Response PlayerChargeReadyMedic
+}
+
+Response PlayerCloakedSpyMedic
+{
+	scene "scenes/Player/Medic/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Medic/low/CloakedSpy02.vcd" 
+}
+Rule PlayerCloakedSpyMedic
+{
+	criteria ConceptPlayerCloakedSpy IsMedic
+	Response PlayerCloakedSpyMedic
+}
+
+Response PlayerDispenserHereMedic
+{
+	scene "scenes/Player/Medic/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereMedic
+{
+	criteria ConceptPlayerDispenserHere IsMedic
+	Response PlayerDispenserHereMedic
+}
+
+Response PlayerIncomingMedic
+{
+	scene "scenes/Player/Medic/low/Incoming01.vcd" 
+	scene "scenes/Player/Medic/low/Incoming02.vcd" 
+	scene "scenes/Player/Medic/low/Incoming03.vcd" 
+}
+Rule PlayerIncomingMedic
+{
+	criteria ConceptPlayerIncoming IsMedic
+	Response PlayerIncomingMedic
+}
+
+Response PlayerSentryAheadMedic
+{
+	scene "scenes/Player/Medic/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Medic/low/SentryAhead02.vcd" 
+}
+Rule PlayerSentryAheadMedic
+{
+	criteria ConceptPlayerSentryAhead IsMedic
+	Response PlayerSentryAheadMedic
+}
+
+Response PlayerSentryHereMedic
+{
+	scene "scenes/Player/Medic/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereMedic
+{
+	criteria ConceptPlayerSentryHere IsMedic
+	Response PlayerSentryHereMedic
+}
+
+Response PlayerTeleporterHereMedic
+{
+	scene "scenes/Player/Medic/low/NeedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterHereMedic
+{
+	criteria ConceptPlayerTeleporterHere IsMedic
+	Response PlayerTeleporterHereMedic
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCryMedic
+{
+	scene "scenes/Player/Medic/low/BattleCry01.vcd" 
+	scene "scenes/Player/Medic/low/BattleCry02.vcd" 
+	scene "scenes/Player/Medic/low/BattleCry03.vcd" 
+	scene "scenes/Player/Medic/low/BattleCry04.vcd" 
+	scene "scenes/Player/Medic/low/BattleCry05.vcd" 
+	scene "scenes/Player/Medic/low/BattleCry06.vcd" 
+}
+Rule PlayerBattleCryMedic
+{
+	criteria ConceptPlayerBattleCry IsMedic
+	Response PlayerBattleCryMedic
+}
+
+Response PlayerCheersMedic
+{
+	scene "scenes/Player/Medic/low/Cheers01.vcd" 
+	scene "scenes/Player/Medic/low/Cheers02.vcd" 
+	scene "scenes/Player/Medic/low/Cheers03.vcd" 
+	scene "scenes/Player/Medic/low/Cheers04.vcd" 
+	scene "scenes/Player/Medic/low/Cheers05.vcd" 
+	scene "scenes/Player/Medic/low/Cheers06.vcd" 
+}
+Rule PlayerCheersMedic
+{
+	criteria ConceptPlayerCheers IsMedic
+	Response PlayerCheersMedic
+}
+
+Response PlayerGoodJobMedic
+{
+	scene "scenes/Player/Medic/low/GoodJob01.vcd" 
+	scene "scenes/Player/Medic/low/GoodJob02.vcd" 
+	scene "scenes/Player/Medic/low/GoodJob03.vcd" 
+}
+Rule PlayerGoodJobMedic
+{
+	criteria ConceptPlayerGoodJob IsMedic
+	Response PlayerGoodJobMedic
+}
+
+Response PlayerJeersMedic
+{
+	scene "scenes/Player/Medic/low/Jeers01.vcd" 
+	scene "scenes/Player/Medic/low/Jeers02.vcd" 
+	scene "scenes/Player/Medic/low/Jeers03.vcd" 
+	scene "scenes/Player/Medic/low/Jeers04.vcd" 
+	scene "scenes/Player/Medic/low/Jeers05.vcd" 
+	scene "scenes/Player/Medic/low/Jeers06.vcd" 
+	scene "scenes/Player/Medic/low/Jeers07.vcd" 
+	scene "scenes/Player/Medic/low/Jeers08.vcd" 
+	scene "scenes/Player/Medic/low/Jeers09.vcd" 
+	scene "scenes/Player/Medic/low/Jeers10.vcd" 
+	scene "scenes/Player/Medic/low/Jeers11.vcd" 
+	scene "scenes/Player/Medic/low/Jeers12.vcd" 
+}
+Rule PlayerJeersMedic
+{
+	criteria ConceptPlayerJeers IsMedic
+	Response PlayerJeersMedic
+}
+
+Response PlayerLostPointMedic
+{
+	scene "scenes/Player/Medic/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization07.vcd" 
+}
+Rule PlayerLostPointMedic
+{
+	criteria ConceptPlayerLostPoint IsMedic
+	Response PlayerLostPointMedic
+}
+
+Response PlayerNegativeMedic
+{
+	scene "scenes/Player/Medic/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization06.vcd" 
+	scene "scenes/Player/Medic/low/NegativeVocalization07.vcd" 
+}
+Rule PlayerNegativeMedic
+{
+	criteria ConceptPlayerNegative IsMedic
+	Response PlayerNegativeMedic
+}
+
+Response PlayerNiceShotMedic
+{
+	scene "scenes/Player/Medic/low/NiceShot01.vcd" 
+	scene "scenes/Player/Medic/low/NiceShot02.vcd" 
+}
+Rule PlayerNiceShotMedic
+{
+	criteria ConceptPlayerNiceShot IsMedic
+	Response PlayerNiceShotMedic
+}
+
+Response PlayerPositiveMedic
+{
+	scene "scenes/Player/Medic/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Medic/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Medic/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Medic/low/PositiveVocalization05.vcd" 
+	scene "scenes/Player/Medic/low/PositiveVocalization06.vcd" 
+}
+Rule PlayerPositiveMedic
+{
+	criteria ConceptPlayerPositive IsMedic
+	Response PlayerPositiveMedic
+}
+
+Response PlayerTauntsMedic
+{
+	scene "scenes/Player/Medic/low/LaughEvil01.vcd" 
+	scene "scenes/Player/Medic/low/LaughEvil03.vcd" 
+	scene "scenes/Player/Medic/low/LaughEvil04.vcd" 
+	scene "scenes/Player/Medic/low/LaughShort01.vcd" 
+	scene "scenes/Player/Medic/low/LaughShort02.vcd" 
+}
+Rule PlayerTauntsMedic
+{
+	criteria ConceptPlayerTaunts IsMedic
+	Response PlayerTauntsMedic
+}
+

@@ -254,7 +254,7 @@ private:
 
 public:
 
-	int					m_iPlayerColor[3];
+	Vector					m_vecPlayerColor;
 
 private:
 

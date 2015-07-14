@@ -127,7 +127,7 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
-	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN )
+	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN || pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG || pWeapon->GetWeaponID() == TF_WEAPON_UBERSAW )
 	{
 		return false;
 	}
@@ -187,12 +187,12 @@ void CTFHudWeaponAmmo::OnThink()
 		return;
 
 	if (tf2c_ammobucket.GetBool()){
-		for (int j = 0; j < COLNUM; j++)
+		for (int j = 0; j < INVENTORY_WEAPONS; j++)
 		{
-			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
+			int iWeapon = m_pInventory->GetWeapon(pClass->GetClassIndex(), pWeapon->GetWpnData().iSlot, j);
 			if (pPlayer->Weapon_OwnsThisID(iWeapon))
 			{
-				char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
+				char* cIcon = m_pInventory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
 				char szImage[64];
 				Q_snprintf(szImage, sizeof(szImage), "../%s", cIcon);
 				if (szImage)

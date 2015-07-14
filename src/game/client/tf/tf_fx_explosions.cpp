@@ -14,25 +14,7 @@
 #include "tier0/vprof.h"
 
 //--------------------------------------------------------------------------------------------------------------
-CTFWeaponInfo *GetTFWeaponInfo( int iWeapon )
-{
-	// Get the weapon information.
-	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
-	if ( !pszWeaponAlias )
-	{
-		return NULL;
-	}
-
-	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszWeaponAlias );
-	if ( hWpnInfo == GetInvalidWeaponInfoHandle() )
-	{
-		return NULL;
-	}
-
-	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
-	return pWeaponInfo;
-}
-
+extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

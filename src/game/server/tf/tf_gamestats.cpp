@@ -357,8 +357,10 @@ void CTFGameStats::Event_PlayerSpawned( CTFPlayer *pPlayer )
 	if ( !map )
 		return;
 
+	int iTeamCount = TFGameRules()->IsFourTeamGame() ? 5 : 3;
+
 	// calculate peak player count on each team
-	for ( iTeam = FIRST_GAME_TEAM; iTeam < TF_TEAM_COUNT; iTeam++ )
+	for ( iTeam = FIRST_GAME_TEAM; iTeam <= iTeamCount; iTeam++ )
 	{
 		int iPlayerCount = GetGlobalTeam( iTeam )->GetNumPlayers();
 		if ( iPlayerCount > map->m_iPeakPlayerCount[iTeam] )
@@ -565,6 +567,12 @@ void CTFGameStats::Event_PlayerDamage( CBasePlayer *pBasePlayer, const CTakeDama
 			return;
 
 		pAttacker = pSentry->GetOwner();
+		if ( !pAttacker )
+		{
+			// Sentry with no builder? Must be a pre-placed sentry.
+			// It's easier to just cut off here and don't count damage.
+			return;
+		}
 	}
 	// don't count damage to yourself
 	if ( pTarget == pAttacker )

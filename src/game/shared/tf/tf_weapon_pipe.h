@@ -4,8 +4,8 @@
 //
 //=============================================================================
 
-#ifndef TF_WEAPON_FISTS_H
-#define TF_WEAPON_FISTS_H
+#ifndef TF_WEAPON_PIPE_H
+#define TF_WEAPON_PIPE_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -45,4 +45,4 @@ private:
 	CTFPipe(const CTFPipe &) {}
 };
 
-#endif // TF_WEAPON_FISTS_H
+#endif // TF_WEAPON_PIPE_H

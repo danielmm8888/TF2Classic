@@ -207,13 +207,14 @@ void CObjectDispenser::SetModel( const char *pModel )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::OnGoActive( void )
 {
+	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
 
 	if ( !pBuilder )
 		return;
-
+	*/
 	SetModel( DISPENSER_MODEL_LEVEL_1 );
 
 	// Put some ammo in the Dispenser
@@ -495,11 +496,11 @@ void CObjectDispenser::DispenseThink( void )
 
 		CBaseEntity *pListOfNearbyEntities[32];
 		int iNumberOfNearbyEntities = UTIL_EntitiesInSphere( pListOfNearbyEntities, 32, vecOrigin, flRadius, FL_CLIENT );
-		for ( int i=0;i<iNumberOfNearbyEntities;i++ )
+		for (int i=0;i<iNumberOfNearbyEntities;i++ )
 		{
 			CTFPlayer *pPlayer = ToTFPlayer( pListOfNearbyEntities[i] );
 
-			if ( !pPlayer || !pPlayer->IsAlive() )
+			if ( !pPlayer || !pPlayer->IsAlive() || !CouldHealTarget(pPlayer) )
 				continue;
 
 			DispenseAmmo( pPlayer );

@@ -33,7 +33,7 @@
 #endif // REPLAY_ENABLED
 #endif
 
-#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
+#if defined(TF_CLIENT_DLL) || defined(TF_DLL) || defined (TF_CLASSIC) || defined (TF_CLASSIC_CLIENT)
 	#include "tf_gamerules.h"
 	#if defined(TF_CLIENT_DLL) || defined(TF_DLL)
 		#include "tf_lobby.h"
@@ -186,7 +186,7 @@ ConVar tf_arena_round_time( "tf_arena_round_time", "0", FCVAR_NOTIFY | FCVAR_REP
 ConVar tf_arena_max_streak( "tf_arena_max_streak", "3", FCVAR_NOTIFY | FCVAR_REPLICATED, "Teams will be scrambled if one team reaches this streak" );
 ConVar tf_arena_use_queue( "tf_arena_use_queue", "1", FCVAR_REPLICATED | FCVAR_NOTIFY, "Enables the spectator queue system for Arena." );
 
-ConVar mp_teams_unbalance_limit( "mp_teams_unbalance_limit", "1", FCVAR_REPLICATED,
+ConVar mp_teams_unbalance_limit( "mp_teams_unbalance_limit", "2", FCVAR_REPLICATED,
 					 "Teams are unbalanced when one team has this many more players than the other team. (0 disables check)",
 					 true, 0,	// min value
 					 true, 30	// max value
@@ -3369,7 +3369,14 @@ bool CTeamplayRoundBasedRules::WouldChangeUnbalanceTeams( int iNewTeam, int iCur
 
 	CTeam *pTeam;
 
+#if defined (TF_CLASSIC) || (TF_CLASSIC_CLIENT)
+	int iTeamCount = GetNumberOfTeams();
+	if (TFGameRules())
+		iTeamCount = TFGameRules()->IsFourTeamGame() ? 5 : 3;
+	for ( pTeam = GetGlobalTeam(i); i <= iTeamCount; pTeam = GetGlobalTeam(++i) )
+#else
 	for ( pTeam = GetGlobalTeam(i); pTeam != NULL; pTeam = GetGlobalTeam(++i) )
+#endif
 	{
 		if ( pTeam == pNewTeam )
 			continue;
@@ -3413,7 +3420,14 @@ bool CTeamplayRoundBasedRules::AreTeamsUnbalanced( int &iHeaviestTeam, int &iLig
 
 	int i = FIRST_GAME_TEAM;
 
+#if defined (TF_CLASSIC) || (TF_CLASSIC_CLIENT)
+	int iTeamCount = GetNumberOfTeams();
+	if (TFGameRules())
+		iTeamCount = TFGameRules()->IsFourTeamGame() ? 5 : 3;
+	for ( CTeam *pTeam = GetGlobalTeam(i); i <= iTeamCount; pTeam = GetGlobalTeam(++i) )
+#else
 	for ( CTeam *pTeam = GetGlobalTeam(i); pTeam != NULL; pTeam = GetGlobalTeam(++i) )
+#endif
 	{
 		int iNumPlayers = pTeam->GetNumPlayers();
 

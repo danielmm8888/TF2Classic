@@ -25,14 +25,14 @@
 void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #endif
 
-#define TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC	450.0
+#define TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC	600.0
 #define TF_WEAPON_HUNTERRIFLE_UNCHARGE_PER_SEC	20.0
-#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			75
+#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			60
 #define TF_WEAPON_HUNTERRIFLE_RELOAD_TIME		1.0f
-#define TF_WEAPON_HUNTERRIFLE_ZOOM_TIME			0.2f
+#define TF_WEAPON_HUNTERRIFLE_ZOOM_TIME			0.3f
 #define TF_WEAPON_HUNTERRIFLE_SHOOT_TIME		0.15f
 #define TF_WEAPON_HUNTERRIFLE_SPREAD_MIN		0
-#define TF_WEAPON_HUNTERRIFLE_SPREAD_MAX		450
+#define TF_WEAPON_HUNTERRIFLE_SPREAD_MAX		300
 #define TF_WEAPON_HUNTERRIFLE_NO_CRIT_AFTER_ZOOM_TIME	0.2f
 
 
@@ -218,6 +218,8 @@ bool CTFHunterRifle::Reload(void)
 	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
 	if (m_iReloadMode == TF_RELOAD_START)
 	{
+		ZoomOut();
+
 		// If I don't have any spare ammo, I can't reload
 		if (GetOwner()->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
 			return false;
@@ -256,18 +258,6 @@ void CTFHunterRifle::ItemPostFrame( void )
 
 	HandleZooms();
 
-	/*// Start charging when we're zoomed in, and allowed to fire
-	if ( pPlayer->m_Shared.IsJumping() )
-	{
-		// Unzoom if we're jumping
-		if ( IsZoomed() )
-		{
-			ToggleZoom();
-		}
-
-		m_flChargedSpread = TF_WEAPON_HUNTERRIFLE_SPREAD_MAX;
-		m_bRezoomAfterShot = false;
-	}*/
 	if ( m_flNextSecondaryAttack <= gpGlobals->curtime )
 	{
 		// Don't start charging in the time just after a shot before we unzoom to play rack anim.
@@ -288,31 +278,7 @@ void CTFHunterRifle::ItemPostFrame( void )
 			Fire( pPlayer );
 	}
 
-	/*#ifdef CLIENT_DLL
-	char szCmd[64];
-	Q_snprintf(szCmd, sizeof(szCmd), "\"unchrage m_flChargedSpread = %i\"\n", (int)m_flChargedSpread);
-	Msg(szCmd);
-	#endif*/
-
 	BaseClass::ItemPostFrame();
-
-	// Check for reload singly interrupts.
-	//if (m_bReloadsSingly)
-	//{
-	//	Reload();
-	//}
-
-
-	/*
-	// Idle.
-	if ( !( ( pPlayer->m_nButtons & IN_ATTACK) || ( pPlayer->m_nButtons & IN_ATTACK2 ) ) )
-	{
-		// No fire buttons down or reloading
-		if ( !ReloadOrSwitchWeapons() && ( m_bInReload == false ) )
-		{
-			WeaponIdle();
-		}
-	}*/
 }
 
 //-----------------------------------------------------------------------------
@@ -320,9 +286,10 @@ void CTFHunterRifle::ItemPostFrame( void )
 //-----------------------------------------------------------------------------
 void CTFHunterRifle::Fire(CTFPlayer *pPlayer)
 {
-	// Check the ammo.  We don't use clip ammo, check the primary ammo type.
-	if (pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
+	// Check the ammo.
+	if (Clip1() <= 0)
 	{
+		Reload();
 		HandleFireOnEmpty();
 		return;
 	}
@@ -373,12 +340,7 @@ void CTFHunterRifle::Zoom( void )
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	if (!pPlayer)
 		return;
-	/*if ( pPlayer && pPlayer->m_Shared.IsJumping() )
-	{
-		if ( pPlayer->GetFOV() >= 75 )
-			return;
-	}
-	*/
+
 	ToggleZoom();
 
 	// at least 0.1 seconds from now, but don't stomp a previous value
@@ -494,7 +456,7 @@ int	CTFHunterRifle::GetDamageType( void ) const
 {
 	// Only do hit location damage if we're zoomed
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
+	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_AIMING ) )
 		return BaseClass::GetDamageType();
 
 	return ( BaseClass::GetDamageType() & ~DMG_USE_HITLOCATIONS );

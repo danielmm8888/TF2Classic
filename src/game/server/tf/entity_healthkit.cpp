@@ -19,10 +19,14 @@
 
 #define TF_HEALTHKIT_MODEL			"models/items/healthkit.mdl"
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
+#define TF_HEALTHKIT_TINY_SOUND		"HealthKit.Touch" // TODO unique short sound
+
+extern ConVar tf_max_health_boost;
 
 LINK_ENTITY_TO_CLASS( item_healthkit_full, CHealthKit );
 LINK_ENTITY_TO_CLASS( item_healthkit_small, CHealthKitSmall );
 LINK_ENTITY_TO_CLASS( item_healthkit_medium, CHealthKitMedium );
+LINK_ENTITY_TO_CLASS( item_healthkit_tiny, CHealthKitTiny);
 
 //=============================================================================
 //
@@ -58,7 +62,26 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 	if ( ValidTouch( pPlayer ) )
 	{
-		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
+		if (GetPowerupSize() == POWERUP_TINY) // TF2C tiny medkit, overheals. can't pick up if hp would exceed max
+		{
+			if (pPlayer->GetHealth() < pPlayer->GetMaxHealth() * (tf_max_health_boost.GetFloat() - PackRatios[GetPowerupSize()]))
+			{
+				if (pPlayer->TakeHealth(ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_IGNORE_MAXHEALTH))
+				{
+					CSingleUserRecipientFilter user(pPlayer);
+					user.MakeReliable();
+
+					UserMessageBegin(user, "ItemPickup");
+					WRITE_STRING(GetClassname());
+					MessageEnd();
+
+					EmitSound(user, entindex(), TF_HEALTHKIT_TINY_SOUND);
+
+					bSuccess = true;
+				}
+			}
+		}
+		else if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
 		{
 			CSingleUserRecipientFilter user( pPlayer );
 			user.MakeReliable();
@@ -86,7 +109,6 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			{
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
 			}
-
 		}
 	}
 

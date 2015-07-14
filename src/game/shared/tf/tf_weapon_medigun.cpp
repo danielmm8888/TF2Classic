@@ -205,6 +205,7 @@ bool CWeaponMedigun::Deploy( void )
 		if ( m_bChargeRelease && pOwner )
 		{
 			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateCrits();
 		}
 #endif
 
@@ -236,6 +237,7 @@ bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
 	if ( pOwner )
 	{
 		pOwner->m_Shared.RecalculateInvuln( true );
+		pOwner->m_Shared.RecalculateCrits(true);
 	}
 #endif
 
@@ -519,6 +521,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 			}
 
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
 
 		if ( m_flReleaseStartedAt && m_flReleaseStartedAt < (gpGlobals->curtime + 0.2) )
@@ -578,6 +581,17 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CWeaponMedigun::AddCharge(void)
+{
+	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
+	m_flChargeLevel = flNewLevel;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CWeaponMedigun::ItemHolsterFrame( void )
 {
 	BaseClass::ItemHolsterFrame();
@@ -614,6 +628,7 @@ void CWeaponMedigun::DrainCharge( void )
 			*/
 
 			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateCrits();
 #endif
 		}
 	}
@@ -730,6 +745,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits( false );
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
@@ -855,6 +871,7 @@ void CWeaponMedigun::SecondaryAttack( void )
 #ifdef GAME_DLL
 	CTF_GameStats.Event_PlayerInvulnerable( pOwner );
 	pOwner->m_Shared.RecalculateInvuln();
+	pOwner->m_Shared.RecalculateCrits();
 
 	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
 
@@ -862,6 +879,7 @@ void CWeaponMedigun::SecondaryAttack( void )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 		pTFPlayer->m_Shared.RecalculateInvuln();
+		pTFPlayer->m_Shared.RecalculateCrits();
 		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
 	}
 

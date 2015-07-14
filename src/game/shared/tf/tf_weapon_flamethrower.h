@@ -20,6 +20,7 @@
 
 	#define CTFFlameThrower C_TFFlameThrower
 	#define CTFFlameRocket C_TFFlameRocket
+	#define CTFFlameThrower_DM C_TFFlameThrower_DM
 #else
 	#include "tf_projectile_rocket.h"
 	#include "baseentity.h"
@@ -100,6 +101,16 @@ private:
 #endif
 
 	CTFFlameThrower( const CTFFlameThrower & );
+};
+
+class CTFFlameThrower_DM : public CTFFlameThrower
+{
+public:
+	DECLARE_CLASS(CTFFlameThrower_DM, CTFFlameThrower);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_FLAMETHROWER_DM; }
 };
 
 //=============================================================================

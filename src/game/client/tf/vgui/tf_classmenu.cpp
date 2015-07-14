@@ -17,6 +17,7 @@
 #include "c_tf_player.h"
 #include "c_tf_team.h"
 #include "c_tf_playerresource.h"
+#include "engine/IEngineSound.h"
 
 #include "tf_controls.h"
 #include "vguicenterprint.h"
@@ -49,6 +50,27 @@ static int iRemapIndexToClass[TF_CLASS_MENU_BUTTONS] =
 	0,
 	0,
 	TF_CLASS_RANDOM
+};
+
+// background music
+static char* pszBackgroundMusic = "music.class_menu";
+
+// hoverup sounds for each class
+static char* pszHoverupSound[TF_CLASS_MENU_BUTTONS] =
+{
+	0,
+	"music.class_menu_01",
+	"music.class_menu_02",
+	"music.class_menu_03",
+	"music.class_menu_04",
+	"music.class_menu_05",
+	"music.class_menu_06",
+	"music.class_menu_07",
+	"music.class_menu_08",
+	"music.class_menu_09",
+	0,
+	0,
+	"music.class_menu_69"
 };
 
 int GetIndexForClass( int iClass )
@@ -173,6 +195,9 @@ void CTFClassMenu::ShowPanel( bool bShow )
 
 		Activate();
 		SetMouseInputEnabled( true );
+	
+		CLocalPlayerFilter filter;
+		C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszBackgroundMusic);
 
 		m_iClassMenuKey = gameuifuncs->GetButtonCodeForBind( "changeclass" );
 		m_iScoreBoardKey = gameuifuncs->GetButtonCodeForBind( "showscores" );
@@ -217,6 +242,8 @@ void CTFClassMenu::ShowPanel( bool bShow )
 		// everything is off so just reset these for next time
 		g_lastButton = NULL;
 		g_lastPanel = NULL;
+		
+		C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszBackgroundMusic);
 
 		SetVisible( false );
 		SetMouseInputEnabled( false );
@@ -390,6 +417,23 @@ Panel *CTFClassMenu::CreateControlByName( const char *controlName )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnShowPage( const char *pagename )
 {
+	for (int i = 0; i < GetChildCount(); i++)
+	{
+		CImageMouseOverButton<CTFClassInfoPanel> *button = dynamic_cast<CImageMouseOverButton<CTFClassInfoPanel> *>(GetChild(i));
+		if (button)
+		{
+			int iClass = iRemapIndexToClass[GetChildCount() - TF_CLASS_COUNT_ALL - i - 1];
+			CLocalPlayerFilter filter;
+			if (button == g_lastButton)
+			{
+				C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
+			}
+			else 
+			{
+				C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -584,7 +628,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 	if ( iTeam < FIRST_GAME_TEAM || iTeam >= TF_TEAM_COUNT ) // invalid team number
 		return;
 
-	for( int i = TF_FIRST_NORMAL_CLASS ; i <= TF_LAST_NORMAL_CLASS ; i++ )
+	for (int i = TF_FIRST_NORMAL_CLASS; i <= TF_CLASS_ENGINEER; i++)
 	{
 		int classCount = tf_PR->GetCountForPlayerClass( iTeam, g_sClassDefines[i], true );
 

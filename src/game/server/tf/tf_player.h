@@ -116,61 +116,10 @@ public:
 	CTFWeaponBase		*GetActiveTFWeapon( void ) const;
 	bool				IsActiveTFWeapon(int iWeaponID);
 
-	int GetWeaponPreset(int iSlotNum){
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	int GetWeaponPreset(int iClass, int iSlotNum){
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
-	{
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iPresetNum >= INVENTORY_WEAPONS)
-			return;
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
-		}
-	}
-
-	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
-	{
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
-		}
-	}
+	int GetWeaponPreset(int iSlotNum);
+	int GetWeaponPreset(int iClass, int iSlotNum);
+	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
+	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
 
 	void				SaveMe( void );
 
@@ -307,7 +256,6 @@ public:
 
 	CTFTeam *GetTFTeam( void );
 	CTFTeam *GetOpposingTFTeam( void );
-	void GetOpposingTFTeamList( CUtlVector<CTFTeam *> *pTeamList );
 
 	void TeleportEffect( void );
 	void RemoveTeleportEffect( void );
@@ -377,6 +325,8 @@ public:
 	bool ShouldAnnouceAchievement( void );
 
 public:
+
+	CNetworkVar(Vector, m_vecPlayerColor);
 
 	CTFPlayerShared m_Shared;
 

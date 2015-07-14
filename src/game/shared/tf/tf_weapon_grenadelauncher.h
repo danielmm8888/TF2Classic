@@ -14,6 +14,7 @@
 // Client specific.
 #ifdef CLIENT_DLL
 #define CTFGrenadeLauncher C_TFGrenadeLauncher
+#define CTFGrenadeLauncher_DM C_TFGrenadeLauncher_DM
 #endif
 
 #define TF_GRENADE_LAUNCHER_XBOX_CLIP 4
@@ -60,6 +61,16 @@ public:
 private:
 
 	CTFGrenadeLauncher( const CTFGrenadeLauncher & ) {}
+};
+
+class CTFGrenadeLauncher_DM : public CTFGrenadeLauncher
+{
+public:
+	DECLARE_CLASS(CTFGrenadeLauncher_DM, CTFGrenadeLauncher);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_GRENADELAUNCHER_DM; }
 };
 
 #endif // TF_WEAPON_GRENADELAUNCHER_H

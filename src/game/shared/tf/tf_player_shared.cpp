@@ -13,6 +13,7 @@
 #include "entity_capture_flag.h"
 #include "baseobject_shared.h"
 #include "tf_weapon_medigun.h"
+#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 
@@ -715,6 +716,12 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		{
 			pWeapon->DrainCharge();
 		}
+
+		CWeaponKritzkrieg *pKritz = ( CWeaponKritzkrieg* )m_pOuter->Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG );
+		if (pKritz && pKritz->IsReleasingCharge())
+		{
+			pKritz->DrainCharge();
+		}
 	}
 
 	if ( InCond( TF_COND_INVULNERABLE )  )
@@ -741,7 +748,29 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_INVULNERABLE );
 		}
 	}
+	if ( InCond( TF_COND_CRITBOOSTED ) )
+	{
+		bool bRemoveCrits = false;
 
+		if ((TFGameRules()->State_Get() == GR_STATE_TEAM_WIN) && (TFGameRules()->GetWinningTeam() != m_pOuter->GetTeamNumber()))
+		{
+			bRemoveCrits = true;
+		}
+
+		if (m_flCritOffTime)
+		{
+			if (gpGlobals->curtime > m_flCritOffTime)
+			{
+				bRemoveCrits = true;
+			}
+		}
+
+		if (bRemoveCrits == true)
+		{
+			m_flCritOffTime = 0;
+			RemoveCond( TF_COND_CRITBOOSTED );
+		}
+	}
 	if ( InCond( TF_COND_STEALTHED_BLINK ) )
 	{
 		if ( TF_SPY_STEALTH_BLINKTIME/*tf_spy_stealth_blink_time.GetFloat()*/ < ( gpGlobals->curtime - m_flLastStealthExposeTime ) )
@@ -1604,6 +1633,25 @@ bool CTFPlayerShared::IsProvidingInvuln( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+bool CTFPlayerShared::IsProvidingCrits(CTFPlayer *pPlayer)
+{
+	if (!pPlayer->IsPlayerClass(TF_CLASS_MEDIC))
+		return false;
+
+	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
+	if (!pWpn)
+		return false;
+
+	CWeaponKritzkrieg *pKritzkrieg = dynamic_cast<CWeaponKritzkrieg*>(pWpn);
+	if (pKritzkrieg && pKritzkrieg->IsReleasingCharge())
+		return true;
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerShared::RecalculateInvuln( bool bInstantRemove )
 {
 	bool bShouldBeInvuln = false;
@@ -1642,6 +1690,49 @@ void CTFPlayerShared::RecalculateInvuln( bool bInstantRemove )
 	}
 
 	SetInvulnerable( bShouldBeInvuln, bInstantRemove );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::RecalculateCrits(bool bInstantRemove)
+{
+	bool bShouldBeCrit = false;
+
+	if (m_pOuter->m_flPowerPlayTime > gpGlobals->curtime)
+	{
+		bShouldBeCrit = true;
+	}
+
+	// If we're not carrying the flag, and we're being healed by a medic 
+	// who's generating invuln, then we should get invuln.
+	if (!m_pOuter->HasTheFlag())
+	{
+		if (IsProvidingCrits(m_pOuter))
+		{
+			bShouldBeCrit = true;
+		}
+		else
+		{
+			for (int i = 0; i < m_aHealers.Count(); i++)
+			{
+				if (!m_aHealers[i].pPlayer)
+					continue;
+
+				CTFPlayer *pPlayer = ToTFPlayer(m_aHealers[i].pPlayer);
+				if (!pPlayer)
+					continue;
+
+				if (IsProvidingCrits(pPlayer))
+				{
+					bShouldBeCrit = true;
+					break;
+				}
+			}
+		}
+	}
+
+	SetCrits(bShouldBeCrit, bInstantRemove);
 }
 
 //-----------------------------------------------------------------------------
@@ -1715,6 +1806,61 @@ void CTFPlayerShared::SetInvulnerable( bool bState, bool bInstant )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
+{
+	bool bCurrentState = InCond( TF_COND_CRITBOOSTED );
+	if (bCurrentState == bState)
+	{
+		if (bState && m_flCritOffTime)
+		{
+			m_flCritOffTime = 0;
+		}
+		return;
+	}
+
+	if (bState)
+	{
+		Assert(!m_pOuter->HasTheFlag());
+
+		if (m_flCritOffTime)
+		{
+			m_pOuter->StopSound("TFPlayer.InvulnerableOff");
+
+			m_flCritOffTime = 0;
+		}
+
+		// Invulnerable turning on
+		AddCond( TF_COND_CRITBOOSTED );
+
+		CSingleUserRecipientFilter filter(m_pOuter);
+		m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn");
+	}
+	else
+	{
+		if (!m_flCritOffTime)
+		{
+			CSingleUserRecipientFilter filter(m_pOuter);
+			m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOff");
+		}
+
+		if (bInstant)
+		{
+			m_flCritOffTime = 0;
+			RemoveCond( TF_COND_CRITBOOSTED );
+		}
+		else
+		{
+			// We're already in the process of turning it off
+			if (m_flCritOffTime)
+				return;
+
+			m_flCritOffTime = gpGlobals->curtime + tf_invuln_time.GetFloat();
+		}
+	}
+}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -2235,14 +2381,14 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
-	// if they're a sniper, and they're aiming, their speed must be 80 or less
+	// if they're aiming or spun up, reduce their speed
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
-		// Pyro's move faster while firing their flamethrower
-		if ( playerclass == TF_CLASS_PYRO )
+		// Heavy moves slightly faster spun-up
+		if ( playerclass == TF_CLASS_HEAVYWEAPONS )
 		{
-			if (maxfbspeed > 200)
-				maxfbspeed = 200;
+			if (maxfbspeed > 110)
+				maxfbspeed = 110;
 		}
 		else
 		{

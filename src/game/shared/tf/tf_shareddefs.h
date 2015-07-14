@@ -79,6 +79,7 @@ enum
 #define PANEL_ROUNDINFO			"roundinfo"
 #define PANEL_FOURTEAMSCOREBOARD "fourteamscoreboard"
 #define PANEL_FOURTEAMSELECT	"fourteamselect"
+#define PANEL_DEATHMATCHSCOREBOARD "deathmatchscoreboard"
 
 // file we'll save our list of viewed intro movies in
 #define MOVIES_FILE				"viewed.res"
@@ -106,7 +107,7 @@ enum
 #define TF_CLASS_COUNT			( TF_CLASS_COUNT_ALL - 1 )
 
 #define TF_FIRST_NORMAL_CLASS	( TF_CLASS_UNDEFINED + 1 )
-#define TF_LAST_NORMAL_CLASS	(TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
+#define TF_LAST_NORMAL_CLASS	( TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
 
 #define	TF_CLASS_MENU_BUTTONS	( TF_CLASS_RANDOM + 1 )
 
@@ -162,6 +163,7 @@ enum
 	TF_GAMETYPE_ARENA,
 	TF_GAMETYPE_MVM,
 	TF_GAMETYPE_DM,
+	TF_GAMETYPE_VIP,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 
@@ -316,12 +318,21 @@ enum
 	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
 	TF_WEAPON_SMG_SCOUT,
 	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_PIPE,
 	TF_WEAPON_CYCLOPS,
 	TF_WEAPON_OVERHEALER,
 	TF_WEAPON_FISHWHACKER,
 	TF_WEAPON_SHOTGUN_MEDIC,
 	TF_WEAPON_HUNTERRIFLE,
+	TF_WEAPON_UMBRELLA,
+	TF_WEAPON_KRITZKRIEG,
+	TF_WEAPON_UBERSAW,
+	TF_WEAPON_SHOTGUN_DM,
+	TF_WEAPON_SCATTERGUN_DM,
+	TF_WEAPON_FLAMETHROWER_DM,
+	TF_WEAPON_PISTOL_DM,
+	TF_WEAPON_SMG_DM,
+	TF_WEAPON_SNIPERRIFLE_DM,
+	TF_WEAPON_GRENADELAUNCHER_DM,
 
 	TF_WEAPON_COUNT
 };
@@ -389,6 +400,7 @@ enum
 	TF_COND_INVULNERABLE_WEARINGOFF,
 	TF_COND_STEALTHED_BLINK,
 	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
 
 	// The following conditions all expire faster when the player is being healed
 	// If you add a new condition that shouldn't have this behavior, add it before this section.

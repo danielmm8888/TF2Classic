@@ -998,6 +998,33 @@ void AnimationController::RunAnimationCommand(vgui::Panel *panel, const char *va
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Runs a custom command from code, not from a script file
+//-----------------------------------------------------------------------------
+void AnimationController::RunAnimationCommand(vgui::Panel *panel, const char *variable, PublicValue_t targetValue, float startDelaySeconds, float duration, Interpolators_e interpolator, float animParameter /* = 0 */)
+{
+	// clear any previous animations of this variable
+	UtlSymId_t var = g_ScriptSymbols.AddString(variable);
+	RemoveQueuedAnimationByType(panel, var, UTL_INVAL_SYMBOL);
+
+	// build a new animation
+	AnimCmdAnimate_t animateCmd;
+	memset(&animateCmd, 0, sizeof(animateCmd));
+	animateCmd.panel = 0;
+	animateCmd.variable = var;
+	animateCmd.target.a = targetValue.a;
+	animateCmd.target.b = targetValue.b;
+	animateCmd.target.c = targetValue.c;
+	animateCmd.target.d = targetValue.d;
+	animateCmd.interpolationFunction = interpolator;
+	animateCmd.interpolationParameter = animParameter;
+	animateCmd.startTime = startDelaySeconds;
+	animateCmd.duration = duration;
+
+	// start immediately
+	StartCmd_Animate(panel, 0, animateCmd);
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: gets the length of an animation sequence, in seconds
 //-----------------------------------------------------------------------------
 float AnimationController::GetAnimationSequenceLength(const char *sequenceName)

@@ -498,7 +498,7 @@ END_DATADESC()
 extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
 void SendProxy_FuncRotatingOrigin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
 {
-#if defined( TF_DLL ) || defined(TF_CLASSIC)
+#if defined( TF_DLL )
 	CFuncRotating *entity = (CFuncRotating*)pStruct;
 	Assert( entity );
 
@@ -545,7 +545,7 @@ void SendProxy_FuncRotatingAngle( const SendProp *pProp, const void *pStruct, co
 
 	Assert( (uintp)qa >= (uintp)ea && (uintp)qa < (uintp)ea + sizeof( QAngle ));
 
-#if defined( TF_DLL ) || defined(TF_CLASSIC)
+#if defined( TF_DLL )
 	if ( entity->HasSpawnFlags(SF_BRUSH_ROTATE_CLIENTSIDE) )
 	{
 		const QAngle *a = &entity->m_vecClientAngles;
@@ -564,7 +564,7 @@ void SendProxy_FuncRotatingAngle( const SendProp *pProp, const void *pStruct, co
 extern void SendProxy_SimulationTime( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID );
 void SendProxy_FuncRotatingSimulationTime( const SendProp *pProp, const void *pStruct, const void *pVarData, DVariant *pOut, int iElement, int objectID )
 {
-#if defined( TF_DLL ) || defined(TF_CLASSIC)
+#if defined( TF_DLL )
 	CFuncRotating *entity = (CFuncRotating*)pStruct;
 	Assert( entity );
 
@@ -621,7 +621,7 @@ bool CFuncRotating::KeyValue( const char *szKeyName, const char *szValue )
 //-----------------------------------------------------------------------------
 void CFuncRotating::Spawn( )
 {
-#if defined (TF_DLL) || defined(TF_CLASSIC)
+#if defined (TF_DLL)
 	AddSpawnFlags( SF_BRUSH_ROTATE_CLIENTSIDE );
 #endif
 
@@ -748,7 +748,7 @@ void CFuncRotating::Spawn( )
 		SetSolid( SOLID_BSP );
 	}
 
-#if defined( TF_DLL ) || defined(TF_CLASSIC)
+#if defined( TF_DLL )
 	if ( HasSpawnFlags(SF_BRUSH_ROTATE_CLIENTSIDE) )
 	{
 		m_vecClientOrigin = GetLocalOrigin();

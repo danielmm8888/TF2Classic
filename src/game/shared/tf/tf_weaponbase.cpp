@@ -33,8 +33,6 @@
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
-
-extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
 
 extern ConVar tf_useparticletracers;
@@ -477,8 +475,11 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		m_iCurrentSeed = iSeed;
 		RandomSeed( m_iCurrentSeed );
 	}
-	
 	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber() ) )
+	{
+		m_bCurrentAttackIsCrit = true;
+	}
+	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
@@ -2392,3 +2393,22 @@ IMaterial *CWeaponInvisProxy::GetMaterial()
 EXPOSE_INTERFACE( CWeaponInvisProxy, IMaterialProxy, "weapon_invis" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 #endif // CLIENT_DLL
+
+CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
+{
+	// Get the weapon information.
+	const char *pszWeaponAlias = WeaponIdToAlias(iWeapon);
+	if (!pszWeaponAlias)
+	{
+		return NULL;
+	}
+
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot(pszWeaponAlias);
+	if (hWpnInfo == GetInvalidWeaponInfoHandle())
+	{
+		return NULL;
+	}
+
+	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>(GetFileWeaponInfoFromHandle(hWpnInfo));
+	return pWeaponInfo;
+}

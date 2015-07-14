@@ -1,0 +1,743 @@
+// Channels
+//	CHAN_AUTO		= 0,
+//	CHAN_WEAPON		= 1,
+//	CHAN_VOICE		= 2,
+//	CHAN_ITEM		= 3,
+//	CHAN_BODY		= 4,
+//	CHAN_STREAM		= 5,		// allocate stream channel from the static or dynamic area
+//	CHAN_STATIC		= 6,		// allocate channel from the static area 
+// these can be set with "channel" "2" or "channel" "chan_voice"
+
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+"vox/null"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"			"PITCH_NORM"
+	"wave"			"vo/null.wav"
+}
+
+// ------------------------------------------------------------------------------------ //
+// HEALTH KIT
+// ------------------------------------------------------------------------------------ //
+"HealthKit.Touch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"wave"		"items/smallmedkit1.wav"
+}
+
+// ------------------------------------------------------------------------------------ //
+// AMMO PACK
+// ------------------------------------------------------------------------------------ //
+"AmmoPack.Touch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"wave"		"items/gunpickup2.wav"
+}
+
+// ------------------------------------------------------------------------------------ //
+// GRENADE PACK
+// ------------------------------------------------------------------------------------ //
+"GrenadePack.Touch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"wave"		"items/gunpickup2.wav"
+}
+
+// ------------------------------------------------------------------------------------ //
+// REGENERATE
+// ------------------------------------------------------------------------------------ //
+"Regenerate.Touch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"wave"		"items/regenerate.wav"
+}
+
+// ------------------------------------------------------------------------------------ //
+// CHANGE CLASS
+// ------------------------------------------------------------------------------------ //
+"ChangeClass.Touch"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"wave"		"items/r_item1.wav"
+}
+
+"BaseCombatCharacter.CorpseGib"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+	"rndwave"
+	{
+		"wave"	"physics/flesh/flesh_squishy_impact_hard2.wav"
+	}
+}
+
+"BaseCombatCharacter.StopWeaponSounds"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"common/null.wav"
+}
+
+"BaseCombatCharacter.AmmoPickup"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"items/ammo_pickup.wav"
+}
+
+"General.BurningFlesh"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"0.45"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "npc/headcrab/headcrab_burning_loop2.wav" 
+}
+
+"General.BurningObject"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "ambient/fire/fire_small_loop2.wav" 
+}
+
+"General.StopBurning"
+{
+	"channel"		"CHAN_WEAPON"
+	"volume"		"VOL_NORM"
+	"pitch"		"PITCH_NORM"
+
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		 "common/null.wav" 
+}
+
+"BaseCombatWeapon.WeaponDrop"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"0.8"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	  "95,110"
+	"rndwave"
+	{
+		"wave"	"physics/metal/weapon_impact_hard1.wav"
+		"wave"	"physics/metal/weapon_impact_hard2.wav"
+		"wave"	"physics/metal/weapon_impact_hard3.wav"
+	}
+}
+
+"BaseCombatWeapon.WeaponMaterialize"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".25"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"150"
+
+	"wave"	"items/suitchargeok1.wav"
+}
+
+"HudChat.Message"
+{
+	"channel"	"CHAN_STREAM"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"vo/null.wav"
+}
+
+"Hud.Hint"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/hint.wav"
+}
+
+"Hud.ProjectorScreenUp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".65"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/projector_screen_up.wav"
+}
+
+"Hud.ProjectorScreenUpLong"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/projector_screen_up_long.wav"
+}
+
+"Hud.ProjectorScreenDown"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/projector_screen_down.wav"
+}
+
+"Hud.ProjectorMovie"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/projector_movie.wav"
+}
+
+"Hud.EndRoundScored"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"ui/scored.wav"
+}
+
+"Hud.Warning"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"VOL_NORM"
+	"soundlevel"  	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"misc/hud_warning.wav"
+}
+
+"SprayCan.Paint"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1.0"
+	"pitch"			"PITCH_NORM"
+	"soundlevel"  		"SNDLVL_NORM"
+	"wave"			"player/sprayer.wav"
+}
+
+
+
+"DoorSound.Null"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"	"SNDLVL_NORM"
+	"wave"		"common/null.wav" 
+}
+
+"DoorSound.DefaultMove"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/door_metal_rusty_move1.wav" 
+}
+
+"DoorSound.DefaultArrive"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/metal_stop1.wav" 
+}
+
+"DoorSound.DefaultLocked"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/default_locked.wav" 
+}
+
+"RotDoorSound.DefaultMove"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/door_metal_rusty_move1.wav" 
+}
+
+"RotDoorSound.DefaultArrive"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/metal_stop1.wav" 
+}
+
+"RotDoorSound.DefaultLocked"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"0.2"
+	"soundlevel"	"SNDLVL_75dB"
+	"wave"		"doors/default_locked.wav" 
+}
+
+"Item.Materialize"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".25"
+	"soundlevel"  "SNDLVL_75dB"
+	"wave"	"items/spawn_item.wav"
+}
+
+"PropaneTank.Burst"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1.0"
+	"pitch"		"95,105"
+	"soundlevel"	"SNDLVL_90db"
+	"wave"		"ambient/fire/gascan_ignite1.wav"
+}
+
+"NPC_CombineS.ElectrocuteScream"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"pitch"			"100"
+	"soundlevel"		"SNDLVL_NORM"
+	"wave"			"common/null.wav" 
+}
+
+
+"npc_citizen.die"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"rndwave"
+	{
+		"wave"	"player/pl_pain5.wav"
+		"wave"	"player/pl_pain6.wav"
+		"wave"	"player/pl_pain7.wav"
+	}
+}
+
+
+// ------------------------------------------------------------------------------------ //
+// AMBIENT
+// ------------------------------------------------------------------------------------ //
+
+"Ambient.MachineHum"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/machine_hum.wav"
+}
+
+"Ambient.MachineHum2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/machine_hum2.wav"
+}
+
+"Ambient.MachineWorking"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".50"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/train_engine_idle.wav"
+}
+
+
+
+"Ambient.ComputerWorking"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/computer_working.wav"
+}
+
+"Ambient.MachineHum2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/machine_hum2.wav"
+}
+
+"Ambient.ComputerTape"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".5"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/computer_tape.wav"
+}
+
+"Ambient.Factory"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/factory_outdoor.wav"
+}
+
+
+"Ambient.CommandCenter"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/command_center.wav"
+}
+
+"Ambient.TrainApproachAndPass"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_95dB"
+	"wave"		")ambient/train_approach_and_pass.wav"
+}
+
+
+"Ambient.Train"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_95dB"
+	"wave"		")ambient/train.wav"
+}
+
+
+"Ambient.RailroadBells"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_95dB"
+	"wave"		")ambient/railroad_bells.wav"
+}
+
+"Ambient.LightHum"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"ambient/lighthum.wav"
+}
+
+"Ambient.LightHum"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_65dB"
+	"wave"		"ambient/lighthum.wav"
+}
+
+"Ambient.Siren"
+{
+	"channel"		"CHAN_AUTO"
+	"volume"		"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"			"PITCH_NORM"
+	"wave"			"ambient/siren.wav"
+}
+
+"Game.SuddenDeath"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+	
+	"wave"		"#misc/your_team_suddendeath.mp3"	[$WIN32]
+	"wave"		"#misc/your_team_suddendeath.wav"	[$X360]
+}
+
+"Game.Stalemate"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+	
+	"wave"		"#misc/your_team_stalemate.mp3"	[$WIN32]
+	"wave"		"#misc/your_team_stalemate.wav"	[$X360]
+}
+
+"Game.Overtime"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+	"rndwave"
+	{
+		"wave"	"vo/announcer_overtime.wav"
+		"wave"	"vo/announcer_overtime2.wav"
+		"wave"	"vo/announcer_overtime3.wav"
+		"wave"	"vo/announcer_overtime4.wav"
+	}
+}
+
+"Game.YourTeamLost"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"#misc/your_team_lost.mp3"	[$WIN32]
+	"wave"		"#misc/your_team_lost.wav"	[$X360]
+}
+
+"Game.YourTeamWon"
+{
+	"channel"	"CHAN_AUTO"
+	"volume"	"1"
+	"soundlevel"	"SNDLVL_140dB"
+	"pitch"		"PITCH_NORM"
+
+	"wave"		"#misc/your_team_won.mp3"	[$WIN32]
+	"wave"		"#misc/your_team_won.wav"	[$X360]
+}
+
+
+"Game.Revenge"
+{
+	"channel"  "CHAN_STATIC"
+	"volume"  ".65"
+	"pitch"  "100"
+	"soundlevel"   "SNDLVL_NORM"
+	"wave"  "#misc/tf_revenge.wav"
+}
+ 
+"Game.Domination"
+{
+	"channel"  "CHAN_STATIC"
+ 	"volume"  ".65"
+ 	"pitch"  "100"
+ 	"soundlevel"   "SNDLVL_NORM"
+	"wave"  "#misc/tf_domination.wav"
+}
+ 
+"Game.Nemesis"
+{
+ 	"channel"  "CHAN_STATIC"
+ 	"volume"  ".65"
+ 	"pitch"  "100"
+ 	"soundlevel"   "SNDLVL_NORM"
+	"wave"  "#misc/tf_nemesis.wav"
+}
+
+"Game.HappyBirthday"
+{
+ 	"channel"  "CHAN_STATIC"
+ 	"volume"  "1"
+ 	"pitch"  "100"
+ 	"soundlevel"   "SNDLVL_87dB"
+	"wave"  "misc/happy_birthday.wav"
+}
+
+
+
+// ------------------------------------------------------------------------------------ //
+// MISC
+// ------------------------------------------------------------------------------------ //
+
+"Door.Open"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		".65"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"doors/generic_door_open.wav"
+}
+
+"Door.Close"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		".65"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"doors/generic_door_close.wav"
+}
+
+"TV.Static"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		".15"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"misc/null.wav"
+}
+
+"TV.Tune"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NONE"
+	"rndwave"	[$WIN32]
+	{
+		"wave"	"ui/tv_tune.mp3"
+		"wave"	"ui/tv_tune2.mp3"
+		"wave"	"ui/tv_tune3.mp3"
+	}
+	
+	"rndwave"	[$X360]
+	{
+		"wave"	"ui/tv_tune.wav"
+		"wave"	"ui/tv_tune2.wav"
+		"wave"	"ui/tv_tune3.wav"
+	}
+}
+
+"Hologram.Start"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_73dB"
+	"wave"		"misc/hologram_start.wav"
+}
+
+"Hologram.Move"
+{
+	"channel"		"CHAN_ITEM"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_73dB"
+	"wave"		"misc/hologram_move.wav"
+}
+
+"Hologram.Stop"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_73dB"
+	"wave"		"misc/hologram_stop.wav"
+}
+
+"Hologram.Interrupted"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_73dB"
+	"wave"		"misc/hologram_malfunction.wav"
+}
+
+
+"Fire.Engulf"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NORM"
+	"wave"		"misc/flame_engulf.wav"
+}
+
+"Camera.SnapShot"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"		"100"
+	"soundlevel"  	"SNDLVL_NORM"
+	"wave"		"misc/freeze_cam_snapshot.wav"
+}
+
+"Achievement.Earned"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1"
+	"pitch"			"100"
+	"soundlevel"  	"SNDLVL_94dB"
+	"wave"			")misc/achievement_earned.wav"
+}

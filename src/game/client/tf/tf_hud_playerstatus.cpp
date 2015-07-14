@@ -41,6 +41,8 @@ static char *g_szBlueClassImages[] =
 	"../hud/class_pyroblue",
 	"../hud/class_spyblue",
 	"../hud/class_engiblue",
+	"../hud/class_civblue",
+	"../hud/class_mercblue",
 	"",
 };
 
@@ -56,6 +58,8 @@ static char *g_szRedClassImages[] =
 	"../hud/class_pyrored",
 	"../hud/class_spyred",
 	"../hud/class_engired",
+	"../hud/class_civred",
+	"../hud/class_mercred",
 	"",
 };
 
@@ -71,6 +75,8 @@ static char *g_szGreenClassImages[] =
 	"../hud/class_pyrogreen",
 	"../hud/class_spygreen",
 	"../hud/class_engigreen",
+	"../hud/class_civgreen",
+	"../hud/class_mercgreen",
 	"",
 };
 
@@ -86,6 +92,8 @@ static char *g_szYellowClassImages[] =
 	"../hud/class_pyroyellow",
 	"../hud/class_spyyellow",
 	"../hud/class_engiyellow",
+	"../hud/class_civyellow",
+	"../hud/class_mercyellow",
 	"",
 };
 
@@ -416,7 +424,7 @@ void CTFHudPlayerHealth::SetHealth( int iNewHealth, int iMaxHealth, int	iMaxBuff
 
 				// scale the flashing image based on how much health bonus we currently have
 				float flBoostMaxAmount = ( iMaxBuffedHealth ) - m_nMaxHealth;
-				float flPercent = ( m_nHealth - m_nMaxHealth ) / flBoostMaxAmount;
+				float flPercent = min( 1.0 , ( m_nHealth - m_nMaxHealth ) / flBoostMaxAmount ); // clamped to 1 to not cut off for values above 150%
 
 				int nPosAdj = RoundFloatToInt( flPercent * m_nHealthBonusPosAdj );
 				int nSizeAdj = 2 * nPosAdj;
@@ -582,6 +590,12 @@ void CTFClassImage::SetClass( int iTeam, int iClass, int iCloakstate )
 		case TF_TEAM_YELLOW:
 			Q_strncpy(szImage, g_szYellowClassImages[iClass], sizeof(szImage));
 			break;
+	}
+
+	// Since DM mode doesn't use teams, we only need 1 team specific image
+	if (iClass == TF_CLASS_MERCENARY)
+	{
+		Q_strncpy(szImage, "../hud/class_merc", sizeof(szImage));
 	}
 
 	switch( iCloakstate )

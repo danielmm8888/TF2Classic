@@ -83,6 +83,27 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_flamethrower );
 BEGIN_DATADESC( CTFFlameThrower )
 END_DATADESC()
 
+IMPLEMENT_NETWORKCLASS_ALIASED(TFFlameThrower_DM, DT_WeaponFlameThrower_DM)
+
+BEGIN_NETWORK_TABLE(CTFFlameThrower_DM, DT_WeaponFlameThrower_DM)
+	#if defined( CLIENT_DLL )
+		RecvPropInt( RECVINFO( m_iWeaponState ) ),
+		RecvPropBool( RECVINFO( m_bCritFire ) )
+	#else
+		SendPropInt( SENDINFO( m_iWeaponState ), 4, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
+		SendPropBool( SENDINFO( m_bCritFire ) )
+	#endif
+END_NETWORK_TABLE()
+
+#if defined( CLIENT_DLL )
+BEGIN_PREDICTION_DATA(CTFFlameThrower_DM)
+	DEFINE_PRED_FIELD( m_iWeaponState, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_bCritFire, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+END_PREDICTION_DATA()
+#endif
+
+LINK_ENTITY_TO_CLASS(tf_weapon_flamethrower_dm, CTFFlameThrower_DM);
+PRECACHE_WEAPON_REGISTER(tf_weapon_flamethrower_dm);
 // ------------------------------------------------------------------------------------------------ //
 // CTFFlameThrower implementation.
 // ------------------------------------------------------------------------------------------------ //
@@ -861,7 +882,11 @@ void CTFFlameEntity::FlameThink( void )
 			return;
 
 		CUtlVector<CTFTeam *> pTeamList;
-		pAttacker->GetOpposingTFTeamList(&pTeamList);
+		CTFTeam *pTeam = pAttacker->GetTFTeam();
+		if ( pTeam )
+			pTeam->GetOpposingTFTeamList(&pTeamList);
+		else
+			return;
 
 		//CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
 		//if ( !pTeam )
@@ -878,7 +903,7 @@ void CTFFlameEntity::FlameThink( void )
 				{
 					CBasePlayer *pPlayer = pTeamList[i]->GetPlayer(iPlayer);
 					// Is this player connected, alive, and an enemy?
-					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive())
+					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive() && pPlayer!=pAttacker)
 					{
 						CheckCollision(pPlayer, &bHitWorld);
 						if (bHitWorld)
@@ -1009,8 +1034,8 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	}
 	else
 	{
-		// make damage ramp down from 100% to 25% from half the max dist to the max dist
-		flMultiplier = RemapValClamped( flDistance, tf_flamethrower_maxdamagedist.GetFloat()/2, tf_flamethrower_maxdamagedist.GetFloat(), 1.0, 0.25 );
+		// make damage ramp down from 100% to 60% from half the max dist to the max dist
+		flMultiplier = RemapValClamped( flDistance, tf_flamethrower_maxdamagedist.GetFloat()/2, tf_flamethrower_maxdamagedist.GetFloat(), 1.0, 0.6 );
 	}
 	float flDamage = m_flDmgAmount * flMultiplier;
 	flDamage = max( flDamage, 1.0 );

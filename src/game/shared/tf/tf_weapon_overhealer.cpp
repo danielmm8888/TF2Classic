@@ -140,10 +140,10 @@ void CWeaponOverhealer::Precache()
 	BaseClass::Precache();
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
 	PrecacheScriptSound( "WeaponMedigun.Healing" );
-	PrecacheParticleSystem( "medicgun_beam_red" );
-	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+	PrecacheParticleSystem( "overhealer_red_beam" );
+	PrecacheParticleSystem( "overhealer_blue_beam" );
+	PrecacheParticleSystem("overhealer_green_beam");
+	PrecacheParticleSystem("overhealer_yellow_beam");
 }
 
 //-----------------------------------------------------------------------------
@@ -154,6 +154,15 @@ bool CWeaponOverhealer::Deploy(void)
 	if ( BaseClass::Deploy() )
 	{
 		m_bHolstered = false;
+
+#ifdef GAME_DLL
+		CTFPlayer *pOwner = ToTFPlayer(GetOwnerEntity());
+		if (pOwner)
+		{
+			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateCrits();
+		}
+#endif
 
 #ifdef CLIENT_DLL
 		ManageChargeEffect();
@@ -183,6 +192,7 @@ bool CWeaponOverhealer::Holster(CBaseCombatWeapon *pSwitchingTo)
 	if ( pOwner )
 	{
 		pOwner->m_Shared.RecalculateInvuln( true );
+		pOwner->m_Shared.RecalculateCrits(true);
 	}
 #endif
 
@@ -466,6 +476,7 @@ bool CWeaponOverhealer::FindAndHealTargets(void)
 			}
 
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
 #endif
 		bFound = true;
@@ -580,6 +591,7 @@ void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
 			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateCrits(false);
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
@@ -845,19 +857,19 @@ void CWeaponOverhealer::UpdateEffects(void)
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_BLUE:
-			pszEffectName = "medicgun_beam_blue";
+			pszEffectName = "overhealer_blue_beam";
 			break;
 		case TF_TEAM_RED:
-			pszEffectName = "medicgun_beam_red";
+			pszEffectName = "overhealer_red_beam";
 			break;
 		case TF_TEAM_GREEN:
-			pszEffectName = "medicgun_beam_green";
+			pszEffectName = "overhealer_green_beam";
 			break;
 		case TF_TEAM_YELLOW:
-			pszEffectName = "medicgun_beam_yellow";
+			pszEffectName = "overhealer_yellow_beam";
 			break;
 		default:
-			pszEffectName = "medicgun_beam_blue";
+			pszEffectName = "overhealer_blue_beam";
 			break;
 		}
 

@@ -1,0 +1,84 @@
+"GameInfo"
+{
+	game		"Team Fortress 2 Classic" 
+	gamelogo 	1 
+	type 		multiplayer_only 
+	icon		"resource/game"		
+	developer 	"Team Fortress 2 Classic Team"
+	developer_url 	"http://facepunch.com/showthread.php?t=1445480"
+	nomodels 	1 
+	nohimodel 	1	
+	nocrosshair 	0 
+	GameData	"tf2c.fgd"
+	hidden_maps 
+	{ 
+		"test_speakers"		1 
+		"test_hardware"		1 
+	}
+	GameData	"tf2c.fgd"
+	InstancePath 	"maps/instances/"
+	advcrosshair 	1
+	supportsvr 	1 	
+
+	FileSystem 
+	{ 
+		SteamAppId		243750		
+
+		SearchPaths 
+		{ 
+			// Firstly, mount all user customizations.  This will search for VPKs and subfolders 
+			// and mount them in alphabetical order.  The easiest way to distribute a mod is to 
+			// pack up the custom content into a VPK.  To "install" a mod, just drop it in this 
+			// folder. 
+			// Note that this folder is scanned only when the game is booted.	
+			game+mod			|gameinfo_path|custom/* 
+
+			// Search loose files.  We'll set the directory containing the gameinfo.txt file
+			// as the first "mod" search path (after any user customizations).  This is also the one
+			// that's used when writing to the "mod" path.
+			game+mod+mod_write+default_write_path		|gameinfo_path|.
+
+			// Where the game's binaries are
+			gamebin				|gameinfo_path|bin	
+			
+			// We search VPK files before ordinary folders, because most files will be found in
+			// VPK and we can avoid making thousands of file system calls to attempt to open files
+			// in folders where they don't exist.  (Searching a VPK is much faster than making an operating
+			// system call.)
+			game_lv				hl2/hl2_lv.vpk
+			game+mod			hl2mp/hl2mp_english.vpk			
+			game+mod			hl2mp/hl2mp_pak.vpk			
+			game				|all_source_engine_paths|hl2/hl2_english.vpk			
+			game				|all_source_engine_paths|hl2/hl2_pak.vpk			
+			game				|all_source_engine_paths|hl2/hl2_textures.vpk			
+			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk			
+			game				|all_source_engine_paths|hl2/hl2_sound_misc.vpk			
+			game				|all_source_engine_paths|hl2/hl2_misc.vpk			
+			platform			|all_source_engine_paths|platform/platform_misc.vpk
+			
+			// Add the HL2 directory as a game search path.  This is also where where writes			
+			// to the "game" path go.			
+			game+game_write			hl2mp			
+			game+mod			sourcetest/sourcetest_pak.vpk
+			
+			// Mount in shared HL2 loose files			
+			game				|all_source_engine_paths|hl2mp			
+			game				|all_source_engine_paths|hl2			
+			platform			|all_source_engine_paths|platform			
+			game				|all_source_engine_paths|sourcetest
+
+			// Random files downloaded from gameservers go into a seperate directory, so
+			// that it's easy to keep those files segregated from the official game files
+			// or customizations intentially installed by the user.
+			//
+			// This directory is searched LAST.  If you visit a server and download
+			// a custom model, etc, we don't want that file to override the default
+			// game file indefinitely (after you have left the server).  Servers CAN have
+			// custom content that overrides the default game files, it just needs to be
+			// packed up in the .bsp file so that it will be mounted as a map search pack.
+			// The map search pack is mounted at the top of the search path list,
+			// but only while you are connected that server and on that map.
+			game+download			|gameinfo_path|download/
+		}	
+	}	
+}

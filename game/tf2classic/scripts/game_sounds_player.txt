@@ -1,0 +1,1337 @@
+// Channels
+//	CHAN_AUTO		= 0,
+//	CHAN_WEAPON		= 1,
+//	CHAN_VOICE		= 2,
+//	CHAN_ITEM		= 3,
+//	CHAN_BODY		= 4,
+//	CHAN_STREAM		= 5,		// allocate stream channel from the static or dynamic area
+//	CHAN_STATIC		= 6,		// allocate channel from the static area 
+// these can be set with "channel" "2" or "channel" "chan_voice"
+
+//-----------------------------------------------------------------------------
+// common attenuation values
+//-----------------------------------------------------------------------------
+
+// DON'T USE THESE - USE SNDLVL_ INSTEAD!!!
+//	ATTN_NONE		0.0f	
+//	ATTN_NORM		0.8f
+//	ATTN_IDLE		2.0f
+//	ATTN_STATIC		1.25f 
+//	ATTN_RICOCHET	1.5f
+//	ATTN_GUNFIRE	0.27f
+
+//	SNDLVL_NONE		= 0,
+//	SNDLVL_25dB		= 25,
+//	SNDLVL_30dB		= 30,
+//	SNDLVL_35dB		= 35,
+//	SNDLVL_40dB		= 40,
+//	SNDLVL_45dB		= 45,
+//	SNDLVL_50dB		= 50,	// 3.9
+//	SNDLVL_55dB		= 55,	// 3.0
+//	SNDLVL_IDLE		= 60,	// 2.0
+//	SNDLVL_TALKING	= 60,	// 2.0
+//	SNDLVL_60dB		= 60,	// 2.0
+//	SNDLVL_65dB		= 65,	// 1.5
+//	SNDLVL_STATIC	= 66,	// 1.25
+//	SNDLVL_70dB		= 70,	// 1.0
+//	SNDLVL_NORM		= 75,
+//	SNDLVL_75dB		= 75,	// 0.8
+//	SNDLVL_80dB		= 80,	// 0.7
+//	SNDLVL_85dB		= 85,	// 0.6
+//	SNDLVL_90dB		= 90,	// 0.5
+//	SNDLVL_95dB		= 95,
+//	SNDLVL_100dB	= 100,	// 0.4
+//	SNDLVL_105dB	= 105,
+//	SNDLVL_120dB	= 120,
+//	SNDLVL_130dB	= 130,
+//	SNDLVL_GUNFIRE	= 140,	// 0.27
+//	SNDLVL_140dB	= 140,	// 0.2
+//	SNDLVL_150dB	= 150,	// 0.2
+
+"Player.Spawn"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"			"PITCH_NORM"
+	"wave"			"misc/null.wav"
+}
+
+"Player.UseDeny"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1"
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"common/wpn_denyselect.wav"
+}
+
+"Player.WeaponSelected"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"common/wpn_select.wav"
+}
+
+"Player.DenyWeaponSelection"
+{
+	"channel"		"CHAN_BODY"
+	"volume"		"1"
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"	"common/wpn_denyselect.wav"
+}
+
+"Player.WeaponSelectionOpen"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.32"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"common/null.wav"
+}
+
+"Player.WeaponSelectionClose"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"VOL_NORM"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"common/null.wav"
+}
+
+"Player.WeaponSelectionMoveSlot"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_NONE"
+	"pitch"	"PITCH_NORM"
+
+	"wave"	"common/wpn_moveselect.wav"
+}
+
+"Player.FallGib"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"pitch"		"92,96"
+	"soundlevel"	"SNDLVL_NORM"
+
+//  2007
+//	"rndwave"
+//	{
+//		"wave"		"player/pl_fleshbreak1.wav"
+//		"wave"		"player/pl_fleshbreak2.wav"
+//		"wave"		"player/pl_fleshbreak3.wav"
+//		"wave"		"player/pl_fleshbreak4.wav"
+//		"wave"		"player/pl_fleshbreak5.wav"
+//		"wave"		"player/pl_fleshbreak8.wav"
+//	}
+
+//	2014
+	"wave"		"player/pl_fleshbreak.wav"
+}
+
+"Player.FallDamage"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"0.75"
+	"pitch"		"92,96"
+	"soundlevel"	"SNDLVL_NORM"
+
+//	2007
+//	"rndwave"
+//	{
+//		"wave"		"player/pl_fallpain3.wav"
+//		"wave"		"player/pl_fallpain4.wav"
+//		"wave"		"player/pl_fallpain5.wav"
+//		"wave"		"player/pl_fallpain6.wav"
+//		"wave"		"player/pl_fallpain7.wav"
+//		"wave"		"player/pl_fallpain8.wav"
+//		"wave"		"player/pl_fallpain9.wav"
+//		"wave"		"player/pl_fallpain10.wav"
+//		"wave"		"player/pl_fallpain11.wav"
+//		"wave"		"player/pl_fallpain12.wav"
+//		"wave"		"player/pl_fallpain13.wav"
+//	}
+
+//	2014
+	"wave"		"player/pl_fallpain.wav"
+}
+
+"Player.PlasmaDamage"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.5"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"player/general/flesh_burn.wav"
+}
+
+"Player.SonicDamage"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.7"
+	"soundlevel"  "SNDLVL_75dB"
+
+//	2007
+//	"rndwave"
+//	{
+//		"wave"	"player/pl_pain5.wav"
+//		"wave"	"player/pl_pain6.wav"
+//		"wave"	"player/pl_pain7.wav"
+//	}
+
+//	2014
+	"wave"	"player/pain.wav"
+}
+
+"Player.DrownStart"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"90,110"
+
+	"wave"	"player/pl_drown1.wav"
+}
+
+"Player.DrownContinue"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"		"95,105"
+
+	"rndwave"
+	{
+		"wave"	"player/pl_drown1.wav"
+		"wave"	"player/pl_drown2.wav"
+		"wave"	"player/pl_drown3.wav"
+	}
+}
+
+"Player.AmbientUnderWater"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"0.22"
+	"soundlevel"  "SNDLVL_75dB"
+
+	"wave"	"ambient/water/underwater.wav"
+}
+
+"Player.PickupWeapon"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  "SNDLVL_75dB"
+	"pitch"	"95,105"
+	"wave"	"items/ammo_pickup.wav"
+}
+
+
+"Geiger.BeepLow"
+{
+	"channel"	"CHAN_STATIC"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"			"PITCH_NORM"
+
+	"rndwave"
+	{
+		"wave"	"player/geiger1.wav"
+		"wave"	"player/geiger2.wav"
+	}
+}
+
+"Player.OnFire"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"0.8"
+	"soundlevel"  	"SNDLVL_75dB"	
+	"pitch"		"PITCH_NORM"
+
+	"rndwave"
+	{
+		"wave"	"ambient/fire/fire_small_loop1.wav"
+		"wave"	"ambient/fire/fire_small_loop2.wav"
+	}
+}
+
+//=========================================================================
+
+"TFPlayer.Drown"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"95,105"
+
+	"rndwave"
+	{
+		"wave"	"player/drown1.wav"	
+		"wave"	"player/drown2.wav"
+		"wave"	"player/drown3.wav"	
+	}
+}
+
+"TFPlayer.Pain"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"92,96"
+
+// 2007
+//	"rndwave"
+//	{
+//		"wave"		"player/pain6.wav"
+//		"wave"		"player/pain7.wav"
+//		"wave"		"player/pain8.wav"
+//		"wave"		"player/pain9.wav"
+//		"wave"		"player/pain10.wav"
+//		"wave"		"player/pain11.wav"
+//		"wave"		"player/pain12.wav"
+//		"wave"		"player/pain13.wav"
+//		"wave"		"player/pain14.wav"
+//		"wave"		"player/pain15.wav"
+//		"wave"		"player/pain18.wav"
+//		"wave"		"player/pain20.wav"
+//		"wave"		"player/pain21.wav"
+//		"wave"		"player/pain23.wav"
+//		"wave"		"player/pain24.wav"
+//	}
+
+//	2014
+	"wave"		"player/pain.wav"
+}
+
+"TFPlayer.AttackerPain"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_95dB"
+	"pitch"		"92,96"
+
+//	2007	
+//	"rndwave"
+//	{
+//		"wave"		"player/death3.wav"
+//		"wave"		"player/death5.wav"
+//		"wave"		"player/death6.wav"
+//		"wave"		"player/death7.wav"
+//		"wave"		"player/death8.wav"
+//		"wave"		"player/death9.wav"
+//		"wave"		"player/death10.wav"
+//	}
+
+//	2014
+	"wave"		"player/death.wav"
+}
+
+"TFPlayer.FirePain"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_95dB"
+	"pitch"		"92,96"
+
+// 2007
+//	"rndwave"
+//	{
+//		"wave"		"player/fire1.wav"
+//		"wave"		"player/fire2.wav"
+//		"wave"		"player/fire3.wav"
+//		"wave"		"player/fire4.wav"
+//		"wave"		"player/fire5.wav"
+//		"wave"		"player/fire6.wav"
+//		"wave"		"player/fire7.wav"
+//	}
+
+//	2014
+	"wave"		"player/fire.wav"
+}
+
+"TFPlayer.CritPain"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"95,105"
+	
+	"rndwave"
+	{
+		"wave"		"player/crit_received1.wav"
+		"wave"		"player/crit_received2.wav"
+		"wave"		"player/crit_received3.wav"
+
+	}
+}
+
+"TFPlayer.CritDeath"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_95dB"
+	"pitch"		"PITCH_NORM"
+
+// 	2007
+//	"rndwave"
+//	{
+//		"wave"		"player/crit_death1.wav"
+//		"wave"		"player/crit_death2.wav"
+//		"wave"		"player/crit_death3.wav"
+//		"wave"		"player/crit_death4.wav"
+//		"wave"		"player/crit_death5.wav"
+//	}
+	
+//	2014
+	"wave"		"player/death.wav"
+}
+
+"Player.Death"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"92,96"
+
+//	2007
+//	"rndwave"
+//	{
+//		"wave"		"player/pain6.wav"
+//		"wave"		"player/pain7.wav"
+//		"wave"		"player/pain8.wav"
+//		"wave"		"player/pain9.wav"
+//		"wave"		"player/pain10.wav"
+//		"wave"		"player/pain11.wav"
+//		"wave"		"player/pain12.wav"
+//		"wave"		"player/pain13.wav"
+//		"wave"		"player/pain14.wav"
+//		"wave"		"player/pain15.wav"
+//		"wave"		"player/pain18.wav"
+//		"wave"		"player/pain20.wav"
+//		"wave"		"player/pain21.wav"
+//		"wave"		"player/pain23.wav"
+//		"wave"		"player/pain24.wav"
+//	}
+
+//	2014
+	"wave"		"player/pain.wav"
+}
+
+"Player.MeleeDeath"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"92,96"
+
+//	2007
+//	"rndwave"
+//	{
+//		"wave"		"player/death3.wav"
+//		"wave"		"player/death5.wav"
+//		"wave"		"player/death6.wav"
+//		"wave"		"player/death7.wav"
+//		"wave"		"player/death8.wav"
+//		"wave"		"player/death9.wav"
+//		"wave"		"player/death10.wav"
+//	}
+	
+//	2014
+	"wave"		"player/death.wav"
+}
+
+"Player.ExplosionDeath"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+	"pitch"		"92,96"
+
+// 	2007
+//	"rndwave"
+//	{
+//		"wave"		"player/pain6.wav"
+//		"wave"		"player/pain7.wav"
+//		"wave"		"player/pain8.wav"
+//		"wave"		"player/pain9.wav"
+//		"wave"		"player/pain10.wav"
+//		"wave"		"player/pain11.wav"
+//		"wave"		"player/pain12.wav"
+//		"wave"		"player/pain13.wav"
+//		"wave"		"player/pain14.wav"
+//		"wave"		"player/pain15.wav"
+//		"wave"		"player/pain18.wav"
+//		"wave"		"player/pain20.wav"
+//		"wave"		"player/pain21.wav"
+//		"wave"		"player/pain23.wav"
+//		"wave"		"player/pain24.wav"
+//	}
+
+//	2014
+	"wave"		"player/pain.wav"
+}
+
+"TFPlayer.GrenadeTimer"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_NORM"
+
+	"wave"		"weapons/timer.wav"
+}
+
+"Player.Spy_Disguise"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_65dB"
+	"wave"		"player/spy_disguise.wav"
+}
+
+"Player.Spy_Cloak"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_65dB"
+	"wave"		"player/spy_cloak.wav"
+}
+
+"Player.Spy_UnCloak"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_65dB"
+	"wave"		"player/spy_Uncloak.wav"
+}
+
+"TFPlayer.SaveMe"
+{
+	"channel"	"CHAN_VOICE"
+	"volume"	"1.0"
+	"soundlevel"	"SNDLVL_86dBM"
+
+	"rndwave"
+	{
+		"wave"		"vo/medic1.wav"
+		"wave"		"vo/medic2.wav"
+	}
+}
+
+"TFPlayer.InvulnerableOn"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".5"
+	"soundlevel"  	"SNDLVL_86dB"
+	"wave"		"player/invulnerable_on.wav"
+}
+
+"TFPlayer.InvulnerableOff"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_86dB"
+	"wave"		"player/invulnerable_off.wav"
+}
+
+"TFPlayer.CritHit"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_85dB"
+	"rndwave"
+	{
+		"wave"		"player/crit_hit.wav"
+		"wave"		"player/crit_hit2.wav"
+		"wave"		"player/crit_hit3.wav"
+		"wave"		"player/crit_hit4.wav"
+		"wave"		"player/crit_hit5.wav"
+	}
+}
+
+"TFPlayer.FreezeCam"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"misc/freeze_cam.wav"
+}
+
+//-----------------------------------------------------------------------------
+//Taunts and Selection Menu
+//-----------------------------------------------------------------------------
+"Taunt.Engineer01HandClap"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Engineer01HandClap2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_hand_clap2.wav"
+}
+
+"Taunt.Engineer01FootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Engineer01FootStompLight"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_foot_stomp_light.wav"
+}
+
+"Taunt.Engineer02PistolTwirl"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_pistol_twirl.wav"
+}
+
+"Selection.EngineerWrenchShoulder"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_shotgun_shoulder.wav"
+}
+
+"Selection.EngineerFootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".5"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_foot_stomp.wav"
+}
+
+"Selection.EngineerClothesRustle"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".5"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Demo01FootStompLight"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_foot_stomp_light.wav"
+}
+
+"Taunt.Demo01FootSpin"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_foot_spin.wav"
+}
+
+"Taunt.Demo01HandClap"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Demo01HandClap2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_hand_clap2.wav"
+}
+
+"Taunt.Demo02EquipmentJingle"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".45"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_jingle.wav"
+}
+
+"Taunt.Demo02EquipmentJingle2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".45"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_jingle2.wav"
+}
+
+"Taunt.Demo02EquipmentJingle3"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".45"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_jingle3.wav"
+}
+
+"Taunt.Demo02EquipmentJingle4"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".45"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_jingle4.wav"
+}
+
+"Taunt.Demo03BottleCatch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Demo03BottleSlosh"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_bottle_slosh.wav"
+}
+
+"Taunt.Demo03BottleAh"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_bottle_ah.wav"
+}
+
+"Selection.DemoEquipment1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_equipment_gun2.wav"
+}
+
+"Selection.DemoEquipment2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_equipment_gun1.wav"
+}
+
+"Selection.DemoClipSpin"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".5"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_clip_spin.wav"
+}
+
+
+
+"Taunt.MedicGloveStretch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"
+
+		"wave"	"player/taunt_rubberglove_stretch.wav"
+}
+
+"Taunt.MedicGloveSnap"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"
+
+		"wave"	"player/taunt_rubberglove_snap.wav"
+}
+
+"Taunt.MedicViolin"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".35"
+	"soundlevel"  	"SNDLVL_75dB"
+
+	"rndwave"
+	{	
+		"wave"	"player/taunt_v01.wav"
+		"wave"	"player/taunt_v02.wav"
+		"wave"	"player/taunt_v03.wav"
+		"wave"	"player/taunt_v04.wav"
+		"wave"	"player/taunt_v05.wav"
+		"wave"	"player/taunt_v06.wav"
+		"wave"	"player/taunt_v07.wav"
+	}
+}
+
+"Selection.MedicHeelClick"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+
+	"wave"	"player/taunt_heel_click.wav"
+}
+
+"Selection.MedicFootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Selection.MedicFootSlide"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+
+	"wave"	"player/taunt_foot_spin.wav"
+}
+
+"Taunt.Scout01Run"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".25"
+	"soundlevel"  	"SNDLVL_75dB"
+
+		"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Scout01HandSmack"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"
+
+		"wave"	"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Scout02Run"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Scout03Run"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Selection.ScoutShotgunShoulder"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_shotgun_shoulder.wav"
+}
+
+"Selection.ScoutShotgunTwirl"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"		"player/taunt_shotgun_twirl.wav"
+}
+
+"Taunt.Sniper02HealClick"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Sniper02FootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".50"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Sniper02FootSlide"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_spin.wav"
+}
+
+"Taunt.Sniper03MacheteUnsheath"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_machete_draw.wav"
+}
+
+"Taunt.Sniper03MacheteCatch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_machete_catch.wav"
+}
+
+"Selection.SniperHatTip"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_swipe.wav"
+}
+
+"Taunt.Spy01TieFix"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_tie_fix.wav"
+}
+
+"Taunt.Spy03FootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Spy03KnifeCatch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_grenade_catch.wav"
+}
+
+"Taunt.Spy04CigFlick"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_cig_flick.wav"
+}
+
+"Selection.SpyClothesRustle1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_swipe.wav"
+}
+
+"Selection.SpyClothesRustle2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_swipe2.wav"
+}
+
+"Selection.SpyPuff"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_puff.wav"
+}
+
+"Selection.SpyPuffAh"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_puff_ah.wav"
+}
+
+"Taunt.Soldier01HeelClick"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Soldier01ClothesSwipe"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_swipe.wav"
+}
+
+"Taunt.Soldier01ClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Soldier01HelmetJostle"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Taunt.Soldier02GrenadeCatch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_grenade_catch.wav"
+}
+
+"Taunt.Soldier02ClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Soldier02ShovelCatch"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Soldier03FootStomp"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Soldier03HelmetHit"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_helmet_hit.wav"
+}
+
+"Taunt.Soldier03ClothesSwipe"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_swipe.wav"
+}
+
+"Taunt.Soldier03ClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Soldier03HelmetJostle"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Selection.SoldierLauncherGrab"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_grenade_catch.wav"
+}
+
+"Selection.SoldierClothesRustle"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Selection.SoldierEquipment"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Selection.SoldierLauncherSetStart"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".55"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_gun2.wav"
+}
+
+"Selection.SoldierLauncherHitGround"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".25"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_launcher_hit.wav"
+}
+
+"Selection.SoldierLauncherSetStop"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".55"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_gun1.wav"
+}
+
+"Taunt.Heavy01HoldGun"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_grenade_catch.wav"
+}
+
+"Taunt.Heavy01HoldGunLight"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_hand_clap2.wav"
+}
+
+"Taunt.Heavy01ClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Heavy01EquipmentGun"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_gun1.wav"
+}
+
+"Taunt.Heavy01EquipmentGun2"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_gun2.wav"
+}
+
+"Taunt.Heavy01EquipmentRustleHeavy"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle2.wav"
+}
+
+"Taunt.Heavy02ShotgunSpin"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_shotgun_spin.wav"
+}
+
+
+"Taunt.Heavy02ShotgunGrab"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_hand_clap.wav"
+}
+
+"Taunt.Heavy02EquipmentJingle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Taunt.Heavy03ClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Heavy03ClothesSwipe"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_clothes_swipe.wav"
+}
+
+"Taunt.Heavy03EquipmentJingle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Taunt.Heavy03EquipmentJingleShort"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_equipment_jingle3short.wav"
+}
+
+"Selection.HeavyFootStomp"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Selection.HeavyEquipment1"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_gun2.wav"
+}
+
+"Selection.HeavyEquipment2"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_gun1.wav"
+}
+
+"Selection.HeavyClothesRustle"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	"1"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Taunt.Pyro01FootStomp"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+"Taunt.Pyro01Equipment1"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".20"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_gun2.wav"
+}
+
+"Taunt.Pyro01Equipment2"
+{
+	"channel"	"CHAN_STATIC"
+	"volume"	".35"
+	"soundlevel"  	"SNDLVL_75dB"
+	"wave"		"player/taunt_equipment_gun1.wav"
+}
+
+"Taunt.Pyro02Fire"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_fire.wav"
+}
+
+"Taunt.Pyro03RockStar"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_rockstar.wav"
+}
+
+"Taunt.Pyro03RockStarEnd"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_75dB"		
+	"wave"	"player/taunt_rockstar_end.wav"
+}
+
+"Selection.PyroClothesRustle"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_clothes_rustle.wav"
+}
+
+"Selection.PyroEquipment1"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_jingle3.wav"
+}
+
+"Selection.PyroEquipment2"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_equipment_jingle2.wav"
+}
+
+
+"Selection.PyroFootStomp"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	".75"
+	"soundlevel"  	"SNDLVL_NONE"
+	"wave"	"player/taunt_foot_stomp.wav"
+}
+
+
+//-----------------------------------------------------------------------------
+//End Taunts
+//-----------------------------------------------------------------------------

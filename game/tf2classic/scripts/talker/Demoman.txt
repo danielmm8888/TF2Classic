@@ -1,0 +1,743 @@
+//--------------------------------------------------------------------------------------------------------------
+// Demoman Response Rule File
+//--------------------------------------------------------------------------------------------------------------
+
+Criterion "DemomanIsKillSpeechObject" "DemomanKillSpeechObject" "1" "required" weight 0
+Criterion "DemomanIsNotStillonFire" "DemomanOnFire" "!=1" "required" weight 0
+Criterion "DemomanIsStillonFire" "DemomanOnFire" "1" "required" weight 0
+Criterion "DemomanNotKillSpeech" "DemomanKillSpeech" "!=1" "required" weight 0
+Criterion "DemomanNotKillSpeechMelee" "DemomanKillSpeechMelee" "!=1" "required" weight 0
+Criterion "DemomanNotSaidHealThanks" "DemomanSaidHealThanks" "!=1" "required"
+Criterion "IsHelpCapDemoman" "DemomanHelpCap" "1" "required" weight 0
+
+
+Response PlayerCloakedSpyDemomanDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify04.vcd" 
+}
+Rule PlayerCloakedSpyDemomanDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnDemoman
+	Response PlayerCloakedSpyDemomanDemoman
+}
+
+Response PlayerCloakedSpyEngineerDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify07.vcd" 
+}
+Rule PlayerCloakedSpyEngineerDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnEngineer
+	Response PlayerCloakedSpyEngineerDemoman
+}
+
+Response PlayerCloakedSpyHeavyDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify03.vcd" 
+}
+Rule PlayerCloakedSpyHeavyDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnHeavy
+	Response PlayerCloakedSpyHeavyDemoman
+}
+
+Response PlayerCloakedSpyMedicDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify06.vcd" 
+}
+Rule PlayerCloakedSpyMedicDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnMedic
+	Response PlayerCloakedSpyMedicDemoman
+}
+
+Response PlayerCloakedSpyPyroDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify09.vcd" 
+}
+Rule PlayerCloakedSpyPyroDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnPyro
+	Response PlayerCloakedSpyPyroDemoman
+}
+
+Response PlayerCloakedSpySniperDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify08.vcd" 
+}
+Rule PlayerCloakedSpySniperDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnSniper
+	Response PlayerCloakedSpySniperDemoman
+}
+
+Response PlayerCloakedSpySoldierDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify02.vcd" 
+}
+Rule PlayerCloakedSpySoldierDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnSoldier
+	Response PlayerCloakedSpySoldierDemoman
+}
+
+Response PlayerCloakedSpySpyDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpyIdentify05.vcd" 
+}
+Rule PlayerCloakedSpySpyDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman IsOnSpy
+	Response PlayerCloakedSpySpyDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech
+//--------------------------------------------------------------------------------------------------------------
+Response HealThanksDemoman
+{
+	scene "scenes/Player/Demoman/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Demoman/low/ThanksForTheHeal02.vcd" 
+	scene "scenes/Player/Demoman/low/ThanksForTheHeal03.vcd" 
+}
+Rule HealThanksDemoman
+{
+	criteria ConceptMedicChargeStopped IsDemoman SuperHighHealthContext DemomanNotSaidHealThanks 50PercentChance
+	ApplyContext "DemomanSaidHealThanks:1:20"
+	Response HealThanksDemoman
+}
+
+Response PlayerRoundStartDemoman
+{
+	scene "scenes/Player/Demoman/low/BattleCry01.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry03.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry04.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry05.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry06.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Demoman/low/BattleCry07.vcd" predelay "1.0, 5.0"
+}
+Rule PlayerRoundStartDemoman
+{
+	criteria ConceptPlayerRoundStart IsDemoman
+	Response PlayerRoundStartDemoman
+}
+
+Response PlayerCappedIntelligenceDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Demoman/low/AutoCappedIntelligence02.vcd" 
+	scene "scenes/Player/Demoman/low/AutoCappedIntelligence03.vcd" 
+}
+Rule PlayerCappedIntelligenceDemoman
+{
+	criteria ConceptPlayerCapturedIntelligence IsDemoman
+	Response PlayerCappedIntelligenceDemoman
+}
+
+Response PlayerCapturedPointDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Demoman/low/AutoCappedControlPoint02.vcd" 
+	scene "scenes/Player/Demoman/low/AutoCappedControlPoint03.vcd" 
+}
+Rule PlayerCapturedPointDemoman
+{
+	criteria ConceptPlayerCapturedPoint IsDemoman
+	Response PlayerCapturedPointDemoman
+}
+
+Response PlayerSuddenDeathDemoman
+{
+	scene "scenes/Player/Demoman/low/Jeers01.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers02.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers03.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers04.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers05.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers06.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers07.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers08.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers09.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers10.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers11.vcd" 
+}
+Rule PlayerSuddenDeathDemoman
+{
+	criteria ConceptPlayerSuddenDeathStart IsDemoman
+	Response PlayerSuddenDeathDemoman
+}
+
+Response PlayerStalemateDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Demoman/low/AutoDejectedTie02.vcd" 
+	scene "scenes/Player/Demoman/low/AutoDejectedTie03.vcd" 
+	scene "scenes/Player/Demoman/low/AutoDejectedTie04.vcd" 
+}
+Rule PlayerStalemateDemoman
+{
+	criteria ConceptPlayerStalemate IsDemoman
+	Response PlayerStalemateDemoman
+}
+
+Response PlayerTeleporterThanksDemoman
+{
+	scene "scenes/Player/Demoman/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Demoman/low/ThanksForTheTeleporter02.vcd" 
+}
+Rule PlayerTeleporterThanksDemoman
+{
+	criteria ConceptTeleported IsNotEngineer IsDemoman 30PercentChance
+	Response PlayerTeleporterThanksDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Combat
+//--------------------------------------------------------------------------------------------------------------
+Response KilledPlayerManyDemoman
+{
+	scene "scenes/Player/Demoman/low/SpecialCompleted04.vcd" 
+	scene "scenes/Player/Demoman/low/Taunts02.vcd" 
+	scene "scenes/Player/Demoman/low/Taunts04.vcd" 
+	scene "scenes/Player/Demoman/low/Taunts08.vcd" 
+}
+Rule KilledPlayerManyDemoman
+{
+	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay DemomanNotKillSpeech IsDemoman
+	ApplyContext "DemomanKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerManyDemoman
+}
+
+Response KilledPlayerMeleeDemoman
+{
+	scene "scenes/Player/Demoman/low/SpecialCompleted02.vcd" 
+}
+Rule KilledPlayerMeleeDemoman
+{
+	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee DemomanNotKillSpeechMelee IsDemoman
+	ApplyContext "DemomanKillSpeechMelee:1:10"
+	applycontexttoworld
+	Response KilledPlayerMeleeDemoman
+}
+
+Response KilledPlayerVeryManyDemoman
+{
+	scene "scenes/Player/Demoman/low/SpecialCompleted01.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted03.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted07.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted08.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted10.vcd" 
+	scene "scenes/Player/Demoman/low/Taunts12.vcd" 
+}
+Rule KilledPlayerVeryManyDemoman
+{
+	criteria ConceptKilledPlayer IsVeryManyRecentKills 50PercentChance IsWeaponPrimary KilledPlayerDelay DemomanNotKillSpeech IsDemoman
+	ApplyContext "DemomanKillSpeech:1:10"
+	applycontexttoworld
+	Response KilledPlayerVeryManyDemoman
+}
+
+Response PlayerKilledCapperDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoCappedIntelligence03.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers03.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers06.vcd" 
+	scene "scenes/Player/Demoman/low/LaughHappy02.vcd" 
+	scene "scenes/Player/Demoman/low/LaughShort01.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization05.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted05.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted06.vcd" 
+}
+Rule PlayerKilledCapperDemoman
+{
+	criteria ConceptCapBlocked IsDemoman
+	ApplyContext "DemomanKillSpeech:1:10"
+	Response PlayerKilledCapperDemoman
+}
+
+Response PlayerKilledDominatingDemoman
+{
+	scene "scenes/Player/Demoman/low/Cheers05.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughEvil01.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughEvil02.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughEvil03.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughEvil04.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughEvil05.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughHappy01.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughLong02.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughShort02.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/LaughShort05.vcd" predelay "2.5"
+}
+Rule PlayerKilledDominatingDemoman
+{
+	criteria ConceptKilledPlayer IsDemoman IsDominated
+	ApplyContext "DemomanKillSpeech:1:10"
+	Response PlayerKilledDominatingDemoman
+}
+
+Response PlayerKilledForRevengeDemoman
+{
+	scene "scenes/Player/Demoman/low/GoodJob01.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/PositiveVocalization02.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/SpecialCompleted09.vcd" predelay "2.5"
+	scene "scenes/Player/Demoman/low/Taunts16.vcd" predelay "2.5"
+}
+Rule PlayerKilledForRevengeDemoman
+{
+	criteria ConceptKilledPlayer IsDemoman IsRevenge
+	ApplyContext "DemomanKillSpeech:1:10"
+	Response PlayerKilledForRevengeDemoman
+}
+
+Response PlayerKilledObjectDemoman
+{
+	scene "scenes/Player/Demoman/low/SpecialCompleted11.vcd" 
+	scene "scenes/Player/Demoman/low/SpecialCompleted12.vcd" 
+}
+Rule PlayerKilledObjectDemoman
+{
+	criteria ConceptKilledObject IsDemoman 30PercentChance IsARecentKill
+	ApplyContext "DemomanKillSpeechObject:1:30"
+	applycontexttoworld
+	Response PlayerKilledObjectDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Auto Speech Pain
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerAttackerPainDemoman
+{
+	scene "scenes/Player/Demoman/low/PainSevere01.vcd" 
+	scene "scenes/Player/Demoman/low/PainSevere02.vcd" 
+	scene "scenes/Player/Demoman/low/PainSevere03.vcd" 
+	scene "scenes/Player/Demoman/low/PainSevere04.vcd" 
+}
+Rule PlayerAttackerPainDemoman
+{
+	criteria ConceptAttackerPain IsDemoman
+	Response PlayerAttackerPainDemoman
+}
+
+Response PlayerOnFireDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoOnFire01.vcd" 
+	scene "scenes/Player/Demoman/low/AutoOnFire03.vcd" 
+}
+Rule PlayerOnFireDemoman
+{
+	criteria ConceptFire IsDemoman DemomanIsNotStillonFire
+	ApplyContext "DemomanOnFire:1:7"
+	Response PlayerOnFireDemoman
+}
+
+Response PlayerOnFireRareDemoman
+{
+	scene "scenes/Player/Demoman/low/AutoOnFire02.vcd" 
+}
+Rule PlayerOnFireRareDemoman
+{
+	criteria ConceptFire IsDemoman 10PercentChance DemomanIsNotStillonFire
+	ApplyContext "DemomanOnFire:1:7"
+	Response PlayerOnFireRareDemoman
+}
+
+Response PlayerPainDemoman
+{
+	scene "scenes/Player/Demoman/low/PainSharp01.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp02.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp03.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp04.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp05.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp06.vcd" 
+	scene "scenes/Player/Demoman/low/PainSharp07.vcd" 
+}
+Rule PlayerPainDemoman
+{
+	criteria ConceptPain IsDemoman
+	Response PlayerPainDemoman
+}
+
+Response PlayerStillOnFireDemoman
+{
+	scene "scenes/Player/Demoman/low/autoonfiresecondary01.vcd" 
+}
+Rule PlayerStillOnFireDemoman
+{
+	criteria ConceptFire IsDemoman  DemomanIsStillonFire
+	ApplyContext "DemomanOnFire:1:7"
+	Response PlayerStillOnFireDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 1
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerGoDemoman
+{
+	scene "scenes/Player/Demoman/low/Go01.vcd" 
+	scene "scenes/Player/Demoman/low/Go02.vcd" 
+	scene "scenes/Player/Demoman/low/Go03.vcd" 
+}
+Rule PlayerGoDemoman
+{
+	criteria ConceptPlayerGo IsDemoman
+	Response PlayerGoDemoman
+}
+
+Response PlayerHeadLeftDemoman
+{
+	scene "scenes/Player/Demoman/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Demoman/low/HeadLeft02.vcd" 
+	scene "scenes/Player/Demoman/low/HeadLeft03.vcd" 
+}
+Rule PlayerHeadLeftDemoman
+{
+	criteria ConceptPlayerLeft  IsDemoman
+	Response PlayerHeadLeftDemoman
+}
+
+Response PlayerHeadRightDemoman
+{
+	scene "scenes/Player/Demoman/low/HeadRight01.vcd" 
+	scene "scenes/Player/Demoman/low/HeadRight02.vcd" 
+	scene "scenes/Player/Demoman/low/HeadRight03.vcd" 
+}
+Rule PlayerHeadRightDemoman
+{
+	criteria ConceptPlayerRight  IsDemoman
+	Response PlayerHeadRightDemoman
+}
+
+Response PlayerHelpDemoman
+{
+	scene "scenes/Player/Demoman/low/HelpMe01.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMe02.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMe03.vcd" 
+}
+Rule PlayerHelpDemoman
+{
+	criteria ConceptPlayerHelp IsDemoman
+	Response PlayerHelpDemoman
+}
+
+Response PlayerHelpCaptureDemoman
+{
+	scene "scenes/Player/Demoman/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMeCapture02.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMeCapture03.vcd" 
+}
+Rule PlayerHelpCaptureDemoman
+{
+	criteria ConceptPlayerHelp IsDemoman IsOnCappableControlPoint
+	ApplyContext "DemomanHelpCap:1:10"
+	Response PlayerHelpCaptureDemoman
+}
+
+Response PlayerHelpCapture2Demoman
+{
+	scene "scenes/Player/Demoman/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Demoman/low/StandOnThePoint02.vcd" 
+}
+Rule PlayerHelpCapture2Demoman
+{
+	criteria ConceptPlayerHelp IsDemoman IsOnCappableControlPoint IsHelpCapDemoman
+	Response PlayerHelpCapture2Demoman
+}
+
+Response PlayerHelpDefendDemoman
+{
+	scene "scenes/Player/Demoman/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMeDefend02.vcd" 
+	scene "scenes/Player/Demoman/low/HelpMeDefend03.vcd" 
+}
+Rule PlayerHelpDefendDemoman
+{
+	criteria ConceptPlayerHelp IsDemoman IsOnFriendlyControlPoint
+	Response PlayerHelpDefendDemoman
+}
+
+Response PlayerMedicDemoman
+{
+	scene "scenes/Player/Demoman/low/Medic01.vcd" 
+	scene "scenes/Player/Demoman/low/Medic02.vcd" 
+	scene "scenes/Player/Demoman/low/Medic03.vcd" 
+}
+Rule PlayerMedicDemoman
+{
+	criteria ConceptPlayerMedic IsDemoman
+	Response PlayerMedicDemoman
+}
+
+Response PlayerMoveUpDemoman
+{
+	scene "scenes/Player/Demoman/low/MoveUp01.vcd" 
+	scene "scenes/Player/Demoman/low/MoveUp02.vcd" 
+	scene "scenes/Player/Demoman/low/MoveUp03.vcd" 
+}
+Rule PlayerMoveUpDemoman
+{
+	criteria ConceptPlayerMoveUp  IsDemoman
+	Response PlayerMoveUpDemoman
+}
+
+Response PlayerNoDemoman
+{
+	scene "scenes/Player/Demoman/low/No01.vcd" 
+	scene "scenes/Player/Demoman/low/No02.vcd" 
+	scene "scenes/Player/Demoman/low/No03.vcd" 
+}
+Rule PlayerNoDemoman
+{
+	criteria ConceptPlayerNo  IsDemoman
+	Response PlayerNoDemoman
+}
+
+Response PlayerThanksDemoman
+{
+	scene "scenes/Player/Demoman/low/Thanks01.vcd" 
+	scene "scenes/Player/Demoman/low/Thanks02.vcd" 
+}
+Rule PlayerThanksDemoman
+{
+	criteria ConceptPlayerThanks IsDemoman
+	Response PlayerThanksDemoman
+}
+
+Response PlayerYesDemoman
+{
+	scene "scenes/Player/Demoman/low/Yes01.vcd" 
+	scene "scenes/Player/Demoman/low/Yes02.vcd" 
+	scene "scenes/Player/Demoman/low/Yes03.vcd" 
+}
+Rule PlayerYesDemoman
+{
+	criteria ConceptPlayerYes  IsDemoman
+	Response PlayerYesDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 2
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerActivateChargeDemoman
+{
+	scene "scenes/Player/Demoman/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Demoman/low/ActivateCharge02.vcd" 
+	scene "scenes/Player/Demoman/low/ActivateCharge03.vcd" 
+}
+Rule PlayerActivateChargeDemoman
+{
+	criteria ConceptPlayerActivateCharge IsDemoman
+	Response PlayerActivateChargeDemoman
+}
+
+Response PlayerCloakedSpyDemoman
+{
+	scene "scenes/Player/Demoman/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Demoman/low/CloakedSpy02.vcd" 
+	scene "scenes/Player/Demoman/low/CloakedSpy03.vcd" 
+}
+Rule PlayerCloakedSpyDemoman
+{
+	criteria ConceptPlayerCloakedSpy IsDemoman
+	Response PlayerCloakedSpyDemoman
+}
+
+Response PlayerDispenserHereDemoman
+{
+	scene "scenes/Player/Demoman/low/NeedDispenser01.vcd" 
+}
+Rule PlayerDispenserHereDemoman
+{
+	criteria ConceptPlayerDispenserHere IsDemoman
+	Response PlayerDispenserHereDemoman
+}
+
+Response PlayerIncomingDemoman
+{
+	scene "scenes/Player/Demoman/low/Incoming01.vcd" 
+	scene "scenes/Player/Demoman/low/Incoming02.vcd" 
+	scene "scenes/Player/Demoman/low/Incoming03.vcd" 
+}
+Rule PlayerIncomingDemoman
+{
+	criteria ConceptPlayerIncoming IsDemoman
+	Response PlayerIncomingDemoman
+}
+
+Response PlayerSentryAheadDemoman
+{
+	scene "scenes/Player/Demoman/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Demoman/low/SentryAhead02.vcd" 
+	scene "scenes/Player/Demoman/low/SentryAhead03.vcd" 
+}
+Rule PlayerSentryAheadDemoman
+{
+	criteria ConceptPlayerSentryAhead IsDemoman
+	Response PlayerSentryAheadDemoman
+}
+
+Response PlayerSentryHereDemoman
+{
+	scene "scenes/Player/Demoman/low/NeedSentry01.vcd" 
+}
+Rule PlayerSentryHereDemoman
+{
+	criteria ConceptPlayerSentryHere IsDemoman
+	Response PlayerSentryHereDemoman
+}
+
+Response PlayerTeleporterHereDemoman
+{
+	scene "scenes/Player/Demoman/low/NeedTeleporter01.vcd" 
+}
+Rule PlayerTeleporterHereDemoman
+{
+	criteria ConceptPlayerTeleporterHere IsDemoman
+	Response PlayerTeleporterHereDemoman
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Speech Menu 3
+//--------------------------------------------------------------------------------------------------------------
+Response PlayerBattleCryDemoman
+{
+	scene "scenes/Player/Demoman/low/BattleCry01.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry02.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry03.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry04.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry05.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry06.vcd" 
+	scene "scenes/Player/Demoman/low/BattleCry07.vcd" 
+}
+Rule PlayerBattleCryDemoman
+{
+	criteria ConceptPlayerBattleCry IsDemoman
+	Response PlayerBattleCryDemoman
+}
+
+Response PlayerCheersDemoman
+{
+	scene "scenes/Player/Demoman/low/Cheers01.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers02.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers03.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers04.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers05.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers06.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers07.vcd" 
+	scene "scenes/Player/Demoman/low/Cheers08.vcd" 
+}
+Rule PlayerCheersDemoman
+{
+	criteria ConceptPlayerCheers IsDemoman
+	Response PlayerCheersDemoman
+}
+
+Response PlayerGoodJobDemoman
+{
+	scene "scenes/Player/Demoman/low/GoodJob01.vcd" 
+	scene "scenes/Player/Demoman/low/GoodJob02.vcd" 
+}
+Rule PlayerGoodJobDemoman
+{
+	criteria ConceptPlayerGoodJob IsDemoman
+	Response PlayerGoodJobDemoman
+}
+
+Response PlayerJeersDemoman
+{
+	scene "scenes/Player/Demoman/low/Jeers01.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers02.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers03.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers04.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers05.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers06.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers07.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers08.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers09.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers10.vcd" 
+	scene "scenes/Player/Demoman/low/Jeers11.vcd" 
+}
+Rule PlayerJeersDemoman
+{
+	criteria ConceptPlayerJeers IsDemoman
+	Response PlayerJeersDemoman
+}
+
+Response PlayerLostPointDemoman
+{
+	scene "scenes/Player/Demoman/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerLostPointDemoman
+{
+	criteria ConceptPlayerLostPoint IsDemoman
+	Response PlayerLostPointDemoman
+}
+
+Response PlayerNegativeDemoman
+{
+	scene "scenes/Player/Demoman/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization02.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization03.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization04.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization05.vcd" 
+	scene "scenes/Player/Demoman/low/NegativeVocalization06.vcd" 
+}
+Rule PlayerNegativeDemoman
+{
+	criteria ConceptPlayerNegative IsDemoman
+	Response PlayerNegativeDemoman
+}
+
+Response PlayerNiceShotDemoman
+{
+	scene "scenes/Player/Demoman/low/NiceShot01.vcd" 
+	scene "scenes/Player/Demoman/low/NiceShot02.vcd" 
+	scene "scenes/Player/Demoman/low/NiceShot03.vcd" 
+}
+Rule PlayerNiceShotDemoman
+{
+	criteria ConceptPlayerNiceShot IsDemoman
+	Response PlayerNiceShotDemoman
+}
+
+Response PlayerPositiveDemoman
+{
+	scene "scenes/Player/Demoman/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization02.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization03.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization04.vcd" 
+	scene "scenes/Player/Demoman/low/PositiveVocalization05.vcd" 
+}
+Rule PlayerPositiveDemoman
+{
+	criteria ConceptPlayerPositive IsDemoman
+	Response PlayerPositiveDemoman
+}
+
+Response PlayerTauntsDemoman
+{
+	scene "scenes/Player/Demoman/low/LaughShort03.vcd" 
+	scene "scenes/Player/Demoman/low/LaughShort04.vcd" 
+	scene "scenes/Player/Demoman/low/LaughShort06.vcd" 
+}
+Rule PlayerTauntsDemoman
+{
+	criteria ConceptPlayerTaunts IsDemoman
+	Response PlayerTauntsDemoman
+}
+

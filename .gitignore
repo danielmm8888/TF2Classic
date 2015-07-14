@@ -60,3 +60,6 @@ src/lib/public/raytrace.lib
 src/lib/public/tier1.lib
 src/lib/public/vgui_controls.lib
 
+# misc files
+fgdlib.lib
+src/utils/sapi51/Samples/VB/TTSAppVB/ttsapp.RES

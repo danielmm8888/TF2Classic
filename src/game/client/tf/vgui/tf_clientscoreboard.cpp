@@ -173,6 +173,10 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 		{
 			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, true);
 		}
+		else if (TFGameRules()->IsDeathmatch())
+		{
+			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, true);
+		}
 		else
 		{
 			SetVisible(true);
@@ -190,9 +194,13 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	}
 	else
 	{
-		if (TFGameRules()->IsFourTeamGame())
+		if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
 			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, false);
+		}
+		else if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, false);
 		}
 		else
 		{
