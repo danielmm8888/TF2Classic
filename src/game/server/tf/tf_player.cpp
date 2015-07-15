@@ -499,6 +499,19 @@ void CTFPlayer::UpdateTimers( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::PreThink()
 {
+	if ( IsInAVehicle() )
+	{
+		// Skip most of the things if we're in a vehicle.
+		UpdateTimers();
+		CheckTimeBasedDamage();
+		CheckSuitUpdate();
+		WaterMove();
+
+		m_vecTotalBulletForce = vec3_origin;
+
+		return;
+	}
+
 	// Update timers.
 	UpdateTimers();
 

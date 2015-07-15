@@ -1009,6 +1009,22 @@ void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vect
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CPropVehicleDriveable::UpdateOnRemove( void )
+{
+	// If there's a player driver inside make him leave the vehicle immediately so he doesn't get deleted.
+	CBasePlayer *pPlayer = m_hPlayer;
+	if ( pPlayer )
+	{
+		m_hPlayer->LeaveVehicle();
+		m_hPlayer = NULL;
+	}
+
+	BaseClass::UpdateOnRemove();
+}
+
 //=============================================================================
 // Passenger carrier
 
