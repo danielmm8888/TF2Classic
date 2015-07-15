@@ -509,6 +509,7 @@ void CTFPlayer::PreThink()
 
 		m_vecTotalBulletForce = vec3_origin;
 
+		CheckForIdle();
 		return;
 	}
 
