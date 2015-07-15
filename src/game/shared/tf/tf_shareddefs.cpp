@@ -201,6 +201,8 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_SMG_DM",
 	"TF_WEAPON_SNIPERRIFLE_DM",
 	"TF_WEAPON_GRENADELAUNCHER_DM",
+	"TF_WEAPON_FLAREGUN",
+	"TF_WEAPON_GRENADE_FLARE",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -279,6 +281,8 @@ int g_aWeaponDamageTypes[] =
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_DM
 	DMG_BULLET | DMG_USE_HITLOCATIONS,	// TF_WEAPON_SNIPERRIFLE_DM
 	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_GRENADELAUNCHER_DM
+	DMG_IGNITE | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_FLAREGUN
+	DMG_IGNITE | DMG_HALF_FALLOFF,		// TF_WEAPON_GRENADE_FLARE,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
@@ -294,7 +298,8 @@ const char *g_szProjectileNames[] =
 	"projectile_pipe_remote",
 	"projectile_syringe",
 	"projectile_nail",
-	"projectile_dart"
+	"projectile_dart",
+	"projectile_flare"
 };
 
 // these map to the projectiles named in g_szProjectileNames
@@ -310,6 +315,7 @@ int g_iProjectileWeapons[] =
 	TF_WEAPON_TRANQ,
 	TF_WEAPON_ROCKETLAUNCHERBETA,
 	TF_WEAPON_CYCLOPS,
+	TF_WEAPON_FLAREGUN,
 };
 
 const char *g_pszHintMessages[] =

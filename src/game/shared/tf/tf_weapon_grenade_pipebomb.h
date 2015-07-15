@@ -14,6 +14,7 @@
 // Client specific.
 #ifdef CLIENT_DLL
 #define CTFGrenadePipebombProjectile C_TFGrenadePipebombProjectile
+#define CTFGrenadeFlareProjectile C_TFGrenadeFlareProjectile
 #endif
 
 //=============================================================================
@@ -46,7 +47,6 @@ public:
 	float		m_flFullDamage;
 
 	CNetworkHandle( CBaseEntity, m_hLauncher );
-
 	virtual void	UpdateOnRemove( void );
 
 
@@ -93,4 +93,15 @@ private:
 #endif
 };
 
+class CTFGrenadeFlareProjectile : public CTFGrenadePipebombProjectile
+{
+public:
+	DECLARE_CLASS(CTFGrenadeFlareProjectile, CTFGrenadePipebombProjectile);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+	static CTFGrenadeFlareProjectile *Create(const Vector &position, const QAngle &angles, const Vector &velocity,
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo);
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_GRENADE_FLARE; }
+	void			SetPipebombMode();
+};
 #endif // TF_WEAPON_GRENADE_PIPEBOMB_H
