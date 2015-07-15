@@ -409,7 +409,7 @@ CTFPlayer::CTFPlayer()
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
 
-	for (int i = TF_CLASS_SCOUT; i < TF_CLASS_COUNT_ALL; i++){
+	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++){
 		m_WeaponPresetPrimary.AddToTail(0);
 		m_WeaponPresetSecondary.AddToTail(0);
 		m_WeaponPresetMelee.AddToTail(0);
