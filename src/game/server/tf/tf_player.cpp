@@ -55,6 +55,7 @@
 #include "eventqueue.h"
 #include "ai_basenpc.h"
 #include "ai_squad.h"
+#include "iservervehicle.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -2803,6 +2804,14 @@ ConVar tf_debug_damage( "tf_debug_damage", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTO
 int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 {
 	CTakeDamageInfo info = inputInfo;
+
+	IServerVehicle *pVehicle = GetVehicle();
+	if ( pVehicle )
+	{
+		// Let the vehicle decide if we should take this damage or not
+		if ( pVehicle->PassengerShouldReceiveDamage( info ) == false )
+			return 0;
+	}
 
 	if ( GetFlags() & FL_GODMODE )
 		return 0;
