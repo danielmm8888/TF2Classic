@@ -3367,7 +3367,7 @@ void C_TFPlayer::Simulate( void )
 void C_TFPlayer::LoadInventory(void)
 {
 	KeyValues* pInventory = Inventory->GetInventory(filesystem);
-	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
+	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
 	{
 		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 		{
