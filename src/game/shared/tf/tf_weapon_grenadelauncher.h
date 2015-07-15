@@ -15,7 +15,6 @@
 #ifdef CLIENT_DLL
 #define CTFGrenadeLauncher C_TFGrenadeLauncher
 #define CTFGrenadeLauncher_DM C_TFGrenadeLauncher_DM
-#define CTFFlareGun C_TFFlareGun
 #endif
 
 #define TF_GRENADE_LAUNCHER_XBOX_CLIP 4
@@ -72,16 +71,6 @@ public:
 	DECLARE_PREDICTABLE();
 
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_GRENADELAUNCHER_DM; }
-};
-
-class CTFFlareGun : public CTFGrenadeLauncher
-{
-public:
-	DECLARE_CLASS(CTFFlareGun, CTFGrenadeLauncher);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_FLAREGUN; }
 };
 
 #endif // TF_WEAPON_GRENADELAUNCHER_H
