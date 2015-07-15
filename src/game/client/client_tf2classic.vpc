@@ -102,6 +102,8 @@ $Project "Client (TF)"
 			$File	"hl2\c_weapon__stubs_hl2.cpp"
 			$File	"hl2\c_weapon_physcannon.cpp"
 			$File	"hl2\c_weapon_stunstick.cpp"
+			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.cpp"
+			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.h"
 			$File	"hl2\fx_bugbait.cpp"
 			$File	"hl2\fx_hl2_tracers.cpp"
 		}
