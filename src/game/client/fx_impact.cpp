@@ -286,7 +286,7 @@ static void PerformNewCustomEffects( const Vector &vecOrigin, trace_t &tr, const
 	VectorMultiply( shotDir, -1.0f, vecShotBackward );
 
 	Vector vecImpactPoint = ( tr.fraction != 1.0f ) ? tr.endpos : vecOrigin;
-	// Other games round it to nearest integer, so I guess we can afford skipping this check.
+	// Other games round m_vOrigin to nearest integer, so I guess we can afford skipping this check.
 #ifdef HL2_CLIENT_DLL
 	Assert( VectorsAreEqual( vecOrigin, tr.endpos, 1e-1 ) );
 #endif

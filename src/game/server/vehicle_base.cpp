@@ -1018,7 +1018,7 @@ void CPropVehicleDriveable::UpdateOnRemove( void )
 	CBasePlayer *pPlayer = m_hPlayer;
 	if ( pPlayer )
 	{
-		m_hPlayer->LeaveVehicle();
+		pPlayer->LeaveVehicle();
 		m_hPlayer = NULL;
 	}
 
