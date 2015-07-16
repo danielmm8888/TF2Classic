@@ -2879,8 +2879,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		m_Shared.NoteLastDamageTime( m_lastDamageAmount );
 	}
 
-	// if this is our own rocket, scale down the damage
-	if ( IsPlayerClass( TF_CLASS_SOLDIER ) && info.GetAttacker() == this ) 
+	// if this is our own rocket and we're in mid-air, scale down the damage
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) && info.GetAttacker() == this && GetGroundEntity() == NULL ) 
 	{
 		float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
 		info.SetDamage( flDamage );
