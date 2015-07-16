@@ -45,8 +45,6 @@ bool CTFDialogPanelBase::Init()
 void CTFDialogPanelBase::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-	//m_pOk = dynamic_cast<CTFAdvButton *>(FindChildByName("OK"));
-	//m_pCancel = dynamic_cast<CTFAdvButton *>(FindChildByName("Cancel"));
 }
 
 void CTFDialogPanelBase::PerformLayout()
@@ -55,12 +53,10 @@ void CTFDialogPanelBase::PerformLayout()
 	if (bEmbedded)
 	{
 		OnCreateControls();
-		//m_pOk->SetVisible(false);		
-		//m_pCancel->SetVisible(false);		
 	}
 	else
 	{
-		Show();
+		//Show();
 	}
 };
 
@@ -87,10 +83,6 @@ void CTFDialogPanelBase::OnCommand(const char* command)
 void CTFDialogPanelBase::Show()
 {
 	BaseClass::Show();
-	if (!bEmbedded)
-	{
-		OnCreateControls();
-	}
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 	if (!GetMainMenu())
 		return;
@@ -100,10 +92,6 @@ void CTFDialogPanelBase::Show()
 void CTFDialogPanelBase::Hide()
 {
 	BaseClass::Hide();
-	if (!bEmbedded)
-	{
-		DestroyControls();
-	}
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 	if (!GetMainMenu())
 		return;

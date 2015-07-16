@@ -5,6 +5,12 @@
 
 class CAvatarImagePanel;
 class CTFAdvButton;
+
+#include "steam/steam_api.h"
+#include "steam/isteamhttp.h"
+//class CSteamID;
+//class ISteamHTTP;
+//class HTTPRequestHandle;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -27,10 +33,12 @@ public:
 	void GameLayout();
 	void SetVersionLabel();
 	void PlayMusic();
+	void OnNotificationUpdate();
 
 private:
 	CExLabel			*m_pVersionLabel;
-	CTFAdvButton	*m_pNicknameButton;
+	CTFAdvButton		*m_pNicknameButton;
+	CTFAdvButton		*m_pNotificationButton;
 	CAvatarImagePanel	*m_pProfileAvatar;
 	char				m_pzMusicLink[64];
 	float				m_flActionThink;
@@ -39,26 +47,21 @@ private:
 	bool				m_bAnimationIn;
 	bool				m_bMusicPlay;
 	char*				GetRandomMusic();
-};
+	char*				GetVersionString();
+	
+	CSteamID			m_SteamID;
+	ISteamHTTP*			m_SteamHTTP;
+	HTTPRequestHandle	m_httpRequest;
+	float				fPercent;
 
+	bool				bOutdated;
+	bool				bChecking;
+	bool				bCompleted;
+	void				CheckVersion();
+	CCallResult<CTFMainMenuPanel, HTTPRequestCompleted_t> m_CallResult;
+	void				CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure);
 
-//-----------------------------------------------------------------------------
-// Purpose:  Draws the rotated arrow panels
-//-----------------------------------------------------------------------------
-class CTFRotationPanel : public CTFImagePanel
-{
-public:
-	DECLARE_CLASS_SIMPLE(CTFRotationPanel, CTFImagePanel);
-
-	CTFRotationPanel(vgui::Panel *parent, const char *name);
-	virtual void Paint();
-	virtual void ApplySettings(KeyValues *inResourceData);
-	float GetAngleRotation(void);
-
-private:
-	float				flRetVal;
-	char				pImage[64];
-	CMaterialReference	m_Material;
+	bool				bUnread;
 };
 
 
