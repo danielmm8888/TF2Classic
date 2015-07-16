@@ -87,6 +87,7 @@ ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
+ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
 #endif
 
 #ifdef GAME_DLL
@@ -2336,7 +2337,10 @@ float CTFGameRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 		float flRatio = (float)pPlayer->GetMaxHealth() / 100.0;
 		flFallDamage *= flRatio;
 
-		flFallDamage *= random->RandomFloat( 0.8, 1.2 );
+		if ( tf2c_falldamage_disablespread.GetBool() == false )
+		{
+			flFallDamage *= random->RandomFloat( 0.8, 1.2 );
+		}
 
 		return flFallDamage;
 	}
