@@ -15,7 +15,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFBackgroundPanel::CTFBackgroundPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
+
 }
 
 //-----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 	float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
 	int iWide = (float)height * iRatio + 2;
-	m_pVideo->SetSize(iWide, iWide);
+	m_pVideo->SetBounds(-1, -1, iWide, iWide);
 
 	DefaultLayout();
 }

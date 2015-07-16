@@ -6,6 +6,7 @@
 #include "panels/tf_pausemenupanel.h"
 #include "panels/tf_backgroundpanel.h"
 #include "panels/tf_loadoutpanel.h"
+#include "panels/tf_notificationpanel.h"
 #include "panels/tf_shadebackgroundpanel.h"
 #include "panels/tf_optionsdialog.h"
 #include "panels/tf_optionsadvancedpanel.h"
@@ -65,27 +66,36 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	AddMenuPanel(new CTFPauseMenuPanel(this, "CTFPauseMenuPanel"), PAUSE_MENU);
 	AddMenuPanel(new CTFBackgroundPanel(this, "CTFBackgroundPanel"), BACKGROUND_MENU);
 	AddMenuPanel(new CTFLoadoutPanel(this, "CTFLoadoutPanel"), LOADOUT_MENU);
+	AddMenuPanel(new CTFNotificationPanel(this, "CTFNotificationPanel"), NOTIFICATION_MENU);
 	AddMenuPanel(new CTFShadeBackgroundPanel(this, "CTFShadeBackgroundPanel"), SHADEBACKGROUND_MENU);
 	AddMenuPanel(new CTFQuitDialogPanel(this, "CTFQuitDialogPanel"), QUIT_MENU);
 	AddMenuPanel(new CTFOptionsDialog(this, "CTFOptionsDialog"), OPTIONSDIALOG_MENU);
+
+	
+	/*
 	AddMenuPanel(new CTFOptionsAdvancedPanel(this, "CTFOptionsAdvancedPanel"), OPTIONSADV_MENU);
 	AddMenuPanel(new CTFOptionsMousePanel(this, "CTFOptionsMousePanel"), OPTIONSMOUSE_MENU);
 	AddMenuPanel(new CTFOptionsKeyboardPanel(this, "CTFOptionsKeyboardPanel"), OPTIONSKEYBOARD_MENU);
 	AddMenuPanel(new CTFOptionsAudioPanel(this, "CTFOptionsAudioPanel"), OPTIONSAUDIO_MENU);
 	AddMenuPanel(new CTFOptionsVideoPanel(this, "CTFOptionsVideoPanel"), OPTIONSVIDEO_MENU);
-	//AddMenuPanel(new CGameConsoleDialog(this, "CTFOptionsVideoPanel"), OPTIONSVIDEO_MENU);
-	HidePanel(MAIN_MENU);
+	*/
+
+	ShowPanel(MAIN_MENU);
 	ShowPanel(PAUSE_MENU);
 	ShowPanel(BACKGROUND_MENU);
-	HidePanel(LOADOUT_MENU);
 	HidePanel(SHADEBACKGROUND_MENU);
+	HidePanel(LOADOUT_MENU);
+	HidePanel(NOTIFICATION_MENU);
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONSDIALOG_MENU);
+
+	/*
 	HidePanel(OPTIONSADV_MENU);
 	HidePanel(OPTIONSMOUSE_MENU);
 	HidePanel(OPTIONSKEYBOARD_MENU);
 	HidePanel(OPTIONSAUDIO_MENU);
 	HidePanel(OPTIONSVIDEO_MENU);
+	*/
 	
 	bInGameLayout = false;
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
@@ -205,7 +215,8 @@ void CTFMainMenu::DefaultLayout()
 	//set all panels to default layout
 	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
 	{
-		GetMenuPanel(i)->DefaultLayout();
+		if (GetMenuPanel(i))
+			GetMenuPanel(i)->DefaultLayout();
 	}		
 };
 
@@ -214,9 +225,19 @@ void CTFMainMenu::GameLayout()
 	//set all panels to game layout
 	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
 	{
-		GetMenuPanel(i)->GameLayout();
+		if (GetMenuPanel(i))
+			GetMenuPanel(i)->GameLayout();
 	}
 };
+
+
+void CTFMainMenu::SendNotification(MainMenuNotification pMessage)
+{
+	pNotification = pMessage;
+	dynamic_cast<CTFNotificationPanel*>(GetMenuPanel(NOTIFICATION_MENU))->OnNotificationUpdate();
+	dynamic_cast<CTFMainMenuPanel*>(GetMenuPanel(MAIN_MENU))->OnNotificationUpdate();
+	dynamic_cast<CTFPauseMenuPanel*>(GetMenuPanel(PAUSE_MENU))->OnNotificationUpdate();
+}
 
 void CTFMainMenu::PaintBackground()
 {

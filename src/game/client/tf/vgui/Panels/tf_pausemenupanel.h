@@ -4,6 +4,7 @@
 #include "tf_menupanelbase.h"
 
 class CTFRGBPanel;
+class CTFAdvButton;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -26,9 +27,11 @@ public:
 	void OnCommand(const char* command);
 	void DefaultLayout();
 	void GameLayout();
+	void OnNotificationUpdate();
 
 private:
-	CTFRGBPanel	*m_pRGBPanel;
+	CTFRGBPanel		*m_pRGBPanel;
+	CTFAdvButton	*m_pNotificationButton;
 };
 
 #endif // TFMAINMENUPAUSEPANEL_H

@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "tf_pausemenupanel.h"
+#include "controls/tf_advbutton.h"
 #include "tf_mainmenu.h"
 #include "tf_rgbpanel.h"
 #include "tf_gamerules.h"
@@ -13,7 +14,6 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFPauseMenuPanel::CTFPauseMenuPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());	
 	Init();
 }
 
@@ -29,6 +29,8 @@ bool CTFPauseMenuPanel::Init()
 {
 	BaseClass::Init();
 
+	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
+	bInMenu = false;
 	bInGame = true;
 	return true;
 };
@@ -38,8 +40,8 @@ void CTFPauseMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
 	LoadControlSettings("resource/UI/main_menu/PauseMenuPanel.res");
+	m_pNotificationButton = dynamic_cast<CTFAdvButton*>(FindChildByName("NotificationButton"));
 }
 
 void CTFPauseMenuPanel::PerformLayout()
@@ -53,21 +55,32 @@ void CTFPauseMenuPanel::OnCommand(const char* command)
 {
 	if (!Q_strcmp(command, "newquit"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(QUIT_MENU);
+		MAINMENU_ROOT->ShowPanel(QUIT_MENU);
 	}
 	else if (!Q_strcmp(command, "newoptionsdialog"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSDIALOG_MENU);
+		MAINMENU_ROOT->ShowPanel(OPTIONSDIALOG_MENU);
 	}
 	else if (!Q_strcmp(command, "newloadout"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(LOADOUT_MENU);
+		MAINMENU_ROOT->ShowPanel(LOADOUT_MENU);
+	}
+	else if (!Q_strcmp(command, "shownotification"))
+	{
+		m_pNotificationButton->SetVisible(false);
+		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
 	else
 	{
 		BaseClass::OnCommand(command);
 	}
 }
+
+void CTFPauseMenuPanel::OnNotificationUpdate()
+{
+	m_pNotificationButton->SetVisible(true);
+	m_pNotificationButton->SetGlowing(true);
+};
 
 
 void CTFPauseMenuPanel::OnTick()

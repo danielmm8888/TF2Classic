@@ -335,7 +335,54 @@
 		"textAlignment"		"west"
 		"command"			"newquit"
 		"font"				"MenuSmallFont"
-	}	
+	}		
+	
+	"NotificationButton"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"			"NotificationButton"
+		"xpos"				"c80"
+		"ypos"				"r21"
+		"zpos"				"6"
+		"wide"				"20"
+		"tall"				"20"
+		"visible"			"0"
+		"enabled"			"1"
+		"labelText" 		""
+		"bgvisible"			"1"
+		"bordervisible"		"0"		
+		"textAlignment"		"center"
+		"command"			"shownotification"	
+		"DefaultButtonImage" 	"../vgui/glyph_alert"
+		"ArmedButtonImage" 		"../vgui/glyph_alert"
+		"DepressedButtonImage" 	"../vgui/glyph_alert"
+		"DefaultText"		"MainMenuTextDefault"
+		"ArmedText"			"MainMenuTextArmed"
+		"DepressedText"		"MainMenuTextDepressed"		
+		"font"				"HudFontSmallBold"
+	}			
+	
+	"TestButton"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"			"TestButton"
+		"xpos"				"r50"
+		"ypos"				"r50"
+		"zpos"				"5"
+		"wide"				"50"
+		"tall"				"20"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText" 		"Test"
+		"bgvisible"			"1"
+		"bordervisible"		"0"		
+		"textAlignment"		"center"
+		"command"			"testnotification"	
+		"DefaultText"		"MainMenuTextDefault"
+		"ArmedText"			"MainMenuTextArmed"
+		"DepressedText"		"MainMenuTextDepressed"		
+		"font"				"HudFontSmallBold"
+	}			
 	
 	"VersionLabel"
 	{

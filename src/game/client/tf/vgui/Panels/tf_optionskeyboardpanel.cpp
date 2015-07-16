@@ -43,7 +43,6 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFOptionsKeyboardPanel::CTFOptionsKeyboardPanel(vgui::Panel *parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
 	Init();
 }
 
@@ -80,7 +79,7 @@ void CTFOptionsKeyboardPanel::ApplySchemeSettings(IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 
 	LoadControlSettings("Resource/UI/main_menu/OptionsKeyboard.res");
-	Msg("APPLIED!\n");
+	//Msg("APPLIED!\n");
 	m_pSetBindingButton->SetEnabled(false);
 	m_pClearBindingButton->SetEnabled(false);
 

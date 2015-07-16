@@ -11,7 +11,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFQuitDialogPanel::CTFQuitDialogPanel(vgui::Panel* parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
+
 }
 
 //-----------------------------------------------------------------------------
@@ -44,11 +44,12 @@ void CTFQuitDialogPanel::OnCommand(const char* command)
 void CTFQuitDialogPanel::Show()
 {
 	BaseClass::Show();
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->HidePanel(CURRENT_MENU);
+	MAINMENU_ROOT->HidePanel(CURRENT_MENU);
+	MAINMENU_ROOT->HidePanel(NOTIFICATION_MENU);
 };
 
 void CTFQuitDialogPanel::Hide()
 {
 	BaseClass::Hide();
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(CURRENT_MENU);
+	MAINMENU_ROOT->ShowPanel(CURRENT_MENU);
 };

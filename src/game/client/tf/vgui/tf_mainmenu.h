@@ -12,12 +12,8 @@ enum MenuPanel //position in this enum = zpos on the screen
 	PAUSE_MENU,
 	SHADEBACKGROUND_MENU, //add popup/additional menus below:		
 	LOADOUT_MENU,
+	NOTIFICATION_MENU,
 	OPTIONSDIALOG_MENU,
-	OPTIONSMOUSE_MENU,
-	OPTIONSKEYBOARD_MENU,
-	OPTIONSAUDIO_MENU,
-	OPTIONSVIDEO_MENU,
-	OPTIONSADV_MENU,
 	QUIT_MENU,
 	COUNT_MENU,
 
@@ -25,6 +21,15 @@ enum MenuPanel //position in this enum = zpos on the screen
 };
 
 #define CURRENT_MENU (!InGame() ? MAIN_MENU : PAUSE_MENU)
+#define MAINMENU_ROOT guiroot
+
+struct MainMenuNotification
+{
+	char* sTitle;
+	char* sMessage;
+	MainMenuNotification() {};
+	MainMenuNotification(char* Title, char* Message) : sTitle(Title), sMessage(Message) {};
+};
 
 class CTFMenuPanelBase;
 //-----------------------------------------------------------------------------
@@ -49,16 +54,19 @@ public:
 	virtual void DefaultLayout();
 	virtual void GameLayout();
 	virtual bool InGame();
+	virtual void SendNotification(MainMenuNotification pMessage);
+	virtual MainMenuNotification GetNotification() { return pNotification; };
 
 private:
-	CUtlVector<CTFMenuPanelBase*>	m_pPanels;
+	CUtlVector<CTFMenuPanelBase*>		m_pPanels;
 
 	void								AddMenuPanel(CTFMenuPanelBase *m_pPanel, int iPanel);
-	CTFMenuPanelBase*				GetMenuPanel(int iPanel);
+	CTFMenuPanelBase*					GetMenuPanel(int iPanel);
 
 	bool								LoadGameUI();
 	bool								bInGameLayout;
 	IGameUI*							gameui;
+	MainMenuNotification				pNotification;
 };
 
 extern CTFMainMenu *guiroot;

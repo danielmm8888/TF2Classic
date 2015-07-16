@@ -29,13 +29,10 @@ public:
 	virtual void OnTick();
 	virtual void Show();
 	virtual void Hide();
-	virtual void SetMainMenu(Panel *m_pPanel);
-	virtual Panel* GetMainMenu();
 	virtual void DefaultLayout();
 	virtual void GameLayout();
 
 protected:
-	Panel				*m_pMainMenu;
 	bool				bInGame;
 	bool				bInMenu;
 	bool				bInGameLayout;

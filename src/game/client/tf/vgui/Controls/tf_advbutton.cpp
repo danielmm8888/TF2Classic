@@ -25,8 +25,8 @@ CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const cha
 {
 	pButton = new CTFButton(this, "ButtonNew", text);
 	pButton->SetParent(this);
-	//pButtonImage = new CTFImagePanel(this, "ButtonImageNew");
-	//pButtonImage->SetParent(this);
+	pButtonImage = new CTFImagePanel(this, "ButtonImageNew");
+	pButtonImage->SetParent(this);
 	Init();
 }
 
@@ -36,7 +36,7 @@ CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const cha
 CTFAdvButton::~CTFAdvButton()
 {
 	delete pButton;
-	//delete pButtonImage;
+	delete pButtonImage;
 }
 
 
@@ -51,8 +51,12 @@ void CTFAdvButton::Init()
 	Q_strncpy(pDepressedButtonImage, DEPRESSED_IMAGE, sizeof(pDepressedButtonImage));
 	m_bBGVisible = true;
 	m_bBorderVisible = false;
+	bGlowing = false;
 	m_fXShift = 0.0;
 	m_fYShift = 0.0;
+	m_flActionThink = -1;
+	m_flAnimationThink = -1;
+	m_bAnimationIn = true;
 }
 
 void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
@@ -118,7 +122,6 @@ void CTFAdvButton::PerformLayout()
 	pButton->SetDepressedSound("ui/buttonclick.wav");
 	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
 
-	/*
 	int iShift = 2;
 	pButtonImage->SetImage(pDefaultButtonImage);
 	pButtonImage->SetVisible(IsVisible());
@@ -128,7 +131,6 @@ void CTFAdvButton::PerformLayout()
 	pButtonImage->SetWide(GetTall() - iShift * 2);
 	pButtonImage->SetTall(GetTall() - iShift * 2);
 	pButtonImage->SetShouldScaleImage(true);
-	*/
 }
 
 void CTFAdvButton::SetText(const char *tokenName)
@@ -149,6 +151,22 @@ void CTFAdvButton::SetCommand(const char *command)
 void CTFAdvButton::OnTick()
 {
 	BaseClass::OnTick();
+
+	if (bGlowing && m_flAnimationThink < gpGlobals->curtime)
+	{
+		float m_fAlpha = (m_bAnimationIn ? 50.0f : 255.0f);
+		float m_fDelay = (m_bAnimationIn ? 0.75f : 0.0f);
+		float m_fDuration = (m_bAnimationIn ? 0.15f : 0.25f);
+		vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", m_fAlpha, m_fDelay, m_fDuration, vgui::AnimationController::INTERPOLATOR_LINEAR);
+		m_bAnimationIn = !m_bAnimationIn;
+		m_flAnimationThink = gpGlobals->curtime + 1.0f;
+	}
+}
+
+
+void CTFAdvButton::SetGlowing(bool Glowing)
+{
+	bGlowing = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -172,14 +190,18 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
+		pButtonImage->SetImage(pDefaultButtonImage);
 		break;
 	case MOUSE_ENTERED:
+		pButtonImage->SetImage(pArmedButtonImage);
 		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_EXITED:
+		pButtonImage->SetImage(pDefaultButtonImage);
 		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_PRESSED:
+		pButtonImage->SetImage(pDepressedButtonImage);
 		break;
 	default:
 		break;

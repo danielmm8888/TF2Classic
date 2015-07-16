@@ -91,16 +91,6 @@ void CTFMenuPanelBase::GameLayout()
 	//SetVisible(bInGame);
 };
 
-void CTFMenuPanelBase::SetMainMenu(Panel *m_pPanel)
-{
-	m_pMainMenu = dynamic_cast<CTFMainMenu*>(m_pPanel);
-};
-
-Panel* CTFMenuPanelBase::GetMainMenu()
-{
-	return dynamic_cast<CTFMainMenu*>(m_pMainMenu);
-};
-
 void CTFMenuPanelBase::PaintBackground()
 {
 	SetPaintBackgroundType(0);
@@ -109,5 +99,5 @@ void CTFMenuPanelBase::PaintBackground()
 
 bool CTFMenuPanelBase::InGame()
 {
-	return dynamic_cast<CTFMainMenu*>(m_pMainMenu)->InGame();
+	return MAINMENU_ROOT->InGame();
 }

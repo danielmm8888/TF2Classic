@@ -3,6 +3,13 @@
 // Purpose: TF Pipebomb Grenade.
 //
 //=============================================================================//
+// Warning to all who enter trying to figure out grenade code:
+// This file contains both Sticky Bombs and Grenade Launcher grenades. Valve seemed to not be able to decide what the hell
+// they should call them, and so half of the file refers to stickies as pipebombs, and grenades as grenades,
+// and the other half refers to stickies as grenades and grenades as pipebombs.
+// I've tried to mark which ones are which with comments at the start of functions so that future coders know what's up.
+// - Iamgoofball
+//=============================================================================//
 #include "cbase.h"
 #include "tf_weaponbase.h"
 #include "tf_gamerules.h"
@@ -88,6 +95,8 @@ CTFGrenadePipebombProjectile::~CTFGrenadePipebombProjectile()
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 int	CTFGrenadePipebombProjectile::GetDamageType( void )
 {
@@ -130,6 +139,8 @@ void CTFGrenadePipebombProjectile::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : const char
+// STICKY = STICKY
+// PIPEBOMB = GRENADE
 //-----------------------------------------------------------------------------
 const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
@@ -180,6 +191,8 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : updateType - 
+// STICKY = GRENADE
+// GRENADE = PIPEBOMB
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 {
@@ -326,6 +339,8 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_pipe );
 
 //-----------------------------------------------------------------------------
 // Purpose:
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE (for once)
 //-----------------------------------------------------------------------------
 CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector &position, const QAngle &angles, 
 																    const Vector &velocity, const AngularImpulse &angVelocity, 
@@ -363,6 +378,8 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 
 //-----------------------------------------------------------------------------
 // Purpose:
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Spawn()
 {
@@ -374,7 +391,7 @@ void CTFGrenadePipebombProjectile::Spawn()
 	}
 	else
 	{
-		SetModel( TF_WEAPON_PIPEGRENADE_MODEL );
+		SetModel(TF_WEAPON_PIPEGRENADE_MODEL);
 		SetDetonateTimerLength( TF_WEAPON_GRENADE_DETONATE_TIME );
 		SetTouch( &CTFGrenadePipebombProjectile::PipebombTouch );
 	}
@@ -502,7 +519,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 
 		// Restore damage. See comment in CTFGrenadePipebombProjectile::Create() above to understand this.
 		m_flDamage = m_flFullDamage;
-		Explode( &pTrace, GetDamageType() );
+		Detonate();
 	}
 
 	// Train hack!
@@ -525,7 +542,7 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 	if ( !pHitEntity )
 		return;
 
-	if ( m_iType == TF_GL_MODE_REGULAR )
+	if (m_iType == TF_GL_MODE_REGULAR)
 	{
 		// Blow up if we hit an enemy we can damage
 		if ( pHitEntity->GetTeamNumber() && pHitEntity->GetTeamNumber() != GetTeamNumber() && pHitEntity->m_takedamage != DAMAGE_NO )
@@ -570,7 +587,9 @@ ConVar tf_grenade_force_sleeptime( "tf_grenade_force_sleeptime", "1.0", FCVAR_CH
 ConVar tf_pipebomb_force_to_move( "tf_pipebomb_force_to_move", "1500.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 //-----------------------------------------------------------------------------
-// Purpose: If we are shot after being stuck to the world, move a bit
+// Purpose: If we are shot after being stuck to the world, move a bit, unless we're a sticky, in which case, fizzle out and die.
+// STICKY = STICKY
+// PIPEBOMB = GRENADE
 //-----------------------------------------------------------------------------
 int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 {
@@ -643,5 +662,7 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 
 	return 0;
 }
+
+
 
 #endif

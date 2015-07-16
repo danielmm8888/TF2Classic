@@ -20,6 +20,7 @@
 
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
+	#include "tf_weapon_grenade_flare.h"
 	#include "te.h"
 
 #else	// Client specific.
@@ -193,6 +194,11 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 	case TF_PROJECTILE_PIPEBOMB_REMOTE:
 		pProjectile = FirePipeBomb( pPlayer, true );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
+		break;
+
+	case TF_PROJECTILE_FLARE:
+		pProjectile = FireFlare(pPlayer);
+		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
 		break;
 
 	case TF_PROJECTILE_NONE:
@@ -438,6 +444,41 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
+	}
+	return pProjectile;
+
+#endif
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Fire a flare
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
+{
+	PlayWeaponShootSound();
+
+#ifdef GAME_DLL
+
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors(pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp);
+
+	// Create grenades here!!
+	Vector vecSrc = pPlayer->Weapon_ShootPosition();
+	vecSrc += vecForward * 16.0f + vecRight * 8.0f + vecUp * -6.0f;
+
+	Vector vecVelocity = (vecForward * GetProjectileSpeed()) + (vecUp * 200.0f) + (random->RandomFloat(-10.0f, 10.0f) * vecRight) +
+		(random->RandomFloat(-10.0f, 10.0f) * vecUp);
+
+	CTFGrenadeFlareProjectile *pProjectile = CTFGrenadeFlareProjectile::Create(vecSrc, pPlayer->EyeAngles(), vecVelocity,
+		AngularImpulse(600, random->RandomInt(-1200, 1200), 0),
+		pPlayer, GetTFWpnData());
+
+
+	if (pProjectile)
+	{
+		pProjectile->SetCritical(IsCurrentAttackACrit());
 	}
 	return pProjectile;
 
