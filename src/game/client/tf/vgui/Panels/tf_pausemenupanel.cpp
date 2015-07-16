@@ -29,6 +29,8 @@ bool CTFPauseMenuPanel::Init()
 {
 	BaseClass::Init();
 
+	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
+	bInMenu = false;
 	bInGame = true;
 	return true;
 };
@@ -38,7 +40,6 @@ void CTFPauseMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
 	LoadControlSettings("resource/UI/main_menu/PauseMenuPanel.res");
 }
 

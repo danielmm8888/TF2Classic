@@ -51,6 +51,7 @@ bool CTFMainMenuPanel::Init()
 	bCompleted = false;
 	bUnread = false;
 	bInMenu = true;
+	bInGame = false;
 	return true;
 }
 
@@ -273,7 +274,6 @@ void CTFMainMenuPanel::DefaultLayout()
 void CTFMainMenuPanel::GameLayout()
 {
 	BaseClass::GameLayout();
-
 };
 
 void CTFMainMenuPanel::PlayMusic()
