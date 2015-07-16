@@ -3017,15 +3017,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 				if ( flRandomVal > 0.5 )
 				{
-					// Rocket launcher & Scattergun have different short range bonuses
+					// Rocket launcher, Sticky launcher and Scattergun have different short range bonuses
 					if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
 					{
 						CTFWeaponBase *pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
 						if ( pWeapon )
 						{
-							if ( pWeapon->GetWeaponID() == TF_WEAPON_ROCKETLAUNCHER )
+							if ( pWeapon->GetWeaponID() == TF_WEAPON_ROCKETLAUNCHER || pWeapon->GetWeaponID() == TF_WEAPON_PIPEBOMBLAUNCHER )
 							{
-								// Rocket launcher only has half the bonus of the other weapons at short range
+								// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
 								flRandomDamage *= 0.5;
 							}
 							else if ( pWeapon->GetWeaponID() == TF_WEAPON_SCATTERGUN )
