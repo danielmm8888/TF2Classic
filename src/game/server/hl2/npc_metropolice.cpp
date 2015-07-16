@@ -18,9 +18,9 @@
 #include "hl2_player.h"
 #include "iservervehicle.h"
 #include "items.h"
-#ifndef TF_CLASSIC
+#ifdef HL2_DLL
 #include "hl2_gamerules.h"
-#else
+#elif defined(TF_CLASSIC)
 #include "tf_gamerules.h"
 #endif
 
@@ -3107,8 +3107,8 @@ void CNPC_MetroPolice::Event_Killed( const CTakeDamageInfo &info )
 	{
 #ifndef TF_CLASSIC
 		CHalfLife2 *pGameRules = static_cast<CHalfLife2 *>(g_pGameRules);
-#else
-		CTFGameRules *pGameRules = static_cast<CTFGameRules *>(g_pGameRules);
+#elif defined(TF_CLASSIC)
+		CTFGameRules *pGameRules = TFGameRules();
 #endif
 		// Attempt to drop health
 		if ( pGameRules->NPC_ShouldDropHealth( pPlayer ) )

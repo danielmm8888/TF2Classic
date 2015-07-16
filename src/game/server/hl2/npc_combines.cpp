@@ -21,7 +21,11 @@
 #include "Sprite.h"
 #include "soundenvelope.h"
 #include "weapon_physcannon.h"
+#ifdef HL2_DLL
 #include "hl2_gamerules.h"
+#elif defined(TF_CLASSIC)
+#include "tf_gamerules.h"
+#endif
 #include "gameweaponmanager.h"
 #include "vehicle_base.h"
 
@@ -338,24 +342,26 @@ void CNPC_CombineS::Event_Killed( const CTakeDamageInfo &info )
 				}
 			}
 		}
-		// Soldiers don't drop health and grenades for now.
 #ifdef HL2_DLL
-		CHalfLife2 *pHL2GameRules = static_cast<CHalfLife2 *>(g_pGameRules);
-
+		CHalfLife2 *pGameRules = static_cast<CHalfLife2 *>(g_pGameRules);
+#elif defined(TF_CLASSIC)
+		CTFGameRules *pGameRules = TFGameRules();
+#endif
 		// Attempt to drop health
-		if ( pHL2GameRules->NPC_ShouldDropHealth( pPlayer ) )
+		if ( pGameRules->NPC_ShouldDropHealth( pPlayer ) )
 		{
 			DropItem( "item_healthvial", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
-			pHL2GameRules->NPC_DroppedHealth();
+			pGameRules->NPC_DroppedHealth();
 		}
-		
+		// Don't drop grenades in TF2C, TF2 players don't need that.
+#ifndef TF_CLASSIC
 		if ( HasSpawnFlags( SF_COMBINE_NO_GRENADEDROP ) == false )
 		{
 			// Attempt to drop a grenade
-			if ( pHL2GameRules->NPC_ShouldDropGrenade( pPlayer ) )
+			if ( pGameRules->NPC_ShouldDropGrenade( pPlayer ) )
 			{
 				DropItem( "weapon_frag", WorldSpaceCenter()+RandomVector(-4,4), RandomAngle(0,360) );
-				pHL2GameRules->NPC_DroppedGrenade();
+				pGameRules->NPC_DroppedGrenade();
 			}
 		}
 #endif

@@ -811,12 +811,6 @@ void CTFGameRules::Activate()
 		return;
 	}
 
-	if (gEntList.FindEntityByClassname(NULL, "hl2_gamerules"))
-	{
-		m_nGameType.Set(TF_GAMETYPE_HLCOOP);
-		return;
-	}
-
 	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> (gEntList.FindEntityByClassname(NULL, "item_teamflag"));
 	if (pFlag)
 	{
@@ -5189,9 +5183,6 @@ const char *CTFGameRules::GetGameDescription(void)
 			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";
-			break;
-		case TF_GAMETYPE_HLCOOP:
-			return "TF2C (Half-Life Co-op)";
 			break;
 		default:
 			return "TF2C";
