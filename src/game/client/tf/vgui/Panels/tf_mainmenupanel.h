@@ -41,10 +41,7 @@ private:
 	CTFAdvButton		*m_pNotificationButton;
 	CAvatarImagePanel	*m_pProfileAvatar;
 	char				m_pzMusicLink[64];
-	float				m_flActionThink;
 	float				m_flMusicThink;
-	float				m_flAnimationThink;
-	bool				m_bAnimationIn;
 	bool				m_bMusicPlay;
 	char*				GetRandomMusic();
 	char*				GetVersionString();
@@ -60,8 +57,6 @@ private:
 	void				CheckVersion();
 	CCallResult<CTFMainMenuPanel, HTTPRequestCompleted_t> m_CallResult;
 	void				CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure);
-
-	bool				bUnread;
 };
 
 

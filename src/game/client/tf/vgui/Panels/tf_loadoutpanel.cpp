@@ -11,7 +11,8 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFLoadoutPanel::CTFLoadoutPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
+	bInMenu = false;
+	bInGame = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,13 +53,13 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 void CTFLoadoutPanel::Show()
 {
 	BaseClass::Show();
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(SHADEBACKGROUND_MENU);
+	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
 };
 
 void CTFLoadoutPanel::Hide()
 {
 	BaseClass::Hide();
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->HidePanel(SHADEBACKGROUND_MENU);
+	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
 
 

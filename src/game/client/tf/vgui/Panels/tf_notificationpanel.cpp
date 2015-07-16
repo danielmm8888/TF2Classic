@@ -13,7 +13,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFNotificationPanel::CTFNotificationPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
+
 }
 
 //-----------------------------------------------------------------------------

@@ -50,7 +50,6 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFOptionsAdvancedPanel::CTFOptionsAdvancedPanel(vgui::Panel *parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
 	Init();
 }
 

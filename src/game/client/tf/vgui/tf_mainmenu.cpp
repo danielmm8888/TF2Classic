@@ -236,6 +236,7 @@ void CTFMainMenu::SendNotification(MainMenuNotification pMessage)
 	pNotification = pMessage;
 	dynamic_cast<CTFNotificationPanel*>(GetMenuPanel(NOTIFICATION_MENU))->OnNotificationUpdate();
 	dynamic_cast<CTFMainMenuPanel*>(GetMenuPanel(MAIN_MENU))->OnNotificationUpdate();
+	dynamic_cast<CTFPauseMenuPanel*>(GetMenuPanel(PAUSE_MENU))->OnNotificationUpdate();
 }
 
 void CTFMainMenu::PaintBackground()

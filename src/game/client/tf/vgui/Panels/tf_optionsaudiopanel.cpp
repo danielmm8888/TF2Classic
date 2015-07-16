@@ -41,7 +41,6 @@ enum SoundQuality_e
 //-----------------------------------------------------------------------------
 CTFOptionsAudioPanel::CTFOptionsAudioPanel(vgui::Panel *parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
 	Init();
 }
 

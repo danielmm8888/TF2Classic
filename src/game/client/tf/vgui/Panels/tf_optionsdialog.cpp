@@ -46,8 +46,6 @@ const char *g_aButtonNames[5] =
 //-----------------------------------------------------------------------------
 CTFOptionsDialog::CTFOptionsDialog(vgui::Panel *parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
-
 	Init();
 }
 
@@ -75,7 +73,6 @@ bool CTFOptionsDialog::Init()
 void CTFOptionsDialog::AddPanel(CTFDialogPanelBase *m_pPanel, int iPanel)
 {
 	m_pPanels[iPanel] = m_pPanel;
-	m_pPanel->SetMainMenu(GetParent());
 	m_pPanel->SetEmbedded(true);
 	m_pPanel->Hide();
 }

@@ -30,7 +30,6 @@ void CTFRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 
 	LoadControlSettings("resource/UI/main_menu/RGBPanel.res");
-	SetMainMenu(GetParent());
 
 	m_pRedScrollBar = dynamic_cast<CTFAdvSlider *>(FindChildByName("RedScrollBar"));
 	m_pGrnScrollBar = dynamic_cast<CTFAdvSlider *>(FindChildByName("GrnScrollBar"));

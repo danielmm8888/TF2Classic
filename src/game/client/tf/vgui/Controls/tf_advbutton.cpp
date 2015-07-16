@@ -51,8 +51,12 @@ void CTFAdvButton::Init()
 	Q_strncpy(pDepressedButtonImage, DEPRESSED_IMAGE, sizeof(pDepressedButtonImage));
 	m_bBGVisible = true;
 	m_bBorderVisible = false;
+	bGlowing = false;
 	m_fXShift = 0.0;
 	m_fYShift = 0.0;
+	m_flActionThink = -1;
+	m_flAnimationThink = -1;
+	m_bAnimationIn = true;
 }
 
 void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
@@ -147,6 +151,22 @@ void CTFAdvButton::SetCommand(const char *command)
 void CTFAdvButton::OnTick()
 {
 	BaseClass::OnTick();
+
+	if (bGlowing && m_flAnimationThink < gpGlobals->curtime)
+	{
+		float m_fAlpha = (m_bAnimationIn ? 50.0f : 255.0f);
+		float m_fDelay = (m_bAnimationIn ? 0.75f : 0.0f);
+		float m_fDuration = (m_bAnimationIn ? 0.15f : 0.25f);
+		vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", m_fAlpha, m_fDelay, m_fDuration, vgui::AnimationController::INTERPOLATOR_LINEAR);
+		m_bAnimationIn = !m_bAnimationIn;
+		m_flAnimationThink = gpGlobals->curtime + 1.0f;
+	}
+}
+
+
+void CTFAdvButton::SetGlowing(bool Glowing)
+{
+	bGlowing = true;
 }
 
 //-----------------------------------------------------------------------------

@@ -84,18 +84,18 @@ void CTFDialogPanelBase::Show()
 {
 	BaseClass::Show();
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	if (!GetMainMenu())
+	if (!MAINMENU_ROOT)
 		return;
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(SHADEBACKGROUND_MENU);
+	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
 };
 
 void CTFDialogPanelBase::Hide()
 {
 	BaseClass::Hide();
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	if (!GetMainMenu())
+	if (!MAINMENU_ROOT)
 		return;
-	dynamic_cast<CTFMainMenu*>(GetMainMenu())->HidePanel(SHADEBACKGROUND_MENU);
+	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
 
 void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* text)

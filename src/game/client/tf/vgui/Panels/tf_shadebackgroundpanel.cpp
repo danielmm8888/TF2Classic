@@ -11,7 +11,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFShadeBackgroundPanel::CTFShadeBackgroundPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
+
 }
 
 //-----------------------------------------------------------------------------

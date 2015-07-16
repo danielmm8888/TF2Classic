@@ -20,7 +20,6 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFMainMenuPanel::CTFMainMenuPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
 	Init();
 }
 
@@ -37,10 +36,7 @@ bool CTFMainMenuPanel::Init()
 	BaseClass::Init();
 
 	m_bMusicPlay = true;
-	m_flActionThink = -1;
-	m_flAnimationThink = -1;
 	m_flMusicThink = -1;
-	m_bAnimationIn = true;
 
 	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
 	m_SteamHTTP = steamapicontext->SteamHTTP();
@@ -49,7 +45,6 @@ bool CTFMainMenuPanel::Init()
 	bOutdated = false;
 	bChecking = false;
 	bCompleted = false;
-	bUnread = false;
 	bInMenu = true;
 	bInGame = false;
 	return true;
@@ -84,15 +79,15 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 {
 	if (!Q_strcmp(command, "newquit"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(QUIT_MENU);
+		MAINMENU_ROOT->ShowPanel(QUIT_MENU);
 	}
 	else if (!Q_strcmp(command, "newoptionsdialog"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(OPTIONSDIALOG_MENU);
+		MAINMENU_ROOT->ShowPanel(OPTIONSDIALOG_MENU);
 	}
 	else if (!Q_strcmp(command, "newloadout"))
 	{
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(LOADOUT_MENU);
+		MAINMENU_ROOT->ShowPanel(LOADOUT_MENU);
 	}
 	else if (!Q_strcmp(command, "checkversion"))
 	{
@@ -100,14 +95,13 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "shownotification"))
 	{
-		bUnread = false;
 		m_pNotificationButton->SetVisible(false);
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->ShowPanel(NOTIFICATION_MENU);
+		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
 	else if (!Q_strcmp(command, "testnotification"))
 	{
 		MainMenuNotification Notification("Yoyo", "TestingShit");
-		dynamic_cast<CTFMainMenu*>(GetMainMenu())->SendNotification(Notification);
+		MAINMENU_ROOT->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
 	{
@@ -162,7 +156,7 @@ void CTFMainMenuPanel::CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResul
 			
 			Q_snprintf(resultString, sizeof(resultString), "Update your shit NOW!\nBTW, it's version: %s!", result);
 			MainMenuNotification Notification("YOU CUNT", resultString);
-			dynamic_cast<CTFMainMenu*>(GetMainMenu())->SendNotification(Notification);
+			MAINMENU_ROOT->SendNotification(Notification);
 		}
 		else
 		{
@@ -225,26 +219,6 @@ void CTFMainMenuPanel::OnTick()
 				enginesound->NotifyBeginMoviePlayback(); 
 			}
 		}
-
-		if (bUnread && m_pNotificationButton && m_flAnimationThink < gpGlobals->curtime)
-		{
-			float m_fAlpha = (m_bAnimationIn ? 50.0f : 255.0f);
-			float m_fDelay = (m_bAnimationIn ? 0.75f : 0.0f);
-			float m_fDuration = (m_bAnimationIn ? 0.15f : 0.25f);
-			vgui::GetAnimationController()->RunAnimationCommand(m_pNotificationButton, "Alpha", m_fAlpha, m_fDelay, m_fDuration, vgui::AnimationController::INTERPOLATOR_LINEAR);
-			m_bAnimationIn = !m_bAnimationIn;
-			m_flAnimationThink = gpGlobals->curtime + 1.0f;
-		}
-
-		/*
-		if (bOutdated && m_pVersionLabel && m_flAnimationThink < gpGlobals->curtime)
-		{
-		float m_fAlpha = (m_bAnimationIn ? 50.0 : 100.0);
-		vgui::GetAnimationController()->RunAnimationCommand(m_pVersionLabel, "Alpha", m_fAlpha, 0.0f, 0.25f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-		m_bAnimationIn = !m_bAnimationIn;
-		m_flAnimationThink = gpGlobals->curtime + 0.25f;
-		}
-		*/
 	}
 };
 
@@ -283,8 +257,8 @@ void CTFMainMenuPanel::PlayMusic()
 
 void CTFMainMenuPanel::OnNotificationUpdate()
 {
-	bUnread = true;
 	m_pNotificationButton->SetVisible(true);
+	m_pNotificationButton->SetGlowing(true);
 };
 
 void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString

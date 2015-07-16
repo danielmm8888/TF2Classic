@@ -123,7 +123,6 @@ void GetResolutionName( vmode_t *mode, char *sz, int sizeofsz )
 //-----------------------------------------------------------------------------
 CTFOptionsVideoPanel::CTFOptionsVideoPanel(vgui::Panel *parent, const char *panelName) : CTFDialogPanelBase(parent, panelName)
 {
-	SetMainMenu(GetParent());
 	Init();
 }
 

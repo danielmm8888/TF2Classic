@@ -37,6 +37,7 @@ public:
 	void SetDefaultAnimation();
 	void SetText(const char *tokenName);
 	void SetCommand(const char *command);
+	void SetGlowing(bool Glowing);
 
 	void OnTick();
 
@@ -48,6 +49,11 @@ protected:
 	char			pDefaultButtonImage[64];
 	char			pArmedButtonImage[64];
 	char			pDepressedButtonImage[64];
+	bool			bGlowing;
+
+	float				m_flActionThink;
+	float				m_flAnimationThink;
+	bool				m_bAnimationIn;
 };
 
 
