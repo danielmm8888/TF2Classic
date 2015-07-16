@@ -323,7 +323,6 @@ int CTFGrenadePipebombProjectile::DrawModel( int flags )
 // TF Pipebomb Grenade Projectile functions (Server specific).
 //
 #define TF_WEAPON_PIPEGRENADE_MODEL		"models/weapons/w_models/w_grenade_grenadelauncher.mdl"
-#define TF_WEAPON_FLARE_MODEL		"models/weapons/w_models/w_grenade_grenadelauncher.mdl"
 #define TF_WEAPON_PIPEBOMB_MODEL		"models/weapons/w_models/w_stickybomb.mdl"
 #define TF_WEAPON_PIPEBOMB_BOUNCE_SOUND	"Weapon_Grenade_Pipebomb.Bounce"
 #define TF_WEAPON_GRENADE_DETONATE_TIME 2.0f
@@ -337,9 +336,6 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_pipe_remote );
 
 LINK_ENTITY_TO_CLASS( tf_projectile_pipe, CTFGrenadePipebombProjectile );
 PRECACHE_WEAPON_REGISTER( tf_projectile_pipe );
-
-LINK_ENTITY_TO_CLASS(tf_projectile_flare, CTFGrenadePipebombProjectile);
-PRECACHE_WEAPON_REGISTER(tf_projectile_flare);
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -384,7 +380,6 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 // Purpose:
 // PIPEBOMB = STICKY
 // GRENADE = GRENADE
-// FLARE = FLARE
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Spawn()
 {
@@ -396,14 +391,7 @@ void CTFGrenadePipebombProjectile::Spawn()
 	}
 	else
 	{
-		if (m_iType == TF_GL_MODE_FLARE_GUN)
-		{
-			SetModel(TF_WEAPON_FLARE_MODEL);
-		}
-		else // it's just your standard run of the mill grenade
-		{
-			SetModel(TF_WEAPON_PIPEGRENADE_MODEL);
-		}
+		SetModel(TF_WEAPON_PIPEGRENADE_MODEL);
 		SetDetonateTimerLength( TF_WEAPON_GRENADE_DETONATE_TIME );
 		SetTouch( &CTFGrenadePipebombProjectile::PipebombTouch );
 	}
@@ -426,7 +414,6 @@ void CTFGrenadePipebombProjectile::Precache()
 {
 	PrecacheModel( TF_WEAPON_PIPEBOMB_MODEL );
 	PrecacheModel( TF_WEAPON_PIPEGRENADE_MODEL );
-	PrecacheModel( TF_WEAPON_FLARE_MODEL );
 	PrecacheParticleSystem( "stickybombtrail_blue" );
 	PrecacheParticleSystem( "stickybombtrail_red" );
 	PrecacheParticleSystem( "stickybombtrail_green" );
@@ -463,32 +450,6 @@ void CTFGrenadePipebombProjectile::BounceSound( void )
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Detonate()
 {
-	if (m_iType = TF_GL_MODE_FLARE_GUN)
-	{
-		float flRadius = 180;
-
-		// Light everyone on fire in the radius.
-		Vector vecOrigin = GetAbsOrigin() + Vector(0, 0, 0);
-
-		CBaseEntity *pListOfNearbyEntities[32];
-		int iNumberOfNearbyEntities = UTIL_EntitiesInSphere(pListOfNearbyEntities, 32, vecOrigin, flRadius, FL_CLIENT);
-		for (int i = 0; i < iNumberOfNearbyEntities; i++)
-		{
-			CTFPlayer *pPlayer = ToTFPlayer(pListOfNearbyEntities[i]);
-			CTFPlayer *pOwner = dynamic_cast <CTFPlayer*>(GetThrower());
-
-			if (pPlayer && pPlayer->GetTeamNumber() && pPlayer->GetTeamNumber() != GetTeamNumber() || pPlayer == pOwner)
-			{
-				CTakeDamageInfo info(pOwner, pPlayer, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING);
-				info.SetReportedPosition(pOwner->GetAbsOrigin());
-
-				pPlayer->TakeDamage(info);
-			}
-		}
-
-		UTIL_Remove(this);
-		return;
-	}
 	if ( ShouldNotDetonate() )
 	{
 		RemoveGrenade();
@@ -581,7 +542,7 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 	if ( !pHitEntity )
 		return;
 
-	if (m_iType == TF_GL_MODE_REGULAR || m_iType == TF_GL_MODE_FLARE_GUN)
+	if (m_iType == TF_GL_MODE_REGULAR)
 	{
 		// Blow up if we hit an enemy we can damage
 		if ( pHitEntity->GetTeamNumber() && pHitEntity->GetTeamNumber() != GetTeamNumber() && pHitEntity->m_takedamage != DAMAGE_NO )
@@ -618,33 +579,7 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 		m_vecImpactNormal.Negate();
 	}
 }
-// Flare code below.
-CTFGrenadeFlareProjectile* CTFGrenadeFlareProjectile::Create(const Vector &position, const QAngle &angles,
-	const Vector &velocity, const AngularImpulse &angVelocity,
-	CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo)
-{
-	CTFGrenadeFlareProjectile *pGrenade = static_cast<CTFGrenadeFlareProjectile*>(CBaseEntity::CreateNoSpawn("tf_projectile_flare", position, angles, pOwner));
-	if (pGrenade)
-	{
-		// Set the pipebomb mode before calling spawn, so the model & associated vphysics get setup properly
-		pGrenade->SetPipebombMode();
-		DispatchSpawn(pGrenade);
 
-		pGrenade->InitGrenade(velocity, angVelocity, pOwner, weaponInfo);
-
-		pGrenade->m_flFullDamage = pGrenade->GetDamage();
-
-		pGrenade->ApplyLocalAngularVelocityImpulse(angVelocity);
-	}
-
-	return pGrenade;
-}
-void CTFGrenadeFlareProjectile::SetPipebombMode()
-{
-	m_iType.Set(TF_GL_MODE_FLARE_GUN);
-}
-
-// End flare code.
 ConVar tf_grenade_forcefrom_bullet( "tf_grenade_forcefrom_bullet", "0.8", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_grenade_forcefrom_buckshot( "tf_grenade_forcefrom_buckshot", "0.5", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_grenade_forcefrom_blast( "tf_grenade_forcefrom_blast", "0.08", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );

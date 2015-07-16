@@ -20,6 +20,7 @@
 
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
+	#include "tf_weapon_grenade_flare.h"
 	#include "te.h"
 
 #else	// Client specific.
