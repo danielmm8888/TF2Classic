@@ -2556,8 +2556,19 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 		pCmd->forwardmove = 0.0f;
 		pCmd->sidemove = 0.0f;
 		pCmd->upmove = 0.0f;
+		int nOldButtons = pCmd->buttons;
 		pCmd->buttons = 0;
 		pCmd->weaponselect = 0;
+
+		// Re-add IN_ATTACK2 if player is Demoman with sticky launcher. This is done so they can detonate stickies while taunting.
+		if ( (nOldButtons & IN_ATTACK2) && IsPlayerClass( TF_CLASS_DEMOMAN ) )
+		{
+			CTFPipebombLauncher *pWeapon = dynamic_cast < CTFPipebombLauncher*>( Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER ) );
+			if ( pWeapon )
+			{
+				pCmd->buttons |= IN_ATTACK2;
+			}
+		}
 
 		VectorCopy( angMoveAngle, pCmd->viewangles );
 		bNoTaunt = false;
