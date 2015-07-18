@@ -105,6 +105,12 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 		if ( m_pDamageAccountLabel
 			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
 		{
+			if ( event->GetInt( "userid_from" ) == event->GetInt( "userid_to" ) )
+			{
+				// No self-damage notifications.
+				return;
+			}
+
 			// Play hit sound, if appliable
 			if( tf_dingalingaling.GetBool() == true )
 			{
