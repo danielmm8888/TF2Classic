@@ -13,7 +13,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFNotificationPanel::CTFNotificationPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -22,6 +22,16 @@ CTFNotificationPanel::CTFNotificationPanel(vgui::Panel* parent, const char *pane
 CTFNotificationPanel::~CTFNotificationPanel()
 {
 
+}
+
+bool CTFNotificationPanel::Init( void )
+{
+	BaseClass::Init();
+
+	m_pTitle = NULL;
+	m_pMessage = NULL;
+
+	return true;
 }
 
 void CTFNotificationPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
