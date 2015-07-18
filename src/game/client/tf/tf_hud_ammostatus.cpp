@@ -181,12 +181,12 @@ void CTFHudWeaponAmmo::OnThink()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (!pPlayer)
 		return;
-	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 	if (!pWeapon)
 		return;
 
 	if (tf2c_ammobucket.GetBool()){
+#if 0
 		for (int j = 0; j < COLNUM; j++)
 		{
 			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
@@ -200,6 +200,23 @@ void CTFHudWeaponAmmo::OnThink()
 				break;
 			}
 		}
+#else
+		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+		if ( pPlayer )
+		{
+			if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+			{
+				pTexture = pWeapon->GetSpriteActive();
+			}
+		}
+
+		if ( pTexture )
+		{
+			char szImage[64];
+			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
+			m_pWeaponBucket->SetImage( szImage );
+		}
+#endif
 	}
 
 	if ( m_flNextThink < gpGlobals->curtime )
