@@ -1440,7 +1440,11 @@ void CNPC_AntlionGuard::Shove( void )
 
 	// Use the melee trace to ensure we hit everything there
 	trace_t tr;
-	CTakeDamageInfo	dmgInfo( this, this, damage, DMG_SLASH );
+	int iDmgType = DMG_SLASH;
+#ifdef TF_CLASSIC
+	iDmgType |= DMG_CLUB;
+#endif
+	CTakeDamageInfo	dmgInfo( this, this, damage, iDmgType );
 	CTraceFilterMelee traceFilter( this, COLLISION_GROUP_NONE, &dmgInfo, 1.0, true );
 	Ray_t ray;
 	ray.Init( WorldSpaceCenter(), vecEnd, Vector(-16,-16,-16), Vector(16,16,16) );

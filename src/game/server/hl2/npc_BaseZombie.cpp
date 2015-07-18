@@ -1321,7 +1321,11 @@ CBaseEntity *CNPC_BaseZombie::ClawAttack( float flDist, int iDamage, QAngle &qaV
 	else 
 	{
 		// Try to hit them with a trace
-		pHurt = CheckTraceHullAttack( flDist, vecMins, vecMaxs, iDamage, DMG_SLASH );
+		int iDmgType = DMG_SLASH;
+#ifdef TF_CLASSIC
+		iDmgType |= DMG_CLUB;
+#endif
+		pHurt = CheckTraceHullAttack( flDist, vecMins, vecMaxs, iDamage, iDmgType );
 	}
 
 	if ( pDriver && iDriverInitialHealth != pDriver->GetHealth() )
@@ -1353,7 +1357,7 @@ CBaseEntity *CNPC_BaseZombie::ClawAttack( float flDist, int iDamage, QAngle &qaV
 		if ( pPlayer != NULL && !(pPlayer->GetFlags() & FL_GODMODE ) )
 		{
 			pPlayer->ViewPunch( qaViewPunch );
-			
+
 			pPlayer->VelocityPunch( vecVelocityPunch );
 		}
 		else if( !pPlayer && UTIL_ShouldShowBlood(pHurt->BloodColor()) )

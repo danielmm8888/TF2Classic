@@ -666,7 +666,11 @@ void CNPC_Antlion::MeleeAttack( float distance, float damage, QAngle &viewPunch,
 		return;
 	}
 
-	CBaseEntity *pHurt = CheckTraceHullAttack( distance, -Vector(16,16,32), Vector(16,16,32), damage, DMG_SLASH, 5.0f );
+	int iDmgType = DMG_SLASH;
+#ifdef TF_CLASSIC
+	iDmgType |= DMG_CLUB;
+#endif
+	CBaseEntity *pHurt = CheckTraceHullAttack( distance, -Vector(16,16,32), Vector(16,16,32), damage, iDmgType, 5.0f );
 
 	if ( pHurt )
 	{
