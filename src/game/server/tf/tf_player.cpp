@@ -105,6 +105,7 @@ ConVar player_squad_double_tap_time( "player_squad_double_tap_time", "0.25" );
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
+extern ConVar tf2c_use_hl2_player_hull;
 
 
 // -------------------------------------------------------------------------------- //
@@ -2786,7 +2787,13 @@ EHANDLE CTFPlayer::TeamFortress_GetDisguiseTarget( int nTeam, int nClass )
 
 static float DamageForce( const Vector &size, float damage, float scale )
 { 
-	float force = damage * ((48 * 48 * 82.0) / (size.x * size.y * size.z)) * scale;
+	float force;
+
+	// Adjust for HL2 hull size if it's enabled.
+	if ( tf2c_use_hl2_player_hull.GetBool() )
+		force = damage * ((32 * 32 * 72.0) / (size.x * size.y * size.z)) * scale;
+	else
+		force = damage * ((48 * 48 * 82.0) / (size.x * size.y * size.z)) * scale;
 	
 	if ( force > 1000.0) 
 	{
