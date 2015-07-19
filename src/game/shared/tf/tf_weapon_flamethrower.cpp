@@ -461,7 +461,7 @@ void CTFFlameThrower::SecondaryAttack()
 	pOwner->NoteWeaponFired();
 
 	pOwner->SpeakWeaponFire();
-	CTF_GameStats.Event_PlayerFiredWeapon( pOwner, m_bCritFire );
+	CTF_GameStats.Event_PlayerFiredWeapon( pOwner, false );
 
 	// Move other players back to history positions based on local player's lag
 	lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
@@ -469,6 +469,7 @@ void CTFFlameThrower::SecondaryAttack()
 
 	// TODO: Make airblast particles and sounds.
 
+#if !defined (CLIENT_DLL)
 	QAngle angDir = pOwner->EyeAngles();
 	Vector vecDir;
 	AngleVectors( angDir, &vecDir );
@@ -516,8 +517,33 @@ void CTFFlameThrower::SecondaryAttack()
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
 			}
 		}
-	}
+		else if ( dynamic_cast<CTFProjectile_Rocket *>( pList[i] ) != NULL )
+		{
+			CTFProjectile_Rocket *pRocket = static_cast<CTFProjectile_Rocket *>( pList[i] );
 
+			if ( !pRocket )
+				continue;
+
+			// Get rocket's position and speed.
+			Vector vecPos = pRocket->GetAbsOrigin();
+			float flVel = pRocket->GetAbsVelocity().Length();
+
+			Vector vecVelocity;
+			QAngle angForward;
+			GetProjectileReflectSetup( pOwner, vecPos, &angForward, false );
+
+			// Now change rocket's direction.
+			pRocket->SetAbsAngles( angForward );
+			AngleVectors( angForward, &vecVelocity );
+			pRocket->SetAbsVelocity( vecVelocity * flVel );
+
+			// And change owner.
+			pRocket->SetOwnerEntity( pOwner );
+			pRocket->ChangeTeam( pOwner->GetTeamNumber() );
+			pRocket->SetScorer( pOwner );
+		}
+	}
+#endif
 	pOwner->RemoveAmmo( TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType );
 
 	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
