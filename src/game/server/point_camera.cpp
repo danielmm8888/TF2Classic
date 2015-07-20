@@ -46,11 +46,7 @@ CPointCamera::~CPointCamera()
 CPointCamera::CPointCamera()
 {
 	// Set these to opposites so that it'll be sent the first time around.
-#ifdef TF_CLASSIC
-	m_bActive = true;
-#else
 	m_bActive = false;
-#endif
 	m_bIsOn = false;
 	
 	m_bFogEnable = false;
