@@ -35,7 +35,6 @@ CTFDialogPanelBase::~CTFDialogPanelBase()
 bool CTFDialogPanelBase::Init()
 {
 	BaseClass::Init();
-	m_pListPanel = NULL;
 	bEmbedded = false;
 	return true;
 }

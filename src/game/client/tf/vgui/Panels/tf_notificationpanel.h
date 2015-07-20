@@ -12,7 +12,6 @@ class CTFNotificationPanel : public CTFMenuPanelBase
 
 public:
 	CTFNotificationPanel(vgui::Panel* parent, const char *panelName);
-	virtual bool Init();
 	virtual ~CTFNotificationPanel();
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
