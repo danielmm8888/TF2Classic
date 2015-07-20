@@ -5184,7 +5184,7 @@ void CTFPlayer::DeathSound( const CTakeDamageInfo &info )
 
 		PlayCritReceivedSound();
 	}
-	else if ( m_LastDamageType & DMG_CLUB )
+	else if ( m_LastDamageType & (DMG_CLUB | DMG_SLASH) )
 	{
 		EmitSound( pData->m_szMeleeDeathSound );
 	}
