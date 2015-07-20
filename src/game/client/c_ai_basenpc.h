@@ -50,6 +50,8 @@ public:
 
 	int						GetNumHealers( void ) { return m_nNumHealers; }
 	int						GetMaxBuffedHealth( void );
+
+	virtual	Vector			GetObserverCamOrigin( void );
 #endif
 
 private:

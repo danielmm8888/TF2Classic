@@ -224,8 +224,22 @@ void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 
 		if ( printFormatString )
 		{
-			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString), 2, wszPrepend, wszNPCName );
+			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString), 3, wszPrepend, wszNPCName );
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Vector C_AI_BaseNPC::GetObserverCamOrigin( void )
+{
+	if ( !IsAlive() )
+	{
+		if ( m_pRagdoll )
+			return m_pRagdoll->GetRagdollOrigin();
+	}
+
+	return BaseClass::GetObserverCamOrigin();
 }
 #endif
