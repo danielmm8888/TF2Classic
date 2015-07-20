@@ -2777,7 +2777,7 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 			{
 				if (pTarget == (CBaseEntity *)m_Relationship[i].entity) 
 				{
-					return FindEntityRelationship( pTarget )->disposition;
+					return m_Relationship[i].disposition;
 				}
 			}
 
@@ -2788,7 +2788,7 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 				{
 					if (pTarget->Classify() == m_Relationship[i].classType) 
 					{
-						return FindEntityRelationship( pTarget )->disposition;
+						return m_Relationship[i].disposition;
 					}
 				}
 			}
@@ -2817,8 +2817,7 @@ int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 		// lower priority so NPCs don't attack dispensers and teleporters over players.
 		if ( pTarget->IsBaseObject() )
 		{
-			CBaseObject *pObject = dynamic_cast<CBaseObject *>(pTarget);
-			Assert( pObject );
+			CBaseObject *pObject = assert_cast<CBaseObject *>(pTarget);
 
 			if ( pObject && pObject->GetType() != OBJ_SENTRYGUN )
 				return -1;
