@@ -3228,7 +3228,7 @@ bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
 {
 	if ( iAmmoIndex > -1 )
 	{
-		CTFPlayer *pTFPlayer = (CTFPlayer*)pPlayer;
+		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 		if ( pTFPlayer )
 		{
@@ -3245,6 +3245,10 @@ bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
 					return true;
 				}
 			}
+		}
+		else
+		{
+			return BaseClass::CanHaveAmmo( pPlayer, iAmmoIndex );
 		}
 	}
 
