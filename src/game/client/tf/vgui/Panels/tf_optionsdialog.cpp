@@ -66,7 +66,6 @@ bool CTFOptionsDialog::Init()
 	AddPanel(new CTFOptionsKeyboardPanel(this, "KeyboardOptions"), PANEL_KEYBOARD);
 	AddPanel(new CTFOptionsAudioPanel(this, "AudioOptions"), PANEL_AUDIO);
 	AddPanel(new CTFOptionsVideoPanel(this, "VideoOptions"), PANEL_VIDEO);
-	m_pOptionsCurrent = PANEL_ADV;
 	return true;
 }
 

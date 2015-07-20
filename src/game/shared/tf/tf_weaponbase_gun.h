@@ -50,7 +50,6 @@ public:
 
 	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer );
 	void				GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates = true );
-	void				GetProjectileReflectSetup( CTFPlayer *pPlayer, Vector vecPos, QAngle *angForward, bool bHitTeammates = true );
 
 	void FireBullet( CTFPlayer *pPlayer );
 	CBaseEntity *FireRocket( CTFPlayer *pPlayer );

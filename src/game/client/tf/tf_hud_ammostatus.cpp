@@ -181,27 +181,24 @@ void CTFHudWeaponAmmo::OnThink()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (!pPlayer)
 		return;
-
+	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 	if (!pWeapon)
 		return;
 
-	if (tf2c_ammobucket.GetBool())
-	{
-		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-		if ( pPlayer )
+	if (tf2c_ammobucket.GetBool()){
+		for (int j = 0; j < INVENTORY_WEAPONS; j++)
 		{
-			if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+			int iWeapon = m_pInventory->GetWeapon(pClass->GetClassIndex(), pWeapon->GetWpnData().iSlot, j);
+			if (pPlayer->Weapon_OwnsThisID(iWeapon))
 			{
-				pTexture = pWeapon->GetSpriteActive();
+				char* cIcon = m_pInventory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
+				char szImage[64];
+				Q_snprintf(szImage, sizeof(szImage), "../%s", cIcon);
+				if (szImage)
+					m_pWeaponBucket->SetImage(szImage);
+				break;
 			}
-		}
-
-		if ( pTexture )
-		{
-			char szImage[64];
-			Q_snprintf(szImage, sizeof(szImage), "../%s", pTexture->szTextureFile);
-			m_pWeaponBucket->SetImage( szImage );
 		}
 	}
 
