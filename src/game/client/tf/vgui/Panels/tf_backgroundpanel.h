@@ -24,7 +24,6 @@ public:
 	MESSAGE_FUNC(VideoReplay, "IntroFinished");
 
 private:
-	CTFImagePanel		*m_pBackground;
 	CTFVideoPanel		*m_pVideo;
 	char				m_pzVideoLink[64];
 	char*				GetRandomVideo(bool bWidescreen);

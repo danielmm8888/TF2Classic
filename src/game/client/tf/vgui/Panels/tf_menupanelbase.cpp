@@ -36,6 +36,8 @@ bool CTFMenuPanelBase::Init()
 	GetParent()->GetBounds(x, y, width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
+	bInGame = false;
+	bInMenu = false;
 	bInGameLayout = false;
 	return true;
 }
@@ -82,6 +84,7 @@ void CTFMenuPanelBase::DefaultLayout()
 		(bInMenu ? Show() : Hide());
 	//SetVisible(bInMenu);
 };
+
 
 void CTFMenuPanelBase::GameLayout()
 {
