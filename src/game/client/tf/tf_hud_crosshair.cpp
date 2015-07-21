@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -34,7 +34,7 @@ using namespace vgui;
 DECLARE_HUDELEMENT(CHudTFCrosshair);
 
 CHudTFCrosshair::CHudTFCrosshair(const char *pElementName) :
-	CHudCrosshair("HudTFCrosshair")
+	CHudCrosshair("CHudCrosshair")
 {
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent(pParent);
