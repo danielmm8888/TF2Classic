@@ -204,8 +204,7 @@
 		"ArmedText"			"MainMenuTextArmed"
 		"DepressedText"		"MainMenuTextDepressed"		
 		"font"				"HudFontSmallBold"
-	}				
-	
+	}			
 	
 	"ShadedBar"
 	{
@@ -228,34 +227,11 @@
 		"fillcolor"			"0 0 0 180"
 		"PaintBackgroundType"	"0"
 	}		
-		
+	
 	"ConsoleButton"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"ConsoleButton"
-		"xpos"				"c-219.9"
-		"ypos"				"r21"
-		"zpos"				"5"
-		"wide"				"20"
-		"tall"				"20"
-		"visible"			"1"
-		"enabled"			"1"
-		"bgvisible"			"1"
-		"bordervisible"		"0"
-		"labelText" 		""
-		"DefaultButtonImage" "../vgui/glyph_alert"
-		"DefaultBG"			"AdvLeftButtonDefault"
-		"ArmedBG" 			"AdvLeftButtonArmed"
-		"DepressedBG"		"AdvLeftButtonDepressed"	
-		"DefaultText"		"Button.ArmedTextColor"
-		"command"			"toggleconsole"
-		"font"				"MenuSmallFont"		
-	}	
-	
-	"ConsoleButton1"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"ConsoleButton1"
 		"xpos"				"c-200"
 		"ypos"				"r21"
 		"zpos"				"6"
@@ -266,41 +242,19 @@
 		"bgvisible"			"1"
 		"bordervisible"		"0"
 		"labelText" 		"C"
-		"DefaultBG"			"AdvSquareButtonDefault"
-		"ArmedBG" 			"AdvSquareButtonArmed"
-		"DepressedBG"		"AdvSquareButtonDepressed"	
+		"DefaultBG"			"AdvRoundedButtonDefault"
+		"ArmedBG"			"AdvRoundedButtonArmed"
+		"DepressedBG"		"AdvRoundedButtonDepressed"	
 		"textAlignment"		"center"
 		"command"			"toggleconsole"
 		"font"				"MenuSmallFont"
 	}	
-	
-	"MusicButton"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"MusicButton"
-		"xpos"				"c-99.8"
-		"ypos"				"r21"
-		"zpos"				"5"
-		"wide"				"20"
-		"tall"				"20"
-		"visible"			"1"
-		"enabled"			"1"
-		"bgvisible"			"1"
-		"bordervisible"		"0"
-		"labelText" 		">"
-		"DefaultBG"			"AdvLeftButtonDefault"
-		"ArmedBG" 			"AdvLeftButtonArmed"
-		"DepressedBG"		"AdvLeftButtonDepressed"	
-		"textAlignment"		"center"
-		"command"			"randommusic"
-		"font"				"MenuSmallFont"
-	}	
 
-	"MusicPauseButton"
+	"MusicToggleCheck"
 	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"MusicPauseButton"
-		"xpos"				"c-80"
+		"ControlName"		"CTFAdvCheckButton"
+		"fieldName"			"MusicToggleCheck"
+		"xpos"				"c-99.8"
 		"ypos"				"r21"
 		"zpos"				"6"
 		"wide"				"20"
@@ -309,7 +263,34 @@
 		"enabled"			"1"
 		"bgvisible"			"1"
 		"bordervisible"		"0"
-		"labelText" 		"II"
+		"labelText" 		"M"
+		"DefaultBG"			"AdvLeftButtonDefault"
+		"ArmedBG" 			"AdvLeftButtonArmed"
+		"DepressedBG"		"AdvLeftButtonDepressed"	
+		"DefaultCheckImage" "../vgui/glyph_close_x"
+		"ArmedCheckImage" 	"../vgui/glyph_close_x"
+		"DepressedCheckImage" "../vgui/glyph_close_x"
+		"textAlignment"		"center"
+		"command"			"tf2c_mainmenu_music"
+		"valuefalse"		"1"
+		"valuetrue"		"0"
+		"font"				"MenuSmallFont"
+	}	
+	
+	"RandomMusicButton"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"			"RandomMusicButton"
+		"xpos"				"c-80"
+		"ypos"				"r21"
+		"zpos"				"5"
+		"wide"				"20"
+		"tall"				"20"
+		"visible"			"1"
+		"enabled"			"1"
+		"bgvisible"			"1"
+		"bordervisible"		"0"
+		"labelText" 		"R"
 		"DefaultBG"			"AdvRightButtonDefault"
 		"ArmedBG" 			"AdvRightButtonArmed"
 		"DepressedBG"		"AdvRightButtonDepressed"	
@@ -356,9 +337,9 @@
 		"DefaultButtonImage" 	"../vgui/glyph_alert"
 		"ArmedButtonImage" 		"../vgui/glyph_alert"
 		"DepressedButtonImage" 	"../vgui/glyph_alert"
-		"DefaultText"		"MainMenuTextDefault"
-		"ArmedText"			"MainMenuTextArmed"
-		"DepressedText"		"MainMenuTextDepressed"		
+		"DefaultBG"			"AdvRoundedButtonDefault"
+		"ArmedBG"			"AdvRoundedButtonArmed"
+		"DepressedBG"		"AdvRoundedButtonDepressed"		
 		"font"				"HudFontSmallBold"
 	}			
 	

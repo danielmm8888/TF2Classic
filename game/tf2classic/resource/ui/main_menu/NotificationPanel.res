@@ -27,7 +27,7 @@
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		""
-		"bgvisible"			"1"
+		"bgvisible"			"0"
 		"bordervisible"		"0"		
 		"DefaultButtonImage" 	"../vgui/backpack_delete_x"
 		"ArmedButtonImage" 		"../vgui/backpack_delete_x"
@@ -74,6 +74,7 @@
 		"enabled"			"1"
 		"labelText"			"blah-blah"
 		"textAlignment"		"north-west"
+		"wrap"				"1"
 		"font"				"ScoreboardMediumSmall"
 		"fgcolor"			"MainMenuTextDefault"
 	}		

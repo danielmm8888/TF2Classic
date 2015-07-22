@@ -100,7 +100,7 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "testnotification"))
 	{
-		MainMenuNotification Notification("Yoyo", "TestingShit");
+		MainMenuNotification Notification("Yoyo", "Testing");
 		MAINMENU_ROOT->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
@@ -145,17 +145,17 @@ void CTFMainMenuPanel::CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResul
 		uint8* iBodybuffer = new uint8();
 		m_SteamHTTP->GetHTTPResponseBodyData(m_httpRequest, iBodybuffer, iBodysize);
 
-		char result[64];
+		char result[128];
 		Q_strncpy(result, (char*)iBodybuffer, iBodysize + 1);
 
-		char resultString[64];
+		char resultString[128];
 		if (Q_strcmp(GetVersionString(), result) < 0)
 		{
 			bOutdated = true;
 			m_pVersionLabel->SetFgColor(Color(255, 20, 50, 100));
 			
-			Q_snprintf(resultString, sizeof(resultString), "Update your shit NOW!\nBTW, it's version: %s!", result);
-			MainMenuNotification Notification("YOU CUNT", resultString);
+			Q_snprintf(resultString, sizeof(resultString), "Your game is out of date.\nThe newest version of TF2C is %s.\nDownload the update at\nwww.tf2classic.com", result);
+			MainMenuNotification Notification("Update!", resultString);
 			MAINMENU_ROOT->SendNotification(Notification);
 		}
 		else

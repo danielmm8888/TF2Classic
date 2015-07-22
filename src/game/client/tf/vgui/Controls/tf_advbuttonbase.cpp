@@ -89,6 +89,7 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 
 	m_bBGVisible = inResourceData->GetBool("bgvisible", true);	
 	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
+	m_bAutoChange = true;
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
