@@ -86,6 +86,8 @@ void CTFOptionsKeyboardPanel::ApplySchemeSettings(IScheme *pScheme)
 	// Parse default descriptions
 	if (!bParsed)
 		ParseActionDescriptions();
+
+	m_pKeyBindList->InvalidateLayout(false, true);
 }
 
 //-----------------------------------------------------------------------------
@@ -132,7 +134,6 @@ void CTFOptionsKeyboardPanel::CreateKeyBindingList()
 {
 	// Create the control
 	m_pKeyBindList = new vcontrolslistpanel(this, "listpanel_keybindlist");
-	m_pKeyBindList->SetBounds(0, 0, 1000, 1000);
 }
 
 //-----------------------------------------------------------------------------

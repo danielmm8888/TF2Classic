@@ -259,15 +259,15 @@ void CPanelListPanel::PerformLayout()
 	_vbar->SetRange(0, vpixels - tall + 24);
 	_vbar->SetRangeWindow(24 /*vpixels / 10*/);
 	_vbar->SetButtonPressedScrollValue(24);
-	_vbar->SetPos(wide - 20, _sliderYOffset);
-	_vbar->SetSize(18, tall - 2 - _sliderYOffset);
+	_vbar->SetPos(wide - 36, _sliderYOffset);
+	_vbar->SetSize(36, tall - 2 - _sliderYOffset);
 	//_vbar->UseImages(UPARROW_IMAGE, DOWNARROW_IMAGE, LINE_IMAGE, BOX_IMAGE);
 	_vbar->InvalidateLayout();
 
 	int top = _vbar->GetValue();
 
 	_embedded->SetPos(0, -top);
-	_embedded->SetSize(wide - 20, vpixels);
+	_embedded->SetSize(wide - 38, vpixels);
 
 	// Now lay out the controls on the embedded panel
 	int y = 0;
@@ -279,7 +279,7 @@ void CPanelListPanel::PerformLayout()
 			continue;
 
 		h = item->panel->GetTall(); //28
-		item->panel->SetBounds(8, y, wide - 36, h);
+		item->panel->SetBounds(8, y, wide - 46, h);
 	}
 }
 

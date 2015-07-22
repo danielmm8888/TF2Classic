@@ -40,6 +40,7 @@
 		"fieldName"		"listpanel_keybindlist"
 		"xpos"			"20"
 		"ypos"			"50"
+		"zpos"			"1"
 		"wide"			"360"
 		"tall"			"310"
 		"autoResize"	"0"
