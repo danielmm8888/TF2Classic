@@ -16,6 +16,25 @@
 		"border"		"TFFatLineBorderOpaque"
 	}
 	
+	"TitleLabel"
+	{
+		"ControlName"		"CExLabel"
+		"fieldName"			"TitleLabel"
+		"xpos"				"10"
+		"ypos"				"10"
+		"zpos"				"-1"
+		"wide"				"600"
+		"tall"				"25"
+		"autoResize"		"0"
+		"pinCorner"			"0"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText"			"Exit Game"
+		"textAlignment"		"west"
+		"font"				"HudFontBiggerBold"
+		"fgcolor"			"AdvTextDefault"
+	}	
+	
 	"Logo"
 	{
 		"ControlName"	"CTFImagePanel"
@@ -47,15 +66,15 @@
 		"labelText"			"Are you sure?"
 		"textAlignment"		"center"
 		"font"				"ScoreboardTeamNameLarge"
-		"fgcolor"			"White"
+		"fgcolor"			"AdvTextDefault"
 	}	
 	
 	"ConfirmButton"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"ConfirmButton"
-		"xpos"				"290"
-		"ypos"				"180"
+		"xpos"				"285"
+		"ypos"				"175"
 		"zpos"				"6"
 		"wide"				"50"
 		"tall"				"20"
@@ -72,8 +91,8 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"CancelButton"
-		"xpos"				"340"
-		"ypos"				"180"
+		"xpos"				"335"
+		"ypos"				"175"
 		"zpos"				"6"
 		"wide"				"60"
 		"tall"				"20"
