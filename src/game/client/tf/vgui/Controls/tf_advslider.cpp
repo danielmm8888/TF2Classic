@@ -75,10 +75,10 @@ void CTFAdvSlider::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pButton->SetDefaultColor(pScheme->GetColor(DEFAULT_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetArmedColor(pScheme->GetColor(ARMED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetDepressedColor(pScheme->GetColor(DEPRESSED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetSelectedColor(pScheme->GetColor(DEPRESSED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDefaultColor(pScheme->GetColor(DEFAULT_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetArmedColor(pScheme->GetColor(ARMED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDepressedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetSelectedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 	pButton->SetFont(pScheme->GetFont(m_szFont, true));
 	if (m_bBorderVisible)
 	{
@@ -94,9 +94,9 @@ void CTFAdvSlider::ApplySchemeSettings(vgui::IScheme *pScheme)
 		pButton->SetDepressedBorder(pScheme->GetBorder(EMPTY_STRING));
 		pButton->SetSelectedBorder(pScheme->GetBorder(EMPTY_STRING));
 	}
-	pTitleLabel->SetFgColor(pScheme->GetColor(pDefaultText, Color(255, 255, 255, 255)));
+	pTitleLabel->SetFgColor(pScheme->GetColor(pDefaultColor, Color(255, 255, 255, 255)));
 	pTitleLabel->SetFont(pScheme->GetFont(m_szFont, true));
-	pValueLabel->SetFgColor(pScheme->GetColor(pDefaultText, Color(255, 255, 255, 255)));
+	pValueLabel->SetFgColor(pScheme->GetColor(pDefaultColor, Color(255, 255, 255, 255)));
 	pValueLabel->SetFont(pScheme->GetFont(m_szFont, true));
 }
 

@@ -13,8 +13,6 @@ using namespace vgui;
 class CTFButton;
 
 #define DEFAULT_IMAGE		""
-#define ARMED_IMAGE			""
-#define DEPRESSED_IMAGE		""
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -43,17 +41,19 @@ public:
 
 protected:
 	CTFButton		*pButton;
-	CTFImagePanel	*pButtonImage;
+	ImagePanel		*pButtonImage;
 	float			m_fXShift;
 	float			m_fYShift;
 	char			pDefaultButtonImage[64];
-	char			pArmedButtonImage[64];
-	char			pDepressedButtonImage[64];
+	char			pImageColorDefault[64];
+	char			pImageColorArmed[64];
+	char			pImageColorDepressed[64];
 	bool			bGlowing;
+	float			m_fWidth;
 
-	float				m_flActionThink;
-	float				m_flAnimationThink;
-	bool				m_bAnimationIn;
+	float			m_flActionThink;
+	float			m_flAnimationThink;
+	bool			m_bAnimationIn;
 };
 
 

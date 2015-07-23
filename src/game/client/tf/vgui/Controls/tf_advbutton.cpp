@@ -25,7 +25,7 @@ CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const cha
 {
 	pButton = new CTFButton(this, "ButtonNew", text);
 	pButton->SetParent(this);
-	pButtonImage = new CTFImagePanel(this, "ButtonImageNew");
+	pButtonImage = new ImagePanel(this, "ButtonImageNew");
 	pButtonImage->SetParent(this);
 	Init();
 }
@@ -47,13 +47,15 @@ void CTFAdvButton::Init()
 {
 	BaseClass::Init();
 	Q_strncpy(pDefaultButtonImage, DEFAULT_IMAGE, sizeof(pDefaultButtonImage));
-	Q_strncpy(pArmedButtonImage, ARMED_IMAGE, sizeof(pArmedButtonImage));
-	Q_strncpy(pDepressedButtonImage, DEPRESSED_IMAGE, sizeof(pDepressedButtonImage));
+	Q_strncpy(pImageColorDefault, DEFAULT_COLOR, sizeof(pImageColorDefault));
+	Q_strncpy(pImageColorArmed, ARMED_COLOR, sizeof(pImageColorArmed));
+	Q_strncpy(pImageColorDepressed, DEPRESSED_COLOR, sizeof(pImageColorDepressed));
 	m_bBGVisible = true;
 	m_bBorderVisible = false;
 	bGlowing = false;
 	m_fXShift = 0.0;
 	m_fYShift = 0.0;
+	m_fWidth = 0.0;
 	m_flActionThink = -1;
 	m_flAnimationThink = -1;
 	m_bAnimationIn = true;
@@ -63,11 +65,15 @@ void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaultButtonImage, inResourceData->GetString("DefaultButtonImage", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
-	Q_strncpy(pArmedButtonImage, inResourceData->GetString("ArmedButtonImage", ARMED_IMAGE), sizeof(pArmedButtonImage));
-	Q_strncpy(pDepressedButtonImage, inResourceData->GetString("DepressedButtonImage", DEPRESSED_IMAGE), sizeof(pDepressedButtonImage));
+	Q_strncpy(pDefaultButtonImage, inResourceData->GetString("ButtonImage", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
 	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
 	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
+	m_fWidth = inResourceData->GetFloat("imagewidth", 0.0);
+
+	Q_strncpy(pImageColorDefault, inResourceData->GetString("DefaultImageColor", DEFAULT_COLOR), sizeof(pImageColorDefault));
+	Q_strncpy(pImageColorArmed, inResourceData->GetString("ArmedImageColor", ARMED_COLOR), sizeof(pImageColorArmed));
+	Q_strncpy(pImageColorDepressed, inResourceData->GetString("DepressedImageColor", DEPRESSED_COLOR), sizeof(pImageColorDepressed));
+
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
@@ -79,10 +85,12 @@ void CTFAdvButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pButton->SetDefaultColor(pScheme->GetColor(pDefaultText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetArmedColor(pScheme->GetColor(pArmedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetDepressedColor(pScheme->GetColor(pDepressedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetSelectedColor(pScheme->GetColor(pArmedText, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDefaultColor(pScheme->GetColor(pDefaultColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetArmedColor(pScheme->GetColor(pArmedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDepressedColor(pScheme->GetColor(pDepressedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetSelectedColor(pScheme->GetColor(pArmedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+
+	pButtonImage->SetDrawColor(pScheme->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 	if (m_bBorderVisible)
 	{
 		pButton->SetDefaultBorder(pScheme->GetBorder(pDefaultBorder));
@@ -113,7 +121,6 @@ void CTFAdvButton::PerformLayout()
 	pButton->SetVisible(IsVisible());
 	pButton->SetEnabled(IsEnabled());
 	pButton->SetSelected(IsSelected());
-	pButton->SetPos(0, 0);
 	pButton->SetZPos(3);
 	pButton->SetWide(GetWide());
 	pButton->SetTall(GetTall());
@@ -122,14 +129,24 @@ void CTFAdvButton::PerformLayout()
 	pButton->SetDepressedSound("ui/buttonclick.wav");
 	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
 
-	int iShift = 2;
+	int x, y, x0, y0;
+	surface()->GetProportionalBase(x, y);
+	surface()->GetScreenSize(x0, y0);
+	float h = (float)y0 / (float)y;
+	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
+	int iShift = (GetTall() - fWidth) / 2.0;
+	
+	float fXOrigin = (m_fWidth == 0.0 ? 0 : iShift * 2 + fWidth);
+	pButton->SetTextInset(fXOrigin, 0);
+
 	pButtonImage->SetImage(pDefaultButtonImage);
+	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 	pButtonImage->SetVisible(IsVisible());
 	pButtonImage->SetEnabled(IsEnabled());
 	pButtonImage->SetPos(iShift, iShift);
 	pButtonImage->SetZPos(2);
-	pButtonImage->SetWide(GetTall() - iShift * 2);
-	pButtonImage->SetTall(GetTall() - iShift * 2);
+	pButtonImage->SetWide(fWidth);
+	pButtonImage->SetTall(fWidth);	
 	pButtonImage->SetShouldScaleImage(true);
 }
 
@@ -190,18 +207,18 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pButtonImage->SetImage(pDefaultButtonImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 		break;
 	case MOUSE_ENTERED:
-		pButtonImage->SetImage(pArmedButtonImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
 		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_EXITED:
-		pButtonImage->SetImage(pDefaultButtonImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_PRESSED:
-		pButtonImage->SetImage(pDepressedButtonImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
 		break;
 	default:
 		break;

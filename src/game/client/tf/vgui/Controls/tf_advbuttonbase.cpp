@@ -51,9 +51,9 @@ void CTFAdvButtonBase::Init()
 	Q_strncpy(pDefaultBorder, DEFAULT_BORDER, sizeof(pDefaultBorder));
 	Q_strncpy(pArmedBorder, ARMED_BORDER, sizeof(pArmedBorder));
 	Q_strncpy(pDepressedBorder, DEPRESSED_BORDER, sizeof(pDepressedBorder));
-	Q_strncpy(pDefaultText, DEFAULT_TEXT, sizeof(pDefaultText));
-	Q_strncpy(pArmedText, ARMED_TEXT, sizeof(pArmedText));
-	Q_strncpy(pDepressedText, DEPRESSED_TEXT, sizeof(pDepressedText));
+	Q_strncpy(pDefaultColor, DEFAULT_COLOR, sizeof(pDefaultColor));
+	Q_strncpy(pArmedColor, ARMED_COLOR, sizeof(pArmedColor));
+	Q_strncpy(pDepressedColor, DEPRESSED_COLOR, sizeof(pDepressedColor));
 	Q_strncpy(m_szFont, DEFAULT_FONT, sizeof(m_szFont));
 	Q_strncpy(m_szCommand, EMPTY_STRING, sizeof(m_szCommand));
 	Q_strncpy(m_szTextAlignment, "west", sizeof(m_szCommand));
@@ -79,9 +79,9 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ARMED_BORDER), sizeof(pArmedBorder));
 	Q_strncpy(pDepressedBorder, inResourceData->GetString("DepressedBorder", DEPRESSED_BORDER), sizeof(pDepressedBorder));
 
-	Q_strncpy(pDefaultText, inResourceData->GetString("DefaultText", DEFAULT_TEXT), sizeof(pDefaultText));
-	Q_strncpy(pArmedText, inResourceData->GetString("ArmedText", ARMED_TEXT), sizeof(pArmedText));
-	Q_strncpy(pDepressedText, inResourceData->GetString("DepressedText", DEPRESSED_TEXT), sizeof(pDepressedText));
+	Q_strncpy(pDefaultColor, inResourceData->GetString("DefaultTextColor", DEFAULT_COLOR), sizeof(pDefaultColor));
+	Q_strncpy(pArmedColor, inResourceData->GetString("ArmedTextColor", ARMED_COLOR), sizeof(pArmedColor));
+	Q_strncpy(pDepressedColor, inResourceData->GetString("DepressedTextColor", DEPRESSED_COLOR), sizeof(pDepressedColor));
 
 	Q_strncpy(m_szCommand, inResourceData->GetString("command", EMPTY_STRING), sizeof(m_szCommand));
 	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		

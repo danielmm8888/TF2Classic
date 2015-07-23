@@ -51,6 +51,7 @@ public:
 	virtual void OnTick();
 	virtual void ShowPanel(MenuPanel iPanel);
 	virtual void HidePanel(MenuPanel iPanel);
+	virtual void InvalidatePanelsLayout(bool layoutNow = false, bool reloadScheme = false);
 	virtual void DefaultLayout();
 	virtual void GameLayout();
 	virtual bool InGame();

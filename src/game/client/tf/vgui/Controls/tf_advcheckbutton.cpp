@@ -84,10 +84,10 @@ void CTFAdvCheckButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pButton->SetDefaultColor(pScheme->GetColor(DEFAULT_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetArmedColor(pScheme->GetColor(ARMED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetDepressedColor(pScheme->GetColor(DEPRESSED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetSelectedColor(pScheme->GetColor(DEPRESSED_TEXT, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDefaultColor(pScheme->GetColor(DEFAULT_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetArmedColor(pScheme->GetColor(ARMED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetDepressedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	pButton->SetSelectedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
 	//pButton->SetFont(pScheme->GetFont(m_szFont));
 	if (m_bBorderVisible)
 	{
@@ -275,7 +275,7 @@ void CTFCheckButton::OnMousePressed(vgui::MouseCode code)
 void CTFCheckButton::OnMouseReleased(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMouseReleased(code);
-	
+
 	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED) && !m_pParent->IsDisabled() && m_pParent->IsEnabled())
 	{
 		m_pParent->m_bState = !m_pParent->m_bState;

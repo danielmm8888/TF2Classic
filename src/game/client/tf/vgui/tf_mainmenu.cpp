@@ -180,6 +180,23 @@ void CTFMainMenu::OnCommand(const char* command)
 	engine->ExecuteClientCmd(command);
 }
 
+void InvalidatePanelsLayout(const CCommand &args)
+{
+	MAINMENU_ROOT->InvalidatePanelsLayout(true, true);
+}
+ConCommand tf2c_mainmenu_reload("tf2c_mainmenu_reload", InvalidatePanelsLayout);
+
+void CTFMainMenu::InvalidatePanelsLayout(bool layoutNow, bool reloadScheme)
+{	
+	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
+	{
+		if (GetMenuPanel(i) && GetMenuPanel(i)->IsVisible())
+		{
+			GetMenuPanel(i)->InvalidateLayout(layoutNow, reloadScheme);
+		}
+	}	
+}
+
 void CTFMainMenu::OnTick()
 {
 	BaseClass::OnTick();

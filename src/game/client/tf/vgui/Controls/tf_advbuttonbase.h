@@ -28,9 +28,9 @@ enum MouseState
 #define DEFAULT_BORDER		"AdvRoundedButtonDefault"
 #define ARMED_BORDER		"AdvRoundedButtonArmed"
 #define DEPRESSED_BORDER	"AdvRoundedButtonDepressed"
-#define DEFAULT_TEXT		"AdvTextDefault"
-#define ARMED_TEXT			"AdvTextArmed"
-#define DEPRESSED_TEXT		"AdvTextDepressed"
+#define DEFAULT_COLOR		"AdvTextDefault"
+#define ARMED_COLOR			"AdvTextArmed"
+#define DEPRESSED_COLOR		"AdvTextDepressed"
 #define DEFAULT_FONT		"MenuSmallFont"
 #define EMPTY_STRING		""
 #define GETSCHEME()			scheme()->GetIScheme(GetScheme())
@@ -77,9 +77,9 @@ protected:
 	char			pDefaultBorder[64];
 	char			pArmedBorder[64];
 	char			pDepressedBorder[64];
-	char			pDefaultText[64];
-	char			pArmedText[64];
-	char			pDepressedText[64];
+	char			pDefaultColor[64];
+	char			pArmedColor[64];
+	char			pDepressedColor[64];
 	char			m_szCommand[64];
 	char			m_szText[64];
 	char			m_szFont[64];
