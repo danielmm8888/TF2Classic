@@ -15,7 +15,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFBackgroundPanel::CTFBackgroundPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -26,6 +26,14 @@ CTFBackgroundPanel::~CTFBackgroundPanel()
 
 }
 
+bool CTFBackgroundPanel::Init()
+{
+	BaseClass::Init();
+
+	bInMenu = true;
+	bInGame = false;
+	return true;
+}
 
 void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
@@ -45,13 +53,13 @@ void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
 	int iWide = (float)height * iRatio + 2;
 	m_pVideo->SetBounds(-1, -1, iWide, iWide);
-
-	DefaultLayout();
 }
 
 void CTFBackgroundPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	AutoLayout();
+	VideoReplay();
 };
 
 
@@ -83,8 +91,6 @@ void CTFBackgroundPanel::OnThink()
 void CTFBackgroundPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
-
-	VideoReplay();
 	if (m_pVideo)
 	{
 		m_pVideo->SetVisible(true);

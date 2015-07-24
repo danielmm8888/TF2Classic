@@ -79,11 +79,11 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"MuteButton"
-		"xpos"				"162"
-		"ypos"				"235"
+		"xpos"				"163"
+		"ypos"				"237"
 		"zpos"				"6"
-		"wide"				"28"
-		"tall"				"28"
+		"wide"				"24"
+		"tall"				"24"
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		""
@@ -213,7 +213,31 @@
 		"ArmedTextColor"			"MainMenuTextArmed"
 		"DepressedTextColor"		"MainMenuTextDepressed"		
 		"font"				"HudFontSmallBold"
-	}					
+	}				
+	
+	"OptionsOldButton"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"			"OptionsOldButton"
+		"xpos"				"163"
+		"ypos"				"357"
+		"zpos"				"6"
+		"wide"				"24"
+		"tall"				"24"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText" 		""
+		"bgvisible"			"1"
+		"bordervisible"		"0"		
+		"textAlignment"		"west"
+		"command"			"gamemenucommand openoptionsdialog"
+		"imagewidth"		"16"
+		"ButtonImage" 		"../vgui/glyph_steamworkshop"
+		"DefaultImageColor"		"MainMenuTextDefault"
+		"ArmedImageColor"		"MainMenuTextArmed"
+		"DepressedImageColor"	"MainMenuTextDepressed"	
+		"font"				"HudFontSmallBold"
+	}				
 	
 	
 	"ShadedBar"
@@ -236,29 +260,28 @@
 		"tabPosition"		"0"	
 		"fillcolor"			"0 0 0 180"
 		"PaintBackgroundType"	"0"
-	}		
-		
+	}	
+	
 	"ConsoleButton"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"ConsoleButton"
-		"xpos"				"c-219.9"
+		"xpos"				"c-200"
 		"ypos"				"r21"
-		"zpos"				"5"
+		"zpos"				"6"
 		"wide"				"20"
 		"tall"				"20"
 		"visible"			"1"
 		"enabled"			"1"
 		"bgvisible"			"1"
 		"bordervisible"		"0"
-		"labelText" 		""
-		"DefaultButtonImage" "../vgui/glyph_alert"
-		"DefaultBG"			"AdvLeftButtonDefault"
-		"ArmedBG" 			"AdvLeftButtonArmed"
-		"DepressedBG"		"AdvLeftButtonDepressed"	
-		"DefaultTextColor"		"Button.ArmedTextColor"
+		"labelText" 		"C"
+		"DefaultBG"			"AdvRoundedButtonDefault"
+		"ArmedBG"			"AdvRoundedButtonArmed"
+		"DepressedBG"		"AdvRoundedButtonDepressed"	
+		"textAlignment"		"center"
 		"command"			"toggleconsole"
-		"font"				"MenuSmallFont"		
+		"font"				"MenuSmallFont"
 	}	
 
 	"QuitButton"
@@ -278,7 +301,7 @@
 		"textAlignment"		"west"
 		"command"			"newquit"
 		"font"				"MenuSmallFont"
-	}		
+	}			
 	
 	"NotificationButton"
 	{
@@ -296,12 +319,10 @@
 		"bordervisible"		"0"		
 		"textAlignment"		"center"
 		"command"			"shownotification"	
-		"DefaultButtonImage" 	"../vgui/glyph_alert"
-		"ArmedButtonImage" 		"../vgui/glyph_alert"
-		"DepressedButtonImage" 	"../vgui/glyph_alert"
-		"DefaultTextColor"		"MainMenuTextDefault"
-		"ArmedTextColor"			"MainMenuTextArmed"
-		"DepressedTextColor"		"MainMenuTextDepressed"		
+		"ButtonImage" 		"../vgui/glyph_alert"
+		"DefaultBG"			"AdvRoundedButtonDefault"
+		"ArmedBG"			"AdvRoundedButtonArmed"
+		"DepressedBG"		"AdvRoundedButtonDepressed"		
 		"font"				"HudFontSmallBold"
 	}				
 }

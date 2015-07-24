@@ -22,6 +22,7 @@ enum MenuPanel //position in this enum = zpos on the screen
 
 #define CURRENT_MENU (!InGame() ? MAIN_MENU : PAUSE_MENU)
 #define MAINMENU_ROOT guiroot
+#define AutoLayout() (!InGame() ? DefaultLayout() : GameLayout())
 
 struct MainMenuNotification
 {

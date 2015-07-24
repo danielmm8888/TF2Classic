@@ -173,6 +173,7 @@ void CTFMainMenu::ApplySchemeSettings(vgui::IScheme *pScheme)
 void CTFMainMenu::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	AutoLayout();
 };
 
 void CTFMainMenu::OnCommand(const char* command)

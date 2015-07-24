@@ -27,12 +27,12 @@ void CTFShadeBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 	LoadControlSettings("resource/UI/main_menu/ShadeBackgroundPanel.res");
+	Show();
 }
 
 void CTFShadeBackgroundPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
-	Show();
 };
 
 

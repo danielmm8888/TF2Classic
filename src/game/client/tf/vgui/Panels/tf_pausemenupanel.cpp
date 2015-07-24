@@ -47,7 +47,6 @@ void CTFPauseMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 void CTFPauseMenuPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
-	DefaultLayout();
 };
 
 

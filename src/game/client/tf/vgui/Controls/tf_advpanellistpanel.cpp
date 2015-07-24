@@ -253,21 +253,27 @@ void CPanelListPanel::PerformLayout()
 
 	int vpixels = computeVPixelsNeeded();
 
+	int w0, h0;
+	int w1, h1;
+	surface()->GetProportionalBase(w1, h1);
+	surface()->GetScreenSize(w0, h0);
+	int width = 16 * ((float)w0 / (float)w1); //36
+
 	//!! need to make it recalculate scroll positions
 	_vbar->SetVisible(true);
 	_vbar->SetEnabled(false);
 	_vbar->SetRange(0, vpixels - tall + 24);
 	_vbar->SetRangeWindow(24 /*vpixels / 10*/);
 	_vbar->SetButtonPressedScrollValue(24);
-	_vbar->SetPos(wide - 36, _sliderYOffset);
-	_vbar->SetSize(36, tall - 2 - _sliderYOffset);
+	_vbar->SetPos(wide - width, _sliderYOffset);
+	_vbar->SetSize(width, tall - 2 - _sliderYOffset);
 	//_vbar->UseImages(UPARROW_IMAGE, DOWNARROW_IMAGE, LINE_IMAGE, BOX_IMAGE);
 	_vbar->InvalidateLayout();
 
 	int top = _vbar->GetValue();
 
 	_embedded->SetPos(0, -top);
-	_embedded->SetSize(wide - 38, vpixels);
+	_embedded->SetSize(wide - width - 2, vpixels);
 
 	// Now lay out the controls on the embedded panel
 	int y = 0;
@@ -279,7 +285,7 @@ void CPanelListPanel::PerformLayout()
 			continue;
 
 		h = item->panel->GetTall(); //28
-		item->panel->SetBounds(8, y, wide - 46, h);
+		item->panel->SetBounds(8, y, wide - width - 10, h);
 	}
 }
 

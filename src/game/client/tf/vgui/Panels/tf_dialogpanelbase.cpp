@@ -46,6 +46,7 @@ bool CTFDialogPanelBase::Init()
 void CTFDialogPanelBase::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+
 }
 
 void CTFDialogPanelBase::PerformLayout()
@@ -85,8 +86,6 @@ void CTFDialogPanelBase::Show()
 {
 	BaseClass::Show();
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	if (!MAINMENU_ROOT)
-		return;
 	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
 };
 
@@ -94,8 +93,6 @@ void CTFDialogPanelBase::Hide()
 {
 	BaseClass::Hide();
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
-	if (!MAINMENU_ROOT)
-		return;
 	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
 

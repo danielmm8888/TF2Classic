@@ -14,6 +14,7 @@ class CTFBackgroundPanel : public CTFMenuPanelBase
 public:
 	CTFBackgroundPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFBackgroundPanel();
+	bool Init();
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void OnThink();

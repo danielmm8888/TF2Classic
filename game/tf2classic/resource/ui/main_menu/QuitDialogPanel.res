@@ -12,7 +12,6 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"alpha"			"0"
 		"border"		"TFFatLineBorderOpaque"
 	}
 	
@@ -20,9 +19,9 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"			"TitleLabel"
-		"xpos"				"10"
+		"xpos"				"20"
 		"ypos"				"10"
-		"zpos"				"-1"
+		"zpos"				"5"
 		"wide"				"600"
 		"tall"				"25"
 		"autoResize"		"0"
@@ -33,6 +32,25 @@
 		"textAlignment"		"west"
 		"font"				"HudFontBiggerBold"
 		"fgcolor"			"AdvTextDefault"
+	}	
+	
+	"TitleLabelShadow"
+	{
+		"ControlName"		"CExLabel"
+		"fieldName"			"TitleLabelShadow"
+		"xpos"				"22"
+		"ypos"				"10"
+		"zpos"				"4"
+		"wide"				"600"
+		"tall"				"25"
+		"autoResize"		"0"
+		"pinCorner"			"0"
+		"visible"			"1"
+		"enabled"			"1"
+		"labelText"			"Exit Game"
+		"textAlignment"		"west"
+		"font"				"HudFontBiggerBold"
+		"fgcolor"			"Black"
 	}	
 	
 	"Logo"
@@ -81,7 +99,7 @@
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		"QUIT"
-		"textAlignment"		"center"
+		"textAlignment"		"west"
 		"bgvisible"			"0"
 		"bordervisible"		"0"
 		"command"			"quitconfirm"		
@@ -99,7 +117,7 @@
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText" 		"Cancel"
-		"textAlignment"		"east"
+		"textAlignment"		"west"
 		"bgvisible"			"0"
 		"bordervisible"		"0"
 		"command"			"vguicancel"		

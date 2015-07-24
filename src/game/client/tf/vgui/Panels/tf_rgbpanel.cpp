@@ -56,13 +56,11 @@ void CTFRGBPanel::OnCommand(const char* command)
 	}
 	if (!Q_strcmp(command, "scrolled"))
 	{
-		//Msg("Got the values: %i %i %i\n", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
 		Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
 		m_pColorBG->SetFillColor(clr);
 		char szCommand[MAX_PATH];
-		Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue());
+		Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", (int)m_pRedScrollBar->GetValue(), (int)m_pGrnScrollBar->GetValue(), (int)m_pBluScrollBar->GetValue());
 		engine->ExecuteClientCmd(szCommand);
-		//GetParent()->OnCommand(szCommand);
 	}
 	else
 	{
