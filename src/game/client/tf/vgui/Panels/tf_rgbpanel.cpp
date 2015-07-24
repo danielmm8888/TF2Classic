@@ -12,7 +12,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFRGBPanel::CTFRGBPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
 {
-	SetProportional(false);	
+	Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -23,7 +23,16 @@ CTFRGBPanel::~CTFRGBPanel()
 
 }
 
+bool CTFRGBPanel::Init()
+{
+	BaseClass::Init();
 
+	m_pRedScrollBar = NULL;
+	m_pGrnScrollBar = NULL;
+	m_pBluScrollBar = NULL;
+
+	return true;
+}
 
 void CTFRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {

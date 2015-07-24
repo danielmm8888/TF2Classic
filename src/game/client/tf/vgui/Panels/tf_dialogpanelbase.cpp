@@ -98,6 +98,9 @@ void CTFDialogPanelBase::Hide()
 
 void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* text)
 {
+	if (!m_pListPanel)
+		return;
+
 	mpcontrol_t	*pCtrl = new mpcontrol_t(m_pListPanel, "mpcontrol_t");
 	switch (iType)
 	{

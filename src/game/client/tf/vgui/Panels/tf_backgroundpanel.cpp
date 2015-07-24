@@ -43,17 +43,19 @@ void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	LoadControlSettings("resource/UI/main_menu/BackgroundPanel.res");
 	m_pVideo = dynamic_cast<CTFVideoPanel *>(FindChildByName("BackgroundVideo"));
 
-	int width, height;
-	surface()->GetScreenSize(width, height);
+	if (m_pVideo)
+	{
+		int width, height;
+		surface()->GetScreenSize(width, height);
 
-	float fRatio = (float)width / (float)height;
-	bool bWidescreen = (fRatio < 1.5 ? false : true);
+		float fRatio = (float)width / (float)height;
+		bool bWidescreen = (fRatio < 1.5 ? false : true);
 
-	Q_strncpy(m_pzVideoLink, GetRandomVideo(bWidescreen), sizeof(m_pzVideoLink));
-
-	float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
-	int iWide = (float)height * iRatio + 2;
-	m_pVideo->SetBounds(-1, -1, iWide, iWide);
+		Q_strncpy(m_pzVideoLink, GetRandomVideo(bWidescreen), sizeof(m_pzVideoLink));
+		float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
+		int iWide = (float)height * iRatio + 2;
+		m_pVideo->SetBounds(-1, -1, iWide, iWide);
+	}
 }
 
 void CTFBackgroundPanel::PerformLayout()
@@ -71,7 +73,7 @@ void CTFBackgroundPanel::OnCommand(const char* command)
 
 void CTFBackgroundPanel::VideoReplay()
 {
-	if (m_pzVideoLink[0] != '\0' && !bInGameLayout)
+	if (m_pVideo && m_pzVideoLink[0] != '\0' && !bInGameLayout)
 	{
 		m_pVideo->SetVisible(true);
 		m_pVideo->SetEnabled(true);

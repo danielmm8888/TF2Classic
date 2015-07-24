@@ -40,6 +40,10 @@ bool CTFMainMenuPanel::Init()
 
 	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
 	m_SteamHTTP = steamapicontext->SteamHTTP();
+	m_pVersionLabel = NULL;
+	m_pNotificationButton = NULL;
+	m_pProfileAvatar = NULL;
+	m_pNicknameButton = NULL;
 
 	fPercent = -1.0f;
 	bOutdated = false;
@@ -67,10 +71,16 @@ void CTFMainMenuPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	m_pProfileAvatar->SetPlayer(m_SteamID, k_EAvatarSize64x64);
-	m_pProfileAvatar->SetShouldDrawFriendIcon(false);
-	m_pNicknameButton->SetText(steamapicontext->SteamFriends()->GetPersonaName());
-	m_pNicknameButton->SetDisabled(true);
+	if (m_pProfileAvatar)
+	{
+		m_pProfileAvatar->SetPlayer(m_SteamID, k_EAvatarSize64x64);
+		m_pProfileAvatar->SetShouldDrawFriendIcon(false);
+	}
+	if (m_pNicknameButton)
+	{
+		m_pNicknameButton->SetText(steamapicontext->SteamFriends()->GetPersonaName());
+		m_pNicknameButton->SetDisabled(true);
+	}
 	DefaultLayout();
 	CheckVersion();
 };
@@ -95,7 +105,10 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "shownotification"))
 	{
-		m_pNotificationButton->SetVisible(false);
+		if (m_pNotificationButton)
+		{
+			m_pNotificationButton->SetVisible(false);
+		}
 		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
 	else if (!Q_strcmp(command, "testnotification"))
@@ -152,7 +165,10 @@ void CTFMainMenuPanel::CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResul
 		if (Q_strcmp(GetVersionString(), result) < 0)
 		{
 			bOutdated = true;
-			m_pVersionLabel->SetFgColor(Color(255, 20, 50, 100));
+			if (m_pVersionLabel)
+			{
+				m_pVersionLabel->SetFgColor(Color(255, 20, 50, 100));
+			}
 			
 			Q_snprintf(resultString, sizeof(resultString), "Your game is out of date.\nThe newest version of TF2C is %s.\nDownload the update at\nwww.tf2classic.com", result);
 			MainMenuNotification Notification("Update!", resultString);
@@ -257,8 +273,11 @@ void CTFMainMenuPanel::PlayMusic()
 
 void CTFMainMenuPanel::OnNotificationUpdate()
 {
-	m_pNotificationButton->SetVisible(true);
-	m_pNotificationButton->SetGlowing(true);
+	if (m_pNotificationButton)
+	{
+		m_pNotificationButton->SetVisible(true);
+		m_pNotificationButton->SetGlowing(true);
+	}
 };
 
 void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString

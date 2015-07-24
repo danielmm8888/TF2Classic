@@ -67,7 +67,10 @@ void CTFPauseMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "shownotification"))
 	{
-		m_pNotificationButton->SetVisible(false);
+		if (m_pNotificationButton)
+		{
+			m_pNotificationButton->SetVisible(false);
+		}
 		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
 	else

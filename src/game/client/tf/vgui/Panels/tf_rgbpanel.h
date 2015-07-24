@@ -14,6 +14,7 @@ class CTFRGBPanel : public CTFMenuPanelBase
 
 public:
 	CTFRGBPanel(vgui::Panel* parent, const char *panelName);
+	bool Init();
 	virtual ~CTFRGBPanel();
 
 	void PerformLayout();
