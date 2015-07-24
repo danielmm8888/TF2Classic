@@ -30,6 +30,7 @@ bool CTFBackgroundPanel::Init()
 {
 	BaseClass::Init();
 
+	m_pVideo = NULL;
 	bInMenu = true;
 	bInGame = false;
 	return true;

@@ -30,6 +30,7 @@ bool CTFPauseMenuPanel::Init()
 	BaseClass::Init();
 
 	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
+	m_pNotificationButton = NULL;
 	bInMenu = false;
 	bInGame = true;
 	return true;
@@ -77,8 +78,11 @@ void CTFPauseMenuPanel::OnCommand(const char* command)
 
 void CTFPauseMenuPanel::OnNotificationUpdate()
 {
-	m_pNotificationButton->SetVisible(true);
-	m_pNotificationButton->SetGlowing(true);
+	if (m_pNotificationButton)
+	{
+		m_pNotificationButton->SetVisible(true);
+		m_pNotificationButton->SetGlowing(true);
+	}
 };
 
 
