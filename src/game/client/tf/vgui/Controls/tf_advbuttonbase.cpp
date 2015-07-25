@@ -25,6 +25,9 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFAdvButtonBase, CTFAdvButtonBase);
 CTFAdvButtonBase::CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : Button(parent, panelName, text)
 {
 	pBGBorder = new EditablePanel(this, "BackgroundBG");
+	pBGBorder->SetParent(this);
+	pButtonImage = new ImagePanel(this, "ButtonImageNew");
+	pButtonImage->SetParent(this);
 	Init();
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }	
@@ -35,6 +38,7 @@ CTFAdvButtonBase::CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, c
 CTFAdvButtonBase::~CTFAdvButtonBase()
 {
 	delete pBGBorder;
+	delete pButtonImage;
 }
 
 
@@ -57,10 +61,15 @@ void CTFAdvButtonBase::Init()
 	Q_strncpy(m_szFont, DEFAULT_FONT, sizeof(m_szFont));
 	Q_strncpy(m_szCommand, EMPTY_STRING, sizeof(m_szCommand));
 	Q_strncpy(m_szTextAlignment, "west", sizeof(m_szCommand));
+	Q_strncpy(pDefaultButtonImage, DEFAULT_IMAGE, sizeof(pDefaultButtonImage));
+	Q_strncpy(pImageColorDefault, DEFAULT_COLOR, sizeof(pImageColorDefault));
+	Q_strncpy(pImageColorArmed, ARMED_COLOR, sizeof(pImageColorArmed));
+	Q_strncpy(pImageColorDepressed, DEPRESSED_COLOR, sizeof(pImageColorDepressed));
 	m_bBGVisible = false;
 	m_bBorderVisible = false;
 	m_bAutoChange = false;
 	m_bDisabled = false;
+	m_fWidth = 0.0;
 	//Q_strncpy(m_szCommand, GetCommand()->GetString(), sizeof(m_szCommand));
 }
 
@@ -83,15 +92,20 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 	Q_strncpy(pArmedColor, inResourceData->GetString("ArmedTextColor", ARMED_COLOR), sizeof(pArmedColor));
 	Q_strncpy(pDepressedColor, inResourceData->GetString("DepressedTextColor", DEPRESSED_COLOR), sizeof(pDepressedColor));
 
+	Q_strncpy(pImageColorDefault, inResourceData->GetString("DefaultImageColor", DEFAULT_COLOR), sizeof(pImageColorDefault));
+	Q_strncpy(pImageColorArmed, inResourceData->GetString("ArmedImageColor", ARMED_COLOR), sizeof(pImageColorArmed));
+	Q_strncpy(pImageColorDepressed, inResourceData->GetString("DepressedImageColor", DEPRESSED_COLOR), sizeof(pImageColorDepressed));
+
 	Q_strncpy(m_szCommand, inResourceData->GetString("command", EMPTY_STRING), sizeof(m_szCommand));
 	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		
 	Q_strncpy(m_szFont, inResourceData->GetString("font", DEFAULT_FONT), sizeof(m_szFont));
 
 	m_bBGVisible = inResourceData->GetBool("bgvisible", true);	
 	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
-	m_bAutoChange = true;
 
-	//InvalidateLayout(false, true); // force ApplySchemeSettings to run
+	Q_strncpy(pDefaultButtonImage, inResourceData->GetString("ButtonImage", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
+	m_fWidth = inResourceData->GetFloat("imagewidth", 0.0);
+	m_bAutoChange = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -375,4 +389,20 @@ vgui::Label::Alignment CTFAdvButtonBase::GetAlignment(char* m_szAlignment)
 	}
 
 	return a_center;
+}
+
+float CTFAdvButtonBase::GetProportionalWideScale()
+{
+	int x, y, x0, y0;
+	surface()->GetProportionalBase(x, y);
+	surface()->GetScreenSize(x0, y0);
+	return (float)x0 / (float)x;
+}
+
+float CTFAdvButtonBase::GetProportionalTallScale()
+{
+	int x, y, x0, y0;
+	surface()->GetProportionalBase(x, y);
+	surface()->GetScreenSize(x0, y0);
+	return (float)y0 / (float)y;
 }

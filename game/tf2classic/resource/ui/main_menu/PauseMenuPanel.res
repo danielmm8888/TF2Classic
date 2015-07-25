@@ -91,11 +91,14 @@
 		"bordervisible"		"0"		
 		"textAlignment"		"west"
 		"command"			"gamemenucommand openplayerlistdialog"
-		"imagewidth"		"18"
+		"imagewidth"		"16"
 		"ButtonImage" 		"../vgui/glyph_muted"
-		"DefaultImageColor"		"MainMenuTextDefault"
+		"DefaultImageColor"		"MainMenuTextArmed"
 		"ArmedImageColor"		"MainMenuTextArmed"
-		"DepressedImageColor"	"MainMenuTextDepressed"	
+		"DepressedImageColor"	"MainMenuTextDefault"	
+		"DefaultBG"			"MainMenuAdvButtonDepressed"
+		"ArmedBG" 			"MainMenuAdvButtonArmed"
+		"DepressedBG"		"MainMenuTextDefault"	
 		"font"				"HudFontSmallBold"
 	}	
 		
@@ -233,9 +236,13 @@
 		"command"			"gamemenucommand openoptionsdialog"
 		"imagewidth"		"16"
 		"ButtonImage" 		"../vgui/glyph_steamworkshop"
-		"DefaultImageColor"		"MainMenuTextDefault"
+		"DefaultImageColor"		"MainMenuTextArmed"
 		"ArmedImageColor"		"MainMenuTextArmed"
-		"DepressedImageColor"	"MainMenuTextDepressed"	
+		"DepressedImageColor"	"MainMenuTextDefault"	
+		"DefaultBG"			"MainMenuAdvButtonDepressed"
+		"ArmedBG" 			"MainMenuAdvButtonArmed"
+		"DepressedBG"		"MainMenuTextDefault"	
+		"font"				"HudFontSmallBold"
 		"font"				"HudFontSmallBold"
 	}				
 	

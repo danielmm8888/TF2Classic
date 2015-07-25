@@ -36,7 +36,7 @@
 
 	"listpanel_keybindlist"
 	{
-		"ControlName"	"SectionedListPanel"
+		"ControlName"	"vcontrolslistpanel"
 		"fieldName"		"listpanel_keybindlist"
 		"xpos"			"20"
 		"ypos"			"50"
@@ -45,6 +45,7 @@
 		"tall"			"310"
 		"autoResize"	"0"
 		"pinCorner"		"0"
+		"font"			"FontStorePromotion"
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"

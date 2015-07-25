@@ -12,7 +12,6 @@ using namespace vgui;
 
 class CTFButton;
 
-#define DEFAULT_IMAGE		""
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -41,15 +40,9 @@ public:
 
 protected:
 	CTFButton		*pButton;
-	ImagePanel		*pButtonImage;
 	float			m_fXShift;
 	float			m_fYShift;
-	char			pDefaultButtonImage[64];
-	char			pImageColorDefault[64];
-	char			pImageColorArmed[64];
-	char			pImageColorDepressed[64];
 	bool			bGlowing;
-	float			m_fWidth;
 
 	float			m_flActionThink;
 	float			m_flAnimationThink;

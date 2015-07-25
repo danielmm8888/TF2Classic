@@ -35,15 +35,20 @@ public:
 	virtual void	OnMousePressed(vgui::MouseCode code);
 	virtual void	OnMouseDoublePressed(vgui::MouseCode code);
 
+	virtual void ApplySettings(KeyValues *inResourceData);
+	virtual vgui::HFont GetFont(){ return m_hFont; };
+	virtual const char* GetFontString(){ return m_szFont; };
+
 private:
-	void ApplySchemeSettings(vgui::IScheme *pScheme );
+	void ApplySchemeSettings(vgui::IScheme *pScheme);
 
 	// Are we showing the prompt?
 	bool			m_bCaptureMode;
 	// If so, where?
 	int				m_nClickRow;
 	// Font to use for showing the prompt
-	vgui::HFont		m_hFont;
+	vgui::HFont				m_hFont;
+	char				m_szFont[64];
 	// panel used to edit
 	class CInlineEditPanel *m_pInlineEditPanel;
 	int m_iMouseX, m_iMouseY;

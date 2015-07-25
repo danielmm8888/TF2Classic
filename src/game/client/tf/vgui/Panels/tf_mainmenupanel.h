@@ -42,7 +42,7 @@ private:
 	CAvatarImagePanel	*m_pProfileAvatar;
 	char				m_pzMusicLink[64];
 	float				m_flMusicThink;
-	bool				m_bMusicPlay;
+	bool				m_bShouldPlay;
 	char*				GetRandomMusic();
 	char*				GetVersionString();
 	

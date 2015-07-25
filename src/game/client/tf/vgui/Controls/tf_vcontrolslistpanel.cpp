@@ -74,7 +74,7 @@ vcontrolslistpanel::vcontrolslistpanel( vgui::Panel *parent, const char *listNam
 {
 	m_bCaptureMode	= false;
 	m_nClickRow		= 0;
-	m_pInlineEditPanel = new CInlineEditPanel();
+	m_pInlineEditPanel = new CInlineEditPanel(); 
 	m_hFont = INVALID_FONT;
 }
 
@@ -93,6 +93,15 @@ void vcontrolslistpanel::ApplySchemeSettings(IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings(pScheme); 
 	SetHeaderFont(pScheme->GetFont("MenuSmallFont", true));
+	m_hFont = pScheme->GetFont(m_szFont, true);
+}
+
+void vcontrolslistpanel::ApplySettings(KeyValues *inResourceData)
+{
+	BaseClass::ApplySettings(inResourceData);
+
+	Q_strncpy(m_szFont, inResourceData->GetString("font", "MenuSmallFont"), sizeof(m_szFont));
+	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
 
 //-----------------------------------------------------------------------------

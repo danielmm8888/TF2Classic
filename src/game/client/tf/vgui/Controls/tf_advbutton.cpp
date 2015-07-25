@@ -25,8 +25,6 @@ CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const cha
 {
 	pButton = new CTFButton(this, "ButtonNew", text);
 	pButton->SetParent(this);
-	pButtonImage = new ImagePanel(this, "ButtonImageNew");
-	pButtonImage->SetParent(this);
 	Init();
 }
 
@@ -36,7 +34,6 @@ CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const cha
 CTFAdvButton::~CTFAdvButton()
 {
 	delete pButton;
-	delete pButtonImage;
 }
 
 
@@ -46,16 +43,11 @@ CTFAdvButton::~CTFAdvButton()
 void CTFAdvButton::Init()
 {
 	BaseClass::Init();
-	Q_strncpy(pDefaultButtonImage, DEFAULT_IMAGE, sizeof(pDefaultButtonImage));
-	Q_strncpy(pImageColorDefault, DEFAULT_COLOR, sizeof(pImageColorDefault));
-	Q_strncpy(pImageColorArmed, ARMED_COLOR, sizeof(pImageColorArmed));
-	Q_strncpy(pImageColorDepressed, DEPRESSED_COLOR, sizeof(pImageColorDepressed));
 	m_bBGVisible = true;
 	m_bBorderVisible = false;
 	bGlowing = false;
 	m_fXShift = 0.0;
 	m_fYShift = 0.0;
-	m_fWidth = 0.0;
 	m_flActionThink = -1;
 	m_flAnimationThink = -1;
 	m_bAnimationIn = true;
@@ -65,14 +57,8 @@ void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaultButtonImage, inResourceData->GetString("ButtonImage", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
 	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
 	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
-	m_fWidth = inResourceData->GetFloat("imagewidth", 0.0);
-
-	Q_strncpy(pImageColorDefault, inResourceData->GetString("DefaultImageColor", DEFAULT_COLOR), sizeof(pImageColorDefault));
-	Q_strncpy(pImageColorArmed, inResourceData->GetString("ArmedImageColor", ARMED_COLOR), sizeof(pImageColorArmed));
-	Q_strncpy(pImageColorDepressed, inResourceData->GetString("DepressedImageColor", DEPRESSED_COLOR), sizeof(pImageColorDepressed));
 
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
@@ -129,10 +115,7 @@ void CTFAdvButton::PerformLayout()
 	pButton->SetDepressedSound("ui/buttonclick.wav");
 	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
 
-	int x, y, x0, y0;
-	surface()->GetProportionalBase(x, y);
-	surface()->GetScreenSize(x0, y0);
-	float h = (float)y0 / (float)y;
+	float h = GetProportionalTallScale();
 	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
 	int iShift = (GetTall() - fWidth) / 2.0;
 	

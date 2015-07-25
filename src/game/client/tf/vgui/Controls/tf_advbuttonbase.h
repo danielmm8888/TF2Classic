@@ -32,6 +32,7 @@ enum MouseState
 #define ARMED_COLOR			"AdvTextArmed"
 #define DEPRESSED_COLOR		"AdvTextDepressed"
 #define DEFAULT_FONT		"MenuSmallFont"
+#define DEFAULT_IMAGE		""
 #define EMPTY_STRING		""
 #define GETSCHEME()			scheme()->GetIScheme(GetScheme())
 #define pSelectedBG			(IsSelected() ? pArmedBG : pDefaultBG)
@@ -65,6 +66,9 @@ public:
 	virtual void SetBorder(const char *sBorder);
 
 	virtual void OnThink();
+	static	vgui::Label::Alignment GetAlignment(char* m_szAlignment);
+	static	float GetProportionalWideScale();
+	static	float GetProportionalTallScale();
 
 protected:
 	bool			m_bBGVisible;
@@ -84,9 +88,14 @@ protected:
 	char			m_szText[64];
 	char			m_szFont[64];
 	char			m_szTextAlignment[64];
+	char			pDefaultButtonImage[64];
+	char			pImageColorDefault[64];
+	char			pImageColorArmed[64];
+	char			pImageColorDepressed[64];
 	EditablePanel	*pBGBorder;
-	virtual			vgui::Label::Alignment GetAlignment(char* m_szAlignment);
+	ImagePanel		*pButtonImage;
 	bool			m_bAutoChange;
+	float			m_fWidth;
 	//CTFButtonBase	*pButton;
 };
 

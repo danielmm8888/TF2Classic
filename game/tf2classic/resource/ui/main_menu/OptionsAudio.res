@@ -45,10 +45,9 @@
 		"tall"			"310"
 		"autoResize"	"0"
 		"pinCorner"		"0"
-		"font"			"HudFontSmallestBold"
+		"font"			"FontStorePromotion"
 		"visible"		"1"
 		"enabled"		"1"
-		"border"		"TFFatLineBorder"	
 		"tabPosition"	"0"
 	}		
 	

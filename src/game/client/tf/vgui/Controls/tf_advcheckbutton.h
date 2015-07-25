@@ -17,9 +17,7 @@ class CTFCheckButton;
 #define DEFAULT_BG					"AdvCheckButtonDefault"
 #define ARMED_BG					"AdvCheckButtonArmed"
 #define DEPRESSED_BG				"AdvCheckButtonDepressed"
-#define DEFAULT_CHECKIMAGE			DEFAULT_PATH	"check_icon"
-#define ARMED_CHECKIMAGE			DEFAULT_PATH	"check_icon_armed"
-#define DEPRESSED_CHECKIMAGE		DEFAULT_PATH	"check_icon_depressed"
+#define DEFAULT_CHECKIMAGE			DEFAULT_PATH	"glyph_close_x"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -48,7 +46,7 @@ public:
 
 protected:
 	CTFCheckButton		*pButton;
-	CTFImagePanel		*pCheckImage;
+	ImagePanel		*pCheckImage;
 	char				m_szValueTrue[64];
 	char				m_szValueFalse[64];
 	char				pDefaultCheckImage[64];

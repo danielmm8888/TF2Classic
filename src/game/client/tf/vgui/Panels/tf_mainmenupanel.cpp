@@ -35,7 +35,7 @@ bool CTFMainMenuPanel::Init()
 {
 	BaseClass::Init();
 
-	m_bMusicPlay = true;
+	m_bShouldPlay = true;
 	m_flMusicThink = -1;
 
 	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
@@ -118,9 +118,8 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "randommusic"))
 	{
-		m_bMusicPlay = false;
-		Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
-		m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
+		m_flMusicThink = gpGlobals->curtime;
+		m_bShouldPlay = true;
 	}
 	else
 	{
@@ -206,34 +205,31 @@ void CTFMainMenuPanel::OnTick()
 		m_SteamHTTP->GetHTTPDownloadProgressPct(m_httpRequest, &fPercent);
 	}
 
-	if (!bInGameLayout)
+	if (tf2c_mainmenu_music.GetBool() && !bInGameLayout)
 	{
-		if (tf2c_mainmenu_music.GetBool())
+		if (m_bShouldPlay && m_flMusicThink < gpGlobals->curtime)
 		{
-			if (m_bMusicPlay && m_flMusicThink < gpGlobals->curtime)
-			{
-				m_bMusicPlay = false;
-				Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
-				m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
-			}
-			else if (!m_bMusicPlay && m_pzMusicLink[0] != '\0')
-			{
-				m_bMusicPlay = true;
-				enginesound->NotifyBeginMoviePlayback();
-				surface()->PlaySound(m_pzMusicLink);
-			}
+			m_bShouldPlay = false;
+			Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+			m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
 		}
-		else
+		else if (!m_bShouldPlay && m_pzMusicLink[0] != '\0')
 		{
-			if (m_bMusicPlay)
-			{				
-				m_bMusicPlay = false;
-			}
-			else if (m_flMusicThink == -1)
-			{
-				m_flMusicThink = gpGlobals->curtime;
-				enginesound->NotifyBeginMoviePlayback(); 
-			}
+			enginesound->NotifyBeginMoviePlayback();
+			surface()->PlaySound(m_pzMusicLink);
+			m_bShouldPlay = true;
+		}
+	}
+	else
+	{
+		if (m_bShouldPlay)
+		{
+			m_bShouldPlay = false;
+		}
+		else if (m_flMusicThink == -1)
+		{
+			m_flMusicThink = gpGlobals->curtime;
+			enginesound->NotifyBeginMoviePlayback();
 		}
 	}
 };

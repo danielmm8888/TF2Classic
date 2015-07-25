@@ -253,11 +253,7 @@ void CPanelListPanel::PerformLayout()
 
 	int vpixels = computeVPixelsNeeded();
 
-	int w0, h0;
-	int w1, h1;
-	surface()->GetProportionalBase(w1, h1);
-	surface()->GetScreenSize(w0, h0);
-	int width = 16 * ((float)w0 / (float)w1); //36
+	int width = 15 * CTFAdvButtonBase::GetProportionalWideScale(); //36
 
 	//!! need to make it recalculate scroll positions
 	_vbar->SetVisible(true);
@@ -333,6 +329,9 @@ void CPanelListPanel::ApplySchemeSettings(IScheme *pScheme)
 	SetBgColor(GetSchemeColor("Label.BgColor", GetBgColor(), pScheme));
 
 	pFont = pScheme->GetFont(m_szFont, true);
+	SetBgColor(GetSchemeColor("SectionedListPanel.BgColor", GetBgColor(), pScheme));
+	SetBorder(pScheme->GetBorder("ButtonDepressedBorder"));
+
 	//	_labelFgColor = GetSchemeColor("WindowFgColor");
 	//	_selectionFgColor = GetSchemeColor("ListSelectionFgColor", _labelFgColor);
 }

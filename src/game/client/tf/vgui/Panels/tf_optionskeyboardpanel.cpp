@@ -257,7 +257,7 @@ void CTFOptionsKeyboardPanel::ParseActionDescriptions( void )
 		// Skip '======' rows
 		if ( szDescription[ 0 ] != '=' )
 		{
-			HFont Font = GETSCHEME()->GetFont("HudFontSmallestBold", true);
+			HFont Font = m_pKeyBindList->GetFont();
 			// Flag as special header row if binding is "blank"
 			if (!stricmp(szBinding, "blank"))
 			{

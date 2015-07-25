@@ -24,7 +24,7 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFAdvCheckButton, CTFAdvButtonBase);
 CTFAdvCheckButton::CTFAdvCheckButton(vgui::Panel *parent, const char *panelName, const char *text) : CTFAdvButtonBase(parent, panelName, text)
 {
 	pButton = new CTFCheckButton(this, "ButtonNew", text);
-	pCheckImage = new CTFImagePanel(this, "CheckImageNew");
+	pCheckImage = new ImagePanel(this, "CheckImageNew");
 	pButton->SetParent(this);
 	pCheckImage->SetParent(this);
 	Init();
@@ -51,8 +51,6 @@ void CTFAdvCheckButton::Init()
 	Q_strncpy(pArmedBG, ARMED_BG, sizeof(pArmedBG));
 	Q_strncpy(pDepressedBG, DEPRESSED_BG, sizeof(pDepressedBG));
 	Q_strncpy(pDefaultCheckImage, DEFAULT_CHECKIMAGE, sizeof(pDefaultCheckImage));
-	Q_strncpy(pArmedCheckImage, ARMED_CHECKIMAGE, sizeof(pArmedCheckImage));
-	Q_strncpy(pDepressedCheckImage, DEPRESSED_CHECKIMAGE, sizeof(pDepressedCheckImage));
 	m_bState = false;
 	m_bBGVisible = true;
 	m_bBorderVisible = false;
@@ -70,8 +68,6 @@ void CTFAdvCheckButton::ApplySettings(KeyValues *inResourceData)
 	Q_strncpy(m_szValueTrue, inResourceData->GetString("valuetrue", "1"), sizeof(m_szValueTrue));
 
 	Q_strncpy(pDefaultCheckImage, inResourceData->GetString("DefaultCheckImage", DEFAULT_CHECKIMAGE), sizeof(pDefaultCheckImage));
-	Q_strncpy(pArmedCheckImage, inResourceData->GetString("ArmedCheckImage", ARMED_CHECKIMAGE), sizeof(pArmedCheckImage));
-	Q_strncpy(pDepressedCheckImage, inResourceData->GetString("DepressedCheckImage", DEPRESSED_CHECKIMAGE), sizeof(pDepressedCheckImage));
 
 	GetCommandValue();
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
@@ -120,7 +116,7 @@ void CTFAdvCheckButton::PerformLayout()
 	pButton->SetEnabled(true);
 	pButton->SetFont(GETSCHEME()->GetFont(m_szFont, true));
 	pButton->SetPos(0, 0);
-	pButton->SetZPos(2);
+	pButton->SetZPos(4);
 	pButton->SetWide(GetWide());
 	pButton->SetTall(GetTall());
 	pButton->SetContentAlignment(GetAlignment(m_szTextAlignment));
@@ -131,16 +127,38 @@ void CTFAdvCheckButton::PerformLayout()
 
 	pBGBorder->SetPos(GetWide() - GetTall(), 0);
 	pBGBorder->SetWide(GetTall());
-	pCheckImage->SetImage(pDefaultBG);
+
+	float h = GetProportionalTallScale();
+	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
+	int iShift = (GetTall() - fWidth) / 2.0;
+
+	float fXOrigin = (m_fWidth == 0.0 ? 0 : iShift * 2 + fWidth);
+	pButton->SetTextInset(fXOrigin, 0);
+
+	pButtonImage->SetImage(pDefaultButtonImage);
+	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+	pButtonImage->SetVisible(IsVisible());
+	pButtonImage->SetEnabled(IsEnabled());
+	pButtonImage->SetPos(iShift, iShift);
+	pButtonImage->SetZPos(2);
+	pButtonImage->SetWide(fWidth);
+	pButtonImage->SetTall(fWidth);
+	pButtonImage->SetShouldScaleImage(true);
+	
+
+	pCheckImage->SetImage(pDefaultCheckImage);
+	pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 	pCheckImage->SetVisible(m_bBGVisible);
-	pCheckImage->SetEnabled(true);
-	pCheckImage->SetPos(GetWide() - GetTall(), 0);
-	pCheckImage->SetZPos(2);
-	pCheckImage->SetWide(GetTall());
-	pCheckImage->SetTall(GetTall());
+	pCheckImage->SetEnabled(IsEnabled());
+	pCheckImage->SetPos(GetWide() - GetTall() + iShift, iShift);
+	//pCheckImage->SetPos(iShift, iShift);
+	pCheckImage->SetZPos(3);
+	//pCheckImage->SetWide(GetTall());
+	//pCheckImage->SetTall(GetTall());
+	pCheckImage->SetWide(fWidth);
+	pCheckImage->SetTall(fWidth);
 	pCheckImage->SetShouldScaleImage(true);
 
-	//Msg("LAYOUT check %s\n", m_szText);
 	GetCommandValue();
 	SetDefaultAnimation();
 }
@@ -202,19 +220,27 @@ void CTFAdvCheckButton::SendAnimation(MouseState flag)
 	{
 		//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pCheckImage->SetImage(pDefaultCheckImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		//pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	case MOUSE_ENTERED:
-		pCheckImage->SetImage(pArmedCheckImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
+		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
+		//pCheckImage->SetImage(pArmedCheckImage);
 		break;
 	case MOUSE_EXITED:
-		pCheckImage->SetImage(pDefaultCheckImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		//pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	case MOUSE_PRESSED:
-		pCheckImage->SetImage(pDepressedCheckImage);
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
+		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
+		//pCheckImage->SetImage(pDepressedCheckImage);
 		break;
 	default:
-		pCheckImage->SetImage(pDefaultCheckImage);
+		//pCheckImage->SetImage(pDefaultCheckImage);
 		break;
 	}
 }
