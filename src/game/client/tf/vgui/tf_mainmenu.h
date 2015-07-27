@@ -69,6 +69,7 @@ private:
 	bool								bInGameLayout;
 	IGameUI*							gameui;
 	MainMenuNotification				pNotification;
+	int									m_iStopGameStartupSound;
 };
 
 extern CTFMainMenu *guiroot;

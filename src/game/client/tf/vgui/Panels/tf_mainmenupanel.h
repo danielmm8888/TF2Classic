@@ -40,7 +40,9 @@ private:
 	CTFAdvButton		*m_pNicknameButton;
 	CTFAdvButton		*m_pNotificationButton;
 	CAvatarImagePanel	*m_pProfileAvatar;
-	char				m_pzMusicLink[64];
+
+	char				m_pzMusicLink[64];	
+	int					m_nSongGuid;
 	float				m_flMusicThink;
 	bool				m_bShouldPlay;
 	char*				GetRandomMusic();

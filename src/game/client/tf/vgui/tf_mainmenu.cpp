@@ -15,6 +15,8 @@
 #include "panels/tf_optionsaudiopanel.h"
 #include "panels/tf_optionsvideopanel.h"
 #include "panels/tf_quitdialogpanel.h"
+#include "engine/IEngineSound.h"
+#include "tier0/icommandline.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -89,6 +91,7 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONSDIALOG_MENU);
 
+
 	/*
 	HidePanel(OPTIONSADV_MENU);
 	HidePanel(OPTIONSMOUSE_MENU);
@@ -98,7 +101,8 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	*/
 	
 	bInGameLayout = false;
-	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
+	m_iStopGameStartupSound = (CommandLine()->FindParm("-nostartupsound") ? 0 : 2);
+	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
 //-----------------------------------------------------------------------------
@@ -219,7 +223,14 @@ void CTFMainMenu::OnTick()
 		GameLayout();
 		bInGameLayout = true;
 	}
-
+	if (m_iStopGameStartupSound > 0)
+	{
+		m_iStopGameStartupSound--;
+		if (!m_iStopGameStartupSound)
+		{
+			enginesound->NotifyBeginMoviePlayback();
+		}
+	}
 };
 
 void CTFMainMenu::OnThink()

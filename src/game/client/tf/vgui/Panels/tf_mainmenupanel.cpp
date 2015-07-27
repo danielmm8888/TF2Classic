@@ -37,6 +37,7 @@ bool CTFMainMenuPanel::Init()
 
 	m_bShouldPlay = true;
 	m_flMusicThink = -1;
+	m_nSongGuid = 0;
 
 	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
 	m_SteamHTTP = steamapicontext->SteamHTTP();
@@ -119,6 +120,7 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	else if (!Q_strcmp(command, "randommusic"))
 	{
 		m_flMusicThink = gpGlobals->curtime;
+		enginesound->StopSoundByGuid(m_nSongGuid);
 		m_bShouldPlay = true;
 	}
 	else
@@ -190,7 +192,7 @@ static void OnVariableChange(IConVar *var, const char *pOldValue, float flOldVal
 {
 	if (((ConVar*)var)->GetBool() == false)
 	{
-		engine->ClientCmd_Unrestricted("stopsound");
+		enginesound->NotifyBeginMoviePlayback();
 	}
 }
 ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu", OnVariableChange);
@@ -207,7 +209,7 @@ void CTFMainMenuPanel::OnTick()
 
 	if (tf2c_mainmenu_music.GetBool() && !bInGameLayout)
 	{
-		if (m_bShouldPlay && m_flMusicThink < gpGlobals->curtime)
+		if (m_bShouldPlay && m_flMusicThink < gpGlobals->curtime && !enginesound->IsSoundStillPlaying(m_nSongGuid))
 		{
 			m_bShouldPlay = false;
 			Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
@@ -215,25 +217,19 @@ void CTFMainMenuPanel::OnTick()
 		}
 		else if (!m_bShouldPlay && m_pzMusicLink[0] != '\0')
 		{
-			engine->ClientCmd_Unrestricted("stopsound");
-			char found[512];
-			Q_snprintf(found, sizeof(found), "play *%s", m_pzMusicLink);
-			engine->ClientCmd_Unrestricted(found);
-
+			enginesound->StopSoundByGuid(m_nSongGuid);
+			ConVar *snd_musicvolume = cvar->FindVar("snd_musicvolume");
+			float fVolume = (snd_musicvolume ? snd_musicvolume->GetFloat() : 1.0f);
+			enginesound->EmitAmbientSound(m_pzMusicLink, fVolume, PITCH_NORM, 0);			
+			m_nSongGuid = enginesound->GetGuidForLastSoundEmitted();
 			m_bShouldPlay = true;
 		}
 	}
-	else
+	else if (m_bShouldPlay)
 	{
-		if (m_bShouldPlay)
-		{
-			m_bShouldPlay = false;
-		}
-		else if (m_flMusicThink == -1)
-		{
-			m_flMusicThink = gpGlobals->curtime;
-			engine->ClientCmd_Unrestricted("stopsound");
-		}
+		enginesound->StopSoundByGuid(m_nSongGuid);
+		m_flMusicThink = gpGlobals->curtime;
+		m_bShouldPlay = false;
 	}
 };
 
