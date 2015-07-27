@@ -190,7 +190,7 @@ static void OnVariableChange(IConVar *var, const char *pOldValue, float flOldVal
 {
 	if (((ConVar*)var)->GetBool() == false)
 	{
-		enginesound->NotifyBeginMoviePlayback();
+		engine->ClientCmd_Unrestricted("stopsound");
 	}
 }
 ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu", OnVariableChange);
@@ -215,8 +215,11 @@ void CTFMainMenuPanel::OnTick()
 		}
 		else if (!m_bShouldPlay && m_pzMusicLink[0] != '\0')
 		{
-			enginesound->NotifyBeginMoviePlayback();
-			surface()->PlaySound(m_pzMusicLink);
+			engine->ClientCmd_Unrestricted("stopsound");
+			char found[512];
+			Q_snprintf(found, sizeof(found), "play *%s", m_pzMusicLink);
+			engine->ClientCmd_Unrestricted(found);
+
 			m_bShouldPlay = true;
 		}
 	}
@@ -229,7 +232,7 @@ void CTFMainMenuPanel::OnTick()
 		else if (m_flMusicThink == -1)
 		{
 			m_flMusicThink = gpGlobals->curtime;
-			enginesound->NotifyBeginMoviePlayback();
+			engine->ClientCmd_Unrestricted("stopsound");
 		}
 	}
 };
