@@ -21,6 +21,7 @@
 #define CTFScatterGun C_TFScatterGun
 #define CTFShotgun_DM C_TFShotgun_DM
 #define CTFScatterGun_DM C_TFScatterGun_DM
+#define CTFDoubleBarrel C_TFDoubleBarrel
 #endif
 
 // Reload Modes
@@ -131,5 +132,17 @@ public:
 
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SHOTGUN_DM; }
 };
+
+class CTFDoubleBarrel : public CTFShotgun
+{
+public:
+	DECLARE_CLASS(CTFDoubleBarrel, CTFShotgun);
+	DECLARE_NETWORKCLASS();
+	DECLARE_PREDICTABLE();
+
+	bool m_bReloadsSingly = true;
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_DOUBLEBARREL; }
+};
+
 
 #endif // TF_WEAPON_SHOTGUN_H
