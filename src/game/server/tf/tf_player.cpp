@@ -2286,9 +2286,11 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			Warning("Format: tf2c_setmerccolor r g b\n");
 			return true;
 		}
-		m_vecPlayerColor.Set(Vector(min(atoi(args.Arg(1)), 255) / 255.0f,
-			min(atoi(args.Arg(2)), 255) / 255.0f,
-			min(atoi(args.Arg(3)), 255) / 255.0f));
+		m_vecPlayerColor.Set(Vector(
+			min(atoi(args[1]), 255) / 255.0f,
+			min(atoi(args[2]), 255) / 255.0f,
+			min(atoi(args[3]), 255) / 255.0f
+			));
 		return true;
 	}
 	else if ( FStrEq( pcmd, "build" ) )

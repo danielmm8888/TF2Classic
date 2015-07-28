@@ -17,7 +17,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayerResource, DT_TFPlayerResource )
 	SendPropArray3( SENDINFO_ARRAY3( m_iTotalScore ), SendPropInt( SENDINFO_ARRAY( m_iTotalScore ), 12, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iMaxHealth ), SendPropInt( SENDINFO_ARRAY( m_iMaxHealth ), 10, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iPlayerClass ), SendPropInt( SENDINFO_ARRAY( m_iPlayerClass ), 5, SPROP_UNSIGNED ) ),
-	SendPropArray3(SENDINFO_ARRAY3(m_iColors), SendPropVector(SENDINFO_ARRAY(m_iColors), 12, SPROP_NORMAL)),
+	SendPropArray3(SENDINFO_ARRAY3(m_iColors), SendPropVector(SENDINFO_ARRAY3(m_iColors), 12, SPROP_COORD)),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_player_manager, CTFPlayerResource );
