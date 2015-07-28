@@ -77,7 +77,7 @@
 		"labelText"			"blah-blah"
 		"textAlignment"		"north-west"
 		"wrap"				"1"
-		"font"				"ScoreboardMediumSmall"
+		"font"				"FontStorePromotion"
 		"fgcolor"			"MainMenuTextDefault"
 	}		
 }		

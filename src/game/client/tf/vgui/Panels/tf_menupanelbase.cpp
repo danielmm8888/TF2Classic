@@ -104,3 +104,9 @@ bool CTFMenuPanelBase::InGame()
 {
 	return MAINMENU_ROOT->InGame();
 }
+
+
+CTFMenuPanelBase* CTFMenuPanelBase::GetMenuPanel(int iPanel)
+{
+	return MAINMENU_ROOT->GetMenuPanel(iPanel);
+}

@@ -235,6 +235,8 @@ $Project "Client (TF)"
 					$File	"tf\vgui\panels\tf_rgbpanel.h"
 					$File	"tf\vgui\panels\tf_shadebackgroundpanel.cpp"
 					$File	"tf\vgui\panels\tf_shadebackgroundpanel.h"
+					$File	"tf\vgui\panels\tf_statsummarydialog.cpp"
+					$File	"tf\vgui\panels\tf_statsummarydialog.h"
 				}	
 				
 				$Folder	"Unused"

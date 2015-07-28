@@ -15,6 +15,7 @@
 #include "panels/tf_optionsaudiopanel.h"
 #include "panels/tf_optionsvideopanel.h"
 #include "panels/tf_quitdialogpanel.h"
+#include "panels/tf_statsummarydialog.h"
 #include "engine/IEngineSound.h"
 #include "tier0/icommandline.h"
 
@@ -72,6 +73,8 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	AddMenuPanel(new CTFShadeBackgroundPanel(this, "CTFShadeBackgroundPanel"), SHADEBACKGROUND_MENU);
 	AddMenuPanel(new CTFQuitDialogPanel(this, "CTFQuitDialogPanel"), QUIT_MENU);
 	AddMenuPanel(new CTFOptionsDialog(this, "CTFOptionsDialog"), OPTIONSDIALOG_MENU);
+	AddMenuPanel(new CTFStatsSummaryDialog(this, "CTFStatsSummaryDialog"), STATSUMMARY_MENU);
+
 
 	
 	/*
@@ -90,6 +93,7 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	HidePanel(NOTIFICATION_MENU);
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONSDIALOG_MENU);
+	HidePanel(STATSUMMARY_MENU);
 
 
 	/*
@@ -285,4 +289,11 @@ bool CTFMainMenu::InGame()
 	{
 		return false;
 	}
+}
+
+void CTFMainMenu::SetStats(CUtlVector<ClassStats_t> &vecClassStats)
+{
+	if (!guiroot)
+		return;
+	dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->SetStats(vecClassStats);
 }

@@ -31,6 +31,7 @@ public:
 	virtual void Hide();
 	virtual void DefaultLayout();
 	virtual void GameLayout();
+	static CTFMenuPanelBase* GetMenuPanel(int iPanel);
 
 protected:
 	bool				bInGame;

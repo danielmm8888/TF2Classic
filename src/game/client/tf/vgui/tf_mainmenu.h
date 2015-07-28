@@ -3,6 +3,7 @@
 
 #include "GameUI/IGameUI.h"
 #include "vgui_controls/Frame.h"
+#include "tf_hud_statpanel.h"
 
 enum MenuPanel //position in this enum = zpos on the screen
 {
@@ -12,6 +13,7 @@ enum MenuPanel //position in this enum = zpos on the screen
 	PAUSE_MENU,
 	SHADEBACKGROUND_MENU, //add popup/additional menus below:		
 	LOADOUT_MENU,
+	STATSUMMARY_MENU,
 	NOTIFICATION_MENU,
 	OPTIONSDIALOG_MENU,
 	QUIT_MENU,
@@ -39,6 +41,7 @@ class CTFMenuPanelBase;
 class CTFMainMenu : public vgui::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE(CTFMainMenu, vgui::EditablePanel);
+	friend CTFMenuPanelBase;
 
 public:
 	CTFMainMenu(vgui::VPANEL parent);
@@ -58,6 +61,7 @@ public:
 	virtual bool InGame();
 	virtual void SendNotification(MainMenuNotification pMessage);
 	virtual MainMenuNotification GetNotification() { return pNotification; };
+	void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
 
 private:
 	CUtlVector<CTFMenuPanelBase*>		m_pPanels;

@@ -100,6 +100,10 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	{
 		MAINMENU_ROOT->ShowPanel(LOADOUT_MENU);
 	}
+	else if (!Q_strcmp(command, "newstats"))
+	{
+		MAINMENU_ROOT->ShowPanel(STATSUMMARY_MENU);
+	}
 	else if (!Q_strcmp(command, "checkversion"))
 	{
 		CheckVersion();
