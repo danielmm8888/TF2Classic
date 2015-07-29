@@ -1566,6 +1566,14 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		return BaseClass::FPlayerCanTakeDamage(pPlayer, pAttacker, info);
 	}
 
+	int CTFGameRules::PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget)
+	{
+		if (TFGameRules()->IsDeathmatch())
+			return GR_NOTTEAMMATE;
+
+		return BaseClass::PlayerRelationship(pPlayer, pTarget);
+	}
+
 Vector DropToGround( 
 	CBaseEntity *pMainEnt, 
 	const Vector &vPos, 

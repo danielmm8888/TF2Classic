@@ -181,6 +181,8 @@ public:
 
 	bool			ShouldScorePerRound( void );
 
+	virtual int		PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget);
+
 protected:
 	virtual void	InitTeams( void );
 
