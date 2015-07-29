@@ -761,6 +761,12 @@ void CTFOptionsVideoPanel::OnApplyChanges()
 		engine->ClientCmd_Unrestricted( szCmd );
 	//}
 
+	const MaterialSystem_Config_t &config = materials->GetCurrentConfigForVideoCard();
+	if (config.m_VideoMode.m_Width != width || config.m_VideoMode.m_Height != height || config.Windowed() != windowed)
+	{
+		MAINMENU_ROOT->LaunchInvalidatePanelsLayout();
+	}
+
 	m_pGammaSlider->ApplyChanges();
 
 	// apply changes

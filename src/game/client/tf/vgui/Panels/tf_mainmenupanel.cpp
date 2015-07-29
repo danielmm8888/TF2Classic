@@ -82,8 +82,8 @@ void CTFMainMenuPanel::PerformLayout()
 		m_pNicknameButton->SetText(steamapicontext->SteamFriends()->GetPersonaName());
 		m_pNicknameButton->SetDisabled(true);
 	}
-	DefaultLayout();
 	CheckVersion();
+	AutoLayout();
 };
 
 void CTFMainMenuPanel::OnCommand(const char* command)
@@ -190,14 +190,7 @@ void CTFMainMenuPanel::CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResul
 	m_SteamHTTP->ReleaseHTTPRequest(m_httpRequest);
 }
 
-static void OnVariableChange(IConVar *var, const char *pOldValue, float flOldValue)
-{
-	if (((ConVar*)var)->GetBool() == false)
-	{
-		enginesound->NotifyBeginMoviePlayback();
-	}
-}
-ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu", OnVariableChange);
+ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu");
 
 void CTFMainMenuPanel::OnTick()
 {

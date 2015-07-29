@@ -105,7 +105,8 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	*/
 	
 	bInGameLayout = false;
-	m_iStopGameStartupSound = (CommandLine()->FindParm("-nostartupsound") ? 0 : 2);
+	m_iStopGameStartupSound = 2;
+	m_iUpdateLayout = 0;
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
@@ -206,6 +207,11 @@ void CTFMainMenu::InvalidatePanelsLayout(bool layoutNow, bool reloadScheme)
 	}	
 }
 
+void CTFMainMenu::LaunchInvalidatePanelsLayout()
+{
+	m_iUpdateLayout = 4;
+}
+
 void CTFMainMenu::OnTick()
 {
 	BaseClass::OnTick();
@@ -233,6 +239,14 @@ void CTFMainMenu::OnTick()
 		if (!m_iStopGameStartupSound)
 		{
 			enginesound->NotifyBeginMoviePlayback();
+		}
+	}
+	if (m_iUpdateLayout > 0)
+	{
+		m_iUpdateLayout--;
+		if (!m_iUpdateLayout)
+		{
+			InvalidatePanelsLayout(true, true);
 		}
 	}
 };

@@ -56,6 +56,7 @@ public:
 	virtual void ShowPanel(MenuPanel iPanel);
 	virtual void HidePanel(MenuPanel iPanel);
 	virtual void InvalidatePanelsLayout(bool layoutNow = false, bool reloadScheme = false);
+	virtual void LaunchInvalidatePanelsLayout();
 	virtual void DefaultLayout();
 	virtual void GameLayout();
 	virtual bool InGame();
@@ -74,6 +75,7 @@ private:
 	IGameUI*							gameui;
 	MainMenuNotification				pNotification;
 	int									m_iStopGameStartupSound;
+	int									m_iUpdateLayout;
 };
 
 extern CTFMainMenu *guiroot;
