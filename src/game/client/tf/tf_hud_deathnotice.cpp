@@ -25,6 +25,7 @@
 #include "c_tf_playerresource.h"
 #include "tf_hud_freezepanel.h"
 #include "engine/IEngineSound.h"
+#include "tf_gamerules.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -130,14 +131,18 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 		int iCustomDamage = event->GetInt( "customkill" );
 		int iLocalPlayerIndex = GetLocalPlayerIndex();
 
+		m_DeathNotices[iDeathNoticeMsg].Killer.iPlayerID = engine->GetPlayerForUserID(event->GetInt("attacker"));
+		m_DeathNotices[iDeathNoticeMsg].Victim.iPlayerID = engine->GetPlayerForUserID(event->GetInt("userid"));
+
 		// if there was an assister, put both the killer's and assister's names in the death message
 		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
+		m_DeathNotices[iDeathNoticeMsg].Assister.iPlayerID = iAssisterID;
 		const char *assister_name = ( iAssisterID > 0 ? g_PR->GetPlayerName( iAssisterID ) : NULL );
 		if ( assister_name )
 		{
 			// Base TF2 assumes that the assister and killer are the same team, thus it 
 			// writes both of the same string, which in turn gives them both the killers team color
-			// wether or not the assister is on the killers team or not. -danielmm8888
+			// whether or not the assister is on the killers team or not. -danielmm8888
 			m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = (iAssisterID > 0) ? g_PR->GetTeam(iAssisterID) : 0;
 			char szKillerBuf[MAX_PLAYER_NAME_LENGTH];
 			Q_snprintf(szKillerBuf, ARRAYSIZE(szKillerBuf), "%s", assister_name);
@@ -404,10 +409,13 @@ void CTFHudDeathNotice::Paint()
 
 		x += xMargin;
 
+		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+
 		if (killer[0])
 		{
 			// Draw killer's name
-			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Killer.iTeam, msg.bLocalPlayerInvolved), killer);
+			Color clr = TFGameRules()->IsDeathmatch() ? tf_PR->GetPlayerColor(msg.Killer.iPlayerID) : GetTeamColor(msg.Killer.iTeam, msg.bLocalPlayerInvolved);
+			DrawText(x, yText, m_hTextFont, clr, killer);
 			x += iKillerTextWide;
 		}
 
@@ -418,7 +426,8 @@ void CTFHudDeathNotice::Paint()
 			x += iPlusIconWide;
 
 			// Draw assister's name
-			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Assister.iTeam, msg.bLocalPlayerInvolved), assister);
+			Color clr = TFGameRules()->IsDeathmatch() ? tf_PR->GetPlayerColor(msg.Assister.iPlayerID) : GetTeamColor(msg.Assister.iTeam, msg.bLocalPlayerInvolved);
+			DrawText(x, yText, m_hTextFont, clr, assister);
 			x += iAssisterTextWide;
 		}
 
@@ -465,7 +474,8 @@ void CTFHudDeathNotice::Paint()
 		}
 
 		// Draw victims name
-		DrawText(x + iVictimTextOffset, yText, m_hTextFont, GetTeamColor(msg.Victim.iTeam, msg.bLocalPlayerInvolved), victim);
+		Color clr = TFGameRules()->IsDeathmatch() ? tf_PR->GetPlayerColor(msg.Victim.iPlayerID) : GetTeamColor(msg.Victim.iTeam, msg.bLocalPlayerInvolved);
+		DrawText(x + iVictimTextOffset, yText, m_hTextFont, clr, victim);
 		x += iVictimTextWide;
 
 		// Draw Additional Text on the end of the victims name
