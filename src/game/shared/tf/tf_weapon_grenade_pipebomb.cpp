@@ -504,7 +504,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 		return;
 
 	// Blow up if we hit an enemy we can damage
-	if ( pOther->GetTeamNumber() && pOther->GetTeamNumber() != GetTeamNumber() && pOther->m_takedamage != DAMAGE_NO )
+	if ( pOther->GetTeamNumber() && ( pOther->GetTeamNumber() != GetTeamNumber() || TFGameRules()->IsDeathmatch() ) && pOther->m_takedamage != DAMAGE_NO )
 	{
 		// Check to see if this is a respawn room.
 		if ( !pOther->IsPlayer() )
