@@ -1420,12 +1420,24 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 //-----------------------------------------------------------------------------
 bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot )
 {
+	if (TFGameRules()->IsDeathmatch())
+		pEntClassName = "info_player_deathmatch";
+
 	// Get an initial spawn point.
 	pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 	if ( !pSpot )
 	{
 		// Sometimes the first spot can be NULL????
 		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+
+	if (TFGameRules()->IsDeathmatch())
+	{
+		// Randomize the start spot
+		for (int i = random->RandomInt(1, 5); i > 0; i--)
+			pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
+		if (!pSpot)  // skip over the null point
+			pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
 	}
 
 	// First we try to find a spawn point that is fully clear. If that fails,
@@ -1442,7 +1454,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 			if( TFGameRules()->IsSpawnPointValid( pSpot, this, bIgnorePlayers ) )
 			{
 				// Check for a bad spawn entity.
-				if ( pSpot->GetAbsOrigin() == Vector( 0, 0, 0 ) )
+				if ( pSpot->GetAbsOrigin() == vec3_origin )
 				{
 					pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 					continue;
@@ -1458,9 +1470,25 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 
 		if ( pSpot == pFirstSpot && !bIgnorePlayers )
 		{
-			// Loop through again, ignoring players
-			bIgnorePlayers = true;
-			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+			if (TFGameRules()->IsDeathmatch())
+			{
+				// we haven't found a place to spawn yet,  so kill any guy at the first spawn point and spawn there
+				edict_t	*edPlayer;
+				edPlayer = edict();
+				CBaseEntity *ent = NULL;
+				for (CEntitySphereQuery sphere(pSpot->GetAbsOrigin(), 128); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity())
+				{
+					// if ent is a client, kill em (unless they are ourselves)
+					if (ent->IsPlayer() && !(ent->edict() == edPlayer))
+						ent->TakeDamage(CTakeDamageInfo(GetContainingEntity(INDEXENT(0)), GetContainingEntity(INDEXENT(0)), 300, DMG_GENERIC));
+				}
+			}
+			else
+			{
+				// Loop through again, ignoring players
+				bIgnorePlayers = true;
+				pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
+			}
 		}
 	} 
 	// Continue until a valid spawn point is found or we hit the start.
