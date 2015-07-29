@@ -35,8 +35,8 @@ bool CTFMainMenuPanel::Init()
 {
 	BaseClass::Init();
 
-	m_bShouldPlay = true;
-	m_flMusicThink = -1;
+	m_psMusicStatus = MUSIC_FIND;
+	m_pzMusicLink[0] = '\0';
 	m_nSongGuid = 0;
 
 	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
@@ -123,9 +123,7 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "randommusic"))
 	{
-		m_flMusicThink = gpGlobals->curtime;
 		enginesound->StopSoundByGuid(m_nSongGuid);
-		m_bShouldPlay = true;
 	}
 	else
 	{
@@ -213,27 +211,25 @@ void CTFMainMenuPanel::OnTick()
 
 	if (tf2c_mainmenu_music.GetBool() && !bInGameLayout)
 	{
-		if (m_bShouldPlay && m_flMusicThink < gpGlobals->curtime && !enginesound->IsSoundStillPlaying(m_nSongGuid))
+		if ((m_psMusicStatus == MUSIC_FIND || m_psMusicStatus == MUSIC_STOP_FIND) && !enginesound->IsSoundStillPlaying(m_nSongGuid))
 		{
-			m_bShouldPlay = false;
 			Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
-			m_flMusicThink = gpGlobals->curtime + enginesound->GetSoundDuration(m_pzMusicLink);
+			m_psMusicStatus = MUSIC_PLAY;
 		}
-		else if (!m_bShouldPlay && m_pzMusicLink[0] != '\0')
+		else if ((m_psMusicStatus == MUSIC_PLAY || m_psMusicStatus == MUSIC_STOP_PLAY)&& m_pzMusicLink[0] != '\0')
 		{
 			enginesound->StopSoundByGuid(m_nSongGuid);
 			ConVar *snd_musicvolume = cvar->FindVar("snd_musicvolume");
 			float fVolume = (snd_musicvolume ? snd_musicvolume->GetFloat() : 1.0f);
 			enginesound->EmitAmbientSound(m_pzMusicLink, fVolume, PITCH_NORM, 0);			
 			m_nSongGuid = enginesound->GetGuidForLastSoundEmitted();
-			m_bShouldPlay = true;
+			m_psMusicStatus = MUSIC_FIND;
 		}
 	}
-	else if (m_bShouldPlay)
+	else if (m_psMusicStatus == MUSIC_FIND)
 	{
 		enginesound->StopSoundByGuid(m_nSongGuid);
-		m_flMusicThink = gpGlobals->curtime;
-		m_bShouldPlay = false;
+		m_psMusicStatus = (m_nSongGuid == 0 ? MUSIC_STOP_FIND : MUSIC_STOP_PLAY);
 	}
 };
 

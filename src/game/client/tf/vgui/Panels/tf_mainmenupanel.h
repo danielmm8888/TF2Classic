@@ -11,6 +11,16 @@ class CTFAdvButton;
 //class CSteamID;
 //class ISteamHTTP;
 //class HTTPRequestHandle;
+
+enum MusicStatus
+{
+	MUSIC_STOP,
+	MUSIC_FIND,
+	MUSIC_PLAY,
+	MUSIC_STOP_FIND,
+	MUSIC_STOP_PLAY,
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -43,8 +53,7 @@ private:
 
 	char				m_pzMusicLink[64];	
 	int					m_nSongGuid;
-	float				m_flMusicThink;
-	bool				m_bShouldPlay;
+	MusicStatus			m_psMusicStatus;
 	char*				GetRandomMusic();
 	char*				GetVersionString();
 	
