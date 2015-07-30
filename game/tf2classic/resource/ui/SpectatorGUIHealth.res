@@ -53,15 +53,22 @@
 	}
 	"PlayerStatusHealthValue"
 	{
-		"ControlName"	"Label"
+		"ControlName"	"CExLabel"
 		"fieldName"		"PlayerStatusHealthValue"
-		"xpos"			"75"
-		"ypos"			"32"
+		"xpos"			"6"
+		"xpos_minmode"	"7"
+		"ypos"			"11"
+		"ypos_minmode"	"7"
 		"zpos"			"5"
-		"wide"			"50"
-		"tall"			"18"
-		"visible"		"0"
-		"enabled"		"0"
+		"wide"			"20"
+		"wide_minmode"	"14"
+		"tall"			"10"
+		"tall_minmode"	"14"
+		"visible"		"1"
+		"enabled"		"1"
+		"labelText"		"%Health%"
 		"textAlignment"	"center"	
-	}								
+		"font"			"SpectatorVerySmall"
+		"fgcolor"		"TanDark"
+	}
 }
