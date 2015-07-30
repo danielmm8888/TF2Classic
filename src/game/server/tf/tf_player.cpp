@@ -1046,14 +1046,16 @@ void CTFPlayer::GiveDefaultItems()
 	TFPlayerClassData_t *pData = m_PlayerClass.GetData();
 
 	RemoveAllAmmo();
+	
+	ChangeWeapon(pData);
+
+	SetMaxAmmo(pData);
 
 	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
 	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
 	{
 		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
 	}
-	
-	ChangeWeapon(pData);
 
 	// Give weapons.
 	if (tf2c_random_weapons.GetBool())
@@ -1075,6 +1077,28 @@ void CTFPlayer::GiveDefaultItems()
 	}
 
 	SwitchToNextBestWeapon(NULL);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the max ammo type value using the 'MaxAmmo' value inside
+//			the weapon script files.
+//			If the 'MaxAmmo' value isn't defined, it will fall back to the 
+//			ammo value found inside the playerclass files.
+//-----------------------------------------------------------------------------
+void CTFPlayer::SetMaxAmmo( TFPlayerClassData_t *pData )
+{
+	CTFWeaponInfo *pWeaponInfo;
+	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+	{
+		pWeaponInfo = GetTFWeaponInfo(pData->m_aWeapons[iSlot]);
+		if (pWeaponInfo)
+		{
+			int AmmoType = pWeaponInfo->iAmmoType;
+			int MaxAmmo = pWeaponInfo->m_WeaponData[0].m_iMaxAmmo;
+			if (MaxAmmo) // If MaxAmmo != 0, use the value from the weapon script.
+				pData->m_aAmmoMax[AmmoType] = MaxAmmo;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
