@@ -9,11 +9,6 @@
 #include "panels/tf_notificationpanel.h"
 #include "panels/tf_shadebackgroundpanel.h"
 #include "panels/tf_optionsdialog.h"
-#include "panels/tf_optionsadvancedpanel.h"
-#include "panels/tf_optionsmousepanel.h"
-#include "panels/tf_optionskeyboardpanel.h"
-#include "panels/tf_optionsaudiopanel.h"
-#include "panels/tf_optionsvideopanel.h"
 #include "panels/tf_quitdialogpanel.h"
 #include "panels/tf_statsummarydialog.h"
 #include "engine/IEngineSound.h"
@@ -75,16 +70,6 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	AddMenuPanel(new CTFOptionsDialog(this, "CTFOptionsDialog"), OPTIONSDIALOG_MENU);
 	AddMenuPanel(new CTFStatsSummaryDialog(this, "CTFStatsSummaryDialog"), STATSUMMARY_MENU);
 
-
-	
-	/*
-	AddMenuPanel(new CTFOptionsAdvancedPanel(this, "CTFOptionsAdvancedPanel"), OPTIONSADV_MENU);
-	AddMenuPanel(new CTFOptionsMousePanel(this, "CTFOptionsMousePanel"), OPTIONSMOUSE_MENU);
-	AddMenuPanel(new CTFOptionsKeyboardPanel(this, "CTFOptionsKeyboardPanel"), OPTIONSKEYBOARD_MENU);
-	AddMenuPanel(new CTFOptionsAudioPanel(this, "CTFOptionsAudioPanel"), OPTIONSAUDIO_MENU);
-	AddMenuPanel(new CTFOptionsVideoPanel(this, "CTFOptionsVideoPanel"), OPTIONSVIDEO_MENU);
-	*/
-
 	ShowPanel(MAIN_MENU);
 	ShowPanel(PAUSE_MENU);
 	ShowPanel(BACKGROUND_MENU);
@@ -94,19 +79,10 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONSDIALOG_MENU);
 	HidePanel(STATSUMMARY_MENU);
-
-
-	/*
-	HidePanel(OPTIONSADV_MENU);
-	HidePanel(OPTIONSMOUSE_MENU);
-	HidePanel(OPTIONSKEYBOARD_MENU);
-	HidePanel(OPTIONSAUDIO_MENU);
-	HidePanel(OPTIONSVIDEO_MENU);
-	*/
 	
 	bInGameLayout = false;
 	m_iStopGameStartupSound = 2;
-	m_iUpdateLayout = 0;
+	m_iUpdateLayout = 1;
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
@@ -200,9 +176,11 @@ void CTFMainMenu::InvalidatePanelsLayout(bool layoutNow, bool reloadScheme)
 {	
 	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
 	{
-		if (GetMenuPanel(i) && GetMenuPanel(i)->IsVisible())
+		if (GetMenuPanel(i))
 		{
+			bool bVisible = GetMenuPanel(i)->IsVisible();
 			GetMenuPanel(i)->InvalidateLayout(layoutNow, reloadScheme);
+			GetMenuPanel(i)->SetVisible(bVisible);
 		}
 	}	
 }
