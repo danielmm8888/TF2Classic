@@ -214,6 +214,8 @@ $Project "Server (TF)"
 						$File	"$SRCDIR\game\shared\tf\tf_weapon_flaregun.h"
 						$File	"$SRCDIR\game\shared\tf\tf_weapon_grenade_flare.cpp"
 						$File	"$SRCDIR\game\shared\tf\tf_weapon_grenade_flare.h"
+						$File	"$SRCDIR\game\shared\tf\tf_weapon_assaultrifle.cpp"
+						$File	"$SRCDIR\game\shared\tf\tf_weapon_assaultrifle.h"		
 					}
 					$File	"$SRCDIR\game\shared\tf\tf_weapon_bat.cpp"
 					$File	"$SRCDIR\game\shared\tf\tf_weapon_bat.h"
