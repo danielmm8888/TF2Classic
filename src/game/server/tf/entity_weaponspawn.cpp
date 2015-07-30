@@ -91,7 +91,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 		}
 
-		pPlayer->GiveNamedItem(pWeaponInfo->szClassName);
+		pTFPlayer->GiveNamedItem(pWeaponInfo->szClassName);
 
 		CSingleUserRecipientFilter user(pPlayer);
 		user.MakeReliable();

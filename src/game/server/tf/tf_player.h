@@ -401,7 +401,6 @@ private:
 	// Creation/Destruction.
 	void				InitClass( void );
 	void				GiveDefaultItems();
-	void				SetMaxAmmo( TFPlayerClassData_t *pData );
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();

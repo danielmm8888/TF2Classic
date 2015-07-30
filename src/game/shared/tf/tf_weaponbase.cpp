@@ -443,6 +443,24 @@ void CTFWeaponBase::PrimaryAttack( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
+{
+#ifdef GAME_DLL
+	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
+	int AmmoType = m_pWeaponInfo->iAmmoType;
+	int MaxAmmo = m_pWeaponInfo->m_WeaponData[0].m_iMaxAmmo;
+	if (MaxAmmo)
+		pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType] = MaxAmmo;
+	pPlayer->GiveAmmo(pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType], AmmoType);
+#endif
+
+	BaseClass::OnPickedUp(pNewOwner);
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::SecondaryAttack( void )
