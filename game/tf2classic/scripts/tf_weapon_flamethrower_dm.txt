@@ -15,6 +15,7 @@ WeaponData
 	"TimeFireDelay"	"0.04"
 	"UseRapidFireCrits"	"1"
 	"HasTeamSkins_Viewmodel"			"1"
+	"MaxAmmo"		"200"
 
 
 	// Ammo & Clip.

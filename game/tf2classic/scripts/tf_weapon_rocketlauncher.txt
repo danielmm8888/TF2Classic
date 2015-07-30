@@ -23,6 +23,7 @@ WeaponData
 	default_clip		4
 	"ProjectileType"	"projectile_rocket"
 	"HasTeamSkins_Viewmodel"	"1"
+	"MaxAmmo"		"20"
 
 	// Secondary Attributes.
 	"secondary_ammo"	"None"

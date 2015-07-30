@@ -16,6 +16,7 @@ WeaponData
 	"ProjectileType"	"projectile_bullet"
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
+	"MaxAmmo"		"25"
 	
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"		"models/weapons/shells/shell_sniperrifle.mdl"

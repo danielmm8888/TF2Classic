@@ -24,6 +24,7 @@ WeaponData
 	"ProjectileType"		"projectile_bullet"
 	"AmmoPerShot"			"1"
 	"HasTeamSkins"			"1"
+	"MaxAmmo"			"32"
 	
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"			"models/weapons/shells/shell_shotgun.mdl"	

@@ -17,6 +17,7 @@ WeaponData
 	"HasTeamSkins_Viewmodel"	"1"
 	"UseRapidFireCrits"		"1"
 	"HasTeamSkins_Worldmodel"	"1"
+	"MaxAmmo"			"150"
 
 	// Ammo & Clip.
 	"primary_ammo"			"TF_AMMO_PRIMARY"
