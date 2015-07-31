@@ -21,9 +21,24 @@
 
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
 
+BEGIN_DATADESC(CTFPowerupCritdamage)
+
+	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
+
+END_DATADESC()
+
+
 LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
 
 //=============================================================================
+
+//-----------------------------------------------------------------------------
+// Purpose: Constructor 
+//-----------------------------------------------------------------------------
+CTFPowerupCritdamage::CTFPowerupCritdamage()
+{	
+	m_iRespawnTime = 30;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
@@ -34,6 +49,14 @@ void CTFPowerupCritdamage::Spawn(void)
 	SetModel( GetPowerupModel() );
 
 	BaseClass::Spawn();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:  
+//-----------------------------------------------------------------------------
+float CTFPowerupCritdamage::GetRespawnDelay(void)
+{
+	return (float)m_iRespawnTime;
 }
 
 //-----------------------------------------------------------------------------

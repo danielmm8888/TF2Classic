@@ -22,14 +22,21 @@ class CTFPowerupCritdamage : public CTFPowerup
 {
 public:
 	DECLARE_CLASS(CTFPowerupCritdamage, CTFPowerup);
+	DECLARE_DATADESC();
+
+	CTFPowerupCritdamage();
 
 	void	Spawn(void);
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
+	float	GetRespawnDelay(void);
 
-	virtual const char *GetPowerupModel(void) { return "models/items/medkit_large.mdl"; }
+	virtual const char *GetPowerupModel(void) { return "models/class_menu/random_class_icon.mdl"; }
 
 	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
+
+	int		m_iRespawnTime;
+
 };
 
 #endif // POWERUP_CRITDAMAGE_H
