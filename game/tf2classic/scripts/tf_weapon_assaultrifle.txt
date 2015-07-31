@@ -4,22 +4,23 @@ WeaponData
 	"printname"		"#TF_Weapon_SMG"
 	"BuiltRightHanded"	"0"
 	"weight"		"2"
-	"WeaponType"		"secondary"
+	"WeaponType"		"primary"
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		
 	// Attributes TF.
-	"Damage"		"12"
+	"Damage"		"16"
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
-	"Spread"		"0.005"
+	"Spread"		"0.01"
 	"TimeIdle"		"10.0"
 	"TimeIdleEmpty"		"1.0"
-	"TimeFireDelay"		"0.2"
+	"TimeFireDelay"		"0.16"
 	"ProjectileType"	"projectile_bullet"
 	"BrassModel"		"models/weapons/shells/shell_pistol.mdl"
 	"UseRapidFireCrits"	"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
+	"MaxAmmo"			"90"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_PRIMARY"

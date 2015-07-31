@@ -1,7 +1,7 @@
 WeaponData
 {
 	// Attributes Base.
-	"printname"				"#TF_Weapon_Scattergun"
+	"printname"			"#TF_Weapon_Scattergun"
 	"BuiltRightHanded"		"0"
 	"weight"				"3"
 	"WeaponType"			"primary"

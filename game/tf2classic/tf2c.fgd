@@ -137,6 +137,12 @@
 	round_yellowspawn(target_destination) : "Yellow spawn for round" : : "Yellow spawn point when the associated round is being played."
 ]
 
+@PointClass base(PlayerClass, Angles) studio("models/editor/playerstart.mdl") = info_player_deathmatch :
+	"This entity indicates the position and facing direction at which the player will spawn during a deathmatch map. Any number of "+
+	"info_player_deathmatch entities may be placed in a map."
+[
+]
+
 @PointClass base(Targetname) = game_forcerespawn :
 	"Removes buildings, grenades, etc., from the world and forces all players to respawn " +
 	"(without being killed)."
@@ -712,18 +718,129 @@
 [
 	WeaponNumber(Choices) : "Weapon" : 0 =
 	[
-		5 : "Crowbar"
-		65 : "Shotgun"
-		66 : "Scattergun"
-		67 : "Flamethrower"
-		68 : "Pistol"
-		69 : "SMG"
-		70 : "Sniper rifle"
-		71 : "Pipebomb launcher"
-		21 : "Rocket launcher"
-		17 : "Minigun"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
 	]
 	
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 10
+]
+
+@PointClass base(Targetname) size(-8 -8 -8, 8 8 8) = tf_player_equip : 
+	"An entity that gives equipment to the player who activates it."
+[
+	spawnflags(flags) =
+	[
+		1: "Use Only" : 0
+	]
+
+	stripweapons(Choices) : "Strip weapons" : 0 : "Remove players' current weapons before equipping new ones" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	weapon1(Choices) : "Weapon 1" : 0 =
+	[
+		0 : "-none-"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
+	]
+
+	weapon2(Choices) : "Weapon 2" : 0 =
+	[
+		0 : "-none-"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
+	]
+
+	weapon3(Choices) : "Weapon 3" : 0 =
+	[
+		0 : "-none-"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
+	]
+
+	weapon4(Choices) : "Weapon 4" : 0 =
+	[
+		0 : "-none-"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
+	]
+
+	weapon5(Choices) : "Weapon 5" : 0 =
+	[
+		0 : "-none-"
+		65 : "Shotgun ( Primary )"
+		66 : "Scattergun ( Primary )"
+		67 : "Flamethrower ( Primary )"
+		70 : "Sniper rifle ( Primary )"
+		71 : "Pipebomb launcher ( Primary )"
+		74 : "Assault rifle ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		21 : "Rocket launcher ( Primary )"
+		17 : "Minigun ( Primary )"
+		68 : "Pistol ( Secondary )"
+		69 : "SMG ( Secondary )"
+		76 : "Six Shooter ( Secondary )"
+		5 : "Crowbar ( Melee )"
+	]
+	
+	// Inputs
+	//input EquipWeapons(void) : "Equips all of the players on the current server with the specified weapons."
 ]
 

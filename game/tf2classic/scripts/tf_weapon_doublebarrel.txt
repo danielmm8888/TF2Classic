@@ -8,12 +8,12 @@ WeaponData
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 	
 	// Primary Attributes
-	"Damage"			"10"
-	"Range"				"8192"
-	"BulletsPerShot"		"10"
-	"Spread"			"0.0875"
+	"Damage"			"25"
+	"Range"				"6462"
+	"BulletsPerShot"		"12"
+	"Spread"			"0.27"
 	"PunchAngle"			"3.0"
-	"TimeFireDelay"			"0.425"
+	"TimeFireDelay"			"0.715"
 	"TimeIdle"			"5.0"
 	"TimeIdleEmpty"			"0.25"
 	"TimeReloadStart"		"0.1"
@@ -28,6 +28,7 @@ WeaponData
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"			"models/weapons/shells/shell_shotgun.mdl"	
 	"TracerEffect"		"bullet_shotgun_tracer01"
+	"MaxAmmo"		"16"
 
 	// Buckets.
 	"bucket"			"0"
