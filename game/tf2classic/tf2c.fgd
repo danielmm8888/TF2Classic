@@ -844,3 +844,4 @@
 	//input EquipWeapons(void) : "Equips all of the players on the current server with the specified weapons."
 ]
 
+@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_critdamage : "CritDamage" []
