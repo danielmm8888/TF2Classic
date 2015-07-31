@@ -48,6 +48,8 @@
 
 extern ConVar	tf_avoidteammates;
 
+extern ConVar	fraglimit;
+
 extern Vector g_TFClassViewVectors[];
 
 class CTFGameRulesProxy : public CTeamplayRoundBasedRulesProxy

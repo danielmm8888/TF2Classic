@@ -771,6 +771,16 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_CRITBOOSTED );
 		}
 	}
+	if (InCond(TF_COND_POWERUP_CRITDAMAGE))
+	{
+		if (GetConditionDuration(TF_COND_POWERUP_CRITDAMAGE))
+		{
+			if (gpGlobals->curtime > gpGlobals->curtime + GetConditionDuration(TF_COND_POWERUP_CRITDAMAGE))
+			{
+				RemoveCond(TF_COND_POWERUP_CRITDAMAGE);
+			}
+		}
+	}
 	if ( InCond( TF_COND_STEALTHED_BLINK ) )
 	{
 		if ( TF_SPY_STEALTH_BLINKTIME/*tf_spy_stealth_blink_time.GetFloat()*/ < ( gpGlobals->curtime - m_flLastStealthExposeTime ) )

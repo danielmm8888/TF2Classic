@@ -1065,6 +1065,12 @@ public:
 				break;
 			}
 		}
+		else if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE))
+		{
+			Vector critColor = pPlayer->m_vecPlayerColor;
+			critColor *= 255;
+			vecColor = critColor;
+		}
 
 		m_pResult->SetVecValue( vecColor.Base(), 3 );
 	}

@@ -415,6 +415,12 @@ enum
 	TF_COND_SMOKE_BOMB,
 	TF_COND_SLOWED,
 
+	// Powerup conditions
+	TF_COND_POWERUP_CRITDAMAGE,
+	TF_COND_POWERUP_SHORTUBER,
+	TF_COND_POWERUP_FASTRELOAD,
+	TF_COND_POWERUP_CLOAK,
+
 	// Add new conditions that should be affected by healing here
 
 	TF_COND_LAST
