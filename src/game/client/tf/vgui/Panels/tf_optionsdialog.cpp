@@ -106,7 +106,6 @@ void CTFOptionsDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 	LoadControlSettings("resource/UI/main_menu/OptionsDialog.res");
 	dynamic_cast<CTFAdvButton *>(FindChildByName("Defaults"))->SetVisible(false);
-	SetCurrentPanel(PANEL_ADV);
 }
 
 void CTFOptionsDialog::Show()

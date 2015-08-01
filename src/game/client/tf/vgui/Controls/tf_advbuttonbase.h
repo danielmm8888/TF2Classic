@@ -58,12 +58,13 @@ public:
 	virtual const char* GetCommandString();
 	virtual void SetAutoChange(bool bAutoChange) { m_bAutoChange = bAutoChange; };
 	virtual bool IsAutoChange() { return m_bAutoChange; };
-	virtual void SetBorderVisible(bool bVisible){ m_bBorderVisible = bVisible; };
-	virtual void SetBGVisible(bool bVisible){ m_bBGVisible = bVisible; };
+	virtual void SetBorderVisible(bool bVisible);
+	virtual void SetBGVisible(bool bVisible);
 	virtual void SetDisabled(bool bDisabled){ m_bDisabled = bDisabled; };
 	virtual bool IsDisabled() { return m_bDisabled; };
 	virtual void SetFont(const char *sFont);
 	virtual void SetBorder(const char *sBorder);
+	virtual void SetImage(const char *sImage){ pButtonImage->SetImage(sImage); };
 
 	virtual void OnThink();
 	static	vgui::Label::Alignment GetAlignment(char* m_szAlignment);

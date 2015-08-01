@@ -35,6 +35,9 @@ public:
 	void SetText(const char *tokenName);
 	void SetCommand(const char *command);
 	void SetGlowing(bool Glowing);
+	void SetShouldScaleImage(bool state) { m_bScaleImage = state; };
+	bool GetShouldScaleImage() { return m_bScaleImage; };
+	void SetBorderVisible(bool bVisible);
 
 	void OnTick();
 
@@ -47,6 +50,7 @@ protected:
 	float			m_flActionThink;
 	float			m_flAnimationThink;
 	bool			m_bAnimationIn;
+	bool			m_bScaleImage;
 };
 
 
