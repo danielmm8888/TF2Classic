@@ -2833,3 +2833,23 @@ CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByType( int iType )
 
 }
 
+CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByBucket(int iSlot)
+{
+	for (int i = 0; i < WeaponCount(); i++)
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+
+		if (pWpn == NULL)
+			continue;
+	
+		int iWeaponSlot = pWpn->GetTFWpnData().iSlot;
+
+		if (iWeaponSlot == iSlot)
+		{
+			return pWpn;
+		}
+	}
+
+	return NULL;
+
+}

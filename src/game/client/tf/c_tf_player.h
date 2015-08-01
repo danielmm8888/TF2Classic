@@ -199,6 +199,7 @@ public:
 
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
+	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );

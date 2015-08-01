@@ -393,6 +393,7 @@ public:
 
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
+	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );
 
 private:
 
