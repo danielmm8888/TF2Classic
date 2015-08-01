@@ -452,6 +452,7 @@ void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 	int MaxAmmo = m_pWeaponInfo->m_WeaponData[0].m_iMaxAmmo;
 	if (MaxAmmo)
 		pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType] = MaxAmmo;
+	pPlayer->SetAmmoCount(1,AmmoType);
 	pPlayer->GiveAmmo(pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType], AmmoType);
 #endif
 
