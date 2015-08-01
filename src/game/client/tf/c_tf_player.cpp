@@ -3772,12 +3772,12 @@ void C_TFPlayer::Simulate( void )
 
 void C_TFPlayer::LoadInventory(void)
 {
-	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
 	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
 	{
 		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 		{
-			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
+			int iPreset = GetTFInventory()->GetLocalPreset(pInventoryKeys, iClass, iSlot);
 			char szCmd[64];
 			Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset);
 			engine->ExecuteClientCmd(szCmd);
@@ -3787,11 +3787,11 @@ void C_TFPlayer::LoadInventory(void)
 
 void C_TFPlayer::EditInventory(int iSlot, int iWeapon)
 {
-	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
 	int iClass = GetPlayerClass()->GetClassIndex();
-	KeyValues* pClass = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	pClass->SetInt(Inventory->GetSlotName(iSlot), iWeapon);
-	Inventory->SetInventory(filesystem, pInventory);
+	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iWeapon);
+	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
 }
 
 /*

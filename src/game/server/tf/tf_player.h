@@ -76,7 +76,6 @@ public:
 	// Creation/Destruction.
 	static CTFPlayer	*CreatePlayer( const char *className, edict_t *ed );
 	static CTFPlayer	*Instance( int iEnt );
-	CTFInventory *Inventory;
 
 	virtual void		Spawn();
 	virtual void		ForceRespawn();

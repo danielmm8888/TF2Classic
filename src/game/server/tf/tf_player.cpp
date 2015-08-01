@@ -1138,7 +1138,7 @@ void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
 	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 	{
-		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex(), iSlot, GetWeaponPreset(iSlot));
+		int iWeapon = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iSlot, GetWeaponPreset(iSlot));
 		if (iWeapon != 0)
 			pData->m_aWeapons[iSlot] = iWeapon;
 	}
@@ -1338,7 +1338,7 @@ void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 {
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if (!Inventory->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
 		return;
 
 	if (iSlotNum == 0){
@@ -1357,7 +1357,7 @@ void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
 {
-	if (!Inventory->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
 		return;
 
 	if (iSlotNum == 0){
