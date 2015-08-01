@@ -168,6 +168,7 @@ $Project "Client (TF)"
 			$File	"tf\tf_viewrender.cpp"
 			$File	"tf\tf_viewrender.h"		
 			$File	"tf\c_entity_weaponspawn.cpp"		
+			$File	"tf\c_tf_basedmpowerup.cpp"		
 
 			$Folder	"Unused"
 			{

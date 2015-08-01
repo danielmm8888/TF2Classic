@@ -19,14 +19,8 @@
 
 //=============================================================================
 
-#define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
-
 BEGIN_DATADESC(CTFPowerupCritdamage)
-
-	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
-
 END_DATADESC()
-
 
 LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
 
@@ -38,6 +32,7 @@ LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
 CTFPowerupCritdamage::CTFPowerupCritdamage()
 {	
 	m_iRespawnTime = 30;
+//	m_iEffectDuration = 15;
 }
 
 //-----------------------------------------------------------------------------
@@ -45,18 +40,7 @@ CTFPowerupCritdamage::CTFPowerupCritdamage()
 //-----------------------------------------------------------------------------
 void CTFPowerupCritdamage::Spawn(void)
 {
-	Precache();
-	SetModel( GetPowerupModel() );
-
 	BaseClass::Spawn();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:  
-//-----------------------------------------------------------------------------
-float CTFPowerupCritdamage::GetRespawnDelay(void)
-{
-	return (float)m_iRespawnTime;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,8 +48,7 @@ float CTFPowerupCritdamage::GetRespawnDelay(void)
 //-----------------------------------------------------------------------------
 void CTFPowerupCritdamage::Precache(void)
 {
-	PrecacheModel( GetPowerupModel() );
-	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
+	BaseClass::Precache();
 }
 
 //-----------------------------------------------------------------------------
@@ -73,24 +56,5 @@ void CTFPowerupCritdamage::Precache(void)
 //-----------------------------------------------------------------------------
 bool CTFPowerupCritdamage::MyTouch(CBasePlayer *pPlayer)
 {
-	bool bSuccess = false;
-
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
-	if  (pTFPlayer && ValidTouch(pPlayer) )
-	{
-		pTFPlayer->m_Shared.AddCond( TF_COND_POWERUP_CRITDAMAGE, 15.0f );
-
-		CSingleUserRecipientFilter user(pPlayer);
-		user.MakeReliable();
-
-		UserMessageBegin(user, "ItemPickup");
-		WRITE_STRING(GetClassname());
-		MessageEnd();
-
-		EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
-
-		bSuccess = true;
-	}
-
-	return bSuccess;
+	return BaseClass::MyTouch(pPlayer);
 }

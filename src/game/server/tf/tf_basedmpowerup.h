@@ -1,44 +1,45 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: Critical Damage: Crits for 30/15 seconds with a crit glow. 
-// Looks like an amplifier device that attaches onto weapons somehow, 
-// looks similar to a car battery. 
-// Crit glow effect would match the player’s merc color or be blue.
+// Purpose: Base class for Deathmatch powerups 
 //
 //=============================================================================//
 
-#ifndef POWERUP_CRITDAMAGE_H
-#define POWERUP_CRITDAMAGE_H
+#ifndef BASE_DM_POWERUP_H
+#define BASE_DM_POWERUP_H
 
 #ifdef _WIN32
 #pragma once
 #endif
 
-#include "tf_basedmpowerup.h"
+#include "tf_powerup.h"
 
 //=============================================================================
 
-class CTFPowerupCritdamage : public CTFBaseDMPowerup
+class CTFBaseDMPowerup : public CTFPowerup
 {
 public:
-	DECLARE_CLASS(CTFPowerupCritdamage, CTFBaseDMPowerup);
+	DECLARE_CLASS(CTFBaseDMPowerup, CTFPowerup);
 	DECLARE_DATADESC();
+	DECLARE_SERVERCLASS();
 
-	CTFPowerupCritdamage();
+	CTFBaseDMPowerup();
 
 	void	Spawn(void);
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
+	float	GetRespawnDelay(void);
 
 	virtual const char *GetPowerupModel(void) { return "models/class_menu/random_class_icon.mdl"; }
 	virtual const char *GetPickupSound(void) { return "HealthKit.Touch"; }
 
-	virtual int	GetEffectDuration(void) { return 15; }
-	virtual int	GetCondition(void) { return TF_COND_POWERUP_CRITDAMAGE; }
+	virtual int	GetEffectDuration(void) { return 0; }/*{ return m_iEffectDuration; }*/
+	virtual int GetCondition(void) { return TF_COND_AIMING; }
 
 	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
+
+	int		m_iRespawnTime;
+	int		m_iEffectDuration;
+
 };
 
-#endif // POWERUP_CRITDAMAGE_H
-
-
+#endif // BASE_DM_POWERUP_H
