@@ -162,6 +162,17 @@ void CTFAdvButtonBase::SetBorder(const char *sBorder)
 	PerformLayout();
 }
 
+void CTFAdvButtonBase::SetBorderVisible(bool bVisible)
+{
+	m_bBorderVisible = bVisible;
+	PerformLayout();
+};
+
+void CTFAdvButtonBase::SetBGVisible(bool bVisible){
+	m_bBGVisible = bVisible; 	
+	PerformLayout(); 
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

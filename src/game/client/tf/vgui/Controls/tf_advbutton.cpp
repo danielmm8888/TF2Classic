@@ -59,6 +59,7 @@ void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
 
 	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
 	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
+	m_bScaleImage = inResourceData->GetBool("scaleImage", true);
 
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
@@ -114,10 +115,11 @@ void CTFAdvButton::PerformLayout()
 	pButton->SetArmedSound("ui/buttonrollover.wav");
 	pButton->SetDepressedSound("ui/buttonclick.wav");
 	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
-
+	
 	float h = GetProportionalTallScale();
-	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
-	int iShift = (GetTall() - fWidth) / 2.0;
+	float fWidth = (!m_bScaleImage ? GetWide() : (m_fWidth == 0.0 ? GetTall() : m_fWidth * h));
+	float fHeight = (!m_bScaleImage ? GetTall() : fWidth);
+	int iShift = (!m_bScaleImage ? 0 : (GetTall() - fWidth) / 2.0);
 	
 	float fXOrigin = (m_fWidth == 0.0 ? 0 : iShift * 2 + fWidth);
 	pButton->SetTextInset(fXOrigin, 0);
@@ -128,9 +130,9 @@ void CTFAdvButton::PerformLayout()
 	pButtonImage->SetEnabled(IsEnabled());
 	pButtonImage->SetPos(iShift, iShift);
 	pButtonImage->SetZPos(2);
-	pButtonImage->SetWide(fWidth);
-	pButtonImage->SetTall(fWidth);	
 	pButtonImage->SetShouldScaleImage(true);
+	pButtonImage->SetWide(fWidth);
+	pButtonImage->SetTall(fHeight);
 }
 
 void CTFAdvButton::SetText(const char *tokenName)
@@ -144,6 +146,27 @@ void CTFAdvButton::SetCommand(const char *command)
 	pButton->SetCommand(command);
 	BaseClass::SetCommand(command);
 }
+
+void CTFAdvButton::SetBorderVisible(bool bVisible)
+{
+	BaseClass::SetBorderVisible(bVisible);
+
+	if (bVisible)
+	{
+		pButton->SetDefaultBorder(GETSCHEME()->GetBorder(pDefaultBorder));
+		pButton->SetArmedBorder(GETSCHEME()->GetBorder(pArmedBorder));
+		pButton->SetDepressedBorder(GETSCHEME()->GetBorder(pDepressedBorder));
+		pButton->SetSelectedBorder(GETSCHEME()->GetBorder(pArmedBorder));
+	}
+	else
+	{
+		pButton->SetDefaultBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
+		pButton->SetArmedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
+		pButton->SetDepressedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
+		pButton->SetSelectedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
+	}
+};
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -183,7 +206,8 @@ void CTFAdvButton::SetDefaultAnimation()
 void CTFAdvButton::SendAnimation(MouseState flag)
 {
 	BaseClass::SendAnimation(flag);
-
+	
+	bool bAnimation = ((m_fXShift == 0 && m_fYShift == 0) ? false : true);
 	AnimationController::PublicValue_t p_AnimLeave = { 0, 0, 0, 0 };
 	AnimationController::PublicValue_t p_AnimHover = { m_fXShift, m_fYShift, 0, 0 };
 	switch (flag)
@@ -194,11 +218,13 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 		break;
 	case MOUSE_ENTERED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
-		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+		if (bAnimation)
+			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_EXITED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+		if (bAnimation)
+			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_PRESSED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
