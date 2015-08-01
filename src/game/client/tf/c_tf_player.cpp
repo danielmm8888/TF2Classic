@@ -3507,6 +3507,19 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		LoadInventory();
 	}
 
+	if (TFGameRules()->IsDeathmatch())
+	{
+		CNewParticleEffect *pEffect = ParticleProp()->Create("dm_respawn_19", PATTACH_ABSORIGIN_FOLLOW);
+		if (pEffect)
+		{
+			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+			int index = ((C_BasePlayer *) this)->entindex();
+			Color clr = tf_PR->GetPlayerColor(index);
+			Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
+			pEffect->SetControlPoint(9, vec);
+		}
+	}
+
 	UpdateVisibility();
 
 	m_hFirstGib = NULL;
