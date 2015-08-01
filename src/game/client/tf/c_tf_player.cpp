@@ -59,6 +59,7 @@
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
 #include "c_tf_team.h"
+#include "tf_viewmodel.h"
 
 #include "tf_inventory.h"
 
@@ -1170,6 +1171,196 @@ public:
 
 EXPOSE_INTERFACE(CProxyAnimatedWeaponSheen, IMaterialProxy, "AnimatedWeaponSheen" IMATERIAL_PROXY_INTERFACE_VERSION);
 
+//-----------------------------------------------------------------------------
+// Purpose: Universal proxy from live tf2 used for spy invisiblity material
+//			Its' purpose is to replace weapon_invis, vm_invis and spy_invis
+//-----------------------------------------------------------------------------
+class CInvisProxy : public CEntityMaterialProxy
+{
+public:
+	CInvisProxy(void);
+	virtual				~CInvisProxy(void);
+	virtual bool		Init(IMaterial *pMaterial, KeyValues* pKeyValues);
+	virtual void		OnBind(C_BaseEntity *pC_BaseEntity);
+	virtual IMaterial *	GetMaterial();
+
+	virtual void		HandleSpyInvis(C_TFPlayer *pPlayer);
+	virtual void		HandleVMInvis(C_TFViewModel *pVM);
+	virtual void		HandleWeaponInvis(C_BaseEntity *pC_BaseEntity);
+
+private:
+
+	IMaterialVar		*m_pPercentInvisible;
+	IMaterialVar		*m_pCloakColorTint;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CInvisProxy::CInvisProxy(void)
+{
+	m_pPercentInvisible = NULL;
+	m_pCloakColorTint = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CInvisProxy::~CInvisProxy(void)
+{
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get pointer to the color value
+// Input  : *pMaterial - 
+//-----------------------------------------------------------------------------
+bool CInvisProxy::Init(IMaterial *pMaterial, KeyValues* pKeyValues)
+{
+	Assert(pMaterial);
+
+	// Need to get the material var
+	bool bInvis;
+	m_pPercentInvisible = pMaterial->FindVar("$cloakfactor", &bInvis);
+
+	bool bTint;
+	m_pCloakColorTint = pMaterial->FindVar("$cloakColorTint", &bTint);
+
+	// if we have $cloakColorTint, it's spy_invis
+	if (bTint)
+	{
+		return (bInvis && bTint);
+	}
+
+	return (bTint);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::OnBind(C_BaseEntity *pEnt)
+{
+	if (!pEnt)
+		return;
+
+	m_pPercentInvisible->SetFloatValue(0.0);
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pEnt);
+	C_TFViewModel *pVM = dynamic_cast<C_TFViewModel *>(pEnt);
+	if (pPlayer)
+	{
+		HandleSpyInvis(pPlayer);
+	}
+	else if (pVM)
+	{
+		HandleVMInvis(pVM);
+	}
+	else
+	{
+		HandleWeaponInvis(pEnt);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleSpyInvis(C_TFPlayer *pPlayer)
+{
+	if (!m_pPercentInvisible || !m_pCloakColorTint)
+		return;
+
+	m_pPercentInvisible->SetFloatValue(pPlayer->GetEffectiveInvisibilityLevel());
+
+	float r, g, b;
+
+	switch (pPlayer->GetTeamNumber())
+	{
+	case TF_TEAM_RED:
+		r = 1.0; g = 0.5; b = 0.4;
+		break;
+
+	case TF_TEAM_BLUE:
+		r = 0.4; g = 0.5; b = 1.0;
+		break;
+
+	case TF_TEAM_GREEN:
+		r = 0.4; g = 1.0; b = 0.5;
+		break;
+
+	case TF_TEAM_YELLOW:
+		r = 1.0; g = 0.5; b = 0.5;
+		break;
+
+	default:
+		r = 0.4; g = 0.5; b = 1.0;
+		break;
+	}
+
+	m_pCloakColorTint->SetVecValue(r, g, b);
+}
+
+extern ConVar tf_vm_min_invis;
+extern ConVar tf_vm_max_invis;
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleVMInvis(C_TFViewModel *pVM)
+{
+	if (!m_pPercentInvisible)
+		return;
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pVM->GetOwner());
+
+	if (!pPlayer)
+	{
+		m_pPercentInvisible->SetFloatValue(0.0f);
+		return;
+	}
+
+	float flPercentInvisible = pPlayer->GetPercentInvisible();
+
+	// remap from 0.22 to 0.5
+	// but drop to 0.0 if we're not invis at all
+	float flWeaponInvis = (flPercentInvisible < 0.01) ?
+		0.0 :
+		RemapVal(flPercentInvisible, 0.0, 1.0, tf_vm_min_invis.GetFloat(), tf_vm_max_invis.GetFloat());
+
+	m_pPercentInvisible->SetFloatValue(flWeaponInvis);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleWeaponInvis(C_BaseEntity *pEnt)
+{
+	if (!m_pPercentInvisible)
+		return;
+
+	C_BaseEntity *pMoveParent = pEnt->GetMoveParent();
+	if (!pMoveParent || !pMoveParent->IsPlayer())
+	{
+		m_pPercentInvisible->SetFloatValue(0.0f);
+		return;
+	}
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pMoveParent);
+	Assert(pPlayer);
+
+	m_pPercentInvisible->SetFloatValue(pPlayer->GetEffectiveInvisibilityLevel());
+}
+
+IMaterial *CInvisProxy::GetMaterial()
+{
+	if (!m_pPercentInvisible)
+		return NULL;
+
+	return m_pPercentInvisible->GetOwningMaterial();
+}
+
+EXPOSE_INTERFACE(CInvisProxy, IMaterialProxy, "invis" IMATERIAL_PROXY_INTERFACE_VERSION);
 
 //-----------------------------------------------------------------------------
 // Purpose: RecvProxy that converts the Player's object UtlVector to entindexes
