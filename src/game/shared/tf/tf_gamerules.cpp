@@ -10,6 +10,7 @@
 #include "KeyValues.h"
 #include "tf_weaponbase.h"
 #include "time.h"
+#include "viewport_panel_names.h"
 #ifdef CLIENT_DLL
 	#include <game/client/iviewport.h>
 	#include "c_tf_player.h"
@@ -655,8 +656,10 @@ static const char *s_PreserveEnts[] =
 	"tf_objective_resource",
 	"keyframe_rope",
 	"move_rope",
+	"info_ladder",
 	"tf_viewmodel",
 	"vote_controller",
+	"info_player_deathmatch",
 	"", // END Marker
 };
 
@@ -669,7 +672,7 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
-	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
+	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch") || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
 		return;
@@ -1533,6 +1536,26 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	void CTFGameRules::GoToIntermission( void )
 	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			float flWaitTime = 10;
+
+			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
+
+			// set all players to FL_FROZEN
+			for (int i = 1; i <= MAX_PLAYERS; i++)
+			{
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex(i);
+
+				if (pPlayer)
+				{
+					pPlayer->ShowViewPortPanel(PANEL_SCOREBOARD);
+					pPlayer->AddFlag(FL_FROZEN);
+				}
+			}
+			State_Enter(GR_STATE_TEAM_WIN);
+			return;
+		}
 		BaseClass::GoToIntermission();
 	}
 
@@ -2051,9 +2074,47 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	if ( pAssister )
 	{
 		CTF_GameStats.Event_AssistKill( ToTFPlayer( pAssister ), pVictim );
+		pAssister->IncrementAssistCount(1);
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
+
+	if (TFGameRules()->IsDeathmatch())
+	{
+		// Check if the killer or assister has got enough kills to end the round
+		if (pAssister)
+		{
+			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pAssister);
+
+			int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+			if (iScore >= fraglimit.GetFloat())
+			{
+				GoToIntermission();
+			}
+		}
+
+		if (pScorer)
+		{
+			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pScorer);
+			int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+			if (iScore >= fraglimit.GetFloat())
+			{
+				GoToIntermission();
+			}
+		}
+
+		/*
+		CTF_GameStats.Event_RoundEnd(iWinningTeam, bFullRound, flRoundTime, bWasSuddenDeath);
+
+		IGameEvent *event = gameeventmanager->CreateEvent("tf_game_over");
+		if (event)
+		{
+			event->SetString("reason", "Reached Win Limit");
+			gameeventmanager->FireEvent(event);
+		}
+
+		GoToIntermission();*/
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -3091,18 +3152,30 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 //-----------------------------------------------------------------------------
 int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 {
-	int iScore =	( pRoundStats->m_iStat[TFSTAT_KILLS] * TF_SCORE_KILL ) + 
-					( pRoundStats->m_iStat[TFSTAT_CAPTURES] * TF_SCORE_CAPTURE ) + 
-					( pRoundStats->m_iStat[TFSTAT_DEFENSES] * TF_SCORE_DEFEND ) + 
-					( pRoundStats->m_iStat[TFSTAT_BUILDINGSDESTROYED] * TF_SCORE_DESTROY_BUILDING ) + 
-					( pRoundStats->m_iStat[TFSTAT_HEADSHOTS] * TF_SCORE_HEADSHOT ) + 
-					( pRoundStats->m_iStat[TFSTAT_BACKSTABS] * TF_SCORE_BACKSTAB ) + 
-					( pRoundStats->m_iStat[TFSTAT_HEALING] / TF_SCORE_HEAL_HEALTHUNITS_PER_POINT ) +  
-					( pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT ) + 
-					( pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT ) +
-					( pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN ) +
-					( pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE );
-	return max( iScore, 0 );
+	// DM uses a different scoring system
+	if (TFGameRules()->IsDeathmatch())
+	{
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * 2) +
+					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS]) +
+					 (pRoundStats->m_iStat[TFSTAT_DOMINATIONS]) +
+					 (pRoundStats->m_iStat[TFSTAT_REVENGE]);
+		return iScore;
+	}
+	else
+	{
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * TF_SCORE_KILL) +
+			(pRoundStats->m_iStat[TFSTAT_CAPTURES] * TF_SCORE_CAPTURE) +
+			(pRoundStats->m_iStat[TFSTAT_DEFENSES] * TF_SCORE_DEFEND) +
+			(pRoundStats->m_iStat[TFSTAT_BUILDINGSDESTROYED] * TF_SCORE_DESTROY_BUILDING) +
+			(pRoundStats->m_iStat[TFSTAT_HEADSHOTS] * TF_SCORE_HEADSHOT) +
+			(pRoundStats->m_iStat[TFSTAT_BACKSTABS] * TF_SCORE_BACKSTAB) +
+			(pRoundStats->m_iStat[TFSTAT_HEALING] / TF_SCORE_HEAL_HEALTHUNITS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN) +
+			(pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE);
+		return max(iScore, 0);
+	}
 }
 
 //-----------------------------------------------------------------------------
