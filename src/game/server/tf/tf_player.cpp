@@ -381,6 +381,8 @@ CTFPlayer::CTFPlayer()
 
 	m_vecLastDeathPosition = Vector( FLT_MAX, FLT_MAX, FLT_MAX );
 
+	m_vecPlayerColor = Vector(1.0f, 1.0f, 1.0f);
+
 	SetDesiredPlayerClassIndex( TF_CLASS_UNDEFINED );
 
 	SetContextThink( &CTFPlayer::TFPlayerThink, gpGlobals->curtime, "TFPlayerThink" );
