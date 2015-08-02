@@ -50,7 +50,6 @@ private:
 
 
 private:
-	CTFInventory				*m_pInventory;
 	CTFImagePanel				*m_pWeaponBucket;
 	CTFImagePanel				*m_pSelection;
 	CExLabel					*m_pWeaponLabel;
@@ -69,11 +68,6 @@ private:
 	int m_iSelect_Y;
 
 	CTFImagePanel *m_pActiveWeaponBG;
-	int m_iBGImage_Inactive;
-	int m_iBGImage_Blue;
-	int m_iBGImage_Red;
-	int m_iBGImage_Green;
-	int m_iBGImage_Yellow;
 };
 
 #endif	// TF_HUD_MENU_WEAPONSET_H

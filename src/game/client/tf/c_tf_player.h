@@ -42,7 +42,6 @@ public:
 
 	C_TFPlayer();
 	~C_TFPlayer();
-	class CTFInventory *Inventory;
 
 	static C_TFPlayer* GetLocalTFPlayer();
 
