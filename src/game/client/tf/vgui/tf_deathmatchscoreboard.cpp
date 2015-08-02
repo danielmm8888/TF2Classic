@@ -58,9 +58,6 @@ CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPor
 	SetScheme( "ClientScheme" );
 
 	m_pPlayerListRed = new SectionedListPanel( this, "RedPlayerList" );
-	m_pLabelPlayerName = new CExLabel(this, "PlayerNameLabel", "");
-	m_pImagePanelHorizLine = new ImagePanel( this, "HorizontalLine" );
-	m_pClassImage = new CTFClassImage( this, "ClassImage" );
 	m_pRedScoreBG = new ImagePanel(this, "RedScoreBG");
 	m_iImageDead = 0;
 	m_iImageDominated = 0;
@@ -203,12 +200,13 @@ void CTFDeathMatchScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerLi
 		pPlayerList->AddColumnToSection( 0, "avatar", "", SectionedListPanel::COLUMN_IMAGE/* | SectionedListPanel::COLUMN_CENTER*/, m_iAvatarWidth );
 	}
 
-	pPlayerList->AddColumnToSection(0, "name", "", 0, m_iNameWidth);
+	pPlayerList->AddColumnToSection(0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth);
 	pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
 	pPlayerList->AddColumnToSection(0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth);
-	pPlayerList->AddColumnToSection(0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth);
-	pPlayerList->AddColumnToSection(0, "score", "", 0, m_iScoreWidth);
-	pPlayerList->AddColumnToSection(0, "ping", "", 0, m_iPingWidth);
+	pPlayerList->AddColumnToSection(0, "kills", "#TF_ScoreBoard_KillsLabel", 0, m_iKillsWidth);
+	pPlayerList->AddColumnToSection(0, "deaths", "#TF_ScoreBoard_DeathsLabel", 0, m_iDeathsWidth);
+	pPlayerList->AddColumnToSection(0, "score", "#TF_Scoreboard_Score", 0, m_iScoreWidth);
+	pPlayerList->AddColumnToSection(0, "ping", "#TF_Scoreboard_Ping", 0, m_iPingWidth);
 
 
 
@@ -354,14 +352,18 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 			if ( null == pPlayerList )
 				continue;			
 
-			const char *szName = tf_PR->GetPlayerName( playerIndex );
-			int score = tf_PR->GetTotalScore( playerIndex );
+			const char *szName = tf_PR->GetPlayerName(playerIndex);
+			int score = tf_PR->GetTotalScore(playerIndex);
+			int kills = tf_PR->GetPlayerScore(playerIndex);
+			int deaths = tf_PR->GetDeaths(playerIndex);
 
 			KeyValues *pKeyValues = new KeyValues( "data" );
 
 			pKeyValues->SetInt( "playerIndex", playerIndex );
 			pKeyValues->SetString( "name", szName );
-			pKeyValues->SetInt( "score", score );
+			pKeyValues->SetInt("score", score);
+			pKeyValues->SetInt("kills", kills);
+			pKeyValues->SetInt("deaths", deaths);
 
 			// can only see class information if we're on the same team
 			if ( !AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && !( localteam == TEAM_UNASSIGNED ) )
@@ -386,32 +388,21 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 						// for non-local players, show the current class
 						iClass = tf_PR->GetPlayerClass( playerIndex );
 					}
-
-					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
-					{
-						pKeyValues->SetInt("class", tf_PR->IsAlive(playerIndex) ? m_iClassEmblem[iClass] : m_iClassEmblemDead[iClass]);
-					}
-					else
-					{
-						pKeyValues->SetString( "class", "" );
-					}
 				}				
 			}
 			else
 			{
 				C_TFPlayer *pPlayerOther = ToTFPlayer( UTIL_PlayerByIndex( playerIndex ) );
-				bool bUseTruncatedNames = false;
+
 				if ( pPlayerOther && pPlayerOther->m_Shared.IsPlayerDominated( pLocalPlayer->entindex() ) )
 				{
 					// if local player is dominated by this player, show a nemesis icon
 					pKeyValues->SetInt( "nemesis", m_iImageNemesis );
-					pKeyValues->SetString( "class", bUseTruncatedNames ? "#TF_Nemesis_lodef" : "#TF_Nemesis" );
 				}
 				else if ( pLocalPlayer->m_Shared.IsPlayerDominated( playerIndex) )
 				{
 					// if this player is dominated by the local player, show the domination icon
 					pKeyValues->SetInt( "nemesis", m_iImageDominated );
-					pKeyValues->SetString( "class", bUseTruncatedNames ? "#TF_Dominated_lodef" : "#TF_Dominated" );
 				}
 			}
 
@@ -529,36 +520,15 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerDetails()
 
 	SetDialogVariable( "kills", tf_PR->GetPlayerScore( playerIndex ) );
 	SetDialogVariable( "deaths", tf_PR->GetDeaths( playerIndex ) );
-	SetDialogVariable( "assists", roundStats.m_iStat[TFSTAT_KILLASSISTS] );
-	SetDialogVariable( "destruction", roundStats.m_iStat[TFSTAT_BUILDINGSDESTROYED] );
-	SetDialogVariable( "captures", roundStats.m_iStat[TFSTAT_CAPTURES] );
-	SetDialogVariable( "defenses", roundStats.m_iStat[TFSTAT_DEFENSES] );
-	SetDialogVariable( "dominations", roundStats.m_iStat[TFSTAT_DOMINATIONS] );
-	SetDialogVariable( "revenge", roundStats.m_iStat[TFSTAT_REVENGE] );
-	SetDialogVariable( "healing", roundStats.m_iStat[TFSTAT_HEALING] );
-	SetDialogVariable( "invulns", roundStats.m_iStat[TFSTAT_INVULNS] );
-	SetDialogVariable( "teleports", roundStats.m_iStat[TFSTAT_TELEPORTS] );
-	SetDialogVariable( "headshots", roundStats.m_iStat[TFSTAT_HEADSHOTS] );
-	SetDialogVariable( "backstabs", roundStats.m_iStat[TFSTAT_BACKSTABS] );
+	SetDialogVariable("assists", roundStats.m_iStat[TFSTAT_KILLASSISTS]);
+	SetDialogVariable("dominations", roundStats.m_iStat[TFSTAT_DOMINATIONS]);
+	SetDialogVariable("revenge", roundStats.m_iStat[TFSTAT_REVENGE]);
+
 	SetDialogVariable( "playername", tf_PR->GetPlayerName( playerIndex ) );
 	SetDialogVariable( "playerscore", GetPointsString( tf_PR->GetTotalScore( playerIndex ) ) );
-	//Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
-	Color clr = tf_PR->GetPlayerColor(playerIndex);
-	m_pLabelPlayerName->SetFgColor( clr );
-	m_pImagePanelHorizLine->SetFillColor( clr );
-	m_pRedScoreBG->SetFillColor(clr);
 
-	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
-	int iTeam = pLocalPlayer->GetTeamNumber();
-	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) )
-	{
-		m_pClassImage->SetClass( iTeam, iClass, 0 );
-		m_pClassImage->SetVisible( true );
-	} 
-	else
-	{
-		m_pClassImage->SetVisible( false );
-	}
+	Color clr = tf_PR->GetPlayerColor(playerIndex);
+	m_pRedScoreBG->SetFillColor(clr);
 }
 
 //-----------------------------------------------------------------------------
@@ -605,8 +575,6 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerAvatar(int playerIndex, KeyValue
 //-----------------------------------------------------------------------------
 void CTFDeathMatchScoreBoardDialog::ClearPlayerDetails()
 {
-	m_pClassImage->SetVisible( false );
-
 	// HLTV has no game stats
 	bool bVisible = !engine->IsHLTV();
 
@@ -616,12 +584,6 @@ void CTFDeathMatchScoreBoardDialog::ClearPlayerDetails()
 	SetDialogVariable( "deaths", "" );
 	SetControlVisible( "DeathsLabel", bVisible );
 
-	SetDialogVariable( "captures", "" );
-	SetControlVisible( "CapturesLabel", bVisible );
-
-	SetDialogVariable( "defenses", "" );
-	SetControlVisible( "DefensesLabel", bVisible );
-
 	SetDialogVariable( "dominations", "" );
 	SetControlVisible( "DominationLabel", bVisible );
 
@@ -630,24 +592,6 @@ void CTFDeathMatchScoreBoardDialog::ClearPlayerDetails()
 
 	SetDialogVariable( "assists", "" );
 	SetControlVisible( "AssistsLabel", bVisible );
-
-	SetDialogVariable( "destruction", "" );
-	SetControlVisible( "DestructionLabel", bVisible );
-
-	SetDialogVariable( "healing", "" );
-	SetControlVisible( "HealingLabel", bVisible );
-
-	SetDialogVariable( "invulns", "" );
-	SetControlVisible( "InvulnLabel", bVisible );
-
-	SetDialogVariable( "teleports", "" );
-	SetControlVisible( "TeleportsLabel", bVisible );
-
-	SetDialogVariable( "headshots", "" );
-	SetControlVisible( "HeadshotsLabel", bVisible );
-
-	SetDialogVariable( "backstabs", "" );
-	SetControlVisible( "BackstabsLabel", bVisible );
 
 	SetDialogVariable( "playername", "" );
 

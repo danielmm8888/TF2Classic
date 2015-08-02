@@ -59,9 +59,6 @@ private:
 	vgui::SectionedListPanel *GetSelectedPlayerList( void );
 
 	vgui::SectionedListPanel	*m_pPlayerListRed;
-	CExLabel					*m_pLabelPlayerName;
-	vgui::ImagePanel			*m_pImagePanelHorizLine;
-	CTFClassImage				*m_pClassImage;
 	vgui::ImagePanel			*m_pRedScoreBG;
 
 	int							m_iImageDead;
@@ -73,6 +70,8 @@ private:
 	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "12", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );
 	CPanelAnimationVarAliasType(int, m_iNameWidth, "name_width", "236", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iKillsWidth, "kills_width", "23", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iDeathsWidth, "deaths_width", "23", "proportional_int");
 };
 
 const wchar_t *GetPointsString( int iPoints );
