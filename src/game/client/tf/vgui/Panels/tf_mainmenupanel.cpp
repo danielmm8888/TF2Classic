@@ -39,7 +39,11 @@ bool CTFMainMenuPanel::Init()
 	m_pzMusicLink[0] = '\0';
 	m_nSongGuid = 0;
 
-	m_SteamID = steamapicontext->SteamUser()->GetSteamID();
+	if (steamapicontext->SteamUser())
+	{
+		m_SteamID = steamapicontext->SteamUser()->GetSteamID();
+	}
+
 	m_SteamHTTP = steamapicontext->SteamHTTP();
 	m_pVersionLabel = NULL;
 	m_pNotificationButton = NULL;
@@ -79,10 +83,16 @@ void CTFMainMenuPanel::PerformLayout()
 	}
 	if (m_pNicknameButton)
 	{
-		m_pNicknameButton->SetText(steamapicontext->SteamFriends()->GetPersonaName());
 		m_pNicknameButton->SetDisabled(true);
+		char szNickName[64];
+		Q_snprintf(szNickName, sizeof(szNickName), 
+			(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
+		m_pNicknameButton->SetText(szNickName);
 	}
-	CheckVersion();
+	if (m_SteamHTTP)
+	{
+		CheckVersion();
+	}
 	AutoLayout();
 };
 
