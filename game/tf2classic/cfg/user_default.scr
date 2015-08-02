@@ -394,23 +394,10 @@ DESCRIPTION INFO_OPTIONS
 	"mp_decals"
 	{
 		"#Valve_Multiplayer_Decal_Limit"
-		{
-			LIST
-			"0" "0"
-			"1024" "1024"
-			"2048" "2048"
-			"4096" "4096"
-		}
-		{ "0" }
-	}	
-		
-	//"mp_decals"
-	//{
-	//	"#Valve_Multiplayer_Decal_Limit"
-	//	"#Tooltip_Multiplayer_Decal_Limit"
-	//	{ NUMBER 0 4096 }
-	//	{ "200" }
-	//}
+		//"#Tooltip_Multiplayer_Decal_Limit"
+		{ SLIDER 0 4096 }
+		{ "2048" }
+	}
 	
 	"category5"
 	{
@@ -521,14 +508,6 @@ DESCRIPTION INFO_OPTIONS
 	//	}
 	//	{ "1" }
 	//}
-
-
-	"mp_decals"
-	{
-		"#Valve_Multiplayer_Decal_Limit"
-		{ NUMBER 0 4096 }
-		{ "200" }
-	}
 
 	"hud_classautokill"
 	{

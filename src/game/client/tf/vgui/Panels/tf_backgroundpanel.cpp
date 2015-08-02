@@ -53,7 +53,7 @@ void CTFBackgroundPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 		Q_strncpy(m_pzVideoLink, GetRandomVideo(bWidescreen), sizeof(m_pzVideoLink));
 		float iRatio = (bWidescreen ? DEFAULT_RATIO_WIDE : DEFAULT_RATIO);
-		int iWide = (float)height * iRatio + 2;
+		int iWide = (float)height * iRatio + 3;
 		m_pVideo->SetBounds(-1, -1, iWide, iWide);
 	}
 }
