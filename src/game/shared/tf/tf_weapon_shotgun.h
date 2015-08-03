@@ -140,7 +140,6 @@ public:
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
-	bool m_bReloadsSingly = true;
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_DOUBLEBARREL; }
 };
 
