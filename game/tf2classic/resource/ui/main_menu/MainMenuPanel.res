@@ -207,7 +207,7 @@
 		"bgvisible"			"1"
 		"bordervisible"		"0"		
 		"textAlignment"		"west"
-		"command"			"newoptionsdialog"
+		"command"			"gamemenucommand openoptionsdialog"
 		"ButtonImage" 		"../vgui/glyph_options"
 		"imagewidth"		"18"
 		"DefaultImageColor"		"MainMenuTextDefault"
@@ -234,7 +234,7 @@
 		"bgvisible"			"1"
 		"bordervisible"		"0"		
 		"textAlignment"		"west"
-		"command"			"gamemenucommand openoptionsdialog"
+		"command"			"newoptionsdialog"
 		"imagewidth"		"16"
 		"ButtonImage" 		"../vgui/glyph_steamworkshop"
 		"DefaultImageColor"		"MainMenuTextArmed"
@@ -426,6 +426,28 @@
 		"command"			"newquit"
 		"font"				"MenuSmallFont"
 	}			
+	
+	"LoadoutButton"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"			"LoadoutButton"
+		"xpos"				"r100"
+		"ypos"				"r70"
+		"zpos"				"5"
+		"wide"				"50"
+		"tall"				"20"
+		"visible"			"0"
+		"enabled"			"1"
+		"labelText" 		"newloadout"
+		"bgvisible"			"1"
+		"bordervisible"		"0"		
+		"textAlignment"		"center"
+		"command"			"newloadout"	
+		"DefaultTextColor"		"MainMenuTextDefault"
+		"ArmedTextColor"		"MainMenuTextArmed"
+		"DepressedTextColor"	"MainMenuTextDepressed"		
+		"font"				"HudFontSmallBold"
+	}	
 	
 	"TestButton"
 	{

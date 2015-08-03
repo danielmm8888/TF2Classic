@@ -92,7 +92,7 @@
 		{
 			"ControlName"		"Label"
 			"fieldName"		"AveragesLabel"
-			"font"			"ScoreboardMedium"
+			"font"			"HudClassHealth"
 			"labelText"		"#StatSummary_Label_PerformanceReport"
 			"textAlignment"	"west"
 			"xpos"			"100"
@@ -1175,12 +1175,12 @@
 			"visible"		"1"
 			"enabled"		"1"
 		}	
-		
+				
 		"RecordsLabel1"
 		{
 			"ControlName"		"Label"
 			"fieldName"		"RecordsLabel1"
-			"font"			"ScoreboardMediumSmall"
+			"font"			"HudClassHealth"
 			"labelText"		"#StatSummary_Label_BestMoments"
 			"textAlignment"		"west"
 			"xpos"			"508"
@@ -1189,7 +1189,7 @@
 			"tall"			"20"
 			"autoResize"	"0"
 			"pinCorner"		"0"
-			"visible"		"1"	[$WIN32]
+			"visible"		"1"
 			"enabled"		"1"
 		}							
 		"RecordsSubBG1"
@@ -1786,13 +1786,14 @@
 		"tabPosition"	"0"
 		"bgvisible"		"0"
 		"bordervisible"	"1"
-		"labelText"		"#TF_ResetStats"
+		"labelText"		"Reset stats"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
 		"font"			"FontStorePromotion"
 		"Command"		"resetstatsbutton"
 	}
+	
 	"CloseButton"
 	{
 		"ControlName"	"CTFAdvButton"
@@ -1809,7 +1810,7 @@
 		"tabPosition"	"0"
 		"bgvisible"		"0"
 		"bordervisible"	"1"
-		"labelText"		"#TF_Close"
+		"labelText"		"Close"
 		"textAlignment"	"center"
 		"dulltext"		"0"
 		"brighttext"	"0"
