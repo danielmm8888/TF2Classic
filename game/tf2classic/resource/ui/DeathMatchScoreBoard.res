@@ -41,7 +41,7 @@
 		"tall"			"20"
 		"autoResize"		"0"
 		"pinCorner"		"0"
-		"visible"		"1"
+		"visible"		"0"
 		"enabled"		"1"
 		"tabPosition"		"0"	
 		"fillcolor"		"255 255 100 10"
@@ -183,13 +183,9 @@
 		"ControlName"		"SectionedListPanel"
 		"fieldName"		"RedPlayerList"
 		"xpos"			"25"	//305
-		"xpos_lodef"		"284"	//284
-		"xpos_hidef"		"314"	//314
-		"ypos"			"60"	//72
+		"ypos"			"65"	//72
 		"zpos"			"20"	//20
 		"wide"			"425"	//290
-		"wide_lodef"		"267"	//267
-		"wide_hidef"		"277"	//277
 		"tall"			"270"	//250
 		"pinCorner"		"0"
 		"visible"		"1"
@@ -238,5 +234,335 @@
 		"scaleImage"		"1"
 		"fillcolor"		"0 0 0 255"
 		"PaintBackgroundType"	"0"
-	}					
+	}				
+	
+	"WinPanel"
+	{
+		"ControlName"	"EditablePanel"
+		"fieldName"		"WinPanel"
+		"xpos"			"20"
+		"ypos"			"65"
+		"zpos"			"25"
+		"wide"			"440"
+		"tall"			"270"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"border"		"MainMenuBGBorder"
+	
+		"Player1Model"
+		{
+			"ControlName"	"CModelPanel"
+			"fieldName"		"Player1Model"
+			
+			"xpos"			"20"
+			"ypos"			"20"
+			"zpos"			"1"		
+			"wide"			"400"
+			"tall"			"230"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fov"			"60"
+					
+			"model"
+			{
+				"skin"	"0"
+				"angles_x" "0"
+				"angles_y" "180"
+				"angles_z" "0"
+				"origin_x" "190"
+				"origin_y" "0"
+				"origin_z" "-36"
+				"frame_origin_x"	"0"
+				"frame_origin_y"	"0"
+				"frame_origin_z"	"0"
+				"spotlight" "1"
+			
+				"modelname"		"models/player/merc_deathmatch.mdl"
+				
+				"attached_model"
+				{
+					"modelname" "models/weapons/w_models/w_rocketlauncher.mdl"
+					"skin"	"0"
+				}
+				
+				"animation"
+				{
+					"name"		"PRIMARY"
+					"activity"	"ACT_MP_STAND_PRIMARY"
+					"default"	"1"
+				}			
+			}
+		}		
+			
+		"Player1Name"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player1Name"
+			"font"			"HudFontMediumSmallBold"
+			"labelText"		"%Player1Name%"
+			"textAlignment"	"center"
+			"xpos"			"140"
+			"ypos"			"205"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player1Kills"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player1Kills"
+			"font"			"HudFontSmall"
+			"labelText"		"%Player1Kills%"
+			"textAlignment"	"center"
+			"xpos"			"140"
+			"ypos"			"220"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player1Deaths"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player1Deaths"
+			"font"			"HudFontSmall"
+			"labelText"		"%Player1Deaths%"
+			"textAlignment"	"center"
+			"xpos"			"140"
+			"ypos"			"232"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}	
+	
+		"Player2Model"
+		{
+			"ControlName"	"CModelPanel"
+			"fieldName"		"Player2Model"
+			
+			"xpos"			"20"
+			"ypos"			"20"
+			"zpos"			"1"		
+			"wide"			"400"
+			"tall"			"230"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fov"			"60"
+					
+			"model"
+			{
+				"skin"	"0"
+				"angles_x" "0"
+				"angles_y" "210"
+				"angles_z" "0"
+				"origin_x" "220"
+				"origin_y" "80"
+				"origin_z" "-31"
+				"frame_origin_x"	"0"
+				"frame_origin_y"	"0"
+				"frame_origin_z"	"0"
+				"spotlight" "1"
+			
+				"modelname"		"models/player/merc_deathmatch.mdl"
+				
+				"attached_model"
+				{
+					"modelname" "models/weapons/w_models/w_smg.mdl"
+					"skin"	"0"
+				}
+				
+				"animation"
+				{
+					"name"		"SECONDARY"
+					"activity"	"ACT_MP_STAND_SECONDARY"
+					"default"	"1"
+				}			
+			}
+		}		
+			
+		"Player2Name"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player2Name"
+			"font"			"HudFontSmallBold"
+			"labelText"		"%Player2Name%"
+			"textAlignment"	"center"
+			"xpos"			"10"
+			"ypos"			"185"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player2Kills"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player2Kills"
+			"font"			"HudFontSmallest"
+			"labelText"		"%Player2Kills%"
+			"textAlignment"	"center"
+			"xpos"			"10"
+			"ypos"			"200"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player2Deaths"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player2Deaths"
+			"font"			"HudFontSmallest"
+			"labelText"		"%Player2Deaths%"
+			"textAlignment"	"center"
+			"xpos"			"10"
+			"ypos"			"212"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}	
+	
+		"Player3Model"
+		{
+			"ControlName"	"CModelPanel"
+			"fieldName"		"Player3Model"
+			
+			"xpos"			"20"
+			"ypos"			"20"
+			"zpos"			"1"		
+			"wide"			"400"
+			"tall"			"230"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fov"			"60"
+					
+			"model"
+			{
+				"skin"	"0"
+				"angles_x" "0"
+				"angles_y" "150"
+				"angles_z" "0"
+				"origin_x" "220"
+				"origin_y" "-80"
+				"origin_z" "-31"
+				"frame_origin_x"	"0"
+				"frame_origin_y"	"0"
+				"frame_origin_z"	"0"
+				"spotlight" "1"
+			
+				"modelname"		"models/player/merc_deathmatch.mdl"
+				
+				"attached_model"
+				{
+					"modelname" "models/weapons/w_models/w_crowbar.mdl"
+					"skin"	"0"
+				}
+				
+				"animation"
+				{
+					"name"		"MELEE"
+					"activity"	"ACT_MP_STAND_MELEE"
+					"default"	"1"
+				}			
+			}
+		}		
+			
+		"Player3Name"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player3Name"
+			"font"			"HudFontSmallBold"
+			"labelText"		"%Player3Name%"
+			"textAlignment"	"center"
+			"xpos"			"270"
+			"ypos"			"185"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player3Kills"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player3Kills"
+			"font"			"HudFontSmallest"
+			"labelText"		"%Player3Kills%"
+			"textAlignment"	"center"
+			"xpos"			"270"
+			"ypos"			"200"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}		
+			
+		"Player3Deaths"
+		{
+			"ControlName"		"CExLabel"
+			"fieldName"		"Player3Deaths"
+			"font"			"HudFontSmallest"
+			"labelText"		"%Player3Deaths%"
+			"textAlignment"	"center"
+			"xpos"			"270"
+			"ypos"			"212"
+			"zpos"			"3"
+			"wide"			"170"
+			"tall"			"20"
+			"autoResize"	"0"
+			"pinCorner"		"0"
+			"visible"		"1"
+			"enabled"		"1"
+			"fgcolor"		"236 227 203 255"
+		}	
+		
+		
+	}
 }

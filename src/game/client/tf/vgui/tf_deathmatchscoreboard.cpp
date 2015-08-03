@@ -35,6 +35,8 @@
 #include "c_tf_player.h"
 #include "vgui_avatarimage.h"
 #include "tf_gamerules.h"
+#include "inputsystem/iinputsystem.h"
+#include "basemodelpanel.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -62,8 +64,16 @@ CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPor
 	m_iImageDead = 0;
 	m_iImageDominated = 0;
 	m_iImageNemesis = 0;
+
+	bLockInput = false;
+	m_pWinPanel = new EditablePanel(this, "WinPanel");
+	m_flTimeUpdateTeamScore = 0;
 	
-	ListenForGameEvent( "server_spawn" );
+	ListenForGameEvent("server_spawn");
+	ListenForGameEvent("teamplay_win_panel");
+	ListenForGameEvent("teamplay_round_start");
+	ListenForGameEvent("teamplay_game_over");
+	ListenForGameEvent("tf_game_over");
 
 	SetDialogVariable( "server", "" );
 
@@ -137,6 +147,11 @@ void CTFDeathMatchScoreBoardDialog::ShowPanel(bool bShow)
 		InvalidateLayout( true, true );
 	}
 
+	if (!bShow && bLockInput)
+	{
+		return;
+	}
+
 	// Don't show in commentary mode
 	if ( IsInCommentaryMode() )
 	{
@@ -207,15 +222,6 @@ void CTFDeathMatchScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerLi
 	pPlayerList->AddColumnToSection(0, "deaths", "#TF_ScoreBoard_DeathsLabel", 0, m_iDeathsWidth);
 	pPlayerList->AddColumnToSection(0, "score", "#TF_Scoreboard_Score", 0, m_iScoreWidth);
 	pPlayerList->AddColumnToSection(0, "ping", "#TF_Scoreboard_Ping", 0, m_iPingWidth);
-
-
-
-//	pPlayerList->AddColumnToSection( 0, "name", "#TF_Scoreboard_Name", 0, m_iNameWidth );
-//	pPlayerList->AddColumnToSection( 0, "status", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iStatusWidth );
-//	pPlayerList->AddColumnToSection( 0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth );
-//	pPlayerList->AddColumnToSection( 0, "class", "", 0, m_iClassWidth );
-//	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
-//	pPlayerList->AddColumnToSection( 0, "ping", "#TF_Scoreboard_Ping", SectionedListPanel::COLUMN_RIGHT, m_iPingWidth );
 }
 
 //-----------------------------------------------------------------------------
@@ -665,7 +671,83 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 		Q_strlower(szMapName);
 		SetDialogVariable("mapname", GetMapDisplayName(szMapName));
 	}
+	else if (Q_strcmp("teamplay_win_panel", type) == 0)
+	{
+		m_flTimeUpdateTeamScore = gpGlobals->curtime + 4.5f;
+		bLockInput = true;
 
+		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+		if (!tf_PR)
+			return;
+
+		// look for the top 3 players sent in the event
+		for (int i = 1; i <= 3; i++)
+		{
+			bool bShow = false;
+			char szPlayerIndexVal[64] = "", szPlayerScoreVal[64] = "";
+			// get player index and round points from the event
+			Q_snprintf(szPlayerIndexVal, ARRAYSIZE(szPlayerIndexVal), "player_%d", i);
+			Q_snprintf(szPlayerScoreVal, ARRAYSIZE(szPlayerScoreVal), "player_%d_points", i);
+			int iPlayerIndex = event->GetInt(szPlayerIndexVal, 0);
+			int iRoundScore = event->GetInt(szPlayerScoreVal, 0);
+			int iPlayerKills = tf_PR->GetPlayerScore(iPlayerIndex);
+			int iPlayerDeaths = tf_PR->GetDeaths(iPlayerIndex);	
+
+			// round score of 0 means no player to show for that position (not enough players, or didn't score any points that round)
+			if (iRoundScore > 0)
+				bShow = true;
+
+			CAvatarImagePanel *pPlayerAvatar = dynamic_cast<CAvatarImagePanel *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dAvatar", i)));
+
+			if (pPlayerAvatar)
+			{
+				pPlayerAvatar->ClearAvatar();
+				if (bShow)
+				{
+					pPlayerAvatar->SetPlayer(GetSteamIDForPlayerIndex(iPlayerIndex), k_EAvatarSize32x32);
+					pPlayerAvatar->SetAvatarSize(32, 32);
+				}
+				pPlayerAvatar->SetVisible(bShow);
+			}
+
+			vgui::Label *pPlayerName = dynamic_cast<Label *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dName", i)));
+			vgui::Label *pPlayerKills = dynamic_cast<Label *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dKills", i)));
+			vgui::Label *pPlayerDeaths = dynamic_cast<Label *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dDeaths", i)));
+			CModelPanel *pPlayerModel = dynamic_cast<CModelPanel *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dModel", i)));
+
+			if (!pPlayerName || !pPlayerKills || !pPlayerDeaths)
+				return;
+
+			if (bShow)
+			{
+				// set the player labels to team color
+				Color clr = tf_PR->GetPlayerColor(iPlayerIndex);
+				pPlayerName->SetFgColor(clr);
+				pPlayerKills->SetFgColor(clr);
+				pPlayerDeaths->SetFgColor(clr);
+
+				// set label contents
+				pPlayerName->SetText(g_PR->GetPlayerName(iPlayerIndex));
+				pPlayerKills->SetText(CFmtStr("Kills: %d", iPlayerKills));
+				pPlayerDeaths->SetText(CFmtStr("Deaths: %d", iPlayerDeaths));
+			}
+
+			// show or hide labels for this player position
+			pPlayerName->SetVisible(bShow);
+			pPlayerKills->SetVisible(bShow);
+			pPlayerDeaths->SetVisible(bShow);
+			pPlayerModel->SetVisible(bShow);
+		}
+		ShowPanel(true);
+
+	}
+	else if (Q_strcmp("teamplay_round_start", type) == 0)
+	{
+		m_flTimeUpdateTeamScore = 0.0f;
+		m_pWinPanel->SetVisible(false);
+		bLockInput = false;
+		ShowPanel(false);
+	}
 	if( IsVisible() )
 	{
 		Update();
@@ -686,4 +768,18 @@ SectionedListPanel *CTFDeathMatchScoreBoardDialog::GetSelectedPlayerList(void)
 	}
 
 	return pList;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: panel think method
+//-----------------------------------------------------------------------------
+void CTFDeathMatchScoreBoardDialog::OnThink()
+{
+	// if we've scheduled ourselves to update the team scores, handle it now
+	if (m_flTimeUpdateTeamScore > 0 && (gpGlobals->curtime > m_flTimeUpdateTeamScore) && m_pWinPanel)
+	{
+		m_pWinPanel->SetVisible(true);
+		m_flTimeUpdateTeamScore = 0;
+	}
 }

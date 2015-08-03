@@ -29,7 +29,7 @@ private:
 public:
 	CTFDeathMatchScoreBoardDialog(IViewPort *pViewPort);
 	virtual ~CTFDeathMatchScoreBoardDialog();
-
+	virtual void OnThink();
 	virtual const char *GetName(void) { return PANEL_DEATHMATCHSCOREBOARD; }
 	virtual void Reset();
 	virtual void Update();
@@ -66,6 +66,13 @@ private:
 	int							m_iImageNemesis;
 	int							m_iClassEmblem[TF_CLASS_COUNT_ALL];
 	int							m_iClassEmblemDead[TF_CLASS_COUNT_ALL];
+
+	bool bLockInput;
+	EditablePanel *m_pWinPanel;
+	float	m_flTimeUpdateTeamScore;
+	int		m_iPlayer1Index;
+	int		m_iPlayer2Index;
+	int		m_iPlayer3Index;
 	
 	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "12", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );
