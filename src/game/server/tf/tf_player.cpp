@@ -2935,10 +2935,21 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 		// check to see if our attacker is a trigger_hurt entity (and allow it to kill us even if we're invuln)
 		CBaseEntity *pAttacker = info.GetAttacker();
+		CBaseEntity *pInflictor = info.GetInflictor();
 		if ( pAttacker && pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) )
 		{
 			CTriggerHurt *pTrigger = dynamic_cast<CTriggerHurt *>( pAttacker );
 			if ( pTrigger )
+			{
+				bAllowDamage = true;
+			}
+		}
+
+		// Ubercharge does not save from telefrags.
+		if ( pInflictor && pInflictor->IsBaseObject() )
+		{
+			CBaseObject *pObject = assert_cast<CBaseObject *>( pInflictor );
+			if ( pObject->ObjectType() == OBJ_TELEPORTER_EXIT )
 			{
 				bAllowDamage = true;
 			}

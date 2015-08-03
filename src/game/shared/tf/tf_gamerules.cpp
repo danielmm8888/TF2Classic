@@ -2074,7 +2074,7 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	if ( pAssister )
 	{
 		CTF_GameStats.Event_AssistKill( ToTFPlayer( pAssister ), pVictim );
-		pAssister->IncrementAssistCount(1);
+		//pAssister->IncrementAssistCount(1);
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
@@ -2233,6 +2233,13 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
 		killer_weapon_name = "obj_sentrygun3";
+	}
+
+	// If the inflictor is a teleporter exit this is a telefrag.
+	if ( 0 == Q_strcmp( killer_weapon_name, "obj_teleporter_exit" ) )
+	{
+		// TODO: Make a telefrag kill icon. Live TF2 still doesn't have one.
+		killer_weapon_name = "telefrag";
 	}
 
 	return killer_weapon_name;

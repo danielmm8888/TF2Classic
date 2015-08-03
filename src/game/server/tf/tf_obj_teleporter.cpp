@@ -96,7 +96,17 @@ void CObjectTeleporter_Entrance::TeleporterSend( CTFPlayer *pPlayer )
 	Vector origin = GetAbsOrigin();
 	CPVSFilter filter( origin );
 
-	switch( pPlayer->GetTeamNumber() )
+	int iTeamNum;
+	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	{
+		iTeamNum = pPlayer->m_Shared.GetDisguiseTeam();
+	}
+	else
+	{
+		iTeamNum = pPlayer->GetTeamNumber();
+	}
+
+	switch( iTeamNum )
 	{
 	case TF_TEAM_RED:
 		TE_TFParticleEffect( filter, 0.0, "teleported_red", origin, vec3_angle );
@@ -156,7 +166,17 @@ void CObjectTeleporter_Exit::TeleporterReceive( CTFPlayer *pPlayer, float flDela
 	Vector origin = GetAbsOrigin();
 	CPVSFilter filter( origin );
 
-	switch( pPlayer->GetTeamNumber() )
+	int iTeamNum;
+	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	{
+		iTeamNum = pPlayer->m_Shared.GetDisguiseTeam();
+	}
+	else
+	{
+		iTeamNum = pPlayer->GetTeamNumber();
+	}
+
+	switch( iTeamNum )
 	{
 	case TF_TEAM_RED:
 		TE_TFParticleEffect( filter, 0.0, "teleportedin_red", origin, vec3_angle );
@@ -660,7 +680,7 @@ void CObjectTeleporter::TeleporterThink( void )
 					// Telefrag all enemy players we've found
 					for ( int player = 0; player < hPlayersToKill.Count(); player++ )
 					{
-						hPlayersToKill[player]->TakeDamage( CTakeDamageInfo( pTeleportingPlayer, this, 1000, DMG_CRUSH ) );
+						hPlayersToKill[player]->TakeDamage( CTakeDamageInfo( this, pTeleportingPlayer, 1000, DMG_CRUSH ) );
 					}
 
 					pTeleportingPlayer->Teleport( &newPosition, &(GetAbsAngles()), &vec3_origin );
