@@ -17,7 +17,7 @@ DECLARE_BUILD_FACTORY(CTFRotationPanel);
 //-----------------------------------------------------------------------------
 CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : CTFImagePanel(parent, name)
 {
-	///
+	flRetVal = 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -61,13 +61,17 @@ void CTFRotationPanel::Paint()
 	int nWidth = GetWide();
 	int nHeight = GetTall();
 
+	flRetVal += 0.05f;
+	if (flRetVal >= 360.0f)
+		flRetVal = 0.0f;
+
 	CMatRenderContextPtr pRenderContext(materials);
 	pRenderContext->MatrixMode(MATERIAL_MODEL);
 	pRenderContext->PushMatrix();
 
 	VMatrix panelRotation;
 	panelRotation.Identity();
-	MatrixBuildRotationAboutAxis(panelRotation, Vector(0, 0, 1), GetAngleRotation());
+	MatrixBuildRotationAboutAxis(panelRotation, Vector(0, 0, 1), flRetVal);
 	//	MatrixRotate( panelRotation, Vector( 1, 0, 0 ), 5 );
 	panelRotation.SetTranslation(Vector(x + nWidth / 2, y + nHeight / 2, 0));
 	pRenderContext->LoadMatrix(panelRotation);
