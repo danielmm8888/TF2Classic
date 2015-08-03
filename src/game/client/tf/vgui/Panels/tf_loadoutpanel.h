@@ -1,19 +1,24 @@
 #ifndef TFMAINMENULOADOUTPANEL_H
 #define TFMAINMENULOADOUTPANEL_H
 
-#include "vgui_controls/Panel.h"
-#include "tf_menupanelbase.h"
+#include "tf_dialogpanelbase.h"
+#include "tf_inventory.h"
+
+class CTFAdvModelPanel;
+class CTFWeaponSetPanel;
+class CTFAdvButton;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFLoadoutPanel : public CTFMenuPanelBase
+class CTFLoadoutPanel : public CTFDialogPanelBase
 {
-	DECLARE_CLASS_SIMPLE(CTFLoadoutPanel, CTFMenuPanelBase);
+	DECLARE_CLASS_SIMPLE(CTFLoadoutPanel, CTFDialogPanelBase);
 
 public:
 	CTFLoadoutPanel(vgui::Panel* parent, const char *panelName);
 	virtual ~CTFLoadoutPanel();
+	bool Init();
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void OnThink();
@@ -23,6 +28,25 @@ public:
 	void Show();
 	void DefaultLayout();
 	void GameLayout();
+	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
+
+private:
+	CTFAdvModelPanel *m_pClassModelPanel;
+	CTFWeaponSetPanel *m_pWeaponSetPanel;
+	CUtlVector<CTFAdvButton*>	m_pWeaponIcons;
+	int	iCurrentClass;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class CTFWeaponSetPanel : public vgui::EditablePanel
+{
+	DECLARE_CLASS_SIMPLE(CTFWeaponSetPanel, vgui::EditablePanel);
+
+public:
+	CTFWeaponSetPanel(vgui::Panel* parent, const char *panelName);
+	void OnCommand(const char* command);
 };
 
 #endif // TFMAINMENULOADOUTPANEL_H
