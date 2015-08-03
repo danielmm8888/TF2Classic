@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Teleporter Object
 //
@@ -380,9 +380,9 @@ void CObjectTeleporter::TeleporterTouch( CBaseEntity *pOther )
 	}
 
 	// if its not a teammate of the builder, notify the builder
-	if ( pBuilder->GetTeamNumber() != pOther->GetTeamNumber() )
+	if ( pBuilder->GetTeamNumber() != pOther->GetTeamNumber() && !pPlayer->IsPlayerClass( TF_CLASS_SPY ) )
 	{
-		// Don't teleport enemies
+		// Don't teleport enemies (unless it's a spy)
 		return;
 	}
 
