@@ -3527,7 +3527,18 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
-	BaseClass::Event_KilledOther( pVictim, info );
+	// Don't do this in DMm as we're doing it manually for DM
+	if (!TFGameRules()->IsDeathmatch())
+	{
+		if (pVictim != this)
+		{
+			gamestats->Event_PlayerKilledOther(this, pVictim, info);
+		}
+		else
+		{
+			gamestats->Event_PlayerSuicide(this);
+		}
+	}
 
 	if ( pVictim->IsPlayer() )
 	{

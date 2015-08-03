@@ -2074,13 +2074,18 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	if ( pAssister )
 	{
 		CTF_GameStats.Event_AssistKill( ToTFPlayer( pAssister ), pVictim );
-		pAssister->IncrementAssistCount(1);
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
 
 	if (TFGameRules()->IsDeathmatch())
 	{
+		// We need to update the game stats here specifically for DM.
+		// Usually it's updated right after PlayerKilled, however we need to do it right now
+		// due to round end checks.
+		if (pScorer)
+			CTF_GameStats.Event_PlayerKilledOther(pScorer, pVictim, info);
+
 		// Check if the killer or assister has got enough kills to end the round
 		if (pAssister)
 		{
