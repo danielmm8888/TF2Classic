@@ -206,9 +206,10 @@ public:
 	EHANDLE TeamFortress_GetDisguiseTarget( int nTeam, int nClass );
 
 	void TeamFortress_ClientDisconnected();
-	void TeamFortress_RemoveEverythingFromWorld();
+	void TeamFortress_RemoveEverythingFromWorld( bool bSilent = true );
 	void TeamFortress_RemoveRockets();
 	void TeamFortress_RemovePipebombs();
+	void TeamFortress_RemoveFlames();
 
 	CTFTeamSpawn *GetSpawnPoint( void ){ return m_pSpawnPoint; }
 		
