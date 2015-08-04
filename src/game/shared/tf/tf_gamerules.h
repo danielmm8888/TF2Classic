@@ -252,7 +252,6 @@ public:
 	virtual bool ClientCommand( CBaseEntity *pEdict, const CCommand &args );
 	virtual void Think();
 
-	bool CheckTimeLimit();
 	bool CheckWinLimit();
 	bool CheckFragLimit();
 	bool CheckCapsPerRound();

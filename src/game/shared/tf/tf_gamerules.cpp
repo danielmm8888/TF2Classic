@@ -1421,6 +1421,9 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		{
 			if ( CheckFragLimit() )
 				return;
+
+			if ( CheckTimeLimit() )
+				return;
 		}
 
 		BaseClass::Think();

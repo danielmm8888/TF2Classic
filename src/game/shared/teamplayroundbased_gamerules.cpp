@@ -1095,6 +1095,13 @@ bool CTeamplayRoundBasedRules::CheckTimeLimit( void )
 			bSwitchDueToTime = false;
 		}
 
+#ifdef TF_CLASSIC
+		if ( IsDeathmatch() == true )
+		{
+			bSwitchDueToTime = false;
+		}
+#endif
+
 		if( GetTimeLeft() <= 0 || m_bChangelevelAfterStalemate || bSwitchDueToTime )
 		{
 			IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_game_over" );
