@@ -632,8 +632,8 @@ void CObjectTeleporter::TeleporterThink( void )
 						if ( pEnts[i] == this )
 							continue;
 
-						// kill players
-						if ( pEnts[i]->IsPlayer() )
+						// kill players and NPCs
+						if ( pEnts[i]->IsPlayer() || pEnts[i]->IsNPC() )
 						{
 							if ( !pTeleportingPlayer->InSameTeam(pEnts[i]) )
 							{
