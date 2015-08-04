@@ -125,6 +125,11 @@ void CTFDeathMatchScoreBoardDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 		}
 	}
 
+	if (m_pWinPanel)
+	{
+		m_pWinPanel->SetVisible(false);
+	}
+
 	SetPlayerListImages( m_pPlayerListRed );
 
 
@@ -684,14 +689,16 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 		for (int i = 1; i <= 3; i++)
 		{
 			bool bShow = false;
-			char szPlayerIndexVal[64] = "", szPlayerScoreVal[64] = "";
+			char szPlayerIndexVal[64] = "", szPlayerScoreVal[64] = "", szPlayerKillsVal[64] = "", szPlayerDeathsVal[64] = "";
 			// get player index and round points from the event
 			Q_snprintf(szPlayerIndexVal, ARRAYSIZE(szPlayerIndexVal), "player_%d", i);
 			Q_snprintf(szPlayerScoreVal, ARRAYSIZE(szPlayerScoreVal), "player_%d_points", i);
+			Q_snprintf(szPlayerKillsVal, ARRAYSIZE(szPlayerKillsVal), "player_%d_kills", i);
+			Q_snprintf(szPlayerDeathsVal, ARRAYSIZE(szPlayerDeathsVal), "player_%d_deaths", i);
 			int iPlayerIndex = event->GetInt(szPlayerIndexVal, 0);
 			int iRoundScore = event->GetInt(szPlayerScoreVal, 0);
-			int iPlayerKills = tf_PR->GetPlayerScore(iPlayerIndex);
-			int iPlayerDeaths = tf_PR->GetDeaths(iPlayerIndex);	
+			int iPlayerKills = event->GetInt(szPlayerKillsVal, 0);
+			int iPlayerDeaths = event->GetInt(szPlayerDeathsVal, 0);
 
 			// round score of 0 means no player to show for that position (not enough players, or didn't score any points that round)
 			if (iRoundScore > 0)

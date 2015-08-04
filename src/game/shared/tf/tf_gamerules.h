@@ -94,6 +94,8 @@ struct PlayerRoundScore_t
 	int iPlayerIndex;	// player index
 	int iRoundScore;	// how many points scored this round
 	int	iTotalScore;	// total points scored across all rounds
+	int	iKills;
+	int iDeaths;
 };
 
 #define MAX_TEAMGOAL_STRING		256

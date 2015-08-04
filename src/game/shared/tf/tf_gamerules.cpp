@@ -2486,16 +2486,21 @@ void CTFGameRules::SendWinPanelInfo( void )
 				continue;
 
 			int iRoundScore = 0, iTotalScore = 0;
+			int iKills = 0, iDeaths = 0;
 			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats( pTFPlayer );
 			if ( pStats )
 			{
 				iRoundScore = CalcPlayerScore( &pStats->statsCurrentRound );
 				iTotalScore = CalcPlayerScore( &pStats->statsAccumulated );
+				iKills = pStats->statsCurrentRound.m_iStat[TFSTAT_KILLS];
+				iDeaths = pStats->statsCurrentRound.m_iStat[TFSTAT_DEATHS];
 			}
 			PlayerRoundScore_t &playerRoundScore = vecPlayerScore[vecPlayerScore.AddToTail()];
 			playerRoundScore.iPlayerIndex = iPlayerIndex;
 			playerRoundScore.iRoundScore = iRoundScore;
 			playerRoundScore.iTotalScore = iTotalScore;
+			playerRoundScore.iKills = iKills;
+			playerRoundScore.iDeaths = iDeaths;
 		}
 		// sort the players by round score
 		vecPlayerScore.Sort( PlayerRoundScoreSortFunc );
@@ -2509,11 +2514,16 @@ void CTFGameRules::SendWinPanelInfo( void )
 				break;
 
 			// set the player index and their round score in the event
-			char szPlayerIndexVal[64]="", szPlayerScoreVal[64]="";
-			Q_snprintf( szPlayerIndexVal, ARRAYSIZE( szPlayerIndexVal ), "player_%d", i+ 1 );
-			Q_snprintf( szPlayerScoreVal, ARRAYSIZE( szPlayerScoreVal ), "player_%d_points", i+ 1 );
+			char szPlayerIndexVal[64] = "", szPlayerScoreVal[64] = "";
+			char szPlayerKillsVal[64] = "", szPlayerDeathsVal[64] = "";
+			Q_snprintf( szPlayerIndexVal, ARRAYSIZE( szPlayerIndexVal ), "player_%d", i + 1 );
+			Q_snprintf( szPlayerScoreVal, ARRAYSIZE( szPlayerScoreVal ), "player_%d_points", i + 1 );
+			Q_snprintf(szPlayerKillsVal, ARRAYSIZE(szPlayerKillsVal), "player_%d_kills", i + 1);
+			Q_snprintf(szPlayerDeathsVal, ARRAYSIZE(szPlayerDeathsVal), "player_%d_deaths", i + 1);
 			winEvent->SetInt( szPlayerIndexVal, vecPlayerScore[i].iPlayerIndex );
 			winEvent->SetInt( szPlayerScoreVal, vecPlayerScore[i].iRoundScore );				
+			winEvent->SetInt(szPlayerKillsVal, vecPlayerScore[i].iKills);
+			winEvent->SetInt(szPlayerDeathsVal, vecPlayerScore[i].iDeaths);
 		}
 
 		if ( !bRoundComplete && ( TEAM_UNASSIGNED != m_iWinningTeam ) )

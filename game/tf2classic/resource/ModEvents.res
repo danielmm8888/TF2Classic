@@ -341,10 +341,16 @@
 		"rounds_remaining"	"short"		// # of rounds remaining for wining team, if mini-round
 		"player_1"		"short"
 		"player_1_points"	"short"
+		"player_1_kills"	"short"
+		"player_1_deaths"	"short"
 		"player_2"		"short"
 		"player_2_points"	"short"
+		"player_2_kills"	"short"
+		"player_2_deaths"	"short"
 		"player_3"		"short"
 		"player_3_points"	"short"
+		"player_3_kills"	"short"
+		"player_3_deaths"	"short"
 		"killstreak_player_1"		"short"
 		"killstreak_player_1_count"	"short"
 	}
