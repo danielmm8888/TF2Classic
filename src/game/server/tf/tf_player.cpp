@@ -1594,7 +1594,7 @@ int CTFPlayer::GetAutoTeam( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
 	{
 		ChangeTeam(TF_TEAM_RED);
 		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
