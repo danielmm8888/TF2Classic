@@ -96,7 +96,7 @@ bool CHudMedicChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	if (pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN || pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG)
+	if (pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN || pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG || pWpn->GetWeaponID() == TF_WEAPON_UBERSAW)
 	{
 		return CHudElement::ShouldDraw();
 	}

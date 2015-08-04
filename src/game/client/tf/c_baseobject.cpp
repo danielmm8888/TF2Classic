@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Clients CBaseObject
 //
@@ -755,9 +755,7 @@ void C_BaseObject::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 	if ( !pLocalPlayer )
 		return;
 
-	int iTeamNumber = GetTeamNumber();
-
-	if ( iTeamNumber == pLocalPlayer->GetTeamNumber() )
+	if ( InSameTeam( pLocalPlayer ) || pLocalPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 	{
 		wchar_t wszBuilderName[ MAX_PLAYER_NAME_LENGTH ];
 

@@ -10,6 +10,7 @@
 #include "KeyValues.h"
 #include "tf_weaponbase.h"
 #include "time.h"
+#include "viewport_panel_names.h"
 #ifdef CLIENT_DLL
 	#include <game/client/iviewport.h>
 	#include "c_tf_player.h"
@@ -43,6 +44,7 @@
 	#include "hl2orange.spa.h"
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
+	#include "vote_controller.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -82,10 +84,12 @@ extern ConVar sv_turbophysics;
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
+ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
 
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
+ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
 #endif
 
 #ifdef GAME_DLL
@@ -438,11 +442,11 @@ void CTFGameRulesProxy::InputAddYellowTeamScore(inputdata_t &inputdata)
 //-----------------------------------------------------------------------------
 void CTFGameRulesProxy::Activate()
 {
+	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
+
 	TFGameRules()->Activate();
 
 	TFGameRules()->SetHudType(m_iHud_Type);
-
-	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
 
 	BaseClass::Activate();
 }
@@ -653,7 +657,10 @@ static const char *s_PreserveEnts[] =
 	"tf_objective_resource",
 	"keyframe_rope",
 	"move_rope",
+	"info_ladder",
 	"tf_viewmodel",
+	"vote_controller",
+	"info_player_deathmatch",
 	"", // END Marker
 };
 
@@ -666,9 +673,16 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
-	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
+	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch") || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
+		return;
+	}
+
+	if (gEntList.FindEntityByClassname(NULL, "tf_logic_vip"))
+	{
+		// TODO: make a global pointer to this and access its settings
+		m_nGameType.Set(TF_GAMETYPE_VIP);
 		return;
 	}
 
@@ -820,7 +834,7 @@ void CTFGameRules::CleanUpMap( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
-//-----------------------------------------------------------------------------ob
+//-----------------------------------------------------------------------------
 void CTFGameRules::RecalculateControlPointState( void )
 {
 	Assert( ObjectiveResource() );
@@ -1204,7 +1218,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			{
 				if ( pTalker->IsAlive() == false )
 				{
-					if ( pListener->IsAlive() == false )
+					if ( pListener->IsAlive() == false || tf_teamtalk.GetBool() )
 						return ( pListener->InSameTeam( pTalker ) );
 
 					return false;
@@ -1403,6 +1417,25 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
+		if (IsDeathmatch() && !g_fGameOver)
+		{
+			for (int i = 1; i <= gpGlobals->maxClients; i++)
+			{
+				CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+				if (pTFPlayer)
+				{
+					PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
+					int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+
+					if (iScore >= fraglimit.GetFloat())
+					{
+						GoToIntermission();
+						return;
+					}
+				}
+			}
+		}
+
 		BaseClass::Think();
 	}
 
@@ -1523,11 +1556,35 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	void CTFGameRules::GoToIntermission( void )
 	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			float flWaitTime = 15;
+			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
+
+			// set all players to FL_FROZEN
+			for (int i = 1; i <= MAX_PLAYERS; i++)
+			{
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex(i);
+
+				if (pPlayer)
+				{
+					pPlayer->ShowViewPortPanel(PANEL_SCOREBOARD);
+					pPlayer->AddFlag(FL_FROZEN);
+				}
+			}
+			State_Enter(GR_STATE_TEAM_WIN);
+			g_fGameOver = true;
+			return;
+		}
 		BaseClass::GoToIntermission();
 	}
 
 	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
+		// Friendly fire is ALWAYS on in DM.
+		if (TFGameRules()->IsDeathmatch())
+			return true;
+		
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
 			return false;
@@ -1550,6 +1607,14 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		}
 
 		return BaseClass::FPlayerCanTakeDamage(pPlayer, pAttacker, info);
+	}
+
+	int CTFGameRules::PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget)
+	{
+		if (TFGameRules()->IsDeathmatch())
+			return GR_NOTTEAMMATE;
+
+		return BaseClass::PlayerRelationship(pPlayer, pTarget);
 	}
 
 Vector DropToGround( 
@@ -1706,7 +1771,7 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, bool bIgnorePlayers )
 {
 	// Check the team.
-	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() )
+	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() && !TFGameRules()->IsDeathmatch() )
 		return false;
 
 	if ( !pSpot->IsTriggered( pPlayer ) )
@@ -2081,6 +2146,8 @@ void CTFGameRules::CreateStandardEntities()
 	CBaseEntity *pEnt = CBaseEntity::Create( "tf_gamerules", vec3_origin, vec3_angle );
 	Assert( pEnt );
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
+
+	CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
 }
 
 //-----------------------------------------------------------------------------
@@ -2125,10 +2192,36 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 	}
 
-	// look out for sentry rocket as weapon and map it to sentry gun, so we get the sentry death icon
+	// In case of a sentry kill change the icon according to sentry level.
+	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
+	{
+		CBaseObject* pObject = assert_cast<CBaseObject * >( pInflictor );
+
+		if ( pObject )
+		{
+			switch ( pObject->GetUpgradeLevel() )
+			{
+				case 2:
+					killer_weapon_name = "obj_sentrygun2";
+					break;
+				case 3:
+					killer_weapon_name = "obj_sentrygun3";
+					break;
+			}
+		}
+	}
+
+	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
-		killer_weapon_name = "obj_sentrygun";
+		killer_weapon_name = "obj_sentrygun3";
+	}
+
+	// If the inflictor is a teleporter exit this is a telefrag.
+	if ( 0 == Q_strcmp( killer_weapon_name, "obj_teleporter_exit" ) )
+	{
+		// TODO: Make a telefrag kill icon. Live TF2 still doesn't have one.
+		killer_weapon_name = "telefrag";
 	}
 
 	return killer_weapon_name;
@@ -2302,7 +2395,10 @@ float CTFGameRules::FlPlayerFallDamage( CBasePlayer *pPlayer )
 		float flRatio = (float)pPlayer->GetMaxHealth() / 100.0;
 		flFallDamage *= flRatio;
 
-		flFallDamage *= random->RandomFloat( 0.8, 1.2 );
+		if ( tf2c_falldamage_disablespread.GetBool() == false )
+		{
+			flFallDamage *= random->RandomFloat( 0.8, 1.2 );
+		}
 
 		return flFallDamage;
 	}
@@ -2390,16 +2486,21 @@ void CTFGameRules::SendWinPanelInfo( void )
 				continue;
 
 			int iRoundScore = 0, iTotalScore = 0;
+			int iKills = 0, iDeaths = 0;
 			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats( pTFPlayer );
 			if ( pStats )
 			{
 				iRoundScore = CalcPlayerScore( &pStats->statsCurrentRound );
 				iTotalScore = CalcPlayerScore( &pStats->statsAccumulated );
+				iKills = pStats->statsCurrentRound.m_iStat[TFSTAT_KILLS];
+				iDeaths = pStats->statsCurrentRound.m_iStat[TFSTAT_DEATHS];
 			}
 			PlayerRoundScore_t &playerRoundScore = vecPlayerScore[vecPlayerScore.AddToTail()];
 			playerRoundScore.iPlayerIndex = iPlayerIndex;
 			playerRoundScore.iRoundScore = iRoundScore;
 			playerRoundScore.iTotalScore = iTotalScore;
+			playerRoundScore.iKills = iKills;
+			playerRoundScore.iDeaths = iDeaths;
 		}
 		// sort the players by round score
 		vecPlayerScore.Sort( PlayerRoundScoreSortFunc );
@@ -2413,11 +2514,16 @@ void CTFGameRules::SendWinPanelInfo( void )
 				break;
 
 			// set the player index and their round score in the event
-			char szPlayerIndexVal[64]="", szPlayerScoreVal[64]="";
-			Q_snprintf( szPlayerIndexVal, ARRAYSIZE( szPlayerIndexVal ), "player_%d", i+ 1 );
-			Q_snprintf( szPlayerScoreVal, ARRAYSIZE( szPlayerScoreVal ), "player_%d_points", i+ 1 );
+			char szPlayerIndexVal[64] = "", szPlayerScoreVal[64] = "";
+			char szPlayerKillsVal[64] = "", szPlayerDeathsVal[64] = "";
+			Q_snprintf( szPlayerIndexVal, ARRAYSIZE( szPlayerIndexVal ), "player_%d", i + 1 );
+			Q_snprintf( szPlayerScoreVal, ARRAYSIZE( szPlayerScoreVal ), "player_%d_points", i + 1 );
+			Q_snprintf(szPlayerKillsVal, ARRAYSIZE(szPlayerKillsVal), "player_%d_kills", i + 1);
+			Q_snprintf(szPlayerDeathsVal, ARRAYSIZE(szPlayerDeathsVal), "player_%d_deaths", i + 1);
 			winEvent->SetInt( szPlayerIndexVal, vecPlayerScore[i].iPlayerIndex );
 			winEvent->SetInt( szPlayerScoreVal, vecPlayerScore[i].iRoundScore );				
+			winEvent->SetInt(szPlayerKillsVal, vecPlayerScore[i].iKills);
+			winEvent->SetInt(szPlayerDeathsVal, vecPlayerScore[i].iDeaths);
 		}
 
 		if ( !bRoundComplete && ( TEAM_UNASSIGNED != m_iWinningTeam ) )
@@ -3045,18 +3151,30 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 //-----------------------------------------------------------------------------
 int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 {
-	int iScore =	( pRoundStats->m_iStat[TFSTAT_KILLS] * TF_SCORE_KILL ) + 
-					( pRoundStats->m_iStat[TFSTAT_CAPTURES] * TF_SCORE_CAPTURE ) + 
-					( pRoundStats->m_iStat[TFSTAT_DEFENSES] * TF_SCORE_DEFEND ) + 
-					( pRoundStats->m_iStat[TFSTAT_BUILDINGSDESTROYED] * TF_SCORE_DESTROY_BUILDING ) + 
-					( pRoundStats->m_iStat[TFSTAT_HEADSHOTS] * TF_SCORE_HEADSHOT ) + 
-					( pRoundStats->m_iStat[TFSTAT_BACKSTABS] * TF_SCORE_BACKSTAB ) + 
-					( pRoundStats->m_iStat[TFSTAT_HEALING] / TF_SCORE_HEAL_HEALTHUNITS_PER_POINT ) +  
-					( pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT ) + 
-					( pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT ) +
-					( pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN ) +
-					( pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE );
-	return max( iScore, 0 );
+	// DM uses a different scoring system
+	if (TFGameRules()->IsDeathmatch())
+	{
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * 2) +
+					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS]) +
+					 (pRoundStats->m_iStat[TFSTAT_DOMINATIONS]) +
+					 (pRoundStats->m_iStat[TFSTAT_REVENGE]);
+		return iScore;
+	}
+	else
+	{
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * TF_SCORE_KILL) +
+			(pRoundStats->m_iStat[TFSTAT_CAPTURES] * TF_SCORE_CAPTURE) +
+			(pRoundStats->m_iStat[TFSTAT_DEFENSES] * TF_SCORE_DEFEND) +
+			(pRoundStats->m_iStat[TFSTAT_BUILDINGSDESTROYED] * TF_SCORE_DESTROY_BUILDING) +
+			(pRoundStats->m_iStat[TFSTAT_HEADSHOTS] * TF_SCORE_HEADSHOT) +
+			(pRoundStats->m_iStat[TFSTAT_BACKSTABS] * TF_SCORE_BACKSTAB) +
+			(pRoundStats->m_iStat[TFSTAT_HEALING] / TF_SCORE_HEAL_HEALTHUNITS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT) +
+			(pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN) +
+			(pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE);
+		return max(iScore, 0);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -3614,6 +3732,9 @@ const char *CTFGameRules::GetGameDescription(void)
 		case TF_GAMETYPE_DM:
 			return "TF2C (Deathmatch)";
 			break;
+		case TF_GAMETYPE_VIP:
+			return "TF2C (Hunted)";
+			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";
 			break;
@@ -3668,6 +3789,55 @@ public:
 LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
 
 void CTFLogicDeathmatch::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
+class CTFLogicVIP : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CTFLogicVIP, CBaseEntity );
+	DECLARE_DATADESC();
+
+	void	Spawn(void);
+
+	inline bool GetEnableCivilian() { return m_bEnableCivilian; }
+	inline bool GetCivilianCountStyle() { return m_bCivilianCountStyle; }
+	inline int GetCivilianAbsoluteCount() { return m_nCivilianAbsoluteCount; }
+	inline int GetCivilianPercentageCount() { return m_nCivilianPercentageCount; }
+	inline bool GetForceCivilian() { return m_bForceCivilian; }
+	inline bool GetEnableCivilianRed() { return m_bEnableCivilianRed; }
+	inline bool GetEnableCivilianBlue() { return m_bEnableCivilianBlue; }
+	inline bool GetEnableCivilianGreen() { return m_bEnableCivilianGreen; }
+	inline bool GetEnableCivilianYellow() { return m_bEnableCivilianYellow; }
+
+private:
+	bool	m_bEnableCivilian;
+	bool	m_bCivilianCountStyle;
+	int		m_nCivilianAbsoluteCount;
+	int		m_nCivilianPercentageCount;
+	bool	m_bForceCivilian;
+	bool	m_bEnableCivilianRed;
+	bool	m_bEnableCivilianBlue;
+	bool	m_bEnableCivilianGreen;
+	bool	m_bEnableCivilianYellow;
+};
+
+LINK_ENTITY_TO_CLASS( tf_logic_vip, CTFLogicVIP );
+
+BEGIN_DATADESC(CTFLogicVIP)
+	DEFINE_KEYFIELD( m_bEnableCivilian, FIELD_BOOLEAN, "EnableCivilian" ),
+	DEFINE_KEYFIELD( m_bCivilianCountStyle, FIELD_BOOLEAN, "CivilianCountStyle" ),
+	DEFINE_KEYFIELD( m_nCivilianAbsoluteCount, FIELD_INTEGER, "CivilianAbsoluteCount" ),
+	DEFINE_KEYFIELD( m_nCivilianPercentageCount, FIELD_INTEGER, "CivilianPercentageCount" ),
+	DEFINE_KEYFIELD( m_bForceCivilian, FIELD_BOOLEAN, "ForceCivilian" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianRed" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianBlue" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianGreen" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianYellow" ),
+END_DATADESC()
+
+void CTFLogicVIP::Spawn(void)
 {
 	BaseClass::Spawn();
 }

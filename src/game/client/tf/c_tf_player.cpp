@@ -59,6 +59,7 @@
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
 #include "c_tf_team.h"
+#include "tf_viewmodel.h"
 
 #include "tf_inventory.h"
 
@@ -83,6 +84,8 @@ ConVar cl_autorezoom( "cl_autorezoom", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Whe
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
+// Moved to the server
+/*
 void tf2c_setmerccolor_f(const CCommand& args)
 {
 	if (args.ArgC() < 4)
@@ -94,14 +97,11 @@ void tf2c_setmerccolor_f(const CCommand& args)
 	
 	if (!pPlayer)
 		return;
-
-	pPlayer->m_iPlayerColor[0] = min(atoi(args.Arg(1)), 255);
-	pPlayer->m_iPlayerColor[1] = min(atoi(args.Arg(2)), 255);
-	pPlayer->m_iPlayerColor[2] = min(atoi(args.Arg(3)), 255);
-
+	pPlayer->m_flPlayerColor[0] = min(atoi(args.Arg(1)), 255) / 255.0f;
+	pPlayer->m_flPlayerColor[1] = min(atoi(args.Arg(2)), 255) / 255.0f;
+	pPlayer->m_flPlayerColor[2] = min(atoi(args.Arg(3)), 255) / 255.0f;
 }
-
-ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0);
+ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0); */
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
@@ -386,23 +386,30 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		int nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
 		SetModelIndex( nModelIndex );	
 
-		switch (m_iTeam)
+		if (TFGameRules()->IsDeathmatch())
 		{
+			m_nSkin = 8;
+		}
+		else
+		{
+			switch (m_iTeam)
+			{
 			case TF_TEAM_RED:
 				m_nSkin = 0;
 				break;
 
 			case TF_TEAM_BLUE:
 				m_nSkin = 1;
-					break;
+				break;
 
 			case TF_TEAM_GREEN:
 				m_nSkin = 4;
-					break;
+				break;
 
 			case TF_TEAM_YELLOW:
 				m_nSkin = 5;
-					break;
+				break;
+			}
 		}
 	}
 
@@ -512,10 +519,6 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		m_flBurnEffectStartTime = gpGlobals->curtime;
 		ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
 	}
-
-	// Set the ragdoll to the proper mecrenary color
-	if (pPlayer && pPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
-		SetRenderColor(pPlayer->m_iPlayerColor[0], pPlayer->m_iPlayerColor[1], pPlayer->m_iPlayerColor[2]);
 
 	// Fade out the ragdoll in a while
 	StartFadeOut( cl_ragdoll_fade_time.GetFloat() );
@@ -959,8 +962,8 @@ public:
 EXPOSE_INTERFACE( CProxyBurnLevel, IMaterialProxy, "BurnLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 //-----------------------------------------------------------------------------
-// Purpose: Used for piss
-//			Returns the RGB value for said piss.
+// Purpose: Used for jarate
+//			Returns the RGB value for the appropriate tint condition.
 //-----------------------------------------------------------------------------
 class CProxyYellowLevel : public CResultProxy
 {
@@ -978,17 +981,386 @@ public:
 
 		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
 
+		if (!pPlayer)
+		{
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if (pWeapon)
+			{
+				pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+			}
+			else
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if (pVM)
+				{
+					pPlayer = (C_TFPlayer*)pVM->GetOwner();
+				}
+			}
+		}
+
 		if (pPlayer)
 		{
 			// This should be used to check if the player has the piss condition
 			// If he is, return yellow
 		}
 
-		m_pResult->SetVecValue(1.0f, 1.0f, 1.0f);
+		m_pResult->SetVecValue(1, 1, 1);
 	}
 };
 
 EXPOSE_INTERFACE(CProxyYellowLevel, IMaterialProxy, "YellowLevel" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Used for the weapon glow color when critted
+//-----------------------------------------------------------------------------
+class CProxyModelGlowColor: public CResultProxy
+{
+public:
+	void OnBind(void *pC_BaseEntity)
+	{
+		Assert(m_pResult);
+
+		if (!pC_BaseEntity)
+			return;
+
+		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
+		if (!pEntity)
+			return;
+
+		Vector vecColor = Vector(1, 1, 1);
+
+		C_TFPlayer *pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+
+		if (!pPlayer)
+		{
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if (pWeapon)
+			{
+				pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+			}
+			else
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if (pVM)
+				{
+					pPlayer = (C_TFPlayer*)pVM->GetOwner();
+				}
+			}
+		}
+
+		if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED))
+		{
+			switch ( pPlayer->GetTeamNumber() )
+			{
+			case TF_TEAM_RED:
+				vecColor = Vector(255, 5, 1);
+				break;
+			case TF_TEAM_BLUE:
+				vecColor = Vector(1, 70, 255);
+				break;
+			case TF_TEAM_GREEN:
+				vecColor = Vector(1, 28, 9);
+				break;
+			case TF_TEAM_YELLOW:
+				vecColor = Vector(28, 28, 9);
+				break;
+			}
+		}
+		else if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE))
+		{
+			Vector critColor = pPlayer->m_vecPlayerColor;
+			critColor *= 255;
+			vecColor = critColor;
+		}
+
+		m_pResult->SetVecValue( vecColor.Base(), 3 );
+	}
+};
+
+EXPOSE_INTERFACE(CProxyModelGlowColor, IMaterialProxy, "ModelGlowColor" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Used for coloring items 
+//			Right now, it's only used for the mercenary
+//-----------------------------------------------------------------------------
+class CProxyItemTintColor : public CResultProxy
+{
+public:
+	void OnBind(void *pC_BaseEntity)
+	{
+		Assert(m_pResult);
+
+		if (!pC_BaseEntity)
+			return;
+
+		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
+		if (!pEntity)
+			return;
+
+		C_TFPlayer *pPlayer = null;
+
+		C_TFRagdoll *pRagdoll = dynamic_cast< C_TFRagdoll* >(pEntity);
+		if (pRagdoll)
+		{
+			EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
+			pPlayer = dynamic_cast<C_TFPlayer*>(hPlayer.Get());
+		}
+
+		C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+		if (pWeapon)
+		{
+			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
+		}
+
+		C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+		if (pVM)
+		{
+			pPlayer = (C_TFPlayer*)pVM->GetOwner();
+		}
+
+		if (!pPlayer)
+		{
+			pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+		}
+
+		// Final check to see if it's a player
+		if (pPlayer)
+		{
+			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+			return;
+		}
+
+		m_pResult->SetVecValue(1, 1, 1);
+	}
+};
+
+EXPOSE_INTERFACE(CProxyItemTintColor, IMaterialProxy, "ItemTintColor" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Stub class for the CommunityWeapon material proxy used by live TF2
+//-----------------------------------------------------------------------------
+class CProxyCommunityWeapon : public CResultProxy
+{
+public:
+	virtual bool Init(IMaterial *pMaterial, KeyValues *pKeyValues)
+	{
+		return true;
+	}
+	void OnBind(void *pC_BaseEntity)
+	{
+	}	
+};
+
+EXPOSE_INTERFACE(CProxyCommunityWeapon, IMaterialProxy, "CommunityWeapon" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Stub class for the AnimatedWeaponSheen material proxy used by live TF2
+//-----------------------------------------------------------------------------
+class CProxyAnimatedWeaponSheen : public CResultProxy
+{
+public:
+	virtual bool Init(IMaterial *pMaterial, KeyValues *pKeyValues)
+	{
+		return true;
+	}
+	void OnBind(void *pC_BaseEntity)
+	{
+		
+	}
+};
+
+EXPOSE_INTERFACE(CProxyAnimatedWeaponSheen, IMaterialProxy, "AnimatedWeaponSheen" IMATERIAL_PROXY_INTERFACE_VERSION);
+
+//-----------------------------------------------------------------------------
+// Purpose: Universal proxy from live tf2 used for spy invisiblity material
+//			Its' purpose is to replace weapon_invis, vm_invis and spy_invis
+//-----------------------------------------------------------------------------
+class CInvisProxy : public CEntityMaterialProxy
+{
+public:
+	CInvisProxy(void);
+	virtual				~CInvisProxy(void);
+	virtual bool		Init(IMaterial *pMaterial, KeyValues* pKeyValues);
+	virtual void		OnBind(C_BaseEntity *pC_BaseEntity);
+	virtual IMaterial *	GetMaterial();
+
+	virtual void		HandleSpyInvis(C_TFPlayer *pPlayer);
+	virtual void		HandleVMInvis(C_TFViewModel *pVM);
+	virtual void		HandleWeaponInvis(C_BaseEntity *pC_BaseEntity);
+
+private:
+
+	IMaterialVar		*m_pPercentInvisible;
+	IMaterialVar		*m_pCloakColorTint;
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CInvisProxy::CInvisProxy(void)
+{
+	m_pPercentInvisible = NULL;
+	m_pCloakColorTint = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CInvisProxy::~CInvisProxy(void)
+{
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get pointer to the color value
+// Input  : *pMaterial - 
+//-----------------------------------------------------------------------------
+bool CInvisProxy::Init(IMaterial *pMaterial, KeyValues* pKeyValues)
+{
+	Assert(pMaterial);
+
+	// Need to get the material var
+	bool bInvis;
+	m_pPercentInvisible = pMaterial->FindVar("$cloakfactor", &bInvis);
+
+	bool bTint;
+	m_pCloakColorTint = pMaterial->FindVar("$cloakColorTint", &bTint);
+
+	// if we have $cloakColorTint, it's spy_invis
+	if (bTint)
+	{
+		return (bInvis && bTint);
+	}
+
+	return (bTint);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::OnBind(C_BaseEntity *pEnt)
+{
+	if (!pEnt)
+		return;
+
+	m_pPercentInvisible->SetFloatValue(0.0);
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pEnt);
+	C_TFViewModel *pVM = dynamic_cast<C_TFViewModel *>(pEnt);
+	if (pPlayer)
+	{
+		HandleSpyInvis(pPlayer);
+	}
+	else if (pVM)
+	{
+		HandleVMInvis(pVM);
+	}
+	else
+	{
+		HandleWeaponInvis(pEnt);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleSpyInvis(C_TFPlayer *pPlayer)
+{
+	if (!m_pPercentInvisible || !m_pCloakColorTint)
+		return;
+
+	m_pPercentInvisible->SetFloatValue(pPlayer->GetEffectiveInvisibilityLevel());
+
+	float r, g, b;
+
+	switch (pPlayer->GetTeamNumber())
+	{
+	case TF_TEAM_RED:
+		r = 1.0; g = 0.5; b = 0.4;
+		break;
+
+	case TF_TEAM_BLUE:
+		r = 0.4; g = 0.5; b = 1.0;
+		break;
+
+	case TF_TEAM_GREEN:
+		r = 0.4; g = 1.0; b = 0.5;
+		break;
+
+	case TF_TEAM_YELLOW:
+		r = 1.0; g = 0.5; b = 0.5;
+		break;
+
+	default:
+		r = 0.4; g = 0.5; b = 1.0;
+		break;
+	}
+
+	m_pCloakColorTint->SetVecValue(r, g, b);
+}
+
+extern ConVar tf_vm_min_invis;
+extern ConVar tf_vm_max_invis;
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleVMInvis(C_TFViewModel *pVM)
+{
+	if (!m_pPercentInvisible)
+		return;
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pVM->GetOwner());
+
+	if (!pPlayer)
+	{
+		m_pPercentInvisible->SetFloatValue(0.0f);
+		return;
+	}
+
+	float flPercentInvisible = pPlayer->GetPercentInvisible();
+
+	// remap from 0.22 to 0.5
+	// but drop to 0.0 if we're not invis at all
+	float flWeaponInvis = (flPercentInvisible < 0.01) ?
+		0.0 :
+		RemapVal(flPercentInvisible, 0.0, 1.0, tf_vm_min_invis.GetFloat(), tf_vm_max_invis.GetFloat());
+
+	m_pPercentInvisible->SetFloatValue(flWeaponInvis);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :
+//-----------------------------------------------------------------------------
+void CInvisProxy::HandleWeaponInvis(C_BaseEntity *pEnt)
+{
+	if (!m_pPercentInvisible)
+		return;
+
+	C_BaseEntity *pMoveParent = pEnt->GetMoveParent();
+	if (!pMoveParent || !pMoveParent->IsPlayer())
+	{
+		m_pPercentInvisible->SetFloatValue(0.0f);
+		return;
+	}
+
+	C_TFPlayer *pPlayer = ToTFPlayer(pMoveParent);
+	Assert(pPlayer);
+
+	m_pPercentInvisible->SetFloatValue(pPlayer->GetEffectiveInvisibilityLevel());
+}
+
+IMaterial *CInvisProxy::GetMaterial()
+{
+	if (!m_pPercentInvisible)
+		return NULL;
+
+	return m_pPercentInvisible->GetOwningMaterial();
+}
+
+EXPOSE_INTERFACE(CInvisProxy, IMaterialProxy, "invis" IMATERIAL_PROXY_INTERFACE_VERSION);
 
 //-----------------------------------------------------------------------------
 // Purpose: RecvProxy that converts the Player's object UtlVector to entindexes
@@ -1046,6 +1418,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropDataTable( RECVINFO_DT( m_PlayerClass ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerClassShared ) ),
 	RecvPropDataTable( RECVINFO_DT( m_Shared ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerShared ) ),
 	RecvPropEHandle( RECVINFO(m_hItem ) ),
+
+	RecvPropVector(RECVINFO(m_vecPlayerColor)),
 
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
@@ -1112,10 +1486,6 @@ C_TFPlayer::C_TFPlayer() :
 	m_bWaterExitEffectActive = false;
 
 	m_bUpdateObjectHudState = false;
-
-	m_iPlayerColor[0] = 255;
-	m_iPlayerColor[1] = 255;
-	m_iPlayerColor[2] = 255;
 }
 
 C_TFPlayer::~C_TFPlayer()
@@ -1622,6 +1992,11 @@ void C_TFPlayer::OnPlayerClassChange( void )
 	// Init the anim movement vars
 	m_PlayerAnimState->SetRunSpeed( GetPlayerClass()->GetMaxSpeed() );
 	m_PlayerAnimState->SetWalkSpeed( GetPlayerClass()->GetMaxSpeed() * 0.5 );
+
+	// Execute the class cfg
+	char szCommand[128];
+	Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
+	engine->ExecuteClientCmd(szCommand);
 }
 
 //-----------------------------------------------------------------------------
@@ -2378,8 +2753,19 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 		pCmd->forwardmove = 0.0f;
 		pCmd->sidemove = 0.0f;
 		pCmd->upmove = 0.0f;
+		int nOldButtons = pCmd->buttons;
 		pCmd->buttons = 0;
 		pCmd->weaponselect = 0;
+
+		// Re-add IN_ATTACK2 if player is Demoman with sticky launcher. This is done so they can detonate stickies while taunting.
+		if ( (nOldButtons & IN_ATTACK2) && IsPlayerClass( TF_CLASS_DEMOMAN ) )
+		{
+			CTFPipebombLauncher *pWeapon = dynamic_cast < CTFPipebombLauncher*>( Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER ) );
+			if ( pWeapon )
+			{
+				pCmd->buttons |= IN_ATTACK2;
+			}
+		}
 
 		VectorCopy( angMoveAngle, pCmd->viewangles );
 		bNoTaunt = false;
@@ -2878,10 +3264,6 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 	m_hSpawnedGibs.Purge();
 	m_hFirstGib = CreateGibsFromList( m_aGibs, GetModelIndex(), NULL, breakParams, this, -1 , false, true, &m_hSpawnedGibs );
 
-	// Set the gibs to the proper mecrenary color
-	if (IsPlayerClass(TF_CLASS_MERCENARY))
-		m_hFirstGib->SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
-
 	DropPartyHat( breakParams, vecBreakVelocity );
 }
 
@@ -3047,6 +3429,9 @@ int C_TFPlayer::GetSkin()
 		nSkin += 4 + ( ( m_Shared.GetDisguiseClass() - TF_FIRST_NORMAL_CLASS ) * 2 );
 	}
 
+	if (TFGameRules()->IsDeathmatch())
+		nSkin = 8;
+
 	return nSkin;
 }
 
@@ -3118,18 +3503,27 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 		// Release the duck toggle key
 		KeyUp( &in_ducktoggle, NULL ); 
+
+		LoadInventory();
 	}
 
-	LoadInventory();
+	if (TFGameRules()->IsDeathmatch())
+	{
+		CNewParticleEffect *pEffect = ParticleProp()->Create("dm_respawn_19", PATTACH_ABSORIGIN_FOLLOW);
+		if (pEffect)
+		{
+			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+			int index = ((C_BasePlayer *) this)->entindex();
+			Color clr = tf_PR->GetPlayerColor(index);
+			Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
+			pEffect->SetControlPoint(9, vec);
+		}
+	}
+
 	UpdateVisibility();
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
-
-	if (IsPlayerClass(TF_CLASS_MERCENARY))
-	{
-		SetRenderColor(m_iPlayerColor[0], m_iPlayerColor[1], m_iPlayerColor[2]);
-	}
 
 }
 
@@ -3378,12 +3772,12 @@ void C_TFPlayer::Simulate( void )
 
 void C_TFPlayer::LoadInventory(void)
 {
-	KeyValues* pInventory = Inventory->GetInventory(filesystem);
-	for (int iClass = 0; iClass <= TF_CLASS_COUNT_ALL; iClass++)
+	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
+	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
 	{
 		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
 		{
-			int iPreset = Inventory->GetLocalPreset(pInventory, iClass, iSlot);
+			int iPreset = GetTFInventory()->GetLocalPreset(pInventoryKeys, iClass, iSlot);
 			char szCmd[64];
 			Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset);
 			engine->ExecuteClientCmd(szCmd);
@@ -3393,11 +3787,11 @@ void C_TFPlayer::LoadInventory(void)
 
 void C_TFPlayer::EditInventory(int iSlot, int iWeapon)
 {
-	KeyValues* pInventory = Inventory->GetInventory(filesystem);
+	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
 	int iClass = GetPlayerClass()->GetClassIndex();
-	KeyValues* pClass = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	pClass->SetInt(Inventory->GetSlotName(iSlot), iWeapon);
-	Inventory->SetInventory(filesystem, pInventory);
+	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iWeapon);
+	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
 }
 
 /*

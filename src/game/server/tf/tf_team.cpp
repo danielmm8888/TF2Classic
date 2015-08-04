@@ -6,6 +6,7 @@
 #include "entitylist.h"
 #include "util.h"
 #include "tf_obj.h"
+#include "tf_gamerules.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -406,4 +407,49 @@ CTFTeam *GetGlobalTFTeam( int iIndex )
 		return NULL;
 
 	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
+}
+
+void CTFTeam::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
+{
+	if (TFGameRules()->IsDeathmatch())
+	{
+		pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+		return;
+	}
+
+	int iTeam = GetTeamNumber();
+	switch (iTeam)
+	{
+		case TF_TEAM_RED:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_BLUE:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_GREEN:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+
+		case TF_TEAM_YELLOW:
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			break;
+			
+		default:
+			// Makes unassigned sentries shoot everyone, hehe.
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
+			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
+			break;
+	}
 }

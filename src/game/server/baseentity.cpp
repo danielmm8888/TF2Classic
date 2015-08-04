@@ -5319,6 +5319,10 @@ void CC_Ent_FireTarget( const CCommand& args )
 }
 static ConCommand firetarget("firetarget", CC_Ent_FireTarget, 0, FCVAR_CHEAT);
 
+#ifdef TF_CLASSIC
+ConVar sv_allow_ent_fire("sv_allow_ent_fire", "0", FCVAR_CHEAT, "Allows clients to use ent_fire");
+#endif
+
 class CEntFireAutoCompletionFunctor : public ICommandCallback, public ICommandCompletionCallback
 {
 public:
@@ -5353,19 +5357,27 @@ public:
 			//	  ent_create point_servercommand; ent_setname mine; ent_fire mine command "rcon_password mynewpassword"
 			// So, I'm removing the ability for anyone to execute ent_fires on dedicated servers (we can't check to see if
 			// this command is going to connect with a point_servercommand entity here, because they could delay the event and create it later).
-			if ( engine->IsDedicatedServer() )
+
+#ifdef TF_CLASSIC
+			if ( !sv_allow_ent_fire.GetBool() )
 			{
-				// We allow people with disabled autokick to do it, because they already have rcon.
-				if ( pPlayer->IsAutoKickDisabled() == false )
-					return;
+#endif
+				if ( engine->IsDedicatedServer() )
+				{
+					// We allow people with disabled autokick to do it, because they already have rcon.
+					if ( pPlayer->IsAutoKickDisabled() == false )
+						return;
+				}
+				else if ( gpGlobals->maxClients > 1 )
+				{
+					// On listen servers with more than 1 player, only allow the host to issue ent_fires.
+					CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
+					if ( pPlayer != pHostPlayer )
+						return;
+				}
+#ifdef TF_CLASSIC
 			}
-			else if ( gpGlobals->maxClients > 1 )
-			{
-				// On listen servers with more than 1 player, only allow the host to issue ent_fires.
-				CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
-				if ( pPlayer != pHostPlayer )
-					return;
-			}
+#endif
 
 			if ( command.ArgC() >= 3 )
 			{

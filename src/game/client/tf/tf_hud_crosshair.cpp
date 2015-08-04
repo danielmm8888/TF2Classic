@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
@@ -34,7 +34,7 @@ using namespace vgui;
 DECLARE_HUDELEMENT(CHudTFCrosshair);
 
 CHudTFCrosshair::CHudTFCrosshair(const char *pElementName) :
-	CHudCrosshair("HudTFCrosshair")
+	CHudCrosshair("CHudCrosshair")
 {
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent(pParent);
@@ -82,6 +82,12 @@ void CHudTFCrosshair::Init()
 	m_iCrosshairTextureID = vgui::surface()->CreateNewTextureID();
 }
 
+void CHudTFCrosshair::SetCrosshair(CHudTexture *texture, Color& clr)
+{
+	m_pCrosshair = texture;
+	m_clrCrosshair = clr;
+}
+
 bool CHudTFCrosshair::ShouldDraw()
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
@@ -101,15 +107,23 @@ void CHudTFCrosshair::Paint()
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if( !pPlayer )
+	if (!pPlayer)
 		return;
 
 	const char *crosshairfile = cl_crosshair_file.GetString();
 
-	if (!crosshairfile)
-		return;
+	if (Q_stricmp(crosshairfile, "") == 0)
+	{
+		CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 
-	if (Q_stricmp(cl_crosshair_file.GetString(), ""))
+		if (!pWeapon)
+			return;
+
+		m_pCrosshair = pWeapon->GetWpnData().iconCrosshair;
+		BaseClass::Paint();
+		return;
+	}
+	else
 	{
 		if (Q_stricmp(m_szPreviousCrosshair, crosshairfile) != 0)
 		{
@@ -125,8 +139,8 @@ void CHudTFCrosshair::Paint()
 
 			m_pCrosshairOverride = vgui::surface()->DrawGetTextureMatInfoFactory(m_iCrosshairTextureID);
 
-			if (!m_pCrosshair)
-				return;
+			if (!m_pCrosshairOverride)
+					return;
 
 			if (m_pFrameVar)
 			{
@@ -141,36 +155,6 @@ void CHudTFCrosshair::Paint()
 
 			// save the name to compare with the cvar in the future
 			Q_strncpy(m_szPreviousCrosshair, crosshairfile, sizeof(m_szPreviousCrosshair));
-		}
-
-		if (m_pFrameVar)
-		{
-			if (cl_dynamic_crosshair.GetBool() == false)
-			{
-				m_pFrameVar->SetIntValue(0);
-			}
-			else
-			{
-				CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
-
-				if (!pWeapon)
-					return;
-
-				float accuracy = /*pWeapon->GetWeaponAccuracy( pPlayer->GetAbsVelocity().Length2D() )*/ 5.0F;
-
-				float flMin = 0.02;
-
-				float flMax = 0.125;
-
-				accuracy = clamp(accuracy, flMin, flMax);
-
-				// approach this accuracy from our current accuracy
-				m_flAccuracy = Approach(accuracy, m_flAccuracy, cl_crosshair_approach_speed.GetFloat());
-
-				float flFrame = RemapVal(m_flAccuracy, flMin, flMax, 0, m_nNumFrames - 1);
-
-				m_pFrameVar->SetIntValue((int)flFrame);
-			}
 		}
 
 		Color clr(cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255);
@@ -190,35 +174,38 @@ void CHudTFCrosshair::Paint()
 		vgui::surface()->DrawTexturedRect(iX - iWidth, iY - iHeight, iX + iWidth, iY + iHeight);
 		vgui::surface()->DrawSetTexture(0);
 	}
-	else
-	{
-		//BaseClass::Paint();
-		return;
-	}
-
-
-
-	//BaseClass::Paint();
 
 	/*
+	if (m_pFrameVar)
+	{
+		if (cl_dynamic_crosshair.GetBool() == false)
+		{
+			m_pFrameVar->SetIntValue(0);
+		}
+		else
+		{
+			CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 
-	Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
+			if (!pWeapon)
+				return;
 
-	int screenWide, screenTall;
-	GetHudSize(screenWide, screenTall);
+			float accuracy = 5;//pWeapon->GetWeaponAccuracy(pPlayer->GetAbsVelocity().Length2D());
 
-	int iX = screenWide / 2;
-	int iY = screenTall / 2;
+			float flMin = 0.02;
 
-	int iWidth, iHeight;
+			float flMax = 0.125;
 
-	iWidth = iHeight = cl_crosshair_scale.GetInt();
+			accuracy = clamp(accuracy, flMin, flMax);
 
-	vgui::surface()->DrawSetColor( clr );
-	vgui::surface()->DrawSetTexture( m_iCrosshairTextureID );
-	vgui::surface()->DrawTexturedRect( iX-iWidth, iY-iHeight, iX+iWidth, iY+iHeight );
-	vgui::surface()->DrawSetTexture(0);
+			// approach this accuracy from our current accuracy
+			m_flAccuracy = Approach(accuracy, m_flAccuracy, cl_crosshair_approach_speed.GetFloat());
 
-	*/
+			float flFrame = RemapVal(m_flAccuracy, flMin, flMax, 0, m_nNumFrames - 1);
+
+			m_pFrameVar->SetIntValue((int)flFrame);
+		}
+	}
+
+*/
 }
 

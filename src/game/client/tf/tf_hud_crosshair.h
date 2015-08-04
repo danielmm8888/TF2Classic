@@ -5,8 +5,8 @@
 // $NoKeywords: $
 //=============================================================================//
 
-#ifndef HUD_DOD_CROSSHAIR_H
-#define HUD_DOD_CROSSHAIR_H
+#ifndef HUD_TF_CROSSHAIR_H
+#define HUD_TF_CROSSHAIR_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -38,7 +38,7 @@ public:
 	virtual void LevelShutdown( void );
 
 	//stub
-	void SetCrosshair( CHudTexture *texture, Color& clr ) {}
+	void SetCrosshair( CHudTexture *texture, Color& clr );
 	void ResetCrosshair() {}
 
 private:
@@ -56,4 +56,4 @@ private:
 extern ConVar crosshair;
 
 
-#endif // HUD_DOD_CROSSHAIR_H
+#endif // HUD_TF_CROSSHAIR_H

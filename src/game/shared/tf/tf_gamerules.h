@@ -48,6 +48,8 @@
 
 extern ConVar	tf_avoidteammates;
 
+extern ConVar	fraglimit;
+
 extern Vector g_TFClassViewVectors[];
 
 class CTFGameRulesProxy : public CTeamplayRoundBasedRulesProxy
@@ -92,6 +94,8 @@ struct PlayerRoundScore_t
 	int iPlayerIndex;	// player index
 	int iRoundScore;	// how many points scored this round
 	int	iTotalScore;	// total points scored across all rounds
+	int	iKills;
+	int iDeaths;
 };
 
 #define MAX_TEAMGOAL_STRING		256
@@ -180,6 +184,8 @@ public:
 	virtual bool	HasPassedMinRespawnTime( CBasePlayer *pPlayer );
 
 	bool			ShouldScorePerRound( void );
+
+	virtual int		PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget);
 
 protected:
 	virtual void	InitTeams( void );

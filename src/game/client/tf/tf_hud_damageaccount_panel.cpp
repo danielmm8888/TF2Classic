@@ -1,4 +1,4 @@
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright ï¿½ 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Damage numers upon hitting an enemy
 //
@@ -105,6 +105,12 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 		if ( m_pDamageAccountLabel
 			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
 		{
+			if ( event->GetInt( "userid_from" ) == event->GetInt( "userid_to" ) )
+			{
+				// No self-damage notifications.
+				return;
+			}
+
 			// Play hit sound, if appliable
 			if( tf_dingalingaling.GetBool() == true )
 			{
@@ -121,7 +127,12 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 			m_flRemoveAt = gpGlobals->curtime + 1.0f;
 			// Set text to amount of damage
 			char buffer[5]; // Up to four digits
-			m_pDamageAccountLabel->SetText( itoa( event->GetInt( "amount" ) * -1, buffer, 10 ) );
+#if defined( OSX ) || defined( LINUX ) 
+			snprintf( buffer, sizeof(buffer), "%d",  event->GetInt( "amount" ) * -1 );
+#elif WIN32
+			itoa(event->GetInt("amount") * -1, buffer, 10);
+#endif
+			m_pDamageAccountLabel->SetText( buffer );
 			m_pDamageAccountLabel->SetVisible( true );
 
 			// Respoition based on location of player hit

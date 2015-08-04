@@ -30,7 +30,7 @@ public:
 	virtual const char *GetProjectileModelName(void);
 	virtual float GetGravity(void);
 
-	static float	GetInitialVelocity(void) { return 1000.0; }
+	static float	GetInitialVelocity(void) { return 1500.0; }
 };
 
 //-----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ public:
 	virtual const char *GetProjectileModelName( void );
 	virtual float GetGravity( void );
 
-	static float	GetInitialVelocity( void ) { return 1000.0; }
+	static float	GetInitialVelocity( void ) { return 1500.0; }
 };
 
 //-----------------------------------------------------------------------------

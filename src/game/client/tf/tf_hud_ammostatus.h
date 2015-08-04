@@ -43,7 +43,6 @@ private:
 private:
 
 	float							m_flNextThink;
-	CTFInventory					*Invenory;
 
 	CHandle<C_BaseCombatWeapon>		m_hCurrentActiveWeapon;
 	int								m_nAmmo;

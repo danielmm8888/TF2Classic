@@ -46,7 +46,6 @@ public:
 	float		m_flFullDamage;
 
 	CNetworkHandle( CBaseEntity, m_hLauncher );
-
 	virtual void	UpdateOnRemove( void );
 
 
@@ -92,5 +91,4 @@ private:
 	float		m_flMinSleepTime;
 #endif
 };
-
 #endif // TF_WEAPON_GRENADE_PIPEBOMB_H

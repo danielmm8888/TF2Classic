@@ -748,7 +748,7 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_INVULNERABLE );
 		}
 	}
-	if (InCond(TF_COND_KRITZ))
+	if ( InCond( TF_COND_CRITBOOSTED ) )
 	{
 		bool bRemoveCrits = false;
 
@@ -768,7 +768,17 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		if (bRemoveCrits == true)
 		{
 			m_flCritOffTime = 0;
-			RemoveCond(TF_COND_KRITZ);
+			RemoveCond( TF_COND_CRITBOOSTED );
+		}
+	}
+	if (InCond(TF_COND_POWERUP_CRITDAMAGE))
+	{
+		if (GetConditionDuration(TF_COND_POWERUP_CRITDAMAGE))
+		{
+			if (gpGlobals->curtime > gpGlobals->curtime + GetConditionDuration(TF_COND_POWERUP_CRITDAMAGE))
+			{
+				RemoveCond(TF_COND_POWERUP_CRITDAMAGE);
+			}
 		}
 	}
 	if ( InCond( TF_COND_STEALTHED_BLINK ) )
@@ -1811,7 +1821,7 @@ void CTFPlayerShared::SetInvulnerable( bool bState, bool bInstant )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 {
-	bool bCurrentState = InCond(TF_COND_KRITZ);
+	bool bCurrentState = InCond( TF_COND_CRITBOOSTED );
 	if (bCurrentState == bState)
 	{
 		if (bState && m_flCritOffTime)
@@ -1833,7 +1843,7 @@ void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 		}
 
 		// Invulnerable turning on
-		AddCond(TF_COND_KRITZ);
+		AddCond( TF_COND_CRITBOOSTED );
 
 		CSingleUserRecipientFilter filter(m_pOuter);
 		m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn");
@@ -1849,7 +1859,7 @@ void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
 		if (bInstant)
 		{
 			m_flCritOffTime = 0;
-			RemoveCond(TF_COND_KRITZ);
+			RemoveCond( TF_COND_CRITBOOSTED );
 		}
 		else
 		{
@@ -2381,14 +2391,14 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
-	// if they're a sniper, and they're aiming, their speed must be 80 or less
+	// if they're aiming or spun up, reduce their speed
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
-		// Pyro's move faster while firing their flamethrower
-		if ( playerclass == TF_CLASS_PYRO )
+		// Heavy moves slightly faster spun-up
+		if ( playerclass == TF_CLASS_HEAVYWEAPONS )
 		{
-			if (maxfbspeed > 200)
-				maxfbspeed = 200;
+			if (maxfbspeed > 110)
+				maxfbspeed = 110;
 		}
 		else
 		{
@@ -2823,3 +2833,23 @@ CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByType( int iType )
 
 }
 
+CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByBucket(int iSlot)
+{
+	for (int i = 0; i < WeaponCount(); i++)
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+
+		if (pWpn == NULL)
+			continue;
+	
+		int iWeaponSlot = pWpn->GetTFWpnData().iSlot;
+
+		if (iWeaponSlot == iSlot)
+		{
+			return pWpn;
+		}
+	}
+
+	return NULL;
+
+}

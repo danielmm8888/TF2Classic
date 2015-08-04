@@ -18,9 +18,15 @@ struct DeathNoticePlayer
 	{
 		szName[0] = 0;
 		iTeam = TEAM_UNASSIGNED;
+#if defined (TF_CLASSIC_CLIENT)
+		iPlayerID = 0;
+#endif
 	}
 	char		szName[MAX_PLAYER_NAME_LENGTH*2];	// big enough for player name and additional information
 	int			iTeam;								// team #	
+#if defined (TF_CLASSIC_CLIENT)
+	int			iPlayerID;
+#endif
 };
 
 // Contents of each entry in our list of death notices

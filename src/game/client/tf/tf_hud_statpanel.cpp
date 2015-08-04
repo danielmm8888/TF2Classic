@@ -32,6 +32,7 @@
 #include "achievementmgr.h"
 #include "tf_hud_freezepanel.h"
 #include "tf_gamestats_shared.h"
+#include "tf_mainmenu.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -518,7 +519,7 @@ int CTFStatPanel::CalcCRC( int iSteamID )
 	// make a CRC of stat data
 	CRC32_ProcessBuffer( &crc, &iSteamID, sizeof( iSteamID ) );
 
-	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_LAST_NORMAL_CLASS; iClass++ )
+	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_CLASS_ENGINEER; iClass++ )
 	{
 		// add each class' data to the CRC
 		ClassStats_t &classStats = GetClassStats( iClass );
@@ -757,6 +758,11 @@ ClassStats_t &CTFStatPanel::GetClassStats( int iClass )
 void CTFStatPanel::UpdateStatSummaryPanel()
 {
 	GStatsSummaryPanel()->SetStats( m_aClassStats );
+}
+
+void CTFStatPanel::UpdateMainMenuDialog()
+{
+	MAINMENU_ROOT->SetStats(m_aClassStats);
 }
 
 //-----------------------------------------------------------------------------

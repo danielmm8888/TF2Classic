@@ -118,6 +118,8 @@ public:
 #ifdef CLIENT_DLL
 	virtual bool Deploy( void );
 #endif
+	// Reload does nothing since reload key is used for switching disguises.
+	virtual bool Reload( void ) { return false; }
 };
 
 #endif // TF_WEAPON_PDA_H

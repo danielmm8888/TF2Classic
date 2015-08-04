@@ -54,7 +54,9 @@ CREATE_SIMPLE_WEAPON_TABLE( TFShotgun_HWG, tf_weapon_shotgun_hwg )
 CREATE_SIMPLE_WEAPON_TABLE( TFShotgun_Pyro, tf_weapon_shotgun_pyro )
 CREATE_SIMPLE_WEAPON_TABLE( TFShotgun_Medic, tf_weapon_shotgun_medic )
 CREATE_SIMPLE_WEAPON_TABLE( TFScatterGun, tf_weapon_scattergun )
-
+CREATE_SIMPLE_WEAPON_TABLE(TFShotgun_DM, tf_weapon_shotgun_dm)
+CREATE_SIMPLE_WEAPON_TABLE(TFScatterGun_DM, tf_weapon_scattergun_dm)
+CREATE_SIMPLE_WEAPON_TABLE(TFDoubleBarrel, tf_weapon_doublebarrel)
 
 //=============================================================================
 //
@@ -94,4 +96,3 @@ void CTFShotgun::UpdatePunchAngles( CTFPlayer *pPlayer )
 	angle.x -= SharedRandomInt( "ShotgunPunchAngle", ( flPunchAngle - 1 ), ( flPunchAngle + 1 ) );
 	pPlayer->SetPunchAngle( angle );
 }
-

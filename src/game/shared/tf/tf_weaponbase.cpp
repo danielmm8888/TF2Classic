@@ -33,8 +33,6 @@
 #include "proxyentity.h"
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
-
-extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
 
 extern ConVar tf_useparticletracers;
@@ -445,6 +443,25 @@ void CTFWeaponBase::PrimaryAttack( void )
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
+{
+#ifdef GAME_DLL
+	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
+	int AmmoType = m_pWeaponInfo->iAmmoType;
+	int MaxAmmo = m_pWeaponInfo->m_WeaponData[0].m_iMaxAmmo;
+	if (MaxAmmo)
+		pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType] = MaxAmmo;
+	pPlayer->SetAmmoCount(1,AmmoType);
+	pPlayer->GiveAmmo(pPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[AmmoType], AmmoType);
+#endif
+
+	BaseClass::OnPickedUp(pNewOwner);
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::SecondaryAttack( void )
@@ -481,6 +498,14 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
+	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
+	{
+		m_bCurrentAttackIsCrit = true;
+	}
+	else if  (pPlayer->m_Shared.InCond( TF_COND_POWERUP_CRITDAMAGE ) )
+	{
+		m_bCurrentAttackIsCrit = true;
+	}
 	else if ( IsMeleeWeapon() && ((tf_weapon_criticals_melee.GetInt() == 1 && tf_weapon_criticals.GetBool()) || tf_weapon_criticals_melee.GetInt() == 2))
 	{
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
@@ -489,10 +514,6 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	if (pPlayer->m_Shared.InCond(TF_COND_KRITZ))
-	{
-		m_bCurrentAttackIsCrit = true;
 	}
 	else
 	{
@@ -2395,3 +2416,22 @@ IMaterial *CWeaponInvisProxy::GetMaterial()
 EXPOSE_INTERFACE( CWeaponInvisProxy, IMaterialProxy, "weapon_invis" IMATERIAL_PROXY_INTERFACE_VERSION );
 
 #endif // CLIENT_DLL
+
+CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
+{
+	// Get the weapon information.
+	const char *pszWeaponAlias = WeaponIdToAlias(iWeapon);
+	if (!pszWeaponAlias)
+	{
+		return NULL;
+	}
+
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot(pszWeaponAlias);
+	if (hWpnInfo == GetInvalidWeaponInfoHandle())
+	{
+		return NULL;
+	}
+
+	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>(GetFileWeaponInfoFromHandle(hWpnInfo));
+	return pWeaponInfo;
+}

@@ -127,12 +127,7 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
-	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN )
-	{
-		return false;
-	}
-
-	if (pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG)
+	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN || pWeapon->GetWeaponID() == TF_WEAPON_KRITZKRIEG || pWeapon->GetWeaponID() == TF_WEAPON_UBERSAW )
 	{
 		return false;
 	}
@@ -186,24 +181,26 @@ void CTFHudWeaponAmmo::OnThink()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (!pPlayer)
 		return;
-	C_TFPlayerClass* pClass = pPlayer->GetPlayerClass();
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 	if (!pWeapon)
 		return;
-
-	if (tf2c_ammobucket.GetBool()){
-		for (int j = 0; j < COLNUM; j++)
+	
+	if (tf2c_ammobucket.GetBool())
+	{
+		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+		if (pPlayer)
 		{
-			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
-			if (pPlayer->Weapon_OwnsThisID(iWeapon))
+			if (pPlayer->GetTeamNumber() == TF_TEAM_BLUE)
 			{
-				char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
-				char szImage[64];
-				Q_snprintf(szImage, sizeof(szImage), "../%s", cIcon);
-				if (szImage)
-					m_pWeaponBucket->SetImage(szImage);
-				break;
+				pTexture = pWeapon->GetSpriteActive();
 			}
+		}
+
+		if (pTexture)
+		{
+			char szImage[64];
+			Q_snprintf(szImage, sizeof(szImage), "../%s", pTexture->szTextureFile);
+			m_pWeaponBucket->SetImage(szImage);
 		}
 	}
 

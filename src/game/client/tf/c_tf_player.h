@@ -42,7 +42,6 @@ public:
 
 	C_TFPlayer();
 	~C_TFPlayer();
-	class CTFInventory *Inventory;
 
 	static C_TFPlayer* GetLocalTFPlayer();
 
@@ -199,6 +198,7 @@ public:
 
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
+	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );
@@ -254,7 +254,7 @@ private:
 
 public:
 
-	int					m_iPlayerColor[3];
+	Vector					m_vecPlayerColor;
 
 private:
 

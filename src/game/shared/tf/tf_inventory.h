@@ -22,11 +22,10 @@
 
 #define INVENTORY_SLOTS			6
 #define INVENTORY_WEAPONS		5
-#define INVENTORY_TEAMS			4
 #define INVENTORY_WEAPONS_COUNT	500
-#define COLNUM	3
-#define ROWNUM	3
-#define VECTOR_NUM	COLNUM * ROWNUM
+#define INVENTORY_COLNUM		5
+#define INVENTORY_ROWNUM		3
+#define INVENTORY_VECTOR_NUM	INVENTORY_COLNUM * INVENTORY_ROWNUM
 
 class CTFInventory
 {
@@ -34,6 +33,10 @@ public:
 	CTFInventory();
 
 	int GetWeapon(int iClass, int iSlot, int iNum);
+	bool CheckValidSlot(int iClass, int iSlot);
+	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon);
+	bool CheckValidSlot(int iClass, int iSlot, bool HudCheck);
+	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck);
 
 #if defined( CLIENT_DLL )
 	KeyValues* GetInventory(IBaseFileSystem *pFileSystem);
@@ -44,11 +47,13 @@ public:
 	const char* GetSlotName(int iSlot);
 	CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz);
 #endif
-	
-	
+
+
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
 };
+
+CTFInventory *GetTFInventory();
 
 #endif // TF_INVENTORY_H

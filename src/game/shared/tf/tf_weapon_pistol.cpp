@@ -22,11 +22,6 @@
 IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol, DT_WeaponPistol )
 
 BEGIN_NETWORK_TABLE_NOBASE( CTFPistol, DT_PistolLocalData )
-#if !defined( CLIENT_DLL )
-	SendPropTime( SENDINFO( m_flSoonestPrimaryAttack ) ),
-#else
-	RecvPropTime( RECVINFO( m_flSoonestPrimaryAttack ) ),
-#endif
 END_NETWORK_TABLE()
 
 BEGIN_NETWORK_TABLE( CTFPistol, DT_WeaponPistol )
@@ -38,9 +33,6 @@ BEGIN_NETWORK_TABLE( CTFPistol, DT_WeaponPistol )
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFPistol )
-#ifdef CLIENT_DLL
-	DEFINE_PRED_FIELD( m_flSoonestPrimaryAttack, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
-#endif
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_pistol, CTFPistol );
@@ -65,46 +57,41 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( tf_weapon_pistol_scout, CTFPistol_Scout );
 PRECACHE_WEAPON_REGISTER( tf_weapon_pistol_scout );
 
+//============================
+
+IMPLEMENT_NETWORKCLASS_ALIASED(TFPistol_DM, DT_WeaponPistol_DM)
+
+BEGIN_NETWORK_TABLE(CTFPistol_DM, DT_WeaponPistol_DM)
+END_NETWORK_TABLE()
+
+BEGIN_PREDICTION_DATA(CTFPistol_DM)
+END_PREDICTION_DATA()
+
+LINK_ENTITY_TO_CLASS(tf_weapon_pistol_dm, CTFPistol_DM);
+PRECACHE_WEAPON_REGISTER(tf_weapon_pistol_dm);
+
+//============================
+
+IMPLEMENT_NETWORKCLASS_ALIASED(TFSixShooter, DT_WeaponSixShooter)
+
+BEGIN_NETWORK_TABLE(CTFSixShooter, DT_WeaponSixShooter)
+END_NETWORK_TABLE()
+
+BEGIN_PREDICTION_DATA(CTFSixShooter)
+END_PREDICTION_DATA()
+
+LINK_ENTITY_TO_CLASS(tf_weapon_sixshooter, CTFSixShooter);
+PRECACHE_WEAPON_REGISTER(tf_weapon_sixshooter);
 //=============================================================================
 //
 // Weapon Pistol functions.
 //
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-CTFPistol::CTFPistol( void )
-{
-	m_flSoonestPrimaryAttack = gpGlobals->curtime;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Allows firing as fast as button is pressed
-//-----------------------------------------------------------------------------
-void CTFPistol::ItemPostFrame( void )
-{
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
-	if ( pOwner == NULL )
-		return;
-
-	BaseClass::ItemPostFrame();
-
-	if ( m_bInReload )
-		return;
-
-	//Allow a refire as fast as the player can click
-	if ( ( ( pOwner->m_nButtons & IN_ATTACK ) == false ) && ( m_flSoonestPrimaryAttack < gpGlobals->curtime ) )
-	{
-		m_flNextPrimaryAttack = gpGlobals->curtime - 0.1f;
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFPistol::PrimaryAttack( void )
 {
-	m_flSoonestPrimaryAttack = gpGlobals->curtime + PISTOL_FASTEST_REFIRE_TIME;
 #if 0
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
 

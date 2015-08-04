@@ -104,6 +104,7 @@ BEGIN_DATADESC( CCaptureFlag )
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "RoundActivate", InputRoundActivate ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "ForceReset", InputForceReset ),
 
 	// Outputs.
 	DEFINE_OUTPUT( m_outputOnReturn, "OnReturn" ),
@@ -1176,6 +1177,19 @@ void CCaptureFlag::InputDisable( inputdata_t &inputdata )
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CCaptureFlag::InputRoundActivate( inputdata_t &inputdata )
+{
+	CTFPlayer *pPlayer = ToTFPlayer( m_hPrevOwner.Get() );
+
+	// If the player has a capture flag, drop it.
+	if ( pPlayer && pPlayer->HasItem() && ( pPlayer->GetItem() == this ) )
+	{
+		Drop( pPlayer, true, false, false );
+	}
+
+	Reset();
+}
+
+void CCaptureFlag::InputForceReset( inputdata_t &inputdata )
 {
 	CTFPlayer *pPlayer = ToTFPlayer( m_hPrevOwner.Get() );
 

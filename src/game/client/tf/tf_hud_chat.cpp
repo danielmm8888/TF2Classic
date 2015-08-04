@@ -13,6 +13,7 @@
 #include "engine/IEngineSound.h"
 #include "c_tf_team.h"
 #include "c_playerresource.h"
+#include "c_tf_playerresource.h"
 #include "c_tf_player.h"
 #include "tf_gamerules.h"
 #include "ihudlcd.h"
@@ -162,6 +163,12 @@ Color CHudChat::GetClientColor( int clientIndex )
 
 		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( clientIndex ) );
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+		if (TFGameRules()->IsDeathmatch())
+		{
+			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+			return tf_PR->GetPlayerColor(pPlayer->entindex());
+		}
 
 		if ( IsVoiceSubtitle() == true )
 		{
