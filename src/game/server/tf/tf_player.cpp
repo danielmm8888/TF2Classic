@@ -87,13 +87,15 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
-
-// Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
-
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
+
+extern ConVar sv_alltalk;
+extern ConVar tf_teamtalk;
+
+// Team Fortress 2 Classic commands
+ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
 
 
 // -------------------------------------------------------------------------------- //
@@ -6164,14 +6166,36 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 {
-	//Everyone can chat like normal when the round/game ends
+	// can always hear the console unless we're ignoring all chat
+	if ( !pPlayer )
+		return m_iIgnoreGlobalChat != CHAT_IGNORE_ALL;
+
+	// check if we're ignoring all chat
+	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_ALL )
+		return false;
+
+	// check if we're ignoring all but teammates
+	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_TEAM && g_pGameRules->PlayerRelationship( this, pPlayer ) != GR_TEAMMATE )
+		return false;
+
 	if ( pPlayer->m_lifeState != LIFE_ALIVE && m_lifeState == LIFE_ALIVE )
 	{
+		// Everyone can chat like normal when the round/game ends
 		if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN || TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
 			return true;
+
+		// Everyone can chat with alltalk enabled.
+		if ( sv_alltalk.GetBool() )
+			return true;
+
+		// Can hear dead teammates with tf_teamtalk enabled.
+		if ( tf_teamtalk.GetBool() )
+			return InSameTeam( pPlayer );
+
+		return false;
 	}
 
-	return BaseClass::CanHearAndReadChatFrom( pPlayer);
+	return true;
 }
 
 //-----------------------------------------------------------------------------
