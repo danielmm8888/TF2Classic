@@ -3570,7 +3570,7 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 			// No dominating NPCs.
 			const char *pszDomination = "domination:none";
 
-			CFmtStrN<128> modifiers( "%s,%s,victimclass:Undefined", pszCustomDeath, pszDomination );
+			CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[TF_CLASS_UNDEFINED] );
 			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
 		}
 	}

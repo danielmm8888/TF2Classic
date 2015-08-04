@@ -1649,7 +1649,7 @@ void CNPC_PlayerCompanion::Touch( CBaseEntity *pOther )
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : UTIL_GetNearestPlayer( GetAbsOrigin() ) ); 
 #else
-TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : AI_GetSinglePlayer() );
+		TestPlayerPushing( ( pOther->IsPlayer() ) ? pOther : AI_GetSinglePlayer() );
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	}
