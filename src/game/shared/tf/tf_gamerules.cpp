@@ -84,11 +84,12 @@ extern ConVar sv_turbophysics;
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
+ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
 
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
-ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
+ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
 #endif
 
 #ifdef GAME_DLL
@@ -1217,7 +1218,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			{
 				if ( pTalker->IsAlive() == false )
 				{
-					if ( pListener->IsAlive() == false )
+					if ( pListener->IsAlive() == false || tf_teamtalk.GetBool() )
 						return ( pListener->InSameTeam( pTalker ) );
 
 					return false;
