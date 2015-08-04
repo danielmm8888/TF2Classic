@@ -1416,6 +1416,25 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
+		if (IsDeathmatch() && !g_fGameOver)
+		{
+			for (int i = 1; i <= gpGlobals->maxClients; i++)
+			{
+				CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+				if (pTFPlayer)
+				{
+					PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
+					int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+
+					if (iScore >= fraglimit.GetFloat())
+					{
+						GoToIntermission();
+						return;
+					}
+				}
+			}
+		}
+
 		BaseClass::Think();
 	}
 
@@ -1538,8 +1557,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			float flWaitTime = 10;
-
+			float flWaitTime = 15;
 			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
 
 			// set all players to FL_FROZEN
@@ -1554,6 +1572,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 				}
 			}
 			State_Enter(GR_STATE_TEAM_WIN);
+			g_fGameOver = true;
 			return;
 		}
 		BaseClass::GoToIntermission();
@@ -2077,49 +2096,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
-
-	if (TFGameRules()->IsDeathmatch())
-	{
-		// We need to update the game stats here specifically for DM.
-		// Usually it's updated right after PlayerKilled, however we need to do it right now
-		// due to round end checks.
-		if (pScorer)
-			CTF_GameStats.Event_PlayerKilledOther(pScorer, pVictim, info);
-
-		// Check if the killer or assister has got enough kills to end the round
-		if (pAssister)
-		{
-			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pAssister);
-
-			int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
-			if (iScore >= fraglimit.GetFloat())
-			{
-				GoToIntermission();
-			}
-		}
-
-		if (pScorer)
-		{
-			PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pScorer);
-			int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
-			if (iScore >= fraglimit.GetFloat())
-			{
-				GoToIntermission();
-			}
-		}
-
-		/*
-		CTF_GameStats.Event_RoundEnd(iWinningTeam, bFullRound, flRoundTime, bWasSuddenDeath);
-
-		IGameEvent *event = gameeventmanager->CreateEvent("tf_game_over");
-		if (event)
-		{
-			event->SetString("reason", "Reached Win Limit");
-			gameeventmanager->FireEvent(event);
-		}
-
-		GoToIntermission();*/
-	}
 }
 
 //-----------------------------------------------------------------------------
