@@ -110,9 +110,6 @@ CON_COMMAND( changeteam, "Choose a new team" )
 	if ( !gViewPortInterface )
 		return;
 
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		return;
-
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// don't let the player open the team menu themselves until they're on a team
@@ -287,6 +284,10 @@ IViewPortPanel* TFViewport::CreatePanelByName(const char *szPanelName)
 	{
 		newpanel = new CTFDeathMatchScoreBoardDialog(this);
 	}
+	else if (Q_strcmp(PANEL_DEATHMATCHTEAMSELECT, szPanelName) == 0)
+	{
+		newpanel = new CTFDeathmatchTeamMenu(this);
+	}
 	else
 	{
 		// create a generic base panel, don't add twice
@@ -308,7 +309,8 @@ void TFViewport::CreateDefaultPanels( void )
 	AddNewPanel( CreatePanelByName( PANEL_ROUNDINFO ), "PANEL_ROUNDINFO" );
 	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSCOREBOARD ), "PANEL_FOURTEAMSCOREBOARD" );
 	AddNewPanel( CreatePanelByName( PANEL_FOURTEAMSELECT ), "PANEL_FOURTEAMSELECT" );
-	AddNewPanel( CreatePanelByName( PANEL_DEATHMATCHSCOREBOARD ), "PANEL_FOURTEAMSCOREBOARD" );
+	AddNewPanel( CreatePanelByName( PANEL_DEATHMATCHSCOREBOARD ), "PANEL_DEATHMATCHSCOREBOARD" );
+	AddNewPanel( CreatePanelByName( PANEL_DEATHMATCHTEAMSELECT ), "PANEL_DEATHMATCHTEAMSELECT" );
 
 	BaseClass::CreateDefaultPanels();
 }

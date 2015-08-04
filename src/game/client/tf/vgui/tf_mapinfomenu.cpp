@@ -220,14 +220,7 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 		{
 			if ( GetLocalPlayerTeam() == TEAM_UNASSIGNED )
 			{
-				if (TFGameRules()->IsDeathmatch())
-				{
-					engine->ClientCmd("jointeam red");
-				}
-				else
-				{
-					m_pViewPort->ShowPanel(PANEL_TEAM, true);
-				}
+				m_pViewPort->ShowPanel(PANEL_TEAM, true);
 			}
 
 			UTIL_IncrementMapKey( "viewed" );
