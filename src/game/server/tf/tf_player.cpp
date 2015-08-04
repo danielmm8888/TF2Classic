@@ -1759,7 +1759,7 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 	if ( iNewTeam == iOldTeam )
 		return;
 
-	RemoveAllObjects(false);
+	TeamFortress_RemoveEverythingFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iNewTeam );
@@ -1815,7 +1815,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	if ( iTeamNum == iOldTeam )
 		return;
 
-	RemoveAllObjects(false);
+	TeamFortress_RemoveEverythingFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iTeamNum );
@@ -4156,7 +4156,7 @@ void CTFPlayer::DisplayLocalItemStatus( CTFGoal *pGoal )
 // Called when the player disconnects from the server.
 void CTFPlayer::TeamFortress_ClientDisconnected( void )
 {
-	TeamFortress_RemoveEverythingFromWorld();
+	TeamFortress_RemoveEverythingFromWorld( false );
 	RemoveNemesisRelationships();
 	m_OnDeath.FireOutput(this, this);
 	RemoveAllWeapons();
@@ -4164,13 +4164,14 @@ void CTFPlayer::TeamFortress_ClientDisconnected( void )
 
 //=========================================================================
 // Removes everything this player has (buildings, grenades, etc.) from the world
-void CTFPlayer::TeamFortress_RemoveEverythingFromWorld( void )
+void CTFPlayer::TeamFortress_RemoveEverythingFromWorld( bool bSilent /* = true */ )
 {
 	TeamFortress_RemoveRockets();
 	TeamFortress_RemovePipebombs();
+	TeamFortress_RemoveFlames();
 	
 	// Destroy any buildables - this should replace TeamFortress_RemoveBuildings
-	RemoveAllObjects(true);
+	RemoveAllObjects(bSilent);
 }
 
 //=========================================================================
@@ -4179,8 +4180,9 @@ void CTFPlayer::TeamFortress_RemoveEverythingFromWorld( void )
 // then change teams to kill their own team)
 void CTFPlayer::TeamFortress_RemoveRockets( void )
 {
-	RemoveOwnedEnt( "tf_weapon_rocket" );
-	RemoveOwnedEnt( "tf_weapon_flamerocket" );
+	RemoveOwnedEnt( "tf_projectile_rocket" );
+	RemoveOwnedEnt( "tf_projectile_sentryrocket" );
+	//RemoveOwnedEnt( "tf_weapon_flamerocket" );
 }
 
 //=========================================================================
@@ -4191,6 +4193,17 @@ void CTFPlayer::TeamFortress_RemovePipebombs( void )
 	if ( pClass && pClass->GetClassIndex() == TF_CLASS_DEMOMAN )
 	{
 		RemoveOwnedEnt( "tf_projectile_pipe", true );
+	}
+}
+
+//=========================================================================
+// Removes all flames from the world
+void CTFPlayer::TeamFortress_RemoveFlames( void )
+{
+	CTFPlayerClass *pClass = GetPlayerClass();
+	if ( pClass && pClass->GetClassIndex() == TF_CLASS_PYRO )
+	{
+		RemoveOwnedEnt( "tf_flame" );
 	}
 }
 

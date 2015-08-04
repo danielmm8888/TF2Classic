@@ -1075,6 +1075,8 @@ void CTFPlayerShared::OnAddStealthed( void )
 	m_pOuter->EmitSound( "Player.Spy_Cloak" );
 	m_pOuter->RemoveAllDecals();
 #else
+	// Remove teleporter trail.
+	m_pOuter->RemoveTeleportEffect();
 #endif
 
 	m_flInvisChangeCompleteTime = gpGlobals->curtime + tf_spy_invis_time.GetFloat();
@@ -1159,6 +1161,11 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_pOuter->ParticleProp()->StopParticlesNamed( "speech_mediccall", true );
 
 #else
+	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
+	{
+		m_pOuter->RemoveTeleportEffect();
+	}
+
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
 	m_hDisguiseTarget.Set( NULL );
@@ -1171,7 +1178,6 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_pOuter->TeamFortress_SetSpeed();
 	
 	m_pOuter->ClearExpression();
-
 #endif
 }
 
@@ -1479,6 +1485,11 @@ void CTFPlayerShared::CompleteDisguise( void )
 
 	int iMaxHealth = m_pOuter->GetMaxHealth();
 	m_iDisguiseHealth = (int)random->RandomInt( iMaxHealth / 2, iMaxHealth );
+
+	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
+	{
+		m_pOuter->RemoveTeleportEffect();
+	}
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();

@@ -1419,21 +1419,11 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 		if (IsDeathmatch() && !g_fGameOver)
 		{
-			for (int i = 1; i <= gpGlobals->maxClients; i++)
-			{
-				CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
-				if (pTFPlayer)
-				{
-					PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
-					int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+			if ( CheckFragLimit() )
+				return;
 
-					if (iScore >= fraglimit.GetFloat())
-					{
-						GoToIntermission();
-						return;
-					}
-				}
-			}
+			if ( CheckTimeLimit() )
+				return;
 		}
 
 		BaseClass::Think();
@@ -1536,6 +1526,30 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 				GoToIntermission();
 				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool CTFGameRules::CheckFragLimit( void )
+	{
+		if ( fraglimit.GetInt() <= 0 )
+			return false;
+
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+			if (pTFPlayer)
+			{
+				PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
+				int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+
+				if (iScore >= fraglimit.GetInt())
+				{
+					GoToIntermission();
+					return true;
+				}
 			}
 		}
 

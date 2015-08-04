@@ -96,17 +96,13 @@ void CObjectTeleporter_Entrance::TeleporterSend( CTFPlayer *pPlayer )
 	Vector origin = GetAbsOrigin();
 	CPVSFilter filter( origin );
 
-	int iTeamNum;
+	int iTeam = pPlayer->GetTeamNumber();
 	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
-		iTeamNum = pPlayer->m_Shared.GetDisguiseTeam();
-	}
-	else
-	{
-		iTeamNum = pPlayer->GetTeamNumber();
+		iTeam = pPlayer->m_Shared.GetDisguiseTeam();
 	}
 
-	switch( iTeamNum )
+	switch( iTeam )
 	{
 	case TF_TEAM_RED:
 		TE_TFParticleEffect( filter, 0.0, "teleported_red", origin, vec3_angle );
@@ -166,17 +162,13 @@ void CObjectTeleporter_Exit::TeleporterReceive( CTFPlayer *pPlayer, float flDela
 	Vector origin = GetAbsOrigin();
 	CPVSFilter filter( origin );
 
-	int iTeamNum;
+	int iTeam = pPlayer->GetTeamNumber();
 	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
-		iTeamNum = pPlayer->m_Shared.GetDisguiseTeam();
-	}
-	else
-	{
-		iTeamNum = pPlayer->GetTeamNumber();
+		iTeam = pPlayer->m_Shared.GetDisguiseTeam();
 	}
 
-	switch( iTeamNum )
+	switch( iTeam )
 	{
 	case TF_TEAM_RED:
 		TE_TFParticleEffect( filter, 0.0, "teleportedin_red", origin, vec3_angle );
@@ -721,7 +713,19 @@ void CObjectTeleporter::TeleporterThink( void )
 
 			if ( pTeleportingPlayer )
 			{
-				pTeleportingPlayer->TeleportEffect();
+				int iPlayerTeam = pTeleportingPlayer->GetTeamNumber();
+				if ( pTeleportingPlayer->IsPlayerClass( TF_CLASS_SPY ) && pTeleportingPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+				{
+					iPlayerTeam = pTeleportingPlayer->m_Shared.GetDisguiseTeam();
+				}
+
+				int iTeam = GetBuilder() ? GetBuilder()->GetTeamNumber() : GetTeamNumber();
+
+				// Don't show teleporter trail for players with different color.
+				if ( iPlayerTeam == iTeam )
+				{
+					pTeleportingPlayer->TeleportEffect();
+				}
 				pTeleportingPlayer->m_Shared.RemoveCond( TF_COND_SELECTED_TO_TELEPORT );
 				CTF_GameStats.Event_PlayerUsedTeleport( GetBuilder(), pTeleportingPlayer );
 
