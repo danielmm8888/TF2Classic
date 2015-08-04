@@ -16,6 +16,7 @@
 #include "tf_imagepanel.h"
 #include "tf_spectatorgui.h"
 #include "c_tf_player.h"
+#include "vgui_avatarimage.h"
 
 #define PLAYER_HINT_DISTANCE	150
 #define PLAYER_HINT_DISTANCE_SQ	(PLAYER_HINT_DISTANCE*PLAYER_HINT_DISTANCE)
@@ -63,6 +64,7 @@ protected:
 
 	vgui::Label				*m_pTargetNameLabel;
 	vgui::Label				*m_pTargetDataLabel;
+	CAvatarImagePanel		*m_pAvatar;
 	CTFImagePanel			*m_pBGPanel;
 	CTFSpectatorGUIHealth	*m_pTargetHealth;
 
