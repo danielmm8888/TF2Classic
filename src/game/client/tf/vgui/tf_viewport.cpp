@@ -110,6 +110,9 @@ CON_COMMAND( changeteam, "Choose a new team" )
 	if ( !gViewPortInterface )
 		return;
 
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		return;
+
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// don't let the player open the team menu themselves until they're on a team
