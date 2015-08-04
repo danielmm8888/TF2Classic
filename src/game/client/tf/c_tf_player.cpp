@@ -1943,11 +1943,17 @@ void C_TFPlayer::StopBurningSound( void )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::OnAddTeleported( void )
 {
-	if ( !m_pTeleporterEffect )
+	if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		char *pEffect = NULL;
 
-		switch( GetTeamNumber() )
+		int iTeam = GetTeamNumber();
+		if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+		{
+			iTeam = m_Shared.GetDisguiseTeam();
+		}
+
+		switch( iTeam )
 		{
 		case TF_TEAM_RED:
 			pEffect = "player_recent_teleport_red";
