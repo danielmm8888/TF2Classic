@@ -254,6 +254,7 @@ public:
 
 	bool CheckTimeLimit();
 	bool CheckWinLimit();
+	bool CheckFragLimit();
 	bool CheckCapsPerRound();
 
 	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info );
