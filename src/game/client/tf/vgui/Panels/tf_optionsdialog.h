@@ -43,6 +43,7 @@ public:
 	virtual void Hide();
 	MESSAGE_FUNC(OnCancelPressed, "CancelPressed");
 	MESSAGE_FUNC(OnOkPressed, "OkPressed");
+	MESSAGE_FUNC(OnApplyPressed, "OnApplyPressed");	
 	MESSAGE_FUNC(OnDefaultPressed, "OnDefaultPressed");
 	MESSAGE_FUNC(OnGameUIHidden, "GameUIHidden");	// called when the GameUI is hidden
 

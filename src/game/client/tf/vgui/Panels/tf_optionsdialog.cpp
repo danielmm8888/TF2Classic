@@ -136,6 +136,10 @@ void CTFOptionsDialog::OnCommand(const char* command)
 	{
 		OnOkPressed();
 	}
+	else if (!stricmp(command, "Apply"))
+	{
+		OnApplyPressed();
+	}
 	else if (!stricmp(command, "DefaultsOK"))
 	{
 		OnDefaultPressed();
@@ -171,11 +175,18 @@ void CTFOptionsDialog::OnCommand(const char* command)
 //-----------------------------------------------------------------------------
 void CTFOptionsDialog::OnOkPressed()
 {
-	for (int i = 0; i < PANEL_COUNT; i++)
-		GetPanel(i)->OnApplyChanges();
+	OnApplyPressed();
 	Hide();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFOptionsDialog::OnApplyPressed()
+{
+	for (int i = 0; i < PANEL_COUNT; i++)
+		GetPanel(i)->OnApplyChanges();
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

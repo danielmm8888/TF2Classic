@@ -38,7 +38,7 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"		"OK"
-		"xpos"		"260"
+		"xpos"		"200"
 		"ypos"		"370"
 		"zpos"				"2"
 		"wide"		"50"
@@ -62,7 +62,7 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"		"Cancel"
-		"xpos"		"320"
+		"xpos"		"255"
 		"ypos"		"370"
 		"zpos"				"2"
 		"wide"		"60"
@@ -81,6 +81,30 @@
 		"command"		"vguicancel"
 		"default"		"0"
 	}	
+	
+	"Apply"
+	{
+		"ControlName"		"CTFAdvButton"
+		"fieldName"		"Apply"
+		"xpos"		"320"
+		"ypos"		"370"
+		"zpos"				"2"
+		"wide"		"60"
+		"tall"		"20"
+		"autoResize"		"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"tabPosition"		"1"
+		"bgvisible"		"0"
+		"bordervisible"		"1"
+		"labelText"		"#GameUI_Apply"
+		"textAlignment"		"center"
+		"dulltext"		"0"
+		"font"			"FontStorePromotion"
+		"command"		"Apply"
+		"default"		"1"
+	}
 
 	"Defaults"
 	{
