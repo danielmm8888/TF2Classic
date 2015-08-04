@@ -117,6 +117,7 @@ extern ConVar tf_boost_drain_time;
 #include "tf_team.h"
 #include "tf_obj.h"
 #include "tf_gamerules.h"
+#include "tf_team.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -599,6 +600,15 @@ void CAI_BaseNPC::CleanupOnDeath( CBaseEntity *pCulprit, bool bFireDeathOutput )
 		}
 
 		RemoveActorFromScriptedScenes( this, false /*all scenes*/ );
+
+#ifdef TF_CLASSIC
+		// Remove from team
+		CTFTeam *pTFTeam = dynamic_cast<CTFTeam *>( GetTeam() );
+		if ( pTFTeam )
+		{
+			pTFTeam->RemoveNPC( this );
+		}
+#endif
 	}
 	else
 		DevMsg( "Unexpected double-death-cleanup\n" );
@@ -11694,13 +11704,6 @@ void CAI_BaseNPC::UpdateOnRemove(void)
 		CleanupOnDeath( NULL, false );
 	}
 
-#ifdef TF_CLASSIC
-	if ( GetTeam() )
-	{
-		((CTFTeam*)GetTeam())->RemoveNPC( this );
-	}
-#endif
-
 	// Chain at end to mimic destructor unwind order
 	BaseClass::UpdateOnRemove();
 }
@@ -12969,6 +12972,12 @@ void CAI_BaseNPC::TestPlayerPushing( CBaseEntity *pEntity )
 {
 	if ( HasSpawnFlags( SF_NPC_NO_PLAYER_PUSHAWAY ) )
 		return;
+
+#ifdef TF_CLASSIC
+	// Don't give way to enemy players.
+	if ( !InSameTeam( pEntity ) )
+		return;
+#endif
 
 	// Heuristic for determining if the player is pushing me away
 	CBasePlayer *pPlayer = ToBasePlayer( pEntity );
