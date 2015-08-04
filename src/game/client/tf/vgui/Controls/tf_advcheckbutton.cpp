@@ -117,6 +117,7 @@ void CTFAdvCheckButton::PerformLayout()
 	pButton->SetFont(GETSCHEME()->GetFont(m_szFont, true));
 	pButton->SetPos(0, 0);
 	pButton->SetZPos(4);
+	pButton->SetTextInset(5, 0);
 	pButton->SetWide(GetWide());
 	pButton->SetTall(GetTall());
 	pButton->SetContentAlignment(GetAlignment(m_szTextAlignment));
@@ -131,9 +132,6 @@ void CTFAdvCheckButton::PerformLayout()
 	float h = GetProportionalTallScale();
 	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
 	int iShift = (GetTall() - fWidth) / 2.0;
-
-	float fXOrigin = (m_fWidth == 0.0 ? 0 : iShift * 2 + fWidth);
-	pButton->SetTextInset(fXOrigin, 0);
 
 	pButtonImage->SetImage(pDefaultButtonImage);
 	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
@@ -171,7 +169,6 @@ void CTFAdvCheckButton::OnThink()
 	BaseClass::OnThink();
 	//GetCommandValue();
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
