@@ -69,6 +69,7 @@ void CTargetID::ApplySchemeSettings( vgui::IScheme *scheme )
 
 	m_pTargetNameLabel = dynamic_cast<Label *>(FindChildByName("TargetNameLabel"));
 	m_pTargetDataLabel = dynamic_cast<Label *>(FindChildByName("TargetDataLabel"));
+	m_pAvatar = dynamic_cast<CAvatarImagePanel *>(FindChildByName("AvatarImage"));
 	m_pBGPanel = dynamic_cast<CTFImagePanel*>(FindChildByName("TargetIDBG"));
 	m_cBlueColor = scheme->GetColor( "TeamBlue", Color( 255, 64, 64, 255 ) );
 	m_cRedColor = scheme->GetColor( "TeamRed", Color( 255, 64, 64, 255 ) );
@@ -193,7 +194,7 @@ void CTargetID::PerformLayout( void )
 {
 	int iXIndent = XRES(5);
 	int iXPostdent = XRES(10);
-	int iWidth = m_pTargetHealth->GetWide() + iXIndent + iXPostdent;
+	int iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
 
 	int iTextW, iTextH;
 	int iDataW, iDataH;
@@ -323,6 +324,13 @@ void CTargetID::UpdateID( void )
 
 			C_TFPlayer *pDisguiseTarget = NULL;
 			g_pVGuiLocalize->ConvertANSIToUnicode( pPlayer->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
+			
+			// get the avatar
+			if (m_pAvatar)
+			{
+				m_pAvatar->SetPlayer((C_BasePlayer*)pPlayer);
+				m_pAvatar->SetShouldDrawFriendIcon(false);
+			}
 
 			// determine if the target is a disguised spy (either friendly or enemy)
 			if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && // they're disguised
@@ -345,6 +353,12 @@ void CTargetID::UpdateID( void )
 						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 						// Show their disguise team color.
 						SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
+						// change the avatar
+						if (m_pAvatar)
+						{
+							m_pAvatar->SetPlayer((C_BasePlayer*)pDisguiseTarget);
+							m_pAvatar->SetShouldDrawFriendIcon(false);
+						}
 					}
 				}
 				else
