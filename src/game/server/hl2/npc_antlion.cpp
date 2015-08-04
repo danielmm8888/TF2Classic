@@ -3650,7 +3650,7 @@ void CNPC_Antlion::BuildScheduleTestBits( void )
 bool CNPC_Antlion::IsValidEnemy( CBaseEntity *pEnemy )
 {
 	//See if antlions are friendly to the player in this map
-	if ( IsAllied() && pEnemy->IsPlayer() )
+	if ( IsAllied() && pEnemy->IsPlayer() && InSameTeam( pEnemy ) )
 		return false;
 
 	if ( pEnemy->IsWorld() )
