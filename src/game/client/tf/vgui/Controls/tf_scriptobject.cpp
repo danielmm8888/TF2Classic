@@ -594,7 +594,7 @@ bool CScriptObject::ReadFromBuffer(const char **pBuffer, bool isNewObject)
 			Msg("Expecting '{', got '%s'", token);
 			return false;
 		}
-		break;
+break;
 	case O_SLIDER:
 		// Parse the Min
 		*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
@@ -693,42 +693,45 @@ bool CScriptObject::ReadFromBuffer(const char **pBuffer, bool isNewObject)
 	//
 	// Now read in the default value
 
-	// Parse the {
-	*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
-	if (strlen(token) <= 0)
-		return false;
-
-	if (strcmp(token, "{"))
+	if (newType != O_CATEGORY) // Categories don't have a value
 	{
-		Msg("Expecting '{', got '%s'", token);
-		return false;
-	}
+		// Parse the {
+		*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
+		if (strlen(token) <= 0)
+			return false;
 
-	// Parse the default
-	*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
-	//if ( strlen( token ) <= 0 )
-	//	return false;
+		if (strcmp(token, "{"))
+		{
+			Msg("Expecting '{', got '%s'", token);
+			return false;
+		}
 
-	// Set the values
-	Q_strncpy(defValue, token, sizeof(defValue));
-	fdefValue = (float)atof(token);
+		// Parse the default
+		*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
+		//if ( strlen( token ) <= 0 )
+		//	return false;
 
-	if (type == O_NUMBER || type == O_SLIDER)
-	{
-		StripFloatTrailingZeros(defValue);
-	}
+		// Set the values
+		Q_strncpy(defValue, token, sizeof(defValue));
+		fdefValue = (float)atof(token);
 
-	SetCurValue(defValue);
+		if (type == O_NUMBER || type == O_SLIDER)
+		{
+			StripFloatTrailingZeros(defValue);
+		}
 
-	// Parse the }
-	*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
-	if (strlen(token) <= 0)
-		return false;
+		SetCurValue(defValue);
 
-	if (strcmp(token, "}"))
-	{
-		Msg("Expecting '{', got '%s'", token);
-		return false;
+		// Parse the }
+		*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
+		if (strlen(token) <= 0)
+			return false;
+
+		if (strcmp(token, "}"))
+		{
+			Msg("Expecting '{', got '%s'", token);
+			return false;
+		}
 	}
 
 	// Parse the final }
