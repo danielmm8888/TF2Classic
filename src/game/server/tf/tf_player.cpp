@@ -3493,8 +3493,8 @@ void CTFPlayer::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	CTFPlayer *pDamager = ToTFPlayer( hDamager );
-	if ( !pDamager || ( pDamager->GetTeam() == GetTeam() ) )
+	CTFPlayer *pDamager = ToTFPlayer(hDamager);
+	if (!pDamager || (pDamager->GetTeam() == GetTeam() && !TFGameRules()->IsDeathmatch()))
 		return;
 
 	// If this damager is different from the most recent damager, shift the
