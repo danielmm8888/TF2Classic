@@ -70,9 +70,7 @@ private:
 	bool bLockInput;
 	EditablePanel *m_pWinPanel;
 	float	m_flTimeUpdateTeamScore;
-	int		m_iPlayer1Index;
-	int		m_iPlayer2Index;
-	int		m_iPlayer3Index;
+	CUtlVector< Vector > m_vecWinningPlayerColor;
 	
 	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "12", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );

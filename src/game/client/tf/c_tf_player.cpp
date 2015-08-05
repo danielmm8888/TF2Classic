@@ -52,6 +52,7 @@
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_hud_mediccallers.h"
 #include "in_main.h"
+#include "basemodelpanel.h"
 #include "c_team.h"
 #include "collisionutils.h"
 // for spy material proxy
@@ -1127,6 +1128,13 @@ public:
 		if (pPlayer)
 		{
 			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+			return;
+		}
+
+		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel*>(pEntity);
+		if (pPanelModel)
+		{
+			m_pResult->SetVecValue(pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z);
 			return;
 		}
 

@@ -741,6 +741,9 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 				pPlayerName->SetText(g_PR->GetPlayerName(iPlayerIndex));
 				pPlayerKills->SetText(CFmtStr("Kills: %d", iPlayerKills));
 				pPlayerDeaths->SetText(CFmtStr("Deaths: %d", iPlayerDeaths));
+
+				// store the colors for model coloring
+				m_vecWinningPlayerColor.AddToTail(Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f));
 			}
 
 			// show or hide labels for this player position
@@ -792,5 +795,23 @@ void CTFDeathMatchScoreBoardDialog::OnThink()
 	{
 		m_pWinPanel->SetVisible(true);
 		m_flTimeUpdateTeamScore = 0;
+	}
+
+	if (m_pWinPanel && m_pWinPanel->IsVisible() && !m_vecWinningPlayerColor.IsEmpty())
+	{
+		for (int i = 1; i <= 3; i++)
+		{
+			CModelPanel *pPlayerModelPanel = dynamic_cast<CModelPanel *>(m_pWinPanel->FindChildByName(CFmtStr("Player%dModel", i)));
+			if (pPlayerModelPanel)
+			{
+				CModelPanelModel *pPanelModel = pPlayerModelPanel->m_hModel.Get();
+				if (pPanelModel)
+				{
+					pPanelModel->m_nSkin = 8;
+					pPanelModel->m_vecModelColor = m_vecWinningPlayerColor.Head();
+					m_vecWinningPlayerColor.Remove(0);
+				}
+			}
+		}
 	}
 }
