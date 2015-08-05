@@ -1391,7 +1391,11 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	case TF_TEAM_GREEN:
 	case TF_TEAM_YELLOW:
 		{
-			pSpawnPointName = "info_player_teamspawn";
+			if ( !TFGameRules()->IsDeathmatch() )
+				pSpawnPointName = "info_player_teamspawn";
+			else
+				pSpawnPointName = "info_player_deathmatch";
+
 			if ( SelectSpawnSpot( pSpawnPointName, pSpot ) )
 			{
 				g_pLastSpawnPoints[ GetTeamNumber() ] = pSpot;
@@ -1424,15 +1428,17 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 //-----------------------------------------------------------------------------
 bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot )
 {
-	if (TFGameRules()->IsDeathmatch())
-		pEntClassName = "info_player_deathmatch";
-
 	// Get an initial spawn point.
 	pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 	if ( !pSpot )
 	{
 		// Sometimes the first spot can be NULL????
 		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+	if ( !pSpot )
+	{
+		// Still NULL? That means there're no spawn points at all, bail.
+		return false;
 	}
 
 	if (TFGameRules()->IsDeathmatch())
