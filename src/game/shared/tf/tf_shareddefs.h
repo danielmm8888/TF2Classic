@@ -80,6 +80,7 @@ enum
 #define PANEL_FOURTEAMSCOREBOARD "fourteamscoreboard"
 #define PANEL_FOURTEAMSELECT	"fourteamselect"
 #define PANEL_DEATHMATCHSCOREBOARD "deathmatchscoreboard"
+#define PANEL_DEATHMATCHTEAMSELECT "deathmatchteamselect"
 
 // file we'll save our list of viewed intro movies in
 #define MOVIES_FILE				"viewed.res"

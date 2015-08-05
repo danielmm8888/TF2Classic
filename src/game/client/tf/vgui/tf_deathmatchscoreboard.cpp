@@ -675,6 +675,10 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 		Q_FileBase(engine->GetLevelName(), szMapName, sizeof(szMapName));
 		Q_strlower(szMapName);
 		SetDialogVariable("mapname", GetMapDisplayName(szMapName));
+
+		m_pWinPanel->SetVisible(false);
+		bLockInput = false;
+		ShowPanel(false);
 	}
 	else if (Q_strcmp("teamplay_win_panel", type) == 0)
 	{
