@@ -140,6 +140,8 @@ public:
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
+	CTFDoubleBarrel();
+
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_DOUBLEBARREL; }
 };
 

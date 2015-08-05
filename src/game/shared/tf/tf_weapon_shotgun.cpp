@@ -96,3 +96,9 @@ void CTFShotgun::UpdatePunchAngles( CTFPlayer *pPlayer )
 	angle.x -= SharedRandomInt( "ShotgunPunchAngle", ( flPunchAngle - 1 ), ( flPunchAngle + 1 ) );
 	pPlayer->SetPunchAngle( angle );
 }
+
+
+CTFDoubleBarrel::CTFDoubleBarrel()
+{
+	m_bReloadsSingly = false;
+}
