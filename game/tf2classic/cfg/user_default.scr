@@ -38,7 +38,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Combat Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"cl_autoreload"
@@ -101,7 +100,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Class Specific Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 
 	//"tf_simple_disguise_menu"
@@ -164,7 +162,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"HUD Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"cl_hud_minmode"
@@ -372,7 +369,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Performance Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	//	"tf_particles_disable_weather"
@@ -403,7 +399,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Miscellaneous Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"hud_takesshots"
@@ -527,7 +522,6 @@ DESCRIPTION INFO_OPTIONS
 	{
 		"Team Fortress 2 Classic Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"tf2c_model_muzzleflash"
