@@ -38,9 +38,8 @@ public:
 #if defined( CLIENT_DLL )
 	virtual bool ShouldPredict( void )
 	{
-		// Prediction often causes viewmodels to get bugged so I'm disabling this for now. (Nickine)
 		if ( GetOwner() && GetOwner() == C_BasePlayer::GetLocalPlayer() )
-			return false;
+			return true;
 
 		return BaseClass::ShouldPredict();
 	}
