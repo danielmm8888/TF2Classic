@@ -230,27 +230,7 @@ float CTFGrenadeLauncher::GetProjectileSpeed( void )
 //-----------------------------------------------------------------------------
 void CTFGrenadeLauncher::SecondaryAttack( void )
 {
-#ifdef GAME_DLL
-
-	if ( !CanAttack() )
-		return;
-
-	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if ( !pOwner )
-		return;
-	// Detonates the sticky launcher projectiles
-	pOwner->DoClassSpecialSkill();
-
-#if 0
-	if (m_iPipebombCount)
-	{
-		DetonateRemotePipebombs(false);
-		// Play a detonate sound.
-		WeaponSound(SPECIAL3);
-	}
-#endif
-
-#endif
+	BaseClass::SecondaryAttack();
 }
 
 bool CTFGrenadeLauncher::Reload( void )
