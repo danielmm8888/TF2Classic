@@ -1060,16 +1060,24 @@ public:
 				}
 			}
 		}
+		/*
+			Live TF2 crit glow colors
+			RED Crit: 94 8 5
+			BLU Crit: 6 21 80
+			RED Mini-Crit: 237 140 55
+			BLU Mini-Crit: 28 168 112
+			Hype Mode: 50 2 50
+		*/
 
 		if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED))
 		{
 			switch ( pPlayer->GetTeamNumber() )
 			{
 			case TF_TEAM_RED:
-				vecColor = Vector(255, 5, 1);
+				vecColor = Vector(94, 8, 5);
 				break;
 			case TF_TEAM_BLUE:
-				vecColor = Vector(1, 70, 255);
+				vecColor = Vector(6, 21, 80);
 				break;
 			case TF_TEAM_GREEN:
 				vecColor = Vector(1, 28, 9);
@@ -1079,7 +1087,7 @@ public:
 				break;
 			}
 		}
-		else if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE))
+		else if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE) )
 		{
 			Vector critColor = pPlayer->m_vecPlayerColor;
 			critColor *= 255;
