@@ -211,6 +211,7 @@ private:
 	void OnAddDisguising( void );
 	void OnAddDisguised( void );
 	void OnAddSlowed( void );
+	void OnAddCritboosted(void);
 
 	void OnRemoveZoomed( void );
 	void OnRemoveBurning( void );
@@ -220,6 +221,7 @@ private:
 	void OnRemoveInvulnerable( void );
 	void OnRemoveTeleported( void );
 	void OnRemoveSlowed( void );
+	void OnRemoveCritboosted(void);
 
 	float GetCritMult( void );
 

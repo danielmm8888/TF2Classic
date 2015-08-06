@@ -435,6 +435,11 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		}
 		break;
 
+	case TF_COND_POWERUP_CRITDAMAGE:
+	case TF_COND_CRITBOOSTED:
+		OnAddCritboosted();
+		break;
+
 	default:
 		break;
 	}
@@ -485,6 +490,11 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 
 	case TF_COND_SLOWED:
 		OnRemoveSlowed();
+		break;
+
+	case TF_COND_POWERUP_CRITDAMAGE:
+	case TF_COND_CRITBOOSTED:
+		OnRemoveCritboosted();
 		break;
 
 	default:
@@ -998,12 +1008,64 @@ void CTFPlayerShared::OnAddSlowed(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddCritboosted(void)
+{
+#ifdef CLIENT_DLL
+	if (m_pOuter->IsLocalPlayer())
+	{
+		char *pEffectName = NULL;
+		switch  (m_pOuter->GetTeamNumber() )
+		{
+		case TF_TEAM_BLUE:
+			pEffectName = "critgun_weaponmodel_blu";
+			break;
+		case TF_TEAM_RED:
+			pEffectName = "critgun_weaponmodel_red";
+			break;
+		case TF_TEAM_GREEN:
+			pEffectName = "critgun_weaponmodel_grn";
+			break;
+		case TF_TEAM_YELLOW:
+			pEffectName = "critgun_weaponmodel_ylw";
+			break;
+		default:
+			pEffectName = "critgun_weaponmodel_blu";
+			break;
+		}
+		m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectName, PATTACH_ROOTBONE_FOLLOW);
+		char pEffectNameTemp[64];
+		Q_snprintf(pEffectNameTemp, sizeof(pEffectNameTemp), "%s_glow", pEffectName);
+		m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW);
+
+		CLocalPlayerFilter filter;
+		m_pOuter->GetViewModel()->EmitSound(filter, m_pOuter->GetViewModel()->entindex(), "Weapon_General.CritPower");
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Remove slowdown effect
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnRemoveSlowed(void)
 {
 	// Set speed back to normal
 	m_pOuter->TeamFortress_SetSpeed();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove slowdown effect
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveCritboosted(void)
+{
+#ifdef CLIENT_DLL
+	if (m_pOuter->IsLocalPlayer())
+	{
+		m_pOuter->GetViewModel()->ParticleProp()->StopEmission(false, true, false);
+		m_pOuter->GetViewModel()->StopSound("Weapon_General.CritPower");
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

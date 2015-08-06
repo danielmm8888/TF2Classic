@@ -680,6 +680,14 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "burningplayer_blue" );
 	PrecacheParticleSystem( "burningplayer_green" );
 	PrecacheParticleSystem( "burningplayer_yellow" );
+	PrecacheParticleSystem( "critgun_weaponmodel_blu" );
+	PrecacheParticleSystem( "critgun_weaponmodel_blu_glow" );
+	PrecacheParticleSystem( "critgun_weaponmodel_red" );
+	PrecacheParticleSystem( "critgun_weaponmodel_red_glow" );
+	PrecacheParticleSystem( "critgun_weaponmodel_grn" );
+	PrecacheParticleSystem( "critgun_weaponmodel_grn_glow" );
+	PrecacheParticleSystem( "critgun_weaponmodel_ylw" );
+	PrecacheParticleSystem( "critgun_weaponmodel_ylw_glow" );
 	PrecacheParticleSystem( "blood_spray_red_01" );
 	PrecacheParticleSystem( "blood_spray_red_01_far" );
 	PrecacheParticleSystem( "water_blood_impact_red_01" );
