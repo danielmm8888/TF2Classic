@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright Â© 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: Deathmatch weapon spawning entity.
 //
@@ -40,12 +40,20 @@ CWeaponSpawner::CWeaponSpawner()
 	m_iRespawnTime = 10;
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Spawn(void)
 {
 	pWeaponInfo = GetTFWeaponInfo(m_iWeaponNumber);
+	if ( !pWeaponInfo )
+	{
+		Warning( "tf_weaponspawner has incorrect weapon number &d \n", m_iWeaponNumber );
+		UTIL_Remove( this );
+		return;
+	}
+
 	Precache();
 
 	SetModel(pWeaponInfo->szWorldModel);
@@ -76,13 +84,15 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 	if (ValidTouch(pTFPlayer) && pTFPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
 	{
-		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByType(pWeaponInfo->m_iWeaponType);
+		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByType( pWeaponInfo->m_iWeaponType );
+		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
 
 		if (pWeapon)
 		{
 			if (pWeapon->GetWeaponID() == m_iWeaponNumber)
 			{
-				pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType);
+				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
+					bSuccess = true;
 			}
 			else
 			{
@@ -91,18 +101,23 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 		}
 
-		pTFPlayer->GiveNamedItem(pWeaponInfo->szClassName);
+		if ( !pWeapon || pWeapon->GetWeaponID() != m_iWeaponNumber )
+		{
+			pTFPlayer->GiveNamedItem( pszWeaponName );
+			bSuccess = true;
+		}
 
-		CSingleUserRecipientFilter user(pPlayer);
-		user.MakeReliable();
+		if ( bSuccess )
+		{
+			CSingleUserRecipientFilter user(pPlayer);
+			user.MakeReliable();
 
-		UserMessageBegin(user, "ItemPickup");
-		WRITE_STRING(GetClassname());
-		MessageEnd();
+			UserMessageBegin(user, "ItemPickup");
+			WRITE_STRING(GetClassname());
+			MessageEnd();
 
-		EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
-
-		bSuccess = true;
+			EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
+		}
 	}
 
 	return bSuccess;
