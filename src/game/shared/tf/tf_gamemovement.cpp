@@ -41,7 +41,7 @@ ConVar  tf2c_autojump("tf2c_autojump", "0", FCVAR_REPLICATED, "Automatically jum
 ConVar  tf2c_duckjump("tf2c_duckjump", "0", FCVAR_REPLICATED, "Toggles jumping while ducked");
 ConVar  tf2c_groundspeed_cap("tf2c_groundspeed_cap", "1", FCVAR_REPLICATED, "Toggles the max speed cap imposed when a player is standing on the ground");
 
-#define TF_MAX_SPEED   400
+#define TF_MAX_SPEED   520
 
 #define TF_WATERJUMP_FORWARD  30
 #define TF_WATERJUMP_UP       300
