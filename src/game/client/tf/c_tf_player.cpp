@@ -1091,6 +1091,7 @@ public:
 		{
 			Vector critColor = pPlayer->m_vecPlayerColor;
 			critColor *= 255;
+			critColor *= 0.30;
 			vecColor = critColor;
 		}
 
