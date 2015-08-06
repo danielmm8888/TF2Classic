@@ -132,6 +132,9 @@ bool CHudMenuWeaponSet::ShouldDraw(void)
 	if (pPlayer->m_Shared.InCond(TF_COND_TAUNTING))
 		return false;
 
+	if ( TFGameRules()->IsDeathmatch() )
+		return false;
+
 	return (tf2c_weaponset_show.GetBool());
 }
 
