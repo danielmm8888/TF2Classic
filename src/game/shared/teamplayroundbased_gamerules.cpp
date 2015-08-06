@@ -2898,6 +2898,14 @@ void CTeamplayRoundBasedRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 		return;
 	}
 
+#ifdef TF_CLASSIC
+	// No autobalancing in deathmatch since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return;
+	}
+#endif
+
 	// we don't balance for a period of time at the start of the game
 	if ( gpGlobals->curtime < m_flStartBalancingTeamsAt )
 	{
@@ -3278,6 +3286,12 @@ float CTeamplayRoundBasedRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleW
 {
 	if ( State_Get() != GR_STATE_RND_RUNNING )
 		return 0;
+
+#ifdef TF_CLASSIC
+	// No respawn times in deathmatch.
+	if ( IsDeathmatch() )
+		return 0.0f;
+#endif
 
 	if ( mp_disable_respawn_times.GetBool() == true )
 		return 0.0f;
