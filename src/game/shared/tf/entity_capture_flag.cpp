@@ -92,13 +92,13 @@ BEGIN_DATADESC( CCaptureFlag )
 
 	DEFINE_KEYFIELD( m_nGameType, FIELD_INTEGER, "GameType" ),
 		
-	DEFINE_KEYFIELD( m_sFlagModel, FIELD_STRING, "flag_model" ),
-	DEFINE_KEYFIELD( m_sFlagIcon, FIELD_STRING, "flag_icon" ),
-	DEFINE_KEYFIELD( m_sFlagPaper, FIELD_STRING, "flag_paper" ),
-	DEFINE_KEYFIELD( m_sFlagTrail, FIELD_STRING, "flag_trail" ),
-
-
-
+	DEFINE_KEYFIELD( m_szModel, FIELD_STRING, "flag_model" ),
+	DEFINE_KEYFIELD( m_szHudIcon, FIELD_STRING, "flag_icon" ),
+	DEFINE_KEYFIELD( m_szPaperEffect, FIELD_STRING, "flag_paper" ),
+	DEFINE_KEYFIELD( m_szTrailEffect, FIELD_STRING, "flag_trail" ),
+	DEFINE_KEYFIELD( m_nUseTrailEffect, FIELD_INTEGER, "trail_effect" ),
+	DEFINE_KEYFIELD( m_bVisibleWhenDisabled, FIELD_BOOLEAN, "VisibleWhenDisabled" ),
+	
 #ifdef GAME_DLL
 	// Inputs.
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
@@ -156,14 +156,27 @@ unsigned int CCaptureFlag::GetItemID( void )
 //-----------------------------------------------------------------------------
 void CCaptureFlag::Precache( void )
 {
-	if (m_sFlagModel == NULL_STRING)
+	// Flag model
+	if (m_szModel == NULL_STRING)
 	{
-		m_sFlagModel = MAKE_STRING(TF_FLAG_MODEL);
+		m_szModel = MAKE_STRING(TF_FLAG_MODEL);
 	}
 
-	PrecacheModel(STRING(m_sFlagModel));
+	// Paper trail particle effect
+	if (m_szPaperEffect == NULL_STRING)
+	{
+		m_szPaperEffect = MAKE_STRING("player_intel_papertrail");
+	}
 
-	PrecacheScriptSound( TF_CTF_FLAGSPAWN );
+	// Team colored trail
+	if (m_szTrailEffect == NULL_STRING)
+	{
+		m_szTrailEffect = MAKE_STRING("player_intel_papertrail");
+	}
+
+	PrecacheModel(STRING(m_szModel));
+
+	PrecacheScriptSound( TF_CTF_FLAGSPAWN ); // Should be Resource.Flagspawn
 	PrecacheScriptSound( TF_CTF_ENEMY_STOLEN );
 	PrecacheScriptSound( TF_CTF_ENEMY_DROPPED );
 	PrecacheScriptSound( TF_CTF_ENEMY_CAPTURED );
@@ -196,13 +209,10 @@ void CCaptureFlag::Precache( void )
 	PrecacheParticleSystem(	"player_intel_trail_green" );
 	PrecacheParticleSystem(	"player_intel_trail_yellow" );
 
-	if (m_sFlagPaper == NULL_STRING)
-	{
-		m_sFlagPaper = MAKE_STRING("player_intel_papertrail");
-	}
-
-	PrecacheParticleSystem(STRING(m_sFlagPaper));
-
+	/*PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_blue"));
+	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_red"));
+	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_green"));
+	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_yellow"));*/
 
 }
 
@@ -239,10 +249,10 @@ void CCaptureFlag::Spawn( void )
 	// Precache the model and sounds.  Set the flag model.
 	Precache();
 
-	if (m_sFlagIcon == NULL_STRING)
-		m_sFlagIcon = MAKE_STRING("../hud/objectives_flagpanel_carried");
+	if (m_szHudIcon == NULL_STRING)
+		m_szHudIcon = MAKE_STRING("../hud/objectives_flagpanel_carried");
 
-	SetModel(STRING(m_sFlagModel));
+	SetModel( STRING(m_szModel) );
 	
 	// Set the flag solid and the size for touching.
 	SetSolid( SOLID_BBOX );
@@ -1049,7 +1059,8 @@ void CCaptureFlag::SetDisabled( bool bDisabled )
 
 	if ( bDisabled )
 	{
-		AddEffects( EF_NODRAW );
+		if (!m_bVisibleWhenDisabled)
+			AddEffects(EF_NODRAW);
 
 		SetTouch( NULL );
 		SetThink( NULL );
@@ -1234,11 +1245,14 @@ void CCaptureFlag::ManageTrailEffects( void )
 {
 	if ( m_nFlagStatus == TF_FLAGINFO_STOLEN )
 	{
-		if ( m_pGlowTrailEffect == NULL )
+		if (!m_nUseTrailEffect)
+			return;
+
+		if ( m_pGlowTrailEffect == NULL && (m_nUseTrailEffect == 1 || m_nUseTrailEffect == 2) )
 		{
 			char *pEffectName = NULL;
 
-			if ( GetPrevOwner() && GetPrevOwner() != CBasePlayer::GetLocalPlayer() )
+			if ( GetPrevOwner() /*&& GetPrevOwner() != CBasePlayer::GetLocalPlayer() */)
 			{
 				switch( GetPrevOwner()->GetTeamNumber() )
 				{
@@ -1259,13 +1273,11 @@ void CCaptureFlag::ManageTrailEffects( void )
 					break;
 				}
 
-
-
 				m_pGlowTrailEffect = ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
 			}
 		}
 
-		if ( GetPrevOwner() )
+		if ( GetPrevOwner() && (m_nUseTrailEffect == 1 || m_nUseTrailEffect == 3) )
 		{
 			CTFPlayer *pPlayer = ToTFPlayer( GetPrevOwner() );
 
@@ -1275,7 +1287,7 @@ void CCaptureFlag::ManageTrailEffects( void )
 				{
 					if ( m_pPaperTrailEffect == NULL )
 					{
-						m_pPaperTrailEffect = ParticleProp()->Create( m_sFlagPaper, PATTACH_ABSORIGIN_FOLLOW );
+						m_pPaperTrailEffect = ParticleProp()->Create( m_szPaperEffect, PATTACH_ABSORIGIN_FOLLOW );
 					}
 				}
 				else

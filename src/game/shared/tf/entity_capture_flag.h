@@ -205,9 +205,14 @@ public:
 	bool			IsHome( void );
 	bool			IsStolen( void );
 
-	string_t		m_sFlagIcon;
-
 	void			Reset( void );
+
+	int					m_nUseTrailEffect;
+	bool				m_bVisibleWhenDisabled;
+	string_t			m_szHudIcon;
+	string_t			m_szModel;
+	string_t			m_szPaperEffect;
+	string_t			m_szTrailEffect;
 
 private:
 
@@ -260,10 +265,6 @@ private:
 	int			m_nOldFlagStatus;
 
 #endif
-
-	string_t			m_sFlagModel;
-	string_t			m_sFlagPaper;
-	string_t			m_sFlagTrail;
 
 	DECLARE_DATADESC();
 };

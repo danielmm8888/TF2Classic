@@ -534,16 +534,16 @@ void CTFHudFlagObjectives::OnTick()
 					switch (pPlayerFlag->GetTeamNumber())
 					{
 						case TF_TEAM_RED:
-							m_pSpecCarriedImage->SetImage(("%s_red", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_red", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_BLUE:
-							m_pSpecCarriedImage->SetImage(("%s_blue", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_blue", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_GREEN:
-							m_pSpecCarriedImage->SetImage(("%s_green", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_green", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_YELLOW:
-							m_pSpecCarriedImage->SetImage(("%s_yellow", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_yellow", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 					}
 				}
