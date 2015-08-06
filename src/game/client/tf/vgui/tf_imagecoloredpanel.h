@@ -17,27 +17,15 @@
 #include "GameEventListener.h"
 
 #define MAX_BG_LENGTH		128
-#define IMAGE_BG_EMPTY		0
-#define IMAGE_BG_DEATHMATCH	1
 
-class CTFImagePanel : public vgui::ImagePanel, public CGameEventListener
+class CTFImageColoredPanel : public vgui::ImagePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFImagePanel, vgui::ImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFImageColoredPanel, vgui::ImagePanel );
 
-	CTFImagePanel(vgui::Panel *parent, const char *name);
-
-	virtual void ApplySettings( KeyValues *inResourceData );
-	void UpdateBGImage( void );
+	CTFImageColoredPanel(vgui::Panel *parent, const char *name);
 
 	virtual Color GetDrawColor( void );
-
-public: // IGameEventListener Interface
-	virtual void FireGameEvent( IGameEvent * event );
-
-public:
-	char	m_szTeamBG[TF_TEAM_COUNT][MAX_BG_LENGTH];
-	int		m_iBGTeam;
 };
 
 

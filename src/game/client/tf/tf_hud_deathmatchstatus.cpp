@@ -62,6 +62,9 @@ bool CTFHudDeathMatchObjectives::IsVisible( void )
 	if( IsTakingAFreezecamScreenshot() )
 		return false;
 
+	if (!TFGameRules() || !TFGameRules()->IsDeathmatch())
+		return false;
+
 	return BaseClass::IsVisible();
 }
 

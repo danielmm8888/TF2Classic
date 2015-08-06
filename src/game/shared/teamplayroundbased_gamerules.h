@@ -207,8 +207,9 @@ public:
 
 	bool InSetup( void ){ return m_bInSetup; }
 	
-	void		BalanceTeams( bool bRequireSwitcheesToBeDead );
-
+#ifdef GAME_DLL
+	virtual void BalanceTeams( bool bRequireSwitcheesToBeDead );
+#endif
 	bool		SwitchedTeamsThisRound( void ) { return m_bSwitchedTeamsThisRound; }
 
 	virtual bool ShouldBalanceTeams( void );
