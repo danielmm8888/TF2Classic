@@ -162,8 +162,22 @@
 	flag_model(string) : "Model" : "models/flag/briefcase.mdl" : "The model to be used for this entity."
 	flag_icon(string) : "Icon" : "../hud/objectives_flagpanel_carried" : "The icons used for the HUD in some game modes. Format: materials/vgui/[materialname]_red and materials/vgui/[materialname]_blue"
 	flag_paper(string) : "Paper Particle" : "player_intel_papertrail" : "Particle effect used for the falling paper trail."
-	//flag_trail(string) : "Trail Effect" : "flagtrail" : "Materials used for the trail effect. Format: materials/effects/[materialname]_red and materials/effects/[materialname]_blu"
+	flag_trail(string) : "Trail Effect" : "flagtrail" : "Materials used for the trail effect. Format: materials/effects/[materialname]_red and materials/effects/[materialname]_blu"
 
+	trail_effect(choices) : "Use Trail Effect" : 1 : "Use trail effect when the player is carrying the flag." =
+	[
+		0 : "None"
+		1 : "All Effects"
+		2 : "Paper Trail Only"
+		3 : "Color Trail Only"
+	]
+	
+	VisibleWhenDisabled(choices) : "Visible When Disabled" : 0 : "Flag appears semitransparent when disabled." =
+	[
+		0 : "No"
+		1 : "Yes"
+	] 
+	
 	// Outputs
 	output OnReturn(void)  : "Sent when the flag is returned via timer."
 	output OnPickup(void)  : "Sent when the flag is picked up."
