@@ -14,7 +14,7 @@
 	}
 	"PanelBG"
 	{
-		"ControlName"	"ImagePanel"
+		"ControlName"	"CTFImagePanel"
 		"fieldName"		"PanelBG"
 		"xpos"			"c-75"
 		"ypos"			"r75"	[$WIN32]
@@ -24,7 +24,25 @@
 		"tall"			"80"
 		"visible"		"1"
 		"enabled"		"1"
-		"image"			"../hud/objectives_deathmatchpanel_bg_left"
+		"image"			"../hud/objectives_deathmatchpanel_black_bg"
+		"scaleImage"	"1"	
+		"teambg_0"		"../hud/objectives_deathmatchpanel_null_bg"
+		"teambg_1"		"../hud/objectives_deathmatchpanel_black_bg"
+	}	
+	"HudColoredBG"
+	{
+		"ControlName"	"CTFImageColoredPanel"
+		"fieldName"		"HudColoredBG"
+		"xpos"			"c-72"
+		"ypos"			"r75"	[$WIN32]
+		"ypos"			"r96"	[$X360]
+		"zpos"			"0"
+		"wide"			"144"
+		"tall"			"80"
+		"visible"		"1"
+		"enabled"		"1"
+		"alpha"			"230"
+		"image"			"../hud/objectives_deathmatchpanel_custom_bg"
 		"scaleImage"	"1"	
 	}	
 	"PlayerScore"

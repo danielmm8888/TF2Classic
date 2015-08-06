@@ -59,6 +59,7 @@ void HUDMinModeChangedCallBack( IConVar *var, const char *pOldString, float flOl
 	engine->ExecuteClientCmd( "hud_reloadscheme" );
 }
 ConVar cl_hud_minmode( "cl_hud_minmode", "0", FCVAR_ARCHIVE, "Set to 1 to turn on the advanced minimalist HUD mode.", HUDMinModeChangedCallBack );
+ConVar tf2c_coloredhud("tf2c_coloredhud", "0", FCVAR_ARCHIVE, "Set to 1 to turn on panel coloring.", HUDMinModeChangedCallBack);
 
 IClientMode *g_pClientMode = NULL;
 // --------------------------------------------------------------------------------- //
