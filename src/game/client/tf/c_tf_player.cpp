@@ -844,7 +844,10 @@ public:
 		C_TFPlayer *pPlayer = NULL;
 		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
 		if ( !pEntity )
+		{
+			m_pResult->SetFloatValue(0.0);
 			return;
+		}
 
 		if ( pEntity->IsPlayer()  )
 		{
@@ -901,7 +904,10 @@ public:
 		Assert( m_pResult );
 
 		if ( !pC_BaseEntity )
+		{
+			m_pResult->SetFloatValue(0.0f);
 			return;
+		}
 
 		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
 		if ( !pEntity )
@@ -973,8 +979,11 @@ public:
 	{
 		Assert(m_pResult);
 
-		if (!pC_BaseEntity)
+		if ( !pC_BaseEntity )
+		{
+			m_pResult->SetVecValue(1, 1, 1);
 			return;
+		}
 
 		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
 		if (!pEntity)
@@ -1021,8 +1030,11 @@ public:
 	{
 		Assert(m_pResult);
 
-		if (!pC_BaseEntity)
+		if ( !pC_BaseEntity )
+		{
+			m_pResult->SetVecValue(0,0,0);
 			return;
+		}
 
 		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
 		if (!pEntity)
@@ -1091,8 +1103,11 @@ public:
 	{
 		Assert(m_pResult);
 
-		if (!pC_BaseEntity)
+		if ( !pC_BaseEntity )
+		{
+			m_pResult->SetVecValue(0, 0, 0);
 			return;
+		}
 
 		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
 		if (!pEntity)
