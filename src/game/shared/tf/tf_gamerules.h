@@ -127,6 +127,14 @@ public:
 
 	virtual const unsigned char *GetEncryptionKey( void ) { return (unsigned char *)"E2NcUkG2"; }
 
+	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
+
+#ifdef GAME_DLL
+	virtual void BalanceTeams( bool bRequireSwitcheesToBeDead );
+#endif
+
+	virtual bool ShouldBalanceTeams( void );
+
 #ifdef GAME_DLL
 public:
 	// Override this to prevent removal of game specific entities that need to persist
