@@ -3758,8 +3758,38 @@ const char *CTFGameRules::GetGameDescription(void)
 	}
 }
 
+void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
+{
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return;
+	}
+
+	BaseClass::BalanceTeams( bRequireSwitcheesToBeDead );
+}
+
 #endif
 
+float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers /* = true */ )
+{
+	// No respawn times in deathmatch.
+	if ( IsDeathmatch() )
+		return 0.0f;
+
+	return BaseClass::GetRespawnWaveMaxLength( iTeam, bScaleWithNumPlayers );
+}
+
+bool CTFGameRules::ShouldBalanceTeams( void )
+{
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return false;
+	}
+
+	return BaseClass::ShouldBalanceTeams();
+}
 
 #ifdef CLIENT_DLL
 const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
