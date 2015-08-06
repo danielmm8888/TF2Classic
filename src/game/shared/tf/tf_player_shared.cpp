@@ -58,7 +58,7 @@ ConVar tf_spy_cloak_consume_rate( "tf_spy_cloak_consume_rate", "10.0", FCVAR_DEV
 ConVar tf_spy_cloak_regen_rate( "tf_spy_cloak_regen_rate", "3.3", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "cloak to regen per second, up to 100 max" );		// 30 seconds to full charge
 ConVar tf_spy_cloak_no_attack_time( "tf_spy_cloak_no_attack_time", "2.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "time after uncloaking that the spy is prohibited from attacking" );
 
-ConVar tf_damage_disablespread("tf_damage_disablespread", "0", FCVAR_NOTIFY | FCVAR_REPLICATED,"Toggles the random damage spread applied to all player damage.");
+ConVar tf_damage_disablespread("tf_damage_disablespread", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Toggles the random damage spread applied to all player damage.");
 
 //ConVar tf_spy_stealth_blink_time( "tf_spy_stealth_blink_time", "0.3", FCVAR_DEVELOPMENTONLY, "time after being hit the spy blinks into view" );
 //ConVar tf_spy_stealth_blink_scale( "tf_spy_stealth_blink_scale", "0.85", FCVAR_DEVELOPMENTONLY, "percentage visible scalar after being hit the spy blinks into view" );
