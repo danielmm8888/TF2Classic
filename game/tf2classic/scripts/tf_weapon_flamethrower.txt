@@ -29,6 +29,7 @@ WeaponData
 
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_flamethrower_pyro.mdl"
+	"viewmodel_dm"		"models/weapons/v_models/v_flamethrower_merc.mdl"
 	"playermodel"		"models/weapons/w_models/w_flamethrower.mdl"
 	"anim_prefix"		"gl"
 

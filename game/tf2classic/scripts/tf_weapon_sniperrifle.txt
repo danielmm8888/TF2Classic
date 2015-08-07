@@ -39,6 +39,7 @@ WeaponData
 
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_sniperrifle_sniper.mdl"
+	"viewmodel_dm"		"models/weapons/v_models/v_sniperrifle_merc.mdl"
 	"playermodel"		"models/weapons/w_models/w_sniperrifle.mdl"
 	"anim_prefix"		"shotgun"
 

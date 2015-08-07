@@ -40,6 +40,7 @@ WeaponData
 
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_smg_sniper.mdl"
+	"viewmodel_dm"		"models/weapons/v_models/v_smg_merc.mdl"
 	"playermodel"	"models/weapons/w_models/w_smg.mdl"
 	"anim_prefix"	"ac"
 
