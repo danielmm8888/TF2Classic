@@ -148,6 +148,7 @@ $Project "Server (TF)"
 			$File	"tf\tf_turret.h"	
 			$File	"tf\tf_weapon_builder.cpp"
 			$File	"tf\tf_weapon_builder.h"	
+			$File	"tf\tf_vehicle_jeep.cpp"	
 			
 			$Folder	"Unused"
 			{
