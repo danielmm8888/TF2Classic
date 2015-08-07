@@ -75,17 +75,6 @@ LINK_ENTITY_TO_CLASS( tf_weapon_sniperrifle, CTFSniperRifle );
 PRECACHE_WEAPON_REGISTER( tf_weapon_sniperrifle );
 
 //=============================================================================
-IMPLEMENT_NETWORKCLASS_ALIASED(TFSniperRifle_DM, DT_TFSniperRifle_DM)
-
-BEGIN_NETWORK_TABLE_NOBASE(CTFSniperRifle_DM, DT_SniperRifle_DMLocalData)
-#if !defined( CLIENT_DLL )
-	SendPropFloat( SENDINFO(m_flChargedDamage), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
-#else
-	RecvPropFloat( RECVINFO(m_flChargedDamage) ),
-#endif
-END_NETWORK_TABLE()
-
-//=============================================================================
 //
 // Weapon Sniper Rifles funcions.
 //

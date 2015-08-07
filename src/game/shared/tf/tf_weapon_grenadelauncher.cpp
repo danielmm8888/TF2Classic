@@ -33,17 +33,6 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_grenadelauncher );
 
 //=============================================================================
 
-IMPLEMENT_NETWORKCLASS_ALIASED(TFGrenadeLauncher_DM, DT_WeaponGrenadeLauncher_DM)
-
-BEGIN_NETWORK_TABLE(CTFGrenadeLauncher_DM, DT_WeaponGrenadeLauncher_DM)
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA(CTFGrenadeLauncher_DM)
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS(tf_weapon_grenadelauncher_dm, CTFGrenadeLauncher_DM);
-PRECACHE_WEAPON_REGISTER(tf_weapon_grenadelauncher_dm);
-
 // Server specific.
 #ifndef CLIENT_DLL
 BEGIN_DATADESC( CTFGrenadeLauncher )
