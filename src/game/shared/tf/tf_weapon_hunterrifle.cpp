@@ -215,25 +215,16 @@ void CTFHunterRifle::HandleZooms( void )
 //-----------------------------------------------------------------------------
 bool CTFHunterRifle::Reload(void)
 {
-	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
-	if (m_iReloadMode == TF_RELOAD_START)
+	if ( BaseClass::Reload() == true )
 	{
 		ZoomOut();
-
-		// If I don't have any spare ammo, I can't reload
-		if ( GetOwner()->GetAmmoCount(m_iPrimaryAmmoType) <= 0 )
-			return false;
-
-		if ( Clip1() >= GetMaxClip1() )
-			return false;
-
-		if (Clip1() > 0)
+		if ( Clip1() > 0 )
 			m_iClip1 = 0;
+
+		return true;
 	}
 
-	DefaultReload( GetMaxClip1(), GetMaxClip2(), ACT_VM_RELOAD );
-
-	return true;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
