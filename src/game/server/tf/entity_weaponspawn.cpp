@@ -59,8 +59,9 @@ void CWeaponSpawner::Spawn(void)
 
 	SetModel(pWeaponInfo->szWorldModel);
 	BaseClass::Spawn();
-	// This is required for us to be usable by player.
-	RemoveSolidFlags( FSOLID_NOT_SOLID );
+	// Ensures consistent BBOX size for all weapons. (danielmm8888)
+	SetSolid( SOLID_BBOX );
+	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
 }
 
 float CWeaponSpawner::GetRespawnDelay(void)
@@ -138,12 +139,4 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	}
 
 	return bSuccess;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-unsigned int CWeaponSpawner::PhysicsSolidMaskForEntity( void ) const
-{ 
-	return MASK_SOLID | CONTENTS_DEBRIS;
 }
