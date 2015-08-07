@@ -133,7 +133,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			WRITE_STRING(GetClassname());
 			MessageEnd();
 
-			EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
+			//EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
 		}
 	}
 
