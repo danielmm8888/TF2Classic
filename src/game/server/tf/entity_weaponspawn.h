@@ -27,12 +27,16 @@ public:
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
 	float	GetRespawnDelay(void);
+	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	virtual unsigned int PhysicsSolidMaskForEntity( void ) const;
 
 	int		m_iWeaponNumber;
 	int		m_iRespawnTime;
 
 private:
 	CTFWeaponInfo *pWeaponInfo;
+
+	CHandle<CBasePlayer> m_hUser;
 };
 
 #endif // ENTITY_HEALTHKIT_H

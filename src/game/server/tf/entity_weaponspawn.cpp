@@ -38,6 +38,7 @@ CWeaponSpawner::CWeaponSpawner()
 {
 	m_iWeaponNumber = TF_WEAPON_SHOTGUN_SOLDIER;
 	m_iRespawnTime = 10;
+	m_hUser = NULL;
 }
 
 
@@ -49,7 +50,7 @@ void CWeaponSpawner::Spawn(void)
 	pWeaponInfo = GetTFWeaponInfo(m_iWeaponNumber);
 	if ( !pWeaponInfo )
 	{
-		Warning( "tf_weaponspawner has incorrect weapon number &d \n", m_iWeaponNumber );
+		Warning( "tf_weaponspawner has incorrect weapon number %d \n", m_iWeaponNumber );
 		UTIL_Remove( this );
 		return;
 	}
@@ -58,6 +59,8 @@ void CWeaponSpawner::Spawn(void)
 
 	SetModel(pWeaponInfo->szWorldModel);
 	BaseClass::Spawn();
+	// This is required for us to be usable by player.
+	RemoveSolidFlags( FSOLID_NOT_SOLID );
 }
 
 float CWeaponSpawner::GetRespawnDelay(void)
@@ -71,6 +74,18 @@ float CWeaponSpawner::GetRespawnDelay(void)
 void CWeaponSpawner::Precache(void)
 {
 	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
+}
+
+void CWeaponSpawner::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
+
+	if ( pPlayer )
+	{
+		m_hUser = pPlayer;
+		ItemTouch( pActivator );
+		m_hUser = NULL;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -94,8 +109,9 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
 					bSuccess = true;
 			}
-			else
+			else if ( pPlayer == m_hUser )
 			{
+				// Only dump current weapon if player +USE'd us.
 				pTFPlayer->Weapon_Detach(pWeapon);
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;
@@ -122,4 +138,12 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	}
 
 	return bSuccess;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+unsigned int CWeaponSpawner::PhysicsSolidMaskForEntity( void ) const
+{ 
+	return MASK_SOLID | CONTENTS_DEBRIS;
 }
