@@ -98,10 +98,11 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			{
 				pTFPlayer->Weapon_Detach(pWeapon);
 				UTIL_Remove(pWeapon);
+				pWeapon = NULL;
 			}
 		}
 
-		if ( !pWeapon || pWeapon->GetWeaponID() != m_iWeaponNumber )
+		if ( !pWeapon )
 		{
 			pTFPlayer->GiveNamedItem( pszWeaponName );
 			bSuccess = true;
