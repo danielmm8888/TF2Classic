@@ -297,6 +297,9 @@ public:
 	bool ShouldAutoRezoom( void ) { return m_bAutoRezoom; }
 	void SetAutoRezoom( bool bAutoRezoom ) { m_bAutoRezoom = bAutoRezoom; }
 
+	bool ShouldAutoReload( void ) { return m_bAutoReload; }
+	void SetAutoReload( bool bAutoReload ) { m_bAutoReload = bAutoReload; }
+
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 
 	virtual bool CanHearAndReadChatFrom( CBasePlayer *pPlayer );
@@ -535,6 +538,7 @@ private:
 
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
+	bool				m_bAutoReload;
 
 	COutputEvent		m_OnDeath;
 

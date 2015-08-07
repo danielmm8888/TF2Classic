@@ -152,6 +152,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
+	virtual bool ReloadOrSwitchWeapons( void );
+
 	virtual acttable_t *ActivityList( void );
 	virtual int ActivityListCount( void );
 	static acttable_t m_acttablePrimary[];
