@@ -245,6 +245,12 @@ void CTFWeaponBase::Precache()
 
 	const CTFWeaponInfo *pTFInfo = &GetTFWpnData();
 
+	// Precache the DM viewmodel (if we have one)
+	if (pTFInfo->m_szViewModelDM[0] != '\0')
+	{
+		PrecacheModel(pTFInfo->m_szViewModelDM);
+	}
+
 	if ( pTFInfo->m_szExplosionSound && pTFInfo->m_szExplosionSound[0] )
 	{
 		CBaseEntity::PrecacheScriptSound( pTFInfo->m_szExplosionSound );
@@ -299,8 +305,6 @@ void CTFWeaponBase::Precache()
 		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_yellow_crit", pTFInfo->m_szTracerEffect);
 		PrecacheParticleSystem(pTracerEffect);
 		PrecacheParticleSystem(pTracerEffectCrit);
-
-
 	}
 }
 
@@ -340,6 +344,12 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 	if ( GetPlayerOwner() == NULL )
 	{
 		return BaseClass::GetViewModel();
+	}
+
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+	{
+		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
+			return GetTFWpnData().m_szViewModelDM;
 	}
 
 	return GetTFWpnData().szViewModel;
