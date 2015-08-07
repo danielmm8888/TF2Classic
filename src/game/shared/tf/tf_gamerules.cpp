@@ -80,6 +80,7 @@ static int g_TauntCamAchievements[] =
 
 extern ConVar mp_capstyle;
 extern ConVar sv_turbophysics;
+extern ConVar mp_chattime;
 
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
@@ -1572,7 +1573,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			float flWaitTime = 15;
+			float flWaitTime = mp_chattime.GetFloat();
 			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
 
 			// set all players to FL_FROZEN
