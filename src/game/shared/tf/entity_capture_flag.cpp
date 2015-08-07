@@ -321,16 +321,16 @@ void CCaptureFlag::EnableGlowEffect(void)
 	switch (GetTeamNumber())
 	{
 	case TF_TEAM_BLUE:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0, 0, 255), 128, true, true, 0);
+		g_GlowObjectManager.RegisterGlowObject(this, Vector(0.6f,0.8f,1.0f), 1.0f, true, true, 0);
 		break;
 	case TF_TEAM_RED:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(255, 0, 0), 128, true, true, 0);
+		g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.25f, 0.25f), 1.0f, true, true, 0);
 		break;
 	case TF_TEAM_GREEN:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0, 255, 0), 128, true, true, 0);
+		g_GlowObjectManager.RegisterGlowObject(this, Vector(0.03f, 0.68f, 0), 1.0f, true, true, 0);
 		break;
 	case TF_TEAM_YELLOW:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(255, 255, 0), 128, true, true, 0);
+		g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.62f, 0), 1.0f, true, true, 0);
 		break;
 	default:
 		return;
