@@ -2050,61 +2050,69 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	
 	m_flLastAction = gpGlobals->curtime;
 
-#ifdef _DEBUG
 	if ( FStrEq( pcmd, "addcond" ) )
 	{
-		if ( args.ArgC() >= 2 )
+		if ( sv_cheats->GetBool() )
 		{
-			int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
-
-			CTFPlayer *pTargetPlayer = this;
-			if ( args.ArgC() >= 4 )
+			if ( args.ArgC() >= 2 )
 			{
-				// Find the matching netname
-				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+
+				CTFPlayer *pTargetPlayer = this;
+				if ( args.ArgC() >= 4 )
 				{
-					CBasePlayer *pPlayer = ToBasePlayer( UTIL_PlayerByIndex(i) );
-					if ( pPlayer )
+					// Find the matching netname
+					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 					{
-						if ( Q_strstr( pPlayer->GetPlayerName(), args[3] ) )
+						CBasePlayer *pPlayer = ToBasePlayer( UTIL_PlayerByIndex(i) );
+						if ( pPlayer )
 						{
-							pTargetPlayer = ToTFPlayer(pPlayer);
-							break;
+							if ( Q_strstr( pPlayer->GetPlayerName(), args[3] ) )
+							{
+								pTargetPlayer = ToTFPlayer(pPlayer);
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			if ( args.ArgC() >= 3 )
-			{
-				float flDuration = atof( args[2] );
-				pTargetPlayer->m_Shared.AddCond( iCond, flDuration );
+				if ( args.ArgC() >= 3 )
+				{
+					float flDuration = atof( args[2] );
+					pTargetPlayer->m_Shared.AddCond( iCond, flDuration );
+				}
+				else
+				{
+					pTargetPlayer->m_Shared.AddCond( iCond );
+				}
 			}
-			else
-			{
-				pTargetPlayer->m_Shared.AddCond( iCond );
-			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 	else if ( FStrEq( pcmd, "removecond" ) )
 	{
-		if ( args.ArgC() >= 2 )
+		if ( sv_cheats->GetBool() )
 		{
-			int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
-			m_Shared.RemoveCond( iCond );
+			if ( args.ArgC() >= 2 )
+			{
+				int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+				m_Shared.RemoveCond( iCond );
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 	else if ( FStrEq( pcmd, "burn" ) ) 
 	{
-		m_Shared.Burn( this );
-		return true;
+		if ( sv_cheats->GetBool() )
+		{
+			m_Shared.Burn( this );
+			return true;
+		}
+		return false;
 	}
-	else
-#endif
-
-	if ( FStrEq( pcmd, "jointeam" ) )
+	else if ( FStrEq( pcmd, "jointeam" ) )
 	{
 		if ( args.ArgC() >= 2 )
 		{
@@ -2882,15 +2890,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	if ( IsInCommentaryMode() )
 		return 0;
 
-	if ( m_debugOverlays & OVERLAY_BUDDHA_MODE ) 
-	{
-		if ((m_iHealth - info.GetDamage()) <= 0)
-		{
-			m_iHealth = 1;
-			return 0;
-		}
-	}
-
 	// Early out if there's no damage
 	if ( !info.GetDamage() )
 		return 0;
@@ -3116,6 +3115,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 
 		info.SetDamage( flDamage );
+	}
+
+	if ( m_debugOverlays & OVERLAY_BUDDHA_MODE ) 
+	{
+		if ((m_iHealth - info.GetDamage()) <= 0)
+		{
+			m_iHealth = 1;
+			return 0;
+		}
 	}
 
 	// NOTE: Deliberately skip base player OnTakeDamage, because we don't want all the stuff it does re: suit voice
