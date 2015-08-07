@@ -111,17 +111,6 @@ public:
 	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SHOTGUN_MEDIC; }
 };
 
-// DM shotguns.
-class CTFScatterGun_DM : public CTFShotgun
-{
-public:
-	DECLARE_CLASS(CTFScatterGun_DM, CTFShotgun);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SCATTERGUN_DM; }
-};
-
 class CTFDoubleBarrel : public CTFShotgun
 {
 public:
