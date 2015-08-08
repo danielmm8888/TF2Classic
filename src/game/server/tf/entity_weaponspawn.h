@@ -27,8 +27,6 @@ public:
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
 	float	GetRespawnDelay(void);
-	void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
-	virtual int ObjectCaps( void ) { return BaseClass::ObjectCaps() | FCAP_USE_IN_RADIUS; }
 
 	int		m_iWeaponNumber;
 	int		m_iRespawnTime;

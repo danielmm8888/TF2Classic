@@ -77,18 +77,6 @@ void CWeaponSpawner::Precache(void)
 	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
 }
 
-void CWeaponSpawner::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
-{
-	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
-
-	if ( pPlayer )
-	{
-		m_hUser = pPlayer;
-		ItemTouch( pActivator );
-		m_hUser = NULL;
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -110,7 +98,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
 					bSuccess = true;
 			}
-			else if ( pPlayer == m_hUser )
+			else
 			{
 				// Only dump current weapon if player +USE'd us.
 				pTFPlayer->Weapon_Detach(pWeapon);
