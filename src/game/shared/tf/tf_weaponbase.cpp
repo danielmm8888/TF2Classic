@@ -390,6 +390,8 @@ bool CTFWeaponBase::Holster( CBaseCombatWeapon *pSwitchingTo )
 	}
 #endif
 
+	AbortReload();
+
 	return BaseClass::Holster( pSwitchingTo );
 }
 
@@ -415,6 +417,10 @@ bool CTFWeaponBase::Deploy( void )
 
 	if ( bDeploy )
 	{
+		// Make sure viewmodel index is correct since deathmatch uses alt viewmodels.
+		// May also help custom weapons in the future.
+		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel() );
+
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.
