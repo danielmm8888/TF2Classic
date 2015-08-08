@@ -1744,6 +1744,53 @@ void CTFPlayer::HandleCommand_JoinTeam_NoMenus( const char *pTeamName )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Join a team without suiciding
+//-----------------------------------------------------------------------------
+void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
+{
+	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
+	{
+		ChangeTeam(TF_TEAM_RED);
+		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		return;
+	}
+
+	int iTeam = TF_TEAM_RED;
+	if ( stricmp( pTeamName, "auto" ) == 0 )
+	{
+		iTeam = GetAutoTeam();
+	}
+	else if ( stricmp( pTeamName, "spectate" ) == 0 )
+	{
+		iTeam = TEAM_SPECTATOR;
+	}
+	else
+	{
+		for ( int i = 0; i < TF_TEAM_COUNT; ++i )
+		{
+			if ( stricmp( pTeamName, g_aTeamNames[i] ) == 0 )
+			{
+				iTeam = i;
+				break;
+			}
+		}
+	}
+
+	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	{
+		Warning("Four player teams have been disabled!\n");
+		return;
+	}
+
+	if (iTeam == GetTeamNumber())
+	{
+		return;	// we wouldn't change the team
+	}
+
+	BaseClass::ChangeTeam( iTeam );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Player has been forcefully changed to another team
 //-----------------------------------------------------------------------------
 void CTFPlayer::ForceChangeTeam( int iTeamNum )
@@ -2127,6 +2174,18 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if ( args.ArgC() >= 2 )
 			{
 				HandleCommand_JoinTeam_NoMenus( args[1] );
+			}
+			return true;
+		}
+		return false;
+	}
+	else if ( FStrEq( pcmd, "jointeam_nokill" ) )
+	{
+		if ( sv_cheats->GetBool() )
+		{
+			if ( args.ArgC() >= 2 )
+			{
+				HandleCommand_JoinTeam_NoKill( args[1] );
 			}
 			return true;
 		}

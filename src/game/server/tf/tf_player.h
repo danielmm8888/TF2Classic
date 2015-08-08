@@ -422,6 +422,7 @@ private:
 	void				HandleCommand_JoinTeam( const char *pTeamName );
 	void				HandleCommand_JoinClass( const char *pClassName );
 	void				HandleCommand_JoinTeam_NoMenus( const char *pTeamName );
+	void				HandleCommand_JoinTeam_NoKill( const char *pTeamName );
 
 	// Bots.
 	friend void			Bot_Think( CTFPlayer *pBot );
