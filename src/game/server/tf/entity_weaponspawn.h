@@ -33,6 +33,8 @@ public:
 
 private:
 	CTFWeaponInfo *pWeaponInfo;
+
+	CHandle<CBasePlayer> m_hUser;
 };
 
 #endif // ENTITY_HEALTHKIT_H
