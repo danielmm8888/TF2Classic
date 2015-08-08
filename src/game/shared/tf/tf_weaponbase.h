@@ -140,6 +140,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void AbortReload( void );
 	virtual bool DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 	void SendReloadEvents();
+	virtual bool CanAutoReload( void ) { return true; }
 
 	virtual bool CanDrop( void ) { return false; }
 

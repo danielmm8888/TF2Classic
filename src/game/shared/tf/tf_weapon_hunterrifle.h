@@ -47,6 +47,7 @@ public:
 
 	virtual void WeaponReset( void );
 	virtual bool Reload(void);
+	virtual bool CanAutoReload( void ) { return false; }
 
 	virtual bool CanFireCriticalShot( bool bIsHeadshot = false );
 
