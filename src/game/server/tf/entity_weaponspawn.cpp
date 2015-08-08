@@ -12,6 +12,7 @@
 #include "entity_weaponspawn.h"
 #include "tf_weaponbase.h"
 #include "basecombatcharacter.h"
+#include "in_buttons.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -38,7 +39,6 @@ CWeaponSpawner::CWeaponSpawner()
 {
 	m_iWeaponNumber = TF_WEAPON_SHOTGUN_SOLDIER;
 	m_iRespawnTime = 10;
-	m_hUser = NULL;
 }
 
 
@@ -59,6 +59,7 @@ void CWeaponSpawner::Spawn(void)
 
 	SetModel(pWeaponInfo->szWorldModel);
 	BaseClass::Spawn();
+
 	// Ensures consistent BBOX size for all weapons. (danielmm8888)
 	SetSolid( SOLID_BBOX );
 	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
@@ -77,18 +78,6 @@ void CWeaponSpawner::Precache(void)
 	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
 }
 
-void CWeaponSpawner::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
-{
-	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
-
-	if ( pPlayer )
-	{
-		m_hUser = pPlayer;
-		ItemTouch( pActivator );
-		m_hUser = NULL;
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -98,9 +87,9 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
 
-	if (ValidTouch(pTFPlayer) && pTFPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
+	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
-		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByType( pWeaponInfo->m_iWeaponType );
+		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByBucket( pWeaponInfo->iSlot );
 		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
 
 		if (pWeapon)
@@ -110,9 +99,8 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
 					bSuccess = true;
 			}
-			else if ( pPlayer == m_hUser )
+			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) )
 			{
-				// Only dump current weapon if player +USE'd us.
 				pTFPlayer->Weapon_Detach(pWeapon);
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;
