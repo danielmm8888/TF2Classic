@@ -99,8 +99,10 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
 					bSuccess = true;
 			}
-			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) )
+			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
+			(pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL) )
 			{
+				// Check Use button, always replace pistol
 				pTFPlayer->Weapon_Detach(pWeapon);
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;
