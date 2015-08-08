@@ -38,7 +38,6 @@ CWeaponSpawner::CWeaponSpawner()
 {
 	m_iWeaponNumber = TF_WEAPON_SHOTGUN_SOLDIER;
 	m_iRespawnTime = 10;
-	m_hUser = NULL;
 }
 
 
