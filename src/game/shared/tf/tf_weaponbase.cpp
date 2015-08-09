@@ -1998,8 +1998,7 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	}
 
 #ifdef CLIENT_DLL
-	// If we're disguised, we always show the primary weapon
-	// even though our actual weapon may not be primary 
+	// If we're disguised, we show a different weapon from what we're actually carrying.
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
 	{

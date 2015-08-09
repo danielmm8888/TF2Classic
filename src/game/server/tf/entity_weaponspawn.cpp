@@ -119,6 +119,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			{
 				// Check Use button, always replace pistol
 				pTFPlayer->Weapon_Detach(pWeapon);
+				pWeapon->WeaponReset();
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;
 			}
