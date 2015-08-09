@@ -183,6 +183,9 @@ public:
 
 	int		GetDesiredPlayerClassIndex( void );
 
+	int		GetDesiredWeaponIndex( void ) { return m_iDesiredWeaponID; }
+	void	SetDesiredWeaponIndex( int iWeaponID ) { m_iDesiredWeaponID = iWeaponID; }
+
 	float	GetSpyCloakMeter() const		{ return m_flCloakMeter; }
 	void	SetSpyCloakMeter( float val ) { m_flCloakMeter = val; }
 
@@ -299,6 +302,7 @@ private:
 	int	m_nOldDisguiseClass;
 
 	CNetworkVar( int, m_iDesiredPlayerClass );
+	CNetworkVar(int, m_iDesiredWeaponID);
 
 	float m_flNextBurningSound;
 
