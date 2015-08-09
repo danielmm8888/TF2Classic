@@ -373,7 +373,7 @@ void CTargetID::UpdateID( void )
 				}
 			}
 
-			if ( pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
+			if ( pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) || (bDisguisedEnemy && pPlayer->m_Shared.GetDisguiseClass() == TF_CLASS_MEDIC) )
 			{
 				wchar_t wszChargeLevel[ 10 ];
 				_snwprintf( wszChargeLevel, ARRAYSIZE(wszChargeLevel) - 1, L"%.0f", pPlayer->MedicGetChargeLevel() * 100 );
@@ -399,16 +399,17 @@ void CTargetID::UpdateID( void )
 
 				if ( tf_PR )
 				{
-					flMaxHealth = tf_PR->GetMaxHealth( m_iTargetEntIndex );
-					iMaxBuffedHealth = pPlayer->m_Shared.GetMaxBuffedHealth();
-
 					if ( bDisguisedEnemy )
 					{
 						flHealth = (float)pPlayer->m_Shared.GetDisguiseHealth();
+						flMaxHealth = pPlayer->m_Shared.GetDisguiseMaxHealth();
+						iMaxBuffedHealth = pPlayer->m_Shared.GetDisguiseMaxBuffedHealth();
 					}
 					else
 					{
 						flHealth = (float)pPlayer->GetHealth();
+						flMaxHealth = tf_PR->GetMaxHealth( m_iTargetEntIndex );
+						iMaxBuffedHealth = pPlayer->m_Shared.GetMaxBuffedHealth();
 					}
 				}
 				else

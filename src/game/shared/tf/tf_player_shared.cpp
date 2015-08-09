@@ -131,6 +131,8 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_nDisguiseClass ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseTargetIndex ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseHealth ) ),
+	RecvPropInt( RECVINFO( m_iDisguiseMaxHealth ) ),
+	RecvPropFloat( RECVINFO( m_flDisguiseChargeLevel ) ),
 	RecvPropBool( RECVINFO( m_bDisguiseWeaponParity ) ),
 	// Local Data.
 	RecvPropDataTable( "tfsharedlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFPlayerSharedLocal) ),
@@ -172,6 +174,8 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_nDisguiseClass ), 4, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseTargetIndex ), 7, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseHealth ), 10 ),
+	SendPropInt( SENDINFO( m_iDisguiseMaxHealth ), 10 ),
+	SendPropFloat( SENDINFO( m_flDisguiseChargeLevel ), 0, SPROP_NOSCALE ),
 	SendPropBool( SENDINFO( m_bDisguiseWeaponParity ) ),
 	// Local Data.
 	SendPropDataTable( "tfsharedlocaldata", 0, &REFERENCE_SEND_TABLE( DT_TFPlayerSharedLocal ), SendProxy_SendLocalDataTable ),	
@@ -523,6 +527,16 @@ int CTFPlayerShared::GetMaxBuffedHealth( void )
 	return iRoundDown;
 }
 
+int CTFPlayerShared::GetDisguiseMaxBuffedHealth( void )
+{
+	float flBoostMax = GetDisguiseMaxHealth() * tf_max_health_boost.GetFloat();
+
+	int iRoundDown = floor( flBoostMax / 5 );
+	iRoundDown = iRoundDown * 5;
+
+	return iRoundDown;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Runs SERVER SIDE only Condition Think
 // If a player needs something to be updated no matter what do it here (invul, etc).
@@ -613,7 +627,8 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			if ( InCond( TF_COND_DISGUISED ) )
 			{
 				// Separate cap for disguised health
-				int nFakeHealthToAdd = clamp( nHealthToAdd, 0, iBoostMax - m_iDisguiseHealth );
+				int iFakeBoostMax = GetDisguiseMaxBuffedHealth();
+				int nFakeHealthToAdd = clamp( nHealthToAdd, 0, iFakeBoostMax - m_iDisguiseHealth );
 				m_iDisguiseHealth += nFakeHealthToAdd;
 			}
 
@@ -668,9 +683,9 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			}
 		}
 
-		if ( InCond( TF_COND_DISGUISED ) && m_iDisguiseHealth > m_pOuter->GetMaxHealth() )
+		if ( InCond( TF_COND_DISGUISED ) && m_iDisguiseHealth > m_iDisguiseMaxHealth )
 		{
-			float flBoostMaxAmount = GetMaxBuffedHealth() - m_pOuter->GetMaxHealth();
+			float flBoostMaxAmount = GetDisguiseMaxBuffedHealth() - m_iDisguiseMaxHealth;
 			m_flDisguiseHealFraction += (gpGlobals->frametime * (flBoostMaxAmount / tf_boost_drain_time.GetFloat()));
 
 			int nHealthToDrain = (int)m_flDisguiseHealFraction;
@@ -1244,6 +1259,8 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_hDisguiseTarget.Set( NULL );
 	m_iDisguiseTargetIndex = TF_DISGUISE_TARGET_INDEX_NONE;
 	m_iDisguiseHealth = 0;
+	m_iDisguiseMaxHealth = 0;
+	m_flDisguiseChargeLevel = 0.0f;
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();
@@ -1557,8 +1574,29 @@ void CTFPlayerShared::CompleteDisguise( void )
 
 	FindDisguiseTarget();
 
-	int iMaxHealth = m_pOuter->GetMaxHealth();
-	m_iDisguiseHealth = (int)random->RandomInt( iMaxHealth / 2, iMaxHealth );
+	CTFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
+
+	// If we have a disguise target with matching class then take their values.
+	// Otherwise, generate random health and uber.
+	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) )
+	{
+		m_iDisguiseHealth = pDisguiseTarget->GetHealth();
+		m_iDisguiseMaxHealth = pDisguiseTarget->GetMaxHealth();
+		if ( m_nDisguiseClass == TF_CLASS_MEDIC )
+		{
+			m_flDisguiseChargeLevel = pDisguiseTarget->MedicGetChargeLevel();
+		}
+	}
+	else
+	{
+		int iMaxHealth = GetPlayerClassData( m_nDisguiseClass )->m_nMaxHealth;
+		m_iDisguiseHealth = (int)random->RandomInt( iMaxHealth / 2, iMaxHealth );
+		m_iDisguiseMaxHealth = iMaxHealth;
+		if ( m_nDisguiseClass == TF_CLASS_MEDIC )
+		{
+			m_flDisguiseChargeLevel = random->RandomFloat( 0.0f, 0.99f );
+		}
+	}
 
 	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
 	{
@@ -2892,6 +2930,45 @@ const Vector& CTFPlayer::GetClassEyeHeight( void )
 	return g_TFClassViewVectors[pClass->GetClassIndex()];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+float CTFPlayer::MedicGetChargeLevel( void )
+{
+	if ( IsPlayerClass(TF_CLASS_MEDIC) )
+	{
+		CTFWeaponBase *pWpn = ( CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
+
+		if ( pWpn == NULL )
+			return 0;
+
+		CWeaponMedigun *pWeapon = dynamic_cast <CWeaponMedigun*>( pWpn );
+
+		if ( pWeapon )
+			return pWeapon->GetChargeLevel();
+	}
+
+	if (IsPlayerClass(TF_CLASS_MEDIC))
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG);
+
+		if (pWpn == NULL)
+			return 0;
+
+		CWeaponKritzkrieg *pWeapon = dynamic_cast <CWeaponKritzkrieg*>(pWpn);
+
+		if (pWeapon)
+			return pWeapon->GetChargeLevel();
+	}
+
+	// Spy has a fake uber level.
+	if ( IsPlayerClass( TF_CLASS_SPY ) )
+	{
+		return m_Shared.m_flDisguiseChargeLevel;
+	}
+
+	return 0;
+}
 
 CTFWeaponBase *CTFPlayer::Weapon_OwnsThisID( int iWeaponID )
 {
