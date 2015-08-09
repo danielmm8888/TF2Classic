@@ -1655,7 +1655,7 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 	C_TFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
 
 	// Use disguise target's weapons if possible.
-	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) )
+	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) && pDisguiseTarget->IsAlive() )
 	{
 		if ( pDisguiseTarget->Weapon_GetWeaponByBucket( iSlot ) )
 		{
