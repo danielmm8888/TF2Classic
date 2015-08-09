@@ -146,7 +146,7 @@ public:
 
 #ifdef CLIENT_DLL
 	void	OnDisguiseChanged( void );
-	void	RecalcDisguiseWeapon( void );
+	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 #endif
@@ -255,6 +255,7 @@ private:
 	CNetworkVar( int, m_iDisguiseHealth );		// Health to show our enemies in player id
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
+	CNetworkVar( bool, m_bDisguiseWeaponParity );
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates
@@ -324,6 +325,8 @@ private:
 	CTFWeaponInfo *m_pDisguiseWeaponInfo;
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
+
+	bool m_bOldDisguiseWeaponParity;
 #endif
 };			   
 

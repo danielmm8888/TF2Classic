@@ -131,6 +131,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_nDisguiseClass ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseTargetIndex ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseHealth ) ),
+	RecvPropBool( RECVINFO( m_bDisguiseWeaponParity ) ),
 	// Local Data.
 	RecvPropDataTable( "tfsharedlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFPlayerSharedLocal) ),
 END_RECV_TABLE()
@@ -171,6 +172,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_nDisguiseClass ), 4, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseTargetIndex ), 7, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseHealth ), 10 ),
+	SendPropBool( SENDINFO( m_bDisguiseWeaponParity ) ),
 	// Local Data.
 	SendPropDataTable( "tfsharedlocaldata", 0, &REFERENCE_SEND_TABLE( DT_TFPlayerSharedLocal ), SendProxy_SendLocalDataTable ),	
 END_SEND_TABLE()
@@ -306,6 +308,7 @@ void CTFPlayerShared::OnPreDataChanged( void )
 	m_nOldConditions = m_nPlayerCond;
 	m_nOldDisguiseClass = GetDisguiseClass();
 	m_iOldDisguiseWeaponModelIndex = m_iDisguiseWeaponModelIndex;
+	m_bOldDisguiseWeaponParity = m_bDisguiseWeaponParity;
 }
 
 //-----------------------------------------------------------------------------
@@ -324,6 +327,14 @@ void CTFPlayerShared::OnDataChanged( void )
 	if ( m_nOldDisguiseClass != GetDisguiseClass() )
 	{
 		OnDisguiseChanged();
+	}
+
+	if ( m_bDisguiseWeaponParity != m_bOldDisguiseWeaponParity )
+	{
+		// Player wants to switch disguise weapon.
+		C_BaseCombatWeapon *pWeapon = m_pOuter->GetActiveWeapon();
+		if ( pWeapon )
+			RecalcDisguiseWeapon( pWeapon->GetSlot() );
 	}
 
 	if ( m_iDisguiseWeaponModelIndex != m_iOldDisguiseWeaponModelIndex )
@@ -1483,9 +1494,10 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 		return;
 	}
 
-	// Ignore disguise of the same type
+	// Ignore disguise of the same type, switch disguise weapon instead.
 	if ( nTeam == m_nDisguiseTeam && nClass == m_nDisguiseClass )
 	{
+		m_bDisguiseWeaponParity = !m_bDisguiseWeaponParity;
 		return;
 	}
 
@@ -1589,7 +1601,7 @@ void CTFPlayerShared::RemoveDisguise( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::RecalcDisguiseWeapon( void )
+void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 {
 	if ( !InCond( TF_COND_DISGUISED ) ) 
 	{
@@ -1602,32 +1614,46 @@ void CTFPlayerShared::RecalcDisguiseWeapon( void )
 
 	CTFWeaponInfo *pDisguiseWeaponInfo = NULL;
 
-	TFPlayerClassData_t *pData = GetPlayerClassData( m_nDisguiseClass );
+	C_TFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
 
-	Assert( pData );
-
-	// Find the weapon in the same slot
-	int i;
-	for ( i=0;i<TF_PLAYER_WEAPON_COUNT;i++ )
+	// Use disguise target's weapons if possible.
+	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) )
 	{
-		if ( pData->m_aWeapons[i] != TF_WEAPON_NONE )
+		if ( pDisguiseTarget->Weapon_GetWeaponByBucket( iSlot ) )
 		{
-			const char *pWpnName = WeaponIdToAlias( pData->m_aWeapons[i] );
+			int iWeapon = pDisguiseTarget->Weapon_GetWeaponByBucket( iSlot )->GetWeaponID();
+			pDisguiseWeaponInfo = GetTFWeaponInfo( iWeapon );
+		}
+	}
+	else
+	{
+		TFPlayerClassData_t *pData = GetPlayerClassData( m_nDisguiseClass );
 
-			WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pWpnName );
-			Assert( hWpnInfo != GetInvalidWeaponInfoHandle() );
-			CTFWeaponInfo *pWeaponInfo = dynamic_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
-
-			// find the primary weapon
-			if ( pWeaponInfo && pWeaponInfo->iSlot == 0 )
+		Assert( pData );
+		// Find the weapon in the same slot
+		for ( int i=0;i<TF_PLAYER_WEAPON_COUNT;i++ )
+		{
+			if ( pData->m_aWeapons[i] != TF_WEAPON_NONE )
 			{
-				pDisguiseWeaponInfo = pWeaponInfo;
-				break;
+				CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( pData->m_aWeapons[i] );;
+
+				// find the weapon with matching slot
+				if ( pWeaponInfo && pWeaponInfo->iSlot == iSlot )
+				{
+					pDisguiseWeaponInfo = pWeaponInfo;
+					break;
+				}
 			}
 		}
 	}
 
 	Assert( pDisguiseWeaponInfo != NULL && "Cannot find slot 0 primary weapon for desired disguise class\n" );
+
+	// Stop here if we already have a disguise weapon and attempt to switch to an empty slot.
+	if ( !pDisguiseWeaponInfo && m_pDisguiseWeaponInfo )
+	{
+		return;
+	}
 
 	m_pDisguiseWeaponInfo = pDisguiseWeaponInfo;
 	m_iDisguiseWeaponModelIndex = -1;
