@@ -307,6 +307,7 @@ void CTargetID::UpdateID( void )
 		float flHealth = 0;
 		float flMaxHealth = 1;
 		int iMaxBuffedHealth = 0;
+		m_pAvatar->SetPlayer( NULL );
 
 		// Some entities we always want to check, cause the text may change
 		// even while we're looking at it
@@ -451,6 +452,12 @@ void CTargetID::UpdateID( void )
 				flHealth = pObj->GetHealth();
 				flMaxHealth = pObj->GetMaxHealth();
 				SetColorForTargetTeam( pObj->GetTeamNumber() );
+				C_TFPlayer *pBuilder = pObj->GetBuilder();
+				if ( pBuilder )
+				{
+					m_pAvatar->SetPlayer( (C_BasePlayer *)pBuilder );
+					m_pAvatar->SetShouldDrawFriendIcon(false);
+				}
 			}
 		}
 
