@@ -307,7 +307,8 @@ void CTargetID::UpdateID( void )
 		float flHealth = 0;
 		float flMaxHealth = 1;
 		int iMaxBuffedHealth = 0;
-		m_pAvatar->SetPlayer( NULL );
+		int iColorNum = TEAM_UNASSIGNED;
+		C_TFPlayer *pAvatarPlayer = NULL;
 
 		// Some entities we always want to check, cause the text may change
 		// even while we're looking at it
@@ -325,13 +326,6 @@ void CTargetID::UpdateID( void )
 
 			C_TFPlayer *pDisguiseTarget = NULL;
 			g_pVGuiLocalize->ConvertANSIToUnicode( pPlayer->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
-			
-			// get the avatar
-			if (m_pAvatar)
-			{
-				m_pAvatar->SetPlayer((C_BasePlayer*)pPlayer);
-				m_pAvatar->SetShouldDrawFriendIcon(false);
-			}
 
 			// determine if the target is a disguised spy (either friendly or enemy)
 			if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && // they're disguised
@@ -341,6 +335,11 @@ void CTargetID::UpdateID( void )
 				bDisguisedTarget = true;
 				pDisguiseTarget = ToTFPlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 			}
+
+			// get the avatar
+			pAvatarPlayer = pPlayer;
+			// get team color
+			iColorNum = pPlayer->GetTeamNumber();
 
 			if ( bDisguisedTarget )
 			{
@@ -353,13 +352,9 @@ void CTargetID::UpdateID( void )
 						// change the player name
 						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 						// Show their disguise team color.
-						SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
+						iColorNum = pPlayer->m_Shared.GetDisguiseTeam();
 						// change the avatar
-						if (m_pAvatar)
-						{
-							m_pAvatar->SetPlayer((C_BasePlayer*)pDisguiseTarget);
-							m_pAvatar->SetShouldDrawFriendIcon(false);
-						}
+						pAvatarPlayer = pDisguiseTarget;
 					}
 				}
 				else
@@ -375,14 +370,7 @@ void CTargetID::UpdateID( void )
 					// build a string with disguise information
 					g_pVGuiLocalize->ConstructString( sDataString, sizeof(sDataString), g_pVGuiLocalize->Find( "#TF_playerid_friendlyspy_disguise" ), 
 						2, wszAlignment, wszClassName );
-						
-					// Show their real team color.
-					SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 				}
-			}
-			else
-			{
-				SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 			}
 
 			if ( pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
@@ -451,13 +439,9 @@ void CTargetID::UpdateID( void )
 				bShowHealth = true;
 				flHealth = pObj->GetHealth();
 				flMaxHealth = pObj->GetMaxHealth();
-				SetColorForTargetTeam( pObj->GetTeamNumber() );
 				C_TFPlayer *pBuilder = pObj->GetBuilder();
-				if ( pBuilder )
-				{
-					m_pAvatar->SetPlayer( (C_BasePlayer *)pBuilder );
-					m_pAvatar->SetShouldDrawFriendIcon(false);
-				}
+				iColorNum = pBuilder ? pBuilder->GetTeamNumber() : pObj->GetTeamNumber();
+				pAvatarPlayer = pBuilder;
 			}
 		}
 
@@ -469,6 +453,14 @@ void CTargetID::UpdateID( void )
 
 		m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
 		m_pTargetHealth->SetVisible( bShowHealth );
+
+		SetColorForTargetTeam( iColorNum );
+
+		if ( m_pAvatar )
+		{
+			m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
+			m_pAvatar->SetShouldDrawFriendIcon( false );
+		}
 
 		int iNameW, iDataW, iIgnored;
 		m_pTargetNameLabel->GetContentSize( iNameW, iIgnored );
