@@ -311,6 +311,7 @@ void CTargetID::UpdateID( void )
 		float flHealth = 0;
 		float flMaxHealth = 1;
 		int iMaxBuffedHealth = 0;
+		int iColorNum = TEAM_UNASSIGNED;
 
 		// Some entities we always want to check, cause the text may change
 		// even while we're looking at it
@@ -338,6 +339,8 @@ void CTargetID::UpdateID( void )
 				pDisguiseTarget = ToTFPlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 			}
 
+			iColorNum = pPlayer->GetTeamNumber();
+
 			if ( bDisguisedTarget )
 			{
 				// is the target a disguised enemy spy?
@@ -349,7 +352,7 @@ void CTargetID::UpdateID( void )
 						// change the player name
 						g_pVGuiLocalize->ConvertANSIToUnicode( pDisguiseTarget->GetPlayerName(), wszPlayerName, sizeof(wszPlayerName) );
 						// Show their disguise team color.
-						SetColorForTargetTeam( pPlayer->m_Shared.GetDisguiseTeam() );
+						iColorNum = pPlayer->m_Shared.GetDisguiseTeam();
 					}
 				}
 				else
@@ -365,14 +368,7 @@ void CTargetID::UpdateID( void )
 					// build a string with disguise information
 					g_pVGuiLocalize->ConstructString( sDataString, sizeof(sDataString), g_pVGuiLocalize->Find( "#TF_playerid_friendlyspy_disguise" ), 
 						2, wszAlignment, wszClassName );
-
-					// Show their real team color.
-					SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 				}
-			}
-			else
-			{
-				SetColorForTargetTeam( pPlayer->GetTeamNumber() );
 			}
 
 			if ( pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
@@ -441,7 +437,8 @@ void CTargetID::UpdateID( void )
 				bShowHealth = true;
 				flHealth = pObj->GetHealth();
 				flMaxHealth = pObj->GetMaxHealth();
-				SetColorForTargetTeam( pObj->GetTeamNumber() );
+				C_TFPlayer *pBuilder = pObj->GetBuilder();
+				iColorNum = pBuilder ? pBuilder->GetTeamNumber() : pObj->GetTeamNumber();
 			}
 			else if ( pEnt->IsNPC() )
 			{
@@ -452,7 +449,7 @@ void CTargetID::UpdateID( void )
 				flHealth = pNPC->GetHealth();
 				flMaxHealth = pNPC->GetMaxHealth();
 				iMaxBuffedHealth = pNPC->GetMaxBuffedHealth();
-				SetColorForTargetTeam( pNPC->GetTeamNumber() );
+				iColorNum = pNPC->GetTeamNumber();
 			}
 		}
 
@@ -461,6 +458,8 @@ void CTargetID::UpdateID( void )
 		{
 			flHealth = 0;	// fixup for health being 1 when dead
 		}
+
+		SetColorForTargetTeam( iColorNum );
 
 		m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
 		m_pTargetHealth->SetVisible( bShowHealth );
