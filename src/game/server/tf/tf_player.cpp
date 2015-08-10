@@ -1058,8 +1058,6 @@ void CTFPlayer::GiveDefaultItems()
 	TFPlayerClassData_t *pData = m_PlayerClass.GetData();
 
 	RemoveAllAmmo();
-	
-	ChangeWeapon(pData);
 
 	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
 	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
@@ -1146,16 +1144,6 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 	}
 }
 
-void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
-{
-	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-	{
-		int iWeapon = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iSlot, GetWeaponPreset(iSlot));
-		if (iWeapon != 0)
-			pData->m_aWeapons[iSlot] = iWeapon;
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1165,7 +1153,10 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 	{
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
-			int iWeaponID = pData->m_aWeapons[iWeapon];
+			// Give us a custom weapon from the inventory if it has one specified. Otherwise, give the weapon from script file.
+			int iCustomWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+			int iWeaponID = (iCustomWeaponID != 0) ? iCustomWeaponID : pData->m_aWeapons[iWeapon];
+
 			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );

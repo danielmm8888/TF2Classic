@@ -461,8 +461,6 @@ private:
 
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
 
-	void				ChangeWeapon( TFPlayerClassData_t *pData );
-
 private:
 	// Map introductions
 	int					m_iIntroStep;
