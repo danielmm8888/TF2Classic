@@ -1245,6 +1245,7 @@ void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
 	}
 }
 
+CBaseEntity *FindPlayerStart(const char *pszClassName);
 
 //-----------------------------------------------------------------------------
 // Purpose: Find a spawn point for the player.
@@ -1284,9 +1285,13 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	{
 		Warning( "PutClientInServer: no %s on level\n", pSpawnPointName );
 
-		// Fall back to BaseClass
-		return BaseClass::EntSelectSpawnPoint();
-		//return CBaseEntity::Instance( INDEXENT(0) );
+		// Look for info_player_start
+
+		pSpot = FindPlayerStart( "info_player_start" );
+		if ( pSpot )
+			return pSpot;
+
+		return CBaseEntity::Instance( INDEXENT(0) );
 	}
 
 	return pSpot;
