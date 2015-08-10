@@ -1997,18 +1997,13 @@ bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
 
 		if ( pTFPlayer )
 		{
-			// Get the player class data - contains ammo counts for this class.
-			TFPlayerClassData_t *pData = pTFPlayer->GetPlayerClass()->GetData();
-			if ( pData )
-			{
-				// Get the max carrying capacity for this ammo
-				int iMaxCarry = pData->m_aAmmoMax[iAmmoIndex];
+			// Get the max carrying capacity for this ammo
+			int iMaxCarry = pTFPlayer->GetMaxAmmo( iAmmoIndex );
 
-				// Does the player have room for more of this type of ammo?
-				if ( pTFPlayer->GetAmmoCount( iAmmoIndex ) < iMaxCarry )
-				{
-					return true;
-				}
+			// Does the player have room for more of this type of ammo?
+			if ( pTFPlayer->GetAmmoCount( iAmmoIndex ) < iMaxCarry )
+			{
+				return true;
 			}
 		}
 	}

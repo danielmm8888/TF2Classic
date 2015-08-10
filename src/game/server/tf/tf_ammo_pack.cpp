@@ -144,13 +144,13 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	if ( !pTFPlayer )
 		return;
 
-	int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
+	int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
 	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_PRIMARY ) )
 	{
 		bSuccess = true;
 	}
 
-	int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
+	int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
 	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_SECONDARY ) )
 	{
 		bSuccess = true;

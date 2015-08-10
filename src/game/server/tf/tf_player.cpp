@@ -1064,7 +1064,7 @@ void CTFPlayer::GiveDefaultItems()
 	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
 	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
 	{
-		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo );
 	}
 
 	// Give weapons.
@@ -4777,7 +4777,7 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		return 0;
 	}
 
-	int iMax = m_PlayerClass.GetData()->m_aAmmoMax[iAmmoIndex];
+	int iMax = GetMaxAmmo( iAmmoIndex );
 	int iAdd = min( iCount, iMax - GetAmmoCount(iAmmoIndex) );
 	if ( iAdd < 1 )
 	{
@@ -4794,6 +4794,35 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 	return iAdd;
 }
 
+int CTFPlayer::GetMaxAmmo( int iAmmoIndex )
+{
+	if ( !GetPlayerClass()->GetData() )
+		return 0;
+
+	int iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
+
+	// If we have a weapon that overrides max ammo, use its value.
+	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
+	for ( int i = 0; i < WeaponCount(); i++ )
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+
+		if ( !pWpn )
+			continue;
+
+		if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
+			continue;
+
+		int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
+		if ( iCustomMaxAmmo )
+		{
+			iMaxAmmo = iCustomMaxAmmo;
+			break;
+		}
+	}
+
+	return iMaxAmmo;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Reset player's information and force him to spawn
