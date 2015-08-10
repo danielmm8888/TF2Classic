@@ -519,18 +519,14 @@ void CTFWeaponBaseGun::DoFireEffects()
 
 	// Muzzle flash on weapon.
 	bool bMuzzleFlash = true;
-
-	// We no longer need this
-	/*
 	if ( pPlayer->IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
 	{
-		//CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
-		//if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_MINIGUN )
-		if (pPlayer->IsActiveTFWeapon(TF_WEAPON_MINIGUN))
+		CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
+		if ( pWeapon && pWeapon->GetWeaponID() == TF_WEAPON_MINIGUN )
 		{
 			bMuzzleFlash = false;
 		}
-	}*/
+	}
 
 	if ( bMuzzleFlash )
 	{

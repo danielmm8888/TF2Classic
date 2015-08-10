@@ -12,7 +12,6 @@
 #include "tf_player_shared.h"
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
-#include "tf_inventory.h"
 #include "hl_movedata.h"
 #include "hl2_player.h"
 
@@ -78,7 +77,6 @@ public:
 	// Creation/Destruction.
 	static CTFPlayer	*CreatePlayer( const char *className, edict_t *ed );
 	static CTFPlayer	*Instance( int iEnt );
-	CTFInventory *Inventory;
 
 	virtual void		Spawn();
 	virtual void		ForceRespawn();
@@ -116,63 +114,6 @@ public:
 	void				SetHealthBuffTime( float flTime )		{ m_flHealthBuffTime = flTime; }
 
 	CTFWeaponBase		*GetActiveTFWeapon( void ) const;
-	bool				IsActiveTFWeapon(int iWeaponID);
-
-	int GetWeaponPreset(int iSlotNum){
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	int GetWeaponPreset(int iClass, int iSlotNum){
-		if (iSlotNum == 0){
-			return m_WeaponPresetPrimary[iClass];
-		}
-		else if (iSlotNum == 1){
-			return m_WeaponPresetSecondary[iClass];
-		}
-		else if (iSlotNum == 2){
-			return m_WeaponPresetMelee[iClass];
-		}
-		return 0;
-	};
-
-	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
-	{
-		int iClass = GetPlayerClass()->GetClassIndex();
-		if (iPresetNum >= INVENTORY_WEAPONS)
-			return;
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
-		}
-	}
-
-	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
-	{
-		if (iSlotNum == 0){
-			m_WeaponPresetPrimary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 1){
-			m_WeaponPresetSecondary[iClass] = abs(iPresetNum);
-		}
-		else if (iSlotNum == 2){
-			m_WeaponPresetMelee[iClass] = abs(iPresetNum);
-		}
-	}
 
 	void				SaveMe( void );
 
@@ -577,9 +518,6 @@ private:
 	CNetworkQAngle( m_angEyeAngles );					// Copied from EyeAngles() so we can send it to the client.
 
 	CTFPlayerClass		m_PlayerClass;
-	CUtlVector<int> m_WeaponPresetPrimary;
-	CUtlVector<int> m_WeaponPresetSecondary;
-	CUtlVector<int> m_WeaponPresetMelee;
 
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.

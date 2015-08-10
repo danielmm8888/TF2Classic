@@ -2164,19 +2164,6 @@ CTFWeaponBase *CTFPlayer::GetActiveTFWeapon( void ) const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFPlayer::IsActiveTFWeapon(int iWeaponID)
-{
-	CTFWeaponBase *pWeapon = GetActiveTFWeapon();
-	if (pWeapon)
-	{
-		return pWeapon->GetWeaponID() == iWeaponID;
-	}
-	return false;
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: How much build resource ( metal ) does this player have
 //-----------------------------------------------------------------------------
 int CTFPlayer::GetBuildResources( void )

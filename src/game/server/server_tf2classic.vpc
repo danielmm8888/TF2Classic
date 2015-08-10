@@ -551,8 +551,6 @@ $Project "Server (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_usermessages.cpp"	
 				$File	"$SRCDIR\game\shared\tf\tf_viewmodel.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_viewmodel.h"
-				$File	"$SRCDIR\game\shared\tf\tf_inventory.cpp"
-				$File	"$SRCDIR\game\shared\tf\tf_inventory.h"
 			}
 		}
 	}

@@ -41,7 +41,6 @@
 #include "tf_hud_menu_engy_build.h"
 #include "tf_hud_menu_engy_destroy.h"
 #include "tf_hud_menu_spy_disguise.h"
-#include "tf_hud_menu_weaponset.h"
 #include "tf_statsummary.h"
 #include "tf_hud_freezepanel.h"
 #include "clienteffectprecachesystem.h"
@@ -126,7 +125,6 @@ ClientModeTFNormal::ClientModeTFNormal()
 	m_pMenuEngyBuild = NULL;
 	m_pMenuEngyDestroy = NULL;
 	m_pMenuSpyDisguise = NULL;
-	m_pMenuWeaponSet = NULL;
 	m_pGameUI = NULL;
 	m_pFreezePanel = NULL;
 
@@ -159,9 +157,6 @@ void ClientModeTFNormal::Init()
 
 	m_pMenuSpyDisguise = ( CHudMenuSpyDisguise * )GET_HUDELEMENT( CHudMenuSpyDisguise );
 	Assert( m_pMenuSpyDisguise );
-
-	m_pMenuWeaponSet = (CHudMenuWeaponSet *)GET_HUDELEMENT(CHudMenuWeaponSet);
-	Assert(m_pMenuWeaponSet);
 
 	m_pFreezePanel = ( CTFFreezePanel * )GET_HUDELEMENT( CTFFreezePanel );
 	Assert( m_pFreezePanel );
@@ -311,14 +306,6 @@ int	ClientModeTFNormal::HudElementKeyInput( int down, ButtonCode_t keynum, const
 	if ( m_pMenuSpyDisguise )
 	{
 		if ( !m_pMenuSpyDisguise->HudElementKeyInput( down, keynum, pszCurrentBinding ) )
-		{
-			return 0;
-		}
-	}
-
-	if (m_pMenuWeaponSet)
-	{
-		if (!m_pMenuWeaponSet->HudElementKeyInput(down, keynum, pszCurrentBinding))
 		{
 			return 0;
 		}

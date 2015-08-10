@@ -402,17 +402,6 @@ CTFPlayer::CTFPlayer()
 	m_bSpeakingConceptAsDisguisedSpy = false;
 
 	m_pPlayerAISquad = NULL;
-
-	m_WeaponPresetPrimary.RemoveAll();
-	m_WeaponPresetSecondary.RemoveAll();
-	m_WeaponPresetMelee.RemoveAll();
-
-	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++){
-		m_WeaponPresetPrimary.AddToTail(0);
-		m_WeaponPresetSecondary.AddToTail(0);
-		m_WeaponPresetMelee.AddToTail(0);
-	}
-
 }
 
 
@@ -1993,22 +1982,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if ( args.ArgC() >= 2 )
 		{
 			HandleCommand_JoinClass( args[1] );
-		}
-		return true;
-	}
-	else if (FStrEq(pcmd, "weaponpreset"))
-	{
-		if (args.ArgC() >= 3)
-		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]));
-		}
-		return true;
-	}
-	else if (FStrEq(pcmd, "weaponpresetclass"))
-	{
-		if (args.ArgC() >= 4)
-		{
-			HandleCommand_WeaponPreset(atoi(args[1]), atoi(args[2]), atoi(args[3]));
 		}
 		return true;
 	}
