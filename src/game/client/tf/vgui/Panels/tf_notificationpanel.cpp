@@ -2,6 +2,7 @@
 #include "tf_notificationpanel.h"
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenu.h"
+#include "controls/tf_advbutton.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -27,6 +28,9 @@ CTFNotificationPanel::~CTFNotificationPanel()
 bool CTFNotificationPanel::Init(void)
 {
 	BaseClass::Init();
+
+	iCurrent = 0;
+	iCount = 0;
 
 	m_pTitle = NULL;
 	m_pMessage = NULL;
@@ -54,23 +58,62 @@ void CTFNotificationPanel::PerformLayout()
 
 void CTFNotificationPanel::OnNotificationUpdate()
 {
-	Q_snprintf(sTitle, sizeof(sTitle), MAINMENU_ROOT->GetNotification().sTitle);
-	Q_snprintf(sMessage, sizeof(sMessage), MAINMENU_ROOT->GetNotification().sMessage);
+	iCount = MAINMENU_ROOT->GetNotificationsCount();
+	if (!IsVisible())
+	{
+		for (int i = 0; i < iCount; i++)
+		{
+			MainMenuNotification *pNotification = MAINMENU_ROOT->GetNotification(i);
+			if (pNotification->bUnread)
+			{
+				iCurrent = i;
+				break;
+			}
+		}
+	}
 	surface()->PlaySound("ui/notification_alert.wav");
+
+	UpdateLabels();
 };
 
 void CTFNotificationPanel::UpdateLabels()
 {
+	iCount = MAINMENU_ROOT->GetNotificationsCount();
+	if (iCount <= 0)
+	{
+		Hide();
+		return;
+	}
+	if (iCurrent >= iCount)
+		iCurrent = iCount - 1;
+
+	dynamic_cast<CTFAdvButton *>(FindChildByName("NextButton"))->SetVisible((iCurrent < iCount - 1));
+	dynamic_cast<CTFAdvButton *>(FindChildByName("PrevButton"))->SetVisible((iCurrent > 0));
+
+	char sCount[32];
+	Q_snprintf(sCount, sizeof(sCount), "(%d/%d)", iCurrent + 1, iCount);
+	dynamic_cast<CExLabel *>(FindChildByName("CountLabel"))->SetText(sCount);
+
+	MainMenuNotification* pNotification = MAINMENU_ROOT->GetNotification(iCurrent);
+	Q_snprintf(sTitle, sizeof(sTitle), pNotification->sTitle);
+	Q_snprintf(sMessage, sizeof(sMessage), pNotification->sMessage);
 	if (m_pTitle && m_pMessage)
 	{
 		m_pTitle->SetText(sTitle);
 		m_pMessage->SetText(sMessage);
+		pNotification->bUnread = false;
 	}
+}
+
+void CTFNotificationPanel::RemoveCurrent()
+{
+	MAINMENU_ROOT->RemoveNotification(iCurrent);
+	UpdateLabels();
 }
 
 void CTFNotificationPanel::Show()
 {
-	BaseClass::Show();
+	BaseClass::Show();	
 
 	UpdateLabels();
 }
@@ -89,6 +132,22 @@ void CTFNotificationPanel::OnCommand(const char* command)
 	else if (!stricmp(command, "Ok"))
 	{
 		Hide();
+	}
+	else if (!stricmp(command, "Next"))
+	{
+		if (iCurrent < iCount - 1)
+			iCurrent++;
+		UpdateLabels();
+	}
+	else if (!stricmp(command, "Prev"))
+	{
+		if (iCurrent > 0)
+			iCurrent--;
+		UpdateLabels();
+	}
+	else if (!stricmp(command, "Remove"))
+	{
+		RemoveCurrent();
 	}
 	else
 	{

@@ -122,13 +122,15 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	{
 		if (m_pNotificationButton)
 		{
-			m_pNotificationButton->SetVisible(false);
+			m_pNotificationButton->SetGlowing(false);
 		}
 		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
 	else if (!Q_strcmp(command, "testnotification"))
 	{
-		MainMenuNotification Notification("Yoyo", "Testing");
+		char resultString[128];
+		Q_snprintf(resultString, sizeof(resultString), "test %d", MAINMENU_ROOT->GetNotificationsCount());
+		MainMenuNotification Notification("Yoyo", resultString);
 		MAINMENU_ROOT->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
