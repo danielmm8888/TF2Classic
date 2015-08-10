@@ -95,9 +95,6 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
 
-// Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
-
 // Cvars from HL2 player
 ConVar player_squad_transient_commands( "player_squad_transient_commands", "1", FCVAR_REPLICATED );
 ConVar player_squad_double_tap_time( "player_squad_double_tap_time", "0.25" );
@@ -1082,14 +1079,9 @@ void CTFPlayer::GiveDefaultItems()
 	{
 		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
 	}
-	
-	ChangeWeapon(pData);
 
 	// Give weapons.
-	if (tf2c_random_weapons.GetBool())
-		ManageRandomWeapons( pData );
-	else
-		ManageRegularWeapons( pData );
+	ManageRegularWeapons( pData );
 
 	// Give grenades.
 	//ManageGrenades( pData );
@@ -1153,20 +1145,6 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 
 		Weapon_Detach( pWpn );
 		UTIL_Remove( pWpn );
-	}
-}
-
-void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
-{
-	// Since the civilian has no weapons, the game will just crash
-	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN)
-		return;
-
-	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-	{
-		int iWeapon = Inventory->GetWeapon(GetPlayerClass()->GetClassIndex() - 1, iSlot, GetWeaponPreset(iSlot));
-		if (iWeapon != 0)
-			pData->m_aWeapons[iSlot] = iWeapon;
 	}
 }
 
@@ -1234,49 +1212,6 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
 }
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
-{
-	for (int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon)
-	{
-		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
-		const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
-
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iWeapon);
-
-		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
-		{
-			Weapon_Detach(pWeapon);
-			UTIL_Remove(pWeapon);
-		}
-
-		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID(iWeaponID);
-
-		if (pWeapon)
-		{
-			pWeapon->ChangeTeam(GetTeamNumber());
-			pWeapon->GiveDefaultAmmo();
-
-			if (m_bRegenerating == false)
-			{
-				pWeapon->WeaponReset();
-			}
-		}
-		else
-		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
-
-			if (pWeapon)
-			{
-				pWeapon->DefaultTouch(this);
-			}
-		}
-	}
-}
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 

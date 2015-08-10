@@ -453,7 +453,6 @@ public:
 	virtual void Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget , const Vector *pVelocity );
 
 	void				ManageRegularWeapons( TFPlayerClassData_t *pData );
-	void				ManageRandomWeapons( TFPlayerClassData_t *pData );
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
 	void				ManageGrenades(TFPlayerClassData_t *pData);
 
@@ -540,8 +539,6 @@ private:
 	bool				PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo &info_modified );
 
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
-
-	void				ChangeWeapon( TFPlayerClassData_t *pData );
 
 	bool				CommanderExecuteOne( CAI_BaseNPC *pNpc, const commandgoal_t &goal, CAI_BaseNPC **Allies, int numAllies );
 
