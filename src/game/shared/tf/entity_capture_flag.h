@@ -10,6 +10,7 @@
 #endif
 
 #include "tf_item.h"
+#include "SpriteTrail.h"
 
 #ifdef CLIENT_DLL
 #define CCaptureFlag C_CaptureFlag
@@ -144,6 +145,8 @@ public:
 
 	CBaseEntity		*GetPrevOwner( void ) { return m_hPrevOwner.Get(); }
 
+	int				GetIntelSkin( int iTeamNum, bool bPickupSkin = false );
+
 // Game DLL Functions
 #ifdef GAME_DLL
 	virtual void	Activate( void );
@@ -175,6 +178,8 @@ public:
 
 	int				UpdateTransmitState();
 
+	void			ManageSpriteTrail();
+
 #else // CLIENT DLL Functions
 
 	virtual const char	*GetIDString(void) { return "entity_capture_flag"; };
@@ -182,7 +187,6 @@ public:
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
 
-	CNewParticleEffect	*m_pGlowTrailEffect;
 	CNewParticleEffect	*m_pPaperTrailEffect;
 
 	void			ManageTrailEffects( void );
@@ -213,6 +217,7 @@ public:
 	string_t			m_szModel;
 	string_t			m_szPaperEffect;
 	string_t			m_szTrailEffect;
+	CSpriteTrail		*m_pGlowTrail;
 
 private:
 
@@ -263,6 +268,8 @@ private:
 	IMaterial	*m_pReturnProgressMaterial_Full;		
 
 	int			m_nOldFlagStatus;
+
+	int			m_nPrevOwnerGlowIndex;
 
 #endif
 

@@ -135,12 +135,13 @@ LINK_ENTITY_TO_CLASS( item_teamflag, CCaptureFlag );
 CCaptureFlag::CCaptureFlag()
 {
 #ifdef CLIENT_DLL
-	m_pGlowTrailEffect = NULL;
 	m_pPaperTrailEffect = NULL;
 #else
 	m_hReturnIcon = NULL;
+	m_pGlowTrail = NULL;
 #endif	
 	UseClientSideAnimation();
+	m_nUseTrailEffect = 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +172,7 @@ void CCaptureFlag::Precache( void )
 	// Team colored trail
 	if (m_szTrailEffect == NULL_STRING)
 	{
-		m_szTrailEffect = MAKE_STRING("player_intel_papertrail");
+		m_szTrailEffect = MAKE_STRING("flagtrail");
 	}
 
 	PrecacheModel(STRING(m_szModel));
@@ -209,11 +210,16 @@ void CCaptureFlag::Precache( void )
 	PrecacheParticleSystem(	"player_intel_trail_green" );
 	PrecacheParticleSystem(	"player_intel_trail_yellow" );
 
-	/*PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_blue"));
-	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_red"));
-	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_green"));
-	PrecacheParticleSystem(V_strstr(STRING(m_sFlagTrail), "_yellow"));*/
 
+	char tempChar[512];
+	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_red.vmt", m_szTrailEffect);
+	PrecacheModel(tempChar);
+	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_blu.vmt", m_szTrailEffect);
+	PrecacheModel(tempChar);
+	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_grn.vmt", m_szTrailEffect);
+	PrecacheModel(tempChar);
+	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_ylw.vmt", m_szTrailEffect);
+	PrecacheModel(tempChar);
 }
 
 #ifndef GAME_DLL
@@ -315,26 +321,58 @@ void CCaptureFlag::Spawn( void )
 // Manage glow effect
 void CCaptureFlag::EnableGlowEffect(void)
 {
-	if (g_GlowObjectManager.HasGlowEffect(this))
-		return;
-
-	switch (GetTeamNumber())
+	if (!g_GlowObjectManager.HasGlowEffect(this))
 	{
-	case TF_TEAM_BLUE:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0.6f,0.8f,1.0f), 1.0f, true, true, 0);
-		break;
-	case TF_TEAM_RED:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.25f, 0.25f), 1.0f, true, true, 0);
-		break;
-	case TF_TEAM_GREEN:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0.03f, 0.68f, 0), 1.0f, true, true, 0);
-		break;
-	case TF_TEAM_YELLOW:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.62f, 0), 1.0f, true, true, 0);
-		break;
-	default:
-		return;
-		break;
+		switch (GetTeamNumber())
+		{
+		case TF_TEAM_BLUE:
+			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.6f, 0.8f, 1.0f), 1.0f, true, true, 0);
+			break;
+		case TF_TEAM_RED:
+			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.25f, 0.25f), 1.0f, true, true, 0);
+			break;
+		case TF_TEAM_GREEN:
+			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.03f, 0.68f, 0), 1.0f, true, true, 0);
+			break;
+		case TF_TEAM_YELLOW:
+			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.62f, 0), 1.0f, true, true, 0);
+			break;
+		default:
+			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.76f, 0.76f, 0.76f), 1.0f, true, true, 0);
+			break;
+		}
+	}
+
+	if (m_nFlagStatus == TF_FLAGINFO_STOLEN)
+	{
+		if (GetPrevOwner() && !g_GlowObjectManager.HasGlowEffect(GetPrevOwner()))
+		{
+			Vector vecColor;
+			switch (GetPrevOwner()->GetTeamNumber())
+			{
+			case TF_TEAM_BLUE:
+				vecColor = Vector(0.6f, 0.8f, 1.0f);
+				break;
+			case TF_TEAM_RED:
+				vecColor = Vector(1.0f, 0.25f, 0.25f);
+				break;
+			case TF_TEAM_GREEN:
+				vecColor = Vector(0.03f, 0.68f, 0);
+				break;
+			case TF_TEAM_YELLOW:
+				vecColor = Vector(1.0f, 0.62f, 0);
+				break;
+			default:
+				vecColor = Vector(0.76f, 0.76f, 0.76f);
+				break;
+			}
+			m_nPrevOwnerGlowIndex = g_GlowObjectManager.RegisterGlowObject(GetPrevOwner(), vecColor, 1.0f, true, true, 0);
+		}
+	}
+	else if (m_nPrevOwnerGlowIndex)
+	{
+		g_GlowObjectManager.UnregisterGlowObject(m_nPrevOwnerGlowIndex);
+		m_nPrevOwnerGlowIndex = 0;
 	}
 
 }
@@ -350,10 +388,32 @@ void CCaptureFlag::Activate( void )
 	BaseClass::Activate();
 
 	m_iOriginalTeam = GetTeamNumber();
-	m_nSkin = ( GetTeamNumber() == TEAM_UNASSIGNED ) ? 2 : (GetTeamNumber() - 2);
+
+	m_nSkin = GetIntelSkin(GetTeamNumber());
 }
 #endif
 
+int CCaptureFlag::GetIntelSkin(int iTeamNum, bool bPickupSkin)
+{
+	switch (iTeamNum)
+	{
+	case TF_TEAM_RED:
+		return bPickupSkin ? 3 : 0;
+		break;
+	case TF_TEAM_BLUE:
+		return bPickupSkin ? 4 : 1;
+		break;
+	case TF_TEAM_GREEN:
+		return bPickupSkin ? 8 : 6;
+		break;
+	case TF_TEAM_YELLOW:
+		return bPickupSkin ? 9 : 7;
+		break;
+	default:
+		return bPickupSkin ? 5 : 2;
+		break;
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Reset the flag position state.
@@ -376,9 +436,9 @@ void CCaptureFlag::Reset( void )
 	if ( m_nGameType == TF_FLAGTYPE_INVADE )
 	{
 		ChangeTeam( m_iOriginalTeam );
-		m_nSkin = ( GetTeamNumber() == TEAM_UNASSIGNED ) ? 2 : (GetTeamNumber() - 2);
 	}
 
+	m_nSkin = GetIntelSkin(GetTeamNumber());
 	SetMoveType( MOVETYPE_NONE );
 #endif 
 }
@@ -561,6 +621,8 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 
 	// Call into the base class pickup.
 	BaseClass::PickUp( pPlayer, false );
+
+	m_nSkin = GetIntelSkin(GetTeamNumber(), true);
 
 	pPlayer->TeamFortress_SetSpeed();
 
@@ -1100,6 +1162,8 @@ void CCaptureFlag::Think( void )
 		SetTouch( &CCaptureFlag::FlagTouch );
 	}
 
+	ManageSpriteTrail();
+
 	if ( IsDropped() )
 	{
 		if ( !m_bAllowOwnerPickup )
@@ -1139,9 +1203,72 @@ void CCaptureFlag::Think( void )
 				ResetMessage();
 			}
 		}
+		m_nSkin = GetIntelSkin( GetTeamNumber() );
 	}
 
 	SetNextThink( gpGlobals->curtime + TF_FLAG_THINK_TIME );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Handles the team colored trail sprites
+//-----------------------------------------------------------------------------
+void CCaptureFlag::ManageSpriteTrail()
+{
+	if (m_nFlagStatus == TF_FLAGINFO_STOLEN)
+	{
+		if ((m_nUseTrailEffect == 1 || m_nUseTrailEffect == 3))
+		{
+			if (GetPrevOwner() /*&& GetPrevOwner() != CBasePlayer::GetLocalPlayer() */)
+			{
+				char pEffectName[512];
+				CTFPlayer *pPlayer = ToTFPlayer(GetPrevOwner());
+				if ( pPlayer )
+				{
+					if ( pPlayer->GetAbsVelocity().Length() >= pPlayer->MaxSpeed() * 0.5f )
+					{
+						if ( m_pGlowTrail == NULL )
+						{
+							switch (pPlayer->GetTeamNumber())
+							{
+							case TF_TEAM_BLUE:
+								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_blu.vmt", m_szTrailEffect);
+								break;
+							case TF_TEAM_RED:
+								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_red.vmt", m_szTrailEffect);
+								break;
+							case TF_TEAM_GREEN:
+								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_grn.vmt", m_szTrailEffect);
+								break;
+							case TF_TEAM_YELLOW:
+								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_ylw.vmt", m_szTrailEffect);
+								break;
+							default:
+								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_blu.vmt", m_szTrailEffect);
+								break;
+							}
+							m_pGlowTrail = CSpriteTrail::SpriteTrailCreate(pEffectName, GetLocalOrigin(), false);
+							m_pGlowTrail->FollowEntity(this);
+							// Values extracted from live tf2 server.dll
+							m_pGlowTrail->SetTransparency(kRenderTransAlpha, -1, -1, -1, 96, 0);
+							m_pGlowTrail->SetStartWidth(32.0);
+							m_pGlowTrail->SetTextureResolution(0.010416667);
+							m_pGlowTrail->SetLifeTime(0.69999999);
+							m_pGlowTrail->SetTransmit(false);
+							m_pGlowTrail->SetParent(this);
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if (m_pGlowTrail)
+		{
+			m_pGlowTrail->Remove();
+			m_pGlowTrail = NULL;
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1248,36 +1375,7 @@ void CCaptureFlag::ManageTrailEffects( void )
 		if (!m_nUseTrailEffect)
 			return;
 
-		if ( m_pGlowTrailEffect == NULL && (m_nUseTrailEffect == 1 || m_nUseTrailEffect == 2) )
-		{
-			char *pEffectName = NULL;
-
-			if ( GetPrevOwner() /*&& GetPrevOwner() != CBasePlayer::GetLocalPlayer() */)
-			{
-				switch( GetPrevOwner()->GetTeamNumber() )
-				{
-				case TF_TEAM_BLUE:
-					pEffectName = "player_intel_trail_blue";
-					break;
-				case TF_TEAM_RED:
-					pEffectName = "player_intel_trail_red";
-					break;
-				case TF_TEAM_GREEN:
-					pEffectName = "player_intel_trail_green";
-					break;
-				case TF_TEAM_YELLOW:
-					pEffectName = "player_intel_trail_yellow";
-					break;
-				default:
-					pEffectName = "player_intel_trail_blue";
-					break;
-				}
-
-				m_pGlowTrailEffect = ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
-			}
-		}
-
-		if ( GetPrevOwner() && (m_nUseTrailEffect == 1 || m_nUseTrailEffect == 3) )
+		if ( GetPrevOwner() && (m_nUseTrailEffect == 1 || m_nUseTrailEffect == 2) )
 		{
 			CTFPlayer *pPlayer = ToTFPlayer( GetPrevOwner() );
 
@@ -1304,12 +1402,6 @@ void CCaptureFlag::ManageTrailEffects( void )
 	}
 	else
 	{
-		if ( m_pGlowTrailEffect )
-		{
-			ParticleProp()->StopEmission( m_pGlowTrailEffect );
-			m_pGlowTrailEffect = NULL;
-		}
-
 		if ( m_pPaperTrailEffect )
 		{
 			ParticleProp()->StopEmission( m_pPaperTrailEffect );
