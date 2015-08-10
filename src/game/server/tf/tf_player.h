@@ -179,6 +179,7 @@ public:
 	void				UpdateSkin( int iTeam );
 
 	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound = false );
+	int					GetMaxAmmo( int iAmmoIndex );
 
 	bool				CanAttack( void );
 
@@ -459,8 +460,6 @@ private:
 	bool				PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo &info_modified );
 
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
-
-	void				ChangeWeapon( TFPlayerClassData_t *pData );
 
 private:
 	// Map introductions

@@ -144,20 +144,21 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	if ( !pTFPlayer )
 		return;
 
-	int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_PRIMARY, true ) )
+	int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
+	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_PRIMARY ) )
 	{
 		bSuccess = true;
 	}
 
-	int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_SECONDARY, true ) )
+	int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
+	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_SECONDARY ) )
 	{
 		bSuccess = true;
 	}
 
-	int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
-	if ( pPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[POWERUP_MEDIUM]), TF_AMMO_METAL, true ) )
+	//int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+	// Unlike other ammo, give fixed amount of metal that was given to us at spawn.
+	if ( pPlayer->GiveAmmo( m_iAmmo[TF_AMMO_METAL], TF_AMMO_METAL ) )
 	{
 		bSuccess = true;
 	}
@@ -172,8 +173,6 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	// did we give them anything?
 	if ( bSuccess )
 	{
-		CSingleUserRecipientFilter filter( pPlayer );
-		EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
 		UTIL_Remove( this );
 	}
 #endif

@@ -1058,13 +1058,11 @@ void CTFPlayer::GiveDefaultItems()
 	TFPlayerClassData_t *pData = m_PlayerClass.GetData();
 
 	RemoveAllAmmo();
-	
-	ChangeWeapon(pData);
 
 	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
 	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
 	{
-		GiveAmmo( pData->m_aAmmoMax[iAmmo], iAmmo );
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo );
 	}
 
 	// Give weapons.
@@ -1146,16 +1144,6 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 	}
 }
 
-void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
-{
-	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-	{
-		int iWeapon = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iSlot, GetWeaponPreset(iSlot));
-		if (iWeapon != 0)
-			pData->m_aWeapons[iSlot] = iWeapon;
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1165,7 +1153,10 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 	{
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
-			int iWeaponID = pData->m_aWeapons[iWeapon];
+			// Give us a custom weapon from the inventory if it has one specified. Otherwise, give the weapon from script file.
+			int iCustomWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+			int iWeaponID = (iCustomWeaponID != 0) ? iCustomWeaponID : pData->m_aWeapons[iWeapon];
+
 			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
@@ -4037,7 +4028,8 @@ void CTFPlayer::DropAmmoPack( void )
 	// Fill the ammo pack with unused player ammo, if out add a minimum amount.
 	int iPrimary = max( 5, GetAmmoCount( TF_AMMO_PRIMARY ) );
 	int iSecondary = max( 5, GetAmmoCount( TF_AMMO_SECONDARY ) );
-	int iMetal = max( 5, GetAmmoCount( TF_AMMO_METAL ) );	
+	int iMetal = TF_DROPPED_WEAPON_METAL;
+	//int iMetal = max( 5, GetAmmoCount( TF_AMMO_METAL ) );	
 
 	// Create the ammo pack.
 	CTFAmmoPack *pAmmoPack = CTFAmmoPack::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel );
@@ -4776,7 +4768,7 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		return 0;
 	}
 
-	int iMax = m_PlayerClass.GetData()->m_aAmmoMax[iAmmoIndex];
+	int iMax = GetMaxAmmo( iAmmoIndex );
 	int iAdd = min( iCount, iMax - GetAmmoCount(iAmmoIndex) );
 	if ( iAdd < 1 )
 	{
@@ -4793,6 +4785,35 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 	return iAdd;
 }
 
+int CTFPlayer::GetMaxAmmo( int iAmmoIndex )
+{
+	if ( !GetPlayerClass()->GetData() )
+		return 0;
+
+	int iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
+
+	// If we have a weapon that overrides max ammo, use its value.
+	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
+	for ( int i = 0; i < WeaponCount(); i++ )
+	{
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+
+		if ( !pWpn )
+			continue;
+
+		if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
+			continue;
+
+		int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
+		if ( iCustomMaxAmmo )
+		{
+			iMaxAmmo = iCustomMaxAmmo;
+			break;
+		}
+	}
+
+	return iMaxAmmo;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Reset player's information and force him to spawn
