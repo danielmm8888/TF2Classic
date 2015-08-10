@@ -257,10 +257,6 @@ private:
 	QAngle				m_angTauntPredViewAngles;
 	QAngle				m_angTauntEngViewAngles;
 
-public:
-
-	int					m_iPlayerColor[3];
-
 private:
 
 	C_TFPlayerClass		m_PlayerClass;

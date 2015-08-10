@@ -106,7 +106,7 @@ enum
 #define TF_CLASS_COUNT			( TF_CLASS_COUNT_ALL - 1 )
 
 #define TF_FIRST_NORMAL_CLASS	( TF_CLASS_UNDEFINED + 1 )
-#define TF_LAST_NORMAL_CLASS	(TF_CLASS_COUNT_ALL - 1 ) //( TF_CLASS_CIVILIAN - 1 )
+#define TF_LAST_NORMAL_CLASS	( TF_CLASS_CIVILIAN - 1 )
 
 #define	TF_CLASS_MENU_BUTTONS	( TF_CLASS_RANDOM + 1 )
 
@@ -126,7 +126,6 @@ enum
 
 	// Add any new classes after Engineer
 	TF_CLASS_CIVILIAN,		// Civilians are a special class. It is not a player class.
-	TF_CLASS_MERCENARY,
 	TF_CLASS_COUNT_ALL,
 
 	TF_CLASS_RANDOM
@@ -161,7 +160,6 @@ enum
 	TF_GAMETYPE_ESCORT,
 	TF_GAMETYPE_ARENA,
 	TF_GAMETYPE_MVM,
-	TF_GAMETYPE_DM,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 

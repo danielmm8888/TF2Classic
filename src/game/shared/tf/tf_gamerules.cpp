@@ -805,12 +805,6 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
-	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch"))
-	{
-		m_nGameType.Set(TF_GAMETYPE_DM);
-		return;
-	}
-
 	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> (gEntList.FindEntityByClassname(NULL, "item_teamflag"));
 	if (pFlag)
 	{
@@ -5181,9 +5175,6 @@ const char *CTFGameRules::GetGameDescription(void)
 			break;
 		case TF_GAMETYPE_ARENA:
 			return "TF2C (Arena)";
-			break;
-		case TF_GAMETYPE_DM:
-			return "TF2C (Deathmatch)";
 			break;
 		case TF_GAMETYPE_MVM:
 			return "Implying we will ever have this";

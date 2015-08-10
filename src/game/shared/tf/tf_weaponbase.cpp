@@ -228,8 +228,6 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		SetPickupTouch();
 }
 
 //-----------------------------------------------------------------------------

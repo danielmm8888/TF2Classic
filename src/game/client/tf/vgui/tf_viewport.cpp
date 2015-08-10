@@ -123,9 +123,6 @@ CON_COMMAND( changeclass, "Choose a new class" )
 	if ( !gViewPortInterface )
 		return;
 
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		return;
-
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	if ( pPlayer && pPlayer->CanShowClassMenu() )

@@ -1159,7 +1159,7 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 void CTFPlayer::ChangeWeapon( TFPlayerClassData_t *pData )
 {
 	// Since the civilian has no weapons, the game will just crash
-	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN || GetPlayerClass()->GetClassIndex() == TF_CLASS_MERCENARY)
+	if (GetPlayerClass()->GetClassIndex() == TF_CLASS_CIVILIAN)
 		return;
 
 	for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
@@ -1589,12 +1589,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 		ChangeTeam( iTeam );
 
-		if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
-			return;
-		}
-
 		switch (iTeam)
 		{
 			case TF_TEAM_RED:
@@ -1793,9 +1787,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 
 	// can only join a class after you join a valid team
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
-		return;
-
-	if (TFGameRules()->IsDeathmatch())
 		return;
 
 	// In case we don't get the class menu message before the spawn timer
@@ -2145,8 +2136,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			{
 				// they haven't disguised yet, pick a nice one for them.
 				// exclude some undesirable classes 
-
-				// PistonMiner: Added Mercenary and Civilan to undesired, also made it so it doesnt pick your own team
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
@@ -2157,7 +2146,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 					else
 						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
 
-				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
+				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY );
 			}
 
 			m_Shared.Disguise( ( GetTeamNumber() == TF_TEAM_BLUE ) ? TF_TEAM_RED : TF_TEAM_BLUE, nClass );
