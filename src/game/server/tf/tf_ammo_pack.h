@@ -12,6 +12,8 @@
 
 #include "items.h"
 
+#define TF_DROPPED_WEAPON_METAL 100
+
 class CTFAmmoPack : public CItem
 {
 public:

@@ -4037,7 +4037,8 @@ void CTFPlayer::DropAmmoPack( void )
 	// Fill the ammo pack with unused player ammo, if out add a minimum amount.
 	int iPrimary = max( 5, GetAmmoCount( TF_AMMO_PRIMARY ) );
 	int iSecondary = max( 5, GetAmmoCount( TF_AMMO_SECONDARY ) );
-	int iMetal = max( 5, GetAmmoCount( TF_AMMO_METAL ) );	
+	int iMetal = TF_DROPPED_WEAPON_METAL;
+	//int iMetal = max( 5, GetAmmoCount( TF_AMMO_METAL ) );	
 
 	// Create the ammo pack.
 	CTFAmmoPack *pAmmoPack = CTFAmmoPack::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel );
