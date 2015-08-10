@@ -28,7 +28,7 @@
 		"tall"			"100"
 		"visible"		"1"
 		"enabled"		"1"
-		"image"			"../logo/TF2_Classic_Logo"
+		"image"			"../logo/TF2_Logo"
 		"scaleImage"	"1"		
 	}
 }

@@ -2,7 +2,7 @@
 {
 	1	"background01"
 	2	"background02"
-	3	"background03"
+	3	"background02"
 }
 "BackgroundMaps"
 {
