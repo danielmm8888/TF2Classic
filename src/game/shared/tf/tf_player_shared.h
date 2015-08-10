@@ -143,10 +143,12 @@ public:
 	}
 	int		GetDisguiseHealth( void )			{ return m_iDisguiseHealth; }
 	void	SetDisguiseHealth( int iDisguiseHealth );
+	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
+	int		GetDisguiseMaxBuffedHealth( void );
 
 #ifdef CLIENT_DLL
 	void	OnDisguiseChanged( void );
-	void	RecalcDisguiseWeapon( void );
+	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 #endif
@@ -182,6 +184,9 @@ public:
 	float	GetLastStealthExposedTime( void ) { return m_flLastStealthExposeTime; }
 
 	int		GetDesiredPlayerClassIndex( void );
+
+	int		GetDesiredWeaponIndex( void ) { return m_iDesiredWeaponID; }
+	void	SetDesiredWeaponIndex( int iWeaponID ) { m_iDesiredWeaponID = iWeaponID; }
 
 	float	GetSpyCloakMeter() const		{ return m_flCloakMeter; }
 	void	SetSpyCloakMeter( float val ) { m_flCloakMeter = val; }
@@ -253,8 +258,11 @@ private:
 	EHANDLE m_hDisguiseTarget;					// Playing the spy is using for name disguise.
 	CNetworkVar( int, m_iDisguiseTargetIndex );
 	CNetworkVar( int, m_iDisguiseHealth );		// Health to show our enemies in player id
+	CNetworkVar( int, m_iDisguiseMaxHealth );
+	CNetworkVar( float, m_flDisguiseChargeLevel );
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
+	CNetworkVar( bool, m_bDisguiseWeaponParity );
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates
@@ -299,6 +307,7 @@ private:
 	int	m_nOldDisguiseClass;
 
 	CNetworkVar( int, m_iDesiredPlayerClass );
+	CNetworkVar(int, m_iDesiredWeaponID);
 
 	float m_flNextBurningSound;
 
@@ -324,6 +333,8 @@ private:
 	CTFWeaponInfo *m_pDisguiseWeaponInfo;
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
+
+	bool m_bOldDisguiseWeaponParity;
 #endif
 };			   
 

@@ -394,6 +394,8 @@ public:
 
 	virtual bool			WantsLagCompensationOnEntity( const CBasePlayer	*pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
 
+	float				MedicGetChargeLevel( void );
+
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );

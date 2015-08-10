@@ -127,6 +127,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
+	virtual bool HolsterOnDetach() { return true; }
 
 	// Attacks.
 	virtual void PrimaryAttack();
@@ -141,6 +142,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 	void SendReloadEvents();
 	virtual bool CanAutoReload( void ) { return true; }
+	virtual bool ReloadOrSwitchWeapons( void );
 
 	virtual bool CanDrop( void ) { return false; }
 
@@ -152,8 +154,6 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void ItemPostFrame( void );
 
 	virtual void SetWeaponVisible( bool visible );
-
-	virtual bool ReloadOrSwitchWeapons( void );
 
 	virtual acttable_t *ActivityList( void );
 	virtual int ActivityListCount( void );

@@ -78,6 +78,21 @@ void CWeaponSpawner::Precache(void)
 	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
 }
 
+void CWeaponSpawner::EndTouch(CBaseEntity *pOther)
+{
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pOther);
+
+	if (ValidTouch(pTFPlayer) && pTFPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
+	{
+		int iCurrentWeaponID = pTFPlayer->m_Shared.GetDesiredWeaponIndex();
+		if (iCurrentWeaponID == m_iWeaponNumber)
+		{
+			pTFPlayer->m_Shared.SetDesiredWeaponIndex(TF_WEAPON_NONE);
+		}
+	}
+
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -104,14 +119,20 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			{
 				// Check Use button, always replace pistol
 				pTFPlayer->Weapon_Detach(pWeapon);
+				pWeapon->WeaponReset();
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;
+			}
+			else
+			{
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex(m_iWeaponNumber);
 			}
 		}
 
 		if ( !pWeapon )
 		{
 			pTFPlayer->GiveNamedItem( pszWeaponName );
+			pTFPlayer->m_Shared.SetDesiredWeaponIndex(TF_WEAPON_NONE);
 			bSuccess = true;
 		}
 
