@@ -506,7 +506,10 @@ int C_BaseCombatWeapon::CalcOverrideModelIndex()
 		localplayer == GetOwner() &&
 		ShouldDrawLocalPlayerViewModel() )
 	{
-		return BaseClass::CalcOverrideModelIndex();
+		//return BaseClass::CalcOverrideModelIndex();
+		// Temp fix for weapon model not getting set back to viewmodel after
+		// switching back from third person. (Nicknine, danielmm8888)
+		return m_iViewModelIndex;
 	}
 	else
 	{

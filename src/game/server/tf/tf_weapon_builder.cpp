@@ -126,6 +126,7 @@ bool CTFWeaponBuilder::Deploy( void )
 		pPlayer->SetNextAttack( gpGlobals->curtime );
 
 		m_iWorldModelIndex = modelinfo->GetModelIndex( GetWorldModel() );
+		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel(0) );
 
 		m_flNextDenySound = 0;
 
