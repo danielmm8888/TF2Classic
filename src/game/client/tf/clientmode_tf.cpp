@@ -80,7 +80,10 @@ static CTFModeManager g_ModeManager;
 IVModeManager *modemanager = ( IVModeManager * )&g_ModeManager;
 
 CLIENTEFFECT_REGISTER_BEGIN(PrecachePostProcessingEffectsGlow)
+CLIENTEFFECT_MATERIAL("dev/glow_blur_x")
+CLIENTEFFECT_MATERIAL("dev/glow_blur_y")
 CLIENTEFFECT_MATERIAL("dev/glow_color")
+CLIENTEFFECT_MATERIAL("dev/glow_downsample")
 CLIENTEFFECT_MATERIAL("dev/halo_add_to_screen")
 CLIENTEFFECT_REGISTER_END_CONDITIONAL(engine->GetDXSupportLevel() >= 90)
 

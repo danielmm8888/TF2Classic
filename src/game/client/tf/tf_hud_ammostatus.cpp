@@ -97,7 +97,7 @@ void CTFHudWeaponAmmo::ApplySchemeSettings( IScheme *pScheme )
 	m_pNoClip = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClip"));
 	m_pNoClipShadow = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClipShadow"));
 
-	m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(FindChildByName("WeaponBucket"));
+	m_pWeaponBucket = dynamic_cast<ImagePanel *>(FindChildByName("WeaponBucket"));
 
 	m_nAmmo	= -1;
 	m_nAmmo2 = -1;

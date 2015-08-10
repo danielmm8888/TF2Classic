@@ -71,10 +71,10 @@ private:
 //-----------------------------------------------------------------------------
 // Purpose:  Clips the health image to the appropriate percentage
 //-----------------------------------------------------------------------------
-class CTFHealthPanel : public CTFImagePanel
+class CTFHealthPanel : public vgui::Panel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFHealthPanel, CTFImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFHealthPanel, vgui::Panel );
 
 	CTFHealthPanel( vgui::Panel *parent, const char *name );
 	virtual void Paint();

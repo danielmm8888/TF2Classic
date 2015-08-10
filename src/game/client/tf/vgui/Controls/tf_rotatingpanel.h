@@ -12,10 +12,10 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose:  Draws the rotated arrow panels
 //-----------------------------------------------------------------------------
-class CTFRotationPanel : public CTFImagePanel
+class CTFRotationPanel : public ImagePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE(CTFRotationPanel, CTFImagePanel);
+	DECLARE_CLASS_SIMPLE(CTFRotationPanel, ImagePanel);
 
 	CTFRotationPanel(vgui::Panel *parent, const char *name);
 	virtual void Paint();

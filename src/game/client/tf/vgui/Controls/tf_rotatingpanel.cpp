@@ -15,7 +15,7 @@ DECLARE_BUILD_FACTORY(CTFRotationPanel);
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : CTFImagePanel(parent, name)
+CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : ImagePanel(parent, name)
 {
 	flRetVal = 0.0f;
 }
