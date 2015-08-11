@@ -361,10 +361,6 @@ void CTFWinPanel::OnThink()
 		m_pTeamScorePanel->SetDialogVariable( "blueteamscore", m_iBlueTeamScore );
 		m_pTeamScorePanel->SetDialogVariable( "redteamscore", m_iRedTeamScore );
 
-		// update the team names
-		m_pTeamScorePanel->SetDialogVariable( "blueteamname", GetGlobalTeam(TF_TEAM_BLUE)->Get_Name() );
-		m_pTeamScorePanel->SetDialogVariable( "redteamname", GetGlobalTeam(TF_TEAM_RED)->Get_Name() );
-
 		m_flTimeUpdateTeamScore = 0;
 	}
 }

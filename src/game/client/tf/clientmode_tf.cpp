@@ -14,14 +14,14 @@
 #include "clientmode_tf.h"
 #include "cdll_client_int.h"
 #include "iinput.h"
-#include "vgui/ISurface.h"
-#include "vgui/IPanel.h"
-#include "GameUI/IGameUI.h"
+#include "vgui/isurface.h"
+#include "vgui/ipanel.h"
+#include "GameUI/igameui.h"
 #include <vgui_controls/AnimationController.h>
 #include "ivmodemanager.h"
-#include "buymenu.h"
+#include "BuyMenu.h"
 #include "filesystem.h"
-#include "vgui/IVGui.h"
+#include "vgui/ivgui.h"
 #include "hud_chat.h"
 #include "view_shared.h"
 #include "view.h"
@@ -31,7 +31,7 @@
 #include "dlight.h"
 #include <imapoverview.h>
 #include "c_playerresource.h"
-#include <KeyValues.h>
+#include <keyvalues.h>
 #include "text_message.h"
 #include "panelmetaclassmgr.h"
 #include "c_tf_player.h"
@@ -43,8 +43,6 @@
 #include "tf_hud_menu_spy_disguise.h"
 #include "tf_statsummary.h"
 #include "tf_hud_freezepanel.h"
-#include "clienteffectprecachesystem.h"
-#include "glow_outline_effect.h"
 
 #if defined( _X360 )
 #include "tf_clientscoreboard.h"
@@ -60,6 +58,7 @@ void HUDMinModeChangedCallBack( IConVar *var, const char *pOldString, float flOl
 ConVar cl_hud_minmode( "cl_hud_minmode", "0", FCVAR_ARCHIVE, "Set to 1 to turn on the advanced minimalist HUD mode.", HUDMinModeChangedCallBack );
 
 IClientMode *g_pClientMode = NULL;
+
 // --------------------------------------------------------------------------------- //
 // CTFModeManager.
 // --------------------------------------------------------------------------------- //
@@ -77,10 +76,6 @@ public:
 static CTFModeManager g_ModeManager;
 IVModeManager *modemanager = ( IVModeManager * )&g_ModeManager;
 
-CLIENTEFFECT_REGISTER_BEGIN(PrecachePostProcessingEffectsGlow)
-CLIENTEFFECT_MATERIAL("dev/glow_color")
-CLIENTEFFECT_MATERIAL("dev/halo_add_to_screen")
-CLIENTEFFECT_REGISTER_END_CONDITIONAL(engine->GetDXSupportLevel() >= 90)
 
 // --------------------------------------------------------------------------------- //
 // CTFModeManager implementation.

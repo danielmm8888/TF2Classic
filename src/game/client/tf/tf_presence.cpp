@@ -233,8 +233,6 @@ bool CTF_Presence::Init()
 
 	ListenForGameEvent( "controlpoint_initialized" );
 	ListenForGameEvent( "controlpoint_updateowner" );
-	ListenForGameEvent( "controlpoint_timer_updated" );
-	ListenForGameEvent( "controlpoint_unlock_updated" );
 	ListenForGameEvent( "teamplay_round_start" );
 	ListenForGameEvent( "ctf_flag_captured" );
 	ListenForGameEvent( "playing_commentary" );

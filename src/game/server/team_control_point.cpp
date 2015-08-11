@@ -228,6 +228,12 @@ void CTeamControlPoint::Precache( void )
 		if ( i == TEAM_SPECTATOR )
 			continue;
 
+#ifdef TF_CLASSIC
+		// Don't pass GRN and YLW since they're not player teams.
+		if ( i > TF_TEAM_BLUE )
+			break;
+#endif
+
 		if ( m_TeamData[i].iszCapSound != NULL_STRING )
 		{
 			PrecacheScriptSound( STRING(m_TeamData[i].iszCapSound) );

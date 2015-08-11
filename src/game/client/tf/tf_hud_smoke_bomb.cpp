@@ -7,7 +7,7 @@
 #include "cbase.h"
 #include "hudelement.h"
 #include <vgui_controls/Panel.h>
-#include <vgui/ISurface.h>
+#include <vgui/isurface.h>
 #include "c_tf_player.h"
 #include "clientmode_tf.h"
 
@@ -84,9 +84,7 @@ void CHudSmokeBomb::Paint()
 	if ( !pPlayer )
 		return;
     
-	//float flExpireTime = pPlayer->m_Shared.GetSmokeBombExpireTime();
-
-	float flExpireTime = 50.0f;
+	float flExpireTime = pPlayer->m_Shared.GetSmokeBombExpireTime();
 
 	float flPercent = ( flExpireTime - gpGlobals->curtime ) / tf_smoke_bomb_time.GetFloat();
 
