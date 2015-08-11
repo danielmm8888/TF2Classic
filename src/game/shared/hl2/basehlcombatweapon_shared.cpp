@@ -236,7 +236,7 @@ float	g_verticalBob;
 #define	HL2_BOB			0.002f
 #define	HL2_BOB_UP		0.5f
 
-
+#ifdef HL2_CLIENT_DLL
 static ConVar	cl_bobcycle( "cl_bobcycle","0.8" );
 static ConVar	cl_bob( "cl_bob","0.002" );
 static ConVar	cl_bobup( "cl_bobup","0.5" );
@@ -248,6 +248,7 @@ static ConVar	v_ipitch_cycle( "v_ipitch_cycle", "1"/*, FCVAR_UNREGISTERED*/ );
 static ConVar	v_iyaw_level( "v_iyaw_level", "0.3"/*, FCVAR_UNREGISTERED*/ );
 static ConVar	v_iroll_level( "v_iroll_level", "0.1"/*, FCVAR_UNREGISTERED*/ );
 static ConVar	v_ipitch_level( "v_ipitch_level", "0.3"/*, FCVAR_UNREGISTERED*/ );
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
