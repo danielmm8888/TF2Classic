@@ -41,12 +41,4 @@ precache
 	"model"			"models/vgui/UI_team01_spectate.mdl"
 	"model"			"models/class_menu/random_class_icon.mdl"
 
-	// 4 team related models
-	"model"			"models/vgui/teamselect_table.mdl"
-	"model"			"models/vgui/blu_polaroid.mdl"
-	"model"			"models/vgui/red_polaroid.mdl"
-	"model"			"models/vgui/grn_polaroid.mdl"
-	"model"			"models/vgui/ylw_polaroid.mdl"
-	"model"			"models/vgui/penny.mdl"
-
 }
