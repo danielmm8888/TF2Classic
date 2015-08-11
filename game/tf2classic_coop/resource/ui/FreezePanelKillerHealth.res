@@ -26,20 +26,6 @@
 		"enabled"		"1"
 		"image"			"../hud/health_bg"
 		"scaleImage"	"1"	
-	}
-	"BuildingStatusHealthImageBG"
-	{
-		"ControlName"	"ImagePanel"
-		"fieldName"		"PlayerStatusHealthImageBG"
-		"xpos"			"1"
-		"ypos"			"2"
-		"zpos"			"3"
-		"wide"			"28"
-		"tall"			"28"
-		"visible"		"0"
-		"enabled"		"1"
-		"image"			"../hud/health_equip_bg"
-		"scaleImage"	"1"	
 	}	
 	"PlayerStatusHealthBonusImage"
 	{
