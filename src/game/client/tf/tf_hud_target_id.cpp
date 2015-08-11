@@ -463,7 +463,6 @@ void CTargetID::UpdateID( void )
 
 		m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
 		m_pTargetHealth->SetVisible( bShowHealth );
-		m_pTargetHealth->ShowBuildingHealthBG( pEnt->IsBaseObject() );
 
 		int iNameW, iDataW, iIgnored;
 		m_pTargetNameLabel->GetContentSize( iNameW, iIgnored );

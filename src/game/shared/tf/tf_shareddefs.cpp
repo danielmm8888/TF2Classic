@@ -48,9 +48,7 @@ const char *g_aPlayerClassNames[] =
 	"#TF_Class_Name_HWGuy",
 	"#TF_Class_Name_Pyro",
 	"#TF_Class_Name_Spy",
-	"#TF_Class_Name_Engineer",
-	"#TF_Class_Name_Civilian",
-	"#TF_Class_Name_Mercenary"
+	"#TF_Class_Name_Engineer"
 };
 
 const char *g_aPlayerClassNames_NonLocalized[] =
@@ -64,7 +62,7 @@ const char *g_aPlayerClassNames_NonLocalized[] =
 	"Heavy",
 	"Pyro",
 	"Spy",
-	"Engineer",
+	"Engineer"
 };
 
 //-----------------------------------------------------------------------------

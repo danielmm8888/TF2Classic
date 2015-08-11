@@ -232,7 +232,6 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				iKillerHealth = 0;
 			}
 			m_pKillerHealth->SetHealth( iKillerHealth, pKiller->GetMaxHealth(), iMaxBuffedHealth );
-			m_pKillerHealth->ShowBuildingHealthBG( pKiller->IsBaseObject() );
 
 			if ( pKiller->IsPlayer() )
 			{

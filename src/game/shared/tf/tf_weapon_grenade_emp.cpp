@@ -143,7 +143,7 @@ void CTFGrenadeEmpProjectile::Detonate()
 	}
 
 	// Explosion effect on client
-	// SendDispatchEffect();
+	SendDispatchEffect();
 
 	float flRadius = 180;
 	float flDamage = 1;
@@ -156,7 +156,7 @@ void CTFGrenadeEmpProjectile::Detonate()
 	// Apply some amount of EMP damage to every entity in the radius. They will calculate 
 	// their own damage based on how much ammo they have or some other wacky calculation.
 
-	CTakeDamageInfo info( this, GetThrower(), vec3_origin, GetAbsOrigin(), flDamage, /* DMG_EMP |*/ DMG_PREVENT_PHYSICS_FORCE );
+	CTakeDamageInfo info( this, GetThrower(), vec3_origin, GetAbsOrigin(), flDamage, DMG_EMP | DMG_PREVENT_PHYSICS_FORCE );
 
 	CBaseEntity *pEntityList[100];
 	int nEntityCount = UTIL_EntitiesInSphere( pEntityList, 100, GetAbsOrigin(), flRadius, 0 );

@@ -163,28 +163,13 @@ void C_ObjectDispenser::UpdateEffects( void )
 				continue;
 
 			const char *pszEffectName;
-			switch (GetTeamNumber())
+			if ( GetTeamNumber() == TF_TEAM_RED )
 			{
-				case TF_TEAM_RED:
-					pszEffectName = "dispenser_heal_red";
-					break;
-
-				case TF_TEAM_BLUE:
-					pszEffectName = "dispenser_heal_blue";
-					break;
-
-				case TF_TEAM_GREEN:
-					pszEffectName = "dispenser_heal_green";
-					break;
-
-				case TF_TEAM_YELLOW:
-					pszEffectName = "dispenser_heal_yellow";
-					break;
-
-				default:
-					pszEffectName = "dispenser_heal_blue";
-					break;
-
+				pszEffectName = "dispenser_heal_red";
+			}
+			else
+			{
+				pszEffectName = "dispenser_heal_blue";
 			}
 
 			CNewParticleEffect *pEffect = ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "heal_origin" );
@@ -258,9 +243,6 @@ void C_ObjectDispenser::UpdateDamageEffects( BuildingDamageLevel_t damageLevel )
 
 DECLARE_VGUI_SCREEN_FACTORY( CDispenserControlPanel, "screen_obj_dispenser_blue" );
 DECLARE_VGUI_SCREEN_FACTORY( CDispenserControlPanel_Red, "screen_obj_dispenser_red" );
-DECLARE_VGUI_SCREEN_FACTORY( CDispenserControlPanel_Green, "screen_obj_dispenser_green" );
-DECLARE_VGUI_SCREEN_FACTORY( CDispenserControlPanel_Yellow, "screen_obj_dispenser_yellow" );
-
 
 //-----------------------------------------------------------------------------
 // Constructor: 

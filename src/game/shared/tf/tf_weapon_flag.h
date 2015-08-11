@@ -29,7 +29,7 @@ public:
 	DECLARE_PREDICTABLE();
 
 	CTFFlag();
-	virtual int			GetWeaponID(void) const			{ return TF_WEAPON_FLAG; }
+	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_FLAG; }
 	virtual void		SecondaryAttack();
 	bool				Deploy( void );
 

@@ -135,45 +135,26 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
 	if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
 	{
-		switch (GetTeamNumber())
+		if ( GetTeamNumber() == TF_TEAM_BLUE )
 		{
-		case TF_TEAM_RED:
+			return "stickybombtrail_blue";
+		}
+		else
+		{
 			return "stickybombtrail_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "stickybombtrail_blue";
-			break;
-		case TF_TEAM_GREEN:
-			return "stickybombtrail_green";
-			break;
-		case TF_TEAM_YELLOW:
-			return "stickybombtrail_yellow";
-			break;
-		default:
-			return "stickybombtrail_blue";
-			break;
 		}
 	}
 	else
 	{
-		switch (GetTeamNumber())
+		if ( GetTeamNumber() == TF_TEAM_BLUE )
 		{
-		case TF_TEAM_RED:
-			return "pipebombtrail_red";
-			break;
-		case TF_TEAM_BLUE:
 			return "pipebombtrail_blue";
-			break;
-		case TF_TEAM_GREEN:
-			return "pipebombtrail_green";
-			break;
-		case TF_TEAM_YELLOW:
-			return "pipebombtrail_yellow";
-			break;
-		default:
-			return "pipebombtrail_blue";
-			break;
 		}
+		else
+		{
+			return "pipebombtrail_red";
+		}
+
 	}
 }
 
@@ -224,28 +205,6 @@ void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 					ParticleProp()->Create( "critical_pipe_red", PATTACH_ABSORIGIN_FOLLOW );
 				}
 				break;
-			case TF_TEAM_GREEN:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_YELLOW:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
 			default:
 				break;
 			}
@@ -270,20 +229,13 @@ void CTFGrenadePipebombProjectile::Simulate( void )
 	{
 		if ( (gpGlobals->curtime - m_flCreationTime) >= tf_grenadelauncher_livetime.GetFloat() )
 		{
-			switch (GetTeamNumber())
+			if ( GetTeamNumber() == TF_TEAM_RED )
 			{
-			case TF_TEAM_RED:
 				ParticleProp()->Create( "stickybomb_pulse_red", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_BLUE:
+			}
+			else
+			{
 				ParticleProp()->Create( "stickybomb_pulse_blue", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_GREEN:
-				ParticleProp()->Create( "stickybomb_pulse_green", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_YELLOW:
-				ParticleProp()->Create( "stickybomb_pulse_yellow", PATTACH_ABSORIGIN );
-				break;
 			}
 
 			m_bPulsed = true;
@@ -399,8 +351,6 @@ void CTFGrenadePipebombProjectile::Precache()
 	PrecacheModel( TF_WEAPON_PIPEGRENADE_MODEL );
 	PrecacheParticleSystem( "stickybombtrail_blue" );
 	PrecacheParticleSystem( "stickybombtrail_red" );
-	PrecacheParticleSystem( "stickybombtrail_green" );
-	PrecacheParticleSystem( "stickybombtrail_yellow" );
 
 	BaseClass::Precache();
 }
@@ -560,9 +510,6 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 		m_bUseImpactNormal = true;
 		pEvent->pInternalData->GetSurfaceNormal( m_vecImpactNormal );
 		m_vecImpactNormal.Negate();
-
-		CSoundEnt::InsertSound ( SOUND_DANGER, GetAbsOrigin(), 400, 5, this );
-		m_bHasWarnedAI = true;
 	}
 }
 

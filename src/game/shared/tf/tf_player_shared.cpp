@@ -803,28 +803,7 @@ void CTFPlayerShared::OnAddDisguising( void )
 
 	if ( !m_pOuter->IsLocalPlayer() && ( !InCond( TF_COND_STEALTHED ) || !m_pOuter->IsEnemyPlayer() ) )
 	{
-		const char *pEffectName;
-		switch (m_pOuter->GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			pEffectName = "spy_start_disguise_red";
-			break;
-
-		case TF_TEAM_BLUE:
-			pEffectName = "spy_start_disguise_blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			pEffectName = "spy_start_disguise_green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			pEffectName = "spy_start_disguise_yellow";
-			break;
-		default:
-			pEffectName = "spy_start_disguise_red";
-			break;
-		}
+		const char *pEffectName = ( m_pOuter->GetTeamNumber() == TF_TEAM_RED ) ? "spy_start_disguise_red" : "spy_start_disguise_blue";
 		m_pOuter->m_pDisguisingEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
 		m_pOuter->m_flDisguiseEffectStartTime = gpGlobals->curtime;
 	}
@@ -879,12 +858,6 @@ void CTFPlayerShared::OnAddInvulnerable( void )
 			break;
 		case TF_TEAM_RED:
 			pEffectName =  "effects/invuln_overlay_red";
-			break;
-		case TF_TEAM_GREEN:
-			pEffectName =  "effects/invuln_overlay_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffectName =  "effects/invuln_overlay_yellow";
 			break;
 		default:
 			pEffectName = "effects/invuln_overlay_blue";
@@ -1051,9 +1024,7 @@ void CTFPlayerShared::OnRemoveDisguising( void )
 		m_pOuter->m_pDisguisingEffect = NULL;
 	}
 #else
-	// PistonMiner: Removed the reset as we need this for later.
-
-	//m_nDesiredDisguiseTeam = TF_SPY_UNDEFINED;
+	m_nDesiredDisguiseTeam = TF_SPY_UNDEFINED;
 
 	// Do not reset this value, we use the last desired disguise class for the
 	// 'lastdisguise' command
@@ -1111,30 +1082,7 @@ void CTFPlayerShared::OnAddBurning( void )
 	// Start the burning effect
 	if ( !m_pOuter->m_pBurningEffect )
 	{
-		const char *pEffectName;
-			
-		switch (m_pOuter->GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			pEffectName = "burningplayer_red";
-			break;
-
-		case TF_TEAM_BLUE:
-			pEffectName = "burningplayer_blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			pEffectName = "burningplayer_green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			pEffectName = "burningplayer_yellow";
-			break;
-		default:
-			pEffectName = "burningplayer_red";
-			break;
-		}
-			
+		const char *pEffectName = ( m_pOuter->GetTeamNumber() == TF_TEAM_RED ) ? "burningplayer_red" : "burningplayer_blue";
 		m_pOuter->m_pBurningEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
 
 		m_pOuter->m_flBurnEffectStartTime = gpGlobals->curtime;
@@ -1349,7 +1297,7 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 	}
 
 	// invalid team
-	if ( nTeam <= TEAM_SPECTATOR || nTeam >= TF_TEAM_COUNT )
+	if ( nTeam <= TEAM_SPECTATOR || nTeam > TF_TEAM_BLUE )
 	{
 		return;
 	}

@@ -679,20 +679,12 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "speech_mediccall" );
 	PrecacheParticleSystem( "player_recent_teleport_blue" );
 	PrecacheParticleSystem( "player_recent_teleport_red" );
-	PrecacheParticleSystem( "player_recent_teleport_green" );
-	PrecacheParticleSystem( "player_recent_teleport_yellow" );
 	PrecacheParticleSystem( "particle_nemesis_red" );
 	PrecacheParticleSystem( "particle_nemesis_blue" );
-	PrecacheParticleSystem( "particle_nemesis_green" );
-	PrecacheParticleSystem( "particle_nemesis_yellow" );
 	PrecacheParticleSystem( "spy_start_disguise_red" );
 	PrecacheParticleSystem( "spy_start_disguise_blue" );
-	PrecacheParticleSystem( "spy_start_disguise_green" );
-	PrecacheParticleSystem( "spy_start_disguise_yellow" );
 	PrecacheParticleSystem( "burningplayer_red" );
 	PrecacheParticleSystem( "burningplayer_blue" );
-	PrecacheParticleSystem( "burningplayer_green" );
-	PrecacheParticleSystem( "burningplayer_yellow" );
 	PrecacheParticleSystem( "blood_spray_red_01" );
 	PrecacheParticleSystem( "blood_spray_red_01_far" );
 	PrecacheParticleSystem( "water_blood_impact_red_01" );
@@ -1384,51 +1376,19 @@ int CTFPlayer::GetAutoTeam( void )
 	CTFTeam *pBlue = TFTeamMgr()->GetTeam(TF_TEAM_BLUE);
 	CTFTeam *pRed = TFTeamMgr()->GetTeam(TF_TEAM_RED);
 
-	if (TFGameRules()->IsFourTeamGame())
+	if ( pBlue && pRed )
 	{
-		CTFTeam *pGreen = TFTeamMgr()->GetTeam(TF_TEAM_GREEN);
-		CTFTeam *pYellow = TFTeamMgr()->GetTeam(TF_TEAM_YELLOW);
-
-		if (pBlue && pRed && pGreen && pYellow)
+		if (pBlue->GetNumPlayers() < pRed->GetNumPlayers())
 		{
-			if (pBlue->GetNumPlayers() < pRed->GetNumPlayers() && pBlue->GetNumPlayers() < pGreen->GetNumPlayers() && pBlue->GetNumPlayers() < pYellow->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_BLUE;
-			}
-			else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers() && pRed->GetNumPlayers() < pGreen->GetNumPlayers() && pRed->GetNumPlayers() < pYellow->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_RED;
-			}
-			else if (pGreen->GetNumPlayers() < pRed->GetNumPlayers() && pGreen->GetNumPlayers() < pBlue->GetNumPlayers() && pGreen->GetNumPlayers() < pYellow->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_GREEN;
-			}
-			else if (pYellow->GetNumPlayers() < pRed->GetNumPlayers() && pYellow->GetNumPlayers() < pBlue->GetNumPlayers() && pYellow->GetNumPlayers() < pGreen->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_YELLOW;
-			}
-			else
-			{
-				iTeam = RandomInt(2, 5);
-			}
+			iTeam = TF_TEAM_BLUE;
 		}
-	}
-	else
-	{
-		if (pBlue && pRed)
+		else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers())
 		{
-			if (pBlue->GetNumPlayers() < pRed->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_BLUE;
-			}
-			else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers())
-			{
-				iTeam = TF_TEAM_RED;
-			}
-			else
-			{
-				iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
-			}
+			iTeam = TF_TEAM_RED;
+		}
+		else
+		{
+			iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
 		}
 	}
 
@@ -1461,9 +1421,9 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 	}
 
-	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iTeam > TF_TEAM_BLUE )
 	{
-		Warning("Four player teams have been disabled!\n");
+		Warning("Access denied.\n");
 		return;
 	}
 
@@ -1521,17 +1481,8 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 			case TF_TEAM_BLUE:
 				ShowViewPortPanel(PANEL_CLASS_BLUE);
 				break;
-
-			case TF_TEAM_GREEN:
-				ShowViewPortPanel(PANEL_CLASS_GREEN);
-				break;
-
-			case TF_TEAM_YELLOW:
-				ShowViewPortPanel(PANEL_CLASS_YELLOW);
-				break;
 		}
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1578,9 +1529,9 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 		iNewTeam = GetAutoTeam();
 	}
 
-	if (iNewTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iNewTeam > TF_TEAM_BLUE )
 	{
-		Warning("Four player teams have been disabled!\n");
+		Warning("Access denied.\n");
 		return;
 	}
 
@@ -1640,9 +1591,9 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 		return;
 	}
 
-	if (iTeamNum > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iTeamNum > TF_TEAM_BLUE )
 	{
-		Warning("Four player teams have been disabled!\n");
+		Warning("Access denied.\n");
 		return;
 	}
 
@@ -1962,14 +1913,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				ShowViewPortPanel( PANEL_CLASS_BLUE, true );
 				break;
 
-			case TF_TEAM_GREEN:
-				ShowViewPortPanel( PANEL_CLASS_GREEN, true );
-				break;
-
-			case TF_TEAM_YELLOW:
-				ShowViewPortPanel( PANEL_CLASS_YELLOW, true );
-				break;
-
 			default:
 				break;
 			}
@@ -1995,29 +1938,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				
 				// intercepting the team value and reassigning what gets passed into Disguise()
 				// because the team numbers in the client menu don't match the #define values for the teams
-
-				if (TFGameRules()->IsFourTeamGame())
-				{
-					switch (nTeam)
-					{
-					case 0:
-						m_Shared.Disguise(TF_TEAM_RED, nClass);
-						break;
-					case 1:
-						m_Shared.Disguise(TF_TEAM_BLUE, nClass);
-						break;
-					case 2:
-						m_Shared.Disguise(TF_TEAM_GREEN, nClass);
-						break;
-					case 3:
-						m_Shared.Disguise(TF_TEAM_YELLOW, nClass);
-						break;
-					}
-				}
-				else
-				{
-					m_Shared.Disguise((nTeam == 1) ? TF_TEAM_BLUE : TF_TEAM_RED, nClass);
-				}
+				m_Shared.Disguise( ( nTeam == 1 ) ? TF_TEAM_BLUE : TF_TEAM_RED, nClass );
 			}
 		}
 		return true;
@@ -2029,9 +1950,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		{
 			// disguise as the previous class, if one exists
 			int nClass = m_Shared.GetDesiredDisguiseClass();
-
-			// PistonMiner: try and disguise as the previous team
-			int nTeam = m_Shared.GetDesiredDisguiseTeam();
 
 			//If we pass in "random" or whatever then just make it pick a random class.
 			if ( args.ArgC() > 1 )
@@ -2046,13 +1964,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
-					
-					// PistonMiner: Added check whether or not we actually have four teams.
-					if ( TFGameRules()->IsFourTeamGame() )
-						nTeam = random->RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
-					else
-						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
-
 				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY );
 			}
 
@@ -3878,21 +3789,7 @@ void CTFPlayer::DropAmmoPack( void )
 
 		pAmmoPack->SetInitialVelocity( vecImpulse );
 
-		switch (GetTeamNumber())
-		{
-			case TF_TEAM_RED:
-				pAmmoPack->m_nSkin = 0;
-				break;
-			case TF_TEAM_BLUE:
-				pAmmoPack->m_nSkin = 1;
-				break;
-			case TF_TEAM_GREEN:
-				pAmmoPack->m_nSkin = 2;
-				break;
-			case TF_TEAM_YELLOW:
-				pAmmoPack->m_nSkin = 3;
-				break;
-		}
+		pAmmoPack->m_nSkin = ( GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
 
 		// Give the ammo pack some health, so that trains can destroy it.
 		pAmmoPack->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
@@ -3975,34 +3872,7 @@ void CTFPlayer::UpdateModel( void )
 void CTFPlayer::UpdateSkin( int iTeam )
 {
 	// The player's skin is team - 2.
-	//int iSkin = iTeam - 2;
-	int iSkin;
-
-	if (TFGameRules()->IsFourTeamGame())
-	{
-		switch (iTeam)
-		{
-		case TF_TEAM_RED:
-			iSkin = 0;
-			break;
-		case TF_TEAM_BLUE:
-			iSkin = 1;
-			break;
-		case TF_TEAM_GREEN:
-			iSkin = 4;
-			break;
-		case TF_TEAM_YELLOW:
-			iSkin = 5;
-			break;
-		default:
-			iSkin = 0;
-			break;
-		}
-	}
-	else
-	{
-		iSkin = iTeam - 2;
-	}
+	int iSkin = iTeam - 2;
 
 	// Check to see if the skin actually changed.
 	if ( iSkin != m_iLastSkin )

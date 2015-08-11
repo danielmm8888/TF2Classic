@@ -6,7 +6,6 @@
 //=============================================================================
 #include "cbase.h"
 #include "tf_projectile_rocket.h"
-#include "tf_player.h"
 
 //=============================================================================
 //
@@ -55,8 +54,6 @@ void CTFProjectile_Rocket::Precache()
 	PrecacheModel( ROCKET_MODEL );
 	PrecacheParticleSystem( "critical_rocket_blue" );
 	PrecacheParticleSystem( "critical_rocket_red" );
-	PrecacheParticleSystem( "critical_rocket_green" );
-	PrecacheParticleSystem( "critical_rocket_yellow" );
 	PrecacheParticleSystem( "rockettrail" );
 	BaseClass::Precache();
 }

@@ -113,7 +113,6 @@ void CTFViewModel::CalcViewModelLag( Vector& origin, QAngle& angles, QAngle& ori
 	// Now offset the origin using that.
 	vForwardDiff *= cl_wpn_sway_scale.GetFloat();
 	origin += forward*vForwardDiff.x + right*-vForwardDiff.y + up*vForwardDiff.z;
-
 #endif
 }
 
@@ -262,12 +261,6 @@ int CTFViewModel::GetSkin()
 				break;
 			case TF_TEAM_BLUE:
 				nSkin = 1;
-				break;
-			case TF_TEAM_GREEN:
-				nSkin = 2;
-				break;
-			case TF_TEAM_YELLOW:
-				nSkin = 3;
 				break;
 			}
 		}	

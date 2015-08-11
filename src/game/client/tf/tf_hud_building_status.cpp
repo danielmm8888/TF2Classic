@@ -12,10 +12,10 @@
 #include "ienginevgui.h"
 #include "vgui/ILocalize.h"
 #include "vgui/ISurface.h"
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <vgui_controls/ProgressBar.h>
 #include <vgui_controls/AnimationController.h>
-#include "game_controls/IconPanel.h"
+#include "game_controls/iconpanel.h"
 #include "teamplay_round_timer.h"
 
 #include "tf_hud_building_status.h"
@@ -264,17 +264,11 @@ const char *CBuildingStatusItem::GetBackgroundImage( void )
 
 	switch( pLocalPlayer->GetTeamNumber() )
 	{
-	case TF_TEAM_RED:
-		pResult = "obj_status_background_red";
-		break;
 	case TF_TEAM_BLUE:
 		pResult = "obj_status_background_blue";
 		break;
-	case TF_TEAM_GREEN:
-		pResult = "obj_status_background_green";
-		break;
-	case TF_TEAM_YELLOW:
-		pResult = "obj_status_background_yellow";
+	case TF_TEAM_RED:
+		pResult = "obj_status_background_red";
 		break;
 	default:
 		break;
@@ -591,9 +585,9 @@ CBuildingStatusItem_SentryGun::CBuildingStatusItem_SentryGun( Panel *parent ) :
 	m_pRocketsProgress = new vgui::ContinuousProgressBar( GetRunningPanel(), "Rockets" );
 	m_pUpgradeProgress = new vgui::ContinuousProgressBar( GetRunningPanel(), "Upgrade" );
 
-	m_pRocketsLabel = new CExLabel(GetRunningPanel(), "RocketsLabel", "");
-	m_pUpgradeLabel = new CExLabel(GetRunningPanel(), "UpgradeLabel", "");
-	m_pKillsLabel = new CExLabel(GetRunningPanel(), "KillsLabel", "0");
+	m_pRocketsLabel = new CExLabel( GetRunningPanel(), "RocketsLabel", "" );
+	m_pUpgradeLabel = new CExLabel( GetRunningPanel(), "UpgradeLabel", "" );
+	m_pKillsLabel = new CExLabel( GetRunningPanel(), "KillsLabel", "0" );
 
 	m_pSentryIcons[0] = new CIconPanel( this, "Icon_Sentry_1" );
 	m_pSentryIcons[1] = new CIconPanel( this, "Icon_Sentry_2" );
@@ -711,17 +705,11 @@ const char *CBuildingStatusItem_SentryGun::GetBackgroundImage( void )
 
 	switch( pLocalPlayer->GetTeamNumber() )
 	{
-	case TF_TEAM_RED:
-		pResult = "obj_status_background_tall_red";
-		break;
 	case TF_TEAM_BLUE:
 		pResult = "obj_status_background_tall_blue";
 		break;
-	case TF_TEAM_GREEN:
-		pResult = "obj_status_background_tall_green";
-		break;
-	case TF_TEAM_YELLOW:
-		pResult = "obj_status_background_tall_yellow";
+	case TF_TEAM_RED:
+		pResult = "obj_status_background_tall_red";
 		break;
 	default:
 		break;

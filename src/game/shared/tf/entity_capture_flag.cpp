@@ -21,7 +21,6 @@
 #include "c_tf_team.h"
 #include "tf_hud_objectivestatus.h"
 #include "view.h"
-#include "glow_outline_effect.h"
 
 extern CUtlVector<int>	g_Flags;
 
@@ -88,16 +87,7 @@ END_NETWORK_TABLE()
 BEGIN_DATADESC( CCaptureFlag )
 
 	// Keyfields.
-	DEFINE_KEYFIELD( m_flResetTime, FIELD_INTEGER, "ReturnTime"),
-
 	DEFINE_KEYFIELD( m_nGameType, FIELD_INTEGER, "GameType" ),
-		
-	DEFINE_KEYFIELD( m_sFlagModel, FIELD_STRING, "flag_model" ),
-	DEFINE_KEYFIELD( m_sFlagIcon, FIELD_STRING, "flag_icon" ),
-	DEFINE_KEYFIELD( m_sFlagPaper, FIELD_STRING, "flag_paper" ),
-	DEFINE_KEYFIELD( m_sFlagTrail, FIELD_STRING, "flag_trail" ),
-
-
 
 #ifdef GAME_DLL
 	// Inputs.
@@ -108,18 +98,8 @@ BEGIN_DATADESC( CCaptureFlag )
 	// Outputs.
 	DEFINE_OUTPUT( m_outputOnReturn, "OnReturn" ),
 	DEFINE_OUTPUT( m_outputOnPickUp, "OnPickUp" ),
-	DEFINE_OUTPUT( m_outputOnPickUpTeam1, "OnPickupTeam1" ),
-	DEFINE_OUTPUT( m_outputOnPickUpTeam2, "OnPickupTeam2" ),
-	DEFINE_OUTPUT( m_outputOnPickUpTeam3, "OnPickupTeam3" ),
-	DEFINE_OUTPUT( m_outputOnPickUpTeam4, "OnPickupTeam4" ),
 	DEFINE_OUTPUT( m_outputOnDrop, "OnDrop" ),
 	DEFINE_OUTPUT( m_outputOnCapture, "OnCapture" ),
-	DEFINE_OUTPUT( m_outputOnCapTeam1, "OnCapTeam1"),
-	DEFINE_OUTPUT( m_outputOnCapTeam2, "OnCapTeam2" ),
-	DEFINE_OUTPUT( m_outputOnCapTeam3, "OnCapTeam3" ),
-	DEFINE_OUTPUT( m_outputOnCapTeam4, "OnCapTeam4" ),
-	DEFINE_OUTPUT( m_outputOnTouchSameTeam, "OnTouchSameTeam"),
-
 #endif
 
 END_DATADESC();
@@ -155,12 +135,7 @@ unsigned int CCaptureFlag::GetItemID( void )
 //-----------------------------------------------------------------------------
 void CCaptureFlag::Precache( void )
 {
-	if (m_sFlagModel == NULL_STRING)
-	{
-		m_sFlagModel = MAKE_STRING(TF_FLAG_MODEL);
-	}
-
-	PrecacheModel(STRING(m_sFlagModel));
+	PrecacheModel( TF_FLAG_MODEL );
 
 	PrecacheScriptSound( TF_CTF_FLAGSPAWN );
 	PrecacheScriptSound( TF_CTF_ENEMY_STOLEN );
@@ -192,17 +167,7 @@ void CCaptureFlag::Precache( void )
 
 	PrecacheParticleSystem( "player_intel_trail_blue" );
 	PrecacheParticleSystem( "player_intel_trail_red" );
-	PrecacheParticleSystem(	"player_intel_trail_green" );
-	PrecacheParticleSystem(	"player_intel_trail_yellow" );
-
-	if (m_sFlagPaper == NULL_STRING)
-	{
-		m_sFlagPaper = MAKE_STRING("player_intel_papertrail");
-	}
-
-	PrecacheParticleSystem(STRING(m_sFlagPaper));
-
-
+	PrecacheParticleSystem( "player_intel_papertrail" );
 }
 
 #ifndef GAME_DLL
@@ -237,12 +202,8 @@ void CCaptureFlag::Spawn( void )
 {
 	// Precache the model and sounds.  Set the flag model.
 	Precache();
+	SetModel( TF_FLAG_MODEL );
 
-	if (m_sFlagIcon == NULL_STRING)
-		m_sFlagIcon = MAKE_STRING("../hud/objectives_flagpanel_carried");
-
-	SetModel(STRING(m_sFlagModel));
-	
 	// Set the flag solid and the size for touching.
 	SetSolid( SOLID_BBOX );
 	SetSolidFlags( FSOLID_NOT_SOLID | FSOLID_TRIGGER );
@@ -298,37 +259,6 @@ void CCaptureFlag::Spawn( void )
 		SetDisabled( false );
 	}
 }
-
-#ifdef CLIENT_DLL
-
-// Manage glow effect
-void CCaptureFlag::EnableGlowEffect(void)
-{
-	if (g_GlowObjectManager.HasGlowEffect(this))
-		return;
-
-	switch (GetTeamNumber())
-	{
-	case TF_TEAM_BLUE:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0, 0, 255), 128, true, true, 0);
-		break;
-	case TF_TEAM_RED:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(255, 0, 0), 128, true, true, 0);
-		break;
-	case TF_TEAM_GREEN:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(0, 255, 0), 128, true, true, 0);
-		break;
-	case TF_TEAM_YELLOW:
-		g_GlowObjectManager.RegisterGlowObject(this, Vector(255, 255, 0), 128, true, true, 0);
-		break;
-	default:
-		return;
-		break;
-	}
-
-}
-
-#endif
 
 #ifdef GAME_DLL
 //-----------------------------------------------------------------------------
@@ -468,9 +398,6 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 	{
 		return;
 	}
-
-	if (pOther->GetTeamNumber() == GetTeamNumber())
-		m_outputOnTouchSameTeam.FireOutput(this, this);
 #endif
 
 	// Does my team own this flag? If so, no touch.
@@ -516,10 +443,6 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 	if ( PointInRespawnRoom(pPlayer,pPlayer->WorldSpaceCenter()) )
 		return;
 #endif
-
-	// Do not allow the player to pick up multiple flags
-	if ( pPlayer->HasTheFlag() )
-		return;
 
 	// Pick up the flag.
 	PickUp( pPlayer, true );
@@ -667,25 +590,6 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 	// Output.
 	m_outputOnPickUp.FireOutput( this, this );
 
-	switch (pPlayer->GetTeamNumber())
-	{
-	case TF_TEAM_RED:
-		m_outputOnPickUpTeam1.FireOutput( this, this );
-		break;
-
-	case TF_TEAM_BLUE:
-		m_outputOnPickUpTeam2.FireOutput(this, this);
-		break;
-
-	case TF_TEAM_GREEN:
-		m_outputOnPickUpTeam3.FireOutput(this, this);
-		break;
-
-	case TF_TEAM_YELLOW:
-		m_outputOnPickUpTeam4.FireOutput(this, this);
-		break;
-	}
-
 	if ( m_hReturnIcon.Get() )
 	{
 		UTIL_Remove( m_hReturnIcon );
@@ -816,13 +720,6 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 
 		// Reward the team
 		TFTeamMgr()->AddTeamScore( pPlayer->GetTeamNumber(), TF_INVADE_CAPTURED_TEAM_FRAGS );
-
-		// This was added by request for the "push" map -danielmm8888
-		if (tf_flag_caps_per_round.GetInt() > 0)
-		{
-			TFTeamMgr()->IncrementFlagCaptures(pPlayer->GetTeamNumber());
-		}
-
 	}
 
 	IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_flag_event" );
@@ -848,25 +745,6 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 	
 	// Output.
 	m_outputOnCapture.FireOutput( this, this );
-
-	switch (pPlayer->GetTeamNumber())
-	{
-	case TF_TEAM_RED:
-		m_outputOnCapTeam1.FireOutput(this, this);
-		break;
-
-	case TF_TEAM_BLUE:
-		m_outputOnCapTeam2.FireOutput(this, this);
-		break;
-
-	case TF_TEAM_GREEN:
-		m_outputOnCapTeam3.FireOutput(this, this);
-		break;
-
-	case TF_TEAM_YELLOW:
-		m_outputOnCapTeam4.FireOutput(this, this);
-		break;
-	}
 
 	m_bCaptured = true;
 	SetNextThink( gpGlobals->curtime + TF_FLAG_THINK_TIME );
@@ -1213,7 +1091,6 @@ void CCaptureFlag::Simulate( void )
 	BaseClass::Simulate();
 
 	ManageTrailEffects();
-	EnableGlowEffect();
 }
 
 void CCaptureFlag::ManageTrailEffects( void )
@@ -1233,12 +1110,6 @@ void CCaptureFlag::ManageTrailEffects( void )
 					break;
 				case TF_TEAM_RED:
 					pEffectName = "player_intel_trail_red";
-					break;
-				case TF_TEAM_GREEN:
-					pEffectName = "player_intel_trail_green";
-					break;
-				case TF_TEAM_YELLOW:
-					pEffectName = "player_intel_trail_yellow";
 					break;
 				default:
 					pEffectName = "player_intel_trail_blue";
@@ -1261,7 +1132,7 @@ void CCaptureFlag::ManageTrailEffects( void )
 				{
 					if ( m_pPaperTrailEffect == NULL )
 					{
-						m_pPaperTrailEffect = ParticleProp()->Create( m_sFlagPaper, PATTACH_ABSORIGIN_FOLLOW );
+						m_pPaperTrailEffect = ParticleProp()->Create( "player_intel_papertrail", PATTACH_ABSORIGIN_FOLLOW );
 					}
 				}
 				else
@@ -1446,16 +1317,6 @@ void CCaptureFlagReturnIcon::DrawReturnProgressBar( void )
 		ubColor[0] = 0;
 		ubColor[1] = 0;
 		ubColor[2] = 255;
-		break;
-	case TF_TEAM_GREEN:
-		ubColor[0] = 0;
-		ubColor[1] = 255;
-		ubColor[2] = 0;
-		break;
-	case TF_TEAM_YELLOW:
-		ubColor[0] = 255;
-		ubColor[1] = 255;
-		ubColor[2] = 0;
 		break;
 	default:
 		ubColor[0] = 100;

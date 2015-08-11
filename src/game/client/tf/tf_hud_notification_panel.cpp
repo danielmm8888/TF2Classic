@@ -136,14 +136,6 @@ void CHudNotificationPanel::SetupNotifyCustom( const char *pszText, const char *
 	{
 		m_pBackground->SetImage( "../hud/score_panel_blue_bg" );
 	}
-	else if ( iBackgroundTeam == TF_TEAM_GREEN )
-	{
-		m_pBackground->SetImage("../hud/score_panel_green_bg");
-	}
-	else if  (iBackgroundTeam == TF_TEAM_YELLOW )
-	{
-		m_pBackground->SetImage("../hud/score_panel_yellow_bg");
-	}
 	else
 	{
 		m_pBackground->SetImage( "../hud/notification_black" );

@@ -522,38 +522,6 @@ static const char *g_sClassImagesRed[] = {
 	"",
 };
 
-static const char *g_sClassImagesGreen[] = {
-	"",
-	"class_sel_sm_scout_grn",
-	"class_sel_sm_soldier_grn",
-	"class_sel_sm_pyro_grn",
-
-	"class_sel_sm_demo_grn",
-	"class_sel_sm_heavy_grn",
-	"class_sel_sm_engineer_grn",
-
-	"class_sel_sm_medic_grn",
-	"class_sel_sm_sniper_grn",
-	"class_sel_sm_spy_grn",
-	"",
-};
-
-static const char *g_sClassImagesYellow[] = {
-	"",
-	"class_sel_sm_scout_ylw",
-	"class_sel_sm_soldier_ylw",
-	"class_sel_sm_pyro_ylw",
-
-	"class_sel_sm_demo_ylw",
-	"class_sel_sm_heavy_ylw",
-	"class_sel_sm_engineer_ylw",
-
-	"class_sel_sm_medic_ylw",
-	"class_sel_sm_sniper_ylw",
-	"class_sel_sm_spy_ylw",
-	"",
-};
-
 static int g_sClassDefines[] = {
 	0,
 	TF_CLASS_SCOUT,	
@@ -606,28 +574,7 @@ void CTFClassMenu::UpdateNumClassLabels( int iTeam )
 				if ( pImage )
 				{
 					pImage->SetVisible( true );
-					
-					switch (iTeam)
-					{
-						case TF_TEAM_RED:
-							pImage->SetImage(g_sClassImagesRed[i]);
-							break;
-
-						case TF_TEAM_BLUE:
-							pImage->SetImage(g_sClassImagesBlue[i]);
-							break;
-
-						case TF_TEAM_GREEN:
-							pImage->SetImage(g_sClassImagesGreen[i]);
-							break;
-
-						case TF_TEAM_YELLOW:
-							pImage->SetImage(g_sClassImagesYellow[i]);
-							break;
-
-						default:
-							break;
-					}
+					pImage->SetImage( iTeam == TF_TEAM_BLUE ? g_sClassImagesBlue[i] : g_sClassImagesRed[i] );
 				}
 
 				nTotalCount++;

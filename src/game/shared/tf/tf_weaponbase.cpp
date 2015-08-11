@@ -223,6 +223,7 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
+	
 }
 
 //-----------------------------------------------------------------------------
@@ -284,18 +285,6 @@ void CTFWeaponBase::Precache()
 		Q_snprintf( pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_blue_crit", pTFInfo->m_szTracerEffect );
 		PrecacheParticleSystem( pTracerEffect );
 		PrecacheParticleSystem( pTracerEffectCrit );
-
-		Q_snprintf(pTracerEffect, sizeof(pTracerEffect), "%s_green", pTFInfo->m_szTracerEffect);
-		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_green_crit", pTFInfo->m_szTracerEffect);
-		PrecacheParticleSystem(pTracerEffect);
-		PrecacheParticleSystem(pTracerEffectCrit);
-
-		Q_snprintf(pTracerEffect, sizeof(pTracerEffect), "%s_yellow", pTFInfo->m_szTracerEffect);
-		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_yellow_crit", pTFInfo->m_szTracerEffect);
-		PrecacheParticleSystem(pTracerEffect);
-		PrecacheParticleSystem(pTracerEffectCrit);
-
-
 	}
 }
 
@@ -1119,32 +1108,11 @@ const char *CTFWeaponBase::GetTracerType( void )
 { 
 	if ( tf_useparticletracers.GetBool() && GetTFWpnData().m_szTracerEffect && GetTFWpnData().m_szTracerEffect[0] )
 	{
-		if (GetOwner() && !m_szTracerName[0])
+		if ( !m_szTracerName[0] )
 		{
-			switch (GetOwner()->GetTeamNumber())
-			{
-				case TF_TEAM_RED:
-					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
-					break;
-				case TF_TEAM_BLUE:
-					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "blue");
-					break;
-				case TF_TEAM_GREEN:
-					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "green");
-					break;
-				case TF_TEAM_YELLOW:
-					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "yellow");
-					break;
-				default:
-					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
-					break;
-			}
+			Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, 
+				(GetOwner() && GetOwner()->GetTeamNumber() == TF_TEAM_RED ) ? "red" : "blue" );
 		}
-
-		//if ( !m_szTracerName[0] )
-		//{
-		//	Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, tempString);
-		//}
 
 		return m_szTracerName;
 	}
@@ -2104,12 +2072,6 @@ int CTFWeaponBase::GetSkin()
 				break;
 			case TF_TEAM_BLUE:
 				nSkin = 1;
-				break;
-			case TF_TEAM_GREEN:
-				nSkin = 2;
-				break;
-			case TF_TEAM_YELLOW:
-				nSkin = 3;
 				break;
 			}
 		}

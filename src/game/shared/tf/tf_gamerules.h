@@ -60,30 +60,14 @@ public:
 	DECLARE_DATADESC();
 	void	InputSetRedTeamRespawnWaveTime( inputdata_t &inputdata );
 	void	InputSetBlueTeamRespawnWaveTime( inputdata_t &inputdata );
-	void	InputSetGreenTeamRespawnWaveTime(inputdata_t &inputdata);
-	void	InputSetYellowTeamRespawnWaveTime(inputdata_t &inputdata);
 	void	InputAddRedTeamRespawnWaveTime( inputdata_t &inputdata );
 	void	InputAddBlueTeamRespawnWaveTime( inputdata_t &inputdata );
-	void	InputAddGreenTeamRespawnWaveTime(inputdata_t &inputdata);
-	void	InputAddYellowTeamRespawnWaveTime(inputdata_t &inputdata);
 	void	InputSetRedTeamGoalString( inputdata_t &inputdata );
 	void	InputSetBlueTeamGoalString( inputdata_t &inputdata );
-	void	InputSetGreenTeamGoalString(inputdata_t &inputdata);
-	void	InputSetYellowTeamGoalString(inputdata_t &inputdata);
 	void	InputSetRedTeamRole( inputdata_t &inputdata );
 	void	InputSetBlueTeamRole( inputdata_t &inputdata );
-	void	InputSetGreenTeamRole(inputdata_t &inputdata);
-	void	InputSetYellowTeamRole(inputdata_t &inputdata);
-	void	InputAddRedTeamScore(inputdata_t &inputdata);
-	void	InputAddBlueTeamScore(inputdata_t &inputdata);
-	void	InputAddGreenTeamScore(inputdata_t &inputdata);
-	void	InputAddYellowTeamScore(inputdata_t &inputdata);	
 
 	virtual void Activate();
-
-	int		m_iHud_Type;
-	bool	m_bFourTeamMode;
-
 #endif
 };
 
@@ -176,8 +160,6 @@ public:
 
 	virtual void	Activate();
 
-	virtual void	SetHudType(int iHudType){ m_iHudType = iHudType; };
-
 	virtual bool	AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
 	void			SetTeamGoalString( int iTeam, const char *pszGoal );
@@ -228,13 +210,9 @@ public:
 
 	const char *GetTeamGoalString( int iTeam );
 
-	virtual int		GetHudType(void){ return m_iHudType; };
-
 	virtual bool	IsMultiplayer(void){ return true; };
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
-
-	bool			IsFourTeamGame( void ){ return m_bFourTeamMode; };
 
 #ifdef CLIENT_DLL
 
@@ -347,8 +325,6 @@ private:
 	CNetworkVar( int, m_nGameType ); // Type of game this map is (CTF, CP)
 	CNetworkString( m_pszTeamGoalStringRed, MAX_TEAMGOAL_STRING );
 	CNetworkString( m_pszTeamGoalStringBlue, MAX_TEAMGOAL_STRING );
-	CNetworkString( m_pszTeamGoalStringGreen, MAX_TEAMGOAL_STRING );
-	CNetworkString( m_pszTeamGoalStringYellow, MAX_TEAMGOAL_STRING );
 
 public:
 
@@ -356,9 +332,6 @@ public:
 	int	 m_iPreviousRoundWinners;
 
 	int		m_iBirthdayMode;
-	int		m_iHudType;
-
-	CNetworkVar( bool, m_bFourTeamMode );
 };
 
 //-----------------------------------------------------------------------------

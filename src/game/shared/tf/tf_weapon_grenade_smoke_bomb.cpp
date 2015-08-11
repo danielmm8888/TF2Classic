@@ -37,8 +37,6 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( tf_weapon_grenade_smoke_bomb, CTFGrenadeSmokeBomb );
 PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_smoke_bomb );
 
-ConVar tf_smoke_bomb_time("tf_smoke_bomb_time", "5.0", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY);
-
 //=============================================================================
 //
 // TF Smoke Bomb functions.
@@ -58,6 +56,7 @@ extern ConVar tf_smoke_bomb_time;
 CTFWeaponBaseGrenadeProj *CTFGrenadeSmokeBomb::EmitGrenade( Vector vecSrc, QAngle vecAngles, Vector vecVel, 
 													 AngularImpulse angImpulse, CBasePlayer *pPlayer, float flTime, int iflags )
 {
+#if 0
 	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 	if ( pTFPlayer )
@@ -80,7 +79,8 @@ CTFWeaponBaseGrenadeProj *CTFGrenadeSmokeBomb::EmitGrenade( Vector vecSrc, QAngl
 			pTFPlayer->m_Shared.AddCond( TF_COND_SMOKE_BOMB, tf_smoke_bomb_time.GetFloat() );
 		}
 	}
-	// The Smoke Grenade is missing the projectile
+#endif
+
 	return NULL;
 }
 

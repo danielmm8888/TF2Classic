@@ -14,7 +14,7 @@
 #include <vgui_controls/ImagePanel.h>
 #include "tf_controls.h"
 #include "tf_imagepanel.h"
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 
 //-----------------------------------------------------------------------------
 // Purpose:  
@@ -57,7 +57,6 @@ private:
 	float				m_flNextThink;
 
 	CTFClassImage		*m_pClassImage;
-	CTFClassImage		*m_pClassImageBG;
 	CTFImagePanel		*m_pSpyImage; // used when spies are disguised
 	CTFImagePanel		*m_pSpyOutlineImage;
 
@@ -105,8 +104,6 @@ public:
 	void	SetHealth( int iNewHealth, int iMaxHealth, int iMaxBuffedHealth );
 	void	HideHealthBonusImage( void );
 
-	void	ShowBuildingHealthBG( bool bNewState );
-
 protected:
 
 	virtual void OnThink();
@@ -118,7 +115,6 @@ private:
 	CTFHealthPanel		*m_pHealthImage;
 	CTFImagePanel		*m_pHealthBonusImage;
 	vgui::ImagePanel	*m_pHealthImageBG;
-	vgui::ImagePanel	*m_pBuildigHealthImageBG;
 
 	int					m_nHealth;
 	int					m_nMaxHealth;

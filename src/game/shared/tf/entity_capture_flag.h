@@ -156,7 +156,6 @@ public:
 	void			Think( void );
 	
 	void			SetFlagStatus( int iStatus );
-	int				GetFlagStatus( void ) { return m_nFlagStatus; };
 	void			ResetFlagReturnTime( void ) { m_flResetTime = 0; }
 	void			SetFlagReturnIn( float flTime )
 	{
@@ -176,7 +175,7 @@ public:
 
 #else // CLIENT DLL Functions
 
-	virtual const char	*GetIDString(void) { return "entity_capture_flag"; };
+	virtual const char	*GetIDString( void ) { return "entity_capture_flag"; };
 
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
@@ -190,8 +189,6 @@ public:
 	float			GetMaxResetTime() { return m_flMaxResetTime; }
 	float			GetReturnProgress( void );
 
-	void			EnableGlowEffect(void);
-
 #endif
 
 	void			Capture( CTFPlayer *pPlayer, int nCapturePoint );
@@ -204,12 +201,9 @@ public:
 	bool			IsHome( void );
 	bool			IsStolen( void );
 
-	string_t		m_sFlagIcon;
-
-	void			Reset( void );
-
 private:
 
+	void			Reset( void );
 	void			ResetMessage( void );
 
 private:
@@ -234,18 +228,8 @@ private:
 
 	COutputEvent	m_outputOnReturn;	// Fired when the flag is returned via timer.
 	COutputEvent	m_outputOnPickUp;	// Fired when the flag is picked up.
-	COutputEvent	m_outputOnPickUpTeam1;	
-	COutputEvent	m_outputOnPickUpTeam2;	
-	COutputEvent	m_outputOnPickUpTeam3;	
-	COutputEvent	m_outputOnPickUpTeam4;	
 	COutputEvent	m_outputOnDrop;		// Fired when the flag is dropped.
 	COutputEvent	m_outputOnCapture;	// Fired when the flag is captured.
-	COutputEvent	m_outputOnCapTeam1;	
-	COutputEvent	m_outputOnCapTeam2;
-	COutputEvent	m_outputOnCapTeam3;	
-	COutputEvent	m_outputOnCapTeam4;	
-	COutputEvent	m_outputOnTouchSameTeam;
-
 
 	bool			m_bAllowOwnerPickup;
 
@@ -259,10 +243,6 @@ private:
 	int			m_nOldFlagStatus;
 
 #endif
-
-	string_t			m_sFlagModel;
-	string_t			m_sFlagPaper;
-	string_t			m_sFlagTrail;
 
 	DECLARE_DATADESC();
 };

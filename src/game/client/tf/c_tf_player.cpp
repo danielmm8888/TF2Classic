@@ -79,7 +79,7 @@ ConVar cl_autorezoom( "cl_autorezoom", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Whe
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
-IMaterial	*g_pHeadLabelMaterial[4] = { NULL, NULL }; 
+IMaterial	*g_pHeadLabelMaterial[2] = { NULL, NULL }; 
 void	SetupHeadLabelMaterials( void );
 
 extern CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *pModel, const Vector &position, 
@@ -88,22 +88,15 @@ extern CBaseEntity *BreakModelCreateSingle( CBaseEntity *pOwner, breakmodel_t *p
 const char *pszHeadLabelNames[] =
 {
 	"effects/speech_voice_red",
-	"effects/speech_voice_blue",
-	"effects/speech_voice_green",
-	"effects/speech_voice_yellow"
+	"effects/speech_voice_blue"
 };
 
 #define TF_PLAYER_HEAD_LABEL_RED 0
 #define TF_PLAYER_HEAD_LABEL_BLUE 1
-#define TF_PLAYER_HEAD_LABEL_GREEN 2
-#define TF_PLAYER_HEAD_LABEL_YELLOW 3
-
 
 CLIENTEFFECT_REGISTER_BEGIN( PrecacheInvuln )
 CLIENTEFFECT_MATERIAL( "models/effects/invulnfx_blue.vmt" )
 CLIENTEFFECT_MATERIAL( "models/effects/invulnfx_red.vmt" )
-CLIENTEFFECT_MATERIAL( "models/effects/invulnfx_green.vmt" )
-CLIENTEFFECT_MATERIAL( "models/effects/invulnfx_yellow.vmt" )
 CLIENTEFFECT_REGISTER_END()
 
 // -------------------------------------------------------------------------------- //
@@ -360,23 +353,13 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		int nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
 		SetModelIndex( nModelIndex );	
 
-		switch (m_iTeam)
+		if ( m_iTeam == TF_TEAM_RED )
 		{
-			case TF_TEAM_RED:
-				m_nSkin = 0;
-				break;
-
-			case TF_TEAM_BLUE:
-				m_nSkin = 1;
-					break;
-
-			case TF_TEAM_GREEN:
-				m_nSkin = 4;
-					break;
-
-			case TF_TEAM_YELLOW:
-				m_nSkin = 5;
-					break;
+			m_nSkin = 0;
+		}
+		else
+		{
+			m_nSkin = 1;
 		}
 	}
 
@@ -1480,17 +1463,11 @@ void C_TFPlayer::InitInvulnerableMaterial( void )
 
 	switch ( iVisibleTeam )
 	{
-	case TF_TEAM_RED:
-		pszMaterial = "models/effects/invulnfx_red.vmt";
-		break;
 	case TF_TEAM_BLUE:	
 		pszMaterial = "models/effects/invulnfx_blue.vmt";
 		break;
-	case TF_TEAM_GREEN:
-		pszMaterial = "models/effects/invulnfx_green.vmt";
-		break;
-	case TF_TEAM_YELLOW:
-		pszMaterial = "models/effects/invulnfx_yellow.vmt";
+	case TF_TEAM_RED:	
+		pszMaterial = "models/effects/invulnfx_red.vmt";
 		break;
 	default:
 		break;
@@ -1546,17 +1523,11 @@ void C_TFPlayer::OnAddTeleported( void )
 
 		switch( GetTeamNumber() )
 		{
-		case TF_TEAM_RED:
-			pEffect = "player_recent_teleport_red";
-			break;
 		case TF_TEAM_BLUE:
 			pEffect = "player_recent_teleport_blue";
 			break;
-		case TF_TEAM_GREEN:
-			pEffect = "player_recent_teleport_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffect = "player_recent_teleport_yellow";
+		case TF_TEAM_RED:
+			pEffect = "player_recent_teleport_red";
 			break;
 		default:
 			break;
@@ -1751,12 +1722,6 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 		case TF_TEAM_BLUE:
 			pszEffect = "particle_nemesis_blue";
 			break;
-		case TF_TEAM_GREEN:
-			pszEffect = "particle_nemesis_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pszEffect = "particle_nemesis_yellow";
-			break;
 		default:
 			return;	// shouldn't get called if we're not on a team; bail out if it does
 		}
@@ -1767,8 +1732,6 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 		// stop effects for both team colors (to make sure we remove effects in event of team change)
 		ParticleProp()->StopParticlesNamed( "particle_nemesis_red", true );
 		ParticleProp()->StopParticlesNamed( "particle_nemesis_blue", true );
-		ParticleProp()->StopParticlesNamed( "particle_nemesis_green", true );
-		ParticleProp()->StopParticlesNamed( "particle_nemesis_yellow", true );
 	}
 	m_bIsDisplayingNemesisIcon = bShow;
 }
@@ -2987,14 +2950,6 @@ int C_TFPlayer::GetSkin()
 			nSkin = 1;
 			break;
 
-		case TF_TEAM_GREEN:
-			nSkin = 4;
-			break;
-
-		case TF_TEAM_YELLOW:
-			nSkin = 5;
-			break;
-
 		default:
 			nSkin = 0;
 			break;
@@ -3558,24 +3513,13 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 	if ( g_pHeadLabelMaterial[0] == NULL )
 		SetupHeadLabelMaterials();
 
-	switch (GetTeamNumber())
+	if ( GetTeamNumber() == TF_TEAM_RED )
 	{
-		case TF_TEAM_RED:
-			return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_RED];
-			break;
-
-		case TF_TEAM_BLUE:
-			return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_BLUE];
-			break;
-
-		case TF_TEAM_GREEN:
-			return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_GREEN];
-			break;
-
-		case TF_TEAM_YELLOW:
-			return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_YELLOW];
-			break;
-
+		return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_RED];
+	}
+	else
+	{
+		return g_pHeadLabelMaterial[TF_PLAYER_HEAD_LABEL_BLUE];
 	}
 
 	return BaseClass::GetHeadLabelMaterial();
@@ -3583,7 +3527,7 @@ IMaterial *C_TFPlayer::GetHeadLabelMaterial( void )
 
 void SetupHeadLabelMaterials( void )
 {
-	for (int i = 0; i < (TF_TEAM_COUNT - 2); i++)
+	for ( int i = 0; i < 2; i++ )
 	{
 		if ( g_pHeadLabelMaterial[i] )
 		{

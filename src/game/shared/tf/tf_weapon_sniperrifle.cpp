@@ -1,4 +1,4 @@
-﻿//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
+//====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: TF Sniper Rifle
 //
@@ -14,10 +14,10 @@
 #include "beamdraw.h"
 #include "vgui/ISurface.h"
 #include <vgui/ILocalize.h>
-#include "vgui_controls/Controls.h"
+#include "vgui_controls/controls.h"
 #include "hud_crosshair.h"
-#include "functionproxy.h"
-#include "materialsystem/imaterialvar.h"
+#include "FunctionProxy.h"
+#include "materialsystem/IMaterialVar.h"
 #include "toolframework_client.h"
 #include "input.h"
 
@@ -36,8 +36,6 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 
 #define SNIPER_DOT_SPRITE_RED		"effects/sniperdot_red.vmt"
 #define SNIPER_DOT_SPRITE_BLUE		"effects/sniperdot_blue.vmt"
-#define SNIPER_DOT_SPRITE_GREEN		"effects/sniperdot_green.vmt"
-#define SNIPER_DOT_SPRITE_YELLOW	"effects/sniperdot_yellow.vmt"
 
 //=============================================================================
 //
@@ -120,8 +118,6 @@ void CTFSniperRifle::Precache()
 	BaseClass::Precache();
 	PrecacheModel( SNIPER_DOT_SPRITE_RED );
 	PrecacheModel( SNIPER_DOT_SPRITE_BLUE );
-	PrecacheModel(SNIPER_DOT_SPRITE_GREEN);
-	PrecacheModel(SNIPER_DOT_SPRITE_YELLOW);
 }
 
 //-----------------------------------------------------------------------------
@@ -908,21 +904,13 @@ void CSniperDot::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
-
-		switch (GetTeamNumber())
+		if ( GetTeamNumber() == TF_TEAM_BLUE )
 		{
-		case TF_TEAM_RED:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_BLUE:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_GREEN:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_GREEN, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_YELLOW:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_YELLOW, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
+			m_hSpriteMaterial.Init( SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS );
+		}
+		else
+		{
+			m_hSpriteMaterial.Init( SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS );
 		}
 	}
 }

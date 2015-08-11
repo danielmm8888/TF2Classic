@@ -23,8 +23,6 @@ C_TFObjectiveResource::C_TFObjectiveResource()
 {
 	PrecacheMaterial( "sprites/obj_icons/icon_obj_cap_blu" );
 	PrecacheMaterial( "sprites/obj_icons/icon_obj_cap_red" );
-	PrecacheMaterial( "sprites/obj_icons/icon_obj_cap_grn" );
-	PrecacheMaterial( "sprites/obj_icons/icon_obj_cap_ylw" );
 }
 
 //-----------------------------------------------------------------------------
@@ -42,25 +40,8 @@ const char *C_TFObjectiveResource::GetGameSpecificCPCappingSwipe( int index, int
 	Assert( index < m_iNumControlPoints );
 	Assert( iCappingTeam != TEAM_UNASSIGNED );
 
-	switch (iCappingTeam)
-	{
-		case TF_TEAM_RED:
-			return "sprites/obj_icons/icon_obj_cap_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "sprites/obj_icons/icon_obj_cap_blu";
-			break;
-		case TF_TEAM_GREEN:
-			return "sprites/obj_icons/icon_obj_cap_grn";
-			break;
-		case TF_TEAM_YELLOW:
-			return "sprites/obj_icons/icon_obj_cap_ylw";
-			break;
-		default:
-			return "sprites/obj_icons/icon_obj_cap_blu";
-			break;
-	}
-		
+	if ( iCappingTeam == TF_TEAM_RED )
+		return "sprites/obj_icons/icon_obj_cap_red";	
 
 	return "sprites/obj_icons/icon_obj_cap_blu";
 }
@@ -72,24 +53,12 @@ const char *C_TFObjectiveResource::GetGameSpecificCPBarFG( int index, int iOwnin
 {
 	Assert( index < m_iNumControlPoints );
 
-	switch (iOwningTeam)
-	{
-		case TF_TEAM_RED:
-			return "progress_bar_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "progress_bar_blu";
-			break;
-		case TF_TEAM_GREEN:
-			return "progress_bar_grn";
-			break;
-		case TF_TEAM_YELLOW:
-			return "progress_bar_ylw";
-			break;
-		default:
-			return "progress_bar";
-			break;
-	}
+	if ( iOwningTeam == TF_TEAM_RED )
+		return "progress_bar_red";
+
+	if ( iOwningTeam == TF_TEAM_BLUE )
+		return "progress_bar_blu";
+
 	return "progress_bar";
 }
 
@@ -101,24 +70,8 @@ const char *C_TFObjectiveResource::GetGameSpecificCPBarBG( int index, int iCappi
 	Assert( index < m_iNumControlPoints );
 	Assert( iCappingTeam != TEAM_UNASSIGNED );
 
-	switch (iCappingTeam)
-	{
-		case TF_TEAM_RED:
-			return "progress_bar_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "progress_bar_blu";
-			break;
-		case TF_TEAM_GREEN:
-			return "progress_bar_grn";
-			break;
-		case TF_TEAM_YELLOW:
-			return "progress_bar_ylw";
-			break;
-		default:
-			return "progress_bar";
-			break;
-	}
+	if ( iCappingTeam == TF_TEAM_RED )
+		return "progress_bar_red";
 
 	return "progress_bar_blu";
 }

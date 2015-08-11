@@ -685,46 +685,12 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	{
 		if ( m_bCritFire )
 		{
-			switch(pOwner->GetTeamNumber())
-			{
-			case TF_TEAM_RED:
-				pszParticleEffect = "flamethrower_crit_red";
-				break;
-			case TF_TEAM_BLUE:
-				pszParticleEffect = "flamethrower_crit_blue";
-				break;
-			case TF_TEAM_GREEN:
-				pszParticleEffect = "flamethrower_crit_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszParticleEffect = "flamethrower_crit_yellow";
-				break;
-			default:
-				pszParticleEffect = "flamethrower_crit_blue";
-				break;
-			}
+			pszParticleEffect = ( pOwner->GetTeamNumber() == TF_TEAM_BLUE ? "flamethrower_crit_blue" : "flamethrower_crit_red" );
 		}
 		else 
 		{
-			switch(pOwner->GetTeamNumber())
-			{
-			case TF_TEAM_RED:
-				pszParticleEffect = "flamethrower";
-				break;
-			case TF_TEAM_BLUE:
-				pszParticleEffect = "flamethrower_blue";
-				break;
-			case TF_TEAM_GREEN:
-				pszParticleEffect = "flamethrower_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszParticleEffect = "flamethrower_yellow";
-				break;
-			default:
-				pszParticleEffect = "flamethrower_blue";
-				break;
-			}
-		}		
+			pszParticleEffect = ( pOwner->GetTeamNumber() == TF_TEAM_BLUE ? "flamethrower_blue" : "flamethrower" );
+		}	
 	}
 
 	// Start the effect on the viewmodel if our owner is the local player

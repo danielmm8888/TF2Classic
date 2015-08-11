@@ -180,16 +180,10 @@ void CWeaponMedigun::Precache()
 	PrecacheScriptSound( "WeaponMedigun.Charged" );
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
 	PrecacheParticleSystem( "medicgun_beam_red_invun" );
 	PrecacheParticleSystem( "medicgun_beam_red" );
 	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
 	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green_invun");
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow_invun");
-	PrecacheParticleSystem("medicgun_beam_yellow");
 }
 
 //-----------------------------------------------------------------------------
@@ -1008,12 +1002,6 @@ void CWeaponMedigun::ManageChargeEffect( void )
 			case TF_TEAM_RED:
 				pszEffectName = "medicgun_invulnstatus_fullcharge_red";
 				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_yellow";
-				break;
 			default:
 				pszEffectName = "";
 				break;
@@ -1178,49 +1166,28 @@ void CWeaponMedigun::UpdateEffects( void )
 			return;
 
 		const char *pszEffectName;
-		if (m_bChargeRelease)
+		if ( pFiringPlayer->GetTeamNumber() == TF_TEAM_RED )
 		{
-			switch (GetTeamNumber())
+			if ( m_bChargeRelease )
 			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue_invun";
-				break;
-			case TF_TEAM_RED:
 				pszEffectName = "medicgun_beam_red_invun";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green_invun";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow_invun";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
+			}
+			else
+			{
+				pszEffectName = "medicgun_beam_red";
 			}
 		}
 		else
 		{
-			switch (GetTeamNumber())
+			if ( m_bChargeRelease )
 			{
-			case TF_TEAM_BLUE:
+				pszEffectName = "medicgun_beam_blue_invun";
+			}
+			else
+			{
 				pszEffectName = "medicgun_beam_blue";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
 			}
 		}
-
 
 		CNewParticleEffect *pEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
 		pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );

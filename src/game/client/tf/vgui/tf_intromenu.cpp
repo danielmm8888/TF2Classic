@@ -167,14 +167,6 @@ void CTFIntroMenu::OnTick()
 					case TF_TEAM_BLUE:
 						m_pViewPort->ShowPanel( PANEL_CLASS_BLUE, true );
 						break;
-
-					case TF_TEAM_GREEN:
-						m_pViewPort->ShowPanel( PANEL_CLASS_GREEN, true );
-						break;
-
-					case TF_TEAM_YELLOW:
-						m_pViewPort->ShowPanel( PANEL_CLASS_YELLOW, true );
-						break;
 					}
 				}
 			}

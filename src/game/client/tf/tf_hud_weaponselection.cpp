@@ -163,8 +163,6 @@ private:
 	int m_iBGImage_Inactive;
 	int m_iBGImage_Blue;
 	int m_iBGImage_Red;
-	int m_iBGImage_Green;
-	int m_iBGImage_Yellow;
 };
 
 DECLARE_HUDELEMENT( CHudWeaponSelection );
@@ -294,12 +292,6 @@ void CHudWeaponSelection::Init()
 
 	m_iBGImage_Red = vgui::surface()->CreateNewTextureID();
 	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_red", true, false);
-
-	m_iBGImage_Green = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_green", true, false);
-
-	m_iBGImage_Yellow = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_yellow", true, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -739,28 +731,7 @@ void CHudWeaponSelection::DrawPlusStyleBox(int x, int y, int wide, int tall, boo
 
 	if ( bSelected && !bOutOfAmmo )
 	{
-		switch (pLocalPlayer->GetTeamNumber())
-		{
-			case TF_TEAM_RED:
-				iMaterial = m_iBGImage_Red;
-				break;
-
-			case TF_TEAM_BLUE:
-				iMaterial = m_iBGImage_Blue;
-				break;
-
-			case TF_TEAM_GREEN:
-				iMaterial = m_iBGImage_Green;
-				break;
-
-			case TF_TEAM_YELLOW:
-				iMaterial = m_iBGImage_Yellow;
-				break;
-
-			default:
-				iMaterial = m_iBGImage_Blue;
-				break;
-		}
+		iMaterial = ( pLocalPlayer->GetTeamNumber() == TF_TEAM_RED ) ? m_iBGImage_Red : m_iBGImage_Blue;
 	}
 	else
 	{
