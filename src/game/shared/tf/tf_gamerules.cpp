@@ -464,9 +464,9 @@ void CTFGameRulesProxy::Activate()
 
 	TFGameRules()->SetHudType(m_iHud_Type);
 
-	//TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
+	TFGameRules()->m_bFourTeamMode = m_bFourTeamMode;
 	// Always enable 4-team gameplay for HL2 campaign.
-	TFGameRules()->m_bFourTeamMode = true;
+	//TFGameRules()->m_bFourTeamMode = true;
 
 	BaseClass::Activate();
 }

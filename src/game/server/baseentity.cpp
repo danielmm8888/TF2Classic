@@ -1561,7 +1561,7 @@ int CBaseEntity::VPhysicsTakeDamage( const CTakeDamageInfo &info )
 		// setup the damage force & position inside the CTakeDamageInfo (Utility functions for this are in
 		// takedamageinfo.cpp. If you think the damage shouldn't cause force (unlikely!) then you can set the 
 		// damage type to DMG_GENERIC, or | DMG_CRUSH if you need to preserve the damage type for purposes of HUD display.
-#if !defined( TF_DLL ) && !defined( TF_CLASSIC )
+#if !defined( TF_DLL )
 		Assert( force != vec3_origin && offset != vec3_origin );
 #else
 		// this was spamming the console for Payload maps in TF (trigger_hurt entity on the front of the cart)
