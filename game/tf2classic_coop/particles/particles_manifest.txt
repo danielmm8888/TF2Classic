@@ -30,7 +30,6 @@ particles_manifest
 		"file"		"!particles/buildingdamage.pcf"
 		"file"		"!particles/shellejection.pcf"
 		"file"		"!particles/impact_fx.pcf"
-		"file"		"!particles/scout_nailtrails.pcf"
 		
 	//hl2
 	"file"		"particles/antlion_blood.pcf"
