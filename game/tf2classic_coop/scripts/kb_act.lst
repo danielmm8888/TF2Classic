@@ -27,7 +27,6 @@
 "dropitem"		"#TF_DropFlag"
 "taunt"			"#TF_Taunt"
 "showmapinfo"		"#TF_MapInfo"
-"toggle tf2c_weaponset_show" "#TF_Inventory"
 "blank"			"=========================="
 "blank"			"#TF_ClassSpecific_Keys"
 "blank"			"=========================="
