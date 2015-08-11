@@ -16,9 +16,6 @@
 #include "tf_hud_playerstatus.h"
 #include "clientscoreboarddialog.h"
 
-bool AreEnemyTeams(int iTeam1, int iTeam2);
-const wchar_t *GetPointsString(int iPoints);
-
 //-----------------------------------------------------------------------------
 // Purpose: displays the MapInfo menu
 //-----------------------------------------------------------------------------
@@ -55,7 +52,6 @@ private:
 	void UpdatePlayerDetails();
 	void ClearPlayerDetails();
 	bool ShouldShowAsSpectator( int iPlayerIndex );
-	bool ShouldShowAsUnassigned( int iPlayerIndex );
 	
 	virtual void FireGameEvent( IGameEvent *event );
 
@@ -66,18 +62,12 @@ private:
 	vgui::SectionedListPanel	*m_pPlayerListBlue;
 	vgui::SectionedListPanel	*m_pPlayerListRed;
 	CExLabel					*m_pLabelPlayerName;
-	CExLabel					*m_pLabelMapName;
 	vgui::ImagePanel			*m_pImagePanelHorizLine;
 	CTFClassImage				*m_pClassImage;
-	EditablePanel				*m_pLocalPlayerStatsPanel;
-	EditablePanel				*m_pLocalPlayerDuelStatsPanel;
-	CExLabel					*m_pSpectatorsInQueue;
 
 	int							m_iImageDead;
 	int							m_iImageDominated;
 	int							m_iImageNemesis;
-	int							m_iClassEmblem[TF_CLASS_COUNT_ALL];
-	int							m_iClassEmblemDead[TF_CLASS_COUNT_ALL];
 	
 	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "12", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );
