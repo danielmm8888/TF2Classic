@@ -28,6 +28,8 @@ public:
 
 	C_ObjectSentrygun();
 
+	int GetUpgradeLevel( void ) { return m_iUpgradeLevel; }
+
 	void GetAmmoCount( int &iShells, int &iMaxShells, int &iRockets, int & iMaxRockets );
 
 	void GetStatusText( wchar_t *pStatus, int iMaxStatusLen );
@@ -39,6 +41,7 @@ public:
 
 	virtual BuildingHudAlert_t GetBuildingAlertLevel( void );
 
+	int GetUpgradeMetal( void ) { return m_iUpgradeMetal; }
 	int GetUpgradeMetalRequired( void ) { return SENTRYGUN_UPGRADE_METAL; }
 
 	virtual const char *GetHudStatusIcon( void );
@@ -68,9 +71,14 @@ private:
 private:
 	int m_iState;
 
+	int m_iUpgradeLevel;
+	int	m_iOldUpgradeLevel;
+
 	int m_iAmmoShells;
 	int m_iMaxAmmoShells;
 	int m_iAmmoRockets;
+
+	int m_iUpgradeMetal;
 
 	int m_iKills;
 

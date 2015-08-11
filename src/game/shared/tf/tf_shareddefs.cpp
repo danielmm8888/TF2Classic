@@ -93,8 +93,6 @@ const char *g_aPlayerClassNames_NonLocalized[] =
 	"Pyro",
 	"Spy",
 	"Engineer",
-	"Civilian",
-	"Mercenary"
 };
 
 //-----------------------------------------------------------------------------
@@ -105,10 +103,6 @@ const char *g_aGameTypeNames[] =
 	"Undefined",
 	"#Gametype_CTF",
 	"#Gametype_CP",
-	"#Gametype_Escort",
-	"#Gametype_Arena",
-	"#Gametype_MVM",
-	"#Gametype_DM"
 };
 
 //-----------------------------------------------------------------------------
@@ -183,15 +177,6 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_SENTRY_ROCKET",
 	"TF_WEAPON_DISPENSER",
 	"TF_WEAPON_INVIS",
-	"TF_WEAPON_FLAG", // ADD NEW WEAPONS AFTER THIS
-	"TF_WEAPON_SMG_SCOUT",
-	"TF_WEAPON_ROCKETLAUNCHERBETA",
-	"TF_WEAPON_PIPE",
-	"TF_WEAPON_CYCLOPS",
-	"TF_WEAPON_OVERHEALER",
-	"TF_WEAPON_FISHWHACKER",
-	"TF_WEAPON_SHOTGUN_MEDIC",
-	"TF_WEAPON_HUNTERRIFLE",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -252,15 +237,6 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_SENTRY_ROCKET
 	DMG_GENERIC,	// TF_WEAPON_DISPENSER
 	DMG_GENERIC,	// TF_WEAPON_INVIS
-	DMG_GENERIC,	// TF_WEAPON_FLAG // ADD NEW WEAPONS AFTER THIS
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
-	DMG_CLUB,		// TF_WEAPON_PIPE,
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
-	DMG_BULLET,		// TF_WEAPON_OVERHEALER,
-	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
-	DMG_BULLET | DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC
-	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
@@ -275,8 +251,6 @@ const char *g_szProjectileNames[] =
 	"projectile_pipe",
 	"projectile_pipe_remote",
 	"projectile_syringe",
-	"projectile_nail",
-	"projectile_dart"
 };
 
 // these map to the projectiles named in g_szProjectileNames
@@ -287,11 +261,7 @@ int g_iProjectileWeapons[] =
 	TF_WEAPON_ROCKETLAUNCHER,
 	TF_WEAPON_PIPEBOMBLAUNCHER,
 	TF_WEAPON_GRENADELAUNCHER,
-	TF_WEAPON_SYRINGEGUN_MEDIC,
-	TF_WEAPON_NAILGUN,
-	TF_WEAPON_TRANQ,
-	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_CYCLOPS,
+	TF_WEAPON_SYRINGEGUN_MEDIC
 };
 
 const char *g_pszHintMessages[] =

@@ -36,7 +36,6 @@ CTFWeaponInfo::CTFWeaponInfo()
 
 	m_szMuzzleFlashModel[0] = '\0';
 	m_flMuzzleFlashModelDuration = 0;
-	m_flMuzzleFlashModelScale = 0;
 	m_szMuzzleFlashParticleEffect[0] = '\0';
 
 	m_szTracerEffect[0] = '\0';
@@ -158,14 +157,6 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	{
 		m_iWeaponType = TF_WPN_TYPE_PDA;
 	}
-	else if (!Q_strcmp(pszWeaponType, "item1"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM1;
-	}
-	else if (!Q_strcmp(pszWeaponType, "item2"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM2;
-	}
 
 	// Grenade data.
 	m_bGrenade				= ( pKeyValuesData->GetInt( "Grenade", 0 ) != 0 );
@@ -186,8 +177,6 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	}
 
 	m_flMuzzleFlashModelDuration = pKeyValuesData->GetFloat( "MuzzleFlashModelDuration", 0.2 );
-
-	m_flMuzzleFlashModelScale = pKeyValuesData->GetFloat("MuzzleFlashModelScale", 1.0);
 
 	const char *pszMuzzleFlashParticleEffect = pKeyValuesData->GetString( "MuzzleFlashParticleEffect", NULL );
 

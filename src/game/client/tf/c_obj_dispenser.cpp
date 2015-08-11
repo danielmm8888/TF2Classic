@@ -46,6 +46,7 @@ void RecvProxyArrayLength_HealingArray( void *pStruct, int objectID, int current
 
 IMPLEMENT_CLIENTCLASS_DT(C_ObjectDispenser, DT_ObjectDispenser, CObjectDispenser)
 	RecvPropInt( RECVINFO( m_iAmmoMetal ) ),
+
 	RecvPropArray2( 
 		RecvProxyArrayLength_HealingArray,
 		RecvPropInt( "healing_array_element", 0, SIZEOF_IGNORE, 0, RecvProxy_HealingList ), 
@@ -109,7 +110,6 @@ void C_ObjectDispenser::OnDataChanged( DataUpdateType_t updateType )
 		UpdateEffects();
 		m_bUpdateHealingTargets = false;
 	}
-
 }
 
 void C_ObjectDispenser::UpdateEffects( void )

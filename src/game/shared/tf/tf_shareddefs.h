@@ -55,15 +55,15 @@ enum
 //-----------------------------------------------------------------------------
 // CVar replacements
 //-----------------------------------------------------------------------------
-#define TF_DAMAGE_CRIT_CHANCE				0.02f
-#define TF_DAMAGE_CRIT_CHANCE_RAPID			0.02f
+#define TF_DAMAGE_CRIT_CHANCE				0.05f
+#define TF_DAMAGE_CRIT_CHANCE_RAPID			0.05f
 #define TF_DAMAGE_CRIT_DURATION_RAPID		2.0f
-#define TF_DAMAGE_CRIT_CHANCE_MELEE			0.10f
+#define TF_DAMAGE_CRIT_CHANCE_MELEE			0.15f
 
 #define TF_DAMAGE_CRITMOD_MAXTIME			20
 #define TF_DAMAGE_CRITMOD_MINTIME			2
 #define TF_DAMAGE_CRITMOD_DAMAGE			800
-#define TF_DAMAGE_CRITMOD_MAXMULT			6
+#define TF_DAMAGE_CRITMOD_MAXMULT			4
 
 #define TF_DAMAGE_CRIT_MULTIPLIER			3.0f
 
@@ -157,9 +157,6 @@ enum
 	TF_GAMETYPE_UNDEFINED = 0,
 	TF_GAMETYPE_CTF,
 	TF_GAMETYPE_CP,
-	TF_GAMETYPE_ESCORT,
-	TF_GAMETYPE_ARENA,
-	TF_GAMETYPE_MVM,
 };
 extern const char *g_aGameTypeNames[];	// localized gametype names
 
@@ -221,8 +218,6 @@ enum
 	TF_WPN_TYPE_GRENADE,
 	TF_WPN_TYPE_BUILDING,
 	TF_WPN_TYPE_PDA,
-	TF_WPN_TYPE_ITEM1,
-	TF_WPN_TYPE_ITEM2,
 };
 
 extern const char *g_aAmmoNames[];
@@ -311,15 +306,6 @@ enum
 	TF_WEAPON_SENTRY_ROCKET,
 	TF_WEAPON_DISPENSER,
 	TF_WEAPON_INVIS,
-	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
-	TF_WEAPON_SMG_SCOUT,
-	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_PIPE,
-	TF_WEAPON_CYCLOPS,
-	TF_WEAPON_OVERHEALER,
-	TF_WEAPON_FISHWHACKER,
-	TF_WEAPON_SHOTGUN_MEDIC,
-	TF_WEAPON_HUNTERRIFLE,
 
 	TF_WEAPON_COUNT
 };
@@ -342,8 +328,6 @@ enum
 	TF_PROJECTILE_PIPEBOMB,
 	TF_PROJECTILE_PIPEBOMB_REMOTE,
 	TF_PROJECTILE_SYRINGE,
-	TF_PROJECTILE_NAIL,
-	TF_PROJECTILE_DART,
 
 	TF_NUM_PROJECTILES
 };
@@ -392,8 +376,6 @@ enum
 	// If you add a new condition that shouldn't have this behavior, add it before this section.
 	TF_COND_HEALTH_BUFF,
 	TF_COND_BURNING,
-	TF_COND_SMOKE_BOMB,
-	TF_COND_SLOWED,
 
 	// Add new conditions that should be affected by healing here
 

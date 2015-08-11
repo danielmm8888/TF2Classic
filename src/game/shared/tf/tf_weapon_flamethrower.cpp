@@ -15,8 +15,6 @@
 	#include "vstdlib/random.h"
 	#include "engine/IEngineSound.h"
 	#include "soundenvelope.h"
-	#include "dlight.h"
-	#include "iefx.h"
 
 #else
 
@@ -54,10 +52,6 @@
 
 #define TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK		14.0f
 #define TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK	10
-
-#ifdef CLIENT_DLL
-	extern ConVar tf2c_muzzlelight;
-#endif
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFFlameThrower, DT_WeaponFlameThrower )
 
@@ -319,22 +313,6 @@ void CTFFlameThrower::PrimaryAttack()
 		{
 			RestartParticleEffect();
 		}
-	}
-#endif
-
-#ifdef CLIENT_DLL
-	// Handle the flamethrower light
-	if (tf2c_muzzlelight.GetBool())
-	{
-		dlight_t *dl = effects->CL_AllocDlight(LIGHT_INDEX_MUZZLEFLASH + index);
-		dl->origin = vecMuzzlePos;
-		dl->color.r = 255;
-		dl->color.g = 100;
-		dl->color.b = 10;
-		dl->die = gpGlobals->curtime + 0.01f;
-		dl->radius = 240.f;
-		dl->decay = 512.0f;
-		dl->style = 5;
 	}
 #endif
 

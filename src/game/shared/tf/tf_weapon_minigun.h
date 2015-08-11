@@ -50,7 +50,6 @@ public:
 	~CTFMinigun();
 
 	virtual void	Precache( void );
-	virtual void	Spawn(void);
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_MINIGUN; }
 	virtual void	PrimaryAttack();
 	virtual void	SecondaryAttack();
@@ -96,7 +95,7 @@ private:
 
 	void				OnDataChanged( DataUpdateType_t type );
 		
-	virtual void		ItemPreFrame( void );
+	virtual void	ItemPreFrame( void );
 	
 	// Firing sound
 	void				WeaponSoundUpdate( void );

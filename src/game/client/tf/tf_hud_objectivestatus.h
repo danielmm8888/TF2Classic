@@ -147,7 +147,6 @@ public:
 private:
 
 	void	SetVisiblePanels( void );
-	void	TurnOffPanels( void );
 
 private:
 

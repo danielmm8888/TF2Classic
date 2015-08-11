@@ -982,12 +982,6 @@ void CTFPlayer::Regenerate( void )
 	{
 		m_Shared.RemoveCond( TF_COND_BURNING );
 	}
-
-	// Remove tranq condition
-	if  (m_Shared.InCond( TF_COND_SLOWED ) )
-	{
-		m_Shared.RemoveCond( TF_COND_SLOWED );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -3202,12 +3196,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
-
-	// Hit by tranq
-	if (info.GetDamageType() & DMG_PARALYZE)
-	{
-		m_Shared.AddCond(TF_COND_SLOWED);
-	}
 
 	bool bIgniting = false;
 
@@ -5945,12 +5933,6 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 			break;
 		case TF_WPN_TYPE_PDA:
 			criteriaSet.AppendCriteria( "weaponmode", "pda" );
-			break;
-		case TF_WPN_TYPE_ITEM1:
-			criteriaSet.AppendCriteria("weaponmode", "item1");
-			break;
-		case TF_WPN_TYPE_ITEM2:
-			criteriaSet.AppendCriteria("weaponmode", "item2");
 			break;
 		}
 

@@ -39,13 +39,3 @@ END_DATADESC()
 //
 // Weapon Tranq functions.
 //
-void CTFTranq::Precache()
-{
-	BaseClass::Precache();
-#ifndef CLIENT_DLL
-	PrecacheParticleSystem("tranq_tracer_teamcolor_red");
-	PrecacheParticleSystem("tranq_tracer_teamcolor_blue");
-	PrecacheParticleSystem("tranq_distortion_trail");
-	PrecacheParticleSystem("tranq_tracer_red");
-#endif
-}

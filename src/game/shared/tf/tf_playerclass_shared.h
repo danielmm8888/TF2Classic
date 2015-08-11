@@ -37,7 +37,6 @@ struct TFPlayerClassData_t
 	char		m_szClassName[TF_NAME_LENGTH];
 	char		m_szModelName[TF_NAME_LENGTH];
 	char		m_szHWMModelName[TF_NAME_LENGTH];
-	char		m_szModelHandsName[TF_NAME_LENGTH];
 	char		m_szLocalizableName[TF_NAME_LENGTH];
 	float		m_flMaxSpeed;
 	int			m_nMaxHealth;

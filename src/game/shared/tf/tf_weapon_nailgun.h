@@ -2,8 +2,8 @@
 //
 //
 //=============================================================================
-#ifndef TF_WEAPON_SMG_H
-#define TF_WEAPON_SMG_H
+#ifndef TF_WEAPON_NAILGUN_H
+#define TF_WEAPON_NAILGUN_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -12,34 +12,34 @@
 
 // Client specific.
 #ifdef CLIENT_DLL
-#define CTFSMG C_TFSMG
+#define CTFNailgun C_TFNailgun
 #endif
 
 //=============================================================================
 //
 // TF Weapon Sub-machine gun.
 //
-class CTFSMG : public CTFWeaponBaseGun
+class CTFNailgun : public CTFWeaponBaseGun
 {
 public:
 
-	DECLARE_CLASS( CTFSMG, CTFWeaponBaseGun );
+	DECLARE_CLASS( CTFNailgun, CTFWeaponBaseGun );
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
-// Server specific.
+	// Server specific.
 #ifdef GAME_DLL
 	DECLARE_DATADESC();
 #endif
 
-	CTFSMG() {}
-	~CTFSMG() {}
+	CTFNailgun() {}
+	~CTFNailgun() {}
 
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_SMG; }
+	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_NAILGUN; }
 
 private:
 
-	CTFSMG( const CTFSMG & ) {}
+	CTFNailgun( const CTFNailgun & ) {}
 };
 
-#endif // TF_WEAPON_SMG_H
+#endif // TF_WEAPON_NAILGUN_H

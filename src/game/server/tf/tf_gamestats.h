@@ -1,4 +1,4 @@
-﻿//====== Copyright © 1996-2006, Valve Corporation, All rights reserved. =======//
+//====== Copyright © 1996-2006, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: 
 //
@@ -9,7 +9,7 @@
 #pragma once
 #endif
 
-#include "gamestats.h"
+#include "GameStats.h"
 #include "tf_gamestats_shared.h"
 #include "GameEventListener.h"
 

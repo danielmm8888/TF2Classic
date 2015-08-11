@@ -22,7 +22,6 @@
 	#include "tf_weapon_grenade_pipebomb.h"
 	#include "te.h"
 
-	#include "soundent.h"
 #else	// Client specific.
 
 	#include "c_tf_player.h"
@@ -34,12 +33,12 @@
 //
 // TFWeaponBase Gun tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED(TFWeaponBaseGun, DT_TFWeaponBaseGun)
+IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponBaseGun, DT_TFWeaponBaseGun )
 
-BEGIN_NETWORK_TABLE(CTFWeaponBaseGun, DT_TFWeaponBaseGun)
+BEGIN_NETWORK_TABLE( CTFWeaponBaseGun, DT_TFWeaponBaseGun )
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA(CTFWeaponBaseGun)
+BEGIN_PREDICTION_DATA( CTFWeaponBaseGun )
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -101,10 +100,6 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 
 	// Set the weapon mode.
 	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
-
-#if !defined( CLIENT_DLL )
-	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2, pPlayer );
-#endif
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 
@@ -178,16 +173,6 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 	case TF_PROJECTILE_SYRINGE:
 		pProjectile = FireNail( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-		break;
-
-	case TF_PROJECTILE_NAIL:
-		pProjectile = FireNail(pPlayer, iProjectile);
-		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
-		break;
-
-	case TF_PROJECTILE_DART:
-		pProjectile = FireNail(pPlayer, iProjectile);
-		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
 		break;
 
 	case TF_PROJECTILE_PIPEBOMB:
@@ -387,14 +372,6 @@ CBaseEntity *CTFWeaponBaseGun::FireNail( CTFPlayer *pPlayer, int iSpecificNail )
 	{
 	case TF_PROJECTILE_SYRINGE:
 		pProjectile = CTFProjectile_Syringe::Create( vecSrc, angForward, pPlayer, pPlayer, IsCurrentAttackACrit() );
-		break;
-
-	case TF_PROJECTILE_NAIL:
-		pProjectile = CTFProjectile_Nail::Create(vecSrc, angForward, pPlayer, pPlayer, IsCurrentAttackACrit());
-		break;
-
-	case TF_PROJECTILE_DART:
-		pProjectile = CTFProjectile_Dart::Create(vecSrc, angForward, pPlayer, pPlayer, IsCurrentAttackACrit());
 		break;
 
 	default:

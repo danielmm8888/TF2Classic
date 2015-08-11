@@ -24,8 +24,6 @@ public:
 	C_ObjectDispenser();
 	~C_ObjectDispenser();
 
-	int GetUpgradeLevel(void) { return m_iUpgradeLevel; }
-
 	virtual void GetStatusText( wchar_t *pStatus, int iMaxStatusLen );
 
 	int GetMetalAmmoCount() { return m_iAmmoMetal; }
@@ -41,7 +39,6 @@ public:
 	bool m_bUpdateHealingTargets;
 
 private:
-
 	int m_iAmmoMetal;
 
 	bool m_bPlayingSound;

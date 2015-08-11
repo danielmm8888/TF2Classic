@@ -38,7 +38,6 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #undef CBaseObject
 
 IMPLEMENT_CLIENTCLASS_DT(C_BaseObject, DT_BaseObject, CBaseObject)
-	RecvPropInt(RECVINFO(m_iUpgradeLevel)),
 	RecvPropInt(RECVINFO(m_iHealth)),
 	RecvPropInt(RECVINFO(m_iMaxHealth)),
 	RecvPropInt(RECVINFO(m_bHasSapper)),
@@ -54,7 +53,6 @@ IMPLEMENT_CLIENTCLASS_DT(C_BaseObject, DT_BaseObject, CBaseObject)
 	RecvPropVector( RECVINFO( m_vecBuildMins ) ),
 	RecvPropInt( RECVINFO( m_iDesiredBuildRotations ) ),
 	RecvPropInt( RECVINFO( m_bServerOverridePlacement ) ),
-	RecvPropInt( RECVINFO(m_iUpgradeMetal)),
 END_RECV_TABLE()
 
 ConVar cl_obj_test_building_damage( "cl_obj_test_building_damage", "-1", FCVAR_CHEAT, "debug building damage", true, -1, true, BUILDING_DAMAGE_LEVEL_CRITICAL );
@@ -75,7 +73,6 @@ C_BaseObject::C_BaseObject(  )
 	m_damageLevel = BUILDING_DAMAGE_LEVEL_NONE;
 
 	m_iLastPlacementPosValid = -1;
-	m_iOldUpgradeLevel = 0;
 }
 
 //-----------------------------------------------------------------------------

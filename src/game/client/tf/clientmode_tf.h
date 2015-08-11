@@ -12,7 +12,7 @@
 
 #include "clientmode_shared.h"
 #include "tf_viewport.h"
-#include "GameUI/IGameUI.h"
+#include "GameUI/igameui.h"
 
 class CHudMenuEngyBuild;
 class CHudMenuEngyDestroy;

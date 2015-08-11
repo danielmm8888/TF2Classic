@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_tf_player.h"
-#include "vgui_bitmapbutton.h"
+#include "VGUI_BitmapButton.h"
 #include "vgui/ILocalize.h"
 #include "tf_fx_muzzleflash.h"
 #include "eventlist.h"
@@ -32,9 +32,11 @@ BEGIN_NETWORK_TABLE_NOBASE( C_ObjectSentrygun, DT_SentrygunLocalData )
 END_NETWORK_TABLE()
 
 IMPLEMENT_CLIENTCLASS_DT(C_ObjectSentrygun, DT_ObjectSentrygun, CObjectSentrygun)
+	RecvPropInt( RECVINFO(m_iUpgradeLevel) ),
 	RecvPropInt( RECVINFO(m_iAmmoShells) ),
 	RecvPropInt( RECVINFO(m_iAmmoRockets) ),
 	RecvPropInt( RECVINFO(m_iState) ),
+	RecvPropInt( RECVINFO(m_iUpgradeMetal) ),
 	RecvPropDataTable( "SentrygunLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_SentrygunLocalData ) ),
 END_RECV_TABLE()
 

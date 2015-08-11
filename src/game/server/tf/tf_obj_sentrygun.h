@@ -25,8 +25,6 @@ enum
 	SENTRY_LEVEL_3,
 };
 
-#define SF_SENTRY_INFINITE_AMMO		0x0008
-
 // ------------------------------------------------------------------------ //
 // Sentrygun object that's built by the player
 // ------------------------------------------------------------------------ //
@@ -63,6 +61,9 @@ public:
 	void			UpgradeThink( void );
 	virtual bool	IsUpgrading( void ) const;
 
+	int				GetUpgradeLevel( void ) { return m_iUpgradeLevel; }
+
+
 private:
 
 	// Main think
@@ -98,6 +99,9 @@ private:
 
 	float m_flNextAttack;
 
+	// Upgrade Level ( 1, 2, 3 )
+	CNetworkVar( int, m_iUpgradeLevel );
+
 	// Rotation
 	int m_iRightBound;
 	int m_iLeftBound;
@@ -112,6 +116,7 @@ private:
 	// Time when the upgrade animation will complete
 	float m_flUpgradeCompleteTime;
 
+	CNetworkVar( int, m_iUpgradeMetal );
 	CNetworkVar( int, m_iUpgradeMetalRequired );
 
 	// Ammo

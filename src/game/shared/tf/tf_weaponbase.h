@@ -156,8 +156,6 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	static acttable_t m_acttableMelee[];
 	static acttable_t m_acttableBuilding[];
 	static acttable_t m_acttablePDA[];
-	static acttable_t m_acttableItem1[];
-	static acttable_t m_acttableItem2[];
 
 #ifdef GAME_DLL
 	virtual void	AddAssociatedObject( CBaseObject *pObject ) { }
@@ -187,8 +185,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual const char *GetMuzzleFlashEffectName_3rd( void ) { return NULL; }
 	virtual const char *GetMuzzleFlashEffectName_1st( void ) { return NULL; }
 	virtual const char *GetMuzzleFlashModel( void );
-	virtual float		GetMuzzleFlashModelLifetime( void );
-	virtual float		GetMuzzleFlashModelScale( void );
+	virtual float	GetMuzzleFlashModelLifetime( void );
 	virtual const char *GetMuzzleFlashParticleEffect( void );
 
 	virtual const char	*GetTracerType( void );

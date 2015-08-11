@@ -8,9 +8,9 @@
 #include "ObjectControlPanel.h"
 #include <vgui_controls/Controls.h>
 #include <vgui_controls/Label.h>
-#include "vgui_bitmapbutton.h"
+#include "VGUI_BitmapButton.h"
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "c_tf_player.h"
 #include "clientmode_tf.h"
 #include <vgui/IScheme.h>

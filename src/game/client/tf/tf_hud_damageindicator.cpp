@@ -13,13 +13,13 @@
 #include <KeyValues.h>
 #include <vgui_controls/AnimationController.h>
 #include <vgui/ISurface.h>
-#include "VGuiMatSurface/IMatSystemSurface.h"
-#include "materialsystem/imaterial.h"
-#include "materialsystem/imesh.h"
+#include "vguimatsurface/IMatSystemSurface.h"
+#include "materialsystem/IMaterial.h"
+#include "materialsystem/IMesh.h"
 #include "materialsystem/imaterialvar.h"
-#include "IEffects.h"
+#include "ieffects.h"
 #include "hudelement.h"
-#include "clienteffectprecachesystem.h"
+#include "ClientEffectPrecacheSystem.h"
 
 using namespace vgui;
 

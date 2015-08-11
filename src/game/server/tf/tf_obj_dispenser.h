@@ -15,13 +15,6 @@
 
 class CTFPlayer;
 
-enum
-{
-	DISPENSER_LEVEL_1 = 0,
-	DISPENSER_LEVEL_2,
-	DISPENSER_LEVEL_3,
-};
-
 // ------------------------------------------------------------------------ //
 // Resupply object that's built by the player
 // ------------------------------------------------------------------------ //
@@ -71,14 +64,6 @@ public:
 
 	CUtlVector< EHANDLE >	m_hHealingTargets;
 
-	virtual bool	OnWrenchHit(CTFPlayer *pPlayer);
-
-	int				GetUpgradeLevel(void) { return m_iUpgradeLevel; }
-
-private:
-
-	bool CanBeUpgraded( CTFPlayer *pPlayer );
-
 private:
 
 	//CNetworkArray( EHANDLE, m_hHealingTargets, MAX_DISPENSER_HEALING_TARGETS );
@@ -88,12 +73,6 @@ private:
 	CUtlVector< EHANDLE >	m_hTouchingEntities;
 
 	CNetworkVar( int, m_iAmmoMetal );
-
-	// Upgrade Level ( 1, 2, 3 )
-	CNetworkVar( int, m_iUpgradeLevel );
-
-	// Time when the upgrade animation will complete
-	float m_flUpgradeCompleteTime;
 
 	float m_flNextAmmoDispense;
 

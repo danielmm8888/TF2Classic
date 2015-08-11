@@ -76,7 +76,6 @@ static int g_TauntCamAchievements[] =
 	0,		// TF_CLASS_ENGINEER,
 
 	0,		// TF_CLASS_CIVILIAN,
-	0,		// TF_CLASS_MERCENARY,
 	0,		// TF_CLASS_COUNT_ALL,
 };
 
@@ -805,18 +804,10 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
-	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> (gEntList.FindEntityByClassname(NULL, "item_teamflag"));
-	if (pFlag)
+	CCaptureFlag *pFlag = dynamic_cast<CCaptureFlag*> ( gEntList.FindEntityByClassname( NULL, "item_teamflag" ) );
+	if ( pFlag )
 	{
-		m_nGameType.Set(TF_GAMETYPE_CTF);
-		return;
-	}
-
-	CTeamTrainWatcher *pTrain = dynamic_cast<CTeamTrainWatcher*> (gEntList.FindEntityByClassname(NULL, "team_train_watcher"));
-
-	if (pTrain)
-	{
-		m_nGameType.Set(TF_GAMETYPE_ESCORT);
+		m_nGameType.Set( TF_GAMETYPE_CTF );
 		return;
 	}
 
@@ -1496,21 +1487,22 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		else if ( FStrEq( pcmd, "freezecam_taunt" ) )
 		{	
 			// let's check this came from the client .dll and not the console
-		//	int iCmdPlayerID = pPlayer->GetUserID();
-		//	unsigned short mask = UTIL_GetAchievementEventMask();
+			/*
+			int iCmdPlayerID = pPlayer->GetUserID();
+			unsigned short mask = UTIL_GetAchievementEventMask();
 
-		//	int iAchieverIndex = atoi( args[1] ) ^ mask;
-		//	int code = ( iCmdPlayerID ^ iAchieverIndex ) ^ mask;
-		//	if ( code == atoi( args[2] ) )
-		//	{
-		//		CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
-		//		if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
-		//		{
-		//			int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-		//			pAchiever->AwardAchievement( g_TauntCamAchievements[ iClass ] );
-		//		}
-		//	}
-
+			int iAchieverIndex = atoi( args[1] ) ^ mask;
+			int code = ( iCmdPlayerID ^ iAchieverIndex ) ^ mask;
+			if ( code == atoi( args[2] ) )
+			{
+				CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
+				if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
+				{
+					int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
+					pAchiever->AwardAchievement( g_TauntCamAchievements[ iClass ] );
+				}
+			}
+			*/
 			return true;
 		}
 		else if( pPlayer->ClientCommand( args ) )
@@ -3458,11 +3450,11 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	// In case of a sentry kill change the icon according to sentry level.
 	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
 	{
-		CBaseObject* pObject = assert_cast<CBaseObject * >( pInflictor );
+		CObjectSentrygun* pSentry = assert_cast<CObjectSentrygun * >( pInflictor );
 
-		if ( pObject )
+		if ( pSentry )
 		{
-			switch ( pObject->GetUpgradeLevel() )
+			switch ( pSentry->GetUpgradeLevel() )
 			{
 				case 2:
 					killer_weapon_name = "obj_sentrygun2";
@@ -5157,33 +5149,6 @@ bool CTFGameRules::HasPassedMinRespawnTime( CBasePlayer *pPlayer )
 	return ( gpGlobals->curtime > flMinSpawnTime );
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Sets the game description in the server browser
-//-----------------------------------------------------------------------------
-const char *CTFGameRules::GetGameDescription(void)
-{
-	switch (m_nGameType)
-	{
-		case TF_GAMETYPE_CTF:
-			return "TF2C (CTF)";
-			break;
-		case TF_GAMETYPE_CP:
-			return "TF2C (CP)";
-			break;
-		case TF_GAMETYPE_ESCORT:
-			return "TF2C (Payload)";
-			break;
-		case TF_GAMETYPE_ARENA:
-			return "TF2C (Arena)";
-			break;
-		case TF_GAMETYPE_MVM:
-			return "Implying we will ever have this";
-			break;
-		default:
-			return "TF2C";
-			break;
-	}
-}
 
 #endif
 
@@ -5215,22 +5180,5 @@ const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 	}
 
 	return strFullpath;
-}
-#endif
-
-
-#ifdef GAME_DLL
-class CTFLogicDeathmatch : public CBaseEntity
-{
-public:
-	DECLARE_CLASS(CTFLogicDeathmatch, CBaseEntity);
-	void	Spawn(void);
-};
-
-LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
-
-void CTFLogicDeathmatch::Spawn(void)
-{
-	BaseClass::Spawn();
 }
 #endif

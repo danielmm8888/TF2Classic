@@ -5,9 +5,9 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_baseanimating.h"
-#include "engine/ivdebugoverlay.h"
+#include "engine/IVDebugOverlay.h"
 #include "c_tf_player.h"
-#include "engine/IEngineSound.h"
+#include "engine/ienginesound.h"
 #include "soundenvelope.h"
 
 // memdbgon must be the last include file in a .cpp file!!!

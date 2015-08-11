@@ -90,7 +90,6 @@ public:
 	// Muzzle flash
 	char	m_szMuzzleFlashModel[128];
 	float	m_flMuzzleFlashModelDuration;
-	float	m_flMuzzleFlashModelScale;
 	char	m_szMuzzleFlashParticleEffect[128];
 
 	// Tracer

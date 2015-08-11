@@ -98,9 +98,11 @@ BEGIN_NETWORK_TABLE_NOBASE( CObjectSentrygun, DT_SentrygunLocalData )
 END_NETWORK_TABLE()
 
 IMPLEMENT_SERVERCLASS_ST( CObjectSentrygun, DT_ObjectSentrygun )
+	SendPropInt( SENDINFO(m_iUpgradeLevel), 3 ),
 	SendPropInt( SENDINFO(m_iAmmoShells), 9, SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO(m_iAmmoRockets), 6, SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO(m_iState), Q_log2( SENTRY_NUM_STATES ) + 1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO(m_iUpgradeMetal), 10 ),
 	SendPropDataTable( "SentrygunLocalData", 0, &REFERENCE_SEND_TABLE( DT_SentrygunLocalData ), SendProxy_SendLocalObjectDataTable ),
 END_SEND_TABLE()
 
@@ -142,6 +144,8 @@ void CObjectSentrygun::Spawn()
 	
 	m_takedamage = DAMAGE_YES;
 
+	m_iUpgradeLevel = 1;
+	m_iUpgradeMetal = 0;
 	m_iUpgradeMetalRequired = SENTRYGUN_UPGRADE_METAL;
 
 	SetMaxHealth( SENTRYGUN_MAX_HEALTH );
@@ -240,14 +244,13 @@ bool CObjectSentrygun::StartBuilding( CBaseEntity *pBuilder )
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::OnGoActive( void )
 {
-	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
 
 	if ( !pBuilder )
 		return;
-	*/
+	
 	SetModel( SENTRY_MODEL_LEVEL_1 );
 
 	m_iState.Set( SENTRY_STATE_SEARCHING );
@@ -284,16 +287,6 @@ void CObjectSentrygun::OnGoActive( void )
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_R] = 0;
 
 	BaseClass::OnGoActive();
-
-	// Rapidly go through upgrade levels if the keyvalue is set.
-	if ( m_iDefaultUpgrade > 0 )
-	{
-		for ( int i = 0; i < m_iDefaultUpgrade && i < 2; i++ )
-		{
-			StartUpgrading();
-			FinishUpgrading();
-		}
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -367,11 +360,6 @@ bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
 
 	// max upgraded
 	if ( m_iUpgradeLevel >= 3 )
-	{
-		return false;
-	}
-
-	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
 	{
 		return false;
 	}
@@ -1042,7 +1030,7 @@ bool CObjectSentrygun::Fire()
 		// Setup next rocket shot
 		m_flNextRocketAttack = gpGlobals->curtime + 3;
 
-		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
+		if ( !tf_sentrygun_ammocheat.GetBool() )
 		{
 			m_iAmmoRockets--;
 		}
@@ -1107,10 +1095,7 @@ bool CObjectSentrygun::Fire()
 		info.m_vecDirShooting = vecAimDir;
 		info.m_iTracerFreq = 1;
 		info.m_iShots = 1;
-		if ( GetBuilder() )
-			info.m_pAttacker = GetBuilder();
-		else
-			info.m_pAttacker = this;
+		info.m_pAttacker = GetBuilder();
 		info.m_vecSpread = vec3_origin;
 		info.m_flDistance = flDistToTarget + 100;
 		info.m_iAmmoType = m_iAmmoType;
@@ -1141,7 +1126,7 @@ bool CObjectSentrygun::Fire()
 			break;
 		}
 
-		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
+		if ( !tf_sentrygun_ammocheat.GetBool() )
 		{
 			m_iAmmoShells--;
 		}

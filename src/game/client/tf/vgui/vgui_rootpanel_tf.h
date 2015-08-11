@@ -13,7 +13,7 @@
 
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/EditablePanel.h>
-#include "utlvector.h"
+#include "UtlVector.h"
 
 
 class CPanelEffect;

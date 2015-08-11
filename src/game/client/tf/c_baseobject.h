@@ -135,10 +135,6 @@ public:
 
 	virtual BuildingHudAlert_t GetBuildingAlertLevel( void );
 
-	// Upgrades
-	int GetUpgradeLevel(void) { return m_iUpgradeLevel; }
-	int GetUpgradeMetal(void) { return m_iUpgradeMetal; }
-
 private:
 	void StopAnimGeneratedSounds( void );
 
@@ -249,11 +245,6 @@ private:
 
 	int m_nObjectOldSequence;
 
-protected:
-
-	int m_iUpgradeLevel;
-	int	m_iOldUpgradeLevel;
-	int m_iUpgradeMetal;
 
 private:
 	C_BaseObject( const C_BaseObject & ); // not defined, not accessible

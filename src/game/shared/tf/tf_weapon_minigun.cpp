@@ -56,10 +56,6 @@ BEGIN_DATADESC( CTFMinigun )
 END_DATADESC()
 #endif
 
-#ifdef CLIENT_DLL
-extern ConVar tf2c_model_muzzleflash;
-#endif
-
 //=============================================================================
 //
 // Weapon Minigun functions.
@@ -74,6 +70,7 @@ CTFMinigun::CTFMinigun()
 #ifdef CLIENT_DLL
 	m_pSoundCur = NULL;
 #endif
+
 
 #ifdef CLIENT_DLL
 	m_pEjectBrassEffect = NULL;
@@ -137,11 +134,6 @@ int CTFMinigun::UpdateTransmitState( void )
 void CTFMinigun::Precache( void )
 {
 	BaseClass::Precache();
-}
-
-void CTFMinigun::Spawn(void)
-{
-	BaseClass::Spawn();
 }
 
 //-----------------------------------------------------------------------------
@@ -245,7 +237,6 @@ void CTFMinigun::SharedAttack()
 					pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_MINIGUN_FIREWEAPON );
 				}
 #endif
-
 
 				// Only fire if we're actually shooting
 				BaseClass::PrimaryAttack();		// fire and do timers
@@ -493,7 +484,6 @@ void CTFMinigun::HandleFireOnEmpty( void )
 }
 
 #ifdef CLIENT_DLL
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -573,12 +563,7 @@ void CTFMinigun::OnDataChanged( DataUpdateType_t updateType )
 {
 	// Brass ejection and muzzle flash.
 	HandleBrassEffect();
-	
-//	if (!ShouldMuzzleFlash())
-	if (!tf2c_model_muzzleflash.GetBool())
-	{
-		HandleMuzzleEffect();
-	}
+	HandleMuzzleEffect();
 
 	BaseClass::OnDataChanged( updateType );
 
@@ -626,8 +611,7 @@ void CTFMinigun::SetDormant( bool bDormant )
 	}
 
 	// Deliberately skip base combat weapon
-	//C_BaseEntity::SetDormant( bDormant );
-	BaseClass::SetDormant(bDormant);
+	C_BaseEntity::SetDormant( bDormant );
 }
 
 
@@ -745,7 +729,7 @@ void CTFMinigun::HandleBrassEffect()
 void CTFMinigun::HandleMuzzleEffect()
 {
 	if ( m_iWeaponState == AC_STATE_FIRING && m_pMuzzleEffect == NULL )
-	{	
+	{
 		StartMuzzleEffect();
 	}
 	else if ( m_iWeaponState != AC_STATE_FIRING && m_pMuzzleEffect )
