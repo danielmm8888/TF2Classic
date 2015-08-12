@@ -510,6 +510,9 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 		m_bUseImpactNormal = true;
 		pEvent->pInternalData->GetSurfaceNormal( m_vecImpactNormal );
 		m_vecImpactNormal.Negate();
+
+		CSoundEnt::InsertSound ( SOUND_DANGER, GetAbsOrigin(), 400, 5, this );
+		m_bHasWarnedAI = true;
 	}
 }
 

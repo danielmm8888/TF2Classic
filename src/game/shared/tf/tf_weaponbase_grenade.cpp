@@ -290,7 +290,7 @@ void CTFWeaponBaseGrenade::ItemPostFrame()
 		// tell our player that we're all done with the grenade throw.
 		if ( IsEffectActive(EF_NODRAW) )
 		{
-			//pPlayer->FinishThrowGrenade();
+			pPlayer->FinishThrowGrenade();
 			return;
 		}
 

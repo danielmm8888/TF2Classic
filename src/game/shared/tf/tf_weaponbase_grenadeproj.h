@@ -72,7 +72,7 @@ public:
 
 	static CTFWeaponBaseGrenadeProj *Create( const char *szName, const Vector &position, const QAngle &angles, 
 				const Vector &velocity, const AngularImpulse &angVelocity, 
-				CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, int iFlags );
+				CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, int iFlags );
 
 	int						OnTakeDamage( const CTakeDamageInfo &info );
 

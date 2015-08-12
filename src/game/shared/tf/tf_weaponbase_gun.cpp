@@ -22,6 +22,8 @@
 	#include "tf_weapon_grenade_pipebomb.h"
 	#include "te.h"
 
+	#include "soundent.h"
+
 #else	// Client specific.
 
 	#include "c_tf_player.h"
@@ -100,6 +102,10 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 
 	// Set the weapon mode.
 	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
+
+#if !defined( CLIENT_DLL )
+	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_MACHINEGUN, 0.2, pPlayer );
+#endif
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 

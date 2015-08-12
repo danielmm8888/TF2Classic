@@ -166,13 +166,12 @@ void CTFWeaponBaseGrenadeProj::OnDataChanged( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 CTFWeaponBaseGrenadeProj *CTFWeaponBaseGrenadeProj::Create( const char *szName, const Vector &position, const QAngle &angles, 
 													   const Vector &velocity, const AngularImpulse &angVelocity, 
-													   CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, int iFlags )
+													   CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, int iFlags )
 {
 	CTFWeaponBaseGrenadeProj *pGrenade = static_cast<CTFWeaponBaseGrenadeProj*>( CBaseEntity::Create( szName, position, angles, pOwner ) );
 	if ( pGrenade )
 	{
 		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
-		pGrenade->SetDetonateTimerLength( timer );
 	}
 
 	return pGrenade;
@@ -234,14 +233,11 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 
 	m_takedamage = DAMAGE_EVENTS_ONLY;
 
-	if (GetThrower())
-	{
-		// Set the team.
-		ChangeTeam(GetThrower()->GetTeamNumber());
-	}
+	// Set the team.
+	ChangeTeam( GetThrower()->GetTeamNumber() );
 
 	// Set skin based on team ( red = 1, blue = 2 )
-	m_nSkin = GetTeamNumber() - 2;
+	m_nSkin = ( GetTeamNumber() == TF_TEAM_BLUE ) ? 1 : 0;
 
 	// Setup the think and touch functions (see CBaseEntity).
 	SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
@@ -351,7 +347,7 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 		return;
 	}
 
-	if( !m_bHasWarnedAI && gpGlobals->curtime >= m_flWarnAITime )
+	if ( !m_bHasWarnedAI && gpGlobals->curtime >= m_flWarnAITime )
 	{
 		CSoundEnt::InsertSound ( SOUND_DANGER, GetAbsOrigin(), 400, 1.5, this );
 		m_bHasWarnedAI = true;
