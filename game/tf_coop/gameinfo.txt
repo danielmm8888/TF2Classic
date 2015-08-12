@@ -1,24 +1,21 @@
 "GameInfo"
 {
-	game	"Team Fortress 2 Classic (HL Coop)" 
-	gamelogo 1 
-	type 	multiplayer_only 
-	icon	"resource/game"		
-	developer "Team Fortress 2 Classic Team"
-	developer_url "http://facepunch.com/showthread.php?t=1445480"
-	nomodels 0 
-	nohimodel 1	
-	nocrosshair 1 
-	GameData	"tf2c.fgd"
-	hidden_maps 
+	game	"Team Fortress 2 (HL Coop)"
+	gamelogo 1
+	type 	multiplayer_only
+	icon	"resource/game"
+	nomodels 0
+	nohimodel 1
+	nocrosshair 1
+	hidden_maps
 	{ 
-		"test_speakers"		1 
-		"test_hardware"		1 
+		"test_speakers"		1
+		"test_hardware"		1
 	} 
-	supportsvr	1	
-	FileSystem 
+	supportsvr	1
+	FileSystem
 	{ 
-		SteamAppId		243750		
+		SteamAppId		243750	
 		SearchPaths 
 		{ 
 			// First, mount all user customizations.  This will search for VPKs and subfolders 
@@ -48,8 +45,7 @@
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
 			
 			game				|all_source_engine_paths|hl2			
-			platform			|all_source_engine_paths|platform			
-			game				|all_source_engine_paths|sourcetest
+			platform			|all_source_engine_paths|platform
 			
 			//TF2-HL1/HL2 COOP -- Leave EP1/EP2 stuff out until it's ready.
 			//game				"|all_source_engine_paths|../Half-Life 2/ep2/ep2_sound_vo_english.vpk"
