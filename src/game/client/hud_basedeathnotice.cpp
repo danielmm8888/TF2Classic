@@ -411,11 +411,12 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		// Get the names of the players
 		const char *killer_name = NULL;
 		const char *victim_name = NULL;
-#ifdef TF_CLASSIC_CLIENT
+
 		if ( killer > 0 )
 		{
 			killer_name = g_PR->GetPlayerName( killer );
 		}
+#ifdef TF_CLASSIC_CLIENT
 		else if ( npc_killer > 0 )	// If the killer is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
@@ -438,11 +439,11 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			killer_name = "";
 		}
 
-#ifdef TF_CLASSIC_CLIENT
 		if ( victim > 0 )
 		{
 			victim_name = g_PR->GetPlayerName( victim );
 		}
+#ifdef TF_CLASSIC_CLIENT
 		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
