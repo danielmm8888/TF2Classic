@@ -39,8 +39,7 @@ extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 
 extern ConVar tf_useparticletracers;
 
-ConVar tf_weapon_criticals("tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Whether or not random crits are enabled\n" );
-extern ConVar tf_weapon_criticals_melee;
+ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled.\n" );
 
 //=============================================================================
 //
@@ -464,18 +463,10 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
-	else if ( IsMeleeWeapon() && ((tf_weapon_criticals_melee.GetInt() == 1 && tf_weapon_criticals.GetBool()) || tf_weapon_criticals_melee.GetInt() == 2))
-	{
-		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	else if ( tf_weapon_criticals.GetBool() )
+	else
 	{
 		// call the weapon-specific helper method
 		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	else
-	{
-		m_bCurrentAttackIsCrit = false;
 	}
 }
 
@@ -486,6 +477,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
+		return false;
+
+	// Don't bother checking if random crits are off.
+	if ( !tf_weapon_criticals.GetBool() )
 		return false;
 
 	float flPlayerCritMult = pPlayer->GetCritMult();
