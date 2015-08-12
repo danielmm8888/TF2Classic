@@ -395,7 +395,6 @@ public:
 
 	void				ManageRegularWeapons( TFPlayerClassData_t *pData );
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
-	void				ManageGrenades(TFPlayerClassData_t *pData);
 
 	// Taunts.
 	void				Taunt( void );

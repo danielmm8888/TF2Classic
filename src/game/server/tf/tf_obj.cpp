@@ -719,29 +719,7 @@ void CBaseObject::StartPlacement( CTFPlayer *pPlayer )
 	m_vecBuildMaxs -= GetAbsOrigin();
 
 	// Set the skin
-
-	switch (GetTeamNumber())
-	{
-		case TF_TEAM_RED:
-			m_nSkin = 0;
-			break;
-
-		case TF_TEAM_BLUE:
-			m_nSkin = 1;
-			break;
-
-		case TF_TEAM_GREEN:
-			m_nSkin = 2;
-			break;
-
-		case TF_TEAM_YELLOW:
-			m_nSkin = 3;
-			break;
-
-		default:
-			m_nSkin = 1;
-			break;
-	}
+	m_nSkin = ( GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
 }
 
 //-----------------------------------------------------------------------------
@@ -1772,29 +1750,7 @@ void CBaseObject::CreateObjectGibs( void )
 
 			pAmmoPack->SetInitialVelocity( vecImpulse );
 
-			switch (GetTeamNumber())
-			{
-				case TF_TEAM_RED:
-					pAmmoPack->m_nSkin = 0;
-					break;
-
-				case TF_TEAM_BLUE:
-					pAmmoPack->m_nSkin = 1;
-					break;
-
-				case TF_TEAM_GREEN:
-					pAmmoPack->m_nSkin = 2;
-					break;
-
-				case TF_TEAM_YELLOW:
-					pAmmoPack->m_nSkin = 3;
-					break;
-
-				default:
-					pAmmoPack->m_nSkin = 1;
-					break;
-
-			}
+			pAmmoPack->m_nSkin = ( GetTeamNumber() == TF_TEAM_RED ) ? 0 : 1;
 
 			// Give the ammo pack some health, so that trains can destroy it.
 			pAmmoPack->SetCollisionGroup( COLLISION_GROUP_DEBRIS );

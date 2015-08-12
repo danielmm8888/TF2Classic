@@ -507,16 +507,6 @@ void CTFPlayer::PreThink()
 	// Pass through to the base class think.
 	BaseClass::PreThink();
 
-	if (m_nButtons & IN_GRENADE1)
-	{
-		TFPlayerClassData_t *pData = m_PlayerClass.GetData();
-		CTFWeaponBase *pGrenade = Weapon_OwnsThisID(pData->m_aGrenades[0]);
-		if (pGrenade)
-		{
-			pGrenade->Deploy();
-		}
-	}
-
 	// Reset bullet force accumulator, only lasts one frame, for ragdoll forces from multiple shots.
 	m_vecTotalBulletForce = vec3_origin;
 
@@ -1058,12 +1048,8 @@ void CTFPlayer::GiveDefaultItems()
 	// Give weapons.
 	ManageRegularWeapons( pData );
 
-	// Give grenades.
-	//ManageGrenades( pData );
-
 	// Give a builder weapon for each object the playerclass is allowed to build
 	ManageBuilderWeapons( pData );
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1185,49 +1171,6 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		SetActiveWeapon( NULL );
 		Weapon_Switch( Weapon_GetSlot( 0 ) );
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
-{
-	for (int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++)
-	{
-		if (pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE)
-		{
-			CTFWeaponBase *pGrenade = (CTFWeaponBase *)GetWeapon(pData->m_aGrenades[iGrenade]);
-
-			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-			if (pGrenade && pGrenade->GetWeaponID() != pData->m_aGrenades[iGrenade])
-			{
-				Weapon_Detach(pGrenade);
-				UTIL_Remove(pGrenade);
-			}
-
-			pGrenade = (CTFWeaponBase *)Weapon_OwnsThisID(pData->m_aGrenades[iGrenade]);
-
-			if (pGrenade)
-			{
-				pGrenade->ChangeTeam(GetTeamNumber());
-				pGrenade->GiveDefaultAmmo();
-
-				if (m_bRegenerating == false)
-				{
-					pGrenade->WeaponReset();
-				}
-			}
-			else
-			{
-				pGrenade = (CTFWeaponBase *)GiveNamedItem(WeaponIdToAlias(pData->m_aGrenades[iGrenade]));
-
-				if (pGrenade)
-				{
-					pGrenade->DefaultTouch(this);
-				}
-			}
-		}
 	}
 }
 
