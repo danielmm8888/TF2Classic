@@ -106,7 +106,7 @@ void CTFStatsSummaryPanel::ShowModal()
 	m_bInteractive = true;
 #endif
 
-	SetParent( enginevgui->GetPanel( PANEL_GAMEDLL ) );
+	SetParent( enginevgui->GetPanel( PANEL_GAMEUIDLL ) );
 	UpdateDialog();
 	SetVisible( true );
 	MoveToFront();
