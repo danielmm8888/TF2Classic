@@ -180,9 +180,9 @@ private:
 
 	CIconPanel *m_pSentryIcons[3];
 
-	CExLabel *m_pRocketsLabel;
-	CExLabel *m_pUpgradeLabel;
-	CExLabel *m_pKillsLabel;
+	CTFLabel *m_pRocketsLabel;
+	CTFLabel *m_pUpgradeLabel;
+	CTFLabel *m_pKillsLabel;
 
 	vgui::ContinuousProgressBar *m_pShellsProgress;
 	vgui::ContinuousProgressBar *m_pRocketsProgress;

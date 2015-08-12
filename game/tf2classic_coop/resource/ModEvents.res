@@ -48,38 +48,14 @@
 		// this extends the original player_death 
 		"userid"	"short"   	// user ID who died				
 		"attacker"	"short"	 	// user ID who killed
-		"npc_attacker" "short"	// NPC entindex who killed
-		"attacker_name" "string"	// classname who killed
-		"attacker_team"	"short"	// killer's team
 		"weapon"	"string" 	// weapon name killer used 
 		"damagebits"	"long"		// bits of type of damage
 		"customkill"	"short"		// type of custom kill
 		"assister"	"short"		// user ID of assister
-		"npc_assister" "short"	// NPC entindex of assister
-		"assister_name"	"string" // classname of assister
-		"assister_team"	"short"	// assister's team
 		"dominated"	"short"		// did killer dominate victim with this kill
 		"assister_dominated" "short"	// did assister dominate victim with this kill
 		"revenge"	"short"		// did killer get revenge on victim with this kill
 		"assister_revenge" "short"	// did assister get revenge on victim with this kill
-	}
-	
-	"npc_death"
-	{ 
-		"victim"	"short"   	// NPC entindex who died
-		"victim_name"	"string"	// NPC classname who died
-		"victim_team"	"short"	// NPC victim's team
-		"attacker"	"short"	 	// user ID who killed
-		"npc_attacker" "short"	// NPC entindex who killed
-		"attacker_name" "string"	// classname who killed
-		"attacker_team"	"short"	// killer's team
-		"weapon"	"string" 	// weapon name killer used 
-		"damagebits"	"long"		// bits of type of damage
-		"customkill"	"short"		// type of custom kill
-		"assister"	"short"		// user ID of assister
-		"npc_assister" "short"	// NPC entindex of assister
-		"assister_name"	"string" // classname of assister
-		"assister_team"	"short"	// assister's team
 	}
 	
 	"object_destroyed"
@@ -205,6 +181,7 @@
 		"full_round"	"short"		// was this a full round or a mini-round
 		"round_time"	"float"		// elapsed time of this round
 		"losing_team_num_caps"	"short"	// # of caps this round by losing team
+		"was_sudden_death" "byte"	// did a team win this after entering sudden death
 	}
 
 	"teamplay_update_timer"
@@ -382,15 +359,14 @@
 		"object"	"byte"
 	}
 	
-	"player_damaged"
+	"achievement_earned"
 	{
-		"amount"		"short"
-		"type"			"long"
-		"userid_to"		"short"
-		"userid_from"	"short"
-		"from_x"		"float"
-		"from_y"		"float"
-		"from_z"		"float"
+		"player"		"byte"		// entindex of the player
+		"achievement"	"short"		// achievement ID
+	}
+	
+	"spec_target_updated"
+	{
 	}
 }
 

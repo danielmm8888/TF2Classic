@@ -18,7 +18,7 @@
 	
 	"titlelabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"			"titlelabel"
 		"xpos"				"0"
 		"ypos"				"0"
@@ -33,7 +33,7 @@
 
 	"Skip" [$WIN32] 
 	{
-		"ControlName"		"CExButton"
+		"ControlName"		"CTFButton"
 		"fieldName"		"Skip"
 		"xpos"			"r190"
 		"xpos_lodef"			"r222"
@@ -60,7 +60,7 @@
 	
 	"Back" [$WIN32] 
 	{
-		"ControlName"	"CExButton"
+		"ControlName"	"CTFButton"
 		"fieldName"		"Back"
 		"xpos"			"40"
 		"xpos_hidef"			"50"
@@ -173,7 +173,7 @@
 	
 	"VideoCaption"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"VideoCaption"
 		"xpos"			"c-145"
 		"ypos"			"c40"

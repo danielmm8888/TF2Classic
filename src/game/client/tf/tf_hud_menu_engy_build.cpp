@@ -13,7 +13,7 @@
 #include "ienginevgui.h"
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "c_baseobject.h"
 
 #include "tf_hud_menu_engy_build.h"
@@ -102,11 +102,11 @@ void CHudMenuEngyBuild::ApplySchemeSettings( IScheme *pScheme )
 
 		m_pActiveSelection = dynamic_cast< CIconPanel * >( FindChildByName( "active_selection_bg" ) );
 
-		m_pBuildLabelBright = dynamic_cast< CExLabel * >(FindChildByName("BuildHintLabel_Bright"));
-		m_pBuildLabelDim = dynamic_cast< CExLabel * >(FindChildByName("BuildHintLabel_Dim"));
+		m_pBuildLabelBright = dynamic_cast< CTFLabel * >( FindChildByName( "BuildHintLabel_Bright" ) );
+		m_pBuildLabelDim = dynamic_cast< CTFLabel * >( FindChildByName( "BuildHintLabel_Dim" ) );
 	
-		m_pDestroyLabelBright = dynamic_cast< CExLabel * >(FindChildByName("DestroyHintLabel_Bright"));
-		m_pDestroyLabelDim = dynamic_cast< CExLabel * >(FindChildByName("DestroyHintLabel_Dim"));
+		m_pDestroyLabelBright = dynamic_cast< CTFLabel * >( FindChildByName( "DestroyHintLabel_Bright" ) );
+		m_pDestroyLabelDim = dynamic_cast< CTFLabel * >( FindChildByName( "DestroyHintLabel_Dim" ) );
 
 		// Reposition the activeselection to the default position
 		m_iSelectedItem = -1;	// force reposition

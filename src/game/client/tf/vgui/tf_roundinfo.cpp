@@ -14,8 +14,8 @@
 #include <vgui_controls/Frame.h>
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
-#include <filesystem.h>
-#include "materialsystem/imaterialvar.h"
+#include <FileSystem.h>
+#include "materialsystem/IMaterialVar.h"
 #include "IGameUIFuncs.h" // for key bindings
 
 #include "tf_controls.h"
@@ -28,9 +28,9 @@
 #include "tf_roundinfo.h"
 
 
-#include "vgui/ISurface.h"
+#include "vgui/isurface.h"
 #include <vgui/ILocalize.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include "engine/IEngineSound.h"
 
 using namespace vgui;
@@ -425,13 +425,13 @@ CTFRoundInfo::CTFRoundInfo( IViewPort *pViewPort ) : Frame( NULL, PANEL_ROUNDINF
 	SetKeyBoardInputEnabled( true );
 	SetMouseInputEnabled( true );
 
-	m_pTitle = new CExLabel(this, "RoundTitle", " ");
+	m_pTitle = new CTFLabel( this, "RoundTitle", " " );
 	m_pMapImage = new ImagePanel( this, "MapImage" );
 
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
 #else
-	m_pContinue = new CExButton( this, "RoundContinue", "#TF_Continue" );
+	m_pContinue = new CTFButton( this, "RoundContinue", "#TF_Continue" );
 #endif
 
 	m_pOverlay = new RoundInfoOverlay( this, "Overlay" );

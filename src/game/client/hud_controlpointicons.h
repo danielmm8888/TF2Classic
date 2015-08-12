@@ -345,7 +345,7 @@ private:
 	bool							m_bCachedCountdownState;
 	CControlPointCountdown			*m_pCountdown;
 
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	DHANDLE< CExLabel >				m_pCPTimerLabel; // used to display CCPTimerLogic countdowns
 #endif
 	DHANDLE< vgui::ImagePanel >		m_pCPTimerBG; // used to display CCPTimerLogic countdowns

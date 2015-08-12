@@ -50,7 +50,7 @@
 	
 	"TitleLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TitleLabel"
 		"font"			"HudFontGiantBold"
 		"xpos"			"68"			// align me to the left edge of the first selection
@@ -70,7 +70,7 @@
 	
 	"TitleLabelDropshadow"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TitleLabelDropshadow"
 		"font"			"HudFontGiantBold"
 		"fgcolor"		"Black"
@@ -251,7 +251,7 @@
 	
 	"BuildHintIcon"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BuildHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"330"			// align me to the left edge of the first selection
@@ -271,7 +271,7 @@
 	
 	"BuildHintLabel_Bright"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BuildHintLabel_Bright"
 		"font"			"GameUIButtonText"
 		"xpos"			"355"
@@ -291,7 +291,7 @@
 	
 	"BuildHintLabel_Dim"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BuildHintLabel_Dim"
 		"font"			"GameUIButtonText"
 		"fgcolor"		"TanDark"
@@ -312,7 +312,7 @@
 	
 	"DestroyHintIcon"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"DestroyHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"200"			// align me to the left edge of the first selection
@@ -332,7 +332,7 @@
 	
 	"DestroyHintLabel_Bright"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"DestroyHintLabel_Bright"
 		"font"			"GameUIButtonText"
 		"xpos"			"225"			// align me to the left edge of the first selection
@@ -352,7 +352,7 @@
 	
 	"DestroyHintLabel_Dim"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"DestroyHintLabel_Dim"
 		"font"			"GameUIButtonText"
 		"fgcolor"		"TanDark"
@@ -373,7 +373,7 @@
 	
 	"CancelHintIcon"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CancelHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"20"			// align me to the left edge of the first selection
@@ -393,7 +393,7 @@
 	
 	"CancelHintLabel"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CancelHintLabel"
 		"font"			"GameUIButtonText"
 		"xpos"			"45"

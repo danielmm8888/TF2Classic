@@ -318,7 +318,7 @@ void CTFHudFlagObjectives::ApplySchemeSettings( IScheme *pScheme )
 	LoadControlSettings( "resource/UI/HudObjectiveFlagPanel.res" );
 
 	m_pCarriedImage = dynamic_cast<CTFImagePanel *>( FindChildByName( "CarriedImage" ) );
-	m_pPlayingTo = dynamic_cast<CExLabel *>( FindChildByName( "PlayingTo" ) );
+	m_pPlayingTo = dynamic_cast<CTFLabel *>( FindChildByName( "PlayingTo" ) );
 	m_pPlayingToBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "PlayingToBG" ) );
 
 	m_pRedFlag = dynamic_cast<CTFFlagStatus *>( FindChildByName( "RedFlag" ) );

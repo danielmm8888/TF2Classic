@@ -12,7 +12,7 @@
 #endif
 
 #include <vgui_controls/Panel.h>
-#include "vguitextwindow.h"
+#include "VguiTextWindow.h"
 #include "tf_controls.h"
 #include "IconPanel.h"
 
@@ -50,7 +50,7 @@ protected:
 	virtual void OnCommand( const char *command );
 
 private:
-	CExRichText		*m_pTFTextMessage;
+	CTFRichText		*m_pTFTextMessage;
 };
 
 

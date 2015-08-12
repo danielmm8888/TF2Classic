@@ -12,7 +12,7 @@
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <KeyValues.h>
 #include <convar.h>
 #include <vgui_controls/ImageList.h>
@@ -20,7 +20,7 @@
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/TextEntry.h>
 #include <vgui_controls/Button.h>
-#include <vgui_controls/BuildGroup.h>
+#include <vgui_controls/buildgroup.h>
 #include <vgui_controls/ImagePanel.h>
 
 #include "tf_controls.h"
@@ -42,7 +42,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFTextWindow::CTFTextWindow( IViewPort *pViewPort ) : CTextWindow( pViewPort )
 {
-	m_pTFTextMessage = new CExRichText( this, "TFTextMessage" );
+	m_pTFTextMessage = new CTFRichText( this, "TFTextMessage" );
 
 	SetProportional( true );
 }
@@ -84,7 +84,7 @@ void CTFTextWindow::Reset( void )
 //-----------------------------------------------------------------------------
 void CTFTextWindow::Update()
 {
-	CExLabel *pTitle = dynamic_cast<CExLabel *>(FindChildByName("TFMessageTitle"));
+	CTFLabel *pTitle = dynamic_cast<CTFLabel *>( FindChildByName( "TFMessageTitle" ) );
 	if ( pTitle )
 	{
 		pTitle->SetText( m_szTitle );
@@ -213,7 +213,7 @@ void CTFTextWindow::ShowFile( const char *filename )
 //-----------------------------------------------------------------------------
 void CTFTextWindow::ShowTitleLabel( bool show )
 {
-	CExLabel *pTitle = dynamic_cast<CExLabel *>(FindChildByName("TFMessageTitle"));
+	CTFLabel *pTitle = dynamic_cast<CTFLabel *>( FindChildByName( "TFMessageTitle" ) );
 	if ( pTitle )
 	{
 		pTitle->SetVisible( show );

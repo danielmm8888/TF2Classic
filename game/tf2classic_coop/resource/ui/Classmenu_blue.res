@@ -61,7 +61,7 @@
 		
 	"Offense"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Offense"
 		"xpos"			"c-300"
 		"xpos_hidef"			"c-287"
@@ -175,7 +175,7 @@
 	
 	"Defense"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Defense"
 		"xpos"			"c-110"
 		"xpos_hidef"			"c-105"
@@ -285,7 +285,7 @@
 	
 	"Support"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Support"
 		"xpos"			"c76"
 		"xpos_hidef"			"c74"
@@ -399,7 +399,7 @@
 
 	"CancelButton" [$WIN32] 
 	{
-		"ControlName"	"CExButton"
+		"ControlName"	"CTFButton"
 		"fieldName"		"CancelButton"
 		"xpos"			"r190"
 		"ypos"			"r40"
@@ -420,7 +420,7 @@
 
 	"ClassMenuSelect"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"ClassMenuSelect"
 		"xpos"			"30"
 		"xpos_lodef"			"62"
@@ -705,7 +705,7 @@
 	
 	"CountLabel" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CountLabel"
 		"xpos"			"c-30"
 		"ypos"			"402"
@@ -725,7 +725,7 @@
 	
 	"numScout" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numScout"
 		"xpos"			"c-300"
 		"ypos"			"10"
@@ -745,7 +745,7 @@
 	
 	"numSoldier" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numSoldier"
 		"xpos"			"c-250"
 		"ypos"			"10"
@@ -765,7 +765,7 @@
 	
 	"numPyro" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numPyro"
 		"xpos"			"c-200"
 		"ypos"			"10"
@@ -785,7 +785,7 @@
 	
 	"numDemoman" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numDemoman"
 		"xpos"			"c-110"
 		"ypos"			"10"
@@ -805,7 +805,7 @@
 	
 	"numHeavy" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numHeavy"
 		"xpos"			"c-60"
 		"ypos"			"10"
@@ -825,7 +825,7 @@
 	
 	"numEngineer" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numEngineer"
 		"xpos"			"c-10"
 		"ypos"			"10"
@@ -845,7 +845,7 @@
 	
 	"numMedic" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numMedic"
 		"xpos"			"c78"
 		"ypos"			"10"
@@ -865,7 +865,7 @@
 	
 	"numSniper" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numSniper"
 		"xpos"			"c128"
 		"ypos"			"10"
@@ -885,7 +885,7 @@
 	
 	"numSpy" [$WIN32]
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"numSpy"
 		"xpos"			"c178"
 		"ypos"			"10"

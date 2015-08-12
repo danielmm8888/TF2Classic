@@ -33,7 +33,7 @@
 	
 	"Notification_Label"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Notification_Label"
 		"font"			"Default"
 		"xpos"			"30"

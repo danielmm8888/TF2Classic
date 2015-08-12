@@ -130,7 +130,7 @@ CControlPointIcon::CControlPointIcon( Panel *parent, const char *pName, int iInd
 	m_iCapProgressDir = CP_DIR_N;
 	m_iPrevCappers = 0;
 	m_pCountdown = NULL;
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	m_pCPTimerLabel = NULL;
 #endif
 	m_pCPTimerBG = NULL;
@@ -190,7 +190,7 @@ void CControlPointIcon::ApplySchemeSettings( IScheme *pScheme )
 		m_pCountdown->SetVisible( true );
 	}
 
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	if ( !m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel = new CExLabel( this, "CPTimerLabel", L"" );
@@ -211,7 +211,7 @@ void CControlPointIcon::ApplySchemeSettings( IScheme *pScheme )
 	m_pCapNumPlayers = dynamic_cast<vgui::Label *>( FindChildByName("CapNumPlayers") );
 	m_pOverlayImage = dynamic_cast<vgui::ImagePanel *>( FindChildByName("OverlayImage") );
 
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	if ( m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel->SetParent( GetParent() );
@@ -271,7 +271,7 @@ CControlPointIcon::~CControlPointIcon( void )
 		m_pCapPulseImage = NULL;
 	}
 
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	if ( m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel->MarkForDeletion();
@@ -586,7 +586,7 @@ void CControlPointIcon::OnTick( void )
 	if ( m_flCPTimerTime < 0 )
 		return;
 
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	if ( !m_pCPTimerLabel || !m_pCPTimerLabel->IsVisible() )
 		return;
 #endif
@@ -602,14 +602,14 @@ void CControlPointIcon::OnTick( void )
 		if ( m_bRedText )
 		{
 			m_bRedText = false;
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 			m_pCPTimerLabel->SetFgColor( m_cRegularColor );
 #endif
 		}
 		else
 		{
 			m_bRedText = true;
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 			m_pCPTimerLabel->SetFgColor( m_cHighlightColor );
 #endif
 		}
@@ -617,7 +617,7 @@ void CControlPointIcon::OnTick( void )
 
 	char szTime[4];
 	Q_snprintf( szTime, sizeof( szTime ), "%d", nTime );
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	m_pCPTimerLabel->SetText( szTime );
 #endif
 }
@@ -631,14 +631,14 @@ void CControlPointIcon::SetTimerTime( float flTime )
 
 	if ( m_pCPTimerBG )
 	{
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 		if (m_pCPTimerLabel)
 #endif
 		{
 			if (flTime < 0)
 			{
 				m_pCPTimerBG->SetVisible(false);
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 				m_pCPTimerLabel->SetVisible(false);
 #endif
 			}
@@ -651,7 +651,7 @@ void CControlPointIcon::SetTimerTime( float flTime )
 				m_pCPTimerBG->SetVisible(true);
 
 				m_bRedText = false;
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 				m_pCPTimerLabel->SetFgColor(m_cRegularColor); // reset our color
 				m_pCPTimerLabel->SetPos(xPos + GetWide() - XRES(1), yPos + (GetTall() / 2) - (m_pCPTimerLabel->GetTall() / 2));
 				m_pCPTimerLabel->SetVisible(true);
@@ -1820,7 +1820,7 @@ void CControlPointCountdown::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CControlPointCountdown::PerformLayout()
 {
-#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
+#if defined( TF_CLIENT_DLL )
 	CExLabel *pLabel = dynamic_cast<CExLabel *>( FindChildByName( "CapCountdownLabel" ) );
 	if ( pLabel )
 	{

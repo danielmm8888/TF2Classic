@@ -14,13 +14,13 @@
 #include <vgui_controls/Frame.h>
 #include <vgui/IScheme.h>
 #include <game/client/iviewport.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"
-#include "basemodelpanel.h"
+#include "tf_modelpanel.h"
 #include "tf_teammenu.h"
 #include <convar.h>
 #include "IGameUIFuncs.h" // for key bindings
@@ -35,7 +35,7 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFTeamButton::CTFTeamButton( vgui::Panel *parent, const char *panelName ) : CExButton( parent, panelName, "" )
+CTFTeamButton::CTFTeamButton( vgui::Panel *parent, const char *panelName ) : CTFButton( parent, panelName, "" )
 {
 	m_szModelPanel[0] = '\0';
 	m_iTeam = TEAM_UNASSIGNED;
@@ -254,12 +254,12 @@ CTFTeamMenu::CTFTeamMenu( IViewPort *pViewPort ) : CTeamMenu( pViewPort )
 	m_pRedTeamButton = new CTFTeamButton( this, "teambutton1" );
 	m_pAutoTeamButton = new CTFTeamButton( this, "teambutton2" );
 	m_pSpecTeamButton = new CTFTeamButton( this, "teambutton3" );
-	m_pSpecLabel = new CExLabel(this, "TeamMenuSpectate", "");
+	m_pSpecLabel = new CTFLabel( this, "TeamMenuSpectate", "" );
 
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
 #else
-	m_pCancelButton = new CExButton( this, "CancelButton", "#TF_Cancel" );
+	m_pCancelButton = new CTFButton( this, "CancelButton", "#TF_Cancel" );
 #endif
 
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
@@ -376,7 +376,6 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 			if ( pButton )
 			{
 				pButton->OnCursorExited();
-
 			}
 		}
 	}
@@ -555,7 +554,7 @@ void CTFTeamMenu::OnCommand( const char *command )
 			{
 				iTeam = TF_TEAM_BLUE;
 			}
-	
+
 			if ( iTeam == TF_TEAM_RED && m_bRedDisabled )
 			{
 				return;

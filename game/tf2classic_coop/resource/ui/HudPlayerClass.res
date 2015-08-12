@@ -54,9 +54,7 @@
 		"image"			"../hud/class_spyred"
 		"scaleImage"	"1"	
 		"teambg_2"		"../hud/class_spyred"
-		"teambg_3"		"../hud/class_spyblue"	
-		"teambg_4"		"../hud/class_spygreen"
-		"teambg_5"		"../hud/class_spyyellow"			
+		"teambg_3"		"../hud/class_spyblue"			
 	}	
 	"PlayerStatusSpyOutlineImage"
 	{
@@ -99,9 +97,5 @@
 		"teambg_2_lodef"	"../hud/character_red_bg_lodef"
 		"teambg_3"		"../hud/character_blue_bg"
 		"teambg_3_lodef"	"../hud/character_blue_bg_lodef"
-		"teambg_4"		"../hud/character_green_bg"
-		"teambg_4_lodef"	"../hud/character_green_bg_lodef"
-		"teambg_5"		"../hud/character_yellow_bg"
-		"teambg_5_lodef"	"../hud/character_yellow_bg_lodef"
 	}
 }

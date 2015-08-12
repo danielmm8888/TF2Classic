@@ -104,7 +104,7 @@ private:
 
 	CTFImagePanel			*m_pCarriedImage;
 
-	CExLabel				*m_pPlayingTo;
+	CTFLabel				*m_pPlayingTo;
 	CTFImagePanel			*m_pPlayingToBG;
 
 	CTFFlagStatus			*m_pRedFlag;

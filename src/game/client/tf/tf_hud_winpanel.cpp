@@ -1,3 +1,4 @@
+
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
@@ -284,12 +285,12 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 
 			if ( pPlayerAvatar )
 			{
-				pPlayerAvatar->ClearAvatar();
 				if ( bShow )
-				{					
-					pPlayerAvatar->SetPlayer(GetSteamIDForPlayerIndex(iPlayerIndex), k_EAvatarSize32x32);
-					pPlayerAvatar->SetAvatarSize(32, 32);
+				{
+					CBasePlayer *pPlayer = UTIL_PlayerByIndex( iPlayerIndex );
+					pPlayerAvatar->SetPlayer( pPlayer );
 				}
+
 				pPlayerAvatar->SetVisible( bShow );
 			}
 #endif
@@ -360,7 +361,6 @@ void CTFWinPanel::OnThink()
 		// update the team scores
 		m_pTeamScorePanel->SetDialogVariable( "blueteamscore", m_iBlueTeamScore );
 		m_pTeamScorePanel->SetDialogVariable( "redteamscore", m_iRedTeamScore );
-
 		m_flTimeUpdateTeamScore = 0;
 	}
 }

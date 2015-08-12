@@ -58,7 +58,7 @@
 
 		"NotBuiltLabel"
 		{
-			"ControlName"	"CExLabel"
+			"ControlName"	"CTFLabel"
 			"fieldName"		"NotBuiltLabel"
 			"font"			"DefaultVerySmall"
 			"xpos"			"60"
@@ -161,7 +161,7 @@
 
 			"BuildingLabel"
 			{
-				"ControlName"	"CExLabel"
+				"ControlName"	"CTFLabel"
 				"fieldName"		"BuildingLabel"
 				"font"			"DefaultSmall"
 				"xpos"			"0"
@@ -219,7 +219,7 @@
 				
 				"RechargeLabel"
 				{
-					"ControlName"	"CExLabel"
+					"ControlName"	"CTFLabel"
 					"fieldName"		"RechargeLabel"
 					"font"			"DefaultSmall"
 					"xpos"			"0"
@@ -267,7 +267,7 @@
 								
 				"TimesUsedLabel"
 				{	
-					"ControlName"	"CExLabel"
+					"ControlName"	"CTFLabel"
 					"fieldName"		"TimesUsedLabel"
 					"font"			"DefaultSmall"
 					"xpos"			"0"

@@ -15,7 +15,7 @@ class CTFMapOverview : public CMapOverview
 {
 	DECLARE_CLASS_SIMPLE( CTFMapOverview, CMapOverview );
 
-	CTFMapOverview(const char *pElementName);
+	CTFMapOverview( const char *pElementName );
 
 	int m_CameraIcons[MAX_TEAMS];
 	int m_CapturePoints[MAX_CONTROL_POINTS];

@@ -32,7 +32,7 @@
 		"enabled"		"1"
 		"image"			"../hud/health_bg"
 		"scaleImage"	"1"	
-	}
+	}	
 	"PlayerStatusHealthBonusImage"
 	{
 		"ControlName"	"ImagePanel"

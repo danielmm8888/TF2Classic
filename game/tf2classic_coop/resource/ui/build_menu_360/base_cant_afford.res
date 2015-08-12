@@ -2,7 +2,7 @@
 {
 	"ItemNameLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"ItemNameLabel"
 		"font"			"HudFontSmall"
 		"xpos"			"6"
@@ -38,7 +38,7 @@
 	
 	"CantBuildReason"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CantBuildReason"
 		"font"			"Default"
 		"fgcolor"		"RedSolid"
@@ -73,7 +73,7 @@
 	
 	"CostLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CostLabel"
 		"font"			"HudFontSmall"
 		"fgcolor"		"RedSolid"

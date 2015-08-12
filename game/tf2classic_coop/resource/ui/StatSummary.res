@@ -26,7 +26,7 @@
 	}
 	"OnYourWayLabel" [$WIN32]
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"OnYourWayLabel"
 		"font"			"HudFontMediumBold"
 		"labelText"		"#LoadingMap"
@@ -43,7 +43,7 @@
 	}					
 	"MapLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"MapLabel"
 		"font"			"HudFontMediumBigBold" [$WIN32]
 		"font"			"HudFontMediumBold" [$X360]
@@ -1626,7 +1626,9 @@
 			"ypos_hidef"			"115"
 			"wide"			"370"
 			"wide_hidef"			"225"
-			"tall"			"350"
+			"tall"			"370"
+			"tall_hidef"			"633"
+			"tall_lodef"			"633"
 			"autoResize"	"0"
 			"pinCorner"		"0"
 			"visible"		"1"
@@ -2497,26 +2499,6 @@
 		"dulltext"		"0"
 		"brighttext"	"0"
 		"Command"		"nexttip"
-	}
-	"ResetStatsButton" [$WIN32]
-	{
-		"ControlName"		"Button"
-		"fieldName"		"ResetStatsButton"
-		"xpos"			"r190"
-		"ypos"			"r90"
-		"zpos"			"6"
-		"wide"			"150"
-		"tall"			"30"
-		"autoResize"	"0"
-		"pinCorner"		"2"
-		"visible"		"1"
-		"enabled"		"1"
-		"tabPosition"	"0"
-		"labelText"		"#TF_ResetStats"
-		"textAlignment"	"center"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"Command"		"resetstatsbutton"
 	}
 	"CloseButton" [$WIN32]
 	{

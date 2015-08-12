@@ -2,7 +2,7 @@
 {
 	"ItemNameLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"ItemName"
 		"font"			"Default"
 		"xpos"			"0"
@@ -53,7 +53,7 @@
 	
 	"NumberLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"NumberLabel"
 		"font"			"Default"
 		"fgcolor"		"Black"

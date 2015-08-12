@@ -50,13 +50,13 @@ protected:
 protected:
 	IViewPort			*m_pViewPort;
 
-	CExLabel			*m_pTitle;
+	CTFLabel			*m_pTitle;
 	vgui::ImagePanel	*m_pMapImage;
 	
 #ifdef _X360
 	CTFFooter			*m_pFooter;
 #else
-	CExButton			*m_pContinue;
+	CTFButton			*m_pContinue;
 #endif
 
 	char				m_szMapImage[MAX_ROUND_IMAGE_NAME];

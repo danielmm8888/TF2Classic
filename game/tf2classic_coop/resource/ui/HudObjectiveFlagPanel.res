@@ -59,7 +59,7 @@
 	}
 	"BlueScore"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BlueScore"
 		"xpos"			"c-130"
 		"ypos"			"r47"
@@ -81,7 +81,7 @@
 	}		
 	"BlueScoreShadow"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BlueScoreShadow"
 		"xpos"			"c-128"
 		"ypos"			"r46"
@@ -103,7 +103,7 @@
 	}							
 	"RedScore"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"RedScore"
 		"xpos"			"c82"
 		"ypos"			"r47"
@@ -125,7 +125,7 @@
 	}		
 	"RedScoreShadow"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"RedScoreShadow"
 		"xpos"			"c84"
 		"ypos"			"r46"
@@ -176,12 +176,10 @@
 		"scaleImage"	"1"
 		"teambg_2"		"../hud/objectives_flagpanel_carried_blue"
 		"teambg_3"		"../hud/objectives_flagpanel_carried_red"
-		"teambg_4"		"../hud/objectives_flagpanel_carried_green"
-		"teambg_5"		"../hud/objectives_flagpanel_carried_yellow"
 	}		
 	"PlayingTo"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"PlayingTo"
 		"xpos"			"c-70"	[$WIN32]
 		"xpos"			"c-60"	[$X360]

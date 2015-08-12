@@ -32,7 +32,7 @@
 	
 	"Title"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Title"
 		"xpos"			"c-215"
 		"ypos"			"85"
@@ -53,7 +53,7 @@
 	
 	"Mapname"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"Mapname"
 		"xpos"			"c-215"
 		"ypos"			"120"
@@ -74,7 +74,7 @@
 	
 	"RoundContinue" [$WIN32]
 	{
-		"ControlName"	"CExButton"
+		"ControlName"	"CTFButton"
 		"fieldName"		"RoundContinue"
 		"xpos"			"r190"
 		"xpos_lodef"			"r222"

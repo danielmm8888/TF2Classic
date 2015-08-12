@@ -14,7 +14,7 @@
 #include "tf_shareddefs.h"
 #include <vgui/IScheme.h>
 #include <vgui_controls/ImagePanel.h>
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 
 #define MAX_BG_LENGTH		128
 
@@ -23,7 +23,7 @@ class CTFImagePanel : public vgui::ImagePanel, public CGameEventListener
 public:
 	DECLARE_CLASS_SIMPLE( CTFImagePanel, vgui::ImagePanel );
 
-	CTFImagePanel(vgui::Panel *parent, const char *name);
+	CTFImagePanel( vgui::Panel *parent, const char *name );
 
 	virtual void ApplySettings( KeyValues *inResourceData );
 	void UpdateBGImage( void );

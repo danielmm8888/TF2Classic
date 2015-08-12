@@ -585,9 +585,9 @@ CBuildingStatusItem_SentryGun::CBuildingStatusItem_SentryGun( Panel *parent ) :
 	m_pRocketsProgress = new vgui::ContinuousProgressBar( GetRunningPanel(), "Rockets" );
 	m_pUpgradeProgress = new vgui::ContinuousProgressBar( GetRunningPanel(), "Upgrade" );
 
-	m_pRocketsLabel = new CExLabel( GetRunningPanel(), "RocketsLabel", "" );
-	m_pUpgradeLabel = new CExLabel( GetRunningPanel(), "UpgradeLabel", "" );
-	m_pKillsLabel = new CExLabel( GetRunningPanel(), "KillsLabel", "0" );
+	m_pRocketsLabel = new CTFLabel( GetRunningPanel(), "RocketsLabel", "" );
+	m_pUpgradeLabel = new CTFLabel( GetRunningPanel(), "UpgradeLabel", "" );
+	m_pKillsLabel = new CTFLabel( GetRunningPanel(), "KillsLabel", "0" );
 
 	m_pSentryIcons[0] = new CIconPanel( this, "Icon_Sentry_1" );
 	m_pSentryIcons[1] = new CIconPanel( this, "Icon_Sentry_2" );

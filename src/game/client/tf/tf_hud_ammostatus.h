@@ -47,12 +47,12 @@ private:
 	int								m_nAmmo;
 	int								m_nAmmo2;
 
-	CExLabel						*m_pInClip;
-	CExLabel						*m_pInClipShadow;
-	CExLabel						*m_pInReserve;
-	CExLabel						*m_pInReserveShadow;
-	CExLabel						*m_pNoClip;
-	CExLabel						*m_pNoClipShadow;
+	CTFLabel						*m_pInClip;
+	CTFLabel						*m_pInClipShadow;
+	CTFLabel						*m_pInReserve;
+	CTFLabel						*m_pInReserveShadow;
+	CTFLabel						*m_pNoClip;
+	CTFLabel						*m_pNoClipShadow;
 	CTFImagePanel					*m_pWeaponBucket;
 
 	CPanelAnimationVarAliasType(float, m_flLargeBoxWide, "LargeBoxWide", "108", "proportional_float");

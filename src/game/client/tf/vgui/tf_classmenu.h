@@ -14,16 +14,16 @@
 #include <classmenu.h>
 #include <vgui_controls/EditablePanel.h>
 #include "vgui_controls/KeyRepeat.h"
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <tf_shareddefs.h>
 #include "cbase.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
 #include "tf_modelpanel.h"
 #include "imagemouseoverbutton.h"
-#include "IconPanel.h"
+#include "iconpanel.h"
 #include <vgui_controls/CheckButton.h>
-#include "GameEventListener.h"
+#include "gameeventlistener.h"
 #include "c_tf_playerresource.h"
 
 using namespace vgui;
@@ -57,7 +57,7 @@ public:
 			}
 		}
 
-		CExRichText *pRichText = dynamic_cast<CExRichText *>(FindChildByName( "classInfo" ) );
+		CTFRichText *pRichText = dynamic_cast<CTFRichText *>(FindChildByName( "classInfo" ) );
 		if ( pRichText )
 		{
 			pRichText->InvalidateLayout( true, false );
@@ -117,7 +117,7 @@ private:
 
 #ifndef _X360
 	CTFImagePanel *m_ClassCountImages[CLASS_COUNT_IMAGES];
-	CExLabel *m_pCountLabel;
+	CTFLabel *m_pCountLabel;
 #endif
 };
 
@@ -260,3 +260,4 @@ public:
 };
 
 #endif // TF_CLASSMENU_H
+

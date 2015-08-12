@@ -18,7 +18,7 @@
 	
 	"TFMessageTitle"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TFMessageTitle"
 		"xpos"			"c-184"
 		"ypos"			"95"
@@ -47,7 +47,7 @@
 
 	"TFTextMessage"
 	{
-		"ControlName"	"CExRichText"
+		"ControlName"	"CTFRichText"
 		"fieldName"		"TFTextMessage"
 		"font"			"ChalkboardText"
 		"xpos"			"c-184"
@@ -83,7 +83,7 @@
 	
 	"ok"
 	{
-		"ControlName"		"CExButton"
+		"ControlName"		"CTFButton"
 		"fieldName"		"ok"
 		"xpos"			"r190"
 		"ypos"			"r40"

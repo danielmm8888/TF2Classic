@@ -50,7 +50,7 @@
 	
 	"TitleLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TitleLabel"
 		"font"			"HudFontGiantBold"
 		"xpos"			"68"			// align me to the left edge of the first selection
@@ -70,7 +70,7 @@
 	
 	"TitleLabelDropshadow"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TitleLabelDropshadow"
 		"font"			"HudFontGiantBold"
 		"fgcolor"		"Black"
@@ -91,7 +91,7 @@
 	
 	"CancelLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CancelLabel"
 		"font"			"SpectatorKeyHints"
 		"xpos"			"218"

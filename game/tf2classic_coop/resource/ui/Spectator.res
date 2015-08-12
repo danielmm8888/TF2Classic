@@ -65,7 +65,7 @@
 	}
 	"ReinforcementsLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"ReinforcementsLabel"
 		"xpos"			"c-300"	[$WIN32]
 		"xpos_minmode"	"c-300"
@@ -90,7 +90,7 @@
 	}
 	"MapLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"MapLabel"
 		"font"			"HudFontSmall"
 		"font_hidef"		"HudFontMedium"
@@ -112,7 +112,7 @@
 	}
 	"ClassOrTeamLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"ClassOrTeamLabel"
 		"xpos"			"c-85"
 		"xpos_hidef"	"c-65"
@@ -142,7 +142,7 @@
 	}
 	"SwitchCamModeKeyLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"SwitchCamModeKeyLabel"
 		"xpos"			"5"		[$WIN32]
 		"ypos"			"10"	[$WIN32]
@@ -164,7 +164,7 @@
 	}
 	"SwitchCamModeLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"SwitchCamModeLabel"
 		"xpos"			"80"	[$WIN32]
 		"ypos"			"10"	[$WIN32]
@@ -185,7 +185,7 @@
 	}
 	"CycleTargetFwdKeyLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"CycleTargetFwdKeyLabel"
 		"xpos"			"5"	[$WIN32]
 		"ypos"			"20"	[$WIN32]
@@ -206,7 +206,7 @@
 	}
 	"CycleTargetFwdLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"CycleTargetFwdLabel"
 		"xpos"			"80"	[$WIN32]
 		"ypos"			"20"	[$WIN32]
@@ -227,7 +227,7 @@
 	}
 	"CycleTargetRevKeyLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"CycleTargetRevKeyLabel"
 		"xpos"			"5"	[$WIN32]
 		"ypos"			"30"	[$WIN32]
@@ -248,7 +248,7 @@
 	}
 	"CycleTargetRevLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"CycleTargetRevLabel"
 		"xpos"			"80"	[$WIN32]
 		"ypos"			"30"	[$WIN32]
@@ -269,7 +269,7 @@
 	}
 	"TipLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"TipLabel"
 		"xpos"			"20"
 		"xpos_hidef"	"60"

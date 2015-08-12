@@ -9,9 +9,9 @@
 #include "tf_classmenu.h"
 
 #include <KeyValues.h>
-#include <filesystem.h>
+#include <FileSystem.h>
 #include <vgui_controls/Button.h>
-#include <vgui/IVGui.h>
+#include <vgui/IVGUI.h>
 
 #include "hud.h" // for gEngfuncs
 #include "c_tf_player.h"
@@ -21,7 +21,7 @@
 #include "tf_controls.h"
 #include "vguicenterprint.h"
 #include "imagemouseoverbutton.h"
-#include "IconPanel.h"
+#include "iconpanel.h"
 
 #include "IGameUIFuncs.h" // for key bindings
 
@@ -116,7 +116,7 @@ void CTFClassMenu::PerformLayout()
 	BaseClass::PerformLayout();
 
 #ifndef _X360
-	m_pCountLabel = dynamic_cast< CExLabel * >(FindChildByName("CountLabel"));
+	m_pCountLabel = dynamic_cast< CTFLabel * >( FindChildByName( "CountLabel" ) );
 
 	if ( m_pCountLabel )
 	{
@@ -287,7 +287,7 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 		// Scroll class info text up
 		if ( g_lastPanel )
 		{
-			CExRichText *pRichText = dynamic_cast< CExRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
+			CTFRichText *pRichText = dynamic_cast< CTFRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
 
 			if ( pRichText )
 			{
@@ -300,7 +300,7 @@ void CTFClassMenu::OnKeyCodePressed( KeyCode code )
 		// Scroll class info text up
 		if ( g_lastPanel )
 		{
-			CExRichText *pRichText = dynamic_cast< CExRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
+			CTFRichText *pRichText = dynamic_cast< CTFRichText * >( g_lastPanel->FindChildByName( "classInfo" ) );
 
 			if ( pRichText )
 			{

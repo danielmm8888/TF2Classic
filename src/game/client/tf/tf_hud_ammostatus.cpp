@@ -88,14 +88,14 @@ void CTFHudWeaponAmmo::ApplySchemeSettings( IScheme *pScheme )
 	// load control settings...
 	LoadControlSettings( "resource/UI/HudAmmoWeapons.res" );
 
-	m_pInClip = dynamic_cast<CExLabel *>(FindChildByName("AmmoInClip"));
-	m_pInClipShadow = dynamic_cast<CExLabel *>(FindChildByName("AmmoInClipShadow"));
+	m_pInClip = dynamic_cast<CTFLabel *>(FindChildByName("AmmoInClip"));
+	m_pInClipShadow = dynamic_cast<CTFLabel *>(FindChildByName("AmmoInClipShadow"));
 
-	m_pInReserve = dynamic_cast<CExLabel *>(FindChildByName("AmmoInReserve"));
-	m_pInReserveShadow = dynamic_cast<CExLabel *>(FindChildByName("AmmoInReserveShadow"));
+	m_pInReserve = dynamic_cast<CTFLabel *>(FindChildByName("AmmoInReserve"));
+	m_pInReserveShadow = dynamic_cast<CTFLabel *>(FindChildByName("AmmoInReserveShadow"));
 
-	m_pNoClip = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClip"));
-	m_pNoClipShadow = dynamic_cast<CExLabel *>(FindChildByName("AmmoNoClipShadow"));
+	m_pNoClip = dynamic_cast<CTFLabel *>(FindChildByName("AmmoNoClip"));
+	m_pNoClipShadow = dynamic_cast<CTFLabel *>(FindChildByName("AmmoNoClipShadow"));
 
 	m_pWeaponBucket = dynamic_cast<CTFImagePanel *>(FindChildByName("WeaponBucket"));
 

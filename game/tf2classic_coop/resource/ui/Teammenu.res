@@ -173,7 +173,7 @@
 	
 	"CancelButton" [$WIN32] 
 	{
-		"ControlName"	"CExButton"
+		"ControlName"	"CTFButton"
 		"fieldName"		"CancelButton"
 		"xpos"			"r190"
 		"xpos_hidef"			"r200"
@@ -198,7 +198,7 @@
 	
 	"TeamMenuSelect"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TeamMenuSelect"
 		"xpos"			"30"
 		"xpos_lodef"			"52"
@@ -224,7 +224,7 @@
 	
 	"TeamMenuAuto"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TeamMenuAuto"
 		"xpos"			"c-276"
 		"xpos_lodef"			"c-255"
@@ -250,7 +250,7 @@
 	
 	"TeamMenuSpectate"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"TeamMenuSpectate"
 		"xpos"			"c-112"
 		"xpos_lodef"			"c-125"
@@ -329,7 +329,7 @@
 	
 	"BlueCount"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"BlueCount"
 		"xpos"			"c5"
 		"xpos_lodef"			"c8"
@@ -353,7 +353,7 @@
 	
 	"RedCount"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"RedCount"
 		"xpos"			"c193"
 		"xpos_lodef"			"c176"

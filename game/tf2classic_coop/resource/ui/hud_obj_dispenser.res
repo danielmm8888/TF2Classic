@@ -58,7 +58,7 @@
 
 		"NotBuiltLabel"
 		{
-			"ControlName"	"CExLabel"
+			"ControlName"	"CTFLabel"
 			"fieldName"		"NotBuiltLabel"
 			"font"			"DefaultVerySmall"
 			"xpos"			"60"
@@ -161,7 +161,7 @@
 
 			"BuildingLabel"
 			{
-				"ControlName"	"CExLabel"
+				"ControlName"	"CTFLabel"
 				"fieldName"		"BuildingLabel"
 				"font"			"DefaultSmall"
 				"xpos"			"0"

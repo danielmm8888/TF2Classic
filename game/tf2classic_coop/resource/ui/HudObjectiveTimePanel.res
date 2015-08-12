@@ -47,13 +47,11 @@
 		"image"			"../hud/objectives_timepanel_blue_bg"	
 		"scaleImage"		"1"	
 		"teambg_2"		"../hud/objectives_timepanel_red_bg"
-		"teambg_3"		"../hud/objectives_timepanel_blue_bg"	
-		"teambg_4"		"../hud/objectives_timepanel_green_bg"
-		"teambg_5"		"../hud/objectives_timepanel_yellow_bg"		
+		"teambg_3"		"../hud/objectives_timepanel_blue_bg"		
 	}
 	"TimePanelValue"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"TimePanelValue"
 		"font"			"HudFontMediumSmall"
 		"font_minmode"	"HudFontSmall"
@@ -103,7 +101,7 @@
 	}
 	"WaitingForPlayersLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"WaitingForPlayersLabel"
 		"xpos"			"16"
 		"xpos_hidef"	"0"
@@ -150,7 +148,7 @@
 	}
 	"OvertimeLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"OvertimeLabel"
 		"xpos"			"16"
 		"xpos_hidef"	"0"
@@ -197,7 +195,7 @@
 	}
 	"SuddenDeathLabel"
 	{
-		"ControlName"		"CExLabel"
+		"ControlName"		"CTFLabel"
 		"fieldName"		"SuddenDeathLabel"
 		"xpos"			"16"
 		"xpos_hidef"	"0"
@@ -244,7 +242,7 @@
 	}	
 	"SetupLabel"
 	{
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"SetupLabel"
 		"xpos"			"16"
 		"xpos_hidef"	"0"

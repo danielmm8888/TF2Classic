@@ -2,7 +2,7 @@
 {
 	"ItemNameLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"ItemNameLabel"
 		"font"			"HudFontSmall"
 		"xpos"			"6"
@@ -86,7 +86,7 @@
 	
 	"CostLabel"
 	{	
-		"ControlName"	"CExLabel"
+		"ControlName"	"CTFLabel"
 		"fieldName"		"CostLabel"
 		"font"			"HudFontSmall"
 		"fgcolor"		"ProgressOffWhite"
