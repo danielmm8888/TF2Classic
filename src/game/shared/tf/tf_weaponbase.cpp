@@ -39,7 +39,7 @@ extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 
 extern ConVar tf_useparticletracers;
 
-ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled.\n" );
+ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
 
 //=============================================================================
 //
