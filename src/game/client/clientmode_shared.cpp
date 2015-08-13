@@ -460,9 +460,10 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 		// get the forward vector
 		AngleVectors( camAngles, &camForward, &camRight, &camUp );
 	
-		VectorMA( pSetup->origin, -cam_ofs_distance[0], camForward, pSetup->origin );
-		VectorMA( pSetup->origin, cam_ofs_distance[1], camRight, pSetup->origin );
-		VectorMA( pSetup->origin, cam_ofs_distance[2], camUp, pSetup->origin );
+		//VectorMA( pSetup->origin, -cam_ofs_distance[0], camForward, pSetup->origin );
+		//VectorMA( pSetup->origin, cam_ofs_distance[1], camRight, pSetup->origin );
+		//VectorMA( pSetup->origin, cam_ofs_distance[2], camUp, pSetup->origin );
+		VectorMA( pSetup->origin, -cam_ofs[ ROLL ], camForward, pSetup->origin );
 
 		// Override angles from third person camera
 		VectorCopy( camAngles, pSetup->angles );
