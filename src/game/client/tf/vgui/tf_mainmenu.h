@@ -28,10 +28,16 @@ enum MenuPanel //position in this enum = zpos on the screen
 
 struct MainMenuNotification
 {
-	char* sTitle;
-	char* sMessage;
-	MainMenuNotification() {};
-	MainMenuNotification(char* Title, char* Message) : sTitle(Title), sMessage(Message) {};
+	char sTitle[64];
+	char sMessage[128];
+	bool bUnread;
+	MainMenuNotification() { bUnread = true; };
+	MainMenuNotification(char* Title, char* Message)
+	{ 
+		Q_snprintf(sTitle, sizeof(sTitle), Title);
+		Q_snprintf(sMessage, sizeof(sMessage), Message);
+		bUnread = true; 
+	};
 };
 
 class CTFMenuPanelBase;
@@ -61,7 +67,9 @@ public:
 	virtual void GameLayout();
 	virtual bool InGame();
 	virtual void SendNotification(MainMenuNotification pMessage);
-	virtual MainMenuNotification GetNotification() { return pNotification; };
+	virtual MainMenuNotification *GetNotification(int iIndex) { return &pNotifications[iIndex]; };
+	virtual int GetNotificationsCount() { return pNotifications.Count(); };
+	virtual void RemoveNotification(int iIndex) { pNotifications.Remove(iIndex); };
 	void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
 
 private:
@@ -73,7 +81,7 @@ private:
 	bool								LoadGameUI();
 	bool								bInGameLayout;
 	IGameUI*							gameui;
-	MainMenuNotification				pNotification;
+	CUtlVector<MainMenuNotification>	pNotifications;
 	int									m_iStopGameStartupSound;
 	int									m_iUpdateLayout;
 };

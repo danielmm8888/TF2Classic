@@ -59,6 +59,8 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	SetSize(width, height);
 	SetPos(0, 0);
 
+	pNotifications.RemoveAll();
+
 	m_pPanels.SetSize(COUNT_MENU);
 	AddMenuPanel(new CTFMainMenuPanel(this, "CTFMainMenuPanel"), MAIN_MENU);
 	AddMenuPanel(new CTFPauseMenuPanel(this, "CTFPauseMenuPanel"), PAUSE_MENU);
@@ -258,7 +260,7 @@ void CTFMainMenu::GameLayout()
 
 void CTFMainMenu::SendNotification(MainMenuNotification pMessage)
 {
-	pNotification = pMessage;
+	pNotifications.AddToTail(pMessage);
 	dynamic_cast<CTFNotificationPanel*>(GetMenuPanel(NOTIFICATION_MENU))->OnNotificationUpdate();
 	dynamic_cast<CTFMainMenuPanel*>(GetMenuPanel(MAIN_MENU))->OnNotificationUpdate();
 	dynamic_cast<CTFPauseMenuPanel*>(GetMenuPanel(PAUSE_MENU))->OnNotificationUpdate();
