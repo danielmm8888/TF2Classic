@@ -2082,7 +2082,7 @@ void CTFPlayerShared::SetAirDash( bool bAirDash )
 //-----------------------------------------------------------------------------
 float CTFPlayerShared::GetCritMult( void )
 {
-	float flRemapCritMul = RemapValClamped( m_iCritMult, 0, 255, 1.0, 4.0 );
+	float flRemapCritMul = RemapValClamped( m_iCritMult, 0, 255, 1.0, TF_DAMAGE_CRITMOD_MAXMULT );
 /*#ifdef CLIENT_DLL
 	Msg("CLIENT: Crit mult %.2f - %d\n",flRemapCritMul, m_iCritMult);
 #else
@@ -2103,7 +2103,7 @@ void CTFPlayerShared::UpdateCritMult( void )
 
 	if ( m_DamageEvents.Count() == 0 )
 	{
-		m_iCritMult = RemapValClamped( flMinMult, 1.0, 4.0, 0, 255 );
+		m_iCritMult = RemapValClamped( flMinMult, flMinMult, flMaxMult, 0, 255 );
 		return;
 	}
 
@@ -2142,7 +2142,7 @@ void CTFPlayerShared::UpdateCritMult( void )
 
 	//Msg( "   TotalDamage: %.2f   -> Mult %.2f\n", flTotalDamage, flMult );
 
-	m_iCritMult = (int)RemapValClamped( flMult, 1.0, 4.0, 0, 255 );
+	m_iCritMult = (int)RemapValClamped( flMult, flMinMult, flMaxMult, 0, 255 );
 }
 
 //-----------------------------------------------------------------------------
