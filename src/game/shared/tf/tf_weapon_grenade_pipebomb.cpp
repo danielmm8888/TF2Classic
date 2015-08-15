@@ -22,6 +22,7 @@
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "IEffects.h"
+#include "c_team.h"
 // Server specific.
 #else
 #include "tf_player.h"
@@ -146,6 +147,9 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
 	if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
 	{
+		if (TFGameRules()->IsDeathmatch())
+			return "stickybombtrail_dm";
+
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_RED:
@@ -167,6 +171,9 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 	}
 	else
 	{
+		if (TFGameRules()->IsDeathmatch())
+			return "pipebombtrail_dm";
+
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_RED:
@@ -201,20 +208,45 @@ void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
 		m_flCreationTime = gpGlobals->curtime;
-		ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
-		m_bPulsed = false;
 
 		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>( m_hLauncher.Get() );
 
-		if ( pLauncher )
+		CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
+		m_bPulsed = false;
+
+		if (pLauncher)
 		{
 			pLauncher->AddPipeBomb( this );
+			C_TFPlayer *pPlayer = dynamic_cast<C_TFPlayer*>(pLauncher->GetOwner());
+			if (pPlayer && TFGameRules()->IsDeathmatch())
+					pPlayer->m_Shared.SetParticleToMercColor(pParticle);
 		}
 
 		if ( m_bCritical )
 		{
 			switch( GetTeamNumber() )
 			{
+				if (TFGameRules()->IsDeathmatch())
+				{
+					if (m_iType == TF_GL_MODE_REMOTE_DETONATE)
+					{
+						pParticle = ParticleProp()->Create("critical_grenade_dm", PATTACH_ABSORIGIN_FOLLOW);
+					}
+					else
+					{
+						pParticle = ParticleProp()->Create("critical_pipe_dm", PATTACH_ABSORIGIN_FOLLOW);
+					}
+
+					if (pLauncher && pParticle)
+					{
+						C_TFPlayer *pPlayer = dynamic_cast<C_TFPlayer*>(pLauncher->GetOwner());
+						if (pPlayer)
+							pPlayer->m_Shared.SetParticleToMercColor(pParticle);
+					}
+
+					return;
+				}
+
 			case TF_TEAM_BLUE:
 
 				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
@@ -418,6 +450,7 @@ void CTFGrenadePipebombProjectile::Precache()
 	PrecacheParticleSystem( "stickybombtrail_red" );
 	PrecacheParticleSystem( "stickybombtrail_green" );
 	PrecacheParticleSystem( "stickybombtrail_yellow" );
+	PrecacheParticleSystem( "stickybombtrail_dm" );
 
 	BaseClass::Precache();
 }

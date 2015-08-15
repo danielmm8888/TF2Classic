@@ -26,6 +26,8 @@
 #include "c_tf_playerclass.h"
 #include "iviewrender.h"
 #include "engine/ivdebugoverlay.h"
+#include "c_tf_playerresource.h"
+#include "c_tf_team.h"
 
 #define CTFPlayerClass C_TFPlayerClass
 
@@ -1047,28 +1049,25 @@ void CTFPlayerShared::OnAddCritboosted(void)
 	if (m_pOuter->IsLocalPlayer())
 	{
 		char *pEffectName = NULL;
-		switch  (m_pOuter->GetTeamNumber() )
-		{
-		case TF_TEAM_BLUE:
-			pEffectName = "critgun_weaponmodel_blu";
-			break;
-		case TF_TEAM_RED:
-			pEffectName = "critgun_weaponmodel_red";
-			break;
-		case TF_TEAM_GREEN:
-			pEffectName = "critgun_weaponmodel_grn";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffectName = "critgun_weaponmodel_ylw";
-			break;
-		default:
-			pEffectName = "critgun_weaponmodel_blu";
-			break;
-		}
-		m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectName, PATTACH_ROOTBONE_FOLLOW);
-		char pEffectNameTemp[64];
+		char pEffectNameTemp[128];
+		C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>(m_pOuter->GetTeam());
+
+		Q_snprintf( pEffectNameTemp, sizeof(pEffectNameTemp), "critgun_weaponmodel_%s", pTeam->Get_Name() );
+		pEffectName = pEffectNameTemp;
+
+		if (TFGameRules()->IsDeathmatch())
+			pEffectName = "critgun_weaponmodel_dm";
+
+		CNewParticleEffect *pCritParticle = m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectName, PATTACH_ROOTBONE_FOLLOW);
+
+		if (TFGameRules()->IsDeathmatch())
+			SetParticleToMercColor(pCritParticle);
+
 		Q_snprintf(pEffectNameTemp, sizeof(pEffectNameTemp), "%s_glow", pEffectName);
-		m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW);
+		pCritParticle = m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW);
+
+		if (TFGameRules()->IsDeathmatch())
+			SetParticleToMercColor(pCritParticle);
 
 		CLocalPlayerFilter filter;
 		m_pOuter->GetViewModel()->EmitSound(filter, m_pOuter->GetViewModel()->entindex(), "Weapon_General.CritPower");
@@ -1304,12 +1303,19 @@ void CTFPlayerShared::OnAddBurning( void )
 		case TF_TEAM_YELLOW:
 			pEffectName = "burningplayer_yellow";
 			break;
+
 		default:
 			pEffectName = "burningplayer_red";
 			break;
 		}
+
+		if (TFGameRules()->IsDeathmatch())
+			pEffectName = "burningplayer_dm";
 			
 		m_pOuter->m_pBurningEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
+
+		if (TFGameRules()->IsDeathmatch())
+			SetParticleToMercColor(m_pOuter->m_pBurningEffect);
 
 		m_pOuter->m_flBurnEffectStartTime = gpGlobals->curtime;
 		m_pOuter->m_flBurnEffectEndTime = gpGlobals->curtime + TF_BURNING_FLAME_LIFE;
@@ -1641,6 +1647,24 @@ void CTFPlayerShared::RemoveDisguise( void )
 }
 
 #ifdef CLIENT_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::SetParticleToMercColor(CNewParticleEffect *pParticle)
+{
+	if (pParticle && TFGameRules() && TFGameRules()->IsDeathmatch())
+	{
+		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+		int index = m_pOuter->entindex();
+		Color clr = tf_PR->GetPlayerColor(index);
+		Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
+		pParticle->SetControlPoint(9, vec);
+		return true;
+	}
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

@@ -672,6 +672,7 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "particle_nemesis_blue" );
 	PrecacheParticleSystem( "particle_nemesis_green" );
 	PrecacheParticleSystem( "particle_nemesis_yellow" );
+	PrecacheParticleSystem( "particle_nemesis_dm" );
 	PrecacheParticleSystem( "spy_start_disguise_red" );
 	PrecacheParticleSystem( "spy_start_disguise_blue" );
 	PrecacheParticleSystem( "spy_start_disguise_green" );
@@ -680,6 +681,7 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "burningplayer_blue" );
 	PrecacheParticleSystem( "burningplayer_green" );
 	PrecacheParticleSystem( "burningplayer_yellow" );
+	PrecacheParticleSystem( "burningplayer_dm" );
 	PrecacheParticleSystem( "critgun_weaponmodel_blu" );
 	PrecacheParticleSystem( "critgun_weaponmodel_blu_glow" );
 	PrecacheParticleSystem( "critgun_weaponmodel_red" );
@@ -688,6 +690,8 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "critgun_weaponmodel_grn_glow" );
 	PrecacheParticleSystem( "critgun_weaponmodel_ylw" );
 	PrecacheParticleSystem( "critgun_weaponmodel_ylw_glow" );
+	PrecacheParticleSystem( "critgun_weaponmodel_dm" );
+	PrecacheParticleSystem( "critgun_weaponmodel_dm_glow" );
 	PrecacheParticleSystem( "blood_spray_red_01" );
 	PrecacheParticleSystem( "blood_spray_red_01_far" );
 	PrecacheParticleSystem( "water_blood_impact_red_01" );

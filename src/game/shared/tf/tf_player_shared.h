@@ -151,6 +151,8 @@ public:
 	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
+
+	bool	SetParticleToMercColor( CNewParticleEffect *pParticle );
 #endif
 
 #ifdef GAME_DLL

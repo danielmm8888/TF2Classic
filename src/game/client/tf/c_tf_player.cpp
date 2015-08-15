@@ -2208,7 +2208,12 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 		default:
 			return;	// shouldn't get called if we're not on a team; bail out if it does
 		}
-		ParticleProp()->Create( pszEffect, PATTACH_POINT_FOLLOW, "head" );
+		if (TFGameRules()->IsDeathmatch())
+			pszEffect = "particle_nemesis_dm";
+
+		m_Shared.SetParticleToMercColor(
+			ParticleProp()->Create(pszEffect, PATTACH_POINT_FOLLOW, "head")
+		);
 	}
 	else
 	{

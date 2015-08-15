@@ -8,6 +8,8 @@
 #include "tf_fx_shared.h"
 #include "in_buttons.h"
 #include "ammodef.h"
+#include "tf_gamerules.h"
+#include "tf_player_shared.h"
 
 #if defined( CLIENT_DLL )
 
@@ -724,6 +726,9 @@ void CTFFlameThrower::RestartParticleEffect( void )
 				pszParticleEffect = "flamethrower_crit_blue";
 				break;
 			}
+
+			if (TFGameRules()->IsDeathmatch())
+				pszParticleEffect = "flamethrower_crit_dm";
 		}
 		else 
 		{
@@ -745,17 +750,22 @@ void CTFFlameThrower::RestartParticleEffect( void )
 				pszParticleEffect = "flamethrower_blue";
 				break;
 			}
+
+			if (TFGameRules()->IsDeathmatch())
+				pszParticleEffect = "flamethrower_dm";
 		}		
 	}
 
 	// Start the effect on the viewmodel if our owner is the local player
-	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	C_TFPlayer *pLocalPlayer = ToTFPlayer(C_BasePlayer::GetLocalPlayer());
 	if ( pLocalPlayer && pLocalPlayer == GetOwner() )
 	{
 		if ( pLocalPlayer->GetViewModel() )
 		{
 			pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			pLocalPlayer->GetViewModel()->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+			pLocalPlayer->m_Shared.SetParticleToMercColor(
+				pLocalPlayer->GetViewModel()->ParticleProp()->Create(pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle")
+				);
 		}
 	}
 	else

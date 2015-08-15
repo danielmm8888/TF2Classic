@@ -305,6 +305,11 @@ void CTFWeaponBase::Precache()
 		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_yellow_crit", pTFInfo->m_szTracerEffect);
 		PrecacheParticleSystem(pTracerEffect);
 		PrecacheParticleSystem(pTracerEffectCrit);
+
+		Q_snprintf(pTracerEffect, sizeof(pTracerEffect), "%s_dm", pTFInfo->m_szTracerEffect);
+		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_dm_crit", pTFInfo->m_szTracerEffect);
+		PrecacheParticleSystem(pTracerEffect);
+		PrecacheParticleSystem(pTracerEffectCrit);
 	}
 }
 
@@ -1226,8 +1231,14 @@ const char *CTFWeaponBase::GetTracerType( void )
 	{
 		if (GetOwner() && !m_szTracerName[0])
 		{
-			switch (GetOwner()->GetTeamNumber())
+			if (TFGameRules()->IsDeathmatch())
 			{
+				Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "dm");
+			}
+			else
+			{
+				switch (GetOwner()->GetTeamNumber())
+				{
 				case TF_TEAM_RED:
 					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
 					break;
@@ -1243,6 +1254,7 @@ const char *CTFWeaponBase::GetTracerType( void )
 				default:
 					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
 					break;
+				}
 			}
 		}
 
