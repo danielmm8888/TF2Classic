@@ -2222,6 +2222,7 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 		ParticleProp()->StopParticlesNamed( "particle_nemesis_blue", true );
 		ParticleProp()->StopParticlesNamed( "particle_nemesis_green", true );
 		ParticleProp()->StopParticlesNamed( "particle_nemesis_yellow", true );
+		ParticleProp()->StopParticlesNamed( "particle_nemesis_dm", true );
 	}
 	m_bIsDisplayingNemesisIcon = bShow;
 }
