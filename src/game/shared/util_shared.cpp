@@ -19,10 +19,6 @@
 #include "particle_parse.h"
 #include "KeyValues.h"
 #include "time.h"
-#if defined (TF_CLASSIC_CLIENT)
-#include "tf_gamerules.h"
-#include "c_tf_playerresource.h"
-#endif
 
 #ifdef USES_ECON_ITEMS
 	#include "econ_item_constants.h"
@@ -752,19 +748,6 @@ void UTIL_Tracer( const Vector &vecStart, const Vector &vecEnd, int iEntIndex,
 #endif
 	data.m_flScale = flVelocity;
 	data.m_nHitBox = iParticleID;
-
-#if defined(TF_CLASSIC_CLIENT)
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-	{
-		data.m_bCustomColors = true;
-		C_TF_PlayerResource *pResource = dynamic_cast<C_TF_PlayerResource *>(g_PR);
-		data.m_CustomColors.m_vecColor1 = Vector(
-			pResource->GetPlayerColor(iEntIndex).r() / 255.0f,
-			pResource->GetPlayerColor(iEntIndex).g() / 255.0f,
-			pResource->GetPlayerColor(iEntIndex).b() / 255.0f
-			);
-	}
-#endif
 
 	// Flags
 	if ( bWhiz )

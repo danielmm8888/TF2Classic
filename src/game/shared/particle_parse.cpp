@@ -18,6 +18,11 @@
 #include "networkstringtable_clientdll.h"
 #endif
 
+#if defined (TF_CLASSIC_CLIENT)
+#include "tf_gamerules.h"
+#include "c_tf_playerresource.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -401,6 +406,24 @@ void DispatchParticleEffect( int iEffectIndex, Vector vecOrigin, Vector vecStart
 #endif
 		data.m_fFlags |= PARTICLE_DISPATCH_FROM_ENTITY;
 		data.m_nDamageType = PATTACH_CUSTOMORIGIN;
+
+#if defined(TF_CLASSIC_CLIENT)
+		if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			C_TFPlayer *pPlayer = ToTFPlayer(pEntity);
+			if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE))
+			{
+				data.m_bCustomColors = true;
+				C_TF_PlayerResource *pResource = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+				data.m_CustomColors.m_vecColor1 = Vector(
+					pResource->GetPlayerColor(pPlayer->entindex()).r() / 255.0f,
+					pResource->GetPlayerColor(pPlayer->entindex()).g() / 255.0f,
+					pResource->GetPlayerColor(pPlayer->entindex()).b() / 255.0f
+					);
+			}
+		}
+#endif
+
 	}
 	else
 	{
