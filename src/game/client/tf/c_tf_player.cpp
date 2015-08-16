@@ -2034,9 +2034,12 @@ void C_TFPlayer::OnPlayerClassChange( void )
 	m_PlayerAnimState->SetWalkSpeed( GetPlayerClass()->GetMaxSpeed() * 0.5 );
 
 	// Execute the class cfg
-	char szCommand[128];
-	Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
-	engine->ExecuteClientCmd(szCommand);
+	if (IsLocalPlayer())
+	{
+		char szCommand[128];
+		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
+		engine->ExecuteClientCmd(szCommand);
+	}
 }
 
 //-----------------------------------------------------------------------------
