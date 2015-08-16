@@ -53,7 +53,6 @@ void CTFImagePanel::ApplySettings(KeyValues *inResourceData)
 	{
 		Q_strncpy( m_szTeamBG[i], inResourceData->GetString( VarArgs("teambg_%d", i), "" ), sizeof( m_szTeamBG[i] ) );
 	}
-
 	BaseClass::ApplySettings( inResourceData );
 
 	UpdateBGImage();
@@ -69,7 +68,10 @@ void CTFImagePanel::UpdateBGImage(void)
 		if (TFGameRules() && TFGameRules()->IsDeathmatch())
 		{
 			int iColorIndex = (tf2c_coloredhud.GetBool() ? IMAGE_BG_EMPTY : IMAGE_BG_DEATHMATCH);
-			SetImage(m_szTeamBG[iColorIndex]);
+			if (m_szTeamBG[iColorIndex][0] != '\0')
+			{
+				SetImage(m_szTeamBG[iColorIndex]);
+			}
 		}
 		else if ( m_szTeamBG[m_iBGTeam] && m_szTeamBG[m_iBGTeam][0] )
 		{
