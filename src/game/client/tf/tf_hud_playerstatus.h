@@ -114,7 +114,7 @@ protected:
 
 private:
 	CTFHealthPanel		*m_pHealthImage;
-	CTFImagePanel		*m_pHealthBonusImage;
+	vgui::ImagePanel	*m_pHealthBonusImage;
 	vgui::ImagePanel	*m_pHealthImageBG;
 
 	int					m_nHealth;
