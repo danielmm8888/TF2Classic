@@ -3558,7 +3558,9 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	if (TFGameRules()->IsDeathmatch())
 	{
-		CNewParticleEffect *pEffect = ParticleProp()->Create("dm_respawn_19", PATTACH_ABSORIGIN_FOLLOW);
+		char chParticleName[128]; 
+		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", RandomInt(1, 35));
+		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
 		if (pEffect)
 		{
 			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
