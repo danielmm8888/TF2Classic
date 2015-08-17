@@ -1,14 +1,11 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: Critical Damage: Crits for 30/15 seconds with a crit glow. 
-// Looks like an amplifier device that attaches onto weapons somehow, 
-// looks similar to a car battery. 
-// Crit glow effect would match the player’s merc color or be blue.
+// Purpose: FILL IN
 //
 //=============================================================================//
 
-#ifndef POWERUP_CRITDAMAGE_H
-#define POWERUP_CRITDAMAGE_H
+#ifndef POWERUP_SHORTUBER_H
+#define POWERUP_SHORTUBER_H
 
 #ifdef _WIN32
 #pragma once
@@ -18,24 +15,27 @@
 
 //=============================================================================
 
-class CTFPowerupCritdamage : public CTFBaseDMPowerup
+class CTFPowerupShortUber : public CTFBaseDMPowerup
 {
 public:
-	DECLARE_CLASS(CTFPowerupCritdamage, CTFBaseDMPowerup);
+	DECLARE_CLASS(CTFPowerupShortUber, CTFBaseDMPowerup);
 	DECLARE_DATADESC();
 
-	CTFPowerupCritdamage();
+	CTFPowerupShortUber();
 
 	void	Spawn(void);
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
 
+	virtual const char *GetPowerupModel(void) { return "models/class_menu/random_class_icon.mdl"; }
+	virtual const char *GetPickupSound(void) { return "HealthKit.Touch"; }
+
 	virtual int	GetEffectDuration(void) { return 15; }
-	virtual int	GetCondition(void) { return TF_COND_POWERUP_CRITDAMAGE; }
+	virtual int	GetCondition(void) { return TF_COND_INVULNERABLE; }
 
 	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
 };
 
-#endif // POWERUP_CRITDAMAGE_H
+#endif // POWERUP_SHORTUBER_H
 
 

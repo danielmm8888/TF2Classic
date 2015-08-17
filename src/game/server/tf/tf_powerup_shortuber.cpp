@@ -1,7 +1,6 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: Critical Damage: Crits for 30/15 seconds with a crit glow. 
-//			Crit glow effect would match the player’s merc color or be blue.
+// Purpose: FILL IN
 //	  TODO: Add unique model and sound effect. Health kit assets as placeholder.
 //
 //=============================================================================//
@@ -12,35 +11,34 @@
 #include "tf_player.h"
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
-#include "tf_powerup_critdamage.h"
+#include "tf_powerup_shortuber.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 //=============================================================================
 
-BEGIN_DATADESC(CTFPowerupCritdamage)
+BEGIN_DATADESC(CTFPowerupShortUber)
 END_DATADESC()
 
-LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
+LINK_ENTITY_TO_CLASS(item_powerup_shortuber, CTFPowerupShortUber);
 
 //=============================================================================
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor 
 //-----------------------------------------------------------------------------
-CTFPowerupCritdamage::CTFPowerupCritdamage()
-{	
-	m_iRespawnTime = 30;
-	m_strModelName = MAKE_STRING("models/items/powerup_crit.mdl");
+CTFPowerupShortUber::CTFPowerupShortUber()
+{
+	m_strModelName = MAKE_STRING("models/class_menu/random_class_icon.mdl");
 	m_strPickupSound = MAKE_STRING("HealthKit.Touch");
-//	m_iEffectDuration = 15;
+	m_iRespawnTime = 30;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Spawn(void)
+void CTFPowerupShortUber::Spawn(void)
 {
 	BaseClass::Spawn();
 }
@@ -48,7 +46,7 @@ void CTFPowerupCritdamage::Spawn(void)
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Precache(void)
+void CTFPowerupShortUber::Precache(void)
 {
 	BaseClass::Precache();
 }
@@ -56,7 +54,7 @@ void CTFPowerupCritdamage::Precache(void)
 //-----------------------------------------------------------------------------
 // Purpose: Touch function
 //-----------------------------------------------------------------------------
-bool CTFPowerupCritdamage::MyTouch(CBasePlayer *pPlayer)
+bool CTFPowerupShortUber::MyTouch(CBasePlayer *pPlayer)
 {
 	return BaseClass::MyTouch(pPlayer);
 }

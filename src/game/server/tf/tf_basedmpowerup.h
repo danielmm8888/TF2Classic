@@ -29,15 +29,20 @@ public:
 	bool	MyTouch(CBasePlayer *pPlayer);
 	float	GetRespawnDelay(void);
 
-	virtual const char *GetPowerupModel(void) { return "models/class_menu/random_class_icon.mdl"; }
-	virtual const char *GetPickupSound(void) { return "HealthKit.Touch"; }
+	virtual const char *GetPowerupModel(void) { return STRING(m_strModelName); }
+	virtual const char *GetPickupSound(void) { return STRING(m_strPickupSound); }
 
 	virtual int	GetEffectDuration(void) { return 0; }/*{ return m_iEffectDuration; }*/
 	virtual int GetCondition(void) { return TF_COND_AIMING; }
 
 	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
 
+	string_t m_strModelName;
+
+	string_t m_strPickupSound;
+
 	int		m_iRespawnTime;
+
 	int		m_iEffectDuration;
 
 };

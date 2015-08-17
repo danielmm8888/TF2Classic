@@ -880,7 +880,16 @@
 	//input EquipWeapons(void) : "Equips all of the players on the current server with the specified weapons."
 ]
 
-@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_critdamage : "CritDamage" 
+@PointClass base(Item) studio("models/items/powerup_crit.mdl") = item_powerup_critdamage : "Powerup Crit" 
 [
+	ModelName(string)    : "Model override" : "models/items/powerup_crit.mdl"
+	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
+]
+
+@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_shortuber : "Powerup uber" 
+[
+	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
+	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
