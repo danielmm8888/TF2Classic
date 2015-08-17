@@ -15,17 +15,18 @@
 #include <vgui/IScheme.h>
 #include <vgui_controls/ImagePanel.h>
 #include "GameEventListener.h"
+#include "vgui_controls/ScalableImagePanel.h"
 
 #define MAX_BG_LENGTH		128
 
-class CTFImageColoredPanel : public vgui::ImagePanel
+class CTFImageColoredPanel : public vgui::ScalableImagePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFImageColoredPanel, vgui::ImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFImageColoredPanel, vgui::ScalableImagePanel );
 
 	CTFImageColoredPanel(vgui::Panel *parent, const char *name);
 
-	virtual Color GetDrawColor( void );
+	virtual void PaintBackground();
 };
 
 

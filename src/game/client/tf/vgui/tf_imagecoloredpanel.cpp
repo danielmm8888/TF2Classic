@@ -33,20 +33,26 @@ extern ConVar tf2c_coloredhud;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFImageColoredPanel::CTFImageColoredPanel(Panel *parent, const char *name) : ImagePanel(parent, name)
+CTFImageColoredPanel::CTFImageColoredPanel(Panel *parent, const char *name) : ScalableImagePanel(parent, name)
 {
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-Color CTFImageColoredPanel::GetDrawColor(void)
+void CTFImageColoredPanel::PaintBackground()
 {
 	C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
 
 	//disable for deathmatch for now
 	if (!tf_PR || !tf2c_coloredhud.GetBool() || !TFGameRules() || !TFGameRules()->IsDeathmatch())
-		return Color(0, 0, 0, 0);
-	int iIndex = GetLocalPlayerIndex();
-	return Color(tf_PR->GetPlayerColor(iIndex));
+	{
+		SetDrawColor(Color(0, 0, 0, 0));
+	}
+	else
+	{
+		int iIndex = GetLocalPlayerIndex();
+		SetDrawColor(tf_PR->GetPlayerColor(iIndex));
+	}
+	BaseClass::PaintBackground();
 }
