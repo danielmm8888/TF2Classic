@@ -372,7 +372,7 @@ bool CTFGameMovement::CheckJumpButton()
 	if ( player->GetFlags() & FL_DUCKING )
 	{
 		// Let a scout do it.
-		bool bAllow = (bScout && !bOnGround) || tf2c_duckjump.GetBool();
+		bool bAllow = (bScout && !bOnGround) || tf2c_duckjump.GetBool() || TFGameRules()->IsDeathmatch();
 
 		if ( !bAllow )
 			return false;
