@@ -401,6 +401,8 @@ public:
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );
 
+	float	m_flSpawnProtectTime;
+
 private:
 
 	int					GetAutoTeam( void );

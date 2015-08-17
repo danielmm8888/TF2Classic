@@ -441,6 +441,19 @@ void CTFPlayer::TFPlayerThink()
 		}
 	}
 
+	if (TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime)
+	{
+		if ( (gpGlobals->curtime > m_flSpawnProtectTime) || (m_nButtons & IN_ATTACK) )
+		{
+			RemoveFlag(FL_GODMODE);
+			m_nRenderFX = kRenderFxNone;
+			RemoveEffects(EF_ITEM_BLINK);
+			GetViewModel()->m_nRenderFX = kRenderFxNone;
+			GetViewModel()->RemoveEffects(EF_ITEM_BLINK);
+			m_flSpawnProtectTime = 0;
+		}
+	}
+
 	SetContextThink( &CTFPlayer::TFPlayerThink, gpGlobals->curtime, "TFPlayerThink" );
 }
 

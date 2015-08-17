@@ -320,6 +320,8 @@ public:
 	void	SendHudNotification( IRecipientFilter &filter, HudNotification_t iType );
 	void	SendHudNotification( IRecipientFilter &filter, const char *pszText, const char *pszIcon, int iTeam = TEAM_UNASSIGNED );
 
+	virtual void PlayerSpawn( CBasePlayer *pPlayer );
+
 private:
 
 	int DefaultFOV( void ) { return 75; }
