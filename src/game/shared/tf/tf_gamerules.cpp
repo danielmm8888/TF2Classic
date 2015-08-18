@@ -1841,18 +1841,20 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 		return NULL;
 	}
 
+	CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
+
 	const char *pszFormat = NULL;
 
 	// team only
 	if ( bTeamOnly == true )
 	{
-		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
 			pszFormat = "TF_Chat_Spec";
 		}
 		else
 		{
-			if ( pPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
+			if ( pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
 			{
 				pszFormat = "TF_Chat_Team_Dead";
 			}
@@ -1870,16 +1872,33 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 			}
 		}
 	}
-	// everyone
+	else if ( pTFPlayer->m_bIsPlayerADev )
+	{
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		{
+			pszFormat = "TF_Chat_DevSpec";
+		}
+		else
+		{
+			if (pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN)
+			{
+				pszFormat = "TF_Chat_DevDead";
+			}
+			else
+			{
+				pszFormat = "TF_Chat_Dev";
+			}
+		}
+	}
 	else
 	{	
-		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
 			pszFormat = "TF_Chat_AllSpec";	
 		}
 		else
 		{
-			if ( pPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
+			if ( pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
 			{
 				pszFormat = "TF_Chat_AllDead";
 			}

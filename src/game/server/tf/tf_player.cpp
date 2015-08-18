@@ -407,6 +407,7 @@ CTFPlayer::CTFPlayer()
 		m_WeaponPresetMelee.AddToTail(0);
 	}
 
+	m_bIsPlayerADev = false;
 }
 
 
@@ -815,7 +816,10 @@ void CTFPlayer::InitialSpawn( void )
 	m_iMaxSentryKills = 0;
 	CTF_GameStats.Event_MaxSentryKills( this, 0 );
 
+	m_bIsPlayerADev = PlayerHasPowerplay();
+
 	StateEnter( TF_STATE_WELCOME );
+
 }
 
 
@@ -6788,18 +6792,17 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 uint64 powerplaymask = 0xFAB2423BFFA352AF;
 uint64 powerplay_ids[] =
 {
-	76561197960435530 ^ powerplaymask, 
-	76561197960265731 ^ powerplaymask,
-	76561197960265749 ^ powerplaymask,
-	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
-	/*76561198029219422 ^ powerplaymask,
-	76561198136391192 ^ powerplaymask,
+	76561198029219422 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
-	76561198016621705 ^ powerplaymask,
-	76561198020781429 ^ powerplaymask,
-	76561197991605918 ^ powerplaymask,
-	76561198096723575 ^ powerplaymask,*/
+	76561198011507712 ^ powerplaymask,
+	76561197970945736 ^ powerplaymask,
+	76561198005690007 ^ powerplaymask,
+	76561198006774758 ^ powerplaymask,
+	76561198001171456 ^ powerplaymask,
+	76561198006395451 ^ powerplaymask,
+	76561198037744635 ^ powerplaymask,
+	76561198025334020 ^ powerplaymask
 };
 
 //-----------------------------------------------------------------------------

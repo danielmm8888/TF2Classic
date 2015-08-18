@@ -358,6 +358,8 @@ public:
 
 	float	m_flNextNameChangeTime;
 
+	bool	m_bIsPlayerADev;
+
 	int					StateGet( void ) const;
 
 	void				SetOffHandWeapon( CTFWeaponBase *pWeapon );
