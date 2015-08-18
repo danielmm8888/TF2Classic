@@ -334,6 +334,10 @@ void CTFGameMovement::PreventBunnyJumping()
 {
 	// Speed at which bunny jumping is limited
 	float maxscaledspeed = tf2c_bunnyjump_max_speed_factor.GetFloat() * player->m_flMaxspeed;
+
+	if (TFGameRules()->IsDeathmatch())
+		maxscaledspeed = 1.50f * player->m_flMaxspeed;
+
 	if ( maxscaledspeed <= 0.0f )
 		return;
 
