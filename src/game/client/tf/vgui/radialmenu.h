@@ -7,7 +7,7 @@
 #pragma once
 #endif
 
-#include <vgui_controls/editablepanel.h>
+#include <vgui_controls/EditablePanel.h>
 //#include "asw_hudelement.h"
 
 #define PANEL_RADIAL_MENU			"RadialMenu"

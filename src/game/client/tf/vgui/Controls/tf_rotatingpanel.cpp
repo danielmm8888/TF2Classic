@@ -5,7 +5,7 @@ using namespace vgui;
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: SPINNING SHIT
