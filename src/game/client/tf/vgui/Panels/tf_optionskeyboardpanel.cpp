@@ -25,7 +25,7 @@
 #include <vgui/ISystem.h>
 #include <vgui/IInput.h>
 
-#include "FileSystem.h"
+#include "filesystem.h"
 #include "tier1/UtlBuffer.h"
 #include "igameuifuncs.h"
 #include <vstdlib/IKeyValuesSystem.h>
