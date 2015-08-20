@@ -540,6 +540,8 @@ int CTFWeaponBuilder::GetPosition( void ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBuilder::GetPrintName( void ) const
 {
+	if ( GetObjectInfo( m_iObjectType )->m_AltModes.Count() > 0 )
+		return GetObjectInfo( m_iObjectType )->m_AltModes.Element( m_iObjectMode * 3 + 0 );
 	return GetObjectInfo( m_iObjectType )->m_pStatusName;
 }
 

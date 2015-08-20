@@ -574,8 +574,26 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 		pInfo->m_iMetalToDropInGibs = pSub->GetInt( "MetalToDropInGibs", 0 );
 		pInfo->m_pUpgradeSound = ReadAndAllocStringValue( pSub, "UpgradeSound", pFilename );
 		pInfo->m_BuildCount = pSub->GetInt( "BuildCount", 0 );
-		pInfo->m_bRequiresOwnBuilder = pSub->GetInt( "RequiresOwnBuilder", 0 ) ? true : false;
+		pInfo->m_bRequiresOwnBuilder = pSub->GetBool( "RequiresOwnBuilder", 0 );
 
+		// PistonMiner: Added Object Mode key
+		KeyValues *pAltModes = pSub->FindKey( "AltModes" );
+		if ( pAltModes )
+		{
+			for (int i = 0; i < 4; ++i) // load at most 4 object modes
+			{
+				char altModeBuffer[256]; // Max size of 0x100
+				V_snprintf( altModeBuffer, ARRAYSIZE(altModeBuffer), "AltMode%d", i );
+				KeyValues *pCurAltMode = pAltModes->FindKey( altModeBuffer );
+				if ( !pCurAltMode )
+					break;
+
+				// Save logic here
+				pInfo->m_AltModes.AddToTail( ReadAndAllocStringValue( pCurAltMode, "StatusName", "scripts/objects.txt" ) );
+				pInfo->m_AltModes.AddToTail( ReadAndAllocStringValue( pCurAltMode, "ModeName", "scripts/objects.txt" ) );
+				pInfo->m_AltModes.AddToTail( ReadAndAllocStringValue( pCurAltMode, "IconMenu", "scripts/objects.txt" ) );
+			}
+		}
 	}
 
 	pValues->deleteThis();

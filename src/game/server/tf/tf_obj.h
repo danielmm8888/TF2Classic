@@ -78,7 +78,11 @@ public:
 
 	virtual int		BloodColor( void ) { return BLOOD_COLOR_MECH; }
 
-	virtual void	SetObjectMode(int iObjectMode) { m_iObjectMode = iObjectMode; }
+	// Override this method per object to set your local stuff up.
+	virtual void	SetObjectMode( int iObjectMode )
+	{
+		m_iObjectMode = iObjectMode;
+	}
 	int				GetObjectMode() { return m_iObjectMode; }
 
 	// Building

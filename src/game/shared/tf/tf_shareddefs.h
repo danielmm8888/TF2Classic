@@ -897,6 +897,8 @@ public:
 	int		m_BuildCount;
 	bool	m_bRequiresOwnBuilder;			// ???
 
+	CUtlVector<const char *> m_AltModes;
+
 	// HUD weapon selection menu icon ( from hud_textures.txt )
 	char	*m_pIconActive;
 	char	*m_pIconInactive;
