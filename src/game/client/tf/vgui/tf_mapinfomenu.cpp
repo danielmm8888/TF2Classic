@@ -486,14 +486,15 @@ struct s_MapTypeInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	"ctf_2fort",	"2Fort",		"#Gametype_CTF",			"VALVe",
-	"cp_dustbowl",	"Dustbowl",		"#Gametype_AttackDefense",	"VALVe",
-	"cp_granary",	"Granary",		"#Gametype_CP",				"VALVe",
-	"cp_well",		"Well",			"#Gametype_CP",				"VALVe",
-	"cp_gravelpit",	"Gravel Pit",	"#Gametype_AttackDefense",	"VALVe",
-	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",		"VALVe",
-	"ctf_well",		"Well",			"#Gametype_CTF",			"VALVe",
-	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"VALVe",
+	"ctf_2fort",	"2Fort",		"#Gametype_CTF",			"Valve",
+	"cp_dustbowl",	"Dustbowl",		"#Gametype_AttackDefense",	"Valve",
+	"cp_granary",	"Granary",		"#Gametype_CP",				"Valve",
+	"cp_well",		"Well",			"#Gametype_CP",				"Valve",
+	"cp_gravelpit",	"Gravel Pit",	"#Gametype_AttackDefense",	"Valve",
+	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",		"Valve",
+	"ctf_well",		"Well",			"#Gametype_CTF",			"Valve",
+	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"Valve",
+	"cp_badlands",	"Badlands",		"#Gametype_CP",				"Valve",
 	//---------------------- TF2C maps ----------------------
 	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM, Nineaxis",
 	"cp_tidal_v4",		"Tidal",			"#Gametype_CP",					"Heyo",
