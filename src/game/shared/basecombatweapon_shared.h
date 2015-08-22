@@ -24,9 +24,9 @@
 #endif
 
 // Hacky
-//#if defined ( TF_CLIENT_DLL ) || defined ( TF_DLL )
-//#include "econ_entity.h"
-//#endif // TF_CLIENT_DLL || TF_DLL
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_DLL ) || defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
+#include "econ_entity.h"
+#endif // TF_CLIENT_DLL || TF_DLL
 
 #if !defined( CLIENT_DLL )
 extern void OnBaseCombatWeaponCreated( CBaseCombatWeapon * );
@@ -119,7 +119,7 @@ namespace vgui2
 // Purpose: Base weapon class, shared on client and server
 //-----------------------------------------------------------------------------
 
-#if defined USES_ECON_ITEMS
+#if defined USES_ECON_ITEMS || defined TF_CLASSIC || defined TF_CLASSIC_CLIENT
 #define BASECOMBATWEAPON_DERIVED_FROM		CEconEntity
 #else 
 #define BASECOMBATWEAPON_DERIVED_FROM		CBaseAnimating

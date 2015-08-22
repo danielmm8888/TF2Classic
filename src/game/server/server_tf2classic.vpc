@@ -323,6 +323,8 @@ $Project "Server (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_viewmodel.h"
 				$File	"$SRCDIR\game\shared\tf\tf_inventory.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_inventory.h"
+				$File	"$SRCDIR\game\shared\tf\econ_entity.cpp"
+				$File	"$SRCDIR\game\shared\tf\econ_entity.h"
 			}
 		}
 	}
