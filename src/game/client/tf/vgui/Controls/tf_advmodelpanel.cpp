@@ -67,7 +67,7 @@ void CTFAdvModelPanel::Paint()
 {
 	CMatRenderContextPtr pRenderContext( materials );
 
-	// Turn off depth-write to dest alpha so that we get white there instead.  The code that uses
+	// Turn off depth-write to dest alpha so that we get white there instead. The code that uses
 	// the render target needs a mask of where stuff was rendered.
 	pRenderContext->SetIntRenderingParameter( INT_RENDERPARM_WRITE_DEPTH_TO_DESTALPHA, false );
 

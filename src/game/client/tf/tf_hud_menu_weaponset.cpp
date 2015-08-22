@@ -20,7 +20,7 @@
 #include "tf_inventory.h"
 #include "tf_weaponbase.h"
 #include "tf_gamerules.h"
-#include "controls/tf_advbuttonbase.h"
+#include "vgui/controls/tf_advbuttonbase.h"
 
 #include <string.h>
 
