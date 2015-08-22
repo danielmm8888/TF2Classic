@@ -17,6 +17,7 @@ enum MenuPanel //position in this enum = zpos on the screen
 	NOTIFICATION_MENU,
 	OPTIONSDIALOG_MENU,
 	QUIT_MENU,
+	TOOLTIP_MENU,
 	COUNT_MENU,
 
 	FIRST_MENU = NONE_MENU + 1
@@ -70,7 +71,9 @@ public:
 	virtual MainMenuNotification *GetNotification(int iIndex) { return &pNotifications[iIndex]; };
 	virtual int GetNotificationsCount() { return pNotifications.Count(); };
 	virtual void RemoveNotification(int iIndex) { pNotifications.Remove(iIndex); };
-	void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
+	virtual void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
+	virtual void ShowToolTip(char* sText);
+	virtual void HideToolTip();
 
 private:
 	CUtlVector<CTFMenuPanelBase*>		m_pPanels;
