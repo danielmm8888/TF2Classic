@@ -14,6 +14,23 @@
 		"enabled"			"1"
 	}	
 	
+	"BackgroundImage"
+	{
+		"ControlName"		"ImagePanel"
+		"fieldName"			"BackgroundImage"
+		"xpos"				"-30"
+		"ypos"				"-30"
+		"zpos"				"-2"
+		"wide"				"f-60"
+		"tall"				"f-60"
+		"autoResize"		"0"
+		"pinCorner"			"0"
+		"scaleimage"		"1"
+		"image"				"../vgui/main_menu/button_square_armed"
+		"visible"			"1"
+		"enabled"			"1"
+	}
+	
 	"ClassLabel"
 	{
 		"ControlName"	"CExLabel"
@@ -41,7 +58,7 @@
 		"zpos"			"2"
 		"wide"			"610"
 		"tall"			"10"
-		"visible"		"1"
+		"visible"		"0"
 		"enabled"		"1"
 		"image"			"loadout_dotted_line"
 		"tileImage"		"1"
@@ -56,7 +73,7 @@
 		"zpos"			"2"
 		"wide"			"610"
 		"tall"			"10"
-		"visible"		"1"
+		"visible"		"0"
 		"enabled"		"1"
 		"image"			"loadout_dotted_line"
 		"tileImage"		"1"
@@ -103,17 +120,17 @@
 		"ControlName"	"CTFAdvModelPanel"
 		"fieldName"		"classmodelpanel"
 		
-		"xpos"			"c-300"
-		"ypos"			"140"
+		"xpos"			"c-350"
+		"ypos"			"160"
 		"zpos"			"0"		
-		"wide"			"200"
-		"tall"			"340"
+		"wide"			"250"
+		"tall"			"280"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
 
-		"fov"			"23"
+		"fov"			"25"
 		"allow_rot"		"1"
 				
 		"model"
@@ -136,7 +153,7 @@
 			
 			"attached_model"
 			{
-				"modelname" "models/weapons/w_models/w_rocketlauncher.mdl"
+				"modelname" "models/weapons/w_models/w_flamethrower.mdl"
 				"skin"	"0"
 			}
 			
@@ -173,15 +190,16 @@
 	{
 		"ControlName"	"CTFWeaponSetPanel"
 		"fieldName"		"weaponsetpanel"		
-		"xpos"			"200"
+		"xpos"			"300"
 		"ypos"			"160"
 		"zpos"			"-1"		
-		"wide"			"850"
-		"tall"			"450"
+		"wide"			"500"
+		"tall"			"280"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
+		//"border"		"MainMenuHighlightBorder"
 	}
 	
 	"BackButton"
@@ -193,247 +211,289 @@
 		"zpos"			"20"
 		"wide"			"100"
 		"tall"			"25"
-		"autoResize"	"0"
-		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"tabPosition"	"0"
-		"labelText"		"Back"
-		"font"			"HudFontSmallBold"
-		"textAlignment"	"center"
-		"textinsetx"	"50"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"bgvisible"		"0"
-		"bordervisible"	"1"		
-		"Command"		"back"
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
+		"command"		"back"		
+		
+		"SubButton"
+		{
+			"labelText" 		"Back"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}
 	}
 
 	"scout_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"scout_blue"
-		"xpos"				"100"
-		"ypos"				"30"
+		"xpos"				"c-220"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
 		"bordervisible"		"0"		
-		"labelText"			"Scout"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_scout_blu"
-		"textAlignment"		"south"
 		"command"			"select_scout"
+		
+		"SubButton"
+		{
+			"labelText" 		"Scout"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_scout_blu"	
+		}
 	}
 
 	"soldier_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"soldier_blue"
-		"xpos"				"173"
-		"ypos"				"30"
+		"xpos"				"c-165"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
 		"bordervisible"		"0"		
-		"labelText"			"Soldier"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_soldier_blu"
-		"textAlignment"		"south"
 		"command"			"select_soldier"
+		
+		"SubButton"
+		{
+			"labelText" 		"Soldier"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_soldier_blu"	
+		}
 	}
 
 	"pyro_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"pyro_blue"
-		"xpos"				"246"
-		"ypos"				"30"
+		"xpos"				"c-110"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Pyro"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_pyro_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_pyro"
+		
+		"SubButton"
+		{
+			"labelText" 		"Pyro"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_pyro_blu"	
+		}
 	}
 
 	"demoman_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"demoman_blue"
-		"xpos"				"319"
-		"ypos"				"30"
+		"xpos"				"c-55"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Demoman"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_demo_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_demoman"
+		
+		"SubButton"
+		{
+			"labelText" 		"Demoman"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_demo_blu"	
+		}
 	}
 
 	"heavyweapons_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"heavyweapons_blue"
-		"xpos"				"392"
-		"ypos"				"30"
+		"xpos"				"c-0"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Heavy"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_heavy_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_heavyweapons"
+		
+		"SubButton"
+		{
+			"labelText" 		"Heavy"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_heavy_blu"	
+		}
 	}
 
 	"engineer_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"engineer_blue"
-		"xpos"				"465"
-		"ypos"				"30"
+		"xpos"				"c+55"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Engineer"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_engineer_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_engineer"
+		
+		"SubButton"
+		{
+			"labelText" 		"Engineer"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_engineer_blu"	
+		}
 	}
 
 	"medic_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"medic_blue"
-		"xpos"				"538"
-		"ypos"				"30"
+		"xpos"				"c+110"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Medic"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_medic_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_medic"
+		
+		"SubButton"
+		{
+			"labelText" 		"Medic"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_medic_blu"	
+		}
 	}
 
 	"sniper_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"sniper_blue"
-		"xpos"				"611"
-		"ypos"				"30"
+		"xpos"				"c+165"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Sniper"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_sniper_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_sniper"
+		
+		"SubButton"
+		{
+			"labelText" 		"Sniper"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_sniper_blu"	
+		}
 	}
 
 	"spy_blue"
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"spy_blue"
-		"xpos"				"684"
-		"ypos"				"30"
+		"xpos"				"c+220"
+		"ypos"				"0"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"65"
+		"tall"				"130"
+		"scaleimage"		"0"	
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Spy"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_spy_blu"
-		"textAlignment"		"south"
+		"bordervisible"		"0"	
 		"command"			"select_spy"
+		
+		"SubButton"
+		{
+			"labelText" 		"Spy"
+			"xshift" 			"0"
+			"yshift" 			"-10"
+			"textAlignment"		"south"
+			"font"				"TallTextSmall"
+		}
+		
+		"SubImage"
+		{
+			"image" 			"class_sel_sm_spy_blu"	
+		}
 	}
 
 	

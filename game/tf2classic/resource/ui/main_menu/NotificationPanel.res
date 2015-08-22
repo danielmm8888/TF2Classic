@@ -26,20 +26,29 @@
 		"tall"				"16"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		""
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"imagewidth"		"16"
-		"ButtonImage" 		"../vgui/glyph_close_x"
-		"DefaultImageColor"		"LightRed"
-		"ArmedImageColor"		"LighterRed"
-		"DepressedImageColor"	"MainMenuTextDefault"	
-		"DefaultBG"			"MainMenuAdvButtonDepressed"
-		"ArmedBG" 			"MainMenuAdvButtonArmed"
-		"DepressedBG"		"MainMenuTextDefault"	
-		"textAlignment"		"west"
+		"bordervisible"		"0"	
 		"command"			"vguicancel"	
-		"font"				"HudFontSmallBold"
+		
+		"SubButton"
+		{
+			"labelText" 		""
+			"bordervisible"		"0"
+			"tooltip" 			"Close"
+			"textAlignment"		"west"
+			"font"				"MenuSmallFont"
+			"border_default"	"MainMenuAdvButtonDepressed"
+			"border_armed"		"MainMenuAdvButtonArmed"
+			"border_depressed"	"MainMenuTextDefault"	
+			"defaultFgColor_override"		"LightRed"
+			"armedFgColor_override"			"LighterRed"
+			"depressedFgColor_override"		"MainMenuTextDefault"	
+		}
+		
+		"SubImage"
+		{
+			"image" 			"../vgui/glyph_close_x"
+			"imagewidth"		"16"
+		}
 	}	
 	
 	"PrevButton"
@@ -53,20 +62,29 @@
 		"tall"				"16"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		""
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"imagewidth"		"16"
-		"ButtonImage" 		"../vgui/blog_back_solid"
-		"DefaultImageColor"		"LightRed"
-		"ArmedImageColor"		"LighterRed"
-		"DepressedImageColor"	"MainMenuTextDefault"	
-		"DefaultBG"			"MainMenuAdvButtonDepressed"
-		"ArmedBG" 			"MainMenuAdvButtonArmed"
-		"DepressedBG"		"MainMenuTextDefault"	
-		"textAlignment"		"west"
+		"bordervisible"		"0"	
 		"command"			"Prev"	
-		"font"				"HudFontSmallBold"
+		
+		"SubButton"
+		{
+			"labelText" 		""
+			"bordervisible"		"0"
+			"tooltip" 			"Prev"
+			"textAlignment"		"west"
+			"font"				"MenuSmallFont"
+			"border_default"	"MainMenuAdvButtonDepressed"
+			"border_armed"		"MainMenuAdvButtonArmed"
+			"border_depressed"	"MainMenuTextDefault"	
+			"defaultFgColor_override"		"TanDark"
+			"armedFgColor_override"			"LightRed"
+			"depressedFgColor_override"		"MainMenuTextDefault"	
+		}
+		
+		"SubImage"
+		{
+			"image" 			"../vgui/blog_back_solid"
+			"imagewidth"		"16"
+		}
 	}	
 	
 	"NextButton"
@@ -80,20 +98,29 @@
 		"tall"				"16"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		""
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"imagewidth"		"16"
-		"ButtonImage" 		"../vgui/blog_forward_solid"
-		"DefaultImageColor"		"LightRed"
-		"ArmedImageColor"		"LighterRed"
-		"DepressedImageColor"	"MainMenuTextDefault"	
-		"DefaultBG"			"MainMenuAdvButtonDepressed"
-		"ArmedBG" 			"MainMenuAdvButtonArmed"
-		"DepressedBG"		"MainMenuTextDefault"	
-		"textAlignment"		"west"
+		"bordervisible"		"0"	
 		"command"			"Next"	
-		"font"				"HudFontSmallBold"
+		
+		"SubButton"
+		{
+			"labelText" 		""
+			"bordervisible"		"0"
+			"tooltip" 			"Next"
+			"textAlignment"		"west"
+			"font"				"MenuSmallFont"
+			"border_default"	"MainMenuAdvButtonDepressed"
+			"border_armed"		"MainMenuAdvButtonArmed"
+			"border_depressed"	"MainMenuTextDefault"	
+			"defaultFgColor_override"		"TanDark"
+			"armedFgColor_override"			"LightRed"
+			"depressedFgColor_override"		"MainMenuTextDefault"	
+		}
+		
+		"SubImage"
+		{
+			"image" 			"../vgui/blog_forward_solid"
+			"imagewidth"		"16"
+		}
 	}	
 	
 	"RemoveButton"
@@ -107,20 +134,29 @@
 		"tall"				"16"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		""
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"imagewidth"		"16"
-		"ButtonImage" 		"../vgui/icon_trash_on"
-		"DefaultImageColor"		"LightRed"
-		"ArmedImageColor"		"LighterRed"
-		"DepressedImageColor"	"MainMenuTextDefault"	
-		"DefaultBG"			"MainMenuAdvButtonDepressed"
-		"ArmedBG" 			"MainMenuAdvButtonArmed"
-		"DepressedBG"		"MainMenuTextDefault"	
-		"textAlignment"		"west"
+		"bordervisible"		"0"	
 		"command"			"Remove"	
-		"font"				"HudFontSmallBold"
+		
+		"SubButton"
+		{
+			"labelText" 		""
+			"bordervisible"		"0"
+			"tooltip" 			"Remove"
+			"textAlignment"		"west"
+			"font"				"MenuSmallFont"
+			"border_default"	"MainMenuAdvButtonDepressed"
+			"border_armed"		"MainMenuAdvButtonArmed"
+			"border_depressed"	"MainMenuTextDefault"	
+			"defaultFgColor_override"		"LightRed"
+			"armedFgColor_override"			"LighterRed"
+			"depressedFgColor_override"		"MainMenuTextDefault"	
+		}
+		
+		"SubImage"
+		{
+			"image" 			"../vgui/icon_trash_on"
+			"imagewidth"		"16"
+		}
 	}	
 	
 	"TitleLabel"
