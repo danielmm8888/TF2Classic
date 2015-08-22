@@ -29,12 +29,19 @@ public:
 	void DefaultLayout();
 	void GameLayout();
 	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
+	void SetCurrentClass(int iClass) { iCurrentClass = iClass; DefaultLayout(); };
+	void SetCurrentSlot(int iSlot) { iCurrentSlot = iSlot; };
+	void SetCurrentPreset(int iPreset) { iCurrentPreset = iPreset; };
+	void SetModelWeapon(int iClass, int iSlot, int iPreset);
+	void SetModelClass(int iClass);
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CUtlVector<CTFAdvButton*>	m_pWeaponIcons;
 	int	iCurrentClass;
+	int	iCurrentSlot;
+	int	iCurrentPreset;
 };
 
 //-----------------------------------------------------------------------------
