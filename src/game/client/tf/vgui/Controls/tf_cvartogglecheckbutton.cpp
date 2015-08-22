@@ -76,6 +76,9 @@ void CCvarToggleCheckButton::ApplyChanges()
 	m_bStartValue = IsSelected();
 //	engine->Cvar_SetValue( m_pszCvarName, m_bStartValue ? 1.0f : 0.0f );
 	ConVarRef var( m_pszCvarName );
+
+	if (!var.IsValid())
+		return;
 	var.SetValue( m_bStartValue );
 }
 

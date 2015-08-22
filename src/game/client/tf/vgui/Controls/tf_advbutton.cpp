@@ -23,7 +23,7 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFAdvButton, CTFAdvButtonBase);
 //-----------------------------------------------------------------------------
 CTFAdvButton::CTFAdvButton(vgui::Panel *parent, const char *panelName, const char *text) : CTFAdvButtonBase(parent, panelName, text)
 {
-	pButton = new CTFButton(this, "ButtonNew", text);
+	pButton = new CTFButton(this, "SubButton", text);
 	pButton->SetParent(this);
 	Init();
 }
@@ -43,11 +43,7 @@ CTFAdvButton::~CTFAdvButton()
 void CTFAdvButton::Init()
 {
 	BaseClass::Init();
-	m_bBGVisible = true;
-	m_bBorderVisible = false;
 	bGlowing = false;
-	m_fXShift = 0.0;
-	m_fYShift = 0.0;
 	m_flActionThink = -1;
 	m_flAnimationThink = -1;
 	m_bAnimationIn = true;
@@ -57,10 +53,15 @@ void CTFAdvButton::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
-	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
 	m_bScaleImage = inResourceData->GetBool("scaleImage", true);
 
+	for (KeyValues *pData = inResourceData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
+	{
+		if (!Q_stricmp(pData->GetName(), "SubButton"))
+		{
+			pButton->ApplySettings(pData);
+		}
+	}
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
@@ -72,26 +73,7 @@ void CTFAdvButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
-	pButton->SetDefaultColor(pScheme->GetColor(pDefaultColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetArmedColor(pScheme->GetColor(pArmedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetDepressedColor(pScheme->GetColor(pDepressedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetSelectedColor(pScheme->GetColor(pArmedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-
 	pButtonImage->SetDrawColor(pScheme->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-	if (m_bBorderVisible)
-	{
-		pButton->SetDefaultBorder(pScheme->GetBorder(pDefaultBorder));
-		pButton->SetArmedBorder(pScheme->GetBorder(pArmedBorder));
-		pButton->SetDepressedBorder(pScheme->GetBorder(pDepressedBorder));
-		pButton->SetSelectedBorder(pScheme->GetBorder(pArmedBorder));
-	}
-	else
-	{
-		pButton->SetDefaultBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetArmedBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetDepressedBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetSelectedBorder(pScheme->GetBorder(EMPTY_STRING));
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -101,27 +83,12 @@ void CTFAdvButton::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	GetText(m_szText, sizeof(m_szText));
-	pButton->SetText(m_szText);
-	pButton->SetCommand(GetCommandString());
-	pButton->SetFont(GETSCHEME()->GetFont(m_szFont, true));
-	pButton->SetVisible(IsVisible());
-	pButton->SetEnabled(IsEnabled());
-	pButton->SetSelected(IsSelected());
-	pButton->SetZPos(3);
-	pButton->SetWide(GetWide());
-	pButton->SetTall(GetTall());
-	pButton->SetContentAlignment(GetAlignment(m_szTextAlignment));
-	pButton->SetArmedSound("ui/buttonrollover.wav");
-	pButton->SetDepressedSound("ui/buttonclick.wav");
-	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
-	
-	float h = GetProportionalTallScale();
-	float fWidth = (!m_bScaleImage ? GetWide() : (m_fWidth == 0.0 ? GetTall() : m_fWidth * h));
+	float h = CTFAdvButton::GetProportionalTallScale();
+	float fWidth = (!m_bScaleImage ? GetWide() : (m_fImageWidth == 0.0 ? GetTall() : m_fImageWidth * h));
 	float fHeight = (!m_bScaleImage ? GetTall() : fWidth);
 	int iShift = (!m_bScaleImage ? 0 : (GetTall() - fWidth) / 2.0);
-	
-	float fXOrigin = (m_fWidth == 0.0 ? 0 : iShift * 2 + fWidth);
+
+	float fXOrigin = (m_fImageWidth == 0.0 ? 0 : iShift * 2 + fWidth);
 	pButton->SetTextInset(fXOrigin, 0);
 
 	pButtonImage->SetImage(pDefaultButtonImage);
@@ -138,42 +105,14 @@ void CTFAdvButton::PerformLayout()
 void CTFAdvButton::SetText(const char *tokenName)
 {
 	pButton->SetText(tokenName);
-	BaseClass::SetText(tokenName);
 }
-
-void CTFAdvButton::SetCommand(const char *command)
-{
-	pButton->SetCommand(command);
-	BaseClass::SetCommand(command);
-}
-
-void CTFAdvButton::SetBorderVisible(bool bVisible)
-{
-	BaseClass::SetBorderVisible(bVisible);
-
-	if (bVisible)
-	{
-		pButton->SetDefaultBorder(GETSCHEME()->GetBorder(pDefaultBorder));
-		pButton->SetArmedBorder(GETSCHEME()->GetBorder(pArmedBorder));
-		pButton->SetDepressedBorder(GETSCHEME()->GetBorder(pDepressedBorder));
-		pButton->SetSelectedBorder(GETSCHEME()->GetBorder(pArmedBorder));
-	}
-	else
-	{
-		pButton->SetDefaultBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
-		pButton->SetArmedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
-		pButton->SetDepressedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
-		pButton->SetSelectedBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
-	}
-};
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFAdvButton::OnTick()
+void CTFAdvButton::OnThink()
 {
-	BaseClass::OnTick();
+	BaseClass::OnThink();
 
 	if (bGlowing && m_flAnimationThink < gpGlobals->curtime)
 	{
@@ -186,11 +125,18 @@ void CTFAdvButton::OnTick()
 	}
 }
 
-
 void CTFAdvButton::SetGlowing(bool Glowing)
-{
-	bGlowing = true;
-}
+{ 
+	bGlowing = Glowing; 
+
+	if (!bGlowing)
+	{
+		float m_fAlpha = 255.0f;
+		float m_fDelay = 0.0f;
+		float m_fDuration = 0.0f;
+		vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", m_fAlpha, m_fDelay, m_fDuration, vgui::AnimationController::INTERPOLATOR_LINEAR);
+	}
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -206,10 +152,10 @@ void CTFAdvButton::SetDefaultAnimation()
 void CTFAdvButton::SendAnimation(MouseState flag)
 {
 	BaseClass::SendAnimation(flag);
-	
-	bool bAnimation = ((m_fXShift == 0 && m_fYShift == 0) ? false : true);
+
+	bool bAnimation = ((pButton->m_fXShift == 0 && pButton->m_fYShift == 0) ? false : true);
 	AnimationController::PublicValue_t p_AnimLeave = { 0, 0, 0, 0 };
-	AnimationController::PublicValue_t p_AnimHover = { m_fXShift, m_fYShift, 0, 0 };
+	AnimationController::PublicValue_t p_AnimHover = { pButton->m_fXShift, pButton->m_fYShift, 0, 0 };
 	switch (flag)
 	{
 	//We can add additional stuff like animation here
@@ -228,6 +174,7 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 		break;
 	case MOUSE_PRESSED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
+		pButton->SetFgColor(GETSCHEME()->GetColor((pButton->IsSelected() ? pSelectedColor : pDepressedColor), Color(255, 255, 255, 255)));
 		break;
 	default:
 		break;
@@ -239,7 +186,53 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 //-----------------------------------------------------------------------------
 CTFButton::CTFButton(vgui::Panel *parent, const char *panelName, const char *text) : CTFButtonBase(parent, panelName, text)
 {
-	iState = MOUSE_DEFAULT;	
+	m_pParent = NULL;
+	iState = MOUSE_DEFAULT;
+	m_fXShift = 0.0;
+	m_fYShift = 0.0;
+}
+
+void CTFButton::ApplySettings(KeyValues *inResourceData)
+{
+	BaseClass::ApplySettings(inResourceData);
+
+	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
+	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
+
+	InvalidateLayout(false, true); // force ApplySchemeSettings to run
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFButton::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+	
+	SetDefaultColor(pScheme->GetColor(m_pParent->pDefaultColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetArmedColor(pScheme->GetColor(m_pParent->pArmedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetDepressedColor(pScheme->GetColor(m_pParent->pDepressedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetSelectedColor(pScheme->GetColor(m_pParent->pDepressedColor, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+
+	SetDefaultBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetArmedBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetDepressedBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetSelectedBorder(pScheme->GetBorder(EMPTY_STRING));
+}
+
+void CTFButton::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	if (!m_pParent)
+		return;
+
+	SetZPos(3);
+	SetWide(m_pParent->GetWide());
+	SetTall(m_pParent->GetTall());
+	SetArmedSound("ui/buttonrollover.wav");
+	SetDepressedSound("ui/buttonclick.wav");
+	SetReleasedSound("ui/buttonclickrelease.wav");
 }
 
 //-----------------------------------------------------------------------------
@@ -247,13 +240,12 @@ CTFButton::CTFButton(vgui::Panel *parent, const char *panelName, const char *tex
 //-----------------------------------------------------------------------------
 void CTFButton::OnCursorEntered()
 {
-	//BaseClass::OnCursorEntered();
 	BaseClass::BaseClass::OnCursorEntered();
 	if (iState != MOUSE_ENTERED && iState != MOUSE_PRESSED)
 	{
 		SetMouseEnteredState(MOUSE_ENTERED);
 	}
-	
+
 }
 
 //-----------------------------------------------------------------------------
@@ -262,12 +254,12 @@ void CTFButton::OnCursorEntered()
 void CTFButton::OnCursorExited()
 {
 	BaseClass::BaseClass::OnCursorExited();
-	
+
 	if (iState != MOUSE_EXITED)
 	{
 		SetMouseEnteredState(MOUSE_EXITED);
 	}
-	
+
 }
 
 //-----------------------------------------------------------------------------
@@ -276,7 +268,7 @@ void CTFButton::OnCursorExited()
 void CTFButton::OnMousePressed(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMousePressed(code);
-	
+
 	if (code == MOUSE_LEFT && iState != MOUSE_PRESSED)
 	{
 		SetMouseEnteredState(MOUSE_PRESSED);
@@ -289,7 +281,7 @@ void CTFButton::OnMousePressed(vgui::MouseCode code)
 void CTFButton::OnMouseReleased(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMouseReleased(code);
-	
+
 	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED))
 	{
 		m_pParent->GetParent()->OnCommand(m_pParent->GetCommandString());
@@ -297,12 +289,12 @@ void CTFButton::OnMouseReleased(vgui::MouseCode code)
 	if (code == MOUSE_LEFT && iState == MOUSE_ENTERED)
 	{
 		SetMouseEnteredState(MOUSE_ENTERED);
-	} 
+	}
 	else
 	{
 		SetMouseEnteredState(MOUSE_EXITED);
 	}
-	
+
 }
 
 //-----------------------------------------------------------------------------
@@ -311,6 +303,6 @@ void CTFButton::OnMouseReleased(vgui::MouseCode code)
 void CTFButton::SetMouseEnteredState(MouseState flag)
 {
 	BaseClass::SetMouseEnteredState(flag);
-	if (!m_pParent->IsDisabled())
+	if (m_pParent->IsEnabled())
 		m_pParent->SendAnimation(flag);
 }

@@ -55,10 +55,13 @@ public:
 	void GetGlobalPosition(Panel *pPanel);
 	void UpdateValue();
 
+	CTFScrollButton *GetButton(){ return pButton; };
+
 protected:
 	CTFScrollButton	*pButton;
 	CExLabel		*pTitleLabel;
 	CExLabel		*pValueLabel;
+	vgui::EditablePanel *pBGBorder;
 	float			fMinValue;
 	float			fMaxValue;
 	float			fLabelWidth;
@@ -71,18 +74,22 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFScrollButton : public CTFButtonBase
 {
+	friend CTFAdvSlider;
 public:
 	DECLARE_CLASS_SIMPLE(CTFScrollButton, CTFButtonBase);
 
 	CTFScrollButton(vgui::Panel *parent, const char *panelName, const char *text);
 
+	void ApplySettings(KeyValues *inResourceData);
+	void ApplySchemeSettings(vgui::IScheme *pScheme);
+	void PerformLayout();
 	void OnCursorExited();
 	void OnCursorEntered();
 	void OnMousePressed(vgui::MouseCode code);
 	void OnMouseReleased(vgui::MouseCode code);
 	void SetMouseEnteredState(MouseState flag);
 	void SetParent(CTFAdvSlider *m_pButton) { m_pParent = m_pButton; };
-	char *GetCommandStr() { return m_pParent->m_szCommand; };
+	//char *GetCommandStr() { return m_pParent->m_szCommand; };
 
 private:
 	CTFAdvSlider *m_pParent;

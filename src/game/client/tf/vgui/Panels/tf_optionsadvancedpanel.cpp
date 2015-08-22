@@ -31,8 +31,6 @@
 #include <vgui_controls/TextEntry.h>
 #include <vgui/IInput.h>
 
-#include "filesystem.h"
-
 #include <tier0/vcrmode.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -239,8 +237,9 @@ void CTFOptionsAdvancedPanel::CreateControls()
 		case O_BOOL:
 			pBox = new CTFAdvCheckButton(pCtrl, "DescCheckButton", pObj->prompt);
 			pBox->SetSelected(pObj->fdefValue != 0.0f ? true : false);
-			pBox->SetCommand(pObj->cvarname);
-			pBox->SetFont(m_pListPanel->GetFontString());
+			pBox->SetCommandString(pObj->cvarname);
+			pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
+			pBox->SetToolTip(pBox->GetName());
 			pCtrl->pControl = (Panel *)pBox;
 			break;
 		case O_STRING:
@@ -252,9 +251,9 @@ void CTFOptionsAdvancedPanel::CreateControls()
 		case O_SLIDER:
 			pScroll = new CTFAdvSlider(pCtrl, "DescScrollEntry", pObj->prompt);
 			pScroll->SetValue(pObj->fdefValue);
-			pScroll->SetCommand(pObj->cvarname);
+			pScroll->SetCommandString(pObj->cvarname);
 			pScroll->SetMinMax(pObj->fMin, pObj->fMax);
-			pScroll->SetFont(m_pListPanel->GetFontString());
+			pScroll->GetButton()->SetFontByString(m_pListPanel->GetFontString());
 			pCtrl->pControl = (Panel *)pScroll;
 			break;
 		case O_LIST:
@@ -273,10 +272,10 @@ void CTFOptionsAdvancedPanel::CreateControls()
 			break;
 		case O_CATEGORY:
 			pTitle = new CTFAdvButton(pCtrl, "DescTextTitle", pObj->prompt);
-			pTitle->SetDisabled(true);
-			pTitle->SetBorder("AdvSettingsTitleBorder");
+			pTitle->SetEnabled(false);
+			pTitle->SetBorderByString("AdvSettingsTitleBorder");
 			pTitle->SetBorderVisible(true);
-			pTitle->SetBGVisible(false);
+			pTitle->GetButton()->SetFontByString("MenuSmallFont");
 			pCtrl->pControl = (Panel *)pTitle;
 			break;
 		default:

@@ -82,9 +82,9 @@ void CTFOptionsDialog::SetCurrentPanel(OptionPanel pCurrentPanel)
 {
 	for (int i = 0; i < PANEL_COUNT; i++)
 	{
-		dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[i]))->SetSelected(false);
+		dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[i]))->GetButton()->SetSelected(false);
 	}
-	dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[(int)pCurrentPanel]))->SetSelected(true);
+	dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[(int)pCurrentPanel]))->GetButton()->SetSelected(true);
 
 	if (m_pOptionsCurrent == pCurrentPanel)
 		return;

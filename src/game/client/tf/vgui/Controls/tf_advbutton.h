@@ -12,7 +12,6 @@ using namespace vgui;
 
 class CTFButton;
 
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -33,24 +32,21 @@ public:
 	void SendAnimation(MouseState flag);
 	void SetDefaultAnimation();
 	void SetText(const char *tokenName);
-	void SetCommand(const char *command);
 	void SetGlowing(bool Glowing);
 	void SetShouldScaleImage(bool state) { m_bScaleImage = state; };
 	bool GetShouldScaleImage() { return m_bScaleImage; };
-	void SetBorderVisible(bool bVisible);
 
-	void OnTick();
+	void OnThink();
+	CTFButton *GetButton(){ return pButton; };
 
 protected:
 	CTFButton		*pButton;
-	float			m_fXShift;
-	float			m_fYShift;
 	bool			bGlowing;
+	bool			m_bAnimationIn;
+	bool			m_bScaleImage;
 
 	float			m_flActionThink;
 	float			m_flAnimationThink;
-	bool			m_bAnimationIn;
-	bool			m_bScaleImage;
 };
 
 
@@ -59,21 +55,27 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFButton : public CTFButtonBase
 {
+	friend CTFAdvButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFButton, CTFButtonBase);
 
 	CTFButton(vgui::Panel *parent, const char *panelName, const char *text);
 
+	void ApplySettings(KeyValues *inResourceData);
+	void ApplySchemeSettings(vgui::IScheme *pScheme);
+	void PerformLayout();
 	void OnCursorExited();
 	void OnCursorEntered();
 	void OnMousePressed(vgui::MouseCode code);
 	void OnMouseReleased(vgui::MouseCode code);
 	void SetMouseEnteredState(MouseState flag);
 	void SetParent(CTFAdvButton *m_pButton) { m_pParent = m_pButton; };
-	char *GetCommandStr() { return m_pParent->m_szCommand; };
+	//char *GetCommandStr() { return m_pParent->m_szCommand; };
 
 private:
-	CTFAdvButton *m_pParent;
+	CTFAdvButton   *m_pParent;
+	float			m_fXShift;
+	float			m_fYShift;
 };
 
 

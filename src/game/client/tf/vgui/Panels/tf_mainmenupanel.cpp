@@ -48,7 +48,6 @@ bool CTFMainMenuPanel::Init()
 	m_pVersionLabel = NULL;
 	m_pNotificationButton = NULL;
 	m_pProfileAvatar = NULL;
-	m_pNicknameButton = NULL;
 
 	fPercent = -1.0f;
 	bOutdated = false;
@@ -68,7 +67,6 @@ void CTFMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
 	m_pNotificationButton = dynamic_cast<CTFAdvButton *>(FindChildByName("NotificationButton"));
 	m_pProfileAvatar = dynamic_cast<CAvatarImagePanel *>(FindChildByName("AvatarImage"));
-	m_pNicknameButton = dynamic_cast<CTFAdvButton *>(FindChildByName("NicknameButton"));
 	SetVersionLabel();
 }	
 
@@ -81,18 +79,15 @@ void CTFMainMenuPanel::PerformLayout()
 		m_pProfileAvatar->SetPlayer(m_SteamID, k_EAvatarSize64x64);
 		m_pProfileAvatar->SetShouldDrawFriendIcon(false);
 	}
-	if (m_pNicknameButton)
-	{
-		m_pNicknameButton->SetDisabled(true);
-		char szNickName[64];
-		Q_snprintf(szNickName, sizeof(szNickName), 
-			(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
-		m_pNicknameButton->SetText(szNickName);
-	}
 	if (m_SteamHTTP)
 	{
 		CheckVersion();
 	}
+
+	char szNickName[64];
+	Q_snprintf(szNickName, sizeof(szNickName),
+		(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
+	SetDialogVariable("nickname", szNickName);
 	AutoLayout();
 };
 

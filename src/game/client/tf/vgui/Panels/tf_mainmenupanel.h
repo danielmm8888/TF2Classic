@@ -47,7 +47,6 @@ public:
 
 private:
 	CExLabel			*m_pVersionLabel;
-	CTFAdvButton		*m_pNicknameButton;
 	CTFAdvButton		*m_pNotificationButton;
 	CAvatarImagePanel	*m_pProfileAvatar;
 

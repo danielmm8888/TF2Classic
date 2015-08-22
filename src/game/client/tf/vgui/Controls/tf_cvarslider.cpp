@@ -77,7 +77,7 @@ void CCvarSlider::SetupSlider( float minValue, float maxValue, const char *cvarn
 	//SetTickCaptions( szMin, szMax );
 
 	Q_strncpy( m_szCvarName, cvarname, sizeof( m_szCvarName ) );
-	SetCommand(cvarname);
+	SetCommandString(cvarname);
 
     m_bModifiedOnce = false;
     m_bAllowOutOfRange = bAllowOutOfRange;
