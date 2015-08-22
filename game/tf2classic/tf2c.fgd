@@ -126,7 +126,7 @@
 	//output Team2PlayersChanged(integer) : "Sent when BLUE team player count changes, due to a player joining or leaving the team."
 ]
 
-@PointClass base(Targetname, TeamNum, EnableDisable, Angles) studio("models/editor/playerstart.mdl") = info_player_teamspawn :
+@PointClass base(Targetname, TeamNum, EnableDisable, Angles) studio("models/player/heavy.mdl") = info_player_teamspawn :
 	"This entity marks the spawn point for Team Fortress players."
 [
 	controlpoint(target_destination) : "Associated Control Point" : : "The team_control_point associated with this spawn. Ownership of control points will control this spawn point's enabled state."
@@ -137,7 +137,7 @@
 	round_yellowspawn(target_destination) : "Yellow spawn for round" : : "Yellow spawn point when the associated round is being played."
 ]
 
-@PointClass base(PlayerClass, Angles) studio("models/editor/playerstart.mdl") = info_player_deathmatch :
+@PointClass base(PlayerClass, Angles) studio("models/player/merc_deathmatch.mdl") = info_player_deathmatch :
 	"This entity indicates the position and facing direction at which the player will spawn during a deathmatch map. Any number of "+
 	"info_player_deathmatch entities may be placed in a map."
 [
