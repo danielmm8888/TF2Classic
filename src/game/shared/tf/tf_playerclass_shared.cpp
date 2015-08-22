@@ -148,7 +148,6 @@ void TFPlayerClassData_t::ParseData( KeyValues *pKeyValuesData )
 	// Load the high res model or the lower res model.
 	Q_strncpy( m_szHWMModelName, pKeyValuesData->GetString( "model_hwm" ), TF_NAME_LENGTH );
 	Q_strncpy( m_szModelName, pKeyValuesData->GetString( "model" ), TF_NAME_LENGTH );
-	// We're getting the c_model, but we're not using it anywhere yet
 	Q_strncpy( m_szModelHandsName, pKeyValuesData->GetString("model_hands"), TF_NAME_LENGTH);
 	Q_strncpy( m_szLocalizableName, pKeyValuesData->GetString( "localize_name" ), TF_NAME_LENGTH );
 
@@ -214,7 +213,7 @@ void InitPlayerClasses( void )
 	Assert( pClassData );
 	Q_strncpy( pClassData->m_szClassName, "undefined", TF_NAME_LENGTH );
 	Q_strncpy( pClassData->m_szModelName, "models/player/scout.mdl", TF_NAME_LENGTH );	// Undefined players still need a model
-	//Q_strncpy( pClassData->m_szModelHandsName, "models/player/scout.mdl", TF_NAME_LENGTH);	// Undefined players still need a model
+	Q_strncpy( pClassData->m_szModelHandsName, "models/weapons/c_models/c_scout_arms.mdl", TF_NAME_LENGTH );
 	Q_strncpy( pClassData->m_szLocalizableName, "undefined", TF_NAME_LENGTH );
 
 	// Initialize the classes.

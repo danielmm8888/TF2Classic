@@ -740,6 +740,12 @@ void CTFPlayer::PrecachePlayerModels( void )
 				PrecacheModel( pszHWMModel );
 			}
 		}
+
+		const char *pszHandModel = GetPlayerClassData(i)->m_szModelHandsName;
+		if ( pszHandModel && pszHandModel[0] )
+		{
+			PrecacheModel( pszHandModel );
+		}
 	}
 	
 	if ( TFGameRules() && TFGameRules()->IsBirthday() )
@@ -1105,7 +1111,8 @@ void CTFPlayer::GiveDefaultItems()
 		pWeaponEntity->Touch(this);
 	}
 
-	SwitchToNextBestWeapon(NULL);
+	if (GetActiveWeapon() == NULL)
+		SwitchToNextBestWeapon(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -4156,7 +4163,7 @@ void CTFPlayer::RemoveAllItems( bool removeSuit )
 
 		// hide the weapon model
 		// don't normally have to do this, unless we have a holster animation
-		CBaseViewModel *vm = GetViewModel( 1 );
+		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel( 1 ));
 		if ( vm )
 		{
 			vm->SetWeaponModel( NULL, NULL );
