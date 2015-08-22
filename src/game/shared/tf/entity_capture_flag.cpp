@@ -34,6 +34,7 @@ ConVar cl_flag_return_size( "cl_flag_return_size", "20", FCVAR_CHEAT );
 #include "tf_gamestats.h"
 #include "func_respawnroom.h"
 #include "datacache/imdlcache.h"
+#include "func_respawnflag.h"
 
 extern ConVar tf_flag_caps_per_round;
 
@@ -1077,6 +1078,13 @@ void CCaptureFlag::Drop( CTFPlayer *pPlayer, bool bVisible,  bool bThrown /*= fa
 	m_outputOnDrop.FireOutput( this, this );
 
 	m_hReturnIcon = CBaseEntity::Create( "item_teamflag_return_icon", GetAbsOrigin() + Vector(0,0,cl_flag_return_height.GetFloat()), vec3_angle, this );
+
+	if ( PointInRespawnFlagZone( GetAbsOrigin() ) )
+	{
+		Reset();
+		ResetMessage();
+	}
+
 #endif
 }
 

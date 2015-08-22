@@ -210,6 +210,7 @@ public:
 	bool			IsStolen( void );
 
 	void			Reset( void );
+	void			ResetMessage( void );
 
 	int					m_nUseTrailEffect;
 	bool				m_bVisibleWhenDisabled;
@@ -218,10 +219,6 @@ public:
 	string_t			m_szPaperEffect;
 	string_t			m_szTrailEffect;
 	CSpriteTrail		*m_pGlowTrail;
-
-private:
-
-	void			ResetMessage( void );
 
 private:
 
