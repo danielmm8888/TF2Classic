@@ -4,12 +4,14 @@
 #include "controls/tf_advbutton.h"
 #include "controls/tf_advmodelpanel.h"
 #include <vgui/ILocalize.h>
+#include "c_script_parser.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-//"modelname"		
+#define PANEL_WIDE 110
+#define PANEL_TALL 70
 
 static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 {
@@ -27,6 +29,13 @@ static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 	"",
 };
 
+struct _WeaponData
+{
+	char szWorldModel[64];
+	int m_iWeaponType;
+	char iconInactive[64];
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -38,6 +47,67 @@ void CTFWeaponSetPanel::OnCommand(const char* command)
 {
 	GetParent()->OnCommand(command);
 }
+
+class CTFWeaponScriptParser : public CScriptParser
+{
+public:
+	DECLARE_CLASS_GAMEROOT(CTFWeaponScriptParser, CScriptParser);
+
+	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
+	{
+		_WeaponData sTemp;
+		Q_strncpy(sTemp.szWorldModel, pKeyValuesData->GetString("playermodel", ""), sizeof(sTemp.szWorldModel));
+		const char *pszWeaponType = pKeyValuesData->GetString("WeaponType");
+		sTemp.m_iWeaponType = 0;
+		if (!Q_strcmp(pszWeaponType, "primary"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_PRIMARY;
+		}
+		else if (!Q_strcmp(pszWeaponType, "secondary"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_SECONDARY;
+		}
+		else if (!Q_strcmp(pszWeaponType, "melee"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_MELEE;
+		}
+		else if (!Q_strcmp(pszWeaponType, "grenade"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_GRENADE;
+		}
+		else if (!Q_strcmp(pszWeaponType, "building"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_BUILDING;
+		}
+		else if (!Q_strcmp(pszWeaponType, "pda"))
+		{
+			sTemp.m_iWeaponType = TF_WPN_TYPE_PDA;
+		}
+		for (KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
+		{
+			if (!Q_stricmp(pData->GetName(), "TextureData"))
+			{
+				for (KeyValues *pTextureData = pData->GetFirstSubKey(); pTextureData != NULL; pTextureData = pTextureData->GetNextKey())
+				{
+					if (!Q_stricmp(pTextureData->GetName(), "weapon"))
+					{
+						Q_strncpy(sTemp.iconInactive, pTextureData->GetString("file", ""), sizeof(sTemp.iconInactive));
+					}
+				}
+			}
+		}
+		m_WeaponInfoDatabase.Insert(szFileWithoutEXT, sTemp);
+	};
+
+	_WeaponData GetTFWeaponInfo(const char *name)
+	{
+		return m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
+	}
+
+private:
+	CUtlDict< _WeaponData, unsigned short > m_WeaponInfoDatabase;
+};
+CTFWeaponScriptParser g_TFWeaponScriptParser;
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -64,6 +134,7 @@ bool CTFLoadoutPanel::Init()
 	iCurrentPreset = 0;
 	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
 	m_pWeaponSetPanel = new CTFWeaponSetPanel(this, "weaponsetpanel");
+	g_TFWeaponScriptParser.InitParser("scripts/tf_weapon_*.txt", true, false);
 
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
 		m_pWeaponIcons.AddToTail(new CTFAdvButton(m_pWeaponSetPanel, "WeaponIcons", "DUK"));
@@ -83,14 +154,12 @@ void CTFLoadoutPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	float wide = CTFAdvButtonBase::GetProportionalWideScale();
-	float tall = CTFAdvButtonBase::GetProportionalWideScale();
-
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
-		m_pWeaponIcons[i]->SetBounds(0, 0, 120 * wide, 55 * tall);
+		m_pWeaponIcons[i]->SetBounds(0, 0, toProportionalWide(PANEL_WIDE), toProportionalTall(PANEL_TALL));
 		m_pWeaponIcons[i]->SetBorderVisible(false);
+		m_pWeaponIcons[i]->SetImageInset(25, -5);
 		m_pWeaponIcons[i]->GetButton()->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
-		m_pWeaponIcons[i]->SetShouldScaleImage(false);
+		m_pWeaponIcons[i]->GetButton()->SetTextInset(0, -10);
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
 	DefaultLayout();
@@ -187,14 +256,12 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
 	int iWeapon = GetTFInventory()->GetWeapon(iClass, iSlot, iPreset);
-	CTFWeaponInfo *pWeapon = GetTFWeaponInfo(iWeapon);
-	if (pWeapon)
-	{
-		m_pClassModelPanel->SetAnimationIndex(pWeapon->m_iWeaponType);
-		m_pClassModelPanel->ClearMergeMDLs();	
-		m_pClassModelPanel->SetMergeMDL(pWeapon->szWorldModel);
-		m_pClassModelPanel->Update();
-	}
+	_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+	
+	m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
+	m_pClassModelPanel->ClearMergeMDLs();
+	m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
+	m_pClassModelPanel->Update();
 }
 
 void CTFLoadoutPanel::Show()
@@ -251,25 +318,14 @@ void CTFLoadoutPanel::DefaultLayout()
 			{
 				iCols++;
 				if (iCols > iColCount) iColCount = iCols;
-				m_pWeaponButton->SetVisible(1);
-
-				float wide = CTFAdvButtonBase::GetProportionalWideScale();
-				float tall = CTFAdvButtonBase::GetProportionalWideScale();
-				m_pWeaponButton->SetPos(iPreset * 125 * wide, iSlot * 60 * tall);
+				m_pWeaponButton->SetVisible(true);
+				m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
 
 				int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
-				CTFWeaponInfo *pWeapon = GetTFWeaponInfo(iWeapon);
-				if (pWeapon)
-				{
-					char szIcon[64];
-					Q_snprintf(szIcon, sizeof(szIcon), "../%s", pWeapon->iconInactive->szTextureFile);
-					m_pWeaponButton->SetImage(szIcon);
-				}
-				else 
-				{
-					m_pWeaponButton->SetImage("class_sel_sm_soldier_blu");
-				}
-
+				_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+				char szIcon[64];
+				Q_snprintf(szIcon, sizeof(szIcon), "../%s", pData.iconInactive);
+				m_pWeaponButton->SetImage(szIcon);
 
 				const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 				char szWeaponName[32];
