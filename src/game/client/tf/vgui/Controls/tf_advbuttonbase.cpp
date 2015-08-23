@@ -22,12 +22,11 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFAdvButtonBase, CTFAdvButtonBase);
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-CTFAdvButtonBase::CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : Button(parent, panelName, text)
+CTFAdvButtonBase::CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : vgui::EditablePanel(parent, panelName)
 {
-	pBGBorder = new EditablePanel(this, "BackgroundBG");
-	pBGBorder->SetParent(this);
-	pButtonImage = new ImagePanel(this, "ButtonImageNew");
+	pButtonImage = new ImagePanel(this, "SubImage");
 	pButtonImage->SetParent(this);
+
 	Init();
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }	
@@ -37,7 +36,6 @@ CTFAdvButtonBase::CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, c
 //-----------------------------------------------------------------------------
 CTFAdvButtonBase::~CTFAdvButtonBase()
 {
-	delete pBGBorder;
 	delete pButtonImage;
 }
 
@@ -58,19 +56,17 @@ void CTFAdvButtonBase::Init()
 	Q_strncpy(pDefaultColor, DEFAULT_COLOR, sizeof(pDefaultColor));
 	Q_strncpy(pArmedColor, ARMED_COLOR, sizeof(pArmedColor));
 	Q_strncpy(pDepressedColor, DEPRESSED_COLOR, sizeof(pDepressedColor));
-	Q_strncpy(m_szFont, DEFAULT_FONT, sizeof(m_szFont));
-	Q_strncpy(m_szCommand, EMPTY_STRING, sizeof(m_szCommand));
-	Q_strncpy(m_szTextAlignment, "west", sizeof(m_szCommand));
+	Q_strncpy(pSelectedColor, ARMED_COLOR, sizeof(pSelectedColor));
 	Q_strncpy(pDefaultButtonImage, DEFAULT_IMAGE, sizeof(pDefaultButtonImage));
 	Q_strncpy(pImageColorDefault, DEFAULT_COLOR, sizeof(pImageColorDefault));
 	Q_strncpy(pImageColorArmed, ARMED_COLOR, sizeof(pImageColorArmed));
 	Q_strncpy(pImageColorDepressed, DEPRESSED_COLOR, sizeof(pImageColorDepressed));
-	m_bBGVisible = false;
-	m_bBorderVisible = false;
+	
+	Q_strncpy(m_szCommand, EMPTY_STRING, sizeof(m_szCommand));
+	Q_strncpy(pToolTip, EMPTY_STRING, sizeof(pToolTip));
+	m_bBorderVisible = true;
 	m_bAutoChange = false;
-	m_bDisabled = false;
-	m_fWidth = 0.0;
-	//Q_strncpy(m_szCommand, GetCommand()->GetString(), sizeof(m_szCommand));
+	m_fImageWidth = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,31 +76,39 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
-	Q_strncpy(pDefaultBG, inResourceData->GetString("DefaultBG", DEFAULT_BG), sizeof(pDefaultBG));
-	Q_strncpy(pArmedBG, inResourceData->GetString("ArmedBG", ARMED_BG), sizeof(pArmedBG));
-	Q_strncpy(pDepressedBG, inResourceData->GetString("DepressedBG", DEPRESSED_BG), sizeof(pDepressedBG));
-
-	Q_strncpy(pDefaultBorder, inResourceData->GetString("DefaultBorder", DEFAULT_BORDER), sizeof(pDefaultBorder));
-	Q_strncpy(pArmedBorder, inResourceData->GetString("ArmedBorder", ARMED_BORDER), sizeof(pArmedBorder));
-	Q_strncpy(pDepressedBorder, inResourceData->GetString("DepressedBorder", DEPRESSED_BORDER), sizeof(pDepressedBorder));
-
-	Q_strncpy(pDefaultColor, inResourceData->GetString("DefaultTextColor", DEFAULT_COLOR), sizeof(pDefaultColor));
-	Q_strncpy(pArmedColor, inResourceData->GetString("ArmedTextColor", ARMED_COLOR), sizeof(pArmedColor));
-	Q_strncpy(pDepressedColor, inResourceData->GetString("DepressedTextColor", DEPRESSED_COLOR), sizeof(pDepressedColor));
-
-	Q_strncpy(pImageColorDefault, inResourceData->GetString("DefaultImageColor", DEFAULT_COLOR), sizeof(pImageColorDefault));
-	Q_strncpy(pImageColorArmed, inResourceData->GetString("ArmedImageColor", ARMED_COLOR), sizeof(pImageColorArmed));
-	Q_strncpy(pImageColorDepressed, inResourceData->GetString("DepressedImageColor", DEPRESSED_COLOR), sizeof(pImageColorDepressed));
-
 	Q_strncpy(m_szCommand, inResourceData->GetString("command", EMPTY_STRING), sizeof(m_szCommand));
-	Q_strncpy(m_szTextAlignment, inResourceData->GetString("textAlignment", "center"), sizeof(m_szTextAlignment));		
-	Q_strncpy(m_szFont, inResourceData->GetString("font", DEFAULT_FONT), sizeof(m_szFont));
+	m_bBorderVisible = inResourceData->GetBool("bordervisible", true);
 
-	m_bBGVisible = inResourceData->GetBool("bgvisible", true);	
-	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
+	for (KeyValues *pData = inResourceData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
+	{
+		if (!Q_stricmp(pData->GetName(), "SubButton"))
+		{
+			Q_strncpy(pToolTip, pData->GetString("tooltip", ""), sizeof(pToolTip));
+			Q_strncpy(pDefaultBorder, pData->GetString("button_default", DEFAULT_BORDER), sizeof(pDefaultBorder));
+			Q_strncpy(pArmedBorder, pData->GetString("button_armed", ARMED_BORDER), sizeof(pArmedBorder));
+			Q_strncpy(pDepressedBorder, pData->GetString("button_depressed", DEPRESSED_BORDER), sizeof(pDepressedBorder));
 
-	Q_strncpy(pDefaultButtonImage, inResourceData->GetString("ButtonImage", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
-	m_fWidth = inResourceData->GetFloat("imagewidth", 0.0);
+			Q_strncpy(pDefaultBG, pData->GetString("border_default", DEFAULT_BG), sizeof(pDefaultBG));
+			Q_strncpy(pArmedBG, pData->GetString("border_armed", ARMED_BG), sizeof(pArmedBG));
+			Q_strncpy(pDepressedBG, pData->GetString("border_depressed", DEPRESSED_BG), sizeof(pDepressedBG));
+
+			Q_strncpy(pDefaultColor, pData->GetString("defaultFgColor_override", DEFAULT_COLOR), sizeof(pDefaultColor));
+			Q_strncpy(pArmedColor, pData->GetString("armedFgColor_override", ARMED_COLOR), sizeof(pArmedColor));
+			Q_strncpy(pDepressedColor, pData->GetString("depressedFgColor_override", DEPRESSED_COLOR), sizeof(pDepressedColor));
+			Q_strncpy(pSelectedColor, pData->GetString("selectedFgColor_override", ARMED_COLOR), sizeof(pSelectedColor));
+		}
+		if (!Q_stricmp(pData->GetName(), "SubImage"))
+		{
+			pButtonImage->ApplySettings(pData);
+			m_fImageWidth = pData->GetFloat("imagewidth", 0.0);
+			Q_strncpy(pDefaultButtonImage, pData->GetString("image", DEFAULT_IMAGE), sizeof(pDefaultButtonImage));
+
+			Q_strncpy(pImageColorDefault, pData->GetString("imagecolor", pDefaultColor), sizeof(pImageColorDefault));
+			Q_strncpy(pImageColorArmed, pData->GetString("imagecolorarmed", pArmedColor), sizeof(pImageColorArmed));
+			Q_strncpy(pImageColorDepressed, pData->GetString("imagecolordepressed", pDepressedColor), sizeof(pImageColorDepressed));
+		}
+	}
+
 	m_bAutoChange = true;
 }
 
@@ -114,11 +118,6 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 void CTFAdvButtonBase::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-
-	SetDefaultColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
-	SetArmedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
-	SetDepressedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
-	SetSelectedColor(Color(0, 0, 0, 0), Color(0, 0, 0, 0));
 }
 
 //-----------------------------------------------------------------------------
@@ -128,36 +127,38 @@ void CTFAdvButtonBase::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	pBGBorder->SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
-	pBGBorder->SetVisible(m_bBGVisible);
-	pBGBorder->SetEnabled(IsEnabled());
-	pBGBorder->SetPos(0, 0);
-	pBGBorder->SetZPos(1);
-	pBGBorder->SetWide(GetWide());
-	pBGBorder->SetTall(GetTall());
+	if (m_bBorderVisible)
+	{
+		SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
+	}
+	else
+	{
+		SetBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
+	}
+}
+
+void CTFAdvButtonBase::SetCommandString(const char *sCommand)
+{
+	Q_strncpy(m_szCommand, sCommand, sizeof(m_szCommand));
 }
 
 const char* CTFAdvButtonBase::GetCommandString()
 {
-	KeyValues *pCommands = GetCommand();
-	if (pCommands)
-		return pCommands->FindKey("command")->GetString();
-	return "";
+	return m_szCommand;
 }
 
-void CTFAdvButtonBase::SetFont(const char *sFont)
+void CTFAdvButtonBase::SetBorderByString(const char *sBorderDefault, const char *sBorderArmed, const char *sBorderDepressed)
 {
-	Q_strncpy(m_szFont, sFont, sizeof(m_szFont));
-	PerformLayout();
-}
-
-void CTFAdvButtonBase::SetBorder(const char *sBorder)
-{
-	Q_strncpy(pDefaultBorder, sBorder, sizeof(pDefaultBorder));
-	if (m_bDisabled)
+	Q_strncpy(pDefaultBG, sBorderDefault, sizeof(pDefaultBG));
+	if (IsEnabled())
 	{
-		Q_strncpy(pArmedBorder, sBorder, sizeof(pArmedBorder));
-		Q_strncpy(pDepressedBorder, sBorder, sizeof(pDepressedBorder));
+		Q_strncpy(pArmedBG, sBorderArmed, sizeof(pArmedBG));
+		Q_strncpy(pDepressedBG, sBorderDepressed, sizeof(pDepressedBG));
+	}
+	else
+	{
+		Q_strncpy(pArmedBG, sBorderDefault, sizeof(pArmedBG));
+		Q_strncpy(pDepressedBG, sBorderDefault, sizeof(pDepressedBG));
 	}
 	PerformLayout();
 }
@@ -168,10 +169,10 @@ void CTFAdvButtonBase::SetBorderVisible(bool bVisible)
 	PerformLayout();
 };
 
-void CTFAdvButtonBase::SetBGVisible(bool bVisible){
-	m_bBGVisible = bVisible; 	
-	PerformLayout(); 
-};
+void CTFAdvButtonBase::SetToolTip(const char *sText)
+{
+	Q_strncpy(pToolTip, sText, sizeof(pToolTip));
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -187,7 +188,8 @@ void CTFAdvButtonBase::OnThink()
 //-----------------------------------------------------------------------------
 void CTFAdvButtonBase::SetDefaultAnimation()
 {
-	pBGBorder->SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
+	if (m_bBorderVisible)
+		SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
 }
 
 
@@ -200,20 +202,28 @@ void CTFAdvButtonBase::SendAnimation(MouseState flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
-		//Msg("SetAnims! %s %s\n", GetName(), pSelectedBG);
+		if (m_bBorderVisible)
+			SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
 		break;
 	case MOUSE_ENTERED:
-		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pArmedBG));
+		if (pToolTip[0] != '\0')
+			MAINMENU_ROOT->ShowToolTip(pToolTip);
+		if (m_bBorderVisible)
+			SetBorder(GETSCHEME()->GetBorder(pArmedBG));
 		break;
 	case MOUSE_EXITED:
-		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
+		if (pToolTip[0] != '\0')
+			MAINMENU_ROOT->HideToolTip();
+		if (m_bBorderVisible)
+			SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
 		break;
 	case MOUSE_PRESSED:
-		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDepressedBG));
+		if (m_bBorderVisible)
+			SetBorder(GETSCHEME()->GetBorder(pDepressedBG));
 		break;
 	default:
-		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDefaultBG));
+		if (m_bBorderVisible)
+			SetBorder(GETSCHEME()->GetBorder(pDefaultBG));
 		break;
 	}
 }
@@ -225,17 +235,60 @@ void CTFAdvButtonBase::SendAnimation(MouseState flag)
 CTFButtonBase::CTFButtonBase(vgui::Panel *parent, const char *panelName, const char *text) : Button(parent, panelName, text)
 {
 	iState = MOUSE_DEFAULT;
+	m_bBorderVisible = false;
 	vgui::ivgui()->AddTickSignal(GetVPanel());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Set armed button border attributes.
+//-----------------------------------------------------------------------------
+void CTFButtonBase::SetArmedBorder(IBorder *border)
+{
+	_armedBorder = border;
+	InvalidateLayout(false);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Set selected button border attributes.
+//-----------------------------------------------------------------------------
+void CTFButtonBase::SetSelectedBorder(IBorder *border)
+{
+	_selectedBorder = border;
+	InvalidateLayout(false);
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFButtonBase::ApplySchemeSettings(IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+
+	_armedBorder = pScheme->GetBorder("ButtonArmedBorder");
+	_selectedBorder = pScheme->GetBorder("ButtonSelectedBorder");
+	InvalidateLayout();
+}
+
 void CTFButtonBase::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
+	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Get button border attributes.
+//-----------------------------------------------------------------------------
+IBorder *CTFButtonBase::GetBorder(bool depressed, bool armed, bool selected, bool keyfocus)
+{
+	if (depressed)
+		return _depressedBorder;
+	if (armed)
+		return _armedBorder;
+	if (selected)
+		return _selectedBorder;
+
+	return _defaultBorder;
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -302,50 +355,11 @@ void CTFButtonBase::SetMouseEnteredState(MouseState flag)
 	iState = flag;
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: Set armed button border attributes.
-//-----------------------------------------------------------------------------
-void CTFButtonBase::SetArmedBorder(IBorder *border)
+void CTFButtonBase::SetFontByString(const char *sFont)
 {
-	_armedBorder = border;
-	InvalidateLayout(false);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Set selected button border attributes.
-//-----------------------------------------------------------------------------
-void CTFButtonBase::SetSelectedBorder(IBorder *border)
-{
-	_selectedBorder = border;
-	InvalidateLayout(false);
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFButtonBase::ApplySchemeSettings(IScheme *pScheme)
-{
-	BaseClass::ApplySchemeSettings(pScheme);
-
-	_armedBorder = pScheme->GetBorder("ButtonArmedBorder");
-	_selectedBorder = pScheme->GetBorder("ButtonSelectedBorder");
-	InvalidateLayout();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Get button border attributes.
-//-----------------------------------------------------------------------------
-IBorder *CTFButtonBase::GetBorder(bool depressed, bool armed, bool selected, bool keyfocus)
-{
-	if (depressed)
-		return _depressedBorder;
-	if (armed)
-		return _armedBorder;
-	if (selected)
-		return _selectedBorder;
-
-	return _defaultBorder;
+	if (!GETSCHEME())
+		return;
+	SetFont(GETSCHEME()->GetFont(sFont, true));
 }
 
 //-----------------------------------------------------------------------------
@@ -359,47 +373,47 @@ vgui::Label::Alignment CTFAdvButtonBase::GetAlignment(char* m_szAlignment)
 
 	if (!stricmp(alignmentString, "north-west"))
 	{
-		align = a_northwest;
+		align = vgui::Label::a_northwest;
 	}
 	else if (!stricmp(alignmentString, "north"))
 	{
-		align = a_north;
+		align = vgui::Label::a_north;
 	}
 	else if (!stricmp(alignmentString, "north-east"))
 	{
-		align = a_northeast;
+		align = vgui::Label::a_northeast;
 	}
 	else if (!stricmp(alignmentString, "west"))
 	{
-		align = a_west;
+		align = vgui::Label::a_west;
 	}
 	else if (!stricmp(alignmentString, "center"))
 	{
-		align = a_center;
+		align = vgui::Label::a_center;
 	}
 	else if (!stricmp(alignmentString, "east"))
 	{
-		align = a_east;
+		align = vgui::Label::a_east;
 	}
 	else if (!stricmp(alignmentString, "south-west"))
 	{
-		align = a_southwest;
+		align = vgui::Label::a_southwest;
 	}
 	else if (!stricmp(alignmentString, "south"))
 	{
-		align = a_south;
+		align = vgui::Label::a_south;
 	}
 	else if (!stricmp(alignmentString, "south-east"))
 	{
-		align = a_southeast;
+		align = vgui::Label::a_southeast;
 	}
 
 	if (align != -1)
 	{
-		return (Alignment)align;
+		return (vgui::Label::Alignment)align;
 	}
 
-	return a_center;
+	return vgui::Label::a_center;
 }
 
 float CTFAdvButtonBase::GetProportionalWideScale()

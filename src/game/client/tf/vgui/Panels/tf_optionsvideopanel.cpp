@@ -140,9 +140,9 @@ void CTFOptionsVideoPanel::CreateControls()
 
 	m_bRequireRestart = false;
 
-	CTFAdvButton *pTitleVideo = new CTFAdvButton(NULL, "DescTextTitle", "Video");
-	m_pMode = new ComboBox(NULL, "Resolution", 8, false);
-	m_pAspectRatio = new ComboBox(NULL, "AspectRatio", 6, false);
+	CTFAdvButton *pTitleVideo = new CTFAdvButton(this, "DescTextTitle", "Video");
+	m_pMode = new ComboBox(this, "Resolution", 8, false);
+	m_pAspectRatio = new ComboBox(this, "AspectRatio", 6, false);
 
 	char pszAspectName[3][64];
 	wchar_t *unicodeText = g_pVGuiLocalize->Find("#GameUI_AspectNormal");
@@ -173,11 +173,11 @@ void CTFOptionsVideoPanel::CreateControls()
 		break;
 	}
 
-	m_pWindowed = new ComboBox(NULL, "DisplayModeCombo", 6, false);
+	m_pWindowed = new ComboBox(this, "DisplayModeCombo", 6, false);
 	m_pWindowed->AddItem("#GameUI_Fullscreen", NULL);
 	m_pWindowed->AddItem("#GameUI_Windowed", NULL);
 
-	m_pGammaSlider = new CCvarSlider(NULL, "Gamma", "#GameUI_Gamma", 1.6f, 2.6f, "mat_monitorgamma");
+	m_pGammaSlider = new CCvarSlider(this, "Gamma", "#GameUI_Gamma", 1.6f, 2.6f, "mat_monitorgamma");
 
 	// Moved down here so we can set the Drop down's 
 	// menu state after the default (disabled) value is loaded
@@ -196,7 +196,7 @@ void CTFOptionsVideoPanel::CreateControls()
 
 
 	//VIDEOADV
-	CTFAdvButton *pTitleVideoAdv = new CTFAdvButton(NULL, "DescTextTitle", "#GameUI_VideoAdvanced_Title");
+	CTFAdvButton *pTitleVideoAdv = new CTFAdvButton(this, "DescTextTitle", "#GameUI_VideoAdvanced_Title");
 
 	m_pDXLevel = new ComboBox(this, "dxlabel", 6, false);
 	KeyValues *pKeyValues = new KeyValues("config");
@@ -749,19 +749,18 @@ void CTFOptionsVideoPanel::OnApplyChanges()
 	bool windowed = (m_pWindowed->GetActiveItem() > 0) ? true : false;
 
 	// make sure there is a change
-	//const MaterialSystem_Config_t &config = materials->GetCurrentConfigForVideoCard();
-	/*if ( config.m_VideoMode.m_Width != width 
+	const MaterialSystem_Config_t &config = materials->GetCurrentConfigForVideoCard();
+	if ( config.m_VideoMode.m_Width != width 
 		|| config.m_VideoMode.m_Height != height
 		|| config.Windowed() != windowed)
-	{*/
+	{
 		// set mode
 		char szCmd[ 256 ];
 		Q_snprintf( szCmd, sizeof( szCmd ), "mat_setvideomode %i %i %i\n", width, height, windowed ? 1 : 0 );
 		Msg(szCmd);
 		engine->ClientCmd_Unrestricted( szCmd );
-	//}
+	}
 
-	const MaterialSystem_Config_t &config = materials->GetCurrentConfigForVideoCard();
 	if (config.m_VideoMode.m_Width != width || config.m_VideoMode.m_Height != height || config.Windowed() != windowed)
 	{
 		MAINMENU_ROOT->LaunchInvalidatePanelsLayout();

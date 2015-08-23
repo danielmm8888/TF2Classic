@@ -74,11 +74,11 @@ void CTFOptionsAudioPanel::CreateControls()
 {
 	BaseClass::CreateControls();
 
-	CTFAdvButton *pTitleVolume = new CTFAdvButton(NULL, "DescTextTitle", "Volume");
-	m_pSFXSlider = new CCvarSlider(NULL, "SFXSlider", "#GameUI_SoundEffectVolume", 0.0f, 1.0f, "volume", true);
+	CTFAdvButton *pTitleVolume = new CTFAdvButton(this, "DescTextTitle", "Volume");
+	m_pSFXSlider = new CCvarSlider(this, "SFXSlider", "#GameUI_SoundEffectVolume", 0.0f, 1.0f, "volume", true);
 	m_pMusicSlider = new CCvarSlider(this, "MusicSlider", "#GameUI_MusicVolume", 0.0f, 1.0f, "Snd_MusicVolume", true);
 
-	CTFAdvButton *pTitleSettings = new CTFAdvButton(NULL, "DescTextTitle", "Settings");
+	CTFAdvButton *pTitleSettings = new CTFAdvButton(this, "DescTextTitle", "Settings");
 	m_pCloseCaptionCombo = new ComboBox(this, "CloseCaptionCheck", 6, false);
 	m_pCloseCaptionCombo->AddItem("#GameUI_NoClosedCaptions", NULL);
 	m_pCloseCaptionCombo->AddItem("#GameUI_SubtitlesAndSoundEffects", NULL);
@@ -109,7 +109,7 @@ void CTFOptionsAudioPanel::CreateControls()
 
 
 	//Voice settings:
-	CTFAdvButton *pTitleVoice = new CTFAdvButton(NULL, "DescTextTitle", "Voice");
+	CTFAdvButton *pTitleVoice = new CTFAdvButton(this, "DescTextTitle", "Voice");
 
 	m_pReceiveVolume = new CCvarSlider(this, "VoiceReceive", "#GameUI_ReceiveVolume", 0.0f, 1.0f, "voice_scale");
 	m_pVoiceEnableCheckButton = new CCvarToggleCheckButton(this, "voice_modenable", "#GameUI_EnableVoice", "voice_modenable");

@@ -46,12 +46,6 @@ bool CTFDialogPanelBase::Init()
 void CTFDialogPanelBase::ApplySchemeSettings(IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-
-}
-
-void CTFDialogPanelBase::PerformLayout()
-{
-	BaseClass::PerformLayout();
 	if (bEmbedded)
 	{
 		OnCreateControls();
@@ -60,6 +54,12 @@ void CTFDialogPanelBase::PerformLayout()
 	{
 		//Show();
 	}
+
+}
+
+void CTFDialogPanelBase::PerformLayout()
+{
+	BaseClass::PerformLayout();
 };
 
 void CTFDialogPanelBase::OnCommand(const char* command)
@@ -96,28 +96,38 @@ void CTFDialogPanelBase::Hide()
 	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
 
+#include "vgui_controls/Tooltip.h"
+
 void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* text)
 {
 	if (!m_pListPanel)
 		return;
 
 	mpcontrol_t	*pCtrl = new mpcontrol_t(m_pListPanel, "mpcontrol_t");
+	CTFAdvButton *pTitle = dynamic_cast<CTFAdvButton*>(panel);
+	CTFAdvCheckButton *pBox = dynamic_cast<CTFAdvCheckButton*>(panel);
+	CTFAdvSlider *pScroll = dynamic_cast<CTFAdvSlider*>(panel);
+	ComboBox *pCombo = dynamic_cast<ComboBox*>(panel);
+
 	switch (iType)
 	{
 	case O_CATEGORY:
-		dynamic_cast<CTFAdvButton*>(panel)->SetDisabled(true);
-		dynamic_cast<CTFAdvButton*>(panel)->SetBorder("AdvSettingsTitleBorder");
-		dynamic_cast<CTFAdvButton*>(panel)->SetBorderVisible(true);
-		dynamic_cast<CTFAdvButton*>(panel)->SetBGVisible(false);
+		pTitle->SetEnabled(false);
+		pTitle->SetBorderByString("AdvSettingsTitleBorder");
+		pTitle->SetBorderVisible(true);
+		pTitle->SetToolTip(dynamic_cast<CTFAdvButton*>(panel)->GetName());
+		pTitle->GetButton()->SetFontByString("MenuSmallFont");
 		break;
 	case O_BOOL:
-		dynamic_cast<CTFAdvCheckButton*>(panel)->SetFont(m_pListPanel->GetFontString());
+		pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
+		pBox->SetToolTip(dynamic_cast<CTFAdvCheckButton*>(panel)->GetName());
 		break;
 	case O_SLIDER:
-		dynamic_cast<CTFAdvSlider*>(panel)->SetFont(m_pListPanel->GetFontString());
+		pScroll->GetButton()->SetFontByString(m_pListPanel->GetFontString());
+		pScroll->SetToolTip(dynamic_cast<CTFAdvSlider*>(panel)->GetName());
 		break;
 	case O_LIST:
-		dynamic_cast<ComboBox*>(panel)->SetFont(m_pListPanel->GetFont());
+		pCombo->SetFont(m_pListPanel->GetFont());
 		pCtrl->pPrompt = new vgui::Label(pCtrl, "DescLabel", "");
 		pCtrl->pPrompt->SetFont(m_pListPanel->GetFont());
 		pCtrl->pPrompt->SetContentAlignment(vgui::Label::a_west);

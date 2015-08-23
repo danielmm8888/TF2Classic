@@ -28,6 +28,8 @@ public:
 
 	void SetAnimationIndex(int iIndex) { m_iAnimationIndex = iIndex; };
 
+	void Update();
+
 	// function to set up scene sets
 	//void SetupCustomLights( Color cAmbient, Color cKey, float fKeyBoost, Color cRim, float fRimBoost );
 

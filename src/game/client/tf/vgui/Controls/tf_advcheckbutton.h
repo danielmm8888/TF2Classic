@@ -44,9 +44,12 @@ public:
 	virtual void SetSelected(bool state){ m_bState = state; };
 	virtual bool IsSelected() { return m_bState; };
 
+	CTFCheckButton *GetButton(){ return pButton; }
+
 protected:
 	CTFCheckButton		*pButton;
-	ImagePanel		*pCheckImage;
+	ImagePanel			*pCheckImage;
+	EditablePanel		*pBGBorder;
 	char				m_szValueTrue[64];
 	char				m_szValueFalse[64];
 	char				pDefaultCheckImage[64];
@@ -61,11 +64,15 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFCheckButton : public CTFButtonBase
 {
+	friend CTFAdvCheckButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFCheckButton, CTFButtonBase);
 
 	CTFCheckButton(vgui::Panel *parent, const char *panelName, const char *text);
 
+	void ApplySettings(KeyValues *inResourceData);
+	void ApplySchemeSettings(vgui::IScheme *pScheme);
+	void PerformLayout();
 	void OnCursorExited();
 	void OnCursorEntered();
 	void OnMousePressed(vgui::MouseCode code);

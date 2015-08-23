@@ -11,6 +11,7 @@
 #include "panels/tf_optionsdialog.h"
 #include "panels/tf_quitdialogpanel.h"
 #include "panels/tf_statsummarydialog.h"
+#include "panels/tf_tooltippanel.h"
 #include "engine/IEngineSound.h"
 #include "tier0/icommandline.h"
 
@@ -71,6 +72,7 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	AddMenuPanel(new CTFQuitDialogPanel(this, "CTFQuitDialogPanel"), QUIT_MENU);
 	AddMenuPanel(new CTFOptionsDialog(this, "CTFOptionsDialog"), OPTIONSDIALOG_MENU);
 	AddMenuPanel(new CTFStatsSummaryDialog(this, "CTFStatsSummaryDialog"), STATSUMMARY_MENU);
+	AddMenuPanel(new CTFToolTipPanel(this, "CTFToolTipPanel"), TOOLTIP_MENU);
 
 	ShowPanel(MAIN_MENU);
 	ShowPanel(PAUSE_MENU);
@@ -81,6 +83,7 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	HidePanel(QUIT_MENU);
 	HidePanel(OPTIONSDIALOG_MENU);
 	HidePanel(STATSUMMARY_MENU);
+	HidePanel(TOOLTIP_MENU);
 	
 	bInGameLayout = false;
 	m_iStopGameStartupSound = 2;
@@ -290,4 +293,15 @@ void CTFMainMenu::SetStats(CUtlVector<ClassStats_t> &vecClassStats)
 	if (!guiroot)
 		return;
 	dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->SetStats(vecClassStats);
+}
+
+
+void CTFMainMenu::ShowToolTip(char* sText)
+{
+	dynamic_cast<CTFToolTipPanel*>(GetMenuPanel(TOOLTIP_MENU))->ShowToolTip(sText);
+}
+
+void CTFMainMenu::HideToolTip()
+{
+	dynamic_cast<CTFToolTipPanel*>(GetMenuPanel(TOOLTIP_MENU))->HideToolTip();
 }

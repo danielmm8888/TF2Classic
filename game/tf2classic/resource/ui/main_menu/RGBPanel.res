@@ -64,16 +64,19 @@
 		"tall"				"15"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		"R"
-		"labelWidth" 		"25"
-		"bordervisible"		"1"
-		"bgvisible"			"1"
-		"textAlignment"		"west"
+		"labelwidth" 		"25"
+		"bordervisible"		"0"
 		"command"			""
-		"DefaultBG"			"AdvSlider"
-		"ArmedBG" 			"AdvSlider"
-		"DepressedBG"		"AdvSlider"	
-		"font"				"FontStorePromotion"
+		
+		"SubButton"
+		{
+			"labelText" 		"R"
+			"textAlignment"		"west"
+			"font"				"FontStorePromotion"
+			"border_default"	"AdvSlider"
+			"border_armed"		"AdvSlider"	
+			"border_depressed"	"AdvSlider"	
+		}
 	}	
 	
 	"GrnScrollBar"
@@ -87,16 +90,19 @@
 		"tall"				"15"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		"G"
-		"labelWidth" 		"25"
-		"bordervisible"		"1"
-		"bgvisible"			"1"
-		"textAlignment"		"west"
+		"labelwidth" 		"25"
+		"bordervisible"		"0"
 		"command"			""
-		"DefaultBG"			"AdvSlider"
-		"ArmedBG" 			"AdvSlider"
-		"DepressedBG"		"AdvSlider"	
-		"font"				"FontStorePromotion"
+		
+		"SubButton"
+		{
+			"labelText" 		"G"
+			"textAlignment"		"west"
+			"font"				"FontStorePromotion"
+			"border_default"	"AdvSlider"
+			"border_armed"		"AdvSlider"	
+			"border_depressed"	"AdvSlider"	
+		}
 	}	
 	
 	"BluScrollBar"
@@ -110,16 +116,19 @@
 		"tall"				"15"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		"B"
-		"labelWidth" 		"25"
-		"bordervisible"		"1"
-		"bgvisible"			"1"
-		"textAlignment"		"west"
+		"labelwidth" 		"25"
+		"bordervisible"		"0"
 		"command"			""
-		"DefaultBG"			"AdvSlider"
-		"ArmedBG" 			"AdvSlider"
-		"DepressedBG"		"AdvSlider"	
-		"font"				"FontStorePromotion"
+		
+		"SubButton"
+		{
+			"labelText" 		"B"
+			"textAlignment"		"west"
+			"font"				"FontStorePromotion"
+			"border_default"	"AdvSlider"
+			"border_armed"		"AdvSlider"	
+			"border_depressed"	"AdvSlider"	
+		}
 	}	
 	
 	"ColorBG"

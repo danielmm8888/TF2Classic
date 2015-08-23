@@ -63,25 +63,25 @@ void CTFOptionsMousePanel::CreateControls()
 {
 	BaseClass::CreateControls();
 
-	pTitleMouse = new CTFAdvButton(NULL, "DescTextTitle", "Mouse options");
+	pTitleMouse = new CTFAdvButton(this, "DescTextTitle", "Mouse options");
 
-	m_pReverseMouseCheckBox = new CCvarToggleCheckButton(NULL, "ReverseMouse", "#GameUI_ReverseMouse", "m_pitch");
-	m_pRawInputCheckBox = new CCvarToggleCheckButton(NULL, "RawInput", "#GameUI_MouseRaw", "m_rawinput");
-	m_pMouseFilterCheckBox = new CCvarToggleCheckButton(NULL, "MouseFilter", "#GameUI_MouseFilter", "m_filter");
-	m_pMouseSensitivitySlider = new CCvarSlider(NULL, "MouseSensitivity", "#GameUI_MouseSensitivity", 1.0f, 20.0f, "sensitivity", true);
+	m_pReverseMouseCheckBox = new CCvarToggleCheckButton(this, "ReverseMouse", "#GameUI_ReverseMouse", "m_pitch");
+	m_pRawInputCheckBox = new CCvarToggleCheckButton(this, "RawInput", "#GameUI_MouseRaw", "m_rawinput");
+	m_pMouseFilterCheckBox = new CCvarToggleCheckButton(this, "MouseFilter", "#GameUI_MouseFilter", "m_filter");
+	m_pMouseSensitivitySlider = new CCvarSlider(this, "MouseSensitivity", "#GameUI_MouseSensitivity", 1.0f, 20.0f, "sensitivity", true);
 
-	m_pMouseAccelCheckBox = new CCvarToggleCheckButton(NULL, "MouseAccel", "#GameUI_MouseAcceleration_Hint", "m_customaccel");
-	m_pMouseAccelSlider = new CCvarSlider(NULL, "MouseAccelSlider", "#GameUI_MouseAcceleration", 1.0f, 2.0f, "m_customaccel_exponent", true);	
+	m_pMouseAccelCheckBox = new CCvarToggleCheckButton(this, "MouseAccel", "#GameUI_MouseAcceleration_Hint", "m_customaccel");
+	m_pMouseAccelSlider = new CCvarSlider(this, "MouseAccelSlider", "#GameUI_MouseAcceleration", 1.0f, 2.0f, "m_customaccel_exponent", true);
 
 	///
-	pTitleJoystick = new CTFAdvButton(NULL, "DescTextTitle", "Joystick options");	
+	pTitleJoystick = new CTFAdvButton(this, "DescTextTitle", "Joystick options");
 
-	m_pJoystickCheckBox = new CCvarToggleCheckButton(NULL, "Joystick", "#GameUI_Joystick", "joystick");
-	m_pJoystickSouthpawCheckBox = new CCvarToggleCheckButton(NULL, "JoystickSouthpaw", "#GameUI_JoystickSouthpaw", "joy_movement_stick");
-	m_pReverseJoystickCheckBox = new CCvarToggleCheckButton(NULL, "ReverseJoystick", "#GameUI_ReverseJoystick", "joy_inverty");	
+	m_pJoystickCheckBox = new CCvarToggleCheckButton(this, "Joystick", "#GameUI_Joystick", "joystick");
+	m_pJoystickSouthpawCheckBox = new CCvarToggleCheckButton(this, "JoystickSouthpaw", "#GameUI_JoystickSouthpaw", "joy_movement_stick");
+	m_pReverseJoystickCheckBox = new CCvarToggleCheckButton(this, "ReverseJoystick", "#GameUI_ReverseJoystick", "joy_inverty");
 
-	m_pJoyYawSensitivitySlider = new CCvarSlider(NULL, "JoystickYawSlider", "#GameUI_JoystickLookSpeedYaw", -0.5f, -7.0f, "joy_yawsensitivity", true);
-	m_pJoyPitchSensitivitySlider = new CCvarSlider(NULL, "JoystickPitchSlider", "#GameUI_JoystickLookSpeedPitch", 0.5f, 7.0f, "joy_pitchsensitivity", true);
+	m_pJoyYawSensitivitySlider = new CCvarSlider(this, "JoystickYawSlider", "#GameUI_JoystickLookSpeedYaw", -0.5f, -7.0f, "joy_yawsensitivity", true);
+	m_pJoyPitchSensitivitySlider = new CCvarSlider(this, "JoystickPitchSlider", "#GameUI_JoystickLookSpeedPitch", 0.5f, 7.0f, "joy_pitchsensitivity", true);
 
 	AddControl(pTitleMouse, O_CATEGORY);
 	AddControl(m_pReverseMouseCheckBox, O_BOOL);

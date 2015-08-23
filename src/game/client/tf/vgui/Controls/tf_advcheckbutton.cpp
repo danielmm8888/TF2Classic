@@ -23,10 +23,12 @@ DECLARE_BUILD_FACTORY_DEFAULT_TEXT(CTFAdvCheckButton, CTFAdvButtonBase);
 //-----------------------------------------------------------------------------
 CTFAdvCheckButton::CTFAdvCheckButton(vgui::Panel *parent, const char *panelName, const char *text) : CTFAdvButtonBase(parent, panelName, text)
 {
-	pButton = new CTFCheckButton(this, "ButtonNew", text);
-	pCheckImage = new ImagePanel(this, "CheckImageNew");
+	pButton = new CTFCheckButton(this, "SubButton", text);
+	pCheckImage = new ImagePanel(this, "SubCheckImage");
+	pBGBorder = new EditablePanel(this, "BackgroundPanel");
 	pButton->SetParent(this);
 	pCheckImage->SetParent(this);
+	pBGBorder->SetParent(this);
 	Init();
 }
 
@@ -37,6 +39,7 @@ CTFAdvCheckButton::~CTFAdvCheckButton()
 {
 	delete pButton;
 	delete pCheckImage;
+	delete pBGBorder;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,7 +55,6 @@ void CTFAdvCheckButton::Init()
 	Q_strncpy(pDepressedBG, DEPRESSED_BG, sizeof(pDepressedBG));
 	Q_strncpy(pDefaultCheckImage, DEFAULT_CHECKIMAGE, sizeof(pDefaultCheckImage));
 	m_bState = false;
-	m_bBGVisible = true;
 	m_bBorderVisible = false;
 }
 
@@ -67,7 +69,19 @@ void CTFAdvCheckButton::ApplySettings(KeyValues *inResourceData)
 	Q_strncpy(m_szValueFalse, inResourceData->GetString("valuefalse", "0"), sizeof(m_szValueFalse));
 	Q_strncpy(m_szValueTrue, inResourceData->GetString("valuetrue", "1"), sizeof(m_szValueTrue));
 
-	Q_strncpy(pDefaultCheckImage, inResourceData->GetString("DefaultCheckImage", DEFAULT_CHECKIMAGE), sizeof(pDefaultCheckImage));
+
+
+	for (KeyValues *pData = inResourceData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
+	{
+		if (!Q_stricmp(pData->GetName(), "SubButton"))
+		{
+			pButton->ApplySettings(pData);
+		}
+		if (!Q_stricmp(pData->GetName(), "SubImage"))
+		{
+			Q_strncpy(pDefaultCheckImage, pData->GetString("imagecheck", DEFAULT_CHECKIMAGE), sizeof(pDefaultCheckImage));
+		}
+	}
 
 	GetCommandValue();
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
@@ -79,26 +93,6 @@ void CTFAdvCheckButton::ApplySettings(KeyValues *inResourceData)
 void CTFAdvCheckButton::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-
-	pButton->SetDefaultColor(pScheme->GetColor(DEFAULT_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetArmedColor(pScheme->GetColor(ARMED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetDepressedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	pButton->SetSelectedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
-	//pButton->SetFont(pScheme->GetFont(m_szFont));
-	if (m_bBorderVisible)
-	{
-		pButton->SetDefaultBorder(pScheme->GetBorder(pDefaultBorder));
-		pButton->SetArmedBorder(pScheme->GetBorder(pArmedBorder));
-		pButton->SetDepressedBorder(pScheme->GetBorder(pDepressedBorder));
-		pButton->SetSelectedBorder(pScheme->GetBorder(pDepressedBorder));
-	}
-	else
-	{
-		pButton->SetDefaultBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetArmedBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetDepressedBorder(pScheme->GetBorder(EMPTY_STRING));
-		pButton->SetSelectedBorder(pScheme->GetBorder(EMPTY_STRING));
-	}
 }
 
 
@@ -109,34 +103,13 @@ void CTFAdvCheckButton::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	GetText(m_szText, sizeof(m_szText));
-	pButton->SetText(m_szText);
-	pButton->SetCommand(GetCommandString());
-	pButton->SetVisible(true);
-	pButton->SetEnabled(true);
-	pButton->SetFont(GETSCHEME()->GetFont(m_szFont, true));
-	pButton->SetPos(0, 0);
-	pButton->SetZPos(4);
-	pButton->SetTextInset(5, 0);
-	pButton->SetWide(GetWide());
-	pButton->SetTall(GetTall());
-	pButton->SetContentAlignment(GetAlignment(m_szTextAlignment));
-	//pButton->SetFont(GetFont());
-	pButton->SetArmedSound("ui/buttonrollover.wav");
-	pButton->SetDepressedSound("ui/buttonclick.wav");
-	pButton->SetReleasedSound("ui/buttonclickrelease.wav");
-
-	pBGBorder->SetPos(GetWide() - GetTall(), 0);
-	pBGBorder->SetWide(GetTall());
-
 	float h = GetProportionalTallScale();
-	float fWidth = (m_fWidth == 0.0 ? GetTall() : m_fWidth * h);
+	float fWidth = (m_fImageWidth == 0.0 ? GetTall() : m_fImageWidth * h);
 	int iShift = (GetTall() - fWidth) / 2.0;
 
 	pButtonImage->SetImage(pDefaultButtonImage);
 	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-	pButtonImage->SetVisible(IsVisible());
-	pButtonImage->SetEnabled(IsEnabled());
+	pButtonImage->SetVisible(true);
 	pButtonImage->SetPos(iShift, iShift);
 	pButtonImage->SetZPos(2);
 	pButtonImage->SetWide(fWidth);
@@ -146,16 +119,19 @@ void CTFAdvCheckButton::PerformLayout()
 
 	pCheckImage->SetImage(pDefaultCheckImage);
 	pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-	pCheckImage->SetVisible(m_bBGVisible);
-	pCheckImage->SetEnabled(IsEnabled());
+	pCheckImage->SetVisible(m_bBorderVisible);
 	pCheckImage->SetPos(GetWide() - GetTall() + iShift, iShift);
-	//pCheckImage->SetPos(iShift, iShift);
 	pCheckImage->SetZPos(3);
-	//pCheckImage->SetWide(GetTall());
-	//pCheckImage->SetTall(GetTall());
 	pCheckImage->SetWide(fWidth);
 	pCheckImage->SetTall(fWidth);
 	pCheckImage->SetShouldScaleImage(true);
+	
+	pBGBorder->SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
+	pBGBorder->SetVisible(true);
+	pBGBorder->SetPos(GetWide() - GetTall(), 0);
+	pBGBorder->SetZPos(1);
+	pBGBorder->SetWide(GetTall());
+	pBGBorder->SetTall(GetTall());
 
 	GetCommandValue();
 	SetDefaultAnimation();
@@ -167,7 +143,6 @@ void CTFAdvCheckButton::PerformLayout()
 void CTFAdvCheckButton::OnThink()
 {
 	BaseClass::OnThink();
-	//GetCommandValue();
 }
 
 //-----------------------------------------------------------------------------
@@ -212,6 +187,7 @@ void CTFAdvCheckButton::SetDefaultAnimation()
 void CTFAdvCheckButton::SendAnimation(MouseState flag)
 {
 	BaseClass::SendAnimation(flag);
+
 	pCheckImage->SetVisible(m_bState);
 	switch (flag)
 	{
@@ -219,25 +195,25 @@ void CTFAdvCheckButton::SendAnimation(MouseState flag)
 	case MOUSE_DEFAULT:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-		//pCheckImage->SetImage(pDefaultCheckImage);
+		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDefaultBG));
 		break;
 	case MOUSE_ENTERED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
 		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
-		//pCheckImage->SetImage(pArmedCheckImage);
+		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pArmedBG));
 		break;
 	case MOUSE_EXITED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-		//pCheckImage->SetImage(pDefaultCheckImage);
+		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDefaultBG));
 		break;
 	case MOUSE_PRESSED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
 		pCheckImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
-		//pCheckImage->SetImage(pDepressedCheckImage);
+		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDepressedBG));
 		break;
 	default:
-		//pCheckImage->SetImage(pDefaultCheckImage);
+		pBGBorder->SetBorder(GETSCHEME()->GetBorder(pDefaultBG));
 		break;
 	}
 }
@@ -251,12 +227,51 @@ CTFCheckButton::CTFCheckButton(vgui::Panel *parent, const char *panelName, const
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
+void CTFCheckButton::ApplySettings(KeyValues *inResourceData)
+{
+	BaseClass::ApplySettings(inResourceData);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFCheckButton::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+
+	SetDefaultColor(pScheme->GetColor(DEFAULT_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetArmedColor(pScheme->GetColor(ARMED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetDepressedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetSelectedColor(pScheme->GetColor(DEPRESSED_COLOR, Color(255, 255, 255, 255)), Color(0, 0, 0, 0));
+	SetDefaultBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetArmedBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetDepressedBorder(pScheme->GetBorder(EMPTY_STRING));
+	SetSelectedBorder(pScheme->GetBorder(EMPTY_STRING));
+}
+
+void CTFCheckButton::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	if (!m_pParent)
+		return;
+
+	SetTextInset(5, 0);
+	SetZPos(4);
+	SetZPos(3);
+	SetWide(m_pParent->GetWide());
+	SetTall(m_pParent->GetTall());
+	SetArmedSound("ui/buttonrollover.wav");
+	SetDepressedSound("ui/buttonclick.wav");
+	SetReleasedSound("ui/buttonclickrelease.wav");
+
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFCheckButton::OnCursorEntered()
 {
-	//BaseClass::OnCursorEntered();
 	BaseClass::BaseClass::OnCursorEntered();
 	if (iState != MOUSE_ENTERED)
 	{
@@ -271,7 +286,6 @@ void CTFCheckButton::OnCursorEntered()
 void CTFCheckButton::OnCursorExited()
 {
 	BaseClass::BaseClass::OnCursorExited();
-	
 	if (iState != MOUSE_EXITED)
 	{
 		SetMouseEnteredState(MOUSE_EXITED);
@@ -285,8 +299,7 @@ void CTFCheckButton::OnCursorExited()
 void CTFCheckButton::OnMousePressed(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMousePressed(code);
-	
-	if (code == MOUSE_LEFT && iState != MOUSE_PRESSED)
+	if (code == KEY_COUNT && iState != MOUSE_PRESSED)
 	{
 		SetMouseEnteredState(MOUSE_PRESSED);
 	}
@@ -298,8 +311,7 @@ void CTFCheckButton::OnMousePressed(vgui::MouseCode code)
 void CTFCheckButton::OnMouseReleased(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMouseReleased(code);
-
-	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED) && !m_pParent->IsDisabled() && m_pParent->IsEnabled())
+	if (code == KEY_COUNT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED) && m_pParent->IsEnabled() && m_pParent->IsEnabled())
 	{
 		m_pParent->m_bState = !m_pParent->m_bState;
 		m_pParent->PostActionSignal(new KeyValues("CheckButtonChecked"));
@@ -319,8 +331,7 @@ void CTFCheckButton::OnMouseReleased(vgui::MouseCode code)
 	else
 	{
 		SetMouseEnteredState(MOUSE_EXITED);
-	}
-	
+	}	
 }
 
 //-----------------------------------------------------------------------------
@@ -329,6 +340,6 @@ void CTFCheckButton::OnMouseReleased(vgui::MouseCode code)
 void CTFCheckButton::SetMouseEnteredState(MouseState flag)
 {
 	BaseClass::SetMouseEnteredState(flag);
-	if (!m_pParent->IsDisabled() && m_pParent->IsEnabled())
+	if (m_pParent->IsEnabled() && m_pParent->IsEnabled())
 		m_pParent->SendAnimation(flag);
 }

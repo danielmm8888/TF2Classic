@@ -1779,19 +1779,19 @@
 		"zpos"			"6"
 		"wide"			"75"
 		"tall"			"20"
-		"autoResize"	"0"
-		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"tabPosition"	"0"
-		"bgvisible"		"0"
-		"bordervisible"	"1"
-		"labelText"		"Reset stats"
-		"textAlignment"	"center"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"font"			"FontStorePromotion"
 		"Command"		"resetstatsbutton"
+		
+		"SubButton"
+		{
+			"labelText" 		"Reset stats"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}	
 	}
 	
 	"CloseButton"
@@ -1803,18 +1803,18 @@
 		"zpos"			"6"
 		"wide"			"75"
 		"tall"			"20"
-		"autoResize"	"0"
-		"pinCorner"		"2"
 		"visible"		"1"
 		"enabled"		"1"
-		"tabPosition"	"0"
-		"bgvisible"		"0"
-		"bordervisible"	"1"
-		"labelText"		"Close"
-		"textAlignment"	"center"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"font"			"FontStorePromotion"
 		"Command"		"vguicancel"
+		
+		"SubButton"
+		{
+			"labelText" 		"Close"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}
 	}
 }

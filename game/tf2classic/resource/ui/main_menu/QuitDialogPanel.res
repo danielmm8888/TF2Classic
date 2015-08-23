@@ -55,7 +55,7 @@
 	
 	"Logo"
 	{
-		"ControlName"	"CTFImagePanel"
+		"ControlName"	"ImagePanel"
 		"fieldName"		"Logo"
 		"xpos"			"10"
 		"ypos"			"55"	
@@ -98,12 +98,17 @@
 		"tall"				"20"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		"Quit"
-		"textAlignment"		"center"
-		"bgvisible"			"0"
-		"bordervisible"		"1"
-		"font"				"FontStorePromotion"
-		"command"			"quitconfirm"		
+		"command"			"quitconfirm"
+		
+		"SubButton"
+		{
+			"labelText" 		"Quit"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}		
 	}			
 
 	"CancelButton"
@@ -117,12 +122,17 @@
 		"tall"				"20"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText" 		"Cancel"
-		"textAlignment"		"center"
-		"bgvisible"			"0"
-		"bordervisible"		"1"
-		"font"				"FontStorePromotion"
-		"command"			"vguicancel"		
+		"command"			"vguicancel"	
+		
+		"SubButton"
+		{
+			"labelText" 		"Cancel"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}		
 	}	
 }
 		

@@ -40,9 +40,18 @@ void CTFAdvModelPanel::PerformLayout()
 	BaseClass::PerformLayout();
 }
 
+void CTFAdvModelPanel::Update()
+{
+	SetMDL(m_BMPResData.m_pszModelName);
+	//SetMergeMDL(m_BMPResData.m_aAttachModels[0].m_pszModelName);
+	SetModelAnim(FindAnimByName(m_BMPResData.m_aAnimations[m_iAnimationIndex].m_pszName));
+	SetSkin(m_BMPResData.m_nSkin);
+}
+
 void CTFAdvModelPanel::OnThink()
 {
 	BaseClass::OnThink();
+
 
 	if (m_bAutoRotate)
 	{
@@ -73,10 +82,6 @@ void CTFAdvModelPanel::Paint()
 
 	// Disable flashlights when drawing our model
 	pRenderContext->SetFlashlightMode(false);
-
-	SetMDL(m_BMPResData.m_pszModelName);
-	SetModelAnim(FindAnimByName(m_BMPResData.m_aAnimations[m_iAnimationIndex].m_pszName));
-	SetSkin(m_BMPResData.m_nSkin);
 
 	if ( m_bShouldPaint )
 	{

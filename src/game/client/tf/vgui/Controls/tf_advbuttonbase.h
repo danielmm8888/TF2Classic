@@ -4,6 +4,7 @@
 #pragma once
 #endif
 
+#include "tf_mainmenu.h"
 #include <vgui_controls/EditablePanel.h>
 #include "tf_imagepanel.h"
 #include "tf_controls.h"
@@ -11,6 +12,7 @@
 using namespace vgui;
 
 class CTFButtonBase;
+class CTFToolTip;
 
 enum MouseState
 {
@@ -35,16 +37,17 @@ enum MouseState
 #define DEFAULT_IMAGE		""
 #define EMPTY_STRING		""
 #define GETSCHEME()			scheme()->GetIScheme(GetScheme())
-#define pSelectedBG			(IsSelected() ? pArmedBG : pDefaultBG)
+//#define pSelectedBG			(IsSelected() ? pArmedBG : pDefaultBG)
+#define pSelectedBG			pDefaultBG
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFAdvButtonBase : public Button
+class CTFAdvButtonBase : public vgui::EditablePanel
 {
 	friend CTFButtonBase;
 public:
-	DECLARE_CLASS_SIMPLE(CTFAdvButtonBase, Button);
+	DECLARE_CLASS_SIMPLE(CTFAdvButtonBase, vgui::EditablePanel);
 
 	CTFAdvButtonBase(vgui::Panel *parent, const char *panelName, const char *text);
 	virtual ~CTFAdvButtonBase();
@@ -55,27 +58,35 @@ public:
 
 	virtual void SendAnimation(MouseState flag);
 	virtual void SetDefaultAnimation();
+	virtual void SetCommandString(const char *sCommand);
 	virtual const char* GetCommandString();
 	virtual void SetAutoChange(bool bAutoChange) { m_bAutoChange = bAutoChange; };
 	virtual bool IsAutoChange() { return m_bAutoChange; };
+	virtual void SetBorderByString(const char *sBorderDefault, const char *sBorderArmed = NULL, const char *sBorderDepressed = NULL);
 	virtual void SetBorderVisible(bool bVisible);
-	virtual void SetBGVisible(bool bVisible);
-	virtual void SetDisabled(bool bDisabled){ m_bDisabled = bDisabled; };
-	virtual bool IsDisabled() { return m_bDisabled; };
-	virtual void SetFont(const char *sFont);
-	virtual void SetBorder(const char *sBorder);
+
+	//virtual void SetBGVisible(bool bVisible);
+	//virtual void SetDisabled(bool bDisabled){ m_bDisabled = bDisabled; };
+	//virtual bool IsDisabled() { return m_bDisabled; };
+
+	//virtual void SetFont(const char *sFont);
 	virtual void SetImage(const char *sImage){ pButtonImage->SetImage(sImage); };
+	virtual void SetToolTip(const char *sText);
 
 	virtual void OnThink();
 	static	vgui::Label::Alignment GetAlignment(char* m_szAlignment);
 	static	float GetProportionalWideScale();
 	static	float GetProportionalTallScale();
 
+	//virtual const char* GetText() { return m_szText; };
+
+
 protected:
-	bool			m_bBGVisible;
 	bool			m_bBorderVisible;
-	bool			m_bDisabled;
+	//bool			m_bDisabled;
 	bool			m_bShowInt;
+	bool			m_bAutoChange;
+	
 	char			pDefaultBG[64];
 	char			pArmedBG[64];
 	char			pDepressedBG[64];
@@ -85,34 +96,34 @@ protected:
 	char			pDefaultColor[64];
 	char			pArmedColor[64];
 	char			pDepressedColor[64];
+	char			pSelectedColor[64];
 	char			m_szCommand[64];
-	char			m_szText[64];
-	char			m_szFont[64];
-	char			m_szTextAlignment[64];
+	//char			m_szText[64];
+	//char			m_szTextAlignment[64];
 	char			pDefaultButtonImage[64];
 	char			pImageColorDefault[64];
 	char			pImageColorArmed[64];
 	char			pImageColorDepressed[64];
-	EditablePanel	*pBGBorder;
-	ImagePanel		*pButtonImage;
-	bool			m_bAutoChange;
-	float			m_fWidth;
-	//CTFButtonBase	*pButton;
-};
+	char			pToolTip[64];
 
+	CTFButtonBase	*pButton;
+	ImagePanel		*pButtonImage;
+	float			m_fImageWidth;
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 class CTFButtonBase : public Button
 {
+	friend CTFAdvButtonBase;
 public:
 	DECLARE_CLASS_SIMPLE(CTFButtonBase, Button);
 
 	CTFButtonBase(vgui::Panel *parent, const char *panelName, const char *text);
 
-	virtual void ApplySettings(KeyValues *inResourceData);
 	virtual void ApplySchemeSettings(IScheme *pScheme);
+	virtual void ApplySettings(KeyValues *inResourceData);
 
 	// Set armed button border attributes.
 	virtual void SetArmedBorder(vgui::IBorder *border);
@@ -127,16 +138,17 @@ public:
 	virtual MouseState GetState() { return iState; };
 	//virtual void SetParent(CTFAdvButtonBase *m_pButton) { m_pParent = m_pButton; };
 	//virtual char *GetCommandStr() { return m_pParent->m_szCommand; };
+	void SetFontByString(const char *sFont);
 
 protected:
 	virtual void	SetMouseEnteredState(MouseState flag);
 	IBorder			*_armedBorder;
 	IBorder			*_selectedBorder;
+	bool			m_bBorderVisible;
 	MouseState		iState;
 
-//private:
-//	CTFAdvButtonBase *m_pParent;
+	//private:
+	//	CTFAdvButtonBase *m_pParent;
 };
-
 
 #endif // tf_advbuttonbase_H
