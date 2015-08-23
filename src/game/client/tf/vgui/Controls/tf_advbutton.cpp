@@ -83,23 +83,27 @@ void CTFAdvButton::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	float h = CTFAdvButton::GetProportionalTallScale();
-	float fWidth = (!m_bScaleImage ? GetWide() : (m_fImageWidth == 0.0 ? GetTall() : m_fImageWidth * h));
-	float fHeight = (!m_bScaleImage ? GetTall() : fWidth);
-	int iShift = (!m_bScaleImage ? 0 : (GetTall() - fWidth) / 2.0);
-
-	float fXOrigin = (m_fImageWidth == 0.0 ? 0 : iShift * 2 + fWidth);
-	pButton->SetTextInset(fXOrigin, 0);
+	if (m_fImageWidth)
+	{
+		float fWidth = toProportionalTall(m_fImageWidth);
+		float fHeight = fWidth;
+		int iShift = (GetTall() - fWidth) / 2.0;
+		float fXOrigin = iShift * 2 + fWidth;
+		pButton->SetTextInset(fXOrigin, 0);
+		pButtonImage->SetPos(iShift, iShift);
+		pButtonImage->SetWide(fWidth);
+		pButtonImage->SetTall(fHeight);
+	}
+	else
+	{
+		pButtonImage->SetWide(GetWide());
+		pButtonImage->SetTall(GetTall());
+	}
 
 	pButtonImage->SetImage(pDefaultButtonImage);
 	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
-	pButtonImage->SetVisible(IsVisible());
-	pButtonImage->SetEnabled(IsEnabled());
-	pButtonImage->SetPos(iShift, iShift);
 	pButtonImage->SetZPos(2);
 	pButtonImage->SetShouldScaleImage(true);
-	pButtonImage->SetWide(fWidth);
-	pButtonImage->SetTall(fHeight);
 }
 
 void CTFAdvButton::SetText(const char *tokenName)

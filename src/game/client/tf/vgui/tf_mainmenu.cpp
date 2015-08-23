@@ -305,3 +305,19 @@ void CTFMainMenu::HideToolTip()
 {
 	dynamic_cast<CTFToolTipPanel*>(GetMenuPanel(TOOLTIP_MENU))->HideToolTip();
 }
+
+float toProportionalWide(float iWide)
+{
+	int x, y, x0, y0;
+	surface()->GetProportionalBase(x, y);
+	surface()->GetScreenSize(x0, y0);
+	return ((float)x0 / (float)x) * (float)iWide;
+}
+
+float toProportionalTall(float iTall)
+{
+	int x, y, x0, y0;
+	surface()->GetProportionalBase(x, y);
+	surface()->GetScreenSize(x0, y0);
+	return ((float)y0 / (float)y) * (float)iTall;
+}

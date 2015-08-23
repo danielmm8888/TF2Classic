@@ -253,7 +253,7 @@ void CPanelListPanel::PerformLayout()
 
 	int vpixels = computeVPixelsNeeded();
 
-	int width = 15 * CTFAdvButtonBase::GetProportionalWideScale(); //36
+	int width = toProportionalWide(15); //36
 
 	//!! need to make it recalculate scroll positions
 	_vbar->SetVisible(true);

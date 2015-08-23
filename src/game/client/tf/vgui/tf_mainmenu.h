@@ -88,6 +88,8 @@ private:
 	int									m_iStopGameStartupSound;
 	int									m_iUpdateLayout;
 };
+float toProportionalWide(float iWide);
+float toProportionalTall(float iTall);
 
 extern CTFMainMenu *guiroot;
 

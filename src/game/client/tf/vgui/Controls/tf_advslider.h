@@ -89,7 +89,6 @@ public:
 	void OnMouseReleased(vgui::MouseCode code);
 	void SetMouseEnteredState(MouseState flag);
 	void SetParent(CTFAdvSlider *m_pButton) { m_pParent = m_pButton; };
-	//char *GetCommandStr() { return m_pParent->m_szCommand; };
 
 private:
 	CTFAdvSlider *m_pParent;

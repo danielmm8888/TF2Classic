@@ -103,8 +103,7 @@ void CTFAdvCheckButton::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	float h = GetProportionalTallScale();
-	float fWidth = (m_fImageWidth == 0.0 ? GetTall() : m_fImageWidth * h);
+	float fWidth = (m_fImageWidth == 0.0 ? GetTall() : toProportionalTall(m_fImageWidth));
 	int iShift = (GetTall() - fWidth) / 2.0;
 
 	pButtonImage->SetImage(pDefaultButtonImage);

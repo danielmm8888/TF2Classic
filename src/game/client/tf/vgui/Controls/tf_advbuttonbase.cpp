@@ -169,6 +169,11 @@ void CTFAdvButtonBase::SetBorderVisible(bool bVisible)
 	PerformLayout();
 };
 
+void CTFAdvButtonBase::SetImageInset(int iInsetX, int iInsetY)
+{
+	pButtonImage->SetPos(iInsetX, iInsetY);
+}
+
 void CTFAdvButtonBase::SetToolTip(const char *sText)
 {
 	Q_strncpy(pToolTip, sText, sizeof(pToolTip));
@@ -416,18 +421,3 @@ vgui::Label::Alignment CTFAdvButtonBase::GetAlignment(char* m_szAlignment)
 	return vgui::Label::a_center;
 }
 
-float CTFAdvButtonBase::GetProportionalWideScale()
-{
-	int x, y, x0, y0;
-	surface()->GetProportionalBase(x, y);
-	surface()->GetScreenSize(x0, y0);
-	return (float)x0 / (float)x;
-}
-
-float CTFAdvButtonBase::GetProportionalTallScale()
-{
-	int x, y, x0, y0;
-	surface()->GetProportionalBase(x, y);
-	surface()->GetScreenSize(x0, y0);
-	return (float)y0 / (float)y;
-}

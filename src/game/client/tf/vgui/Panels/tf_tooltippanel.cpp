@@ -109,9 +109,7 @@ void CTFToolTipPanel::OnThink()
 	BaseClass::OnThink();
 	int x, y;
 	surface()->SurfaceGetCursorPos(x, y);
-	float fXScale = CTFAdvButtonBase::GetProportionalWideScale();
-	float fYScale = CTFAdvButtonBase::GetProportionalTallScale();
-	SetPos(x + fXScale * 8, y + fYScale * 10);
+	SetPos(x + toProportionalWide(8), y + toProportionalTall(10));
 };
 
 void CTFToolTipPanel::DefaultLayout()

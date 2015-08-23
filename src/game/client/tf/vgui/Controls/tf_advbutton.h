@@ -70,7 +70,6 @@ public:
 	void OnMouseReleased(vgui::MouseCode code);
 	void SetMouseEnteredState(MouseState flag);
 	void SetParent(CTFAdvButton *m_pButton) { m_pParent = m_pButton; };
-	//char *GetCommandStr() { return m_pParent->m_szCommand; };
 
 private:
 	CTFAdvButton   *m_pParent;
