@@ -171,7 +171,9 @@ $Project "Client (TF)"
 			$File	"tf\tf_viewrender.h"		
 			$File	"tf\c_entity_weaponspawn.cpp"		
 			$File	"tf\c_tf_basedmpowerup.cpp"		
-
+			$File	"tf\c_tf_viewmodeladdon.cpp"
+			$File	"tf\c_tf_viewmodeladdon.h"
+			
 			$Folder	"Unused"
 			{
 				$File	"tf\tf_hud_health.cpp"

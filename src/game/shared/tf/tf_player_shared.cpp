@@ -16,6 +16,7 @@
 #include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
+#include "tf_viewmodel.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -2335,7 +2336,7 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 				// try to align tracers to actual weapon barrel if possible
 				if ( IsLocalPlayer() && !bInToolRecordingMode )
 				{
-					C_BaseViewModel *pViewModel = GetViewModel(0);
+					C_TFViewModel *pViewModel = dynamic_cast<C_TFViewModel*>(GetViewModel(0));
 
 					if ( pViewModel )
 					{
@@ -2349,7 +2350,7 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 				{	
 					// get our observer target's view model
 
-					C_BaseViewModel *pViewModel = pLocalPlayer->GetViewModel(0);
+					C_TFViewModel *pViewModel = dynamic_cast<C_TFViewModel*>(pLocalPlayer->GetViewModel(0));
 
 					if ( pViewModel )
 					{

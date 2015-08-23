@@ -10,6 +10,7 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "eventlist.h"
+#include "tf_viewmodel.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )
@@ -340,23 +341,285 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 	return GetWeaponID() == iWeapon; 
 }
 
+int PrimaryArmActTable[13][2] {
+	{ ACT_VM_DRAW, ACT_PRIMARY_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_PRIMARY_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_PRIMARY_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_PRIMARY_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_PRIMARY_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_PRIMARY_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_PRIMARY_VM_RELOAD },
+	{ ACT_VM_RELOAD_START, ACT_PRIMARY_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_PRIMARY_RELOAD_FINISH },
+	{ ACT_VM_DRYFIRE, ACT_PRIMARY_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_PRIMARY_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_PRIMARY_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_PRIMARY_VM_LOWERED_TO_IDLE },
+};
+
+int SecondaryArmActTable[13][2] {
+	{ ACT_VM_DRAW, ACT_SECONDARY_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_SECONDARY_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_SECONDARY_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_SECONDARY_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_SECONDARY_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_SECONDARY_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_SECONDARY_VM_RELOAD },
+	{ ACT_VM_RELOAD_START, ACT_SECONDARY_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_SECONDARY_RELOAD_FINISH },
+	{ ACT_VM_DRYFIRE, ACT_SECONDARY_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_SECONDARY_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_SECONDARY_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_SECONDARY_VM_LOWERED_TO_IDLE },
+};
+
+int MeleeArmActTable[13][2] {
+	{ ACT_VM_DRAW, ACT_MELEE_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_MELEE_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_MELEE_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_MELEE_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_MELEE_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_MELEE_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_MELEE_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_MELEE_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_MELEE_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_MELEE_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_MELEE_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
+};
+
+int PdaArmActTable[11][2] {
+	{ ACT_VM_DRAW, ACT_PDA_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_PDA_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_PDA_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_PDA_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_PDA_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_PDA_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_PDA_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_PDA_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_PDA_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_PDA_VM_LOWERED_TO_IDLE },
+};
+
+int Item1ArmActTable[15][2] {
+	{ ACT_VM_DRAW, ACT_ITEM1_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM1_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM1_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM1_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM1_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM1_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM1_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM1_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM1_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM1_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM1_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_RELOAD_START, ACT_ITEM1_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_ITEM1_RELOAD_FINISH },
+	{ ACT_VM_HITCENTER, ACT_ITEM1_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM1_VM_SWINGHARD },
+};
+
+int Item2ArmActTable[13][2] {
+	{ ACT_VM_DRAW, ACT_ITEM2_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM2_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM2_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM2_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM2_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM2_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM2_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM2_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM2_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM2_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM2_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_ITEM2_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM2_VM_SWINGHARD },
+};
+
+int Item3ArmActTable[13][2] {
+	{ ACT_VM_DRAW, ACT_ITEM3_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM3_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM3_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM3_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM3_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM3_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM3_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM3_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM3_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM3_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM3_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_ITEM3_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM3_VM_SWINGHARD },
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
+{
+	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if (pTFPlayer == NULL)
+	{
+		Assert(false); // This shouldn't be possible
+		return iActivity;
+	}
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if (vm == NULL)
+	{
+		Assert(false); // Neither should this
+		return iActivity;
+	}
+
+	if (vm->GetViewModelType() != vm->VMTYPE_TF2)
+		return iActivity;
+
+	// Oh jesus no
+
+	switch ( iWeaponRole )
+	{
+		case TF_WPN_TYPE_PRIMARY:
+			for (int i = 0; i < 13; i++)
+			{
+				if (PrimaryArmActTable[i][0] == iActivity)
+					return PrimaryArmActTable[i][1];
+			}
+			return iActivity;
+		case TF_WPN_TYPE_SECONDARY:
+			for (int i = 0; i < 13; i++)
+			{
+				if (SecondaryArmActTable[i][0] == iActivity)
+					return SecondaryArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_MELEE:
+			for (int i = 0; i < 13; i++)
+			{
+				if (MeleeArmActTable[i][0] == iActivity)
+					return MeleeArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_PDA:
+			for (int i = 0; i < 13; i++)
+			{
+				if (PdaArmActTable[i][0] == iActivity)
+					return PdaArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_ITEM1:
+			for (int i = 0; i < 13; i++)
+			{
+				if (Item1ArmActTable[i][0] == iActivity)
+					return Item1ArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_ITEM2:
+			for (int i = 0; i < 13; i++)
+			{
+				if (Item2ArmActTable[i][0] == iActivity)
+					return Item2ArmActTable[i][1];
+			}
+			return iActivity;
+
+		default:
+			return iActivity;
+	};
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::SetViewModel()
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+
+	Assert( vm->ViewModelIndex() == m_nViewModelIndex );
+
+	vm->SetViewModelType( vm->VMTYPE_NONE );
+
+	vm->SetWeaponModel( GetViewModel( m_nViewModelIndex ), this );
+
+#ifdef CLIENT_DLL
+	GetViewModel( m_nViewModelIndex );
+	int vmType = vm->GetViewModelType();
+	if ( vmType == vm->VMTYPE_L4D )
+		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
+	else if (vmType == vm->VMTYPE_TF2)
+		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+#endif
+
+}
+
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
-	if ( GetPlayerOwner() == NULL )
-	{
-		return BaseClass::GetViewModel();
-	}
-
 	if (TFGameRules() && TFGameRules()->IsDeathmatch())
 	{
 		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
 			return GetTFWpnData().m_szViewModelDM;
 	}
 
-	return GetTFWpnData().szViewModel;
+	if ( GetPlayerOwner() )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
+
+		if (!pPlayer)
+			return GetTFWpnData().szViewModel;
+
+		CBaseAnimating *pTemp = new CBaseAnimating();
+		if (!pTemp)
+			return GetTFWpnData().szViewModel;
+
+		pTemp->SetModel(GetTFWpnData().szViewModel);
+
+		if ( pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1 )
+		{
+			pTemp->Remove();
+
+			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
+			if (vm)
+				vm->SetViewModelType( vm->VMTYPE_TF2 );
+
+			return pPlayer->GetPlayerClass()->GetHandModelName();
+		}
+		else if ( pTemp->LookupAttachment("l4d") > 0 )
+		{
+			pTemp->Remove();
+
+			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
+			if (vm)
+				vm->SetViewModelType( vm->VMTYPE_L4D );
+
+			return GetTFWpnData().szViewModel;
+		}
+
+		pTemp->Remove();
+
+		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
+		if (vm)
+			vm->SetViewModelType( vm->VMTYPE_HL2 );
+
+		return GetTFWpnData().szViewModel;
+	}
+	else
+	{
+		return BaseClass::GetViewModel();
+	}
 }
 
 //-----------------------------------------------------------------------------

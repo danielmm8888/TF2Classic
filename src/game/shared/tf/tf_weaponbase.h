@@ -33,6 +33,7 @@
 #if defined( CLIENT_DLL )
 #define CTFWeaponBase C_TFWeaponBase
 #define CTFWeaponBaseGrenadeProj C_TFWeaponBaseGrenadeProj
+#define CTFViewModel C_TFViewModel
 #include "tf_fx_muzzleflash.h"
 #endif
 
@@ -122,6 +123,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_NONE; }
 
 	// View model.
+	virtual int TranslateViewmodelHandActivity( int iActivity );
+	virtual void SetViewModel();
 	virtual const char *GetViewModel( int iViewModel = 0 ) const;
 
 	virtual void Drop( const Vector &vecVelocity );
