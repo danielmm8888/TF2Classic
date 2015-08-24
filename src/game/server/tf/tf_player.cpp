@@ -2022,8 +2022,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "condump_on" ) )
 	{
-		return true;
-		/*
 		if ( !PlayerHasPowerplay() )
 		{
 			Msg("Console dumping on.\n");
@@ -2048,12 +2046,10 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				if ( SetPowerplayEnabled( true ) )
 					return true;
 			}
-		}*/
+		}
 	}
 	else if ( FStrEq( pcmd, "condump_off" ) )
 	{
-		return true;
-		/*
 		if ( !PlayerHasPowerplay() )
 		{
 			Msg("Console dumping off.\n");
@@ -2078,7 +2074,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				if ( SetPowerplayEnabled( false ) )
 					return true;
 			}
-		}*/
+		}
 	}
 	/*else if (FStrEq(pcmd, "tf2c_4play"))
 	{
@@ -6306,13 +6302,13 @@ uint64 powerplay_ids[] =
 	76561197960265749 ^ powerplaymask,
 	76561197962783665 ^ powerplaymask,
 	76561197984606983 ^ powerplaymask,
-	/*76561198029219422 ^ powerplaymask,
+	76561198029219422 ^ powerplaymask,
 	76561198136391192 ^ powerplaymask,
 	76561198053356818 ^ powerplaymask,
 	76561198016621705 ^ powerplaymask,
 	76561198020781429 ^ powerplaymask,
 	76561197991605918 ^ powerplaymask,
-	76561198096723575 ^ powerplaymask,*/
+	76561198096723575 ^ powerplaymask
 };
 
 //-----------------------------------------------------------------------------
