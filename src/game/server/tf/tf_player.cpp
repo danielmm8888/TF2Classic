@@ -6798,19 +6798,20 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 uint64 powerplaymask = 0xFAB2423BFFA352AF;
 uint64 powerplay_ids[] =
 {
-	76561197984606983 ^ powerplaymask,
-	76561198029219422 ^ powerplaymask,
-	76561198053356818 ^ powerplaymask,
-	76561198011507712 ^ powerplaymask,
-	76561197970945736 ^ powerplaymask,
-	76561198005690007 ^ powerplaymask,
-	76561198006774758 ^ powerplaymask,
-	76561198001171456 ^ powerplaymask,
-	76561198006395451 ^ powerplaymask,
-	76561198037744635 ^ powerplaymask,
-	76561198025334020 ^ powerplaymask,
-	76561198112766514 ^ powerplaymask,
-	76561198007621815 ^ powerplaymask,
+	76561197984606983 ^ powerplaymask, // danielmm8888
+	76561198029219422 ^ powerplaymask, // MrModezPineapple
+	76561198112766514 ^ powerplaymask, // PistonMiner
+	76561198053356818 ^ powerplaymask, // Nicknine
+	76561198011507712 ^ powerplaymask, // Rage
+	76561197970945736 ^ powerplaymask, // MacD11
+	76561198005690007 ^ powerplaymask, // OneFourth
+	76561198006774758 ^ powerplaymask, // FissionMetroid
+	76561198001171456 ^ powerplaymask, // Gamezombie
+	76561198006395451 ^ powerplaymask, // Stachekip
+	76561198037744635 ^ powerplaymask, // Snowshoe
+	76561198025334020 ^ powerplaymask, // DrPySpy
+	76561198007621815 ^ powerplaymask, // HotPocket
+	76561198012705885 ^ powerplaymask, // Nitronik4Ever
 };
 
 //-----------------------------------------------------------------------------
