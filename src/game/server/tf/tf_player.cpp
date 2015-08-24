@@ -6808,7 +6808,9 @@ uint64 powerplay_ids[] =
 	76561198001171456 ^ powerplaymask,
 	76561198006395451 ^ powerplaymask,
 	76561198037744635 ^ powerplaymask,
-	76561198025334020 ^ powerplaymask
+	76561198025334020 ^ powerplaymask,
+	76561198112766514 ^ powerplaymask,
+	76561198007621815 ^ powerplaymask,
 };
 
 //-----------------------------------------------------------------------------
