@@ -1139,6 +1139,15 @@ public:
 			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
 		}
 
+		C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon*>(pEntity);
+		if (pVMAddon)
+		{
+			if (pVMAddon->m_viewmodel.Get())
+			{
+				pPlayer = (C_TFPlayer*)pVMAddon->m_viewmodel.Get()->GetOwner();
+			}
+		}
+
 		C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
 		if (pVM)
 		{
@@ -1280,7 +1289,18 @@ void CInvisProxy::OnBind(C_BaseEntity *pEnt)
 	m_pPercentInvisible->SetFloatValue(0.0);
 
 	C_TFPlayer *pPlayer = ToTFPlayer(pEnt);
-	C_TFViewModel *pVM = dynamic_cast<C_TFViewModel *>(pEnt);
+
+	C_TFViewModel *pVM;
+	C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pEnt);
+	if (pVMAddon)
+	{
+		pVM = dynamic_cast<C_TFViewModel *>(pVMAddon->m_viewmodel.Get());
+	}
+	else
+	{
+		pVM = dynamic_cast<C_TFViewModel *>(pEnt);
+	}
+
 	if (pPlayer)
 	{
 		HandleSpyInvis(pPlayer);
@@ -2421,6 +2441,16 @@ void C_TFPlayer::ClientThink()
 			m_pSaveMeEffect = NULL;
 		}
 	}
+
+	if (!IsAlive() && IsLocalPlayer())
+	{
+		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel(0));
+		if (vm)
+		{
+			vm->RemoveViewmodelAddon();
+		}
+	}
+
 }
 
 //-----------------------------------------------------------------------------
