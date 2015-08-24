@@ -1179,16 +1179,11 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
+		// Give us a custom weapon from the inventory.
+		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+
+		if ( iWeaponID != TF_WEAPON_NONE )
 		{
-			// Give us a custom weapon from the inventory if it has one specified. Otherwise, give the weapon from script file.
-			int iCustomWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
-			int iWeaponID = (iCustomWeaponID != 0) ? iCustomWeaponID : pData->m_aWeapons[iWeapon];
-
-			// Skip builder if we happen to stumble upon it since it's handled separately.
-			if ( iWeaponID == TF_WEAPON_BUILDER )
-				continue;
-
 			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
@@ -1206,7 +1201,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			{
 				pWeapon->ChangeTeam( GetTeamNumber() );
 				pWeapon->GiveDefaultAmmo();
-	
+
 				if ( m_bRegenerating == false )
 				{
 					pWeapon->WeaponReset();
