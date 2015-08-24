@@ -48,10 +48,10 @@ void CTFWeaponSetPanel::OnCommand(const char* command)
 	GetParent()->OnCommand(command);
 }
 
-class CTFWeaponScriptParser : public CScriptParser
+class CTFWeaponScriptParser : public C_ScriptParser
 {
 public:
-	DECLARE_CLASS_GAMEROOT(CTFWeaponScriptParser, CScriptParser);
+	DECLARE_CLASS_GAMEROOT(CTFWeaponScriptParser, C_ScriptParser);
 
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
 	{
@@ -256,12 +256,21 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
 	int iWeapon = GetTFInventory()->GetWeapon(iClass, iSlot, iPreset);
-	_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
 	
-	m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
-	m_pClassModelPanel->ClearMergeMDLs();
-	m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
-	m_pClassModelPanel->Update();
+	if (iWeapon)
+	{
+		_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
+		m_pClassModelPanel->ClearMergeMDLs();
+		m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
+		m_pClassModelPanel->Update();
+	}
+	else
+	{
+		m_pClassModelPanel->SetAnimationIndex(iSlot);
+		m_pClassModelPanel->ClearMergeMDLs();
+		m_pClassModelPanel->Update();
+	}
 }
 
 void CTFLoadoutPanel::Show()
