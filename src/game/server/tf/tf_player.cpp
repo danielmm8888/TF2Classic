@@ -1185,6 +1185,10 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			int iCustomWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
 			int iWeaponID = (iCustomWeaponID != 0) ? iCustomWeaponID : pData->m_aWeapons[iWeapon];
 
+			// Skip builder if we happen to stumble upon it since it's handled separately.
+			if ( iWeaponID == TF_WEAPON_BUILDER )
+				continue;
+
 			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
