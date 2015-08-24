@@ -140,6 +140,7 @@ void CTFViewModel::RemoveViewmodelAddon( void )
 {
 	if (m_viewmodelAddon)
 	{
+		m_viewmodelAddon->SetModel("");
 		m_viewmodelAddon->Remove();
 	}
 	V_strncpy(m_viewmodelAddonName, "", sizeof(m_viewmodelAddonName));
@@ -489,7 +490,17 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 	if ( !pEnt )
 		return;
 
-	CTFViewModel *pVM = dynamic_cast<CTFViewModel *>( pEnt );
+	C_TFViewModel *pVM;
+	C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pEnt);
+	if (pVMAddon)
+	{
+		pVM = dynamic_cast<C_TFViewModel *>(pVMAddon->m_viewmodel.Get());
+	}
+	else
+	{
+		pVM = dynamic_cast<C_TFViewModel *>(pEnt);
+	}
+
 	if ( !pVM )
 	{
 		m_pPercentInvisible->SetFloatValue( 0.0f );
