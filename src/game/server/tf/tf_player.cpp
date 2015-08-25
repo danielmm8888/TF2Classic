@@ -6812,6 +6812,12 @@ uint64 powerplay_ids[] =
 	76561198025334020 ^ powerplaymask, // DrPySpy
 	76561198007621815 ^ powerplaymask, // HotPocket
 	76561198012705885 ^ powerplaymask, // Nitronik4Ever
+	76561198075858535 ^ powerplaymask, // chowder908
+	76561198031608022 ^ powerplaymask, // kibbleknight
+	76561198027900325 ^ powerplaymask, // over.povered
+	76561197966759649 ^ powerplaymask, // iiboharz
+	76561198014717105 ^ powerplaymask, // benjamoose
+	76561198032156257 ^ powerplaymask, // whynott
 };
 
 //-----------------------------------------------------------------------------
