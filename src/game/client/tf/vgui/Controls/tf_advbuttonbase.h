@@ -37,7 +37,6 @@ enum MouseState
 #define DEFAULT_IMAGE		""
 #define EMPTY_STRING		""
 #define GETSCHEME()			scheme()->GetIScheme(GetScheme())
-//#define pSelectedBG			(IsSelected() ? pArmedBG : pDefaultBG)
 #define pSelectedBG			pDefaultBG
 
 //-----------------------------------------------------------------------------
@@ -65,25 +64,15 @@ public:
 	virtual void SetBorderByString(const char *sBorderDefault, const char *sBorderArmed = NULL, const char *sBorderDepressed = NULL);
 	virtual void SetBorderVisible(bool bVisible);
 
-	//virtual void SetBGVisible(bool bVisible);
-	//virtual void SetDisabled(bool bDisabled){ m_bDisabled = bDisabled; };
-	//virtual bool IsDisabled() { return m_bDisabled; };
-
-	//virtual void SetFont(const char *sFont);
 	virtual void SetImage(const char *sImage){ pButtonImage->SetImage(sImage); };
+	virtual void SetImageInset(int iInsetX, int iInsetY);
 	virtual void SetToolTip(const char *sText);
 
 	virtual void OnThink();
 	static	vgui::Label::Alignment GetAlignment(char* m_szAlignment);
-	static	float GetProportionalWideScale();
-	static	float GetProportionalTallScale();
-
-	//virtual const char* GetText() { return m_szText; };
-
 
 protected:
 	bool			m_bBorderVisible;
-	//bool			m_bDisabled;
 	bool			m_bShowInt;
 	bool			m_bAutoChange;
 	
@@ -98,8 +87,6 @@ protected:
 	char			pDepressedColor[64];
 	char			pSelectedColor[64];
 	char			m_szCommand[64];
-	//char			m_szText[64];
-	//char			m_szTextAlignment[64];
 	char			pDefaultButtonImage[64];
 	char			pImageColorDefault[64];
 	char			pImageColorArmed[64];
@@ -146,9 +133,7 @@ protected:
 	IBorder			*_selectedBorder;
 	bool			m_bBorderVisible;
 	MouseState		iState;
-
-	//private:
-	//	CTFAdvButtonBase *m_pParent;
 };
+
 
 #endif // tf_advbuttonbase_H

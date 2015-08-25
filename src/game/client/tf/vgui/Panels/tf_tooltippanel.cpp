@@ -49,7 +49,6 @@ void CTFToolTipPanel::PerformLayout()
 };
 
 
-
 void CTFToolTipPanel::ShowToolTip(char *sText)
 {
 	Q_snprintf(m_sText, sizeof(m_sText), sText);
@@ -107,11 +106,49 @@ void CTFToolTipPanel::OnTick()
 void CTFToolTipPanel::OnThink()
 {
 	BaseClass::OnThink();
-	int x, y;
-	surface()->SurfaceGetCursorPos(x, y);
-	float fXScale = CTFAdvButtonBase::GetProportionalWideScale();
-	float fYScale = CTFAdvButtonBase::GetProportionalTallScale();
-	SetPos(x + fXScale * 8, y + fYScale * 10);
+	int cursorX, cursorY;
+	surface()->SurfaceGetCursorPos(cursorX, cursorY);
+	//SetPos(cursorX + toProportionalWide(8), cursorY + toProportionalTall(10));
+	
+	int iTipW, iTipH;
+	GetSize(iTipW, iTipH);
+
+	int wide, tall;
+	surface()->GetScreenSize(wide, tall);
+
+	if (wide - iTipW > cursorX)
+	{
+		cursorY += toProportionalTall(10);
+		cursorX += toProportionalWide(8);
+
+		// menu hanging right
+		if (tall - iTipH > cursorY)
+		{
+			// menu hanging down
+			SetPos(cursorX, cursorY);
+		}
+		else
+		{
+			// menu hanging up
+			SetPos(cursorX, cursorY - iTipH - toProportionalTall(20));
+		}
+	}
+	else
+	{
+		cursorY += toProportionalTall(10);
+		cursorX += toProportionalWide(8);
+		// menu hanging left
+		if (tall - iTipH > cursorY)
+		{
+			// menu hanging down
+			SetPos(cursorX - iTipW, cursorY);
+		}
+		else
+		{
+			// menu hanging up
+			SetPos(cursorX - iTipW, cursorY - iTipH - toProportionalTall(20));
+		}
+	}
 };
 
 void CTFToolTipPanel::DefaultLayout()

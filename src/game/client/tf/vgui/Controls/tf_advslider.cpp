@@ -101,7 +101,6 @@ void CTFAdvSlider::PerformLayout()
 
 	float fBorder = (fLabelWidth > 0.0 ? fLabelWidth : GetWide() / 2.0 + 20);
 	float fShift = 50.0;
-	//GetText(m_szText, sizeof(m_szText));
 
 	SetBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
 	pButton->SetPos(fBorder, 0);
@@ -307,19 +306,13 @@ void CTFScrollButton::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	//SetFont(GETSCHEME()->GetFont(m_szFont, true));
 	if (!m_pParent)
 		return;
 
-	//SetVisible(m_pParent->IsVisible());
-	//SetEnabled(m_pParent->IsEnabled());
-	//SetSelected(m_pParent->IsSelected());
 	SetText(EMPTY_STRING);
 	SetZPos(3);
-	//SetWide(m_pParent->GetWide());
-	SetWide(10);  //scroll wide
+	SetWide(toProportionalWide(8));  //scroll wide
 	SetTall(m_pParent->GetTall());
-	//SetContentAlignment(CTFAdvButton::GetAlignment(m_szTextAlignment));
 	SetArmedSound("ui/buttonrollover.wav");
 	SetDepressedSound("ui/buttonclick.wav");
 	SetReleasedSound("ui/buttonclickrelease.wav");

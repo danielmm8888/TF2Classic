@@ -44,7 +44,10 @@ void CTFAdvModelPanel::Update()
 {
 	SetMDL(m_BMPResData.m_pszModelName);
 	//SetMergeMDL(m_BMPResData.m_aAttachModels[0].m_pszModelName);
-	SetModelAnim(FindAnimByName(m_BMPResData.m_aAnimations[m_iAnimationIndex].m_pszName));
+	if (m_iAnimationIndex < m_BMPResData.m_aAnimations.Size())
+	{
+		SetModelAnim(FindAnimByName(m_BMPResData.m_aAnimations[m_iAnimationIndex].m_pszName));
+	}
 	SetSkin(m_BMPResData.m_nSkin);
 }
 

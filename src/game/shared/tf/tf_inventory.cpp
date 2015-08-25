@@ -133,7 +133,6 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"Primary",
 	"Secondary",
 	"Melee",
-	"Building",
 	"PDA",
 	"PDA"
 };
@@ -225,7 +224,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
 		},
 		{
-			TF_WEAPON_BUILDER
+			TF_WEAPON_BUILDER					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
 		},
 		{
 			TF_WEAPON_KNIFE

@@ -341,7 +341,7 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 	return GetWeaponID() == iWeapon; 
 }
 
-int PrimaryArmActTable[13][2] {
+int PrimaryArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_PRIMARY_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_PRIMARY_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_PRIMARY_VM_IDLE },
@@ -357,7 +357,7 @@ int PrimaryArmActTable[13][2] {
 	{ ACT_VM_LOWERED_TO_IDLE, ACT_PRIMARY_VM_LOWERED_TO_IDLE },
 };
 
-int SecondaryArmActTable[13][2] {
+int SecondaryArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_SECONDARY_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_SECONDARY_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_SECONDARY_VM_IDLE },
@@ -373,7 +373,7 @@ int SecondaryArmActTable[13][2] {
 	{ ACT_VM_LOWERED_TO_IDLE, ACT_SECONDARY_VM_LOWERED_TO_IDLE },
 };
 
-int MeleeArmActTable[13][2] {
+int MeleeArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_MELEE_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_MELEE_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_MELEE_VM_IDLE },
@@ -389,7 +389,7 @@ int MeleeArmActTable[13][2] {
 	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
 };
 
-int PdaArmActTable[11][2] {
+int PdaArmActTable[11][2] = {
 	{ ACT_VM_DRAW, ACT_PDA_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_PDA_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_PDA_VM_IDLE },
@@ -403,7 +403,7 @@ int PdaArmActTable[11][2] {
 	{ ACT_VM_LOWERED_TO_IDLE, ACT_PDA_VM_LOWERED_TO_IDLE },
 };
 
-int Item1ArmActTable[15][2] {
+int Item1ArmActTable[15][2] = {
 	{ ACT_VM_DRAW, ACT_ITEM1_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_ITEM1_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_ITEM1_VM_IDLE },
@@ -421,7 +421,7 @@ int Item1ArmActTable[15][2] {
 	{ ACT_VM_SWINGHARD, ACT_ITEM1_VM_SWINGHARD },
 };
 
-int Item2ArmActTable[13][2] {
+int Item2ArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_ITEM2_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_ITEM2_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_ITEM2_VM_IDLE },
@@ -437,7 +437,7 @@ int Item2ArmActTable[13][2] {
 	{ ACT_VM_SWINGHARD, ACT_ITEM2_VM_SWINGHARD },
 };
 
-int Item3ArmActTable[13][2] {
+int Item3ArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_ITEM3_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_ITEM3_VM_HOLSTER },
 	{ ACT_VM_IDLE, ACT_ITEM3_VM_IDLE },

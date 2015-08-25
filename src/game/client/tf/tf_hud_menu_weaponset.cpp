@@ -20,7 +20,7 @@
 #include "tf_inventory.h"
 #include "tf_weaponbase.h"
 #include "tf_gamerules.h"
-#include "vgui/controls/tf_advbuttonbase.h"
+#include "tf_mainmenu.h"
 
 #include <string.h>
 
@@ -100,8 +100,8 @@ void CHudMenuWeaponSet::ApplySchemeSettings(IScheme *pScheme)
 
 	SetPaintBackgroundEnabled(true);
 
-	m_fWide = CTFAdvButtonBase::GetProportionalWideScale() * 100;
-	m_fTall = CTFAdvButtonBase::GetProportionalTallScale() * 82;
+	m_fWide = toProportionalWide(100);
+	m_fTall = toProportionalTall(82);
 
 	int screenWide, screenTall;
 	int x, y;
