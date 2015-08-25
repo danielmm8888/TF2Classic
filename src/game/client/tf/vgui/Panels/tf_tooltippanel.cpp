@@ -75,6 +75,7 @@ void CTFToolTipPanel::HideToolTip()
 void CTFToolTipPanel::Show()
 {
 	BaseClass::Show();
+	MakePopup();
 }
 
 void CTFToolTipPanel::Hide()
