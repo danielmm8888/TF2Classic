@@ -1,9 +1,10 @@
 //====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
 //
 //
+//
 //=============================================================================
-#ifndef TF_WEAPON_ASSAULTRIFLE_H
-#define TF_WEAPON_ASSAULTRIFLE_H
+#ifndef TF_WEAPON_STENGUN_H
+#define TF_WEAPON_STENGUN_H
 #ifdef _WIN32
 #pragma once
 #endif
@@ -12,25 +13,25 @@
 
 // Client specific.
 #ifdef CLIENT_DLL
-#define CTFAssaultRifle C_TFAssaultRifle
+#define CTFStenGun C_TFStenGun
 #endif
 
 //=============================================================================
 //
 // TF Weapon Sub-machine gun.
 //
-class CTFAssaultRifle : public CTFWeaponBaseGun
+class CTFStenGun : public CTFWeaponBaseGun
 {
 public:
 
-	DECLARE_CLASS(CTFAssaultRifle, CTFWeaponBaseGun);
+	DECLARE_CLASS( CTFStenGun, CTFWeaponBaseGun );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
-	CTFAssaultRifle() {}
-	~CTFAssaultRifle() {}
+	CTFStenGun() {}
+	~CTFStenGun() {}
 
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_ASSAULTRIFLE; }
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_STENGUN; }
 
 private:
 
