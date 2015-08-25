@@ -45,5 +45,8 @@ int C_TFViewmodelAddon::DrawModel( int flags )
 		&& localplayer->GetObserverTarget() != m_viewmodel.Get()->GetOwner() )
 		return false;
 
+	if ( localplayer && !localplayer->IsObserver() && ( localplayer != m_viewmodel.Get()->GetOwner() ) )
+		return false;
+
 	return BaseClass::DrawModel( flags );
 }
