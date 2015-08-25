@@ -35,7 +35,7 @@ public:
 
 private:
 
-	CTFAssaultRifle(const CTFAssaultRifle &) {}
+	CTFStenGun( const CTFStenGun & ) {}
 };
 
 
