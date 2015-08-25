@@ -1,20 +1,18 @@
 WeaponData
 {
 	// Attributes Base.
-	"printname"		"#TF_Weapon_Pistol"
-	"BuiltRightHanded"	"0"
-	"weight"		"2"
-	"WeaponType"		"secondary"
+	"printname"				"#TF_Weapon_SixShooter"
+	"BuiltRightHanded"		"0"
+	"weight"				"3"
+	"WeaponType"			"primary"
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		
 	// Attributes TF.
-	"Damage"		"28"
-	"Range"			"4096"
+	"Damage"		"45"
+	"Range"			"8192"
 	"BulletsPerShot"	"1"
-	"Spread"		"0.043"
-	"TimeFireDelay"		"0.55"
-	"TimeIdle"		"5.0"
-	"TimeIdleEmpty"		"0.35"
+	"Spread"		"0.0"
+	"TimeFireDelay"		".60"
 	"TimeReload"		"0.65"
 	"ProjectileType"	"projectile_bullet"
 	"TracerEffect"		"bullet_pistol_tracer01"
@@ -22,18 +20,18 @@ WeaponData
         "MaxAmmo"                       "24"
 
 	// Ammo & Clip.
-	"primary_ammo"		"TF_AMMO_SECONDARY"
+	"primary_ammo"		"TF_AMMO_PRIMARY"
 	"secondary_ammo"	"None"
-	clip_size		6
-	default_clip		6
+	"clip_size"		"6"
+	"default_clip"		"6"
 
 	// Buckets.
 	"bucket"		"1"
 	"bucket_position"	"0"
 
 	// Animation.
-	"viewmodel"	"models/weapons/v_models/v_pistol_engineer.mdl"
-	"playermodel"		"models/weapons/w_models/w_pistol.mdl"
+	"viewmodel"	"models/weapons/v_models/v_revolver_spy.mdl"
+	"playermodel"		"models/weapons/w_models/w_revolver.mdl"
 	"anim_prefix"		"ac"
 
 	// Muzzleflash
@@ -45,10 +43,10 @@ WeaponData
 	// Max of 16 per category (ie. max 16 "single_shot" sounds).
 	SoundData
 	{
-		"reload"			"Weapon_Pistol.WorldReload"
-		"empty"			"Weapon_Pistol.ClipEmpty"	
-		"single_shot"		"Weapon_Pistol.Single"
-		"burst"			"Weapon_Pistol.SingleCrit"
+		"reload"			"Weapon_Revolver.WorldReload"
+		"empty"			"Weapon_Revolver.ClipEmpty"	
+		"single_shot"		"Weapon_SixShooter.Single"
+		"burst"			"Weapon_SixShooter.SingleCrit"
 	}
 
 	// Weapon Sprite data is loaded by the Client DLL.
@@ -56,7 +54,7 @@ WeaponData
 	{
 		"weapon"
 		{
-				"file"		"sprites/bucket_pistol"
+				"file"		"sprites/bucket_revolver"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"
@@ -64,7 +62,7 @@ WeaponData
 		}
 		"weapon_s"
 		{	
-				"file"		"sprites/bucket_pistol"
+				"file"		"sprites/bucket_revolver"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"
