@@ -7,6 +7,7 @@
 #include "controls/tf_cvartogglecheckbutton.h"
 #include "controls/tf_cvarslider.h"
 #include "vgui_controls/ComboBox.h"
+#include "vgui_controls/Tooltip.h"
 //#include "EngineInterface.h"
 
 #include <KeyValues.h>
@@ -35,6 +36,7 @@ CTFDialogPanelBase::~CTFDialogPanelBase()
 bool CTFDialogPanelBase::Init()
 {
 	BaseClass::Init();
+	SetKeyBoardInputEnabled(true);
 	m_pListPanel = NULL;
 	bEmbedded = false;
 	return true;
@@ -60,6 +62,7 @@ void CTFDialogPanelBase::ApplySchemeSettings(IScheme *pScheme)
 void CTFDialogPanelBase::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	m_cShotcutKeys.RemoveAll();
 };
 
 void CTFDialogPanelBase::OnCommand(const char* command)
@@ -85,6 +88,11 @@ void CTFDialogPanelBase::OnCommand(const char* command)
 void CTFDialogPanelBase::Show()
 {
 	BaseClass::Show();
+	if (!bEmbedded)
+	{
+		RequestFocus();
+		MakePopup();
+	}
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
 };
@@ -96,7 +104,28 @@ void CTFDialogPanelBase::Hide()
 	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
 
-#include "vgui_controls/Tooltip.h"
+#include "inputsystem/iinputsystem.h"
+
+void CTFDialogPanelBase::OnKeyCodePressed(vgui::KeyCode code)
+{
+	BaseClass::OnKeyCodePressed(code);
+
+	if (!bEmbedded)
+	{
+		const char *keyName = g_pInputSystem->ButtonCodeToString(code);
+		if (Q_strlen(keyName) == 1)
+		{
+			unsigned int id = m_cShotcutKeys.Find(g_pInputSystem->ButtonCodeToString(code));
+			if (id < m_cShotcutKeys.Count())
+			{
+				const char* cCommand = m_cShotcutKeys[id];
+				if (Q_strcmp(cCommand, ""))
+					OnCommand(cCommand);
+			}
+		}
+	}
+	
+}
 
 void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* text)
 {
@@ -113,18 +142,18 @@ void CTFDialogPanelBase::AddControl(vgui::Panel* panel, int iType, const char* t
 	{
 	case O_CATEGORY:
 		pTitle->SetEnabled(false);
+		pTitle->GetButton()->SetFontByString("MenuSmallFont");
 		pTitle->SetBorderByString("AdvSettingsTitleBorder");
 		pTitle->SetBorderVisible(true);
-		pTitle->SetToolTip(dynamic_cast<CTFAdvButton*>(panel)->GetName());
-		pTitle->GetButton()->SetFontByString("MenuSmallFont");
+		//pTitle->SetToolTip(dynamic_cast<CTFAdvButton*>(panel)->GetName());
 		break;
 	case O_BOOL:
 		pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
-		pBox->SetToolTip(dynamic_cast<CTFAdvCheckButton*>(panel)->GetName());
+		//pBox->SetToolTip(dynamic_cast<CTFAdvCheckButton*>(panel)->GetName());
 		break;
 	case O_SLIDER:
 		pScroll->GetButton()->SetFontByString(m_pListPanel->GetFontString());
-		pScroll->SetToolTip(dynamic_cast<CTFAdvSlider*>(panel)->GetName());
+		//pScroll->SetToolTip(dynamic_cast<CTFAdvSlider*>(panel)->GetName());
 		break;
 	case O_LIST:
 		pCombo->SetFont(m_pListPanel->GetFont());

@@ -239,7 +239,7 @@ void CTFOptionsAdvancedPanel::CreateControls()
 			pBox->SetSelected(pObj->fdefValue != 0.0f ? true : false);
 			pBox->SetCommandString(pObj->cvarname);
 			pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
-			pBox->SetToolTip(pBox->GetName());
+			//pBox->SetToolTip(pBox->GetName());
 			pCtrl->pControl = (Panel *)pBox;
 			break;
 		case O_STRING:

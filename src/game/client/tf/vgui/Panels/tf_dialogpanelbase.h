@@ -26,6 +26,9 @@ public:
 	virtual void Show();
 	virtual void Hide();
 	virtual void SetEmbedded(bool bState) { bEmbedded = bState; };
+	virtual void OnKeyCodePressed(vgui::KeyCode code);
+	virtual void AddShortcut(const char *sCode, const char *sCommand){ m_cShotcutKeys.Insert(sCode, sCommand); };
+
 protected:
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void PerformLayout();
@@ -36,6 +39,7 @@ protected:
 
 	bool			bEmbedded;
 	CPanelListPanel *m_pListPanel;
+	CUtlDict<const char*, unsigned short> m_cShotcutKeys;
 };
 
 

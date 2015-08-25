@@ -10,6 +10,8 @@
 #include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
 #include "basemodelpanel.h"
+#include "panels/tf_dialogpanelbase.h"
+#include "inputsystem/iinputsystem.h"
 
 using namespace vgui;
 
@@ -104,6 +106,27 @@ void CTFAdvButton::PerformLayout()
 	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 	pButtonImage->SetZPos(2);
 	pButtonImage->SetShouldScaleImage(true);
+
+
+	CTFDialogPanelBase *pParent = dynamic_cast<CTFDialogPanelBase*>(GetParent());
+	if (pParent)
+	{
+		char sText[64];
+		pButton->GetText(sText, sizeof(sText));
+		if (Q_strcmp(sText, ""))
+		{
+			char * pch;
+			pch = strchr(sText, '&');
+			if (pch != NULL)
+			{
+				int id = pch - sText + 1;
+				//pch = strchr(pch + 1, '&');
+				char* cTest = &sText[id];
+				cTest[1] = '\0';
+				pParent->AddShortcut(cTest, GetCommandString());
+			}
+		}
+	}
 }
 
 void CTFAdvButton::SetText(const char *tokenName)
