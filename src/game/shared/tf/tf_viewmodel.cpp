@@ -82,10 +82,6 @@ void CTFViewModel::AddViewModelBob( CBasePlayer *owner, Vector& eyePosition, QAn
 		AddViewModelBobHelper( eyePosition, eyeAngles, &m_BobState );
 	}
 
-	if ( owner->GetActiveWeapon() )
-		owner->GetActiveWeapon()->SetViewModel();
-
-
 #endif
 }
 
@@ -108,9 +104,17 @@ void CTFViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *wea
 void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 {
 	C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
-
-	if (pEnt && FStrEq(m_viewmodelAddonName, pszModelname))
+	
+	if ( pEnt && pEnt->GetModelIndex() == modelinfo->GetModelIndex(pszModelname) )
 	{
+		pEnt->m_nSkin = GetSkin();
+		if ( C_BasePlayer::GetLocalPlayer() != GetOwner() ) // Spectator fix
+		{
+			pEnt->SetParent(this);
+			pEnt->AddEffects(EF_BONEMERGE);
+			pEnt->UpdateVisibility();
+			pEnt->SetViewmodel(this);
+		}
 		return; // we already have the correct add-on
 	}
 
@@ -166,8 +170,6 @@ int	CTFViewModel::LookupAttachment(const char *pAttachmentName)
 //-----------------------------------------------------------------------------
 bool CTFViewModel::GetAttachment(int number, matrix3x4_t &matrix)
 {
-	Assert( GetViewModelType() == VMTYPE_NONE ); // Should never be 0
-
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
 		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
@@ -183,8 +185,6 @@ bool CTFViewModel::GetAttachment(int number, matrix3x4_t &matrix)
 //-----------------------------------------------------------------------------
 bool CTFViewModel::GetAttachment(int number, Vector &origin)
 {
-	Assert(GetViewModelType() == VMTYPE_NONE); // Should never be 0
-
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
 		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
@@ -200,8 +200,6 @@ bool CTFViewModel::GetAttachment(int number, Vector &origin)
 //-----------------------------------------------------------------------------
 bool CTFViewModel::GetAttachment(int number, Vector &origin, QAngle &angles)
 {
-	Assert(GetViewModelType() == VMTYPE_NONE); // Should never be 0
-
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
 		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
@@ -217,8 +215,6 @@ bool CTFViewModel::GetAttachment(int number, Vector &origin, QAngle &angles)
 //-----------------------------------------------------------------------------
 bool CTFViewModel::GetAttachmentVelocity(int number, Vector &originVel, Quaternion &angleVel)
 {
-	Assert(GetViewModelType() == VMTYPE_NONE); // Should never be 0
-
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
 		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
@@ -299,6 +295,9 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 	Vector	forward, right, up;
 	AngleVectors(eyeAngles, &forward, &right, &up);
 	vecNewOrigin += forward*v_viewmodel_offset_x.GetFloat() + right*v_viewmodel_offset_y.GetFloat() + up*v_viewmodel_offset_z.GetFloat();
+
+	if (owner->GetActiveWeapon())
+		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
 
 	BaseClass::CalcViewModelView( owner, vecNewOrigin, vecNewAngles );
 

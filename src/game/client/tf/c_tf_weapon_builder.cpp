@@ -308,45 +308,7 @@ const char *C_TFWeaponBuilder::GetViewModel( int iViewModel ) const
 
 	if ( m_iObjectType != BUILDER_INVALID_OBJECT )
 	{
-		CTFPlayer *pPlayer = ToTFPlayer(GetPlayerOwner());
-
-		if (!pPlayer)
-			return GetObjectInfo(m_iObjectType)->m_pViewModel;
-
-		CBaseAnimating *pTemp = new CBaseAnimating();
-		if (!pTemp)
-			return GetObjectInfo(m_iObjectType)->m_pViewModel;
-
-		pTemp->SetModel(GetObjectInfo(m_iObjectType)->m_pViewModel);
-
-		if (pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1)
-		{
-			pTemp->Remove();
-
-			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-			if (vm)
-				vm->SetViewModelType(vm->VMTYPE_TF2);
-
-			return pPlayer->GetPlayerClass()->GetHandModelName();
-		}
-		else if (pTemp->LookupAttachment("l4d") > 0)
-		{
-			pTemp->Remove();
-
-			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-			if (vm)
-				vm->SetViewModelType(vm->VMTYPE_L4D);
-
-			return GetObjectInfo(m_iObjectType)->m_pViewModel;
-		}
-
-		pTemp->Remove();
-
-		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-		if (vm)
-			vm->SetViewModelType(vm->VMTYPE_HL2);
-
-		return GetObjectInfo(m_iObjectType)->m_pViewModel;
+		return DetermineViewModelType( GetObjectInfo(m_iObjectType)->m_pViewModel );
 	}
 
 	return BaseClass::GetViewModel();

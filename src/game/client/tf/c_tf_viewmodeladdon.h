@@ -19,6 +19,8 @@ public:
 
 	virtual int	InternalDrawModel(int flags);
 
+	virtual int	DrawModel( int flags );
+
 	void SetViewmodel(C_TFViewModel *vm);
 
 	CHandle< C_TFViewModel > m_viewmodel;

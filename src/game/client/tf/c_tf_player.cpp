@@ -2442,10 +2442,10 @@ void C_TFPlayer::ClientThink()
 		}
 	}
 
-	if (!IsAlive() && IsLocalPlayer())
+	if ( IsPlayerDead() && IsLocalPlayer() && !IsObserver() )
 	{
 		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel(0));
-		if (vm)
+		if ( vm )
 		{
 			vm->RemoveViewmodelAddon();
 		}

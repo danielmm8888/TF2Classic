@@ -30,3 +30,20 @@ int C_TFViewmodelAddon::InternalDrawModel(int flags)
 
 	return ret;
 }
+
+int C_TFViewmodelAddon::DrawModel( int flags )
+{
+	if ( !IsVisible() )
+		return 0;
+
+	if (m_viewmodel.Get() == NULL)
+		return 0;
+
+	C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
+
+	if ( localplayer && localplayer->IsObserver() 
+		&& localplayer->GetObserverTarget() != m_viewmodel.Get()->GetOwner() )
+		return false;
+
+	return BaseClass::DrawModel( flags );
+}

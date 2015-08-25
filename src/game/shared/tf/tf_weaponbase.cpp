@@ -470,7 +470,6 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
 	if (vm == NULL)
 	{
-		Assert(false); // Neither should this
 		return iActivity;
 	}
 
@@ -553,14 +552,70 @@ void CTFWeaponBase::SetViewModel()
 	vm->SetWeaponModel( GetViewModel( m_nViewModelIndex ), this );
 
 #ifdef CLIENT_DLL
+	UpdateViewModel();
+#endif
+}
+
+#ifdef CLIENT_DLL
+void CTFWeaponBase::UpdateViewModel(void)
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+	
 	GetViewModel( m_nViewModelIndex );
+
 	int vmType = vm->GetViewModelType();
 	if ( vmType == vm->VMTYPE_L4D )
 		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
 	else if (vmType == vm->VMTYPE_TF2)
 		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+}
 #endif
 
+const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
+{
+	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
+	if (!pPlayer)
+		return vModel;
+
+	CBaseAnimating *pTemp = new CBaseAnimating();
+	if (!pTemp)
+		return vModel;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
+
+	pTemp->SetModel(vModel);
+
+	if (pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1)
+	{
+		pTemp->Remove();
+
+		if (vm)
+			vm->SetViewModelType(vm->VMTYPE_TF2);
+
+		return pPlayer->GetPlayerClass()->GetHandModelName();
+	}
+	else if (pTemp->LookupAttachment("l4d") > 0)
+	{
+		pTemp->Remove();
+
+		if (vm)
+			vm->SetViewModelType(vm->VMTYPE_L4D);
+
+		return vModel;
+	}
+
+	pTemp->Remove();
+
+	if (vm)
+		vm->SetViewModelType(vm->VMTYPE_HL2);
+
+	return vModel;
 }
 
 // -----------------------------------------------------------------------------
@@ -571,50 +626,12 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 	if (TFGameRules() && TFGameRules()->IsDeathmatch())
 	{
 		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
-			return GetTFWpnData().m_szViewModelDM;
+			return DetermineViewModelType( GetTFWpnData().m_szViewModelDM );
 	}
 
 	if ( GetPlayerOwner() )
 	{
-		CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-
-		if (!pPlayer)
-			return GetTFWpnData().szViewModel;
-
-		CBaseAnimating *pTemp = new CBaseAnimating();
-		if (!pTemp)
-			return GetTFWpnData().szViewModel;
-
-		pTemp->SetModel(GetTFWpnData().szViewModel);
-
-		if ( pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1 )
-		{
-			pTemp->Remove();
-
-			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-			if (vm)
-				vm->SetViewModelType( vm->VMTYPE_TF2 );
-
-			return pPlayer->GetPlayerClass()->GetHandModelName();
-		}
-		else if ( pTemp->LookupAttachment("l4d") > 0 )
-		{
-			pTemp->Remove();
-
-			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-			if (vm)
-				vm->SetViewModelType( vm->VMTYPE_L4D );
-
-			return GetTFWpnData().szViewModel;
-		}
-
-		pTemp->Remove();
-
-		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-		if (vm)
-			vm->SetViewModelType( vm->VMTYPE_HL2 );
-
-		return GetTFWpnData().szViewModel;
+		return DetermineViewModelType( GetTFWpnData().szViewModel );
 	}
 	else
 	{

@@ -126,6 +126,11 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int TranslateViewmodelHandActivity( int iActivity );
 	virtual void SetViewModel();
 	virtual const char *GetViewModel( int iViewModel = 0 ) const;
+	virtual const char *DetermineViewModelType(const char *vModel) const;
+
+#ifdef CLIENT_DLL
+	virtual void UpdateViewModel();
+#endif
 
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
