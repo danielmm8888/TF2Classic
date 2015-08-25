@@ -2464,7 +2464,7 @@ void C_TFPlayer::ClientThink()
 		}
 	}
 
-	if ( IsPlayerDead() && IsLocalPlayer() && !IsObserver() )
+	if ( ( !IsAlive() || IsPlayerDead() ) && IsLocalPlayer() && !IsObserver() )
 	{
 		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel(0));
 		if ( vm )
