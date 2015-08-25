@@ -178,7 +178,6 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 		break;
 	case MOUSE_PRESSED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));
-		pButton->SetFgColor(GETSCHEME()->GetColor((pButton->IsSelected() ? pSelectedColor : pDepressedColor), Color(255, 255, 255, 255)));
 		break;
 	default:
 		break;
