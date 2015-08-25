@@ -3612,7 +3612,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 	{
 		char chParticleName[128];
 		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", RandomInt(1, 35));
-		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
+		CNewParticleEffect *pEffect = ParticleProp()->Create( chParticleName, PATTACH_ABSORIGIN );
 		if (pEffect)
 		{
 			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
