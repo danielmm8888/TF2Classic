@@ -52,6 +52,7 @@ void CTFToolTipPanel::PerformLayout()
 void CTFToolTipPanel::ShowToolTip(char *sText)
 {
 	Q_snprintf(m_sText, sizeof(m_sText), sText);
+
 	if (m_pText)
 	{
 		m_pText->SetText(sText);
@@ -60,9 +61,27 @@ void CTFToolTipPanel::ShowToolTip(char *sText)
 	HFont pFont = m_pText->GetFont();	
 	int iWidth = UTIL_ComputeStringWidth(pFont, sText);
 	int iSpacing = UTIL_ComputeStringWidth(pFont, L" ");
+	int iFontWide = iWidth + iSpacing * 2;
 
-	SetWide(iWidth + iSpacing * 2);
-	m_pText->SetWide(iWidth + iSpacing * 2);
+	int iWide = toProportionalWide(200);
+	int iTall = toProportionalTall(25);
+	int iOffsetX = toProportionalWide(10);
+	int iOffsetY = (iFontWide / iWide) + 1;
+
+	if (iFontWide > iWide)
+	{
+		m_pText->SetWrap(true);
+		SetSize(iWide + iOffsetX * 2, iTall * iOffsetY);
+		m_pText->SetPos(iOffsetX, 0);
+		m_pText->SetSize(iWide, iTall * iOffsetY);
+	}
+	else 
+	{
+		m_pText->SetWrap(false);
+		SetSize(iFontWide, iTall);
+		m_pText->SetPos(0, 0);
+		m_pText->SetSize(iFontWide, iTall);
+	}
 
 	Show();
 }

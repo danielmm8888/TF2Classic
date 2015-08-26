@@ -27,7 +27,7 @@ public:
 	void HideToolTip();
 
 private:
-	char		m_sText[128];
+	char		m_sText[256];
 	CExLabel	*m_pText;
 };
 

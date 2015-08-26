@@ -91,7 +91,7 @@ protected:
 	char			pImageColorDefault[64];
 	char			pImageColorArmed[64];
 	char			pImageColorDepressed[64];
-	char			pToolTip[64];
+	char			pToolTip[256];
 
 	CTFButtonBase	*pButton;
 	ImagePanel		*pButtonImage;
