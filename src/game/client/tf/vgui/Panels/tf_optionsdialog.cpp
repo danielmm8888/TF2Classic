@@ -32,15 +32,6 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
-const char *g_aButtonNames[5] =
-{
-	"AdvButton",
-	"MouseButton",
-	"KeyboardButton",
-	"AudioButton",
-	"VideoButton"
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: Basic help dialog
 //-----------------------------------------------------------------------------
@@ -80,12 +71,6 @@ void CTFOptionsDialog::AddPanel(CTFDialogPanelBase *m_pPanel, int iPanel)
 
 void CTFOptionsDialog::SetCurrentPanel(OptionPanel pCurrentPanel)
 {
-	for (int i = 0; i < PANEL_COUNT; i++)
-	{
-		dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[i]))->GetButton()->SetSelected(false);
-	}
-	dynamic_cast<CTFAdvButton *>(FindChildByName(g_aButtonNames[(int)pCurrentPanel]))->GetButton()->SetSelected(true);
-
 	if (m_pOptionsCurrent == pCurrentPanel)
 		return;
 	GetPanel(m_pOptionsCurrent)->Hide();

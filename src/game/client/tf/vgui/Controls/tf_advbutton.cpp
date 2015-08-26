@@ -311,6 +311,7 @@ void CTFButton::OnMouseReleased(vgui::MouseCode code)
 	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED))
 	{
 		m_pParent->GetParent()->OnCommand(m_pParent->GetCommandString());
+		m_pParent->PostActionSignal(new KeyValues("ButtonPressed"));
 	}
 	if (code == MOUSE_LEFT && iState == MOUSE_ENTERED)
 	{
