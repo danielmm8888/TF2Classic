@@ -189,6 +189,8 @@ public:
 
 	int		GetDesiredWeaponIndex( void ) { return m_iDesiredWeaponID; }
 	void	SetDesiredWeaponIndex( int iWeaponID ) { m_iDesiredWeaponID = iWeaponID; }
+	int		GetRespawnParticleID( void ) { return m_iRespawnParticleID; }
+	void	SetRespawnParticleID(int iParticleID) { m_iRespawnParticleID = iParticleID; }
 
 	float	GetSpyCloakMeter() const		{ return m_flCloakMeter; }
 	void	SetSpyCloakMeter( float val ) { m_flCloakMeter = val; }
@@ -310,6 +312,7 @@ private:
 
 	CNetworkVar( int, m_iDesiredPlayerClass );
 	CNetworkVar(int, m_iDesiredWeaponID);
+	CNetworkVar(int, m_iRespawnParticleID);
 
 	float m_flNextBurningSound;
 
