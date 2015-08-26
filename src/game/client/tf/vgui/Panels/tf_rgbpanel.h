@@ -3,7 +3,8 @@
 
 #include "tf_menupanelbase.h"
 
-class CTFAdvSlider;
+class CCvarSlider;
+class CCvarComboBox;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -23,10 +24,12 @@ public:
 
 private:
 
-	CTFAdvSlider	*m_pRedScrollBar;
-	CTFAdvSlider	*m_pGrnScrollBar;
-	CTFAdvSlider	*m_pBluScrollBar;
-	vgui::ImagePanel		*m_pColorBG;
+	CCvarSlider	*m_pRedScrollBar;
+	CCvarSlider	*m_pGrnScrollBar;
+	CCvarSlider	*m_pBluScrollBar;
+	vgui::ImagePanel *m_pColorBG;
+	CCvarComboBox *m_pCombo;
+	MESSAGE_FUNC(OnDataChanged, "ControlModified");
 };
 
 #endif // TFMAINMENURGBPANEL_H

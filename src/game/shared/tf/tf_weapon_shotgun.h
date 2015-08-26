@@ -19,7 +19,6 @@
 #define CTFShotgun_Pyro C_TFShotgun_Pyro
 #define CTFShotgun_Medic C_TFShotgun_Medic
 #define CTFScatterGun C_TFScatterGun
-#define CTFScatterGun_DM C_TFScatterGun_DM
 #define CTFDoubleBarrel C_TFDoubleBarrel
 #endif
 

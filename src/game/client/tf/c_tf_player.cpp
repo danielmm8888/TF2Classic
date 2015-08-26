@@ -87,6 +87,39 @@ ConVar cl_autoreload( "cl_autoreload", "1",  FCVAR_USERINFO | FCVAR_ARCHIVE, "Wh
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
+static void OnMercColorChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pLocalPlayer)
+		return;
+
+	char szCommand[64];
+	int iRed = 0, iGreen = 0, iBlue = 0;
+	ConVar *pColorRed = cvar->FindVar("tf2c_setmerccolor_r");
+	ConVar *pColorGreen = cvar->FindVar("tf2c_setmerccolor_g");
+	ConVar *pColorBlue = cvar->FindVar("tf2c_setmerccolor_b");
+	if (pColorRed) iRed = pColorRed->GetInt();
+	if (pColorGreen) iGreen = pColorGreen->GetInt();
+	if (pColorBlue) iBlue = pColorBlue->GetInt();
+	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", iRed, iGreen, iBlue);
+	engine->ExecuteClientCmd(szCommand);
+}
+static void OnMercParticleChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pLocalPlayer)
+		return;
+	char szCommand[64];
+	int iRespawnParticleID = 0;
+	ConVar *pRespawnParticle = cvar->FindVar("tf2c_setmercparticle");
+	if (pRespawnParticle) iRespawnParticleID = pRespawnParticle->GetInt();
+	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmercparticle %i", iRespawnParticleID);
+	engine->ServerCmd(szCommand);
+}
+ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE, "Sets merc color's red channel value", OnMercColorChange);
+ConVar tf2c_setmerccolor_g("tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE, "Sets merc color's green channel value", OnMercColorChange);
+ConVar tf2c_setmerccolor_b("tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE, "Sets merc color's blue channel value", OnMercColorChange);
+ConVar tf2c_setmercparticle("tf2c_setmercparticle", "0", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
 // Moved to the server
 /*
 void tf2c_setmerccolor_f(const CCommand& args)
@@ -2059,6 +2092,12 @@ void C_TFPlayer::OnPlayerClassChange( void )
 		char szCommand[128];
 		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
 		engine->ExecuteClientCmd(szCommand);
+
+		if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			OnMercColorChange();
+			OnMercParticleChange();
+		}
 	}
 }
 
@@ -2442,12 +2481,15 @@ void C_TFPlayer::ClientThink()
 		}
 	}
 
-	if ( IsPlayerDead() && IsLocalPlayer() && !IsObserver() )
+	if ( ( !IsAlive() || IsPlayerDead() ) && IsLocalPlayer() )
 	{
-		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel(0));
-		if ( vm )
+		if ( GetTeamNumber() != TEAM_SPECTATOR && GetObserverMode() != OBS_MODE_IN_EYE )
 		{
-			vm->RemoveViewmodelAddon();
+			CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel(0));
+			if (vm)
+			{
+				vm->RemoveViewmodelAddon();
+			}
 		}
 	}
 
@@ -3589,7 +3631,9 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
 	{
 		char chParticleName[128];
-		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", RandomInt(1, 35));
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		int iParticleID = pLocalPlayer->m_Shared.GetRespawnParticleID();
+		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
 		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
 		if (pEffect)
 		{

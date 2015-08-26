@@ -278,6 +278,7 @@ void CTFButtonBase::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 	m_bBorderVisible = inResourceData->GetBool("bordervisible", false);
+	_activationType = (ActivationType_t)inResourceData->GetInt("button_activation_type", ACTIVATE_ONPRESSEDANDRELEASED);
 }
 
 //-----------------------------------------------------------------------------

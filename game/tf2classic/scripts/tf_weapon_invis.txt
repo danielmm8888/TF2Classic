@@ -4,14 +4,14 @@
 	"printname"			"#TF_Weapon_PDA"
 	"BuiltRightHanded"		"0"
 	"weight"			"2"
-	"WeaponType"			"secondary"
+	"WeaponType"			"item1"
 	"autoswitchto"		"0"
 
 	// Ammo & Clip
 	"primary_ammo"			"None"
 	"secondary_ammo"		"None"
 
-
+	"HasTeamSkins_Viewmodel"	"1"
 	"MeleeWeapon"			"1"	// so we can always attack
 
 	// Buckets.	

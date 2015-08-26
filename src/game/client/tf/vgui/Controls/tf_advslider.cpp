@@ -51,7 +51,7 @@ void CTFAdvSlider::Init()
 	fMinValue = 0.0;
 	fMaxValue = 100.0;
 	fLabelWidth = 0.0;
-	fValue = 0.0;
+	fValue = -1.0;
 	m_bBorderVisible = false;
 	m_bShowInt = true;
 }
@@ -66,7 +66,8 @@ void CTFAdvSlider::ApplySettings(KeyValues *inResourceData)
 	fMinValue = inResourceData->GetFloat("minvalue", 0.0);
 	fMaxValue = inResourceData->GetFloat("maxvalue", 100.0);
 	fLabelWidth = inResourceData->GetFloat("labelWidth", 0.0);
-	fValue = fMinValue;
+	if (fValue == -1.0)
+		fValue = fMinValue;
 
 	for (KeyValues *pData = inResourceData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
 	{
@@ -145,29 +146,24 @@ void CTFAdvSlider::OnThink()
 	BaseClass::OnThink();
 	if (pButton->GetState() == MOUSE_PRESSED && IsEnabled())
 	{
-		//Msg("Setting shit\n");
+		float fOldValue = fValue;
 		SetPercentage();
-		RunCommand();
-	}
-	else if (Q_strcmp(GetCommandString(), "") && m_bAutoChange)
-	{
-		UpdateValue();
+		if (fOldValue != fValue)
+			RunCommand();
 	}
 }
 
 void CTFAdvSlider::UpdateValue()
 {
-	//Msg("Updating\n");
 	ConVarRef CheckButtonCommand(GetCommandString());
 	float fValue = CheckButtonCommand.GetFloat();
 	SetValue(fValue);
 }
 
-
 void CTFAdvSlider::RunCommand()
 {
-	//Msg("SCROLLBAR VALUE: %f\n", GetValue());
-	//Q_snprintf(szCommand, sizeof(szCommand), "%s %f", m_szCommand, GetValue
+	PostActionSignal(new KeyValues("ControlModified"));
+
 	if (!Q_strcmp(GetCommandString(), ""))
 	{
 		char szCommand[MAX_PATH];
@@ -179,7 +175,6 @@ void CTFAdvSlider::RunCommand()
 		char szCommand[MAX_PATH];
 		Q_snprintf(szCommand, sizeof(szCommand), "%s %f", GetCommandString(), GetValue());
 		engine->ExecuteClientCmd(szCommand);
-		//GetParent()->OnCommand(szCommand);
 	}
 }
 

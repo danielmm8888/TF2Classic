@@ -1,7 +1,7 @@
 #include "cbase.h"
 #include "tf_rgbpanel.h"
-#include "controls/tf_advslider.h"
-#include "controls/tf_advslider.h"
+#include "controls/tf_cvarcombobox.h"
+#include "controls/tf_cvarslider.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -30,6 +30,8 @@ bool CTFRGBPanel::Init()
 	m_pRedScrollBar = NULL;
 	m_pGrnScrollBar = NULL;
 	m_pBluScrollBar = NULL;
+	m_pColorBG = NULL;
+	m_pCombo = NULL;
 
 	return true;
 }
@@ -40,21 +42,31 @@ void CTFRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 
 	LoadControlSettings("resource/UI/main_menu/RGBPanel.res");
 
-	m_pRedScrollBar = dynamic_cast<CTFAdvSlider *>(FindChildByName("RedScrollBar"));
-	m_pGrnScrollBar = dynamic_cast<CTFAdvSlider *>(FindChildByName("GrnScrollBar"));
-	m_pBluScrollBar = dynamic_cast<CTFAdvSlider *>(FindChildByName("BluScrollBar"));
-	m_pRedScrollBar->SetMinMax(0.0, 255.0);
-	m_pGrnScrollBar->SetMinMax(0.0, 255.0);
-	m_pBluScrollBar->SetMinMax(0.0, 255.0);
-	m_pRedScrollBar->SetValue(0.0);
-	m_pGrnScrollBar->SetValue(0.0);
-	m_pBluScrollBar->SetValue(0.0);
+	m_pRedScrollBar = dynamic_cast<CCvarSlider *>(FindChildByName("RedScrollBar"));
+	m_pGrnScrollBar = dynamic_cast<CCvarSlider *>(FindChildByName("GrnScrollBar"));
+	m_pBluScrollBar = dynamic_cast<CCvarSlider *>(FindChildByName("BluScrollBar"));
 	m_pColorBG = dynamic_cast<ImagePanel *>(FindChildByName("ColorBG"));
+	m_pCombo = dynamic_cast<CCvarComboBox*>(FindChildByName("ParticleComboBox"));
+
+	for (int i = 0; i < 31; i++)
+	{
+		char pszParticleName[64];
+		Q_snprintf(pszParticleName, sizeof(pszParticleName), "ParticleNum%d", i + 1);
+		m_pCombo->AddItem(pszParticleName, NULL);
+	}
+
 }
 
 void CTFRGBPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	OnDataChanged();
+};
+
+void CTFRGBPanel::OnDataChanged()
+{
+	Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
+	m_pColorBG->SetFillColor(clr);
 };
 
 void CTFRGBPanel::OnCommand(const char* command)
@@ -62,14 +74,6 @@ void CTFRGBPanel::OnCommand(const char* command)
 	if (!Q_strcmp(command, "vguicancel"))
 	{
 		SetVisible(false);
-	}
-	if (!Q_strcmp(command, "scrolled"))
-	{
-		Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
-		m_pColorBG->SetFillColor(clr);
-		char szCommand[MAX_PATH];
-		Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", (int)m_pRedScrollBar->GetValue(), (int)m_pGrnScrollBar->GetValue(), (int)m_pBluScrollBar->GetValue());
-		engine->ExecuteClientCmd(szCommand);
 	}
 	else
 	{

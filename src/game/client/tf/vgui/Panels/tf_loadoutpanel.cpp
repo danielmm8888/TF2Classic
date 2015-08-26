@@ -370,5 +370,14 @@ void CTFLoadoutPanel::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iPreset);
 	Msg("%i %i %i\n", iClass, iSlot, iPreset);
 	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
+
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (pPlayer)
+	{
+		char szCmd[64];
+		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d", iSlot, iPreset); //; tf2c_weaponset_show 0
+		engine->ExecuteClientCmd(szCmd);
+	}
+
 	DefaultLayout();
 }

@@ -117,6 +117,10 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 		}
 		return; // we already have the correct add-on
 	}
+	else if ( pEnt )
+	{
+		RemoveViewmodelAddon();
+	}
 
 	pEnt = new class C_TFViewmodelAddon;
 	if (!pEnt)
@@ -405,7 +409,7 @@ int CTFViewModel::GetSkin()
 	{
 		if ( pWeapon->GetTFWpnData().m_bHasTeamSkins_Viewmodel )
 		{
-			switch( pPlayer->GetTeamNumber() )
+			switch( pPlayer->GetTeamNumber() )	
 			{
 			case TF_TEAM_RED:
 				nSkin = 0;

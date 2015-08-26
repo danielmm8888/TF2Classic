@@ -1,7 +1,7 @@
 WeaponData
 {
 	// Attributes Base.
-	"printname"		"#TF_Weapon_SMG"
+	"printname"		"#TF_Weapon_StenGun"
 	"BuiltRightHanded"	"0"
 	"weight"		"2"
 	"WeaponType"		"primary"
@@ -11,10 +11,10 @@ WeaponData
 	"Damage"		"13"
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
-	"Spread"		"0.13"
+	"Spread"		"0.013"
 	"TimeIdle"		"10.0"
 	"TimeIdleEmpty"		"1.0"
-	"TimeFireDelay"		"0.16"
+	"TimeFireDelay"		"0.1"
 	"ProjectileType"	"projectile_bullet"
 	"BrassModel"		"models/weapons/shells/shell_pistol.mdl"
 	"UseRapidFireCrits"	"1"
@@ -40,8 +40,8 @@ WeaponData
 	"MuzzleflashModelScale"	".5"
 
 	// Animation.
-	"viewmodel"		"models/weapons/v_models/v_smg_sniper.mdl"
-	"playermodel"	"models/weapons/w_models/w_smg.mdl"
+	"viewmodel"		"models/weapons/v_models/v_stengun_merc.mdl"
+	"playermodel"	"models/weapons/w_models/w_stengun.mdl"
 	"anim_prefix"	"ac"
 
 	// Sounds.
@@ -50,8 +50,8 @@ WeaponData
 	{
 		"reload"		"Weapon_SMG.WorldReload"
 		"empty"			"Weapon_SMG.ClipEmpty"	
-		"single_shot"		"Weapon_SMG.Single"
-		"burst"			"Weapon_SMG.SingleCrit"
+		"single_shot"		"Weapon_Sten.Single"
+		"burst"			"Weapon_Sten.SingleCrit"
 	}
 
 	// Weapon Sprite data is loaded by the Client DLL.
@@ -59,7 +59,7 @@ WeaponData
 	{
 		"weapon"
 		{
-				"file"		"sprites/bucket_smg"
+				"file"		"sprites/bucket_stengun"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"
@@ -67,7 +67,7 @@ WeaponData
 		}
 		"weapon_s"
 		{	
-				"file"		"sprites/bucket_smg"
+				"file"		"sprites/bucket_stengun"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"

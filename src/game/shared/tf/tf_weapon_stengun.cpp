@@ -3,11 +3,11 @@
 //
 //=============================================================================
 #include "cbase.h"
-#include "tf_weapon_assaultrifle.h"
+#include "tf_weapon_stengun.h"
 
 //=============================================================================
 //
-// Weapon Assault Rifle tables.
+// Weapon Sten gun tables.
 //
 #define CREATE_SIMPLE_WEAPON_TABLE( WpnName, entityname )			\
 																	\
@@ -23,4 +23,4 @@
 	PRECACHE_WEAPON_REGISTER( entityname );
 
 
-CREATE_SIMPLE_WEAPON_TABLE(TFAssaultRifle , tf_weapon_assaultrifle)
+CREATE_SIMPLE_WEAPON_TABLE(TFStenGun , tf_weapon_stengun)
