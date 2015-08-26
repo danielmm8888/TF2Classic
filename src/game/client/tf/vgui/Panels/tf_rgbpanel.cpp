@@ -2,6 +2,7 @@
 #include "tf_rgbpanel.h"
 #include "controls/tf_cvarcombobox.h"
 #include "controls/tf_cvarslider.h"
+#include <vgui/ILocalize.h>
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -48,11 +49,20 @@ void CTFRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pColorBG = dynamic_cast<ImagePanel *>(FindChildByName("ColorBG"));
 	m_pCombo = dynamic_cast<CCvarComboBox*>(FindChildByName("ParticleComboBox"));
 
-	for (int i = 0; i < 31; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		char pszParticleName[64];
-		Q_snprintf(pszParticleName, sizeof(pszParticleName), "ParticleNum%d", i + 1);
-		m_pCombo->AddItem(pszParticleName, NULL);
+		if (i < 9)
+			Q_snprintf(pszParticleName, sizeof(pszParticleName), "#TF_DM_PARTICLE0%d", i + 1);
+		else
+			Q_snprintf(pszParticleName, sizeof(pszParticleName), "#TF_DM_PARTICLE%d", i + 1);
+		wchar_t *pText = g_pVGuiLocalize->Find(pszParticleName);
+		if (pText != NULL)
+		{
+			char pszParticleNameLocal[64];
+			wcstombs(pszParticleNameLocal, pText, sizeof(pszParticleNameLocal));
+			m_pCombo->AddItem(pszParticleNameLocal, NULL);
+		}
 	}
 
 }
@@ -67,6 +77,7 @@ void CTFRGBPanel::OnDataChanged()
 {
 	Color clr(m_pRedScrollBar->GetValue(), m_pGrnScrollBar->GetValue(), m_pBluScrollBar->GetValue(), 255);
 	m_pColorBG->SetFillColor(clr);
+	PostActionSignal(new KeyValues("ControlModified"));
 };
 
 void CTFRGBPanel::OnCommand(const char* command)
