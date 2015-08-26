@@ -17,7 +17,7 @@ class CTFButton;
 //-----------------------------------------------------------------------------
 class CTFAdvButton : public CTFAdvButtonBase
 {
-	friend CTFButton;
+	friend class CTFButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFAdvButton, CTFAdvButtonBase);
 
@@ -55,7 +55,7 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFButton : public CTFButtonBase
 {
-	friend CTFAdvButton;
+	friend class CTFAdvButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFButton, CTFButtonBase);
 
