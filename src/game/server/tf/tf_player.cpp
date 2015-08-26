@@ -2424,6 +2424,16 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			));
 		return true;
 	}
+	else if (FStrEq(pcmd, "tf2c_setmercparticle"))
+	{
+		if (args.ArgC() < 1)
+		{
+			Warning("Format: tf2c_setmercparticle num\n");
+			return true;
+		}
+		m_Shared.SetRespawnParticleID(atoi(args[1]));
+		return true;
+	}
 	else if ( FStrEq( pcmd, "build" ) )
 	{
 		if ( args.ArgC() == 2 )

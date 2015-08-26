@@ -104,9 +104,22 @@ static void OnMercColorChange(IConVar *var = NULL, const char *pOldValue = 0, fl
 	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", iRed, iGreen, iBlue);
 	engine->ExecuteClientCmd(szCommand);
 }
+static void OnMercParticleChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pLocalPlayer)
+		return;
+	char szCommand[64];
+	int iRespawnParticleID = 0;
+	ConVar *pRespawnParticle = cvar->FindVar("tf2c_setmercparticle");
+	if (pRespawnParticle) iRespawnParticleID = pRespawnParticle->GetInt();
+	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmercparticle %i", iRespawnParticleID);
+	engine->ServerCmd(szCommand);
+}
 ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE, "Sets merc color's red channel value", OnMercColorChange);
 ConVar tf2c_setmerccolor_g("tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE, "Sets merc color's green channel value", OnMercColorChange);
 ConVar tf2c_setmerccolor_b("tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE, "Sets merc color's blue channel value", OnMercColorChange);
+ConVar tf2c_setmercparticle("tf2c_setmercparticle", "0", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
 // Moved to the server
 /*
 void tf2c_setmerccolor_f(const CCommand& args)
@@ -2080,7 +2093,11 @@ void C_TFPlayer::OnPlayerClassChange( void )
 		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
 		engine->ExecuteClientCmd(szCommand);
 
-		OnMercColorChange();
+		if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			OnMercColorChange();
+			OnMercParticleChange();
+		}
 	}
 }
 
@@ -3611,7 +3628,9 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
 	{
 		char chParticleName[128];
-		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", RandomInt(1, 35));
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		int iParticleID = pLocalPlayer->m_Shared.GetRespawnParticleID();
+		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
 		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
 		if (pEffect)
 		{
