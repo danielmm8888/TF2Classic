@@ -4,6 +4,7 @@
 #include "tf_menupanelbase.h"
 
 class CCvarSlider;
+class CCvarComboBox;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -26,7 +27,8 @@ private:
 	CCvarSlider	*m_pRedScrollBar;
 	CCvarSlider	*m_pGrnScrollBar;
 	CCvarSlider	*m_pBluScrollBar;
-	vgui::ImagePanel		*m_pColorBG;
+	vgui::ImagePanel *m_pColorBG;
+	CCvarComboBox *m_pCombo;
 	MESSAGE_FUNC(OnDataChanged, "ControlModified");
 };
 
