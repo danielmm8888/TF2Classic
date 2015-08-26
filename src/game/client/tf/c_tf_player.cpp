@@ -3631,15 +3631,10 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
 	{
 		char chParticleName[128];
-<<<<<<< HEAD
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 		int iParticleID = pLocalPlayer->m_Shared.GetRespawnParticleID();
 		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
 		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
-=======
-		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", RandomInt(1, 35));
-		CNewParticleEffect *pEffect = ParticleProp()->Create( chParticleName, PATTACH_ABSORIGIN );
->>>>>>> origin/master
 		if (pEffect)
 		{
 			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
