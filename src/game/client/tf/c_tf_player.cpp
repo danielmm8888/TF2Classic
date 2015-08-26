@@ -3634,7 +3634,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 		int iParticleID = pLocalPlayer->m_Shared.GetRespawnParticleID();
 		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
-		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN_FOLLOW);
+		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN);
 		if (pEffect)
 		{
 			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
