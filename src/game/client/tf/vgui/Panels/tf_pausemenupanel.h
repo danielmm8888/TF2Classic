@@ -3,7 +3,6 @@
 
 #include "tf_menupanelbase.h"
 
-class CTFRGBPanel;
 class CTFAdvButton;
 
 //-----------------------------------------------------------------------------
@@ -30,7 +29,6 @@ public:
 	void OnNotificationUpdate();
 
 private:
-	CTFRGBPanel		*m_pRGBPanel;
 	CTFAdvButton	*m_pNotificationButton;
 };
 

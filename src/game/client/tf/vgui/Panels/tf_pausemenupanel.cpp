@@ -2,7 +2,6 @@
 #include "tf_pausemenupanel.h"
 #include "controls/tf_advbutton.h"
 #include "tf_mainmenu.h"
-#include "tf_rgbpanel.h"
 #include "tf_gamerules.h"
 
 using namespace vgui;
@@ -29,7 +28,6 @@ bool CTFPauseMenuPanel::Init()
 {
 	BaseClass::Init();
 
-	m_pRGBPanel = new CTFRGBPanel(this, "CTFRGBPanel");
 	m_pNotificationButton = NULL;
 	bInMenu = false;
 	bInGame = true;
@@ -120,17 +118,4 @@ void CTFPauseMenuPanel::DefaultLayout()
 void CTFPauseMenuPanel::GameLayout()
 {
 	BaseClass::GameLayout();
-	
-	if (m_pRGBPanel && TFGameRules())
-	{
-		if (TFGameRules()->IsDeathmatch())
-		{
-			m_pRGBPanel->SetVisible(true);
-		}
-		else
-		{
-			m_pRGBPanel->SetVisible(false);
-		}
-	}
-
 };

@@ -3,6 +3,8 @@
 #include "tf_mainmenu.h"
 #include "controls/tf_advbutton.h"
 #include "controls/tf_advmodelpanel.h"
+#include "tf_rgbpanel.h"
+#include "basemodelpanel.h"
 #include <vgui/ILocalize.h>
 #include "c_script_parser.h"
 
@@ -133,7 +135,9 @@ bool CTFLoadoutPanel::Init()
 	iCurrentSlot = TF_WPN_TYPE_PRIMARY;
 	iCurrentPreset = 0;
 	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
+	m_pGameModelPanel = new CModelPanel(this, "gamemodelpanel");
 	m_pWeaponSetPanel = new CTFWeaponSetPanel(this, "weaponsetpanel");
+	m_pRGBPanel = new CTFRGBPanel(this, "rgbpanel");
 	g_TFWeaponScriptParser.InitParser("scripts/tf_weapon_*.txt", true, false);
 
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
@@ -163,6 +167,16 @@ void CTFLoadoutPanel::PerformLayout()
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
 	DefaultLayout();
+};
+
+
+void CTFLoadoutPanel::SetCurrentClass(int iClass)
+{
+	if (iCurrentClass == iClass)
+		return;
+
+	iCurrentClass = iClass; 	
+	DefaultLayout(); 
 };
 
 
@@ -207,6 +221,10 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 	else if (!Q_strcmp(command, "select_spy"))
 	{
 		SetCurrentClass(TF_CLASS_SPY);
+	}
+	else if (!Q_strcmp(command, "select_merc"))
+	{
+		SetCurrentClass(TF_CLASS_MERCENARY);
 	}
 	else
 	{
@@ -277,7 +295,12 @@ void CTFLoadoutPanel::Show()
 {
 	BaseClass::Show();
 	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
-	DefaultLayout();
+
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (pPlayer)
+	{
+		SetCurrentClass(pPlayer->m_Shared.GetDesiredPlayerClassIndex());
+	}
 };
 
 void CTFLoadoutPanel::Hide()
@@ -306,52 +329,96 @@ void CTFLoadoutPanel::SetModelClass(int iClass)
 	m_pClassModelPanel->m_BMPResData.m_pszModelName = pAlloced;
 }
 
+void CTFLoadoutPanel::UpdateModelPanels()
+{
+	int iClassIndex = iCurrentClass;
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if (iClassIndex == TF_CLASS_MERCENARY)
+	{
+		m_pClassModelPanel->SetVisible(false);
+		m_pGameModelPanel->SetVisible(true);
+		m_pWeaponSetPanel->SetVisible(false);
+		m_pRGBPanel->SetVisible(true);
+
+		if (pLocalPlayer && m_pGameModelPanel)
+		{
+			CModelPanelModel *pPanelModel = m_pGameModelPanel->m_hModel.Get();
+			if (pPanelModel)
+			{
+				int iRed = 0, iGreen = 0, iBlue = 0;
+				ConVar *pColorRed = cvar->FindVar("tf2c_setmerccolor_r");
+				ConVar *pColorGreen = cvar->FindVar("tf2c_setmerccolor_g");
+				ConVar *pColorBlue = cvar->FindVar("tf2c_setmerccolor_b");
+				if (pColorRed) iRed = pColorRed->GetInt();
+				if (pColorGreen) iGreen = pColorGreen->GetInt();
+				if (pColorBlue) iBlue = pColorBlue->GetInt();
+				Vector vec = Vector(iRed / 255.0f, iGreen / 255.0f, iBlue / 255.0f);
+				pPanelModel->m_nSkin = 8;
+				pPanelModel->m_vecModelColor = vec;
+			}
+		}
+	}
+	else
+	{
+		m_pClassModelPanel->SetVisible(true);
+		m_pGameModelPanel->SetVisible(false);
+		m_pWeaponSetPanel->SetVisible(true);
+		m_pRGBPanel->SetVisible(false);
+
+		SetModelClass(iClassIndex);
+		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iCurrentSlot);
+		SetModelWeapon(iClassIndex, iCurrentSlot, iWeaponPreset);
+	}
+}
+
 void CTFLoadoutPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
 	
+	UpdateModelPanels();
+
 	int iClassIndex = iCurrentClass;
-	SetModelClass(iClassIndex);
-	int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iCurrentSlot);
-	SetModelWeapon(iClassIndex, iCurrentSlot, iWeaponPreset);
-
-	int iColCount = 0;
-	for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+	if (iClassIndex != TF_CLASS_MERCENARY)
 	{
-		int iCols = 0;
-		for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+		int iColCount = 0;
+		for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
 		{
-			int iWeapon = GetTFInventory()->GetWeapon(iClassIndex, iSlot, iPreset);
-			CTFAdvButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
-			if (iWeapon > 0)
+			int iCols = 0;
+			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 			{
-				iCols++;
-				if (iCols > iColCount) iColCount = iCols;
-				m_pWeaponButton->SetVisible(true);
-				m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
+				int iWeapon = GetTFInventory()->GetWeapon(iClassIndex, iSlot, iPreset);
+				CTFAdvButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+				if (iWeapon > 0)
+				{
+					iCols++;
+					if (iCols > iColCount) iColCount = iCols;
+					m_pWeaponButton->SetVisible(true);
+					m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
 
-				int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
-				_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
-				char szIcon[64];
-				Q_snprintf(szIcon, sizeof(szIcon), "../%s", pData.iconInactive);
-				m_pWeaponButton->SetImage(szIcon);
+					int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
+					_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+					char szIcon[64];
+					Q_snprintf(szIcon, sizeof(szIcon), "../%s", pData.iconInactive);
+					m_pWeaponButton->SetImage(szIcon);
 
-				const char *pszWeaponName = WeaponIdToAlias(iWeapon);
-				char szWeaponName[32];
-				Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pszWeaponName);
-				m_pWeaponButton->SetText(szWeaponName);
+					const char *pszWeaponName = WeaponIdToAlias(iWeapon);
+					char szWeaponName[32];
+					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pszWeaponName);
+					m_pWeaponButton->SetText(szWeaponName);
 
-				int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
-				m_pWeaponButton->SetBorderVisible((iPreset == iWeaponPreset));
-				m_pWeaponButton->GetButton()->SetSelected((iPreset == iWeaponPreset));
+					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
+					m_pWeaponButton->SetBorderVisible((iPreset == iWeaponPreset));
+					m_pWeaponButton->GetButton()->SetSelected((iPreset == iWeaponPreset));
 
-				char szCommand[64];
-				Q_snprintf(szCommand, sizeof(szCommand), "%s%i", GetTFInventory()->GetSlotName(iSlot), iPreset);
-				m_pWeaponButton->SetCommandString(szCommand);
-			}
-			else
-			{
-				m_pWeaponButton->SetVisible(0);
+					char szCommand[64];
+					Q_snprintf(szCommand, sizeof(szCommand), "%s%i", GetTFInventory()->GetSlotName(iSlot), iPreset);
+					m_pWeaponButton->SetCommandString(szCommand);
+				}
+				else
+				{
+					m_pWeaponButton->SetVisible(0);
+				}
 			}
 		}
 	}
@@ -368,7 +435,6 @@ void CTFLoadoutPanel::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
 	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
 	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iPreset);
-	Msg("%i %i %i\n", iClass, iSlot, iPreset);
 	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
 
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
