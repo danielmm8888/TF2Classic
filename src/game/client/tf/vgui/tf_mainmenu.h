@@ -60,7 +60,7 @@ public:
 	virtual void OnCommand(const char* command);
 	virtual void OnThink();
 	virtual void OnTick();
-	virtual void ShowPanel(MenuPanel iPanel);
+	virtual void ShowPanel(MenuPanel iPanel, bool bShowSingle = false);
 	virtual void HidePanel(MenuPanel iPanel);
 	virtual void InvalidatePanelsLayout(bool layoutNow = false, bool reloadScheme = false);
 	virtual void LaunchInvalidatePanelsLayout();

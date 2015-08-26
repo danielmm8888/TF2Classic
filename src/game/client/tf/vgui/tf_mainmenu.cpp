@@ -38,6 +38,15 @@ void OverrideMainMenu()
 	}
 }
 
+CON_COMMAND(showloadout, "Show loadout screen (new)")
+{
+	if (!guiroot)
+		return;
+
+	engine->ClientCmd("gameui_activate");
+	MAINMENU_ROOT->ShowPanel(LOADOUT_MENU, true);
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -112,9 +121,17 @@ CTFMenuPanelBase* CTFMainMenu::GetMenuPanel(int iPanel)
 	return m_pPanels[iPanel];
 }
 
-void CTFMainMenu::ShowPanel(MenuPanel iPanel)
+void CTFMainMenu::ShowPanel(MenuPanel iPanel, bool bShowSingle /*= false*/)
 {
-	GetMenuPanel(iPanel)->Show();
+	if (!bShowSingle)
+	{
+		GetMenuPanel(iPanel)->Show();
+	}
+	else
+	{
+		GetMenuPanel(CURRENT_MENU)->Hide();
+		GetMenuPanel(iPanel)->ShowSingle();
+	}
 }
 
 void CTFMainMenu::HidePanel(MenuPanel iPanel)

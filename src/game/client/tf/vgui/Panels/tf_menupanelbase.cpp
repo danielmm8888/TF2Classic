@@ -39,6 +39,7 @@ bool CTFMenuPanelBase::Init()
 	bInGame = false;
 	bInMenu = false;
 	bInGameLayout = false;
+	bShowSingle = false;
 	return true;
 }
 
@@ -65,6 +66,12 @@ void CTFMenuPanelBase::OnTick()
 void CTFMenuPanelBase::OnThink()
 {
 	BaseClass::OnThink();
+};
+
+void CTFMenuPanelBase::ShowSingle()
+{
+	bShowSingle = true;
+	Show();
 };
 
 void CTFMenuPanelBase::Show()

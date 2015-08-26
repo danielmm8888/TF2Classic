@@ -27,6 +27,7 @@ public:
 	virtual void OnCommand(const char* command);
 	virtual void OnThink();
 	virtual void OnTick();
+	virtual void ShowSingle();
 	virtual void Show();
 	virtual void Hide();
 	virtual void DefaultLayout();
@@ -38,6 +39,7 @@ protected:
 	bool				bInMenu;
 	bool				bInGameLayout;
 	bool				bFirstTime;
+	bool				bShowSingle;
 };
 
 #endif // TFMAINMENUPANELBASE_H

@@ -102,13 +102,22 @@ void CTFDialogPanelBase::Hide()
 	BaseClass::Hide();
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
+	MAINMENU_ROOT->ShowPanel(CURRENT_MENU);
+	if (bShowSingle)
+	{
+		engine->ClientCmd("gameui_hide");
+	}
 };
 
 void CTFDialogPanelBase::OnKeyCodePressed(vgui::KeyCode code)
 {
 	BaseClass::OnKeyCodePressed(code);
 
-	if (!bEmbedded)
+	if (code == KEY_ESCAPE)
+	{
+		Hide();
+	}
+	else if (!bEmbedded)
 	{
 		const char *keyName = g_pInputSystem->ButtonCodeToString(code);
 		if (Q_strlen(keyName) == 1)
