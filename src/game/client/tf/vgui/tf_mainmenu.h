@@ -48,7 +48,7 @@ class CTFMenuPanelBase;
 class CTFMainMenu : public vgui::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE(CTFMainMenu, vgui::EditablePanel);
-	friend CTFMenuPanelBase;
+	friend class CTFMenuPanelBase;
 
 public:
 	CTFMainMenu(vgui::VPANEL parent);
