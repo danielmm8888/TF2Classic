@@ -8,7 +8,7 @@
 #include "controls/tf_cvarslider.h"
 #include "vgui_controls/ComboBox.h"
 #include "vgui_controls/Tooltip.h"
-//#include "EngineInterface.h"
+#include "inputsystem/iinputsystem.h"
 
 #include <KeyValues.h>
 #include <vgui/IScheme.h>
@@ -103,8 +103,6 @@ void CTFDialogPanelBase::Hide()
 	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 0, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 	MAINMENU_ROOT->HidePanel(SHADEBACKGROUND_MENU);
 };
-
-#include "inputsystem/iinputsystem.h"
 
 void CTFDialogPanelBase::OnKeyCodePressed(vgui::KeyCode code)
 {
