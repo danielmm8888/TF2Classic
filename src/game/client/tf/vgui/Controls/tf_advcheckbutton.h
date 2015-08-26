@@ -64,7 +64,7 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFCheckButton : public CTFButtonBase
 {
-	friend CTFAdvCheckButton;
+	friend class CTFAdvCheckButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFCheckButton, CTFButtonBase);
 
