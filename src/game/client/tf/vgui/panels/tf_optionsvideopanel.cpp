@@ -10,7 +10,7 @@
 #include "controls/tf_scriptobject.h"
 #include "controls/tf_advpanellistpanel.h"
 #include "controls/tf_advbutton.h"
-#include "igameuifuncs.h"
+#include "IGameUIFuncs.h"
 #include "modes.h"
 #include "materialsystem/materialsystem_config.h"
 #include "filesystem.h"
