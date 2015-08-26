@@ -24,7 +24,7 @@ class CTFCheckButton;
 //-----------------------------------------------------------------------------
 class CTFAdvCheckButton : public CTFAdvButtonBase
 {
-	friend CTFCheckButton;
+	friend class CTFCheckButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFAdvCheckButton, CTFAdvButtonBase);
 

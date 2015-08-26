@@ -28,7 +28,7 @@ class CTFScrollButton;
 //-----------------------------------------------------------------------------
 class CTFAdvSlider : public CTFAdvButtonBase
 {
-	friend CTFScrollButton;
+	friend class CTFScrollButton;
 public:
 	DECLARE_CLASS_SIMPLE(CTFAdvSlider, CTFAdvButtonBase);
 
@@ -74,7 +74,7 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFScrollButton : public CTFButtonBase
 {
-	friend CTFAdvSlider;
+	friend class CTFAdvSlider;
 public:
 	DECLARE_CLASS_SIMPLE(CTFScrollButton, CTFButtonBase);
 

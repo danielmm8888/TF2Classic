@@ -44,7 +44,7 @@ enum MouseState
 //-----------------------------------------------------------------------------
 class CTFAdvButtonBase : public vgui::EditablePanel
 {
-	friend CTFButtonBase;
+	friend class CTFButtonBase;
 public:
 	DECLARE_CLASS_SIMPLE(CTFAdvButtonBase, vgui::EditablePanel);
 
@@ -103,7 +103,7 @@ protected:
 //-----------------------------------------------------------------------------
 class CTFButtonBase : public Button
 {
-	friend CTFAdvButtonBase;
+	friend class CTFAdvButtonBase;
 public:
 	DECLARE_CLASS_SIMPLE(CTFButtonBase, Button);
 
