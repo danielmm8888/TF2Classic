@@ -206,7 +206,6 @@ void CTFOptionsAdvancedPanel::CreateControls()
 	// Go through desciption creating controls
 	CScriptObject *pObj;
 	pObj = m_pDescription->pObjList;
-
 	
 	mpcontrol_t	*pCtrl;
 	CTFAdvCheckButton *pBox;
@@ -239,7 +238,20 @@ void CTFOptionsAdvancedPanel::CreateControls()
 			pBox->SetSelected(pObj->fdefValue != 0.0f ? true : false);
 			pBox->SetCommandString(pObj->cvarname);
 			pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
-			//pBox->SetToolTip(pBox->GetName());
+			if (pObj->tooltip[0] != '\0')
+			{
+				wchar_t *pText = g_pVGuiLocalize->Find(pObj->tooltip);
+				if (pText != NULL)
+				{
+					char pszToolTipLocal[256];
+					wcstombs(pszToolTipLocal, pText, sizeof(pszToolTipLocal));
+					pBox->SetToolTip(pszToolTipLocal);
+				}
+				else
+				{
+					pBox->SetToolTip(pObj->tooltip);
+				}
+			}
 			pCtrl->pControl = (Panel *)pBox;
 			break;
 		case O_STRING:

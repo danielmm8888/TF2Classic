@@ -131,7 +131,8 @@ CScriptListItem::CScriptListItem(char const *strItem, char const *strValue)
 CScriptObject::CScriptObject(void)
 {
 	type = O_BOOL;
-	bSetInfo = false;  // Prepend "Setinfo" to keyvalue pair in config?
+	bSetInfo = false;  // Prepend "Setinfo" to keyvalue pair in config?	
+	Q_strncpy(tooltip, "", sizeof(tooltip));
 	pNext = NULL;
 	pListItems = NULL;
 }

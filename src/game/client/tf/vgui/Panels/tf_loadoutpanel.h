@@ -6,7 +6,9 @@
 
 class CTFAdvModelPanel;
 class CTFWeaponSetPanel;
+class CModelPanel;
 class CTFAdvButton;
+class CTFRGBPanel;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -29,7 +31,7 @@ public:
 	void DefaultLayout();
 	void GameLayout();
 	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
-	void SetCurrentClass(int iClass) { iCurrentClass = iClass; DefaultLayout(); };
+	void SetCurrentClass(int iClass);
 	void SetCurrentSlot(int iSlot) { iCurrentSlot = iSlot; };
 	void SetCurrentPreset(int iPreset) { iCurrentPreset = iPreset; };
 	void SetModelWeapon(int iClass, int iSlot, int iPreset);
@@ -37,8 +39,11 @@ public:
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
+	CModelPanel		*m_pGameModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
+	CTFRGBPanel		*m_pRGBPanel;
 	CUtlVector<CTFAdvButton*>	m_pWeaponIcons;
+	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	iCurrentClass;
 	int	iCurrentSlot;
 	int	iCurrentPreset;
