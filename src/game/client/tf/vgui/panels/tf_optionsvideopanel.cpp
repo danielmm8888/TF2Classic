@@ -24,7 +24,7 @@
 #include "vgui/IInput.h"
 #include "vgui/ILocalize.h"
 #include "vgui/ISystem.h"
-#include "tier0/ICommandLine.h"
+#include "tier0/icommandline.h"
 #include "tier1/convar.h"
 
 #include "inetchannelinfo.h"
