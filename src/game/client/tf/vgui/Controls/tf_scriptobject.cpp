@@ -284,31 +284,55 @@ void CScriptObject::WriteToScriptFile(FileHandle_t fp)
 	{
 	case O_BOOL:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ BOOL }\r\n");
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ \"%i\" }\r\n", (int)fcurValue ? 1 : 0);
 		break;
 	case O_NUMBER:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ NUMBER %s %s }\r\n", CleanFloat(fMin), CleanFloat(fMax));
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ \"%s\" }\r\n", CleanFloat(fcurValue));
 		break;
 	case O_SLIDER:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ SLIDER %s %s }\r\n", CleanFloat(fMin), CleanFloat(fMax));
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ \"%s\" }\r\n", CleanFloat(fcurValue));
 		break;
 	case O_STRING:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ STRING }\r\n");
 		FixupString(curValue, sizeof(curValue));
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ \"%s\" }\r\n", curValue);
 		break;
 	case O_CATEGORY:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{ CATEGORY }\r\n");
 		break;
 	case O_LIST:
 		g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", prompt);
+		if (strlen(tooltip) > 0)
+		{
+			g_pFullFileSystem->FPrintf(fp, "\t\t\"%s\"\r\n", tooltip);
+		}
 		g_pFullFileSystem->FPrintf(fp, "\t\t{\r\n\t\t\tLIST\r\n");
 
 		pItem = pListItems;
@@ -521,10 +545,23 @@ bool CScriptObject::ReadFromBuffer(const char **pBuffer, bool isNewObject)
 		Q_strncpy(prompt, token, sizeof(prompt));
 	}
 
-	// Parse the next {
+	// Determine whether we have a tooltip 
 	*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
 	if (strlen(token) <= 0)
 		return false;
+
+	if (strcmp(token, "{")) 
+	{
+		if (isNewObject)
+		{
+			Q_strncpy(tooltip, token, sizeof(tooltip));
+		}
+
+		// Parse the next {
+		*pBuffer = engine->ParseFile(*pBuffer, token, sizeof(token));
+		if (strlen(token) <= 0)
+			return false;
+	}
 
 	if (strcmp(token, "{"))
 	{

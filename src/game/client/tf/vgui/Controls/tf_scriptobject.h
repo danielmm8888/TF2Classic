@@ -68,6 +68,7 @@ public:
 
 	char cvarname[64];
 	char prompt[256];
+	char tooltip[256];
 
 	CScriptListItem *pListItems;
 
