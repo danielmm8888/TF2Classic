@@ -324,7 +324,7 @@
 @PointClass base(Item) studio("models/items/medkit_large.mdl") = item_healthkit_full : "Health Kit Full" []
 @PointClass base(Item) studio("models/items/medkit_small.mdl") = item_healthkit_small :	"Health Kit Small" []
 @PointClass base(Item) studio("models/items/medkit_medium.mdl") = item_healthkit_medium : "Health Kit Medium" []
-@PointClass base(Item) studio("models/items/medkit_small.mdl") = item_healthkit_tiny :	"Health Kit Tiny" []
+@PointClass base(Item) studio("models/items/medkit_overheal.mdl") = item_healthkit_tiny :	"Health Kit Tiny" []
 
 @PointClass base(Item) studio("models/items/ammopack_large.mdl") = item_ammopack_full :	"Ammo Pack Full" []
 @PointClass base(Item) studio("models/items/ammopack_small.mdl") = item_ammopack_small : "Ammo Pack Small" []
