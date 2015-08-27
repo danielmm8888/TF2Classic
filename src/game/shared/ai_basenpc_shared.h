@@ -18,7 +18,7 @@
 class CAI_BaseNPC;
 typedef CHandle<CAI_BaseNPC>	NPCHandle;
 
-// Shared header file for players
+// Shared header file for NPCs
 #if defined( CLIENT_DLL )
 #include "c_ai_basenpc.h"
 #else

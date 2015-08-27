@@ -351,6 +351,8 @@ extern const char *g_szProjectileNames[];
 #define TF_DISGUISE_TARGET_INDEX_NONE	( MAX_PLAYERS + 1 )
 #define TF_PLAYER_INDEX_NONE			( MAX_PLAYERS + 1 )
 
+#define PERMANENT_CONDITION		-1
+
 enum
 {
 	TF_COND_AIMING = 0,		// Sniper aiming, Heavy minigun.

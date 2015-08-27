@@ -988,19 +988,21 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	CTakeDamageInfo info( GetOwnerEntity(), pAttacker, flDamage, m_iDmgType, TF_DMG_CUSTOM_BURNING );
 	info.SetReportedPosition( pAttacker->GetAbsOrigin() );
 
-	// HACKHACK: Need to ignite NPCs here.
-	if ( pOther->IsNPC() )
-	{
-		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
-		pNPC->Ignite( 10.0f );
-	}
-
 	// We collided with pOther, so try to find a place on their surface to show blood
 	trace_t pTrace;
 	UTIL_TraceLine( WorldSpaceCenter(), pOther->WorldSpaceCenter(), MASK_SOLID|CONTENTS_HITBOX, this, COLLISION_GROUP_NONE, &pTrace );
 
 	pOther->DispatchTraceAttack( info, GetAbsVelocity(), &pTrace );
 	ApplyMultiDamage();
+
+	// HACKHACK: Need to ignite NPCs here.
+	if ( pOther->IsNPC() )
+	{
+		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+		pNPC->Ignite( TF_BURNING_FLAME_LIFE );
+		// I don't like this but Ignite doesn't allow us to set attacker so we have to do it seperately.
+		pNPC->SetBurnAttacker( pAttacker );
+	}
 }
 
 #endif // GAME_DLL

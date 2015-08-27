@@ -1743,7 +1743,6 @@ public:
 	bool				BBoxFlat( void );
 
 	//---------------------------------
-
 	virtual void		Ignite( float flFlameLifetime, bool bNPCOnly = true, float flSize = 0.0f, bool bCalledByLevelDesigner = false );
 	virtual bool		PassesDamageFilter( const CTakeDamageInfo &info );
 
@@ -1796,9 +1795,6 @@ public:
 	virtual int			OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	virtual int			OnTakeDamage_Dying( const CTakeDamageInfo &info );
 	virtual int			OnTakeDamage_Dead( const CTakeDamageInfo &info );
-	void				AddDamagerToHistory( EHANDLE hDamager );
-	void				ClearDamagerHistory();
-	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
 
 	virtual void		NotifyFriendsOfDamage( CBaseEntity *pAttackerEntity );
 	virtual void		OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CBaseEntity *pAttacker );
@@ -2139,8 +2135,20 @@ public:
 	// Team support for TF2C!
 	virtual void		ChangeTeam( int iTeamNum );
 
-	// TF2 Healer handling
 public:
+	// TF2 conditions
+	int		GetCond() const						{ return m_nPlayerCond; }
+	void	SetCond( int nCond )				{ m_nPlayerCond = nCond; }
+	void	AddCond( int nCond, float flDuration = PERMANENT_CONDITION );
+	void	RemoveCond( int nCond );
+	bool	InCond( int nCond );
+	void	RemoveAllCond( void );
+	void	OnConditionAdded( int nCond );
+	void	OnConditionRemoved( int nCond );
+	//void	ConditionThink( void );
+	float	GetConditionDuration( int nCond );
+
+	// TF2 healer and burning handling
 	void	ConditionGameRulesThink( void );
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
@@ -2152,8 +2160,20 @@ public:
 	int		TakeHealth( float flHealth, int bitsDamageType );
 	int		GetMaxBuffedHealth( void );
 
+	virtual bool	IsOnFire( void ) { return InCond( TF_COND_BURNING ); }
+	virtual void	Extinguish( void ) { RemoveCond( TF_COND_BURNING ); }
+	void	SetBurnAttacker( CBaseEntity *pAttacker ) { m_hBurnAttacker = pAttacker; }
+	void	OnAddBurning( void );
+	void	OnRemoveBurning( void );
+
+	// Damager history, used for TF2 assists.
+	void				AddDamagerToHistory( EHANDLE hDamager );
+	void				ClearDamagerHistory();
+	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
+
 private:
-	bool m_bHealthBuff;
+	CNetworkVar( int, m_nPlayerCond );
+	float m_flCondExpireTimeLeft[TF_COND_LAST];		// Time until each condition expires
 
 	struct healers_t
 	{
@@ -2167,6 +2187,12 @@ private:
 	float m_flInvulnerableOffTime;
 
 	CNetworkVar( int, m_nNumHealers );
+
+	// Burn handling
+	EHANDLE					m_hBurnAttacker;
+	//CNetworkVar( int,		m_nNumFlames );
+	float					m_flFlameBurnTime;
+	float					m_flFlameRemoveTime;
 
 	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this NPC
 #endif

@@ -652,6 +652,8 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	Wake( false );
 
 #ifdef TF_CLASSIC
+	RemoveAllCond();
+
 	// Bullseyes shouldn't send death notices.
 	if ( !FClassnameIs( this, "npc_bullseye" ) )
 	{
@@ -760,7 +762,27 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bool bCalledByLevelDesigner )
 {
+#ifndef TF_CLASSIC
 	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
+#else
+	// Don't bother igniting NPCs who have just been killed by the fire damage.
+	if ( !IsAlive() )
+		return;
+
+	if ( !AllowedToIgnite() )
+		return;
+
+	if ( !IsOnFire() )
+	{
+		// Start burning
+		AddCond( TF_COND_BURNING );
+		m_flFlameBurnTime = gpGlobals->curtime;	//asap
+	}
+	
+	m_flFlameRemoveTime = gpGlobals->curtime + TF_BURNING_FLAME_LIFE;
+	// Default attacker to world, Ignite calls from TF2 code need to change this.
+	m_hBurnAttacker = GetContainingEntity( INDEXENT(0) );
+#endif
 
 #ifdef HL2_EPISODIC
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
@@ -11079,7 +11101,10 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropBool( SENDINFO( m_bImportanRagdoll ) ),
 	SendPropFloat( SENDINFO( m_flTimePingEffect ) ),
 	SendPropString( SENDINFO( m_szClassname ) ),
+#ifdef TF_CLASSIC
+	SendPropInt( SENDINFO( m_nPlayerCond ), TF_COND_LAST, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
+#endif
 END_SEND_TABLE()
 
 //-------------------------------------
@@ -11667,6 +11692,10 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 	m_bInChoreo = true; // assume so until call to UpdateEfficiency()
 	
 	SetCollisionGroup( COLLISION_GROUP_NPC );
+
+#ifdef TF_CLASSIC
+	m_nPlayerCond = 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -14545,8 +14574,7 @@ void CAI_BaseNPC::Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal 
 	newHealer.bDispenserHeal = bDispenserHeal;
 	m_aHealers.AddToTail( newHealer );
 
-	m_bHealthBuff = true;
-	m_flHealFraction = 0;
+	AddCond( TF_COND_HEALTH_BUFF );
 
 	//RecalculateInvuln();
 
@@ -14566,8 +14594,7 @@ void CAI_BaseNPC::StopHealing( CTFPlayer *pPlayer )
 
 	if ( !m_aHealers.Count() )
 	{
-		m_bHealthBuff = false;
-		m_flHealFraction = 0;
+		RemoveCond( TF_COND_HEALTH_BUFF );
 	}
 
 	//RecalculateInvuln();
@@ -14603,12 +14630,37 @@ EHANDLE CAI_BaseNPC::GetFirstHealer()
 
 void CAI_BaseNPC::ConditionGameRulesThink( void )
 {
+	for ( int i=0;i<TF_COND_LAST;i++ )
+	{
+		if ( m_nPlayerCond & (1<<i) )
+		{
+			// Ignore permanent conditions
+			if ( m_flCondExpireTimeLeft[i] != PERMANENT_CONDITION )
+			{
+				float flReduction = gpGlobals->frametime;
+
+				// If we're being healed, we reduce bad conditions faster
+				if ( i > TF_COND_HEALTH_BUFF && m_aHealers.Count() > 0 )
+				{
+					flReduction += (m_aHealers.Count() * flReduction * 4);
+				}
+
+				m_flCondExpireTimeLeft[i] = max( m_flCondExpireTimeLeft[i] - flReduction, 0 );
+
+				if ( m_flCondExpireTimeLeft[i] == 0 )
+				{
+					RemoveCond( i );
+				}
+			}
+		}
+	}
+
 	// Our health will only decay ( from being medic buffed ) if we are not being healed by a medic
 	// Dispensers can give us the TF_COND_HEALTH_BUFF, but will not maintain or give us health above 100%s
 	bool bDecayHealth = true;
 
 	// If we're being healed, heal ourselves
-	if ( m_bHealthBuff )
+	if ( InCond( TF_COND_HEALTH_BUFF ) )
 	{
 		// Heal faster if we haven't been in combat for a while
 		float flTimeSinceDamage = gpGlobals->curtime - GetLastDamageTime();
@@ -14676,6 +14728,13 @@ void CAI_BaseNPC::ConditionGameRulesThink( void )
 			}
 #endif
 		}
+
+		if ( InCond( TF_COND_BURNING ) )
+		{
+			// Reduce the duration of this burn 
+			float flReduction = 2;	 // ( flReduction + 1 ) x faster reduction
+			m_flFlameRemoveTime -= flReduction * gpGlobals->frametime;
+		}
 	}
 
 	if ( bDecayHealth )
@@ -14695,6 +14754,30 @@ void CAI_BaseNPC::ConditionGameRulesThink( void )
 				m_iHealth -= nHealthToDrain;
 			}
 		}
+	}
+
+	if ( InCond( TF_COND_BURNING ) )
+	{
+		// If we're underwater, put the fire out
+		if ( gpGlobals->curtime > m_flFlameRemoveTime || GetWaterLevel() >= WL_Waist )
+		{
+			// Calling Extinguish since some NPCs use that.
+			Extinguish();
+		}
+		else if ( ( gpGlobals->curtime >= m_flFlameBurnTime ) )
+		{
+			// Burn the NPC
+			CTakeDamageInfo info( m_hBurnAttacker, m_hBurnAttacker, TF_BURNING_DMG, DMG_BURN | DMG_PREVENT_PHYSICS_FORCE | DMG_DIRECT, TF_DMG_CUSTOM_BURNING );
+			TakeDamage( info );
+			m_flFlameBurnTime = gpGlobals->curtime + TF_BURNING_FREQUENCY;
+		}
+#if 0
+		if ( m_flNextBurningSound < gpGlobals->curtime )
+		{
+			m_pOuter->SpeakConceptIfAllowed( MP_CONCEPT_ONFIRE );
+			m_flNextBurningSound = gpGlobals->curtime + 2.5;
+		}
+#endif
 	}
 }
 

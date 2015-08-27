@@ -268,10 +268,13 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_headshot", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
 			break;
 		case TF_DMG_CUSTOM_BURNING:
-			// special-case if custom kill is burning; if the attacker is dead we can't get weapon information, so force flamethrower as weapon
-			Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_flamethrower", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
-			m_DeathNotices[iDeathNoticeMsg].wzInfoText[0] = 0;
-			break;
+			{
+				// special-case if custom kill is burning; if the attacker is dead we can't get weapon information, so force flamethrower as weapon
+				const char *szIcon = event->GetInt( "attacker" ) > 0 ? "d_flamethrower" : "d_firedeath";
+				Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, szIcon, ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
+				m_DeathNotices[iDeathNoticeMsg].wzInfoText[0] = 0;
+				break;
+			}
 		case TF_DMG_CUSTOM_SUICIDE:
 			{
 				// display a different message if this was suicide, or assisted suicide (suicide w/recent damage, kill awarded to damager)

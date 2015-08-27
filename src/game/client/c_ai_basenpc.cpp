@@ -19,6 +19,7 @@
 #include "tf_shareddefs.h"
 #include "iclientmode.h"
 #include "vgui/ILocalize.h"
+#include "soundenvelope.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -41,7 +42,10 @@ IMPLEMENT_CLIENTCLASS_DT( C_AI_BaseNPC, DT_AI_BaseNPC, CAI_BaseNPC )
 	RecvPropBool( RECVINFO( m_bImportanRagdoll ) ),
 	RecvPropFloat( RECVINFO( m_flTimePingEffect ) ),
 	RecvPropString( RECVINFO( m_szClassname ) ),
+#ifdef TF_CLASSIC_CLIENT
+	RecvPropInt( RECVINFO( m_nPlayerCond ) ),
 	RecvPropInt( RECVINFO( m_nNumHealers ) ),
+#endif
 END_RECV_TABLE()
 
 extern ConVar cl_npc_speedmod_intime;
@@ -58,6 +62,12 @@ bool NPC_IsImportantNPC( C_BaseAnimating *pAnimating )
 
 C_AI_BaseNPC::C_AI_BaseNPC()
 {
+#ifdef TF_CLASSIC_CLIENT
+	m_pBurningSound = NULL;
+	m_pBurningEffect = NULL;
+	m_flBurnEffectStartTime = 0;
+	m_flBurnEffectEndTime = 0;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -154,6 +164,15 @@ void C_AI_BaseNPC::ClientThink( void )
 #endif
 }
 
+void C_AI_BaseNPC::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+#ifdef TF_CLASSIC_CLIENT
+	m_nOldConditions = m_nPlayerCond;
+#endif
+}
+
 void C_AI_BaseNPC::OnDataChanged( DataUpdateType_t type )
 {
 	BaseClass::OnDataChanged( type );
@@ -162,6 +181,33 @@ void C_AI_BaseNPC::OnDataChanged( DataUpdateType_t type )
 	{
 		SetNextClientThink( CLIENT_THINK_ALWAYS );
 	}
+
+#ifdef TF_CLASSIC_CLIENT
+	if ( InCond( TF_COND_BURNING ) && !m_pBurningSound )
+	{
+		StartBurningSound();
+	}
+
+	// Update conditions from last network change
+	if ( m_nOldConditions != m_nPlayerCond )
+	{
+		UpdateConditions();
+
+		m_nOldConditions = m_nPlayerCond;
+	}
+#endif
+}
+
+void C_AI_BaseNPC::UpdateOnRemove( void )
+{
+#ifdef TF_CLASSIC_CLIENT
+	ParticleProp()->OwnerSetDormantTo( true );
+	ParticleProp()->StopParticlesInvolving( this );
+
+	RemoveAllCond();
+#endif
+
+	BaseClass::UpdateOnRemove();
 }
 
 void C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x4_t *pDeltaBones1, matrix3x4_t *pCurrentBones, float boneDt )
@@ -184,6 +230,29 @@ void C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x
 }
 
 #ifdef TF_CLASSIC_CLIENT
+//-----------------------------------------------------------------------------
+// Purpose: check the newly networked conditions for changes
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::UpdateConditions( void )
+{
+	int nCondChanged = m_nPlayerCond ^ m_nOldConditions;
+	int nCondAdded = nCondChanged & m_nPlayerCond;
+	int nCondRemoved = nCondChanged & m_nOldConditions;
+
+	int i;
+	for ( i=0;i<TF_COND_LAST;i++ )
+	{
+		if ( nCondAdded & (1<<i) )
+		{
+			OnConditionAdded( i );
+		}
+		else if ( nCondRemoved & (1<<i) )
+		{
+			OnConditionRemoved( i );
+		}
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -241,5 +310,34 @@ Vector C_AI_BaseNPC::GetObserverCamOrigin( void )
 	}
 
 	return BaseClass::GetObserverCamOrigin();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::StartBurningSound( void )
+{
+	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+
+	if ( !m_pBurningSound )
+	{
+		CLocalPlayerFilter filter;
+		m_pBurningSound = controller.SoundCreate( filter, entindex(), "Player.OnFire" );
+	}
+
+	controller.Play( m_pBurningSound, 0.0, 100 );
+	controller.SoundChangeVolume( m_pBurningSound, 1.0, 0.1 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::StopBurningSound( void )
+{
+	if ( m_pBurningSound )
+	{
+		CSoundEnvelopeController::GetController().SoundDestroy( m_pBurningSound );
+		m_pBurningSound = NULL;
+	}
 }
 #endif

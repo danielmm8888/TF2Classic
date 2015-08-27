@@ -3171,12 +3171,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
-	{
-		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
-		killer_weapon_name = "tf_weapon_flamethrower";
-	}
-	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+	if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
 		// If the inflictor is the killer,  then it must be their current weapon doing the damage
 		if ( pScorer->GetActiveWeapon() )

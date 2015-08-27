@@ -42,8 +42,6 @@ class CTFPlayer;
 
 //=============================================================================
 
-#define PERMANENT_CONDITION		-1
-
 // Damage storage for crit multiplier calculation
 class CTFDamageEvent
 {
