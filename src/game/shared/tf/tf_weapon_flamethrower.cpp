@@ -995,12 +995,12 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	pOther->DispatchTraceAttack( info, GetAbsVelocity(), &pTrace );
 	ApplyMultiDamage();
 
-	// HACKHACK: Need to ignite NPCs here.
+	// It's better to ignite NPC here rather than NPC code.
 	if ( pOther->IsNPC() )
 	{
 		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
 		pNPC->Ignite( TF_BURNING_FLAME_LIFE );
-		// I don't like this but Ignite doesn't allow us to set attacker so we have to do it seperately.
+		// I don't like this but Ignite doesn't allow us to set attacker so we have to do it separately.
 		pNPC->SetBurnAttacker( pAttacker );
 	}
 }

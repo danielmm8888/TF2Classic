@@ -823,7 +823,7 @@ int CNPC_BaseZombie::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		// 10 fire entities.
 		if( IsOnFire() && !(inputInfo.GetDamageType() & DMG_DIRECT)
 #ifdef TF_CLASSIC
-			&& inputInfo.GetAttacker()->IsPlayer()
+			&& !(inputInfo.GetAttacker()->IsPlayer())
 #endif
 			)
 		{
