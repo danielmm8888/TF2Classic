@@ -1157,6 +1157,13 @@ public:
 		if (!pEntity)
 			return;
 
+		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel*>(pEntity);
+		if (pPanelModel)
+		{
+			m_pResult->SetVecValue(pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z);
+			return;
+		}
+
 		C_TFPlayer *pPlayer = null;
 
 		C_TFRagdoll *pRagdoll = dynamic_cast< C_TFRagdoll* >(pEntity);
@@ -1187,6 +1194,15 @@ public:
 			pPlayer = (C_TFPlayer*)pVM->GetOwner();
 		}
 
+		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
+		{
+			C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj*>(pEntity);
+			if (pGrenade)
+			{
+				pPlayer = ToTFPlayer(pGrenade->GetThrower());
+			}
+		}
+
 		if (!pPlayer)
 		{
 			pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
@@ -1196,13 +1212,6 @@ public:
 		if (pPlayer)
 		{
 			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
-			return;
-		}
-
-		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel*>(pEntity);
-		if (pPanelModel)
-		{
-			m_pResult->SetVecValue(pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z);
 			return;
 		}
 
