@@ -1509,7 +1509,7 @@
 			"height"	"32"
 		}
 
-		"pistol"
+		"pistol_hl"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
