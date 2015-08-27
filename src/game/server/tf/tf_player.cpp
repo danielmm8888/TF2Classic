@@ -3014,7 +3014,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket and we're in mid-air, scale down the damage
-	if ( IsPlayerClass( TF_CLASS_SOLDIER ) && info.GetAttacker() == this && GetGroundEntity() == NULL ) 
+	if ((IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY)) && info.GetAttacker() == this && GetGroundEntity() == NULL)
 	{
 		float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
 		info.SetDamage( flDamage );
@@ -3494,7 +3494,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			vecForce.Init();
 			if ( info.GetAttacker() == this )
 			{
-				if ( IsPlayerClass( TF_CLASS_SOLDIER ) ) 
+				if (IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY))
 				{
 					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_self_soldier.GetFloat() );
 				}
