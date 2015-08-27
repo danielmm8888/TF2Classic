@@ -1983,7 +1983,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	{
 		int i = 0;
 
-		for ( i = TF_CLASS_SCOUT; i <= TF_LAST_NORMAL_CLASS; i++ )
+		for ( i = TF_CLASS_SCOUT; i <= TF_CLASS_ENGINEER; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
