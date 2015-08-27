@@ -1051,32 +1051,29 @@ void CTFPlayerShared::OnAddSlowed(void)
 void CTFPlayerShared::OnAddCritboosted(void)
 {
 #ifdef CLIENT_DLL
-	if (m_pOuter->IsLocalPlayer())
-	{
-		char *pEffectName = NULL;
-		char pEffectNameTemp[128];
-		C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>(m_pOuter->GetTeam());
+	char *pEffectName = NULL;
+	char pEffectNameTemp[128];
+	C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>(m_pOuter->GetTeam());
 
-		Q_snprintf( pEffectNameTemp, sizeof(pEffectNameTemp), "critgun_weaponmodel_%s", pTeam->Get_Name() );
-		pEffectName = pEffectNameTemp;
+	Q_snprintf( pEffectNameTemp, sizeof(pEffectNameTemp), "critgun_weaponmodel_%s", pTeam->Get_Name() );
+	pEffectName = pEffectNameTemp;
 
-		if (TFGameRules()->IsDeathmatch())
-			pEffectName = "critgun_weaponmodel_dm";
+	if (TFGameRules()->IsDeathmatch())
+		pEffectName = "critgun_weaponmodel_dm";
 
-		CNewParticleEffect *pCritParticle = m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectName, PATTACH_ROOTBONE_FOLLOW);
+	CNewParticleEffect *pCritParticle = m_pOuter->GetRenderedWeaponModel()->ParticleProp()->Create(pEffectName, PATTACH_ROOTBONE_FOLLOW);
 
-		if (TFGameRules()->IsDeathmatch())
-			SetParticleToMercColor(pCritParticle);
+	if (TFGameRules()->IsDeathmatch())
+		SetParticleToMercColor(pCritParticle);
 
-		Q_snprintf(pEffectNameTemp, sizeof(pEffectNameTemp), "%s_glow", pEffectName);
-		pCritParticle = m_pOuter->GetViewModel()->ParticleProp()->Create(pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW);
+	Q_snprintf(pEffectNameTemp, sizeof(pEffectNameTemp), "%s_glow", pEffectName);
+	pCritParticle = m_pOuter->GetRenderedWeaponModel()->ParticleProp()->Create(pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW);
 
-		if (TFGameRules()->IsDeathmatch())
-			SetParticleToMercColor(pCritParticle);
-
-		CLocalPlayerFilter filter;
-		m_pOuter->GetViewModel()->EmitSound(filter, m_pOuter->GetViewModel()->entindex(), "Weapon_General.CritPower");
-	}
+	if (TFGameRules()->IsDeathmatch())
+		SetParticleToMercColor(pCritParticle);
+		
+	CLocalPlayerFilter filter;
+	m_pOuter->EmitSound(filter, m_pOuter->entindex(), "Weapon_General.CritPower");
 #endif
 }
 
@@ -1095,11 +1092,10 @@ void CTFPlayerShared::OnRemoveSlowed(void)
 void CTFPlayerShared::OnRemoveCritboosted(void)
 {
 #ifdef CLIENT_DLL
-	if (m_pOuter->IsLocalPlayer())
-	{
-		m_pOuter->GetViewModel()->ParticleProp()->StopEmission(false, true, false);
-		m_pOuter->GetViewModel()->StopSound("Weapon_General.CritPower");
-	}
+	if (m_pOuter->GetRenderedWeaponModel())
+		m_pOuter->GetRenderedWeaponModel()->ParticleProp()->StopEmission(false, true, false);
+
+	m_pOuter->StopSound("Weapon_General.CritPower");
 #endif
 }
 
