@@ -55,6 +55,7 @@ CAdvTabs::~CAdvTabs()
 void CAdvTabs::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
+	iOffset = inResourceData->GetInt("offset", 0);
 
 	m_pButtons.RemoveAll();
 	int iCount = GetChildCount();
@@ -67,7 +68,7 @@ void CAdvTabs::ApplySettings(KeyValues *inResourceData)
 		}
 	}
 
-	int iWide = GetWide() / iCount;
+	int iWide = GetWide() / iCount - iOffset;
 	int iTall = GetTall();
 
 	iCount = m_pButtons.Count();
@@ -76,7 +77,7 @@ void CAdvTabs::ApplySettings(KeyValues *inResourceData)
 		CTFAdvButton *pButton = m_pButtons[i];
 		if (pButton)
 		{
-			pButton->SetPos(i * iWide, 0);
+			pButton->SetPos(i * (iWide + iOffset), 0);
 			pButton->SetZPos(i - 1);
 			pButton->SetSize(iWide, iTall);
 		}
@@ -85,7 +86,7 @@ void CAdvTabs::ApplySettings(KeyValues *inResourceData)
 	if (!m_pCurrentButton)
 	{
 		m_pCurrentButton = m_pButtons[0];
-		m_pCurrentButton->GetButton()->SetSelected(true);
+		m_pCurrentButton->SetSelected(true);
 	}
 
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
@@ -94,9 +95,9 @@ void CAdvTabs::ApplySettings(KeyValues *inResourceData)
 void CAdvTabs::OnButtonPressed(Panel *pPanel)
 {
 	if (m_pCurrentButton)
-		m_pCurrentButton->GetButton()->SetSelected(false);
+		m_pCurrentButton->SetSelected(false);
 	m_pCurrentButton = dynamic_cast<CTFAdvButton*>(pPanel);
-	m_pCurrentButton->GetButton()->SetSelected(true);
+	m_pCurrentButton->SetSelected(true);
 }
 
 //-----------------------------------------------------------------------------

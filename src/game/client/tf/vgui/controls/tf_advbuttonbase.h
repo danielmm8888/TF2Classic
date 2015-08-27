@@ -37,7 +37,7 @@ enum MouseState
 #define DEFAULT_IMAGE		""
 #define EMPTY_STRING		""
 #define GETSCHEME()			scheme()->GetIScheme(GetScheme())
-#define pSelectedBG			pDefaultBG
+#define pSelectedBG			(!m_bSelected ? pDefaultBG : pArmedBG) 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -75,6 +75,7 @@ protected:
 	bool			m_bBorderVisible;
 	bool			m_bShowInt;
 	bool			m_bAutoChange;
+	bool			m_bSelected;
 	
 	char			pDefaultBG[64];
 	char			pArmedBG[64];

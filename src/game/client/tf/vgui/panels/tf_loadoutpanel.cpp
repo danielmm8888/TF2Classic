@@ -379,6 +379,7 @@ void CTFLoadoutPanel::DefaultLayout()
 	UpdateModelPanels();
 
 	int iClassIndex = iCurrentClass;
+	SetDialogVariable("classname", g_aPlayerClassNames_NonLocalized[iClassIndex]);
 	if (iClassIndex != TF_CLASS_MERCENARY)
 	{
 		int iColCount = 0;

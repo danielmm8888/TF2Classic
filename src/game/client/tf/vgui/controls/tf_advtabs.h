@@ -27,7 +27,7 @@ public:
 	virtual void DeleteAllItems(); // clears and deletes all the memory used by the data items
 
 protected:
-
+	int	iOffset;
 	CUtlVector<CTFAdvButton*>	m_pButtons;
 	CTFAdvButton*	m_pCurrentButton;
 	MESSAGE_FUNC_PTR(OnButtonPressed, "ButtonPressed", panel);

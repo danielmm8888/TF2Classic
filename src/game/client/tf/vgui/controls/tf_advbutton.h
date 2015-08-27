@@ -11,6 +11,7 @@
 using namespace vgui;
 
 class CTFButton;
+#define pImageColorSelected		(!m_bSelected ? pImageColorDefault : pSelectedColor) 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -35,6 +36,7 @@ public:
 	void SetGlowing(bool Glowing);
 	void SetShouldScaleImage(bool state) { m_bScaleImage = state; };
 	bool GetShouldScaleImage() { return m_bScaleImage; };
+	void SetSelected(bool bState);
 
 	void OnThink();
 	CTFButton *GetButton(){ return pButton; };

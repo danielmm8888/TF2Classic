@@ -66,6 +66,7 @@ void CTFAdvButtonBase::Init()
 	Q_strncpy(pToolTip, EMPTY_STRING, sizeof(pToolTip));
 	m_bBorderVisible = true;
 	m_bAutoChange = false;
+	m_bSelected = false;
 	m_fImageWidth = 0.0;
 }
 
@@ -96,6 +97,8 @@ void CTFAdvButtonBase::ApplySettings(KeyValues *inResourceData)
 			Q_strncpy(pArmedColor, pData->GetString("armedFgColor_override", ARMED_COLOR), sizeof(pArmedColor));
 			Q_strncpy(pDepressedColor, pData->GetString("depressedFgColor_override", DEPRESSED_COLOR), sizeof(pDepressedColor));
 			Q_strncpy(pSelectedColor, pData->GetString("selectedFgColor_override", ARMED_COLOR), sizeof(pSelectedColor));
+
+			m_bSelected = inResourceData->GetBool("selected", false);
 		}
 		if (!Q_stricmp(pData->GetName(), "SubImage"))
 		{

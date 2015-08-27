@@ -165,6 +165,13 @@ void CTFAdvButton::SetGlowing(bool Glowing)
 	}
 };
 
+void CTFAdvButton::SetSelected(bool bState)
+{
+	m_bSelected = bState;
+	SendAnimation(MOUSE_DEFAULT);
+	pButton->SetSelected(bState);
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -180,6 +187,9 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 {
 	BaseClass::SendAnimation(flag);
 
+	if (pButton->IsSelected() && m_bSelected)
+		return;
+
 	bool bAnimation = ((pButton->m_fXShift == 0 && pButton->m_fYShift == 0) ? false : true);
 	AnimationController::PublicValue_t p_AnimLeave = { 0, 0, 0, 0 };
 	AnimationController::PublicValue_t p_AnimHover = { pButton->m_fXShift, pButton->m_fYShift, 0, 0 };
@@ -187,7 +197,7 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 	{
 	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
-		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorSelected, Color(255, 255, 255, 255)));
 		break;
 	case MOUSE_ENTERED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
@@ -195,7 +205,7 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
 	case MOUSE_EXITED:
-		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
+		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorSelected, Color(255, 255, 255, 255)));
 		if (bAnimation)
 			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		break;
