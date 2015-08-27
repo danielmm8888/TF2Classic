@@ -3203,6 +3203,12 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		killer_weapon_name = STRING( pInflictor->m_iClassname );
 	}
 
+	// Fix for HL2 pistol to prevent conflict with TF2 pistol. Must do this before stripping prefix.
+	if ( Q_strcmp( killer_weapon_name, "weapon_pistol" ) == 0 )
+	{
+		killer_weapon_name = "weapon_pistol_hl";
+	}
+
 	// strip certain prefixes from inflictor's classname
 	const char *prefix[] = { "TF_WEAPON_GRENADE_", "TF_WEAPON_", "weapon_", "npc_", "func_" };
 	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
@@ -3217,9 +3223,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// In case of a sentry kill change the icon according to sentry level.
-	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
+	if ( Q_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
 	{
-		CObjectSentrygun* pSentry = assert_cast<CObjectSentrygun * >( pInflictor );
+		CObjectSentrygun *pSentry = assert_cast<CObjectSentrygun *>( pInflictor );
 
 		if ( pSentry )
 		{
@@ -3236,13 +3242,13 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
-	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
+	if ( Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
 	{
 		killer_weapon_name = "obj_sentrygun3";
 	}
 
 	// Some special cases for NPCs.
-	if ( 0 == Q_strcmp( killer_weapon_name, "strider" ) )
+	if ( Q_strcmp( killer_weapon_name, "strider" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_BULLET )
 		{
@@ -3253,7 +3259,8 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = "strider_skewer";
 		}
 	}
-	else if ( 0 == Q_strcmp( killer_weapon_name, "vortigaunt" ) )
+
+	if ( Q_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{
