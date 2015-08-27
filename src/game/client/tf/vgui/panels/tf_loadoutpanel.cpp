@@ -280,7 +280,8 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 		_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
 		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
 		m_pClassModelPanel->ClearMergeMDLs();
-		m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
+		if (pData.szWorldModel[0] != '\0')
+			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
 		m_pClassModelPanel->Update();
 	}
 	else
