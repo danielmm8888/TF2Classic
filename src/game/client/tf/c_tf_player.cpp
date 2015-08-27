@@ -1067,7 +1067,7 @@ public:
 
 		if ( !pC_BaseEntity )
 		{
-			m_pResult->SetVecValue(0,0,0);
+			m_pResult->SetVecValue( 1, 1, 1 );
 			return;
 		}
 
@@ -1149,7 +1149,7 @@ public:
 
 		if ( !pC_BaseEntity )
 		{
-			m_pResult->SetVecValue(0, 0, 0);
+			m_pResult->SetVecValue(1, 1, 1);
 			return;
 		}
 
