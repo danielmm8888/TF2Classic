@@ -68,10 +68,10 @@
 	{
 		"ControlName"	"CTFImageColoredPanel"
 		"fieldName"		"HudColoredBG"
-		"xpos"			"4"
+		"xpos"			"0"
 		"ypos"			"5"
 		"zpos"			"0"
-		"wide"			"192"
+		"wide"			"200"
 		"tall"			"100"
 		"visible"		"1"
 		"enabled"		"1"
@@ -81,7 +81,7 @@
 	}	
 	"ArrowImage"
 	{
-		"ControlName"	"CTFImagePanel"
+		"ControlName"	"ImagePanel"
 		"fieldName"		"ArrowImage"
 		"xpos"			"22"
 		"ypos"			"12"

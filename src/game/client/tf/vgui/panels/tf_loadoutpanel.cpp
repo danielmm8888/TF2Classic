@@ -14,6 +14,7 @@ using namespace vgui;
 
 #define PANEL_WIDE 110
 #define PANEL_TALL 70
+#define TF_WEAPON_SAPPER "TF_WEAPON_SAPPER"
 
 static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 {
@@ -34,8 +35,9 @@ static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 struct _WeaponData
 {
 	char szWorldModel[64];
-	int m_iWeaponType;
 	char iconInactive[64];
+	char szPrintName[64];
+	int m_iWeaponType;
 };
 
 //-----------------------------------------------------------------------------
@@ -59,6 +61,7 @@ public:
 	{
 		_WeaponData sTemp;
 		Q_strncpy(sTemp.szWorldModel, pKeyValuesData->GetString("playermodel", ""), sizeof(sTemp.szWorldModel));
+		Q_strncpy(sTemp.szPrintName, pKeyValuesData->GetString("printname", ""), sizeof(sTemp.szPrintName));
 		const char *pszWeaponType = pKeyValuesData->GetString("WeaponType");
 		sTemp.m_iWeaponType = 0;
 		if (!Q_strcmp(pszWeaponType, "primary"))
@@ -274,21 +277,28 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
 	int iWeapon = GetTFInventory()->GetWeapon(iClass, iSlot, iPreset);
-	
 	if (iWeapon)
 	{
-		_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+		_WeaponData pData;
+		if (iWeapon == TF_WEAPON_BUILDER && iClass == TF_CLASS_SPY)
+		{
+			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
+		}
+		else
+		{
+			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+		}
 		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
 		m_pClassModelPanel->ClearMergeMDLs();
-		m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
-		m_pClassModelPanel->Update();
+		if (pData.szWorldModel[0] != '\0')
+			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
 	}
 	else
 	{
 		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
-		m_pClassModelPanel->Update();
 	}
+	m_pClassModelPanel->Update();
 }
 
 void CTFLoadoutPanel::Show()
@@ -398,14 +408,23 @@ void CTFLoadoutPanel::DefaultLayout()
 					m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
 
 					int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
-					_WeaponData pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+
+					_WeaponData pData;
+					if (iWeapon == TF_WEAPON_BUILDER && iCurrentClass == TF_CLASS_SPY)
+					{
+						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
+					}
+					else
+					{
+						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+					}
+
 					char szIcon[64];
 					Q_snprintf(szIcon, sizeof(szIcon), "../%s", pData.iconInactive);
 					m_pWeaponButton->SetImage(szIcon);
 
-					const char *pszWeaponName = WeaponIdToAlias(iWeapon);
 					char szWeaponName[32];
-					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pszWeaponName);
+					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pData.szPrintName);
 					m_pWeaponButton->SetText(szWeaponName);
 
 					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);

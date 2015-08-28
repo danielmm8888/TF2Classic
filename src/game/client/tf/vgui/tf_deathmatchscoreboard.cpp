@@ -37,6 +37,7 @@
 #include "tf_gamerules.h"
 #include "inputsystem/iinputsystem.h"
 #include "basemodelpanel.h"
+#include "engine/IEngineSound.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -687,6 +688,7 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 
 		m_flTimeUpdateTeamScore = gpGlobals->curtime + 4.5f;
 		bLockInput = true;
+		bool bPlayerFirst = false;
 
 		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
 		if (!tf_PR)
@@ -745,6 +747,9 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 				pPlayerKills->SetText(CFmtStr("Kills: %d", iPlayerKills));
 				pPlayerDeaths->SetText(CFmtStr("Deaths: %d", iPlayerDeaths));
 
+				if (i == 1 && iPlayerIndex == GetLocalPlayerIndex())
+					bPlayerFirst = true;
+
 				// store the colors for model coloring
 				m_vecWinningPlayerColor.AddToTail(Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f));
 			}
@@ -756,6 +761,9 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 			pPlayerModel->SetVisible(bShow);
 		}
 		ShowPanel(true);
+
+		CLocalPlayerFilter filter;
+		C_BaseEntity::EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, (bPlayerFirst ? "music.dm_winpanel_first" : "music.dm_winpanel"));		
 
 	}
 	else if (Q_strcmp("teamplay_round_start", type) == 0)
