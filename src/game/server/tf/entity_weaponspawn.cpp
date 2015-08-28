@@ -119,6 +119,9 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
 			(pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL) )
 			{
+				// Spawn a weapon model.
+				pTFPlayer->DropFakeWeapon(pWeapon);
+
 				// Check Use button, always replace pistol
 				pTFPlayer->Weapon_Detach(pWeapon);
 				pWeapon->WeaponReset();
