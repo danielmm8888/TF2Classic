@@ -741,3 +741,39 @@
 	"soundlevel"  	"SNDLVL_94dB"
 	"wave"			")misc/achievement_earned.wav"
 }
+
+// ------------------------------------------------------------------------------------ //
+// OVERHEAL PILL
+// ------------------------------------------------------------------------------------ //
+"OverhealPillRattle.Touch" //Plays if it overhealed the player
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"rndwave"
+	{
+		"wave"	"items/pills/pill_heal1.wav"
+		"wave"	"items/pills/pill_heal2.wav"
+		"wave"	"items/pills/pill_heal3.wav"
+		"wave"	"items/pills/pill_heal4.wav"
+		"wave"	"items/pills/pill_heal5.wav"
+		"wave"	"items/pills/pill_heal6.wav"
+	}
+}
+"OverhealPillNoRattle.Touch" //Plays if it only just healed the player
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_NONE"
+	"pitch"		"PITCH_NORM"
+	"rndwave"
+	{
+		"wave"	"items/pills/norattle/pill_heal1.wav"
+		"wave"	"items/pills/norattle/pill_heal2.wav"
+		"wave"	"items/pills/norattle/pill_heal3.wav"
+		"wave"	"items/pills/norattle/pill_heal4.wav"
+		"wave"	"items/pills/norattle/pill_heal5.wav"
+		"wave"	"items/pills/norattle/pill_heal6.wav"
+	}
+}

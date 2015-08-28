@@ -3,7 +3,7 @@ WeaponData
 	// Attributes Base.
 	"printname"		"#TF_Weapon_StenGun"
 	"BuiltRightHanded"	"0"
-	"weight"		"2"
+	"weight"		"3"
 	"WeaponType"		"primary"
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		

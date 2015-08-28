@@ -20,9 +20,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_EMP"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_WRENCH"
+	"weapon1"		"TF_WEAPON_SHOTGUN_PRIMARY"
 	"weapon2"		"TF_WEAPON_PISTOL"
-	"weapon3"		"TF_WEAPON_SHOTGUN_PRIMARY"
+	"weapon3"		"TF_WEAPON_WRENCH"
 	"weapon4"		"TF_WEAPON_PDA_ENGINEER_BUILD"
 	"weapon5"		"TF_WEAPON_PDA_ENGINEER_DESTROY"
 	

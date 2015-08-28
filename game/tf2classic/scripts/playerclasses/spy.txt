@@ -20,10 +20,11 @@ PlayerClass
 //	"grenade2"		"TF_WEAPON_GRENADE_SMOKE_BOMB"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_KNIFE"
-	"weapon2"		"TF_WEAPON_REVOLVER"
-	"weapon3"		"TF_WEAPON_PDA_SPY"
-	"weapon4"		"TF_WEAPON_INVIS"
+	"weapon1"		"TF_WEAPON_REVOLVER"
+	"weapon2"		""
+	"weapon3"		"TF_WEAPON_KNIFE"
+	"weapon4"		"TF_WEAPON_PDA_SPY"
+	"weapon5"		"TF_WEAPON_INVIS"
 	
 	// Buildables
 	"buildable1"	"OBJ_ATTACHMENT_SAPPER"

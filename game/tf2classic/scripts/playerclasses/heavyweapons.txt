@@ -20,9 +20,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_MIRV"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_FISTS"
+	"weapon1"		"TF_WEAPON_MINIGUN"
 	"weapon2"		"TF_WEAPON_SHOTGUN_HWG"
-	"weapon3"		"TF_WEAPON_MINIGUN"
+	"weapon3"		"TF_WEAPON_FISTS"
 	
 	//Thirdperson
 	"cameraoffset_forward"	"85"

@@ -20,9 +20,9 @@ PlayerClass
 	//"grenade2"		"TF_WEAPON_GRENADE_NAPALM"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_FIREAXE"
+	"weapon1"		"TF_WEAPON_FLAMETHROWER"
 	"weapon2"		"TF_WEAPON_SHOTGUN_PYRO"
-	"weapon3"		"TF_WEAPON_FLAMETHROWER"
+	"weapon3"		"TF_WEAPON_FIREAXE"
 
 	//Thirdperson
 	"cameraoffset_forward"	"85"

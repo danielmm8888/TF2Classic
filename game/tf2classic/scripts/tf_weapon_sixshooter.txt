@@ -1,9 +1,9 @@
 WeaponData
 {
 	// Attributes Base.
-	"printname"				"#TF_Weapon_SixShooter"
+	"printname"			"#TF_Weapon_SixShooter"
 	"BuiltRightHanded"		"0"
-	"weight"				"3"
+	"weight"			"3"
 	"WeaponType"			"primary"
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		
@@ -26,7 +26,7 @@ WeaponData
 	"default_clip"		"6"
 
 	// Buckets.
-	"bucket"		"1"
+	"bucket"		"0"
 	"bucket_position"	"0"
 
 	// Animation.
