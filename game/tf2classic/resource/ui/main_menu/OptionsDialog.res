@@ -129,149 +129,139 @@
 		}
 	}
 	
-	"AdvButton"
+	
+	"optionsbutton"
 	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"AdvButton"
+		"ControlName"		"CAdvTabs"
+		"fieldName"			"optionsbutton"
 		"xpos"				"25"
 		"ypos"				"20"
-		"zpos"				"2"
-		"wide"				"70"
+		"zpos"				"6"
+		"wide"				"350"
 		"tall"				"25"
 		"visible"			"1"
 		"enabled"			"1"
-		"bordervisible"			"1"		
-		"command"				"newoptionsadv"
+		"bordervisible"		"0"		
 		
-		"SubButton"
+		"AdvButton"
 		{
-			"labelText"			"#GameUI_Multiplayer"
-			"xshift" 			"0"
-			"yshift"			"-3"
-			"stayselectedonclick"	"1"
-			"textAlignment"		"center"	
-			"font"				"TallTextSmall"
-			"border_default"		"AdvLeftButtonDefault"
-			"border_armed"			"AdvLeftButtonArmed"
-			"border_depressed"		"AdvLeftButtonDepressed"
-			"selectedFgColor_override"		"255 255 180 255"
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"AdvButton"
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"			"1"		
+			"command"				"newoptionsadv"
+			
+			"SubButton"
+			{
+				"labelText"			"#GameUI_Multiplayer"
+				"xshift" 			"0"
+				"yshift"			"-3"
+				"stayselectedonclick"	"1"
+				"textAlignment"		"center"	
+				"font"				"TallTextSmall"
+				"border_default"		"AdvLeftButtonDefault"
+				"border_armed"			"AdvLeftButtonArmed"
+				"border_depressed"		"AdvLeftButtonDepressed"
+				"selectedFgColor_override"		"255 255 180 255"
+			}
 		}
-	}
-	
-	
-	"MouseButton"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"MouseButton"
-		"xpos"				"94"
-		"ypos"				"20"
-		"zpos"				"2"
-		"wide"				"70"
-		"tall"				"25"
-		"visible"			"1"
-		"enabled"			"1"
-		"bordervisible"			"1"	
-		"command"				"newoptionsmouse"
 		
-		"SubButton"
+		
+		"MouseButton"
 		{
-			"labelText"			"#GameUI_Mouse"
-			"xshift" 			"0"
-			"yshift"			"-3"
-			"stayselectedonclick"	"1"
-			"textAlignment"		"center"	
-			"font"				"TallTextSmall"
-			"border_default"		"AdvSquareButtonDefault"
-			"border_armed"			"AdvSquareButtonArmed"
-			"border_depressed"		"AdvSquareButtonDepressed"	
-			"selectedFgColor_override"		"255 255 180 255"
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"MouseButton"
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"			"1"	
+			"command"				"newoptionsmouse"
+			
+			"SubButton"
+			{
+				"labelText"			"#GameUI_Mouse"
+				"xshift" 			"0"
+				"yshift"			"-3"
+				"stayselectedonclick"	"1"
+				"textAlignment"		"center"	
+				"font"				"TallTextSmall"
+				"border_default"		"AdvSquareButtonDefault"
+				"border_armed"			"AdvSquareButtonArmed"
+				"border_depressed"		"AdvSquareButtonDepressed"	
+				"selectedFgColor_override"		"255 255 180 255"
+			}
 		}
-	}
-	
-	"KeyboardButton"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"KeyboardButton"
-		"xpos"				"163"
-		"ypos"				"20"
-		"zpos"				"2"
-		"wide"				"70"
-		"tall"				"25"
-		"visible"			"1"
-		"enabled"			"1"
-		"bordervisible"			"1"	
-		"command"				"newoptionskeyboard"
 		
-		"SubButton"
+		"KeyboardButton"
 		{
-			"labelText"			"#GameUI_Keyboard"
-			"xshift" 			"0"
-			"yshift"			"-3"	
-			"stayselectedonclick"	"1"
-			"textAlignment"		"center"
-			"font"				"TallTextSmall"
-			"border_default"		"AdvSquareButtonDefault"
-			"border_armed"			"AdvSquareButtonArmed"
-			"border_depressed"		"AdvSquareButtonDepressed"
-			"selectedFgColor_override"		"255 255 180 255"	
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"KeyboardButton"
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"			"1"	
+			"command"				"newoptionskeyboard"
+			
+			"SubButton"
+			{
+				"labelText"			"#GameUI_Keyboard"
+				"xshift" 			"0"
+				"yshift"			"-3"	
+				"stayselectedonclick"	"1"
+				"textAlignment"		"center"
+				"font"				"TallTextSmall"
+				"border_default"		"AdvSquareButtonDefault"
+				"border_armed"			"AdvSquareButtonArmed"
+				"border_depressed"		"AdvSquareButtonDepressed"
+				"selectedFgColor_override"		"255 255 180 255"	
+			}
 		}
-	}
-	
-	"AudioButton"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"AudioButton"
-		"xpos"				"232"
-		"ypos"				"20"
-		"zpos"				"2"
-		"wide"				"70"
-		"tall"				"25"
-		"visible"			"1"
-		"enabled"			"1"
-		"bordervisible"			"1"	
-		"command"				"newoptionsaudio"
 		
-		"SubButton"
+		"AudioButton"
 		{
-			"labelText"			"#GameUI_Audio"
-			"xshift" 			"0"
-			"yshift"			"-3"
-			"stayselectedonclick"	"1"
-			"textAlignment"		"center"	
-			"font"				"TallTextSmall"
-			"border_default"		"AdvSquareButtonDefault"
-			"border_armed"			"AdvSquareButtonArmed"
-			"border_depressed"		"AdvSquareButtonDepressed"	
-			"selectedFgColor_override"		"255 255 180 255"
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"AudioButton"
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"			"1"	
+			"command"				"newoptionsaudio"
+			
+			"SubButton"
+			{
+				"labelText"			"#GameUI_Audio"
+				"xshift" 			"0"
+				"yshift"			"-3"
+				"stayselectedonclick"	"1"
+				"textAlignment"		"center"	
+				"font"				"TallTextSmall"
+				"border_default"		"AdvSquareButtonDefault"
+				"border_armed"			"AdvSquareButtonArmed"
+				"border_depressed"		"AdvSquareButtonDepressed"	
+				"selectedFgColor_override"		"255 255 180 255"
+			}
 		}
-	}
-	
-	"VideoButton"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"VideoButton"
-		"xpos"				"301"
-		"ypos"				"20"
-		"zpos"				"2"
-		"wide"				"70"
-		"tall"				"25"
-		"visible"			"1"
-		"enabled"			"1"
-		"bordervisible"			"1"	
-		"command"				"newoptionsvideo"
 		
-		"SubButton"
+		"VideoButton"
 		{
-			"labelText"			"#GameUI_Video"
-			"xshift" 			"0"
-			"yshift"			"-3"
-			"stayselectedonclick"	"1"
-			"textAlignment"		"center"	
-			"font"				"TallTextSmall"
-			"border_default"		"AdvRightButtonDefault"
-			"border_armed"			"AdvRightButtonArmed"
-			"border_depressed"		"AdvRightButtonDepressed"	
-			"selectedFgColor_override"		"255 255 180 255"
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"VideoButton"
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"			"1"	
+			"command"				"newoptionsvideo"
+			
+			"SubButton"
+			{
+				"labelText"			"#GameUI_Video"
+				"xshift" 			"0"
+				"yshift"			"-3"
+				"stayselectedonclick"	"1"
+				"textAlignment"		"center"	
+				"font"				"TallTextSmall"
+				"border_default"		"AdvRightButtonDefault"
+				"border_armed"			"AdvRightButtonArmed"
+				"border_depressed"		"AdvRightButtonDepressed"	
+				"selectedFgColor_override"		"255 255 180 255"
+			}
 		}
 	}
 

@@ -746,6 +746,18 @@ Scheme
 				"yres"	"1200 10000"
 			}
 		}
+		"HudFontHuge"
+		{
+			"1"
+			{
+				"name"		"TF2"
+				"tall"		"54"
+				"tall_hidef"	"66"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+			}
+		}
 		"HudFontGiant"
 		{
 			"1"
@@ -2436,6 +2448,19 @@ Scheme
 				"name"		"TF2"
 				"tall"		"40"
 				"tall_lodef"	"68"
+				"range" 	"0x0000 0x00FF"
+				"weight"	"400"
+				"additive"	"0"
+				"antialias" 	"1"
+			}
+		}
+
+		"TallTextSmall"
+		{
+			"1"
+			{
+				"name"		"Pathway Gothic One"
+				"tall"		"18"
 				"range" 	"0x0000 0x00FF"
 				"weight"	"400"
 				"additive"	"0"
@@ -4519,7 +4544,7 @@ Scheme
 			
 			"image"					"main_menu/scroll_bg"
 			"src_corner_height"		"32"				// pixels inside the image
-			"src_corner_width"		"32"
+			"src_corner_width"		"0"
 			"draw_corner_width"		"4"				// screen size of the corners ( and sides ), proportional
 			"draw_corner_height" 	"4"	
 		}
@@ -4599,6 +4624,11 @@ Scheme
 			{
 				"range" "0x0000 0xFFFF"
 			}
-		}			
+		}		
+		"7" 
+		{
+			"font" "resource/PathwayGothicOne-Regular.ttf"
+			"name" "Pathway Gothic One"
+		}		
 	}
 }

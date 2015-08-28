@@ -30,8 +30,8 @@
 		"enabled"			"1"
 		"labelText"			"text"
 		"textAlignment"		"center"
-		"wrap"				"0"
-		"font"				"HudFontSmallBold"
+		"wrap"				"1"
+		"font"				"ControllerHintText"
 		"fgcolor"			"MainMenuTextDepressed"
 	}		
 }		
