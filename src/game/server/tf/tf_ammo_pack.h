@@ -30,7 +30,7 @@ public:
 
 	int GiveAmmo( int iCount, int iAmmoType );
 
-	static CTFAmmoPack *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName );
+	static CTFAmmoPack *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, bool bUseCustomAmmoCount = false);
 
 	float GetCreationTime( void ) { return m_flCreationTime; }
 	void  SetInitialVelocity( Vector &vecVelocity );
@@ -40,6 +40,7 @@ private:
 
 	float m_flCreationTime;
 
+	bool m_bUseCustomAmmoCount;
 	bool m_bAllowOwnerPickup;
 	CNetworkVector( m_vecInitialVelocity );
 
