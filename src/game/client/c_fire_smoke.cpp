@@ -295,9 +295,14 @@ void C_EntityFlame::StopEffect( void )
 {
 	if ( m_hEffect )
 	{
+#ifdef TF_CLASSIC_CLIENT
+		if ( m_hEntAttached )
+			m_hEntAttached->ParticleProp()->StopEmission( m_hEffect, true );
+#else
 		ParticleProp()->StopEmission( m_hEffect, true );
 		m_hEffect->SetControlPointEntity( 0, NULL );
 		m_hEffect->SetControlPointEntity( 1, NULL );
+#endif
 		m_hEffect = NULL;
 	}
 
@@ -326,28 +331,38 @@ void C_EntityFlame::CreateEffect( void )
 {
 	if ( m_hEffect )
 	{
+#ifdef TF_CLASSIC_CLIENT
+		if ( m_hOldAttached )
+			m_hOldAttached->ParticleProp()->StopEmission( m_hEffect, true );
+#else
 		ParticleProp()->StopEmission( m_hEffect, true );
 		m_hEffect->SetControlPointEntity( 0, NULL );
 		m_hEffect->SetControlPointEntity( 1, NULL );
+#endif
 		m_hEffect = NULL;
 	}
 
 #if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
-	m_hEffect = ParticleProp()->Create( "burningplayer_red", PATTACH_ABSORIGIN_FOLLOW );
+	if ( m_hEntAttached )
+	{
+		m_hEffect = m_hEntAttached->ParticleProp()->Create( "burningplayer_red", PATTACH_ABSORIGIN_FOLLOW );
+	}
 #else
 	m_hEffect = ParticleProp()->Create( "burning_character", PATTACH_ABSORIGIN_FOLLOW );
 #endif
 
 	if ( m_hEffect )
 	{
-		C_BaseEntity *pEntity = m_hEntAttached;
 		m_hOldAttached = m_hEntAttached;
+#ifndef TF_CLASSIC_CLIENT
+		C_BaseEntity *pEntity = m_hEntAttached;
 
 		ParticleProp()->AddControlPoint( m_hEffect, 1, pEntity, PATTACH_ABSORIGIN_FOLLOW );
 		m_hEffect->SetControlPoint( 0, GetAbsOrigin() );
 		m_hEffect->SetControlPoint( 1, GetAbsOrigin() );
 		m_hEffect->SetControlPointEntity( 0, pEntity );
 		m_hEffect->SetControlPointEntity( 1, pEntity );
+#endif
 	}
 }
 
