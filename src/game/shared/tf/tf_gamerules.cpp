@@ -2518,22 +2518,22 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		}
 
 		// Run through all NPCs as well.
-		for ( int i = TF_TEAM_RED; i < TF_TEAM_COUNT; i++ )
+		for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 		{
 			CTFTeam *pTeam = TFTeamMgr()->GetTeam( i );
-			if ( pTeam )
-			{
-				int nTeamNPCCount = pTeam->GetNumNPCs();
-				for (int iNPC = 0; iNPC < nTeamNPCCount; ++iNPC)
-				{
-					CAI_BaseNPC *pNPC = pTeam->GetNPC(iNPC);
-					if ( !pNPC )
-					{
-						continue;
-					}
 
-					pNPC->ConditionGameRulesThink();
+			if ( !pTeam )
+				continue;
+
+			for (int iNPC = 0; iNPC < pTeam->GetNumNPCs(); ++iNPC)
+			{
+				CAI_BaseNPC *pNPC = pTeam->GetNPC(iNPC);
+				if ( !pNPC )
+				{
+					continue;
 				}
+
+				pNPC->ConditionGameRulesThink();
 			}
 		}
 	}
