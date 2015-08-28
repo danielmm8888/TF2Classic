@@ -4008,6 +4008,85 @@ void CTFPlayer::AmmoPackCleanUp( void )
 }		
 
 //-----------------------------------------------------------------------------
+// Purpose: Creates an empty ammo pack to bypass non-working VPhysics on weapons.
+//-----------------------------------------------------------------------------
+void CTFPlayer::DropFakeWeapon(CTFWeaponBase *pWeapon)
+{
+	// We need to find bones on the world model, so switch the weapon to it.
+	const char *pszWorldModel = pWeapon->GetWorldModel();
+	pWeapon->SetModel(pszWorldModel);
+
+	// Find the position and angle of the weapons so the "ammo box" matches.
+	Vector vecPackOrigin;
+	QAngle vecPackAngles;
+	if (!CalculateAmmoPackPositionAndAngles(pWeapon, vecPackOrigin, vecPackAngles))
+		return;
+
+	// Create the ammo pack using custom ammo which defaults to zero.
+	CTFAmmoPack *pAmmoPack = CTFAmmoPack::Create(vecPackOrigin, vecPackAngles, this, pszWorldModel, true);
+	Assert(pAmmoPack);
+	if (pAmmoPack)
+	{
+		// We intentionally don't fill it up here so that the weapon can be picked up to avoid overpopulation but does not grant ammo.
+
+		Vector vecRight, vecUp;
+		AngleVectors(EyeAngles(), NULL, &vecRight, &vecUp);
+
+		// Calculate the initial impulse on the weapon.
+		Vector vecImpulse(0.0f, 0.0f, 0.0f);
+		vecImpulse += vecUp * random->RandomFloat(-0.25, 0.25);
+		vecImpulse += vecRight * random->RandomFloat(-0.25, 0.25);
+		VectorNormalize(vecImpulse);
+		vecImpulse *= random->RandomFloat(tf_weapon_ragdoll_velocity_min.GetFloat(), tf_weapon_ragdoll_velocity_max.GetFloat());
+		vecImpulse += GetAbsVelocity();
+
+		// Cap the impulse.
+		float flSpeed = vecImpulse.Length();
+		if (flSpeed > tf_weapon_ragdoll_maxspeed.GetFloat())
+		{
+			VectorScale(vecImpulse, tf_weapon_ragdoll_maxspeed.GetFloat() / flSpeed, vecImpulse);
+		}
+
+		if (pAmmoPack->VPhysicsGetObject())
+		{
+			// We can probably remove this when the mass on the weapons is correct!
+			pAmmoPack->VPhysicsGetObject()->SetMass(25.0f);
+			AngularImpulse angImpulse(0, random->RandomFloat(0, 100), 0);
+			pAmmoPack->VPhysicsGetObject()->SetVelocityInstantaneous(&vecImpulse, &angImpulse);
+		}
+
+		pAmmoPack->SetInitialVelocity(vecImpulse);
+
+		switch (GetTeamNumber())
+		{
+		case TF_TEAM_RED:
+			pAmmoPack->m_nSkin = 0;
+			break;
+		case TF_TEAM_BLUE:
+			pAmmoPack->m_nSkin = 1;
+			break;
+		case TF_TEAM_GREEN:
+			pAmmoPack->m_nSkin = 2;
+			break;
+		case TF_TEAM_YELLOW:
+			pAmmoPack->m_nSkin = 3;
+			break;
+		}
+
+		// Give the ammo pack some health, so that trains can destroy it.
+		pAmmoPack->SetCollisionGroup(COLLISION_GROUP_DEBRIS);
+		pAmmoPack->m_takedamage = DAMAGE_YES;
+		pAmmoPack->SetHealth(900);
+
+		pAmmoPack->SetBodygroup(1, 1);
+
+		// Clean up old ammo packs if they exist in the world
+		AmmoPackCleanUp();
+	}
+	pWeapon->SetModel(pWeapon->GetViewModel());
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayer::DropAmmoPack( void )
@@ -5531,7 +5610,7 @@ void CTFPlayer::Weapon_HandleAnimEvent( animevent_t *pEvent )
 //-----------------------------------------------------------------------------
 void CTFPlayer::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget , const Vector *pVelocity ) 
 {
-
+	
 }
 
 //-----------------------------------------------------------------------------
