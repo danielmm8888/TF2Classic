@@ -33,11 +33,11 @@
 	{
 		"ControlName"	"CTFImageColoredPanel"
 		"fieldName"		"HudColoredBG"
-		"xpos"			"c-72"
+		"xpos"			"c-75"
 		"ypos"			"r75"	[$WIN32]
 		"ypos"			"r96"	[$X360]
 		"zpos"			"0"
-		"wide"			"144"
+		"wide"			"150"
 		"tall"			"80"
 		"visible"		"1"
 		"enabled"		"1"

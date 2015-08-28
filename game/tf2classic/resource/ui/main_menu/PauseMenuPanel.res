@@ -13,22 +13,6 @@
 		"visible"			"1"
 		"enabled"			"1"
 	}
-
-	"RGBPanel"
-	{
-		"ControlName"	"CTFRGBPanel"
-		"fieldName"		"RGBPanel"
-		"xpos"			"1000"
-		"ypos"			"250"
-		"zpos"			"20"
-		"wide"			"1920"
-		"tall"			"600"
-		"autoResize"	"0"
-		"pinCorner"		"0"
-		"visible"		"0"
-		"enabled"		"1"
-		"border"		"TFFatLineBorder"
-	}	
 	
 	"Logo"
 	{
