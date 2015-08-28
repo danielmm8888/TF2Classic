@@ -2193,6 +2193,7 @@ private:
 	//CNetworkVar( int,		m_nNumFlames );
 	float					m_flFlameBurnTime;
 	float					m_flFlameRemoveTime;
+	CNetworkVar( bool, m_bBurningDeath );
 
 	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this NPC
 #endif

@@ -45,6 +45,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_AI_BaseNPC, DT_AI_BaseNPC, CAI_BaseNPC )
 #ifdef TF_CLASSIC_CLIENT
 	RecvPropInt( RECVINFO( m_nPlayerCond ) ),
 	RecvPropInt( RECVINFO( m_nNumHealers ) ),
+	RecvPropBool( RECVINFO( m_bBurningDeath ) )
 #endif
 END_RECV_TABLE()
 
@@ -230,6 +231,17 @@ void C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x
 }
 
 #ifdef TF_CLASSIC_CLIENT
+C_BaseAnimating *C_AI_BaseNPC::BecomeRagdollOnClient()
+{
+	C_BaseAnimating *pRagdoll = BaseClass::BecomeRagdollOnClient();
+	if ( pRagdoll && m_bBurningDeath )
+	{
+		pRagdoll->ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
+	}
+
+	return pRagdoll;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: check the newly networked conditions for changes
 //-----------------------------------------------------------------------------
@@ -296,20 +308,6 @@ void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString), 3, wszPrepend, wszNPCName );
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-Vector C_AI_BaseNPC::GetObserverCamOrigin( void )
-{
-	if ( !IsAlive() )
-	{
-		if ( m_pRagdoll )
-			return m_pRagdoll->GetRagdollOrigin();
-	}
-
-	return BaseClass::GetObserverCamOrigin();
 }
 
 //-----------------------------------------------------------------------------

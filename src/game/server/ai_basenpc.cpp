@@ -602,6 +602,8 @@ void CAI_BaseNPC::CleanupOnDeath( CBaseEntity *pCulprit, bool bFireDeathOutput )
 		RemoveActorFromScriptedScenes( this, false /*all scenes*/ );
 
 #ifdef TF_CLASSIC
+		RemoveAllCond();
+
 		// Remove from team
 		CTFTeam *pTFTeam = dynamic_cast<CTFTeam *>( GetTeam() );
 		if ( pTFTeam )
@@ -652,7 +654,8 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	Wake( false );
 
 #ifdef TF_CLASSIC
-	RemoveAllCond();
+	// Ragdoll should burn if NPC burned to death.
+	m_bBurningDeath = IsOnFire();
 
 	// Bullseyes shouldn't send death notices.
 	if ( !FClassnameIs( this, "npc_bullseye" ) )
@@ -11104,6 +11107,7 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 #ifdef TF_CLASSIC
 	SendPropInt( SENDINFO( m_nPlayerCond ), TF_COND_LAST, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
+	SendPropBool( SENDINFO( m_bBurningDeath ) )
 #endif
 END_SEND_TABLE()
 
@@ -11695,6 +11699,7 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 
 #ifdef TF_CLASSIC
 	m_nPlayerCond = 0;
+	m_bBurningDeath = false;
 #endif
 }
 

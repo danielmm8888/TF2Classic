@@ -54,10 +54,10 @@ public:
 #ifdef TF_CLASSIC_CLIENT
 	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
 
+	virtual C_BaseAnimating	*BecomeRagdollOnClient();
+
 	int						GetNumHealers( void ) { return m_nNumHealers; }
 	int						GetMaxBuffedHealth( void );
-
-	virtual	Vector			GetObserverCamOrigin( void );
 
 	// TF2 conditions
 	int		GetCond() const						{ return m_nPlayerCond; }
@@ -73,6 +73,7 @@ public:
 
 	void	UpdateConditions( void );
 
+	virtual bool IsOnFire() { return InCond( TF_COND_BURNING ); }
 	void	OnAddBurning( void );
 	void	OnRemoveBurning( void );
 
@@ -111,6 +112,7 @@ private:
 	CNewParticleEffect	*m_pBurningEffect;
 	float				m_flBurnEffectStartTime;
 	float				m_flBurnEffectEndTime;
+	bool				m_bBurningDeath;
 #endif
 };
 
