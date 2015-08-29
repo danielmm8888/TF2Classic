@@ -772,7 +772,7 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 	if ( !IsAlive() )
 		return;
 
-	if ( !AllowedToIgnite() )
+	if ( !AllowedToIgnite() && !bCalledByLevelDesigner )
 		return;
 
 	if ( !IsOnFire() )
@@ -782,7 +782,7 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 		m_flFlameBurnTime = gpGlobals->curtime;	//asap
 	}
 	
-	m_flFlameRemoveTime = gpGlobals->curtime + TF_BURNING_FLAME_LIFE;
+	m_flFlameRemoveTime = gpGlobals->curtime + flFlameLifetime;
 	// Default attacker to world, Ignite calls from TF2 code need to change this.
 	m_hBurnAttacker = GetContainingEntity( INDEXENT(0) );
 #endif
