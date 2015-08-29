@@ -79,7 +79,7 @@ void ImpactGaussCallback( const CEffectData &data )
 }
 
 DECLARE_CLIENT_EFFECT( "ImpactGauss", ImpactGaussCallback );
-
+#ifdef HL2_CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: Handle weapon impacts
 //-----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void ImpactCallback( const CEffectData &data )
 }
 
 DECLARE_CLIENT_EFFECT( "Impact", ImpactCallback );
-
+#endif
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : &origin - 

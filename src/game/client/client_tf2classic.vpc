@@ -107,6 +107,7 @@ $Project "Client (TF)"
 			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.cpp"
 			$File	"$SRCDIR\game\shared\hl2\env_headcrabcanister_shared.h"
 			$File	"hl2\fx_bugbait.cpp"
+			$File	"hl2\fx_hl2_impacts.cpp"
 			$File	"hl2\fx_hl2_tracers.cpp"
 		}
 		
