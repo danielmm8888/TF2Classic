@@ -3268,6 +3268,14 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 	}
 
+	if ( Q_strcmp( killer_weapon_name, "concussiveblast" ) == 0 )
+	{
+		if ( pKiller && FClassnameIs( pKiller, "npc_strider" ) )
+		{
+			killer_weapon_name = "strider_beam";
+		}
+	}
+
 	if ( Q_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )

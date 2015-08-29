@@ -600,6 +600,15 @@
 				"width"		"48"
 				"height"	"32"
 		}
+		"firedeath"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"263"
+				"y"		"256"
+				"width"		"64"
+				"height"	"32"
+		}
 		"crit"
 		{
 				"dfile"	"HUD/d_images"
@@ -1879,7 +1888,7 @@
 			"height"	"32"
 		}
 
-		"concussiveblast"
+		"strider_beam"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
