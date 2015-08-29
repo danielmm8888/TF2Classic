@@ -483,40 +483,39 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 #endif
 		if ( event->GetInt( "damagebits" ) & DMG_CRITICAL )
 		{
-			m_DeathNotices[iMsg].bCrit= true;
+			m_DeathNotices[iMsg].bCrit = true;
 			m_DeathNotices[iMsg].iconCritDeath = GetIcon( "d_crit", bLocalPlayerInvolved ? kDeathNoticeIcon_Inverted : kDeathNoticeIcon_Standard );
 		}
 		else
 		{
-			m_DeathNotices[iMsg].bCrit= false;
+			m_DeathNotices[iMsg].bCrit = false;
 			m_DeathNotices[iMsg].iconCritDeath = NULL;
 		}
 
 		m_DeathNotices[iMsg].bLocalPlayerInvolved = bLocalPlayerInvolved;
-#ifndef TF_CLASSIC_CLIENT
-		m_DeathNotices[iMsg].Killer.iTeam = ( killer > 0 ) ? g_PR->GetTeam( killer ) : 0;
-#else
+
 		if ( killer > 0 )
 		{
 			m_DeathNotices[iMsg].Killer.iTeam = g_PR->GetTeam( killer );
 		}
+#ifdef TF_CLASSIC_CLIENT
 		else if ( npc_killer > 0 )
 		{
 			m_DeathNotices[iMsg].Killer.iTeam = killer_team;
 		}
 #endif
-#ifndef TF_CLASSIC_CLIENT
-		m_DeathNotices[iMsg].Victim.iTeam = (victim > 0 ) g_PR->GetTeam( victim );
-#else
+
 		if ( victim > 0 )
 		{
 			m_DeathNotices[iMsg].Victim.iTeam = g_PR->GetTeam( victim );
 		}
+#ifdef TF_CLASSIC_CLIENT
 		else if ( npc_victim > 0 )
 		{
 			m_DeathNotices[iMsg].Victim.iTeam = victim_team;
 		}
 #endif
+
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, killer_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
 		Q_strncpy( m_DeathNotices[iMsg].Victim.szName, victim_name, ARRAYSIZE( m_DeathNotices[iMsg].Victim.szName ) );
 		if ( killedwith && *killedwith )
