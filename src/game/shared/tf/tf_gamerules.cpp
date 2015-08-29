@@ -3171,18 +3171,11 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
+	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING && pScorer )
 	{
-		// Only use flamethrower icon if victim got killed by a player and this wasn't a suicide.
-		if ( pScorer && pKiller != pVictim )
-		{
-			// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
-			killer_weapon_name = "TF_WEAPON_FLAMETHROWER";
-		}
-		else
-		{
-			killer_weapon_name = "firedeath";
-		}
+		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
+		// Only show flamethrower as killing weapon if the attacker is a player.
+		killer_weapon_name = "TF_WEAPON_FLAMETHROWER";
 	}
 	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
