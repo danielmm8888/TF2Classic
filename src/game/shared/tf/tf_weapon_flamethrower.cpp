@@ -214,7 +214,7 @@ public:
 	{
 		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
 
-		if ( pEntity && pEntity->IsBaseObject() )
+		if ( pEntity && ( pEntity->IsBaseObject() || pEntity->IsNPC() ) )
 			return false;
 
 		return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
