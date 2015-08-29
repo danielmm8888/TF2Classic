@@ -19,9 +19,9 @@ PlayerClass
 	"grenade1"		"TF_WEAPON_GRENADE_NORMAL"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_CLUB"
+	"weapon1"		"TF_WEAPON_SNIPERRIFLE"
 	"weapon2"		"TF_WEAPON_SMG"
-	"weapon3"		"TF_WEAPON_SNIPERRIFLE"
+	"weapon3"		"TF_WEAPON_CLUB"
 
 	//Thirdperson
 	"cameraoffset_forward"	"85"

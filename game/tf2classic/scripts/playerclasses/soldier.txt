@@ -20,9 +20,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_NAIL"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_SHOVEL"
+	"weapon1"		"TF_WEAPON_ROCKETLAUNCHER"
 	"weapon2"		"TF_WEAPON_SHOTGUN_SOLDIER"
-	"weapon3"		"TF_WEAPON_ROCKETLAUNCHER"
+	"weapon3"		"TF_WEAPON_SHOVEL"
 	
 	//"DontDoNewJump"	"1"
 

@@ -574,6 +574,8 @@ void CTFWeaponBase::UpdateViewModel(void)
 		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
 	else if (vmType == vm->VMTYPE_TF2)
 		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+	else
+		vm->RemoveViewmodelAddon();
 }
 #endif
 

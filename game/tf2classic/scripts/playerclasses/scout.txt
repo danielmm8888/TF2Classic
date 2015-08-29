@@ -21,9 +21,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_CONCUSSION"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_BAT"
+	"weapon1"		"TF_WEAPON_SCATTERGUN"
 	"weapon2"		"TF_WEAPON_PISTOL_SCOUT"
-	"weapon3"		"TF_WEAPON_SCATTERGUN"
+	"weapon3"		"TF_WEAPON_BAT"
 
 	//Thirdperson
 	"cameraoffset_forward"	"85"

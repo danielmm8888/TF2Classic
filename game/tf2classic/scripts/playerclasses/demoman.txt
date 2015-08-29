@@ -18,9 +18,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_MIRV_DEMOMAN"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_BOTTLE"
-	"weapon2"		"TF_WEAPON_GRENADELAUNCHER"
-	"weapon3"		"TF_WEAPON_PIPEBOMBLAUNCHER"
+	"weapon1"		"TF_WEAPON_GRENADELAUNCHER"
+	"weapon2"		"TF_WEAPON_PIPEBOMBLAUNCHER"
+	"weapon3"		"TF_WEAPON_BOTTLE"
 
 	//Thirdperson
 	"cameraoffset_forward"	"85"
