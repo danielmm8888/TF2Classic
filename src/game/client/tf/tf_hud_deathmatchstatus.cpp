@@ -142,8 +142,17 @@ void CTFHudDeathMatchObjectives::UpdateStatus( void )
 		}
 	}
 
-	SetDialogVariable("bestplayername", tf_PR->GetPlayerName(iBestIndex));
-	SetDialogVariable("bestscore", iBestScore);
+	if (iBestIndex)
+	{
+		SetDialogVariable("bestplayername", tf_PR->GetPlayerName(iBestIndex));
+		SetDialogVariable("bestscore", iBestScore);
+	}
+	else
+	{
+		SetDialogVariable("bestplayername", "");
+		SetDialogVariable("bestscore", "");
+	}
+	
 
 	int iDeltaScore = iLocalScore - iBestScore;
 	char scoreString[64];
