@@ -36,11 +36,13 @@ public:
 	void	SetScorer( CBaseEntity *pScorer );
 
 	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
+	void	ForceTrailUpdate(bool bForceUpdate) { m_bForceUpdate = bForceUpdate; }
 	virtual int		GetDamageType();
 
 private:
 	CBaseHandle m_Scorer;
 	CNetworkVar( bool,	m_bCritical );
+	CNetworkVar( bool,  m_bForceUpdate );
 };
 
 #endif	//TF_PROJECTILE_ROCKET_H

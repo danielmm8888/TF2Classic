@@ -10,6 +10,7 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "tf_player_shared.h"
+#include "tf_weapon_grenade_pipebomb.h"
 
 #if defined( CLIENT_DLL )
 
@@ -482,7 +483,7 @@ void CTFFlameThrower::SecondaryAttack()
 			}
 			CTFPlayer *pTFPlayer = ToTFPlayer(pList[i]);
 
-			if (!pTFPlayer->InSameTeam(pOwner) && pTFPlayer->GetMoveType() == MOVETYPE_WALK)
+			if ((!pTFPlayer->InSameTeam(pOwner) || ( TFGameRules() && TFGameRules()->IsDeathmatch() )) && pTFPlayer->GetMoveType() == MOVETYPE_WALK)
 			{
 				// Push enemy players.
 				QAngle angPushDir = pOwner->EyeAngles();
@@ -520,8 +521,9 @@ void CTFFlameThrower::SecondaryAttack()
 			Vector vecVelocity;
 			QAngle angForward;
 			GetProjectileReflectSetup(pOwner, vecPos, &angForward, false);
-			// Make it a crit rocket.
+			// Make it a crit rocket, and force the particles to update
 			pRocket->SetCritical( true );
+			pRocket->ForceTrailUpdate(true);
 
 			// Now change rocket's direction.
 			pRocket->SetAbsAngles(angForward);
@@ -532,6 +534,33 @@ void CTFFlameThrower::SecondaryAttack()
 			pRocket->SetOwnerEntity(pOwner);
 			pRocket->ChangeTeam(pOwner->GetTeamNumber());
 			pRocket->SetScorer(pOwner);
+		}
+		else if (dynamic_cast<CTFGrenadePipebombProjectile *>(pList[i]) != NULL)
+		{
+			CTFGrenadePipebombProjectile *pGrenade = static_cast<CTFGrenadePipebombProjectile *>(pList[i]);
+
+			if (!pGrenade)
+				continue;
+
+			// Get the grenade's position and speed.
+			Vector vecPos = pGrenade->GetAbsOrigin();
+			float flVel = pGrenade->GetAbsVelocity().Length();
+
+			Vector vecVelocity;
+			QAngle angForward;
+			GetProjectileReflectSetup(pOwner, vecPos, &angForward, false);
+
+			// Now change grenade's direction.
+			pGrenade->SetAbsAngles(angForward);
+			AngleVectors(angForward, &vecVelocity);
+			pGrenade->SetAbsVelocity(vecVelocity * flVel);
+
+			// And change owner.
+			if(pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE)
+			{
+				pGrenade->SetOwnerEntity(pOwner);
+				pGrenade->ChangeTeam(pOwner->GetTeamNumber());
+			}
 		}
 	}
 #endif

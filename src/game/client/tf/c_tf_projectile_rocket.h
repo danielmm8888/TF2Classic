@@ -33,6 +33,7 @@ public:
 
 private:
 	bool	m_bCritical;
+	bool	m_bForceUpdate;
 };
 
 #endif // C_TF_PROJECTILE_ROCKET_H

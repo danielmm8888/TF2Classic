@@ -13,6 +13,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Rocket, DT_TFProjectile_Rocket )
 
 BEGIN_NETWORK_TABLE( C_TFProjectile_Rocket, DT_TFProjectile_Rocket )
 	RecvPropBool( RECVINFO( m_bCritical ) ),
+	RecvPropBool( RECVINFO( m_bForceUpdate )),
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -36,6 +37,13 @@ C_TFProjectile_Rocket::~C_TFProjectile_Rocket( void )
 void C_TFProjectile_Rocket::OnDataChanged(DataUpdateType_t updateType)
 {
 	BaseClass::OnDataChanged(updateType);
+
+	if (m_bForceUpdate)
+	{
+		m_bForceUpdate = false;
+		ParticleProp()->StopEmission();
+		CreateRocketTrails();
+	}
 
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
