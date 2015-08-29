@@ -2885,7 +2885,11 @@ int CNPC_PlayerCompanion::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	if( info.GetAttacker() )
 	{
 		bool bIsEnvFire;
-		if( ( bIsEnvFire = FClassnameIs( info.GetAttacker(), "env_fire" ) ) != false || FClassnameIs( info.GetAttacker(), "entityflame" ) || FClassnameIs( info.GetAttacker(), "env_entity_igniter" ) )
+		if( ( bIsEnvFire = FClassnameIs( info.GetAttacker(), "env_fire" ) ) != false || FClassnameIs( info.GetAttacker(), "entityflame" ) || FClassnameIs( info.GetAttacker(), "env_entity_igniter" )
+#ifdef TF_CLASSIC
+			|| (info.GetDamageCustom() & TF_DMG_CUSTOM_BURNING )
+#endif
+			)
 		{
 			GetMotor()->SetIdealYawToTarget( info.GetAttacker()->GetAbsOrigin() );
 			SetCondition( COND_PC_HURTBYFIRE );
