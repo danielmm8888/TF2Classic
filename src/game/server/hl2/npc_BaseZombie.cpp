@@ -1217,10 +1217,10 @@ void CNPC_BaseZombie::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize
 		GetEffectEntity()->AddEffects( EF_DIMLIGHT );
 	}
 #endif // HL2_EPISODIC
-
+#ifndef TF_CLASSIC
 	// Set the zombie up to burn to death in about ten seconds.
 	SetHealth( MIN( m_iHealth, FLAME_DIRECT_DAMAGE_PER_SEC * (ZOMBIE_BURN_TIME + random->RandomFloat( -ZOMBIE_BURN_TIME_NOISE, ZOMBIE_BURN_TIME_NOISE)) ) );
-
+#endif
 	// FIXME: use overlays when they come online
 	//AddOverlay( ACT_ZOM_WALK_ON_FIRE, false );
 	if( !m_ActBusyBehavior.IsActive() )
