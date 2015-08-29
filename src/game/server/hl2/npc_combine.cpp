@@ -429,7 +429,7 @@ void CNPC_Combine::PrescheduleThink()
 
 	// Speak any queued sentences
 	m_Sentences.UpdateSentenceQueue();
-
+#ifndef TF_CLASSIC
 	if ( IsOnFire() )
 	{
 		SetCondition( COND_COMBINE_ON_FIRE );
@@ -438,7 +438,7 @@ void CNPC_Combine::PrescheduleThink()
 	{
 		ClearCondition( COND_COMBINE_ON_FIRE );
 	}
-
+#endif
 	extern ConVar ai_debug_shoot_positions;
 	if ( ai_debug_shoot_positions.GetBool() )
 		NDebugOverlay::Cross3D( EyePosition(), 16, 0, 255, 0, false, 0.1 );
@@ -1691,10 +1691,10 @@ int CNPC_Combine::SelectSchedule( void )
 	{
 		return BaseClass::SelectSchedule();
 	}
-
+#ifndef TF_CLASSIC
 	if ( HasCondition(COND_COMBINE_ON_FIRE) )
 		return SCHED_COMBINE_BURNING_STAND;
-
+#endif
 	int nSched = SelectFlinchSchedule();
 	if ( nSched != SCHED_NONE )
 		return nSched;
@@ -2565,7 +2565,7 @@ void CNPC_Combine::SpeakSentence( int sentenceType )
 //=========================================================
 // PainSound
 //=========================================================
-void CNPC_Combine::PainSound ( void )
+void CNPC_Combine::PainSound ( const CTakeDamageInfo &info )
 {
 	// NOTE: The response system deals with this at the moment
 	if ( GetFlags() & FL_DISSOLVING )

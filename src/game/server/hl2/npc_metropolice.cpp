@@ -525,7 +525,7 @@ void CNPC_MetroPolice::PrescheduleThink( void )
 			m_bKeepFacingPlayer = false;
 		}
 	}
-
+#ifndef TF_CLASSIC
 	if( IsOnFire() )
 	{
 		SetCondition( COND_METROPOLICE_ON_FIRE );
@@ -534,7 +534,7 @@ void CNPC_MetroPolice::PrescheduleThink( void )
 	{
 		ClearCondition( COND_METROPOLICE_ON_FIRE );
 	}
-
+#endif
 	if (gpGlobals->curtime > m_flRecentDamageTime + RECENT_DAMAGE_INTERVAL)
 	{
 		m_nRecentDamage = 0;
@@ -2650,11 +2650,13 @@ void CNPC_MetroPolice::PainSound( const CTakeDamageInfo &info )
 {
 	if ( gpGlobals->curtime < m_flNextPainSoundTime )
 		return;
-
+	
+	// What looping sound?
+#ifndef TF_CLASSIC
 	// Don't make pain sounds if I'm on fire. The looping sound will take care of that for us.
 	if ( IsOnFire() )
 		return;
-
+#endif
 	float healthRatio = (float)GetHealth() / (float)GetMaxHealth();
 	if ( healthRatio > 0.0f )
 	{
@@ -4017,13 +4019,13 @@ int CNPC_MetroPolice::SelectSchedule( void )
 	{
 		return SCHED_PATROL_WALK;
 	}
-
+#ifndef TF_CLASSIC
 	if ( HasCondition(COND_METROPOLICE_ON_FIRE) )
 	{
 		m_Sentences.Speak( "METROPOLICE_ON_FIRE", SENTENCE_PRIORITY_INVALID, SENTENCE_CRITERIA_ALWAYS );
 		return SCHED_METROPOLICE_BURNING_STAND;
 	}
-
+#endif
 	// React to being struck by a physics object
 	if ( HasCondition( COND_METROPOLICE_PHYSOBJECT_ASSAULT ) )
 	{
