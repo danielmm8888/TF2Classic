@@ -687,6 +687,7 @@ void CNPC_PoisonZombie::HandleAnimEvent( animevent_t *pEvent )
 		pCrab->SetOwnerEntity( this );
 
 		pCrab->Spawn();
+		pCrab->Activate();
 
 		pCrab->SetLocalAngles( GetLocalAngles() );
 		pCrab->SetActivity( ACT_RANGE_ATTACK1 );
@@ -697,10 +698,13 @@ void CNPC_PoisonZombie::HandleAnimEvent( animevent_t *pEvent )
 
 		if ( IsOnFire() )
 		{
+#ifndef TF_CLASSIC
 			pCrab->Ignite( 100.0 );
+#else
+			pCrab->Ignite( m_flFlameRemoveTime - gpGlobals->curtime );
+			pCrab->SetBurnAttacker( m_hBurnAttacker );
+#endif
 		}
-
-		pCrab->Activate();
 
 		CBaseEntity *pEnemy = GetEnemy();
 		if ( pEnemy )

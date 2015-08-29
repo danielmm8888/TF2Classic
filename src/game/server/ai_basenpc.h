@@ -2171,6 +2171,14 @@ public:
 	void				ClearDamagerHistory();
 	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
 
+protected:
+	// Burn handling
+	EHANDLE					m_hBurnAttacker;
+	//CNetworkVar( int,		m_nNumFlames );
+	float					m_flFlameBurnTime;
+	float					m_flFlameRemoveTime;
+	CNetworkVar( bool, m_bBurningDeath );
+
 private:
 	CNetworkVar( int, m_nPlayerCond );
 	float m_flCondExpireTimeLeft[TF_COND_LAST];		// Time until each condition expires
@@ -2187,13 +2195,6 @@ private:
 	float m_flInvulnerableOffTime;
 
 	CNetworkVar( int, m_nNumHealers );
-
-	// Burn handling
-	EHANDLE					m_hBurnAttacker;
-	//CNetworkVar( int,		m_nNumFlames );
-	float					m_flFlameBurnTime;
-	float					m_flFlameRemoveTime;
-	CNetworkVar( bool, m_bBurningDeath );
 
 	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this NPC
 #endif

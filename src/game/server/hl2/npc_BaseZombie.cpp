@@ -2460,6 +2460,7 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		pCrab->SetAbsOrigin( vecSpot );
 		pCrab->SetAbsAngles( GetAbsAngles() );
 		DispatchSpawn( pCrab );
+		pCrab->Activate();
 
 		pCrab->GetMotor()->SetIdealYaw( GetAbsAngles().y );
 
@@ -2500,12 +2501,15 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		}
 		if( ShouldIgniteZombieGib() )
 		{
+#ifndef TF_CLASSIC
 			pCrab->Ignite( 30 );
+#else
+			pCrab->Ignite( m_flFlameRemoveTime - gpGlobals->curtime );
+			pCrab->SetBurnAttacker( m_hBurnAttacker );
+#endif
 		}
 
 		CopyRenderColorTo( pCrab );
-
-		pCrab->Activate();
 	}
 
 	if( fRemoveHead )
