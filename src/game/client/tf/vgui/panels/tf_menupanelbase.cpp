@@ -68,11 +68,10 @@ void CTFMenuPanelBase::OnThink()
 	BaseClass::OnThink();
 };
 
-void CTFMenuPanelBase::ShowSingle()
+void CTFMenuPanelBase::SetShowSingle(bool ShowSingle)
 {
-	bShowSingle = true;
-	Show();
-};
+	bShowSingle = ShowSingle;
+}
 
 void CTFMenuPanelBase::Show()
 {

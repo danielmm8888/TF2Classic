@@ -27,7 +27,7 @@ public:
 	virtual void OnCommand(const char* command);
 	virtual void OnThink();
 	virtual void OnTick();
-	virtual void ShowSingle();
+	virtual void SetShowSingle(bool ShowSingle);
 	virtual void Show();
 	virtual void Hide();
 	virtual void DefaultLayout();

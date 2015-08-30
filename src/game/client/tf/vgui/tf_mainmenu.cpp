@@ -123,14 +123,11 @@ CTFMenuPanelBase* CTFMainMenu::GetMenuPanel(int iPanel)
 
 void CTFMainMenu::ShowPanel(MenuPanel iPanel, bool bShowSingle /*= false*/)
 {
-	if (!bShowSingle)
-	{
-		GetMenuPanel(iPanel)->Show();
-	}
-	else
+	GetMenuPanel(iPanel)->SetShowSingle(bShowSingle);
+	GetMenuPanel(iPanel)->Show();
+	if (bShowSingle)
 	{
 		GetMenuPanel(CURRENT_MENU)->Hide();
-		GetMenuPanel(iPanel)->ShowSingle();
 	}
 }
 
