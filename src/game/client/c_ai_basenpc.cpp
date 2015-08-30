@@ -280,18 +280,19 @@ void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 	if ( InSameTeam( pLocalTFPlayer ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 	{
 		const char *pszClassname = GetClassname();
-		wchar_t *wszNPCName, wszNPCNameText[64];
+		wchar_t *wszNPCName;
 		wszNPCName = g_pVGuiLocalize->Find( pszClassname );
 
 		if ( !wszNPCName )
 		{
-			g_pVGuiLocalize->ConvertANSIToUnicode( pszClassname, wszNPCNameText, sizeof(wszNPCNameText) );
-			wszNPCName = wszNPCNameText;
+			wchar_t wszNPCNameBuf[MAX_PLAYER_NAME_LENGTH];
+			g_pVGuiLocalize->ConvertANSIToUnicode( pszClassname, wszNPCNameBuf, sizeof(wszNPCNameBuf) );
+			wszNPCName = wszNPCNameBuf;
 		}
 
 		const char *printFormatString = NULL;
 
-		if (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || InSameTeam(pLocalTFPlayer))
+		if ( pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || InSameTeam( pLocalTFPlayer ) )
 		{
 			printFormatString = "#TF_playerid_sameteam";
 		}

@@ -269,7 +269,7 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			break;
 		case TF_DMG_CUSTOM_BURNING:
 			{
-				// Show a special icon if victim either killed itself with afterburn damage or got burned by environment.
+				// Show a special fire death icon if this was a suicide or environmental death.
 				int victim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
 				int killer = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 				int npc_victim = event->GetInt( "victim" );
