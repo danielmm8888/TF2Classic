@@ -1599,9 +1599,6 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 {
-	if (GetNextChangeClassTime() > gpGlobals->curtime)
-		return;
-
 	// can only join a class after you join a valid team
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
 		return;
@@ -1667,7 +1664,6 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		}
 		return;
 	}
-	SetNextChangeClassTime(gpGlobals->curtime + 2.0f);
 
 	SetDesiredPlayerClassIndex( iClass );
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_changeclass" );
