@@ -1,5 +1,5 @@
 #!/bin/bash
 
 pushd `dirname $0`
-devtools/bin/vpc /tf2classic +everything /mksln everything
+devtools/bin/vpc /tf_coop +everything /mksln everything
 popd

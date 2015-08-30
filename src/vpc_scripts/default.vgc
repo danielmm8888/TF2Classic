@@ -11,7 +11,7 @@
 $Games
 {
 	"HL2MP"
-	"TF2CLASSIC"
+	"TF_COOP"
 }
 
 // Makes the VPC scripts work in the SDK's context

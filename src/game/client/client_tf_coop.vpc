@@ -5,8 +5,8 @@
 //-----------------------------------------------------------------------------
 
 $Macro SRCDIR		"..\.."
-$Macro GAMENAME 	"tf2classic" [!$SOURCESDK]
-$Macro GAMENAME 	"tf2classic" [$SOURCESDK]
+$Macro GAMENAME 	"tf_coop" [!$SOURCESDK]
+$Macro GAMENAME 	"tf_coop" [$SOURCESDK]
 
 $Include "$SRCDIR\game\client\client_base.vpc"
 

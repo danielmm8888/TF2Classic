@@ -17,7 +17,7 @@ $Project "captioncompiler"
 $Project "client"
 {
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
-	"game\client\client_tf2classic.vpc"		[($WIN32||$POSIX) && $TF2CLASSIC]
+	"game\client\client_tf_coop.vpc"		[($WIN32||$POSIX) && $TF_COOP]
 }
 
 $Project "fgdlib"
@@ -43,7 +43,7 @@ $Project "height2normal"
 $Project "server"
 {
 	"game\server\server_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
-	"game\server\server_tf2classic.vpc"		[($WIN32||$POSIX) && $TF2CLASSIC]
+	"game\server\server_tf_coop.vpc"		[($WIN32||$POSIX) && $TF_COOP]
 }
 
 $Project "mathlib"
