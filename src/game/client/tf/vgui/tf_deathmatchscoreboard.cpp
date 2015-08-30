@@ -226,6 +226,7 @@ void CTFDeathMatchScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerLi
 	pPlayerList->AddColumnToSection(0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth);
 	pPlayerList->AddColumnToSection(0, "kills", "#TF_ScoreBoard_KillsLabel", 0, m_iKillsWidth);
 	pPlayerList->AddColumnToSection(0, "deaths", "#TF_ScoreBoard_DeathsLabel", 0, m_iDeathsWidth);
+	pPlayerList->AddColumnToSection(0, "streak", "#TF_ScoreBoard_KillStreak", 0, m_iKillstreakWidth);
 	pPlayerList->AddColumnToSection(0, "score", "#TF_Scoreboard_Score", 0, m_iScoreWidth);
 	pPlayerList->AddColumnToSection(0, "ping", "#TF_Scoreboard_Ping", 0, m_iPingWidth);
 }
@@ -368,6 +369,7 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 			int score = tf_PR->GetTotalScore(playerIndex);
 			int kills = tf_PR->GetPlayerScore(playerIndex);
 			int deaths = tf_PR->GetDeaths(playerIndex);
+			int streak = tf_PR->GetKillstreak(playerIndex);
 
 			KeyValues *pKeyValues = new KeyValues( "data" );
 
@@ -376,6 +378,7 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 			pKeyValues->SetInt("score", score);
 			pKeyValues->SetInt("kills", kills);
 			pKeyValues->SetInt("deaths", deaths);
+			pKeyValues->SetInt("streak", streak);
 
 			// can only see class information if we're on the same team
 			if ( !AreEnemyTeams( g_PR->GetTeam( playerIndex ), localteam ) && !( localteam == TEAM_UNASSIGNED ) )
@@ -442,8 +445,6 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 			
 			int itemID = pPlayerList->AddItem( 0, pKeyValues );
 
-			//Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
-			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
 			Color clr = tf_PR->GetPlayerColor(playerIndex);
 			pPlayerList->SetItemFgColor( itemID, clr );
 

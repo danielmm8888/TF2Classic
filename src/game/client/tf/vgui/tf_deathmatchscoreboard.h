@@ -77,6 +77,7 @@ private:
 	CPanelAnimationVarAliasType(int, m_iNameWidth, "name_width", "236", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iKillsWidth, "kills_width", "23", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iDeathsWidth, "deaths_width", "23", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iKillstreakWidth, "killstreak_width", "23", "proportional_int");
 };
 
 const wchar_t *GetPointsString( int iPoints );

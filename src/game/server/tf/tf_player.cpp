@@ -3698,6 +3698,11 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 
 		CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[ pTFVictim->GetPlayerClass()->GetClassIndex() ] );
 		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
+
+		if (IsAlive())
+		{
+			m_Shared.IncKillstreak();
+		}
 	}
 	else
 	{
@@ -3890,6 +3895,8 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			}		
 		}
 	}
+
+	m_Shared.SetKillstreak(0);
 }
 
 //-----------------------------------------------------------------------------

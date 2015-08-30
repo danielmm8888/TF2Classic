@@ -27,6 +27,7 @@ public:
 	int GetMaxHealth( int iIndex )   { return GetArrayValue( iIndex, m_iMaxHealth, TF_HEALTH_UNDEFINED ); }
 	int GetPlayerClass( int iIndex ) { return GetArrayValue( iIndex, m_iPlayerClass, TF_CLASS_UNDEFINED ); }
 	Color GetPlayerColor(int iIndex);
+	int GetKillstreak(int iIndex) { return GetArrayValue(iIndex, m_iKillstreak, 0); }
 
 	int GetCountForPlayerClass( int iTeam, int iClass, bool bExcludeLocalPlayer = false );
 	
@@ -35,7 +36,8 @@ protected:
 
 	int		m_iTotalScore[MAX_PLAYERS+1];
 	int		m_iMaxHealth[MAX_PLAYERS+1];
-	int		m_iPlayerClass[MAX_PLAYERS+1];
+	int		m_iPlayerClass[MAX_PLAYERS + 1];
+	int		m_iKillstreak[MAX_PLAYERS + 1];
 	Vector	m_iColors[MAX_PLAYERS + 1];
 };
 

@@ -209,6 +209,10 @@ public:
 	bool	IsPlayerDominatingMe( int iPlayerIndex );
 	void	SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated );
 
+	int		GetKillstreak( void ) { return m_nStreaks.Get(0); }
+	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
+	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -325,6 +329,8 @@ private:
 	CNetworkVar( float, m_flStealthNextChangeTime );
 
 	CNetworkVar( int, m_iCritMult );
+
+	CNetworkArray(int, m_nStreaks, 3);
 
 	CNetworkArray( bool, m_bPlayerDominated, MAX_PLAYERS+1 );		// array of state per other player whether player is dominating other players
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player
