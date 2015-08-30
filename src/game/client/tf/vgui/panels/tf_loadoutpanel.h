@@ -47,6 +47,7 @@ private:
 	int	iCurrentClass;
 	int	iCurrentSlot;
 	int	iCurrentPreset;
+	int iCurrentSkin;
 };
 
 //-----------------------------------------------------------------------------

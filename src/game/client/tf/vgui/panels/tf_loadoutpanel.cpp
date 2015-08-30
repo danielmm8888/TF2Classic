@@ -35,6 +35,7 @@ static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 struct _WeaponData
 {
 	char szWorldModel[64];
+	char iconActive[64];
 	char iconInactive[64];
 	char szPrintName[64];
 	int m_iWeaponType;
@@ -97,6 +98,10 @@ public:
 					if (!Q_stricmp(pTextureData->GetName(), "weapon"))
 					{
 						Q_strncpy(sTemp.iconInactive, pTextureData->GetString("file", ""), sizeof(sTemp.iconInactive));
+					}
+					if (!Q_stricmp(pTextureData->GetName(), "weapon_s"))
+					{
+						Q_strncpy(sTemp.iconActive, pTextureData->GetString("file", ""), sizeof(sTemp.iconActive));
 					}
 				}
 			}
@@ -169,7 +174,7 @@ void CTFLoadoutPanel::PerformLayout()
 		m_pWeaponIcons[i]->GetButton()->SetTextInset(0, -10);
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
-	DefaultLayout();
+	//DefaultLayout();
 };
 
 
@@ -291,7 +296,7 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
 		m_pClassModelPanel->ClearMergeMDLs();
 		if (pData.szWorldModel[0] != '\0')
-			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel);
+			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel, NULL, iCurrentSkin);
 	}
 	else
 	{
@@ -309,8 +314,11 @@ void CTFLoadoutPanel::Show()
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pPlayer)
 	{
-		SetCurrentClass(pPlayer->m_Shared.GetDesiredPlayerClassIndex());
+		int iClass = pPlayer->m_Shared.GetDesiredPlayerClassIndex();
+		if (iClass >= TF_CLASS_SCOUT)
+			SetCurrentClass(pPlayer->m_Shared.GetDesiredPlayerClassIndex());
 	}
+	DefaultLayout();
 };
 
 void CTFLoadoutPanel::Hide()
@@ -337,11 +345,13 @@ void CTFLoadoutPanel::SetModelClass(int iClass)
 	Assert(pAlloced);
 	Q_strncpy(pAlloced, pszClassModels[iClass], len);
 	m_pClassModelPanel->m_BMPResData.m_pszModelName = pAlloced;
+	m_pClassModelPanel->m_BMPResData.m_nSkin = iCurrentSkin;
 }
 
 void CTFLoadoutPanel::UpdateModelPanels()
 {
 	int iClassIndex = iCurrentClass;
+
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	if (iClassIndex == TF_CLASS_MERCENARY)
@@ -385,7 +395,17 @@ void CTFLoadoutPanel::UpdateModelPanels()
 void CTFLoadoutPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
-	
+
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (pLocalPlayer && pLocalPlayer->GetTeamNumber() >= TF_TEAM_RED)
+	{
+		iCurrentSkin = pLocalPlayer->GetTeamNumber() - 2;
+	}
+	else
+	{
+		iCurrentSkin = 0;
+	}
+
 	UpdateModelPanels();
 
 	int iClassIndex = iCurrentClass;
@@ -421,7 +441,7 @@ void CTFLoadoutPanel::DefaultLayout()
 					}
 
 					char szIcon[64];
-					Q_snprintf(szIcon, sizeof(szIcon), "../%s", pData.iconInactive);
+					Q_snprintf(szIcon, sizeof(szIcon), "../%s", (iCurrentSkin == 1 ? pData.iconActive : pData.iconInactive));
 					m_pWeaponButton->SetImage(szIcon);
 
 					char szWeaponName[32];
