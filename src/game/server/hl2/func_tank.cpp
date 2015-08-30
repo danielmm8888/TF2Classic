@@ -915,6 +915,29 @@ void CFuncTank::Precache( void )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CFuncTank::UpdateTransmitState()
+{
+	return SetTransmitState( FL_EDICT_FULLCHECK );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CFuncTank::ShouldTransmit( const CCheckTransmitInfo *pInfo )
+{
+	// Always transmit to the controlling player.
+	CBaseCombatCharacter *pController = m_hController.Get();
+	if ( pController && pController->IsPlayer() && pInfo->m_pClientEnt == pController->edict() )
+	{
+		return FL_EDICT_ALWAYS;
+	}
+
+	return BaseClass::ShouldTransmit( pInfo );
+}
+
 void CFuncTank::UpdateOnRemove( void )
 {
 	if ( HasController() )
