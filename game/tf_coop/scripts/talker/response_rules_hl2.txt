@@ -201,7 +201,7 @@ criterion "ConceptElectrocuteScream" "Concept" "TLK_ELECTROCUTESCREAM" required
 criterion "ConceptNewWeapon" "Concept" "TLK_NEWWEAPON" required
 criterion "ConceptShot" "Concept" "TLK_SHOT" required
 criterion "ConceptPlayerReload" "Concept" "TLK_PLRELOAD" required
-criterion "ConceptPlayerDead" "Concept" "TLK_PLDEAD" required
+//criterion "ConceptPlayerDead" "Concept" "TLK_PLDEAD" required		// TF2C doesn't use this anyway
 criterion "ConceptHideAndReload" "Concept" "TLK_HIDEANDRELOAD" required
 criterion "ConceptStartCombat" "Concept" "TLK_STARTCOMBAT" required
 criterion "ConceptJoinPlayer" "Concept" "TLK_JOINPLAYER" required
