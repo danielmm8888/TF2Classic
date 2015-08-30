@@ -2014,6 +2014,9 @@ void CBaseEntity::UpdateOnRemove( void )
 		}
 	}
 
+	// Don't do this in TF2 and CS since round restart mechanics mess things up
+	// causing entity to get deleted upon new round start. (Nicknine)
+#ifndef TF_CLASSIC
 	if ( m_iGlobalname != NULL_STRING )
 	{
 		// NOTE: During level shutdown the global list will suppress this
@@ -2021,7 +2024,7 @@ void CBaseEntity::UpdateOnRemove( void )
 		// causing the whole list to be flushed
 		GlobalEntity_SetState( m_iGlobalname, GLOBAL_DEAD );
 	}
-
+#endif
 	VPhysicsDestroyObject();
 
 	// This is only here to allow the MOVETYPE_NONE to be set without the
