@@ -420,12 +420,12 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		else if ( npc_killer > 0 )	// If the killer is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
-			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_killer_name );
+			const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( npc_killer_name );
 
-			if ( pLocalizedName )
+			if ( wszLocalizedName )
 			{
 				char nameBuf[MAX_PLAYER_NAME_LENGTH];
-				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, nameBuf, sizeof(nameBuf) );
+				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalizedName, nameBuf, sizeof(nameBuf) );
 				killer_name = nameBuf;
 			}
 			else
@@ -447,12 +447,12 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
 		{
 			// Look up localized NPC name.
-			const wchar_t *pLocalizedName = g_pVGuiLocalize->Find( npc_victim_name );
+			const wchar_t *wszLocalizedName = g_pVGuiLocalize->Find( npc_victim_name );
 
-			if ( pLocalizedName )
+			if ( wszLocalizedName )
 			{
 				char nameBuf[MAX_PLAYER_NAME_LENGTH];
-				g_pVGuiLocalize->ConvertUnicodeToANSI( pLocalizedName, nameBuf, sizeof(nameBuf) );
+				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalizedName, nameBuf, sizeof(nameBuf) );
 				victim_name = nameBuf;
 			}
 			else
@@ -549,7 +549,19 @@ void CHudBaseDeathNotice::FireGameEvent( IGameEvent *event )
 			{
 				// special case icon for hit-by-vehicle death
 				Q_strncpy( m_DeathNotices[iMsg].szIcon, "d_vehicle", ARRAYSIZE( m_DeathNotices[iMsg].szIcon ) );
-			}			
+			}
+#ifdef TF_CLASSIC_CLIENT
+			else if ( ( event->GetInt( "damagebits" ) & DMG_BLAST ) && !killer && !npc_killer )
+			{
+				// explosive death
+				V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, g_pVGuiLocalize->Find( "#DeathMsg_Blast" ), sizeof( m_DeathNotices[iMsg].wzInfoText ) );
+			}
+			else if ( event->GetInt( "damagebits" ) & DMG_DROWN )
+			{
+				// drowned
+				V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, g_pVGuiLocalize->Find( "#DeathMsg_Drown" ), sizeof( m_DeathNotices[iMsg].wzInfoText ) );
+			}
+#endif
 		}
 
 		m_DeathNotices[iMsg].iWeaponID = event->GetInt( "weaponid" );
