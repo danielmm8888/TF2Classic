@@ -1119,7 +1119,10 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
 			int iWeaponID = pData->m_aWeapons[iWeapon];
-			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
+			char szWeaponName[256];
+			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
+			// Convert to lower case to match old behaviour.
+			Q_strlower( szWeaponName );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
@@ -1144,7 +1147,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
 
 				if ( pWeapon )
 				{

@@ -3175,7 +3175,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	{
 		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
 		// Only show flamethrower as killing weapon if the attacker is a player.
-		killer_weapon_name = "TF_WEAPON_FLAMETHROWER";
+		killer_weapon_name = "tf_weapon_flamethrower";
 	}
 	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
@@ -3211,7 +3211,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// strip certain prefixes from inflictor's classname
-	const char *prefix[] = { "TF_WEAPON_GRENADE_", "TF_WEAPON_", "weapon_", "npc_", "func_" };
+	const char *prefix[] = { "tf_weapon_grenade_", "tf_weapon_", "weapon_", "npc_", "func_" };
 	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix
