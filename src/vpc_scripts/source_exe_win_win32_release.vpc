@@ -145,7 +145,7 @@ $Configuration "Release"
 		// With VS 2013 make sure that Edit-And-Continue is disabled in the debugger settings so that
 		// the debugger uses the enhanced debug information.
 		// http://randomascii.wordpress.com/2013/09/11/debugging-optimized-codenew-in-visual-studio-2012/
-		$AdditionalOptions					"$BASE /Zo"
+		$AdditionalOptions					"$BASE /Zo"			[$VS2013]
 		// Command Line
 		$AdditionalOptions						"$BASE /Oy-"	[$NOFPO]
 	}
