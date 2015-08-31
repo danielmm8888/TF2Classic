@@ -12,9 +12,9 @@
 
 //=========================================================
 //=========================================================
-class CNPC_BarneyHL1 : public CHL1NPCTalker
+class CNPC_HL1Barney : public CHL1NPCTalker
 {
-	DECLARE_CLASS( CNPC_BarneyHL1, CHL1NPCTalker );
+	DECLARE_CLASS( CNPC_HL1Barney, CHL1NPCTalker );
 public:
 	
 	DECLARE_DATADESC();
@@ -57,7 +57,7 @@ public:
 	void	SUB_StartLVFadeOut( float delay = 10.0f, bool bNotSolid = true );
 	void	SUB_LVFadeOut( void  );
 
-	NPC_STATE CNPC_BarneyHL1::SelectIdealState ( void );
+	NPC_STATE CNPC_HL1Barney::SelectIdealState ( void );
 
 	bool	m_fGunDrawn;
 	float	m_flPainTime;

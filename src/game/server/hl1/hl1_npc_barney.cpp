@@ -62,7 +62,7 @@ ConVar	sk_barneyhl1_health( "sk_barneyhl1_health","35");
 //---------------------------------------------------------
 // Save/Restore
 //---------------------------------------------------------
-BEGIN_DATADESC( CNPC_BarneyHL1 )
+BEGIN_DATADESC( CNPC_HL1Barney )
 	DEFINE_FIELD( m_fGunDrawn, FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_flPainTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flCheckAttackTime, FIELD_TIME ),
@@ -74,7 +74,7 @@ BEGIN_DATADESC( CNPC_BarneyHL1 )
 END_DATADESC()
 
 
-LINK_ENTITY_TO_CLASS( monster_barney, CNPC_BarneyHL1 );
+LINK_ENTITY_TO_CLASS( monster_barney, CNPC_HL1Barney );
 
 
 static BOOL IsFacing( CBaseEntity *pevTest, const Vector &reference )
@@ -98,11 +98,11 @@ static BOOL IsFacing( CBaseEntity *pevTest, const Vector &reference )
 //=========================================================
 // Spawn
 //=========================================================
-void CNPC_BarneyHL1::Spawn()
+void CNPC_HL1Barney::Spawn()
 {
 	Precache( );
 
-	SetModel( "models/barneyhl1.mdl");
+	SetModel( "models/hl1bar.mdl");
 
 	SetRenderColor( 255, 255, 255, 255 );
 	
@@ -128,17 +128,17 @@ void CNPC_BarneyHL1::Spawn()
 	
 	NPCInit();
 	
-	SetUse( &CNPC_BarneyHL1::FollowerUse );
+	SetUse( &CNPC_HL1Barney::FollowerUse );
 }
 
 //=========================================================
 // Precache - precaches all resources this monster needs
 //=========================================================
-void CNPC_BarneyHL1::Precache()
+void CNPC_HL1Barney::Precache()
 {
 	m_iAmmoType = GetAmmoDef()->Index("Pistol");
 
-	PrecacheModel("models/barneyhl1.mdl");
+	PrecacheModel("models/hl1bar.mdl");
 
 	PrecacheScriptSound( "Barney.FirePistol" );
 	PrecacheScriptSound( "Barney.Pain" );
@@ -150,7 +150,7 @@ void CNPC_BarneyHL1::Precache()
 	BaseClass::Precache();
 }	
 
-void CNPC_BarneyHL1::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
+void CNPC_HL1Barney::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 {
 	BaseClass::ModifyOrAppendCriteria( criteriaSet );
 
@@ -160,7 +160,7 @@ void CNPC_BarneyHL1::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 }
 
 // Init talk data
-void CNPC_BarneyHL1::TalkInit()
+void CNPC_HL1Barney::TalkInit()
 {
 	BaseClass::TalkInit();
 
@@ -173,7 +173,7 @@ void CNPC_BarneyHL1::TalkInit()
 // GetSoundInterests - returns a bit mask indicating which types
 // of sounds this monster regards. 
 //=========================================================
-int CNPC_BarneyHL1::GetSoundInterests ( void) 
+int CNPC_HL1Barney::GetSoundInterests ( void) 
 {
 	return	SOUND_WORLD	|
 			SOUND_COMBAT	|
@@ -188,7 +188,7 @@ int CNPC_BarneyHL1::GetSoundInterests ( void)
 // Classify - indicates this monster's place in the 
 // relationship table.
 //=========================================================
-Class_T	CNPC_BarneyHL1::Classify ( void )
+Class_T	CNPC_HL1Barney::Classify ( void )
 {
 	return	CLASS_PLAYER_ALLY;
 }
@@ -196,7 +196,7 @@ Class_T	CNPC_BarneyHL1::Classify ( void )
 //=========================================================
 // ALertSound - barney says "Freeze!"
 //=========================================================
-void CNPC_BarneyHL1::AlertSound( void )
+void CNPC_HL1Barney::AlertSound( void )
 {
 	if ( GetEnemy() != NULL )
 	{
@@ -211,7 +211,7 @@ void CNPC_BarneyHL1::AlertSound( void )
 // SetYawSpeed - allows each sequence to have a different
 // turn rate associated with it.
 //=========================================================
-void CNPC_BarneyHL1::SetYawSpeed ( void )
+void CNPC_HL1Barney::SetYawSpeed ( void )
 {
 	int ys;
 
@@ -239,7 +239,7 @@ void CNPC_BarneyHL1::SetYawSpeed ( void )
 //=========================================================
 // CheckRangeAttack1
 //=========================================================
-bool CNPC_BarneyHL1::CheckRangeAttack1 ( float flDot, float flDist )
+bool CNPC_HL1Barney::CheckRangeAttack1 ( float flDot, float flDist )
 {
 	if ( gpGlobals->curtime > m_flCheckAttackTime )
 	{
@@ -267,7 +267,7 @@ bool CNPC_BarneyHL1::CheckRangeAttack1 ( float flDot, float flDist )
 // Input   :
 // Output  :
 //------------------------------------------------------------------------------
-int CNPC_BarneyHL1::RangeAttack1Conditions( float flDot, float flDist )
+int CNPC_HL1Barney::RangeAttack1Conditions( float flDot, float flDist )
 {
 	if (GetEnemy() == NULL)
 	{
@@ -294,7 +294,7 @@ int CNPC_BarneyHL1::RangeAttack1Conditions( float flDot, float flDist )
 // BarneyFirePistol - shoots one round from the pistol at
 // the enemy barney is facing.
 //=========================================================
-void CNPC_BarneyHL1::BarneyFirePistol ( void )
+void CNPC_HL1Barney::BarneyFirePistol ( void )
 {
 	Vector vecShootOrigin;
 	
@@ -333,7 +333,7 @@ void CNPC_BarneyHL1::BarneyFirePistol ( void )
 	m_cAmmoLoaded--;// take away a bullet!
 }
 
-int CNPC_BarneyHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
+int CNPC_HL1Barney::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 {
 	// make sure friends talk about it if player hurts talkmonsters...
 	int ret = BaseClass::OnTakeDamage_Alive( inputInfo );
@@ -375,7 +375,7 @@ int CNPC_BarneyHL1::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 //=========================================================
 // PainSound
 //=========================================================
-void CNPC_BarneyHL1::PainSound( const CTakeDamageInfo &info )
+void CNPC_HL1Barney::PainSound( const CTakeDamageInfo &info )
 {
 	if (gpGlobals->curtime < m_flPainTime)
 		return;
@@ -398,7 +398,7 @@ void CNPC_BarneyHL1::PainSound( const CTakeDamageInfo &info )
 //=========================================================
 // DeathSound 
 //=========================================================
-void CNPC_BarneyHL1::DeathSound( const CTakeDamageInfo &info )
+void CNPC_HL1Barney::DeathSound( const CTakeDamageInfo &info )
 {
 	CPASAttenuationFilter filter( this );
 
@@ -413,7 +413,7 @@ void CNPC_BarneyHL1::DeathSound( const CTakeDamageInfo &info )
 	}
 }
 
-void CNPC_BarneyHL1::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr )
+void CNPC_HL1Barney::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr )
 {
 	CTakeDamageInfo info = inputInfo;
 
@@ -444,7 +444,7 @@ void CNPC_BarneyHL1::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector
 	BaseClass::TraceAttack( info, vecDir, ptr );
 }
 
-void CNPC_BarneyHL1::Event_Killed( const CTakeDamageInfo &info )
+void CNPC_HL1Barney::Event_Killed( const CTakeDamageInfo &info )
 {
 	if ( m_nBody < BARNEY_BODY_GUNGONE )
 	{
@@ -470,9 +470,9 @@ void CNPC_BarneyHL1::Event_Killed( const CTakeDamageInfo &info )
 	}
 }
 
-void CNPC_BarneyHL1::SUB_StartLVFadeOut( float delay, bool notSolid )
+void CNPC_HL1Barney::SUB_StartLVFadeOut( float delay, bool notSolid )
 {
-	SetThink( &CNPC_BarneyHL1::SUB_LVFadeOut );
+	SetThink( &CNPC_HL1Barney::SUB_LVFadeOut );
 	SetNextThink( gpGlobals->curtime + delay );
 	SetRenderColorA( 255 );
 	m_nRenderMode = kRenderNormal;
@@ -484,7 +484,7 @@ void CNPC_BarneyHL1::SUB_StartLVFadeOut( float delay, bool notSolid )
 	}
 }
 
-void CNPC_BarneyHL1::SUB_LVFadeOut( void  )
+void CNPC_HL1Barney::SUB_LVFadeOut( void  )
 {
 	if( VPhysicsGetObject() )
 	{
@@ -517,12 +517,12 @@ void CNPC_BarneyHL1::SUB_LVFadeOut( void  )
 	}
 }
 
-void CNPC_BarneyHL1::StartTask( const Task_t *pTask )
+void CNPC_HL1Barney::StartTask( const Task_t *pTask )
 {
 	BaseClass::StartTask( pTask );	
 }
 
-void CNPC_BarneyHL1::RunTask( const Task_t *pTask )
+void CNPC_HL1Barney::RunTask( const Task_t *pTask )
 {
 	switch ( pTask->iTask )
 	{
@@ -545,7 +545,7 @@ void CNPC_BarneyHL1::RunTask( const Task_t *pTask )
 //
 // Returns number of events handled, 0 if none.
 //=========================================================
-void CNPC_BarneyHL1::HandleAnimEvent( animevent_t *pEvent )
+void CNPC_HL1Barney::HandleAnimEvent( animevent_t *pEvent )
 {
 	switch( pEvent->event )
 	{
@@ -575,7 +575,7 @@ void CNPC_BarneyHL1::HandleAnimEvent( animevent_t *pEvent )
 // AI Schedules Specific to this monster
 //=========================================================
 
-int CNPC_BarneyHL1::TranslateSchedule( int scheduleType )
+int CNPC_HL1Barney::TranslateSchedule( int scheduleType )
 {
 	switch( scheduleType )
 	{
@@ -647,7 +647,7 @@ int CNPC_BarneyHL1::TranslateSchedule( int scheduleType )
 // monster's member function to get a pointer to a schedule
 // of the proper type.
 //=========================================================
-int CNPC_BarneyHL1::SelectSchedule( void )
+int CNPC_HL1Barney::SelectSchedule( void )
 {
 	if ( m_NPCState == NPC_STATE_COMBAT || GetEnemy() != NULL )
 	{
@@ -743,12 +743,12 @@ int CNPC_BarneyHL1::SelectSchedule( void )
 	return BaseClass::SelectSchedule();
 }
 
-NPC_STATE CNPC_BarneyHL1::SelectIdealState ( void )
+NPC_STATE CNPC_HL1Barney::SelectIdealState ( void )
 {
 	return BaseClass::SelectIdealState();
 }
 
-void CNPC_BarneyHL1::DeclineFollowing( void )
+void CNPC_HL1Barney::DeclineFollowing( void )
 {
 	if ( CanSpeakAfterMyself() )
 	{
@@ -756,7 +756,7 @@ void CNPC_BarneyHL1::DeclineFollowing( void )
 	}
 }
 
-bool CNPC_BarneyHL1::CanBecomeRagdoll( void )
+bool CNPC_HL1Barney::CanBecomeRagdoll( void )
 {
 	if ( UTIL_IsLowViolence() )
 	{
@@ -766,7 +766,7 @@ bool CNPC_BarneyHL1::CanBecomeRagdoll( void )
 	return BaseClass::CanBecomeRagdoll();
 }
 
-bool CNPC_BarneyHL1::ShouldGib( const CTakeDamageInfo &info )
+bool CNPC_HL1Barney::ShouldGib( const CTakeDamageInfo &info )
 {
 	if ( UTIL_IsLowViolence() )
 	{
@@ -782,7 +782,7 @@ bool CNPC_BarneyHL1::ShouldGib( const CTakeDamageInfo &info )
 //
 //------------------------------------------------------------------------------
 
-AI_BEGIN_CUSTOM_NPC( monster_barney, CNPC_BarneyHL1 )
+AI_BEGIN_CUSTOM_NPC( monster_barney, CNPC_HL1Barney )
 
 	//=========================================================
 	// > SCHED_BARNEY_FOLLOW
