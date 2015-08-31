@@ -19,6 +19,8 @@
 #include <vgui/IVGui.h>
 #include <vgui_controls/SectionedListPanel.h>
 #include <vgui_controls/ImageList.h>
+#include <vgui_controls/Menu.h>
+#include <vgui_controls/MenuItem.h>
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
 #include <filesystem.h>
@@ -38,6 +40,8 @@
 #include "inputsystem/iinputsystem.h"
 #include "basemodelpanel.h"
 #include "engine/IEngineSound.h"
+#include "in_buttons.h"
+#include "voice_status.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -58,6 +62,7 @@ CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPor
 	SetProportional(true);
 	SetKeyBoardInputEnabled(false);
 	SetMouseInputEnabled(false);
+	MakePopup(true);
 	SetScheme( "ClientScheme" );
 
 	m_pPlayerListRed = new SectionedListPanel( this, "RedPlayerList" );
@@ -69,7 +74,8 @@ CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPor
 	bLockInput = false;
 	m_pWinPanel = new EditablePanel(this, "WinPanel");
 	m_flTimeUpdateTeamScore = 0;
-	
+	iSelectedPlayerIndex = 0;
+
 	ListenForGameEvent("server_spawn");
 	ListenForGameEvent("teamplay_win_panel");
 	ListenForGameEvent("teamplay_round_start");
@@ -77,6 +83,11 @@ CTFDeathMatchScoreBoardDialog::CTFDeathMatchScoreBoardDialog(IViewPort *pViewPor
 	ListenForGameEvent("tf_game_over");
 
 	SetDialogVariable( "server", "" );
+
+	m_pContextMenu = new Menu(this, "contextmenu");
+	m_pContextMenu->AddMenuItem("Mute", new KeyValues("Command", "command", "mute"), this);
+	m_pContextMenu->AddMenuItem("Vote kick...", new KeyValues("Command", "command", "kick"), this);
+	m_pContextMenu->AddMenuItem("Show Steam profile", new KeyValues("Command", "command", "showprofile"), this);
 
 	SetVisible( false );
 }
@@ -132,13 +143,65 @@ void CTFDeathMatchScoreBoardDialog::ApplySchemeSettings(vgui::IScheme *pScheme)
 	}
 
 	SetPlayerListImages( m_pPlayerListRed );
+	m_pPlayerListRed->SetVerticalScrollbar(true); 
+	iDefaultTall = m_pPlayerListRed->GetTall();
 
-
-	SetBgColor( Color( 0, 0, 0, 0) );
-	SetBorder( NULL );
 	SetVisible( false );
 
 	Reset();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDeathMatchScoreBoardDialog::ShowContextMenu(KeyValues* data)
+{
+	Panel *pItem = (Panel*)data->GetPtr("SubPanel");
+	int iItem = data->GetInt("itemID");
+	if (pItem)
+	{
+		KeyValues *pData = m_pPlayerListRed->GetItemData(iItem);
+		iSelectedPlayerIndex = pData->GetInt("playerIndex", 0);
+
+		bool bMuted = GetClientVoiceMgr()->IsPlayerBlocked(iSelectedPlayerIndex);
+		vgui::MenuItem *pMenuMute = m_pContextMenu->GetMenuItem(0);
+		pMenuMute->SetText(!bMuted ? "Mute" : "Unmute");
+		if (!(g_PR->GetPing(iSelectedPlayerIndex) < 1 && g_PR->IsFakePlayer(iSelectedPlayerIndex)))
+		{
+			Menu::PlaceContextMenu(this, m_pContextMenu);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDeathMatchScoreBoardDialog::OnCommand(const char* command)
+{
+	if (!Q_strcmp(command, "mute"))
+	{
+		bool bMuted = GetClientVoiceMgr()->IsPlayerBlocked(iSelectedPlayerIndex);
+		GetClientVoiceMgr()->SetPlayerBlockedState(iSelectedPlayerIndex, !bMuted);
+	}
+	else if (!Q_strcmp(command, "kick"))
+	{
+		//add proper votekicking after callvotes support
+		engine->ExecuteClientCmd("callvote");
+	}
+	else if (!Q_strcmp(command, "showprofile"))
+	{
+		C_BasePlayer *pPlayerOther = UTIL_PlayerByIndex(iSelectedPlayerIndex);
+		if (pPlayerOther)
+		{
+			CSteamID pPlayerSteamID;
+			pPlayerOther->GetSteamID(&pPlayerSteamID);
+			steamapicontext->SteamFriends()->ActivateGameOverlayToUser("steamid", pPlayerSteamID);
+		}
+	}
+	else
+	{
+		BaseClass::OnCommand(command);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -174,8 +237,7 @@ void CTFDeathMatchScoreBoardDialog::ShowPanel(bool bShow)
 	if ( bShow )
 	{		
 		SetVisible(true);
-		MoveToFront();
-
+		SetKeyBoardInputEnabled(false);
 		gHUD.LockRenderGroup(iRenderGroup);
 
 		// Clear the selected item, this forces the default to the local player
@@ -188,7 +250,10 @@ void CTFDeathMatchScoreBoardDialog::ShowPanel(bool bShow)
 	else
 	{
 		SetVisible( false );
-
+		m_pContextMenu->SetVisible(false);
+		SetMouseInputEnabled(false);
+		SetKeyBoardInputEnabled(false);
+		bLockInput = false;
 		gHUD.UnlockRenderGroup( iRenderGroup );
 	}
 }
@@ -206,7 +271,7 @@ void CTFDeathMatchScoreBoardDialog::Reset()
 //-----------------------------------------------------------------------------
 void CTFDeathMatchScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerList)
 {
-	pPlayerList->SetVerticalScrollbar( false );
+	//pPlayerList->SetVerticalScrollbar( true );
 	pPlayerList->RemoveAll();
 	pPlayerList->RemoveAllSections();
 	pPlayerList->AddSection( 0, "Players", TFPlayerSortFunc );
@@ -261,56 +326,53 @@ void CTFDeathMatchScoreBoardDialog::Update()
 void CTFDeathMatchScoreBoardDialog::UpdateTeamInfo()
 {
 	// update the team sections in the scoreboard
-	for (int teamIndex = TF_TEAM_RED; teamIndex <= TF_TEAM_YELLOW; teamIndex++)
+	int teamIndex = TF_TEAM_RED;
+	wchar_t *teamName = NULL;
+	C_Team *team = GetGlobalTeam( teamIndex );
+	if ( team )
 	{
-		wchar_t *teamName = NULL;
-		C_Team *team = GetGlobalTeam( teamIndex );
-		if ( team )
+		// choose dialog variables to set depending on team
+		const char *pDialogVarTeamScore = NULL;
+		const char *pDialogVarTeamPlayerCount = NULL;
+		const char *pDialogVarTeamName = NULL;
+		switch ( teamIndex ) 
 		{
-			// choose dialog variables to set depending on team
-			const char *pDialogVarTeamScore = NULL;
-			const char *pDialogVarTeamPlayerCount = NULL;
-			const char *pDialogVarTeamName = NULL;
-			switch ( teamIndex ) 
-			{
-				case TF_TEAM_RED:
-					pDialogVarTeamScore = "redteamscore";
-					pDialogVarTeamPlayerCount = "redteamplayercount";
-					pDialogVarTeamName = "redteamname";
-					break;
-				default:
-					Assert( false );
-					break;
-			}
-
-			// update # of players on each team
-			wchar_t name[64];
-			wchar_t string1[1024];
-			wchar_t wNumPlayers[6];
-			_snwprintf( wNumPlayers, ARRAYSIZE( wNumPlayers ), L"%i", team->Get_Number_Players() );
-			if ( !teamName && team )
-			{
-				g_pVGuiLocalize->ConvertANSIToUnicode( team->Get_Name(), name, sizeof( name ) );
-				teamName = name;
-			}
-			if ( team->Get_Number_Players() == 1 )
-			{
-				g_pVGuiLocalize->ConstructString( string1, sizeof(string1), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Player" ), 1, wNumPlayers );
-			}
-			else
-			{
-				g_pVGuiLocalize->ConstructString( string1, sizeof(string1), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Players" ), 1, wNumPlayers );
-			}
-
-			// set # of players for team in dialog
-			SetDialogVariable( pDialogVarTeamPlayerCount, string1 );
-
-			// set team score in dialog
-			SetDialogVariable( pDialogVarTeamScore, team->Get_Score() );		
-
-			// set team name
-			SetDialogVariable( pDialogVarTeamName, team->Get_Name() );
+			case TF_TEAM_RED:
+				pDialogVarTeamScore = "redteamscore";
+				pDialogVarTeamPlayerCount = "redteamplayercount";
+				pDialogVarTeamName = "redteamname";
+				break;
+			default:
+				Assert( false );
+				break;
 		}
+					// update # of players on each team
+		wchar_t name[64];
+		wchar_t string1[1024];
+		wchar_t wNumPlayers[6];
+		_snwprintf( wNumPlayers, ARRAYSIZE( wNumPlayers ), L"%i", team->Get_Number_Players() );
+		if ( !teamName && team )
+		{
+			g_pVGuiLocalize->ConvertANSIToUnicode( team->Get_Name(), name, sizeof( name ) );
+			teamName = name;
+		}
+		if ( team->Get_Number_Players() == 1 )
+		{
+			g_pVGuiLocalize->ConstructString( string1, sizeof(string1), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Player" ), 1, wNumPlayers );
+		}
+		else
+		{
+			g_pVGuiLocalize->ConstructString( string1, sizeof(string1), g_pVGuiLocalize->Find( "#TF_ScoreBoard_Players" ), 1, wNumPlayers );
+		}
+		
+		// set # of players for team in dialog
+		SetDialogVariable( pDialogVarTeamPlayerCount, string1 );
+
+		// set team score in dialog
+		SetDialogVariable( pDialogVarTeamScore, team->Get_Score() );		
+
+		// set team name
+		SetDialogVariable( pDialogVarTeamName, team->Get_Name() );
 	}
 }
 
@@ -465,6 +527,29 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerList()
 		{
 			m_pPlayerListRed->SetSelectedItem( 0 );
 		}
+	}
+
+	ResizeScoreboard();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFDeathMatchScoreBoardDialog::ResizeScoreboard()
+{
+	int _wide, _tall;
+	int wide, tall;
+	int x, y;
+	surface()->GetScreenSize(_wide, _tall);
+	m_pPlayerListRed->GetContentSize(wide, tall);
+	m_pPlayerListRed->GetPos(x, y);
+	int yshift = y + scheme()->GetProportionalScaledValue(10);
+	if (tall > iDefaultTall  && tall + yshift < _tall)
+	{
+		m_pPlayerListRed->SetSize(wide, tall);
+		tall += yshift;
+		wide = GetWide();
+		SetSize(wide, tall);
 	}
 }
 
@@ -802,6 +887,12 @@ SectionedListPanel *CTFDeathMatchScoreBoardDialog::GetSelectedPlayerList(void)
 //-----------------------------------------------------------------------------
 void CTFDeathMatchScoreBoardDialog::OnThink()
 {
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (IsVisible() && pLocalPlayer && pLocalPlayer->m_nButtons & IN_ATTACK2)
+	{
+		SetMouseInputEnabled(true);
+	}
+
 	// if we've scheduled ourselves to update the team scores, handle it now
 	if (m_flTimeUpdateTeamScore > 0 && (gpGlobals->curtime > m_flTimeUpdateTeamScore) && m_pWinPanel)
 	{
