@@ -97,7 +97,7 @@ void C_Gib::ClientThink( void )
 
 	if ( m_clrRender->a == 0 )
 	{
-#ifdef HL2_CLIENT_DLL
+#if defined(HL2_CLIENT_DLL) || defined(TF_CLASSIC_CLIENT)
 		s_AntlionGibManager.RemoveGib( this );
 #endif
 		Release();
