@@ -147,6 +147,8 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_SENTRY_ROCKET",
 	"TF_WEAPON_DISPENSER",
 	"TF_WEAPON_INVIS",
+	// New weapons start here
+	"TF_WEAPON_PHYSCANNON",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -207,6 +209,7 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_SENTRY_ROCKET
 	DMG_GENERIC,	// TF_WEAPON_DISPENSER
 	DMG_GENERIC,	// TF_WEAPON_INVIS
+	DMG_BULLET,	// TF_WEAPON_PHYSCANNON
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list

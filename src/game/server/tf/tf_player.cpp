@@ -96,6 +96,10 @@ ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY
 
 
 // Cvars from HL2 player
+ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
+ConVar hl2_normspeed( "hl2_normspeed", "190" );
+ConVar hl2_sprintspeed( "hl2_sprintspeed", "320" );
+
 ConVar player_squad_transient_commands( "player_squad_transient_commands", "1", FCVAR_REPLICATED );
 ConVar player_squad_double_tap_time( "player_squad_double_tap_time", "0.25" );
 
@@ -3758,6 +3762,15 @@ void CTFPlayer::RemoveAllItems( bool removeSuit )
 		}
 
 		m_hOffHandWeapon = NULL;
+	}
+
+	// Just holstering gravity gun causes some prediction stuff to go wrong,
+	// so it's better to just nuke it like HL2:DM does with weapons.
+	CTFWeaponBase *pGravGun = Weapon_OwnsThisID( TF_WEAPON_PHYSCANNON );
+	if ( pGravGun )
+	{
+		Weapon_Detach( pGravGun );
+		UTIL_Remove( pGravGun );
 	}
 
 	Weapon_SetLast( NULL );
