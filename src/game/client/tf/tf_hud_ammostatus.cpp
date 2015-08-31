@@ -140,10 +140,6 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 void CTFHudWeaponAmmo::UpdateAmmoLabels( bool bPrimary, bool bReserve, bool bNoClip )
 {
-	if (m_pWeaponBucket)
-	{
-		m_pWeaponBucket->SetVisible(true);
-	}
 	if ( m_pInClip && m_pInClipShadow )
 	{
 		if ( m_pInClip->IsVisible() != bPrimary )
@@ -179,28 +175,15 @@ void CTFHudWeaponAmmo::OnThink()
 {
 	// Get the player and active weapon.
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pPlayer)
-		return;
-	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
-	if (!pWeapon)
+	if ( !pPlayer )
 		return;
 
-	if (tf2c_ammobucket.GetBool()){
-#if 0
-		for (int j = 0; j < COLNUM; j++)
-		{
-			int iWeapon = Invenory->GetWeapon(pClass->GetClassIndex() - 1, pWeapon->GetWpnData().iSlot, j);
-			if (pPlayer->Weapon_OwnsThisID(iWeapon))
-			{
-				char* cIcon = Invenory->GetWeaponBucket(iWeapon, pPlayer->GetTeamNumber());
-				char szImage[64];
-				Q_snprintf(szImage, sizeof(szImage), "../%s", cIcon);
-				if (szImage)
-					m_pWeaponBucket->SetImage(szImage);
-				break;
-			}
-		}
-#else
+	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
+	if ( !pWeapon )
+		return;
+
+	if ( tf2c_ammobucket.GetBool() && m_pWeaponBucket )
+	{
 		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
 		if ( pPlayer )
 		{
@@ -215,8 +198,12 @@ void CTFHudWeaponAmmo::OnThink()
 			char szImage[64];
 			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
 			m_pWeaponBucket->SetImage( szImage );
+			m_pWeaponBucket->SetVisible( true );
 		}
-#endif
+		else
+		{
+			m_pWeaponBucket->SetVisible( false );
+		}
 	}
 
 	if ( m_flNextThink < gpGlobals->curtime )
