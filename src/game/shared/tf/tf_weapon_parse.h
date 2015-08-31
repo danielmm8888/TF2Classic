@@ -106,6 +106,8 @@ public:
 	char	m_szExplosionWaterEffect[128];
 
 	bool	m_bDontDrop;
+
+	bool	m_bUseHands;
 };
 
 #endif // TF_WEAPON_PARSE_H

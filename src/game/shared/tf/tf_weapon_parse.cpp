@@ -49,6 +49,8 @@ CTFWeaponInfo::CTFWeaponInfo()
 	m_szExplosionWaterEffect[0] = '\0';
 
 	m_iWeaponType = TF_WPN_TYPE_PRIMARY;
+
+	m_bUseHands = false;
 }
 
 CTFWeaponInfo::~CTFWeaponInfo()
@@ -220,4 +222,6 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	}
 
 	m_bDontDrop = ( pKeyValuesData->GetInt( "DontDrop", 0 ) > 0 );
+
+	m_bUseHands = ( pKeyValuesData->GetInt( "UseHands" ) > 0 );
 }
