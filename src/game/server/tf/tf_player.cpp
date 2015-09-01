@@ -329,7 +329,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	// Data that gets sent to all other players
 	SendPropDataTable( "tfnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
 
-	SendPropBool( SENDINFO( m_iSpawnCounter ) ),
+	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
 
 END_SEND_TABLE()
 
@@ -404,6 +404,8 @@ CTFPlayer::CTFPlayer()
 	m_bInitTaunt = false;
 
 	m_bSpeakingConceptAsDisguisedSpy = false;
+
+	m_iSpawnCounter = 0;
 
 	m_pPlayerAISquad = NULL;
 }
@@ -888,7 +890,7 @@ void CTFPlayer::Spawn()
 
 	CTF_GameStats.Event_PlayerSpawned( this );
 
-	m_iSpawnCounter = !m_iSpawnCounter;
+	m_iSpawnCounter++;
 	m_bAllowInstantSpawn = false;
 
 	m_Shared.SetSpyCloakMeter( 100.0f );
