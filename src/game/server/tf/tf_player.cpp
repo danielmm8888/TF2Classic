@@ -3211,6 +3211,10 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 {
 	BaseClass::Event_KilledOther( pVictim, info );
 
+	// No taunts after killing teammates.
+	if ( InSameTeam( pVictim ) )
+		return;
+
 	if ( pVictim->IsPlayer() )
 	{
 		CTFPlayer *pTFVictim = ToTFPlayer(pVictim);
@@ -3252,44 +3256,41 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[ pTFVictim->GetPlayerClass()->GetClassIndex() ] );
 		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
 	}
-	else
+	else if ( pVictim->IsBaseObject() )
 	{
-		if ( pVictim->IsBaseObject() )
+		CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
+		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
+	}
+	else if ( pVictim->IsNPC() )
+	{
+		// Custom death handlers
+		const char *pszCustomDeath = "customdeath:none";
+		if ( info.GetAttacker() && info.GetAttacker()->IsBaseObject() )
 		{
-			CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
-			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
+			pszCustomDeath = "customdeath:sentrygun";
 		}
-		else if ( pVictim->IsNPC() )
+		else if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
 		{
-			// Custom death handlers
-			const char *pszCustomDeath = "customdeath:none";
-			if ( info.GetAttacker() && info.GetAttacker()->IsBaseObject() )
-			{
-				pszCustomDeath = "customdeath:sentrygun";
-			}
-			else if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
-			{
-				pszCustomDeath = "customdeath:sentrygun";
-			}
-			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT )
-			{				
-				pszCustomDeath = "customdeath:headshot";
-			}
-			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
-			{
-				pszCustomDeath = "customdeath:backstab";
-			}
-			else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
-			{
-				pszCustomDeath = "customdeath:burning";
-			}
-
-			// No dominating NPCs.
-			const char *pszDomination = "domination:none";
-
-			CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[TF_CLASS_UNDEFINED] );
-			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
+			pszCustomDeath = "customdeath:sentrygun";
 		}
+		else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_HEADSHOT )
+		{				
+			pszCustomDeath = "customdeath:headshot";
+		}
+		else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BACKSTAB )
+		{
+			pszCustomDeath = "customdeath:backstab";
+		}
+		else if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
+		{
+			pszCustomDeath = "customdeath:burning";
+		}
+
+		// No dominating NPCs.
+		const char *pszDomination = "domination:none";
+
+		CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[TF_CLASS_UNDEFINED] );
+		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
 	}
 }
 
