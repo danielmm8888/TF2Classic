@@ -82,11 +82,7 @@
 		criteria ConceptPlayerTaunt IsHeavy WeaponIsFists
 		response HeavyTauntMelee
 	}
-	rule HeavyTauntPlayerMelee
-	{
-		criteria ConceptPlayerTaunt IsHeavy WeaponIsPipe
-		response HeavyTauntMelee
-	}
+
 	Response PlayerExpressionIdleHeavy
 	{
 		scene "scenes/player/heavy/low/idleloop01.vcd"
@@ -345,11 +341,6 @@
 		criteria ConceptPlayerTaunt IsSoldier WeaponIsRocket
 		response SoldierTauntPrimary
 	}
-	rule SoldierTauntPlayerPrimary
-	{
-		criteria ConceptPlayerTaunt IsSoldier WeaponIsBetaRPG
-		response SoldierTauntPrimary
-	}
 	rule SoldierTauntPlayerSecondary
 	{
 		criteria ConceptPlayerTaunt IsSoldier WeaponIsShotgunSoldier
@@ -418,23 +409,13 @@
 	}
 
 	rule ScoutTauntPlayerPrimary
-	{	
+	{
 		criteria ConceptPlayerTaunt IsScout WeaponIsScattergun
-		response ScoutTauntPrimary
-	}
-	rule ScoutTauntPlayerPrimary
-	{	
-		criteria ConceptPlayerTaunt IsScout WeaponIsNailgun
 		response ScoutTauntPrimary
 	}
 	rule ScoutTauntPlayerSecondary
 	{
 		criteria ConceptPlayerTaunt IsScout WeaponIsPistolScout
-		response ScoutTauntSecondary
-	}
-	rule ScoutTauntPlayerSecondary
-	{
-		criteria ConceptPlayerTaunt IsScout WeaponIsSMGScout
 		response ScoutTauntSecondary
 	}
 	rule ScoutTauntPlayerMelee
@@ -512,11 +493,6 @@
 		criteria ConceptPlayerTaunt IsSniper WeaponIsClub
 		response SniperTauntMelee
 	}
-	rule SniperTauntPlayerMelee
-	{
-		criteria ConceptPlayerTaunt IsSniper WeaponIsFishwhacker
-		response SniperTauntMelee
-	}
 	
 	Response PlayerExpressionIdleSniper
 	{
@@ -587,15 +563,10 @@
 		scene "scenes/player/spy/low/taunt04_v4.vcd"
 		scene "scenes/player/spy/low/taunt04_v5.vcd"
 	}
+
 	rule SpyTauntPlayerPrimary
 	{
 		criteria ConceptPlayerTaunt IsSpy WeaponIsRevolver
-		response SpyTauntPrimary
-
-	}
-	rule SpyTauntPlayerPrimary
-	{	
-		criteria ConceptPlayerTaunt IsSpy WeaponIsTranq
 		response SpyTauntPrimary
 	}
 	rule SpyTauntPlayerSecondary
@@ -658,11 +629,6 @@
 	{
 		criteria ConceptPlayerTaunt IsDemoman WeaponIsPipebomb
 		response DemomanTauntPrimary
-	}
-	rule DemomanTauntPlayerPrimary
-	{
-		criteria ConceptPlayerTaunt IsDemoman WeaponIsCyclops
-		response DemomanTauntSecondary
 	}
 	rule DemomanTauntPlayerSecondary
 	{
