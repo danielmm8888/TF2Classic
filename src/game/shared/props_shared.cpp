@@ -1002,8 +1002,10 @@ void PropBreakableCreateAll( int modelindex, IPhysicsObject *pPhysics, const bre
 #endif
 			{
 #ifdef GAME_DLL
+#ifndef TF_CLASSIC
 				if ( list[i].mpBreakMode == MULTIPLAYER_BREAK_CLIENTSIDE )
 					continue;
+#endif
 #else
 				if ( list[i].mpBreakMode == MULTIPLAYER_BREAK_SERVERSIDE )
 					continue;
@@ -1078,6 +1080,23 @@ void PropBreakableCreateAll( int modelindex, IPhysicsObject *pPhysics, const bre
 			int nActualSkin = nSkin;
 			if ( nActualSkin > studioHdr.numskinfamilies() )
 				nActualSkin = 0;
+
+#ifdef TF_CLASSIC
+			// HACK: Some HL2 NPCs call this directly so in that case send the piece over to client as temp ent.
+			if ( list[i].mpBreakMode == MULTIPLAYER_BREAK_CLIENTSIDE || list[i].mpBreakMode == MULTIPLAYER_BREAK_DEFAULT )
+			{
+				if ( !pEntity || pEntity->IsNPC() )
+				{
+					CPASFilter filter( params.origin );
+
+					int effects = pOwnerEntity ? pOwnerEntity->GetEffects() : 0;
+
+					te->PhysicsProp( filter, -1, modelIndex, nActualSkin, position, angles, objectVelocity, false, effects );
+				}
+				
+				continue;
+			}
+#endif
 
 			CBaseEntity *pBreakable = NULL;
 			
