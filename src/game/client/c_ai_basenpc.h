@@ -55,6 +55,8 @@ public:
 	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
 
 	virtual C_BaseAnimating	*BecomeRagdollOnClient();
+	virtual IRagdoll		*GetRepresentativeRagdoll() const;
+	virtual Vector			GetObserverCamOrigin( void );
 
 	int						GetNumHealers( void ) { return m_nNumHealers; }
 	int						GetMaxBuffedHealth( void );
@@ -102,6 +104,7 @@ private:
 	char m_szClassname[128];
 
 #ifdef TF_CLASSIC_CLIENT
+	// Conditions
 	int m_nPlayerCond;
 	int m_nOldConditions;
 	float m_flCondExpireTimeLeft[TF_COND_LAST];
@@ -113,6 +116,9 @@ private:
 	float				m_flBurnEffectStartTime;
 	float				m_flBurnEffectEndTime;
 	bool				m_bBurningDeath;
+
+	// Ragdoll
+	EHANDLE				m_hRagdoll;
 #endif
 };
 

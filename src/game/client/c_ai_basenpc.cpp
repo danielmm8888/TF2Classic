@@ -68,6 +68,7 @@ C_AI_BaseNPC::C_AI_BaseNPC()
 	m_pBurningEffect = NULL;
 	m_flBurnEffectStartTime = 0;
 	m_flBurnEffectEndTime = 0;
+	m_hRagdoll.Set( NULL );
 #endif
 }
 
@@ -234,12 +235,50 @@ void C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x
 C_BaseAnimating *C_AI_BaseNPC::BecomeRagdollOnClient()
 {
 	C_BaseAnimating *pRagdoll = BaseClass::BecomeRagdollOnClient();
-	if ( pRagdoll && m_bBurningDeath )
+	if ( pRagdoll )
 	{
-		pRagdoll->ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
+		m_hRagdoll.Set( pRagdoll );
+		if ( m_bBurningDeath )
+			pRagdoll->ParticleProp()->Create( "burningplayer_corpse", PATTACH_ABSORIGIN_FOLLOW );
 	}
 
 	return pRagdoll;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  :  - 
+// Output : IRagdoll*
+//-----------------------------------------------------------------------------
+IRagdoll* C_AI_BaseNPC::GetRepresentativeRagdoll() const
+{
+	if ( m_hRagdoll.Get() )
+	{
+		C_BaseAnimating *pRagdoll = static_cast<C_BaseAnimating *>( m_hRagdoll.Get() );
+		if ( !pRagdoll )
+			return NULL;
+
+		return pRagdoll->m_pRagdoll;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+Vector C_AI_BaseNPC::GetObserverCamOrigin( void )
+{
+	if ( !IsAlive() )
+	{
+		IRagdoll *pRagdoll = GetRepresentativeRagdoll();
+		if ( pRagdoll )
+			return pRagdoll->GetRagdollOrigin();
+	}
+
+	return BaseClass::GetObserverCamOrigin();
 }
 
 //-----------------------------------------------------------------------------
