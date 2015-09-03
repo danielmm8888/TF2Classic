@@ -430,18 +430,6 @@ CBaseObject *CTFTeam::GetObject( int num )
 	return m_aObjects[ num ];
 }
 
-
-//-----------------------------------------------------------------------------
-// Purpose: Get a pointer to the specified TF team
-//-----------------------------------------------------------------------------
-CTFTeam *GetGlobalTFTeam( int iIndex )
-{
-	if ( iIndex < 0 || iIndex >= GetNumberOfTeams() )
-		return NULL;
-
-	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
-}
-
 //------------------------------------------------------------------------------------------------------------------
 // NPCs
 //-----------------------------------------------------------------------------
@@ -451,7 +439,15 @@ CTFTeam *GetGlobalTFTeam( int iIndex )
 //-----------------------------------------------------------------------------
 void CTFTeam::AddNPC( CAI_BaseNPC *pNPC )
 {
-	m_aNPCs.AddToTail( pNPC );
+	bool bOnList = IsNPCOnTeam( pNPC );
+
+	Assert( !bOnList );
+
+	if ( !bOnList )
+	{
+		m_aNPCs.AddToTail( pNPC );
+	}
+
 	NetworkStateChanged();
 }
 
@@ -487,6 +483,18 @@ CAI_BaseNPC *CTFTeam::GetNPC( int iIndex )
 {
 	Assert( iIndex >= 0 && iIndex < m_aNPCs.Count() );
 	return m_aNPCs[ iIndex ];
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Get a pointer to the specified TF team
+//-----------------------------------------------------------------------------
+CTFTeam *GetGlobalTFTeam( int iIndex )
+{
+	if ( iIndex < 0 || iIndex >= GetNumberOfTeams() )
+		return NULL;
+
+	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
 }
 
 void CTFTeam::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)

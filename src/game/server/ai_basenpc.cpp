@@ -7919,6 +7919,7 @@ bool CAI_BaseNPC::IsValidEnemy( CBaseEntity *pEnemy )
 	// Test our enemy filter
 	if ( m_hEnemyFilter.Get()!= NULL && m_hEnemyFilter->PassesFilter( this, pEnemy ) == false )
 		return false;
+
 #ifdef TF_CLASSIC
 	CTFPlayer *pEnemyTFPlayer = ToTFPlayer( pEnemy );
 
@@ -7931,16 +7932,14 @@ bool CAI_BaseNPC::IsValidEnemy( CBaseEntity *pEnemy )
 
 	if ( pEnemy->IsBaseObject() )
 	{
-		CBaseObject *pEnemyObject = dynamic_cast<CBaseObject *>(pEnemy);
-
-		Assert( pEnemyObject );
+		CBaseObject *pEnemyObject = assert_cast<CBaseObject *>( pEnemy );
 
 		// Ignore objects being placed, they are not real objects yet.
-		if ( pEnemyObject && pEnemyObject->IsPlacing() )
+		if ( pEnemyObject->IsPlacing() )
 			return false;
 
 		// Ignore sappers.
-		if ( pEnemyObject && pEnemyObject->MustBeBuiltOnAttachmentPoint() )
+		if ( pEnemyObject->MustBeBuiltOnAttachmentPoint() )
 			return false;
 	}
 #endif

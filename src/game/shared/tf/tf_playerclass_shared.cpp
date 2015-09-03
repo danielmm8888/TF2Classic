@@ -9,7 +9,7 @@
 #include "tier2/tier2.h"
 
 #ifdef CLIENT_DLL
-extern bool UseHWMorphModels();
+bool UseHWMorphModels();
 #endif
 
 
