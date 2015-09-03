@@ -6817,7 +6817,7 @@ void CTFPlayer::CommanderExecute( CommanderCommand_t command )
 	AISquadIter_t iter;
 	for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
 	{
-		if ( pAllyNpc->IsCommandable() )
+		if ( pAllyNpc->IsCommandable() && (InSameTeam( pAllyNpc ) || m_Shared.GetDisguiseTeam() == pAllyNpc->GetTeamNumber()) )
 			Allies.AddToTail( pAllyNpc );
 	}
 

@@ -3244,7 +3244,7 @@ void CNPC_Citizen::FixupPlayerSquad()
 	}
 	else
 	{
-		m_FollowBehavior.SetFollowTarget( UTIL_GetLocalPlayer() );
+		m_FollowBehavior.SetFollowTarget( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) );
 		m_FollowBehavior.SetParameters( AIF_SIMPLE );
 	}
 }
