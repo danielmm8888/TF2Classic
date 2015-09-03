@@ -37,6 +37,7 @@
 #include "tf_team.h"
 #include "tf_gamestats.h"
 #include "tf_playerclass.h"
+#include "tf_weapon_physcannon.h"
 #endif
 
 ConVar tf_spy_invis_time( "tf_spy_invis_time", "1.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Transition time in and out of spy invisibility", true, 0.1, true, 5.0 );
@@ -1306,6 +1307,18 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 	if ( nClass <= TF_CLASS_UNDEFINED || nClass >= TF_CLASS_COUNT )
 	{
 		return;
+	}
+
+	// Can't disguise while holding something with gravity gun.
+	CTFWeaponBase *pWeapon = m_pOuter->GetActiveTFWeapon();
+	if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_PHYSCANNON ) )
+	{
+		CWeaponPhysCannon *pGravGun = static_cast<CWeaponPhysCannon *>( pWeapon );
+
+		if ( pGravGun->m_hAttachedObject.Get() )
+		{
+			return;
+		}
 	}
 
 	m_nDesiredDisguiseClass = nClass;

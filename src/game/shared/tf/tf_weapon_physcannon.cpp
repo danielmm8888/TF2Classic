@@ -1474,7 +1474,10 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 	if( m_flNextPrimaryAttack > gpGlobals->curtime )
 		return;
 
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	if ( !CanAttack() )
+		return;
+
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
 	
 	if ( pOwner == NULL )
 		return;
@@ -1500,6 +1503,10 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 				return;
 			}
 		}
+#ifndef CLIENT_DLL
+		pOwner->RemoveInvisibility();
+		pOwner->RemoveDisguise();
+#endif
 
 		LaunchObject( forward, physcannon_maxforce.GetFloat() );
 
@@ -1579,6 +1586,11 @@ void CWeaponPhysCannon::PrimaryAttack( void )
 		}
 		PuntVPhysics( pEntity, forward, tr );
 	}
+
+#ifndef CLIENT_DLL
+	pOwner->RemoveInvisibility();
+	pOwner->RemoveDisguise();
+#endif
 }
 
 
@@ -1589,6 +1601,9 @@ void CWeaponPhysCannon::SecondaryAttack( void )
 {
 #ifndef CLIENT_DLL
 	if ( m_flNextSecondaryAttack > gpGlobals->curtime )
+		return;
+
+	if ( !CanAttack() )
 		return;
 
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
@@ -1737,7 +1752,7 @@ bool CWeaponPhysCannon::AttachObject( CBaseEntity *pObject, const Vector &vPosit
 
 CWeaponPhysCannon::FindObjectResult_t CWeaponPhysCannon::FindObject( void )
 {
-	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 	
 	Assert( pPlayer );
 	if ( pPlayer == NULL )
@@ -1822,6 +1837,9 @@ CWeaponPhysCannon::FindObjectResult_t CWeaponPhysCannon::FindObject( void )
 
 	if ( bAttach )
 	{
+		pPlayer->RemoveInvisibility();
+		pPlayer->RemoveDisguise();
+		
 		return AttachObject( pEntity, tr.endpos ) ? OBJECT_FOUND : OBJECT_NOT_FOUND;
 	}
 
