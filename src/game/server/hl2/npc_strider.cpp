@@ -2416,16 +2416,6 @@ bool CNPC_Strider::IsValidEnemy( CBaseEntity *pTarget )
 			return false;
 	}
 
-	CBaseCombatCharacter *pEnemy = ToBaseCombatCharacter( pTarget );
-	if ( pEnemy )
-	{
-		// Test our enemy filter
-		if ( m_hEnemyFilter.Get()!= NULL && m_hEnemyFilter->PassesFilter( this, pEnemy ) == false )
-			return false;
-
-		return true;
-	}
-
 	return BaseClass::IsValidEnemy( pTarget );
 }
 
