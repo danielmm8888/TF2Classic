@@ -65,7 +65,7 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool Hud
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
 	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
-	if (iSlot >= iCount || iSlot < 0)
+	if (iWeapon >= iCount || iWeapon < 0)
 		return false;
 	if (!Weapons[iClass][iSlot][iWeapon])
 		return false;
