@@ -4,6 +4,8 @@
 #include "GameUI/IGameUI.h"
 #include "vgui_controls/Frame.h"
 #include "tf_hud_statpanel.h"
+#include "steam/steam_api.h"
+#include "steam/isteamhttp.h"
 
 enum MenuPanel //position in this enum = zpos on the screen
 {
@@ -70,10 +72,15 @@ public:
 	virtual void SendNotification(MainMenuNotification pMessage);
 	virtual MainMenuNotification *GetNotification(int iIndex) { return &pNotifications[iIndex]; };
 	virtual int GetNotificationsCount() { return pNotifications.Count(); };
-	virtual void RemoveNotification(int iIndex) { pNotifications.Remove(iIndex); };
+	virtual int GetUnreadNotificationsCount();
+	virtual void RemoveNotification(int iIndex);
 	virtual void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
 	virtual void ShowToolTip(char* sText);
 	virtual void HideToolTip();
+	virtual char*GetVersionString();
+	virtual void CheckMessage(bool Version = false);
+	virtual bool IsOutdated() { return bOutdated; };
+	//virtual void CheckVersion();
 
 private:
 	CUtlVector<CTFMenuPanelBase*>		m_pPanels;
@@ -87,6 +94,20 @@ private:
 	CUtlVector<MainMenuNotification>	pNotifications;
 	int									m_iStopGameStartupSound;
 	int									m_iUpdateLayout;
+
+
+
+	ISteamHTTP*			m_SteamHTTP;
+	HTTPRequestHandle	m_httpRequest;
+	bool				bOutdated;
+	bool				bCompleted;
+	bool				pVersionCheck;
+	float				fLastCheck;
+	char				m_pzLastMessage[128];
+	void				OnMessageCheckCompleted(const char* pMessage);
+	void				OnVersionCheckCompleted(const char* pMessage);
+	CCallResult<CTFMainMenu, HTTPRequestCompleted_t> m_CallResult;
+	void				OnHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure);
 };
 float toProportionalWide(float iWide);
 float toProportionalTall(float iTall);

@@ -13,8 +13,6 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define VERSION_URL			"http://services.0x13.io/tf2c/version/?latest=1"
-
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -44,15 +42,10 @@ bool CTFMainMenuPanel::Init()
 		m_SteamID = steamapicontext->SteamUser()->GetSteamID();
 	}
 
-	m_SteamHTTP = steamapicontext->SteamHTTP();
 	m_pVersionLabel = NULL;
 	m_pNotificationButton = NULL;
 	m_pProfileAvatar = NULL;
 
-	fPercent = -1.0f;
-	bOutdated = false;
-	bChecking = false;
-	bCompleted = false;
 	bInMenu = true;
 	bInGame = false;
 	return true;
@@ -78,10 +71,6 @@ void CTFMainMenuPanel::PerformLayout()
 	{
 		m_pProfileAvatar->SetPlayer(m_SteamID, k_EAvatarSize64x64);
 		m_pProfileAvatar->SetShouldDrawFriendIcon(false);
-	}
-	if (m_SteamHTTP)
-	{
-		CheckVersion();
 	}
 
 	char szNickName[64];
@@ -111,7 +100,7 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "checkversion"))
 	{
-		CheckVersion();
+		//MAINMENU_ROOT->CheckVersion();
 	}
 	else if (!Q_strcmp(command, "shownotification"))
 	{
@@ -138,76 +127,11 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 }
 
-void CTFMainMenuPanel::CheckVersion()
-{
-	char verString[64];
-	Q_snprintf(verString, sizeof(verString), VERSION_URL);
-
-	m_httpRequest = m_SteamHTTP->CreateHTTPRequest(k_EHTTPMethodGET, verString);
-	m_SteamHTTP->SetHTTPRequestNetworkActivityTimeout(m_httpRequest, 5);
-
-	SteamAPICall_t hSteamAPICall;
-	m_SteamHTTP->SendHTTPRequest(m_httpRequest, &hSteamAPICall);
-	m_CallResult.Set(hSteamAPICall, this, (&CTFMainMenuPanel::CHTTPRequestCompleted));
-
-	fPercent = 0.0f;
-	bChecking = true;
-}
-
-void CTFMainMenuPanel::CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure)
-{
-	Msg("HTTP Request completed: %i\n", m_CallResult->m_eStatusCode);
-	bCompleted = true;
-	bChecking = false;
-	fPercent = -1.0f;
-
-	if (m_CallResult->m_eStatusCode == 200)
-	{
-		uint32 iBodysize;
-		m_SteamHTTP->GetHTTPResponseBodySize(m_httpRequest, &iBodysize);
-		uint8* iBodybuffer = new uint8();
-		m_SteamHTTP->GetHTTPResponseBodyData(m_httpRequest, iBodybuffer, iBodysize);
-
-		char result[128];
-		Q_strncpy(result, (char*)iBodybuffer, iBodysize + 1);
-
-		char resultString[128];
-		if (Q_strcmp(GetVersionString(), result) < 0)
-		{
-			bOutdated = true;
-			if (m_pVersionLabel)
-			{
-				m_pVersionLabel->SetFgColor(Color(255, 20, 50, 100));
-			}
-			
-			Q_snprintf(resultString, sizeof(resultString), "Your game is out of date.\nThe newest version of TF2C is %s.\nDownload the update at\nwww.tf2classic.com", result);
-			MainMenuNotification Notification("Update!", resultString);
-			MAINMENU_ROOT->SendNotification(Notification);
-		}
-		else
-		{
-			bOutdated = false;
-		}
-	}
-	else
-	{
-		//Msg("Can't get the info\n");
-	}
-
-	m_SteamHTTP->ReleaseHTTPRequest(m_httpRequest);
-}
-
 ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu");
 
 void CTFMainMenuPanel::OnTick()
 {
 	BaseClass::OnTick();
-
-	if (bChecking && !bCompleted)
-	{
-		SteamAPI_RunCallbacks();
-		m_SteamHTTP->GetHTTPDownloadProgressPct(m_httpRequest, &fPercent);
-	}
 
 	if (tf2c_mainmenu_music.GetBool() && !bInGameLayout)
 	{
@@ -270,8 +194,30 @@ void CTFMainMenuPanel::OnNotificationUpdate()
 {
 	if (m_pNotificationButton)
 	{
-		m_pNotificationButton->SetVisible(true);
-		m_pNotificationButton->SetGlowing(true);
+		if (MAINMENU_ROOT->GetNotificationsCount() > 0)
+		{
+			m_pNotificationButton->SetVisible(true);
+		}
+		else
+		{
+			m_pNotificationButton->SetVisible(false);
+		}
+
+		if (MAINMENU_ROOT->GetUnreadNotificationsCount() > 0)
+		{
+			m_pNotificationButton->SetGlowing(true);
+		}
+		else
+		{
+			m_pNotificationButton->SetGlowing(false);
+		}
+	}
+	if (MAINMENU_ROOT->IsOutdated())
+	{
+		if (m_pVersionLabel)
+		{
+			m_pVersionLabel->SetFgColor(Color(255, 20, 50, 100));
+		}
 	}
 };
 
@@ -280,35 +226,10 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	if (m_pVersionLabel)
 	{
 		char verString[30];
-		Q_snprintf(verString, sizeof(verString), "Version: %s", GetVersionString());
+		Q_snprintf(verString, sizeof(verString), "Version: %s", MAINMENU_ROOT->GetVersionString());
 		m_pVersionLabel->SetText(verString);
 	}
 };
-
-char* CTFMainMenuPanel::GetVersionString()
-{
-	char verString[30];
-	if (g_pFullFileSystem->FileExists("version.txt"))
-	{
-		FileHandle_t fh = filesystem->Open("version.txt", "r", "MOD");
-		int file_len = filesystem->Size(fh);
-		char* GameInfo = new char[file_len + 1];
-
-		filesystem->Read((void*)GameInfo, file_len, fh);
-		GameInfo[file_len] = 0; // null terminator
-
-		filesystem->Close(fh);
-
-		Q_snprintf(verString, sizeof(verString), GameInfo + 8);
-
-		delete[] GameInfo;
-	}
-
-	char *szResult = (char*)malloc(sizeof(verString));
-	Q_strncpy(szResult, verString, sizeof(verString));
-	return szResult;
-}
-
 
 char* CTFMainMenuPanel::GetRandomMusic()
 {

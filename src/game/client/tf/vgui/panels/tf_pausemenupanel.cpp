@@ -67,7 +67,7 @@ void CTFPauseMenuPanel::OnCommand(const char* command)
 	{
 		if (m_pNotificationButton)
 		{
-			m_pNotificationButton->SetVisible(false);
+			m_pNotificationButton->SetGlowing(false);
 		}
 		MAINMENU_ROOT->ShowPanel(NOTIFICATION_MENU);
 	}
@@ -81,8 +81,23 @@ void CTFPauseMenuPanel::OnNotificationUpdate()
 {
 	if (m_pNotificationButton)
 	{
-		m_pNotificationButton->SetVisible(true);
-		m_pNotificationButton->SetGlowing(true);
+		if (MAINMENU_ROOT->GetNotificationsCount() > 0)
+		{
+			m_pNotificationButton->SetVisible(true);
+		}
+		else
+		{
+			m_pNotificationButton->SetVisible(false);
+		}
+
+		if (MAINMENU_ROOT->GetUnreadNotificationsCount() > 0)
+		{
+			m_pNotificationButton->SetGlowing(true);
+		}
+		else
+		{
+			m_pNotificationButton->SetGlowing(false);
+		}
 	}
 };
 

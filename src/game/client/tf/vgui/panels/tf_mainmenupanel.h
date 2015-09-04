@@ -2,15 +2,10 @@
 #define TFMAINMENUPANEL_H
 
 #include "tf_menupanelbase.h"
+#include "steam/steam_api.h"
 
 class CAvatarImagePanel;
 class CTFAdvButton;
-
-#include "steam/steam_api.h"
-#include "steam/isteamhttp.h"
-//class CSteamID;
-//class ISteamHTTP;
-//class HTTPRequestHandle;
 
 enum MusicStatus
 {
@@ -54,19 +49,8 @@ private:
 	int					m_nSongGuid;
 	MusicStatus			m_psMusicStatus;
 	char*				GetRandomMusic();
-	char*				GetVersionString();
 	
 	CSteamID			m_SteamID;
-	ISteamHTTP*			m_SteamHTTP;
-	HTTPRequestHandle	m_httpRequest;
-	float				fPercent;
-
-	bool				bOutdated;
-	bool				bChecking;
-	bool				bCompleted;
-	void				CheckVersion();
-	CCallResult<CTFMainMenuPanel, HTTPRequestCompleted_t> m_CallResult;
-	void				CHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure);
 };
 
 

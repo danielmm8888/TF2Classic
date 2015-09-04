@@ -97,7 +97,7 @@ void CTFNotificationPanel::UpdateLabels()
 	MainMenuNotification* pNotification = MAINMENU_ROOT->GetNotification(iCurrent);
 	Q_snprintf(sTitle, sizeof(sTitle), pNotification->sTitle);
 	Q_snprintf(sMessage, sizeof(sMessage), pNotification->sMessage);
-	if (m_pTitle && m_pMessage)
+	if (m_pTitle && m_pMessage && IsVisible())
 	{
 		m_pTitle->SetText(sTitle);
 		m_pMessage->SetText(sMessage);
