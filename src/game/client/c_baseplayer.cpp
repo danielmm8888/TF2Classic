@@ -1798,7 +1798,7 @@ void C_BasePlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float&
 		origin.z += VEC_DEAD_VIEWHEIGHT_SCALED( this ).z;
 	}
 	
-	if ( pKiller && (pKiller->IsPlayer() || pKiller->IsNPC()) && (pKiller != this) ) 
+	if ( pKiller && pKiller->IsPlayer() && (pKiller != this) ) 
 	{														
 		Vector vKiller = pKiller->EyePosition() - origin;
 		QAngle aKiller; VectorAngles( vKiller, aKiller );
