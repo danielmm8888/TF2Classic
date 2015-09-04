@@ -319,6 +319,8 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	virtual void UpdatePlayerSound( void );
+
 	// HL2 ladder related methods
 	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
 	virtual void		ExitLadder();

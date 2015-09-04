@@ -6388,6 +6388,30 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 	return true; 
 }
 
+//=========================================================
+// UpdatePlayerSound - updates the position of the player's
+// reserved sound slot in the sound list.
+//=========================================================
+void CTFPlayer::UpdatePlayerSound ( void )
+{
+	CSound *pSound = CSoundEnt::SoundPointerForIndex( CSoundEnt::ClientSoundIndex( edict() ) );
+
+	if ( !pSound )
+	{
+		Msg( "Client lost reserved sound!\n" );
+		return;
+	}
+
+	// Spy moves silently.
+	if ( IsPlayerClass( TF_CLASS_SPY ) )
+	{
+		pSound->m_iVolume = 0;
+		return;
+	}
+
+	BaseClass::UpdatePlayerSound();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Helper to remove from ladder
 //-----------------------------------------------------------------------------
