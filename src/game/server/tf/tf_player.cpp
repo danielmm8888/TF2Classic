@@ -5951,42 +5951,48 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 			}
 		case MP_CONCEPT_PLAYER_GO:
 			{
-				// TF2 characters don't have telepathy skills so you have to use voice commands to command rebels.
-				m_QueuedCommand = CC_SEND;
-
-				// Send antlions if we're allied with them
-				if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+				if ( GetTeamNumber() == TF_TEAM_RED || m_Shared.GetDisguiseTeam() == TF_TEAM_RED )
 				{
-					trace_t tr;
-					Vector eyeDir;
-					EyeVectors( &eyeDir );
-					UTIL_TraceLine( EyePosition(), EyePosition() + eyeDir * 2000, MASK_BLOCKLOS_AND_NPCS, this, COLLISION_GROUP_NONE, &tr );
-					if ( tr.fraction < 1.0f )
-					{
-						//Make sure we want to call antlions
-						if ( CGrenadeBugBait::ActivateBugbaitTargets( this, tr.endpos, false ) == false )
-						{
-							//Alert any antlions around
-							CSoundEnt::InsertSound( SOUND_BUGBAIT, tr.endpos, bugbait_hear_radius.GetInt(), bugbait_distract_time.GetFloat(), this );
-						}
+					// TF2 characters don't have telepathy skills so you have to use voice commands to command rebels.
+					m_QueuedCommand = CC_SEND;
 
-						// Tell all spawners to now fight to this position
-						g_AntlionMakerManager.BroadcastFightGoal( tr.endpos );
+					// Send antlions if we're allied with them
+					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+					{
+						trace_t tr;
+						Vector eyeDir;
+						EyeVectors( &eyeDir );
+						UTIL_TraceLine( EyePosition(), EyePosition() + eyeDir * 2000, MASK_BLOCKLOS_AND_NPCS, this, COLLISION_GROUP_NONE, &tr );
+						if ( tr.fraction < 1.0f )
+						{
+							//Make sure we want to call antlions
+							if ( CGrenadeBugBait::ActivateBugbaitTargets( this, tr.endpos, false ) == false )
+							{
+								//Alert any antlions around
+								CSoundEnt::InsertSound( SOUND_BUGBAIT, tr.endpos, bugbait_hear_radius.GetInt(), bugbait_distract_time.GetFloat(), this );
+							}
+
+							// Tell all spawners to now fight to this position
+							g_AntlionMakerManager.BroadcastFightGoal( tr.endpos );
+						}
 					}
 				}
 				break;
 			}
 		case MP_CONCEPT_PLAYER_HELP:
 			{
-				// Re-call squad.
-				m_QueuedCommand = CC_FOLLOW;
-
-				// Also call in antlions.
-				if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+				if ( GetTeamNumber() == TF_TEAM_RED || m_Shared.GetDisguiseTeam() == TF_TEAM_RED )
 				{
-					if ( CGrenadeBugBait::ActivateBugbaitTargets( this, GetAbsOrigin(), true ) == false )
+					// Re-call squad.
+					m_QueuedCommand = CC_FOLLOW;
+
+					// Also call in antlions.
+					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
 					{
-						g_AntlionMakerManager.BroadcastFollowGoal( this );
+						if ( CGrenadeBugBait::ActivateBugbaitTargets( this, GetAbsOrigin(), true ) == false )
+						{
+							g_AntlionMakerManager.BroadcastFollowGoal( this );
+						}
 					}
 				}
 				break;
@@ -6884,7 +6890,7 @@ void CTFPlayer::CommanderExecute( CommanderCommand_t command )
 	AISquadIter_t iter;
 	for ( CAI_BaseNPC *pAllyNpc = m_pPlayerAISquad->GetFirstMember(&iter); pAllyNpc; pAllyNpc = m_pPlayerAISquad->GetNextMember(&iter) )
 	{
-		if ( pAllyNpc->IsCommandable() && (InSameTeam( pAllyNpc ) || m_Shared.GetDisguiseTeam() == pAllyNpc->GetTeamNumber()) )
+		if ( pAllyNpc->IsCommandable() )
 			Allies.AddToTail( pAllyNpc );
 	}
 
