@@ -59,7 +59,11 @@ extern CBaseEntity *FindPickerEntity( CBasePlayer *pPlayer );
 
 ConVar g_debug_doors( "g_debug_doors", "0" );
 ConVar breakable_disable_gib_limit( "breakable_disable_gib_limit", "0" );
+#ifndef TF_CLASSIC
 ConVar breakable_multiplayer( "breakable_multiplayer", "1" );
+#else
+ConVar breakable_multiplayer( "breakable_multiplayer", "0" );
+#endif
 
 // AI Interaction for being hit by a physics object
 int g_interactionHitByPlayerThrownPhysObj = 0;
