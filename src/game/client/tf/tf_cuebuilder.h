@@ -1,11 +1,13 @@
 #ifndef TF_CUEBUILDER_H
 #define TF_CUEBUILDER_H
+
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include "tf_shareddefs.h"
-#include "tf_hud_statpanel.h"
+#include "igamesystem.h"
+#include "GameEventListener.h"
 
 #define GUID int
 class CTFCueBuilder;
@@ -85,15 +87,14 @@ public:
 	char*	GetTrackName() { return m_sName; };
 
 private:
-	int			m_iCurrentSequence;
-	float		m_fCurrentDuration;
-	bool		m_bPlay;
-	char		m_sName[64];
-
 	CTFCueBuilder	 *pTFCueBuilder;
 	CUtlDict< CueSequence, unsigned short > m_TrackInfoDatabase;
-	CUtlVector<int>	m_pCurrentPlay;
 	GUID m_pPlayList[MOOD_COUNT * LAYER_COUNT];
+
+	bool		m_bPlay;
+	int			m_iCurrentSequence;
+	float		m_fCurrentDuration;
+	char		m_sName[64];
 };
 
 //-----------------------------------------------------------------------------
@@ -105,12 +106,16 @@ public:
 	CTFCueBuilder();
 	~CTFCueBuilder();
 
+	// Methods of IGameSystem
 	virtual bool Init();
 	virtual char const *Name() { return "CTFCueBuilder"; }
 	// Gets called each frame
 	virtual void Update(float frametime);
+
+	// Methods of IGameSystem
 	virtual void FireGameEvent(IGameEvent *event);
 
+	//
 	void SetMood(CueMood mood);
 	CueMood GetMood() { return m_iGlobalMood; }
 	void AddTrack(const char* name, CueTrack* pCueTrack);
@@ -129,10 +134,11 @@ public:
 
 private:
 	CUtlDict< CueTrack*, unsigned short > m_PlaylistDatabase;
+
 	bool		m_bInited;
-	CueMood		m_iGlobalMood;
-	int			m_iCurrentTrack;
 	bool		m_bShouldSkipTrack;
+	int			m_iCurrentTrack;
+	CueMood		m_iGlobalMood;
 };
 
 CTFCueBuilder *GetCueBuilder();

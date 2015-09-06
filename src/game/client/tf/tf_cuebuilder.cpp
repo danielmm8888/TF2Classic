@@ -6,36 +6,31 @@
 #include "soundenvelope.h"
 #include "c_script_parser.h"
 #include "c_tf_player.h"
+#include "tf_gamerules.h"
 
-const char *g_aCueMood[] =
+const char *g_aCueMood[MOOD_COUNT] =
 {
 	"MOOD_NEUTRAL",
 	"MOOD_DANGER",
-	"MOOD_DEATH",
-	"MOOD_COUNT"
+	"MOOD_DEATH"
 };
 
-const char *g_aCueLayer[] =
+const char *g_aCueLayer[LAYER_COUNT] =
 {
 	"LAYER_MAIN",
 	"LAYER_BASS",
 	"LAYER_PERC",
-	"LAYER_MISC",
-	"LAYER_COUNT"
+	"LAYER_MISC"
 };
 
 
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-CTFCueBuilder *pCueBuilder = NULL;
+static CTFCueBuilder g_TFCueBuilder;
 CTFCueBuilder *GetCueBuilder()
 {
-	if (NULL == pCueBuilder)
-	{
-		pCueBuilder = new CTFCueBuilder();
-	}
-	return pCueBuilder;
+	return &g_TFCueBuilder;
 }
 
 class CTFMusicScriptParser : public C_ScriptParser
@@ -46,7 +41,7 @@ public:
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
 	{
 		int id = -1;
-		CueTrack *pTrack = new CueTrack(pCueBuilder, szFileWithoutEXT);
+		CueTrack *pTrack = new CueTrack(GetCueBuilder(), szFileWithoutEXT);
 
 		for (KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
 		{
@@ -111,42 +106,39 @@ CTFMusicScriptParser g_TFMusicScriptParser;
 void PlayDynamic(const CCommand &args)
 {
 	const char* sName = args[1];
-	int iCurrentID = pCueBuilder->GetCurrentTrackID();
-	if (iCurrentID > -1)
-		pCueBuilder->StopCue();
-	pCueBuilder->SetCurrentTrack(sName);
-	pCueBuilder->StartCue();
+	GetCueBuilder()->StopCue();
+	GetCueBuilder()->SetCurrentTrack(sName);
+	GetCueBuilder()->StartCue();
 }
 ConCommand playdynamic("playdynamic", PlayDynamic);
 
 void StopDynamic(const CCommand &args)
 {
-	pCueBuilder->StopCue();
+	GetCueBuilder()->StopCue();
 }
 ConCommand stopdynamic("stopdynamic", StopDynamic);
 
 void SkipDynamic(const CCommand &args)
 {
-	Msg("Skipping to the next loop\n");
-	pCueBuilder->SetShouldSkip(true);
+	DevMsg("Skipping to the next loop\n");
+	GetCueBuilder()->SetShouldSkip(true);
 }
 ConCommand skipdynamic("skipdynamic", SkipDynamic);
 
 void SetMood(const CCommand &args)
 {
 	int iMood = atoi(args[1]);
-	pCueBuilder->SetMood((CueMood)iMood);
-	Msg("Mood set to %s\n", g_aCueMood[iMood]);
-	pCueBuilder->GetCurrentTrack()->SetVolumes();
+	GetCueBuilder()->SetMood((CueMood)iMood);
+	DevMsg("Mood set to %s\n", g_aCueMood[iMood]);
+	GetCueBuilder()->GetCurrentTrack()->SetVolumes();
 }
 ConCommand playdefault("setmood", SetMood);
-
 
 
 //-----------------------------------------------------------------------------
 // Purpose: constructor
 //-----------------------------------------------------------------------------
-CTFCueBuilder::CTFCueBuilder() : CAutoGameSystemPerFrame("CueTrack")
+CTFCueBuilder::CTFCueBuilder() : CAutoGameSystemPerFrame("CTFCueBuilder")
 {
 	if (!filesystem)
 		return;
@@ -167,14 +159,14 @@ bool CTFCueBuilder::Init()
 {
 	if (!m_bInited)
 	{
-		pCueBuilder = this;
 		m_iGlobalMood = MOOD_NEUTRAL;
 		m_iCurrentTrack = -1;
 
 		g_TFMusicScriptParser.SetCueBuilder(this);
 		g_TFMusicScriptParser.InitParser("scripts/tf_music_*.txt", true, false);
 
-		//ListenForGameEvent("server_spawn");
+		ListenForGameEvent("localplayer_changeteam");
+		ListenForGameEvent("server_spawn");
 		m_bInited = true;
 	}
 
@@ -196,8 +188,14 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 {
 	const char *type = event->GetName();
 
-	if (0 == Q_strcmp(type, "server_spawn"))
+	if (0 == Q_strcmp(type, "localplayer_changeteam"))
 	{
+		if (!TFGameRules() || !TFGameRules()->IsDeathmatch())
+			return;
+
+		GetCueBuilder()->StopCue();
+		GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
+		GetCueBuilder()->StartCue();
 	}
 }
 
@@ -214,14 +212,18 @@ void CTFCueBuilder::SetMood(CueMood mood)
 void CTFCueBuilder::StartCue()
 {
 	CueTrack *pCurrentTrack = GetCurrentTrack();
-	Msg("Playing track %s\n", pCurrentTrack->GetTrackName());	
+	DevMsg("Playing track %s\n", pCurrentTrack->GetTrackName());	
 	pCurrentTrack->StartPlaying();
 }
 
 void CTFCueBuilder::StopCue()
 {
+	int iCurrentID = GetCueBuilder()->GetCurrentTrackID();
+	if (iCurrentID < 0)
+		return;
+
 	CueTrack *pCurrentTrack = GetCurrentTrack();
-	Msg("Stop playing track %s\n", pCurrentTrack->GetTrackName());
+	DevMsg("Stop playing track %s\n", pCurrentTrack->GetTrackName());
 	pCurrentTrack->StopPlaying();
 }
 
@@ -230,9 +232,9 @@ void CTFCueBuilder::StopCue()
 //-----------------------------------------------------------------------------
 // Purpose: constructor
 //-----------------------------------------------------------------------------
-CueTrack::CueTrack(CTFCueBuilder *pCueBuilder, const char* sName)
+CueTrack::CueTrack(CTFCueBuilder *g_TFCueBuilder, const char* sName)
 {
-	pTFCueBuilder = pCueBuilder;
+	pTFCueBuilder = g_TFCueBuilder;
 	Q_strncpy(m_sName, sName, sizeof(m_sName));
 	m_iCurrentSequence = -1;
 	for (int i = 0; i < LAYER_COUNT * MOOD_COUNT; i++)
@@ -260,7 +262,7 @@ void CueTrack::Update()
 	}
 	if (bLoopEnded)
 	{
-		Msg("Loop ended\n");
+		DevMsg("Loop ended\n");
 		m_fCurrentDuration = gpGlobals->curtime;
 	}
 	if (!bPlaying || (bLoopEnded && GetShouldSkip()))
@@ -352,7 +354,7 @@ void CueTrack::Play()
 	if (!bPlaying)
 	{
 		CueSequence Part = GetSequenceInfo(GetCurrentSeqID());
-		Msg("Playing part %s\n", Part.sName);
+		DevMsg("Playing part %s\n", Part.sName);
 
 		for (int i = 0; i < LAYER_COUNT; i++)
 		{
@@ -411,6 +413,3 @@ GUID CueTrack::GetGuid(CueLayer Layer, CueMood Mood)
 	GUID id = (Layer * MOOD_COUNT) + Mood;
 	return m_pPlayList[id];
 }
-
-// global instance
-CTFCueBuilder g_TFCueBuilder;
