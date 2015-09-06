@@ -1,0 +1,139 @@
+#ifndef TF_CUEBUILDER_H
+#define TF_CUEBUILDER_H
+#ifdef _WIN32
+#pragma once
+#endif
+
+#include "tf_shareddefs.h"
+#include "tf_hud_statpanel.h"
+
+#define GUID int
+class CTFCueBuilder;
+
+enum CueMood
+{
+	MOOD_NEUTRAL,
+	MOOD_DANGER,
+	MOOD_DEATH,
+	MOOD_COUNT,
+};
+
+enum CueLayer
+{
+	LAYER_MAIN,
+	LAYER_BASS,
+	LAYER_PERC,
+	LAYER_MISC,
+	LAYER_COUNT
+};
+
+struct CueSequence
+{
+	int	 id;
+	char sName[64];
+	float volume;
+	soundlevel_t soundlevel;
+	int pitch;
+	char pTracks[MOOD_COUNT * LAYER_COUNT][64];
+	void AddTrack(const char* sTrack, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
+	{
+		int id = (Layer * MOOD_COUNT) + Mood;
+		Q_strncpy(pTracks[id], sTrack, sizeof(pTracks[id]));
+	};
+	char* GetTrack(CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
+	{
+		int id = (Layer * MOOD_COUNT) + Mood;
+		char *szResult = (char*)malloc(sizeof(pTracks[id]));
+		Q_strncpy(szResult, pTracks[id], sizeof(pTracks[id]));
+		return szResult;
+	};
+};
+
+class CueTrack
+{
+public:
+	CueTrack(CTFCueBuilder *pCueBuilder, const char* sName);
+
+	void Update();
+
+	GUID PlayLayer(int ID, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL);
+	void Play();
+	void Stop();
+
+	void StartPlaying();
+	void StopPlaying();
+
+	void SetVolumes();
+	bool IsStillPlaying();
+
+	void SetGuid(GUID guid, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL);
+	GUID GetGuid(CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL);
+
+	void SetCurrentSeqID(int ID) { m_iCurrentSequence = ID; };
+	int	 GetCurrentSeqID() { return m_iCurrentSequence; };
+	void NextSeq() { m_iCurrentSequence++; };
+	void PrevSeq() { m_iCurrentSequence--; };
+
+	void AddSequence(CueSequence pSequence, const char* name);
+	CueSequence GetSequenceInfo(int ID);
+	int GetSeqCount();
+
+	bool GetShouldSkip();
+	void SetShouldSkip(bool bSkip);
+
+	CueMood GetGlobalMood();
+	char*	GetTrackName() { return m_sName; };
+
+private:
+	int			m_iCurrentSequence;
+	float		m_fCurrentDuration;
+	bool		m_bPlay;
+	char		m_sName[64];
+
+	CTFCueBuilder	 *pTFCueBuilder;
+	CUtlDict< CueSequence, unsigned short > m_TrackInfoDatabase;
+	CUtlVector<int>	m_pCurrentPlay;
+	GUID m_pPlayList[MOOD_COUNT * LAYER_COUNT];
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class CTFCueBuilder : public CAutoGameSystemPerFrame, public CGameEventListener
+{
+public:
+	CTFCueBuilder();
+	~CTFCueBuilder();
+
+	virtual bool Init();
+	virtual char const *Name() { return "CTFCueBuilder"; }
+	// Gets called each frame
+	virtual void Update(float frametime);
+	virtual void FireGameEvent(IGameEvent *event);
+
+	void SetMood(CueMood mood);
+	CueMood GetMood() { return m_iGlobalMood; }
+	void AddTrack(const char* name, CueTrack* pCueTrack);
+
+	void SetCurrentTrack(int ID) { m_iCurrentTrack = ID; };
+	void SetCurrentTrack(const char* sName) { m_iCurrentTrack = m_PlaylistDatabase.Find(sName); };
+	int	 GetCurrentTrackID() { return m_iCurrentTrack; };
+	char* GetCurrentTrackName() { return m_PlaylistDatabase[m_iCurrentTrack]->GetTrackName(); };
+	bool GetShouldSkip() { return m_bShouldSkipTrack; };
+	void SetShouldSkip(bool bSkip) { m_bShouldSkipTrack = bSkip; };
+
+	void StartCue();
+	void StopCue();
+
+	CueTrack*	 GetCurrentTrack() { return m_PlaylistDatabase[m_iCurrentTrack]; };
+
+private:
+	CUtlDict< CueTrack*, unsigned short > m_PlaylistDatabase;
+	bool		m_bInited;
+	CueMood		m_iGlobalMood;
+	int			m_iCurrentTrack;
+	bool		m_bShouldSkipTrack;
+};
+
+CTFCueBuilder *GetCueBuilder();
+#endif // TF_CUEBUILDER_H
