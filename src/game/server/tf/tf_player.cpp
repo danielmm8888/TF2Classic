@@ -5957,7 +5957,7 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 					m_QueuedCommand = CC_SEND;
 
 					// Send antlions if we're allied with them
-					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON )
 					{
 						trace_t tr;
 						Vector eyeDir;
@@ -5987,7 +5987,7 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 					m_QueuedCommand = CC_FOLLOW;
 
 					// Also call in antlions.
-					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+					if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON )
 					{
 						if ( CGrenadeBugBait::ActivateBugbaitTargets( this, GetAbsOrigin(), true ) == false )
 						{
