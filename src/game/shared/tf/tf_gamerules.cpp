@@ -45,6 +45,7 @@
 	#include "hltvdirector.h"
 	#include "ai_basenpc.h"
 	#include "ai_dynamiclink.h"
+	#include "antlion_maker.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -811,6 +812,9 @@ void CTFGameRules::SetupOnRoundStart( void )
 	// Need to re-init AI dynamic links since they get respawned on new round.
 	CAI_DynamicLink::gm_bInitialized = false;
 	CAI_DynamicLink::InitDynamicLinks();
+
+	// Reset antlion maker manager.
+	g_AntlionMakerManager.LevelInitPostEntity();
 
 	for ( int i = 0; i < MAX_TEAMS; i++ )
 	{
