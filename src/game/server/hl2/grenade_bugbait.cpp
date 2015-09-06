@@ -211,9 +211,11 @@ void CGrenadeBugBait::BugBaitTouch( CBaseEntity *pOther )
 bool CGrenadeBugBait::ActivateBugbaitTargets( CBaseEntity *pOwner, Vector vecOrigin, bool bSqueezed )
 {
 	//Attempt to activate any spawners in a radius around the bugbait
+	bool			suppressCall = false;
+
+#ifndef TF_CLASSIC
 	CBaseEntity*	pList[100];
 	Vector			delta( bugbait_grenade_radius.GetFloat(), bugbait_grenade_radius.GetFloat(), bugbait_grenade_radius.GetFloat() );
-	bool			suppressCall = false;
 
 	int count = UTIL_EntitiesInBox( pList, 100, vecOrigin - delta, vecOrigin + delta, 0 );
 	
@@ -246,6 +248,8 @@ bool CGrenadeBugBait::ActivateBugbaitTargets( CBaseEntity *pOwner, Vector vecOri
 			}
 		}
 	}
+#endif
+
 	// Iterate over all sensors to see if they detected this impact
 	for ( CBugBaitSensor *pSensor = GetBugBaitSensorList(); pSensor != NULL; pSensor = pSensor->m_pNext )
 	{

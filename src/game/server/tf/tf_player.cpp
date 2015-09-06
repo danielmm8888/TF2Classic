@@ -55,6 +55,9 @@
 #include "ai_basenpc.h"
 #include "ai_squad.h"
 #include "iservervehicle.h"
+#include "globalstate.h"
+#include "grenade_bugbait.h"
+#include "antlion_maker.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -5939,15 +5942,55 @@ bool CTFPlayer::SpeakConceptIfAllowed( int iConcept, const char *modifiers, char
 	//Add bubble on top of a player calling for medic.
 	if ( bReturn )
 	{
-		if ( iConcept == MP_CONCEPT_PLAYER_MEDIC )
+		switch ( iConcept )
 		{
-			SaveMe();
-		}
+		case MP_CONCEPT_PLAYER_MEDIC:
+			{
+				SaveMe();
+				break;
+			}
+		case MP_CONCEPT_PLAYER_GO:
+			{
+				// TF2 characters don't have telepathy skills so you have to use voice commands to command rebels.
+				m_QueuedCommand = CC_SEND;
 
-		if ( iConcept == MP_CONCEPT_PLAYER_GO )
-		{
-			// TF2 characters don't have telepathy skills so you have to use voice commands to command rebels.
-			CommanderMode();
+				// Send antlions if we're allied with them
+				if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+				{
+					trace_t tr;
+					Vector eyeDir;
+					EyeVectors( &eyeDir );
+					UTIL_TraceLine( EyePosition(), EyePosition() + eyeDir * 2000, MASK_BLOCKLOS_AND_NPCS, this, COLLISION_GROUP_NONE, &tr );
+					if ( tr.fraction < 1.0f )
+					{
+						//Make sure we want to call antlions
+						if ( CGrenadeBugBait::ActivateBugbaitTargets( this, tr.endpos, false ) == false )
+						{
+							//Alert any antlions around
+							CSoundEnt::InsertSound( SOUND_BUGBAIT, tr.endpos, bugbait_hear_radius.GetInt(), bugbait_distract_time.GetFloat(), this );
+						}
+
+						// Tell all spawners to now fight to this position
+						g_AntlionMakerManager.BroadcastFightGoal( tr.endpos );
+					}
+				}
+				break;
+			}
+		case MP_CONCEPT_PLAYER_HELP:
+			{
+				// Re-call squad.
+				m_QueuedCommand = CC_FOLLOW;
+
+				// Also call in antlions.
+				if ( GlobalEntity_GetState( "antlion_allied" ) == GLOBAL_ON && GetTeamNumber() == TF_TEAM_RED )
+				{
+					if ( CGrenadeBugBait::ActivateBugbaitTargets( this, GetAbsOrigin(), true ) == false )
+					{
+						g_AntlionMakerManager.BroadcastFollowGoal( this );
+					}
+				}
+				break;
+			}
 		}
 	}
 
@@ -6792,7 +6835,7 @@ void CTFPlayer::CommanderExecute( CommanderCommand_t command )
 
 	if ( !pPlayerSquadLeader )
 	{
-		EmitSound( "HL2Player.UseDeny" );
+		//EmitSound( "HL2Player.UseDeny" );
 		return;
 	}
 
