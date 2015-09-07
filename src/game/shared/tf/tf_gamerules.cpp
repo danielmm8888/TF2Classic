@@ -2794,6 +2794,7 @@ void CTFGameRules::RoundRespawn( void )
 		if ( pPlayer )
 		{
 			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->m_Shared.SetKillstreak(0);
 		}
 	}
 
