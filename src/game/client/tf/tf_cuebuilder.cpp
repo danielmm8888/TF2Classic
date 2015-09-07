@@ -7,6 +7,8 @@
 #include "c_script_parser.h"
 #include "c_tf_player.h"
 #include "tf_gamerules.h"
+#include "c_playerresource.h"
+#include "c_tf_playerresource.h"
 
 const char *g_aCueMood[MOOD_COUNT] =
 {
@@ -120,7 +122,6 @@ ConCommand stopdynamic("stopdynamic", StopDynamic);
 
 void SkipDynamic(const CCommand &args)
 {
-	DevMsg("Skipping to the next loop\n");
 	GetCueBuilder()->SetShouldSkip(true);
 }
 ConCommand skipdynamic("skipdynamic", SkipDynamic);
@@ -129,8 +130,6 @@ void SetMood(const CCommand &args)
 {
 	int iMood = atoi(args[1]);
 	GetCueBuilder()->SetMood((CueMood)iMood);
-	DevMsg("Mood set to %s\n", g_aCueMood[iMood]);
-	GetCueBuilder()->GetCurrentTrack()->SetVolumes();
 }
 ConCommand playdefault("setmood", SetMood);
 
@@ -165,8 +164,11 @@ bool CTFCueBuilder::Init()
 		g_TFMusicScriptParser.SetCueBuilder(this);
 		g_TFMusicScriptParser.InitParser("scripts/tf_music_*.txt", true, false);
 
-		ListenForGameEvent("localplayer_changeteam");
 		ListenForGameEvent("server_spawn");
+		ListenForGameEvent("localplayer_changeteam");
+		ListenForGameEvent("player_death");
+		ListenForGameEvent("teamplay_win_panel");
+		ListenForGameEvent("teamplay_round_start");
 		m_bInited = true;
 	}
 
@@ -188,14 +190,73 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 {
 	const char *type = event->GetName();
 
+	if (!TFGameRules())
+		return;
+
 	if (0 == Q_strcmp(type, "localplayer_changeteam"))
 	{
-		if (!TFGameRules() || !TFGameRules()->IsDeathmatch())
-			return;
+		if (TFGameRules()->IsDeathmatch())
+		{
+			GetCueBuilder()->StopCue();
+			GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
+			GetCueBuilder()->ResetAndStartCue();
+		}
+	}
 
-		GetCueBuilder()->StopCue();
-		GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
-		GetCueBuilder()->StartCue();
+	if (0 == Q_strcmp(type, "teamplay_round_start"))
+	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			GetCueBuilder()->StopCue();
+			GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
+			GetCueBuilder()->ResetAndStartCue();
+		}
+	}
+
+	if (0 == Q_strcmp(type, "server_spawn"))
+	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			GetCueBuilder()->StopCue();
+		}
+	}
+
+	if (0 == Q_strcmp(type, "teamplay_win_panel"))
+	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			GetCueBuilder()->StopCue();
+		}
+	}
+
+	if (0 == Q_strcmp(type, "player_death"))
+	{
+		if (TFGameRules()->IsDeathmatch())
+		{
+			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+			if (!tf_PR)
+				return;
+
+			int iSeqID = GetCueBuilder()->GetCurrentTrack()->GetCurrentSeqID();
+			int iLocalIndex = GetLocalPlayerIndex();
+			int iLocalScore = tf_PR->GetTotalScore(iLocalIndex);
+			int iLocalKillstreak = tf_PR->GetKillstreak(iLocalIndex);
+
+			if (iLocalScore > 1 && iSeqID == 0)
+			{
+				GetCueBuilder()->GetCurrentTrack()->SetShouldSkip(true);
+			}
+			
+			int userid = event->GetInt("userid");
+			if (userid == iLocalIndex + 1)
+			{
+				GetCueBuilder()->SetMood(MOOD_NEUTRAL);
+			}
+			else if (iLocalKillstreak > 3)
+			{
+				GetCueBuilder()->SetMood(MOOD_DANGER);
+			}
+		}
 	}
 }
 
@@ -206,7 +267,9 @@ void CTFCueBuilder::AddTrack(const char* name, CueTrack* pCueTrack)
 
 void CTFCueBuilder::SetMood(CueMood mood)
 {
+	DevMsg("Mood set to %s\n", g_aCueMood[mood]);
 	m_iGlobalMood = mood;
+	GetCueBuilder()->GetCurrentTrack()->SetVolumes();
 };
 
 void CTFCueBuilder::StartCue()
@@ -214,6 +277,13 @@ void CTFCueBuilder::StartCue()
 	CueTrack *pCurrentTrack = GetCurrentTrack();
 	DevMsg("Playing track %s\n", pCurrentTrack->GetTrackName());	
 	pCurrentTrack->StartPlaying();
+}
+
+void CTFCueBuilder::ResetAndStartCue()
+{
+	GetCueBuilder()->GetCurrentTrack()->SetCurrentSeqID(-1);
+	GetCueBuilder()->SetMood(MOOD_NEUTRAL);
+	GetCueBuilder()->StartCue();
 }
 
 void CTFCueBuilder::StopCue()
@@ -319,6 +389,10 @@ bool CueTrack::GetShouldSkip()
 
 void CueTrack::SetShouldSkip(bool bSkip)
 {
+	if (bSkip)
+	{
+		DevMsg("Skipping to the next loop\n");
+	}
 	pTFCueBuilder->SetShouldSkip(bSkip); 
 };
 

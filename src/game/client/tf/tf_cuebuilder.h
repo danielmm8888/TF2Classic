@@ -112,7 +112,7 @@ public:
 	// Gets called each frame
 	virtual void Update(float frametime);
 
-	// Methods of IGameSystem
+	// Methods of CGameEventListener
 	virtual void FireGameEvent(IGameEvent *event);
 
 	//
@@ -128,6 +128,7 @@ public:
 	void SetShouldSkip(bool bSkip) { m_bShouldSkipTrack = bSkip; };
 
 	void StartCue();
+	void ResetAndStartCue();
 	void StopCue();
 
 	CueTrack*	 GetCurrentTrack() { return m_PlaylistDatabase[m_iCurrentTrack]; };
