@@ -382,9 +382,12 @@ void CTFMainMenu::HideToolTip()
 
 void CTFMainMenu::CheckMessage(bool Version/* = false*/)
 {
+	if (!m_SteamHTTP)
+		return;
+
 	char httpString[64];
 	Q_snprintf(httpString, sizeof(httpString), (!Version ? MESSAGE_URL : VERSION_URL));
-
+		
 	m_httpRequest = m_SteamHTTP->CreateHTTPRequest(k_EHTTPMethodGET, httpString);
 	m_SteamHTTP->SetHTTPRequestNetworkActivityTimeout(m_httpRequest, 5);
 
