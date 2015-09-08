@@ -65,6 +65,7 @@ public:
 			for (int i = 0; i < MOOD_COUNT * LAYER_COUNT; i++)
 			{
 				Q_strncpy(pSeq.pTracks[i].sWaveName, "", sizeof(pSeq.pTracks[i].sWaveName));
+				pSeq.pTracks[i].fWaveVolume = 1.0f;
 			}
 			for (KeyValues *pLayerData = pData->GetFirstSubKey(); pLayerData != NULL; pLayerData = pLayerData->GetNextKey())
 			{
@@ -110,33 +111,42 @@ private:
 CTFMusicScriptParser g_TFMusicScriptParser;
 
 
-void PlayDynamic(const CCommand &args)
+void PlayCommand(const CCommand &args)
 {
 	const char* sName = args[1];
 	GetCueBuilder()->StopCue();
 	GetCueBuilder()->SetCurrentTrack(sName);
 	GetCueBuilder()->ResetAndStartCue();
 }
-ConCommand playdynamic("playdynamic", PlayDynamic);
+ConCommand tf2c_cues_play("tf2c_cues_play", PlayCommand);
 
-void StopDynamic(const CCommand &args)
+void StopCommand(const CCommand &args)
 {
 	GetCueBuilder()->StopCue();
 }
-ConCommand stopdynamic("stopdynamic", StopDynamic);
+ConCommand tf2c_cues_stop("tf2c_cues_stop", StopCommand);
 
-void SkipDynamic(const CCommand &args)
+void SetSequenceCommand(const CCommand &args)
 {
-	GetCueBuilder()->SetShouldSkip(true);
+	int ID = atoi(args[1]);
+	GetCueBuilder()->GetCurrentTrack()->Stop();
+	GetCueBuilder()->GetCurrentTrack()->SetCurrentSeqID(ID);
+	GetCueBuilder()->GetCurrentTrack()->Play();
 }
-ConCommand skipdynamic("skipdynamic", SkipDynamic);
+ConCommand tf2c_cues_setsequence("tf2c_cues_setsequence", SetSequenceCommand);
 
-void SetMood(const CCommand &args)
+void SkipCommand(const CCommand &args)
+{
+	GetCueBuilder()->GetCurrentTrack()->SetShouldSkip(true);
+}
+ConCommand tf2c_cues_skipsequence("tf2c_cues_skipsequence", SkipCommand);
+
+void SetMoodCommand(const CCommand &args)
 {
 	int iMood = atoi(args[1]);
 	GetCueBuilder()->SetMood((CueMood)iMood);
 }
-ConCommand playdefault("setmood", SetMood);
+ConCommand tf2c_cues_setmood("tf2c_cues_setmood", SetMoodCommand);
 
 
 //-----------------------------------------------------------------------------
@@ -343,7 +353,6 @@ void CueTrack::Update()
 	}
 	if (!bPlaying || (bLoopEnded && GetShouldSkip()))
 	{
-		m_fCurrentDuration = gpGlobals->curtime;
 		SetShouldSkip(false);
 		Stop();
 		NextSeq();
@@ -433,8 +442,9 @@ void CueTrack::Play()
 	{
 		SetCurrentSeqID(-1);
 		return;
-	}	
-		
+	}
+
+	m_fCurrentDuration = gpGlobals->curtime;
 	bool bPlaying = IsStillPlaying();
 	if (!bPlaying)
 	{
