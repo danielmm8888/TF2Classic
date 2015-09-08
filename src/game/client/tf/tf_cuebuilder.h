@@ -29,25 +29,29 @@ enum CueLayer
 	LAYER_COUNT
 };
 
+struct CueWaveInfo
+{
+	char sWaveName[64];
+	float fWaveVolume;
+};
+
 struct CueSequence
 {
 	int	 id;
 	char sName[64];
-	float volume;
 	soundlevel_t soundlevel;
 	int pitch;
-	char pTracks[MOOD_COUNT * LAYER_COUNT][64];
-	void AddTrack(const char* sTrack, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
+	CueWaveInfo pTracks[MOOD_COUNT * LAYER_COUNT];
+	void AddTrack(const char* sTrack, float iVolume = 1.0f, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
 	{
 		int id = (Layer * MOOD_COUNT) + Mood;
-		Q_strncpy(pTracks[id], sTrack, sizeof(pTracks[id]));
+		Q_strncpy(pTracks[id].sWaveName, sTrack, sizeof(pTracks[id].sWaveName));
+		pTracks[id].fWaveVolume = iVolume;
 	};
-	char* GetTrack(CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
+	CueWaveInfo GetTrack(CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
 	{
 		int id = (Layer * MOOD_COUNT) + Mood;
-		char *szResult = (char*)malloc(sizeof(pTracks[id]));
-		Q_strncpy(szResult, pTracks[id], sizeof(pTracks[id]));
-		return szResult;
+		return pTracks[id];
 	};
 };
 

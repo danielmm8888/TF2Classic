@@ -52,7 +52,6 @@ public:
 			CueSequence pSeq;
 			pSeq.id = id;
 			Q_strncpy(pSeq.sName, pData->GetString("name", ""), sizeof(pSeq.sName));
-			pSeq.volume = pData->GetInt("volume", 0);
 			pSeq.pitch = pData->GetInt("pitch", PITCH_NORM);
 			if (!Q_strncasecmp(pData->GetString("soundlevel", ""), "SNDLVL_", strlen("SNDLVL_")))
 			{
@@ -65,7 +64,7 @@ public:
 
 			for (int i = 0; i < MOOD_COUNT * LAYER_COUNT; i++)
 			{
-				Q_strncpy(pSeq.pTracks[i], "", sizeof(pSeq.pTracks[i]));
+				Q_strncpy(pSeq.pTracks[i].sWaveName, "", sizeof(pSeq.pTracks[i].sWaveName));
 			}
 			for (KeyValues *pLayerData = pData->GetFirstSubKey(); pLayerData != NULL; pLayerData = pLayerData->GetNextKey())
 			{
@@ -73,15 +72,21 @@ public:
 				{
 					if (!Q_stricmp(pLayerData->GetName(), g_aCueLayer[i]))
 					{
+						char sDefaultTrackName[64];
+						Q_strncpy(sDefaultTrackName, pLayerData->GetString("wave", ""), sizeof(sDefaultTrackName));
+						float fDefaultVolume = pLayerData->GetFloat("volume", 1.0f);
+						pSeq.AddTrack(sDefaultTrackName, fDefaultVolume, (CueLayer)i, MOOD_NEUTRAL);
+
 						for (KeyValues *pMoodData = pLayerData->GetFirstSubKey(); pMoodData != NULL; pMoodData = pMoodData->GetNextKey())
 						{
-							for (int j = MOOD_NEUTRAL; j < MOOD_COUNT; j++)
+							for (int j = MOOD_NEUTRAL + 1; j < MOOD_COUNT; j++)
 							{
 								if (!Q_stricmp(pMoodData->GetName(), g_aCueMood[j]))
 								{
 									char sTrackName[64];
-									Q_strncpy(sTrackName, pMoodData->GetString("wave", ""), sizeof(sTrackName));
-									pSeq.AddTrack(sTrackName, (CueLayer)i, (CueMood)j);
+									Q_strncpy(sTrackName, pMoodData->GetString("wave_override", ""), sizeof(sTrackName));
+									float fVolume = pMoodData->GetFloat("volume_override", 1.0f);
+									pSeq.AddTrack(sTrackName, fVolume, (CueLayer)i, (CueMood)j);
 								}
 							}
 						}
@@ -110,7 +115,7 @@ void PlayDynamic(const CCommand &args)
 	const char* sName = args[1];
 	GetCueBuilder()->StopCue();
 	GetCueBuilder()->SetCurrentTrack(sName);
-	GetCueBuilder()->StartCue();
+	GetCueBuilder()->ResetAndStartCue();
 }
 ConCommand playdynamic("playdynamic", PlayDynamic);
 
@@ -197,9 +202,9 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			GetCueBuilder()->StopCue();
-			GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
-			GetCueBuilder()->ResetAndStartCue();
+			StopCue();
+			SetCurrentTrack("tf_music_deathmatch");
+			ResetAndStartCue();
 		}
 	}
 
@@ -207,9 +212,9 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			GetCueBuilder()->StopCue();
-			GetCueBuilder()->SetCurrentTrack("tf_music_deathmatch");
-			GetCueBuilder()->ResetAndStartCue();
+			StopCue();
+			SetCurrentTrack("tf_music_deathmatch");
+			ResetAndStartCue();
 		}
 	}
 
@@ -217,7 +222,7 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			GetCueBuilder()->StopCue();
+			StopCue();
 		}
 	}
 
@@ -225,7 +230,7 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			GetCueBuilder()->StopCue();
+			StopCue();
 		}
 	}
 
@@ -237,24 +242,24 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 			if (!tf_PR)
 				return;
 
-			int iSeqID = GetCueBuilder()->GetCurrentTrack()->GetCurrentSeqID();
+			int iSeqID = GetCurrentTrack()->GetCurrentSeqID();
 			int iLocalIndex = GetLocalPlayerIndex();
 			int iLocalScore = tf_PR->GetTotalScore(iLocalIndex);
 			int iLocalKillstreak = tf_PR->GetKillstreak(iLocalIndex);
 
 			if (iLocalScore > 1 && iSeqID == 0)
 			{
-				GetCueBuilder()->GetCurrentTrack()->SetShouldSkip(true);
+				GetCurrentTrack()->SetShouldSkip(true);
 			}
 			
 			int userid = event->GetInt("userid");
 			if (userid == iLocalIndex + 1)
 			{
-				GetCueBuilder()->SetMood(MOOD_NEUTRAL);
+				SetMood(MOOD_NEUTRAL);
 			}
 			else if (iLocalKillstreak > 3)
 			{
-				GetCueBuilder()->SetMood(MOOD_DANGER);
+				SetMood(MOOD_DANGER);
 			}
 		}
 	}
@@ -269,7 +274,8 @@ void CTFCueBuilder::SetMood(CueMood mood)
 {
 	DevMsg("Mood set to %s\n", g_aCueMood[mood]);
 	m_iGlobalMood = mood;
-	GetCueBuilder()->GetCurrentTrack()->SetVolumes();
+	if (GetCurrentTrack()->GetCurrentSeqID() > -1)
+		GetCurrentTrack()->SetVolumes();
 };
 
 void CTFCueBuilder::StartCue()
@@ -281,14 +287,14 @@ void CTFCueBuilder::StartCue()
 
 void CTFCueBuilder::ResetAndStartCue()
 {
-	GetCueBuilder()->GetCurrentTrack()->SetCurrentSeqID(-1);
-	GetCueBuilder()->SetMood(MOOD_NEUTRAL);
-	GetCueBuilder()->StartCue();
+	GetCurrentTrack()->SetCurrentSeqID(-1);
+	SetMood(MOOD_NEUTRAL);
+	StartCue();
 }
 
 void CTFCueBuilder::StopCue()
 {
-	int iCurrentID = GetCueBuilder()->GetCurrentTrackID();
+	int iCurrentID = GetCurrentTrackID();
 	if (iCurrentID < 0)
 		return;
 
@@ -327,7 +333,7 @@ void CueTrack::Update()
 	if (GetCurrentSeqID() > -1)
 	{
 		CueSequence pSeqInfo = GetSequenceInfo(GetCurrentSeqID());
-		float fDuration = enginesound->GetSoundDuration(pSeqInfo.GetTrack(LAYER_MAIN, MOOD_NEUTRAL));
+		float fDuration = enginesound->GetSoundDuration(pSeqInfo.GetTrack(LAYER_MAIN, MOOD_NEUTRAL).sWaveName);
 		bLoopEnded = m_fCurrentDuration + fDuration < gpGlobals->curtime;
 	}
 	if (bLoopEnded)
@@ -350,17 +356,17 @@ GUID CueTrack::PlayLayer(int ID, CueLayer Layer, CueMood Mood)
 	char m_pzMusicLink[64];
 	CueSequence pSongInfo = GetSequenceInfo(ID);
 
-	Q_strncpy(m_pzMusicLink, pSongInfo.GetTrack(Layer, Mood), sizeof(m_pzMusicLink));
+	Q_strncpy(m_pzMusicLink, pSongInfo.GetTrack(Layer, Mood).sWaveName, sizeof(m_pzMusicLink));
 	if (m_pzMusicLink[0] == '\0')
 	{
-		Q_strncpy(m_pzMusicLink, pSongInfo.GetTrack(Layer, MOOD_NEUTRAL), sizeof(m_pzMusicLink));
+		Q_strncpy(m_pzMusicLink, pSongInfo.GetTrack(Layer, MOOD_NEUTRAL).sWaveName, sizeof(m_pzMusicLink));
 	}
 
 	if (m_pzMusicLink[0] == '\0')
 		return 0;
 	
 	CLocalPlayerFilter filter;
-	enginesound->EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, CHAN_AUTO, m_pzMusicLink, pSongInfo.volume, pSongInfo.soundlevel, 0, pSongInfo.pitch);
+	enginesound->EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, CHAN_AUTO, m_pzMusicLink, pSongInfo.GetTrack(Layer, Mood).fWaveVolume, pSongInfo.soundlevel, 0, pSongInfo.pitch);
 	GUID guid = enginesound->GetGuidForLastSoundEmitted();
 	SetGuid(guid, Layer, Mood);
 	return guid;
@@ -402,7 +408,12 @@ void CueTrack::SetVolumes()
 	{
 		for (int j = 0; j < MOOD_COUNT; j++)
 		{
-			float fVolume = ((j == GetGlobalMood()) ? 1.0f : 0.01f);
+			float fTrackVolume = GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, (CueMood)j).fWaveVolume;
+			if (GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, (CueMood)j).sWaveName[0] == '\0')
+			{
+				fTrackVolume = GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, MOOD_NEUTRAL).fWaveVolume;
+			}			
+			float fVolume = ((j == GetGlobalMood()) ? fTrackVolume : 0.01f);
 			GUID guid = GetGuid((CueLayer)i, (CueMood)j);
 			if (guid && enginesound->IsSoundStillPlaying(guid))
 				enginesound->SetVolumeByGuid(guid, fVolume);
@@ -463,7 +474,6 @@ void CueTrack::StopPlaying()
 void CueTrack::StartPlaying()
 {
 	m_bPlay = true;
-	//Play();
 }
 
 bool CueTrack::IsStillPlaying()
