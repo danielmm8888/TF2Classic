@@ -37,10 +37,11 @@ struct CueWaveInfo
 
 struct CueSequence
 {
-	int	 id;
-	char sName[64];
-	soundlevel_t soundlevel;
+	int	id;
 	int pitch;
+	char sName[64];
+	float skipmultiplier;
+	soundlevel_t soundlevel;
 	CueWaveInfo pTracks[MOOD_COUNT * LAYER_COUNT];
 	void AddTrack(const char* sTrack, float iVolume = 1.0f, CueLayer Layer = LAYER_MAIN, CueMood Mood = MOOD_NEUTRAL)
 	{
@@ -81,7 +82,8 @@ public:
 	void PrevSeq() { m_iCurrentSequence--; };
 
 	void AddSequence(CueSequence pSequence, const char* name);
-	CueSequence GetSequenceInfo(int ID);
+	CueSequence GetSequence(int ID);
+	CueSequence GetCurrentSequence();
 	int GetSeqCount();
 
 	bool GetShouldSkip();

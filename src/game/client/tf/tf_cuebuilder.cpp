@@ -53,6 +53,7 @@ public:
 			pSeq.id = id;
 			Q_strncpy(pSeq.sName, pData->GetString("name", ""), sizeof(pSeq.sName));
 			pSeq.pitch = pData->GetInt("pitch", PITCH_NORM);
+			pSeq.skipmultiplier = pData->GetFloat("skipmultiplier", 0.0f);
 			if (!Q_strncasecmp(pData->GetString("soundlevel", ""), "SNDLVL_", strlen("SNDLVL_")))
 			{
 				pSeq.soundlevel = TextToSoundLevel(pData->GetString("soundlevel", "SNDLVL_NONE"));
@@ -252,12 +253,14 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 			if (!tf_PR)
 				return;
 
-			int iSeqID = GetCurrentTrack()->GetCurrentSeqID();
 			int iLocalIndex = GetLocalPlayerIndex();
 			int iLocalScore = tf_PR->GetTotalScore(iLocalIndex);
 			int iLocalKillstreak = tf_PR->GetKillstreak(iLocalIndex);
 
-			if (iLocalScore > 1 && iSeqID == 0)
+			float fSkipmult = GetCurrentTrack()->GetCurrentSequence().skipmultiplier;
+			ConVar *mp_fraglimit = cvar->FindVar("mp_fraglimit");
+			int iSkipAmmount = (mp_fraglimit ? fSkipmult * mp_fraglimit->GetInt() : 0);
+			if (iLocalScore > iSkipAmmount)
 			{
 				GetCurrentTrack()->SetShouldSkip(true);
 			}
@@ -342,7 +345,7 @@ void CueTrack::Update()
 	bool bLoopEnded = false;
 	if (GetCurrentSeqID() > -1)
 	{
-		CueSequence pSeqInfo = GetSequenceInfo(GetCurrentSeqID());
+		CueSequence pSeqInfo = GetSequence(GetCurrentSeqID());
 		float fDuration = enginesound->GetSoundDuration(pSeqInfo.GetTrack(LAYER_MAIN, MOOD_NEUTRAL).sWaveName);
 		bLoopEnded = m_fCurrentDuration + fDuration < gpGlobals->curtime;
 	}
@@ -363,7 +366,7 @@ void CueTrack::Update()
 GUID CueTrack::PlayLayer(int ID, CueLayer Layer, CueMood Mood)
 {
 	char m_pzMusicLink[64];
-	CueSequence pSongInfo = GetSequenceInfo(ID);
+	CueSequence pSongInfo = GetSequence(ID);
 
 	Q_strncpy(m_pzMusicLink, pSongInfo.GetTrack(Layer, Mood).sWaveName, sizeof(m_pzMusicLink));
 	if (m_pzMusicLink[0] == '\0')
@@ -375,7 +378,7 @@ GUID CueTrack::PlayLayer(int ID, CueLayer Layer, CueMood Mood)
 		return 0;
 	
 	CLocalPlayerFilter filter;
-	enginesound->EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, CHAN_AUTO, m_pzMusicLink, pSongInfo.GetTrack(Layer, Mood).fWaveVolume, pSongInfo.soundlevel, 0, pSongInfo.pitch);
+	enginesound->EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, CHAN_STATIC, m_pzMusicLink, 1.0f, pSongInfo.soundlevel, 0, pSongInfo.pitch);
 	GUID guid = enginesound->GetGuidForLastSoundEmitted();
 	SetGuid(guid, Layer, Mood);
 	return guid;
@@ -387,9 +390,14 @@ void CueTrack::AddSequence(CueSequence pSequence, const char* name)
 	m_TrackInfoDatabase.Insert(name, pSequence);
 }
 
-CueSequence CueTrack::GetSequenceInfo(int ID)
+CueSequence CueTrack::GetSequence(int ID)
 {
 	return m_TrackInfoDatabase[ID];
+}
+
+CueSequence CueTrack::GetCurrentSequence()
+{
+	return m_TrackInfoDatabase[GetCurrentSeqID()];
 }
 
 int CueTrack::GetSeqCount()
@@ -417,11 +425,13 @@ void CueTrack::SetVolumes()
 	{
 		for (int j = 0; j < MOOD_COUNT; j++)
 		{
-			float fTrackVolume = GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, (CueMood)j).fWaveVolume;
-			if (GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, (CueMood)j).sWaveName[0] == '\0')
+			float fTrackVolume = GetCurrentSequence().GetTrack((CueLayer)i, (CueMood)j).fWaveVolume;
+			if (GetCurrentSequence().GetTrack((CueLayer)i, (CueMood)j).sWaveName[0] == '\0')
 			{
-				fTrackVolume = GetSequenceInfo(GetCurrentSeqID()).GetTrack((CueLayer)i, MOOD_NEUTRAL).fWaveVolume;
-			}			
+				fTrackVolume = GetCurrentSequence().GetTrack((CueLayer)i, MOOD_NEUTRAL).fWaveVolume;
+			}
+			ConVar *snd_musicvolume = cvar->FindVar("snd_musicvolume");
+			fTrackVolume = (snd_musicvolume ? fTrackVolume * snd_musicvolume->GetFloat() : fTrackVolume);
 			float fVolume = ((j == GetGlobalMood()) ? fTrackVolume : 0.01f);
 			GUID guid = GetGuid((CueLayer)i, (CueMood)j);
 			if (guid && enginesound->IsSoundStillPlaying(guid))
@@ -448,7 +458,7 @@ void CueTrack::Play()
 	bool bPlaying = IsStillPlaying();
 	if (!bPlaying)
 	{
-		CueSequence Part = GetSequenceInfo(GetCurrentSeqID());
+		CueSequence Part = GetCurrentSequence();
 		DevMsg("Playing part %s\n", Part.sName);
 
 		for (int i = 0; i < LAYER_COUNT; i++)
