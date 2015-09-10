@@ -6357,6 +6357,9 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 					}
 				}
 
+				bool bSameTeam = InSameTeam( pTFPlayer );
+				criteriaSet.AppendCriteria( "crosshair_enemy", bSameTeam ? "No" : "Yes" );
+
 				if ( iClass > TF_CLASS_UNDEFINED && iClass <= TF_LAST_NORMAL_CLASS )
 				{
 					criteriaSet.AppendCriteria( "crosshair_on", g_aPlayerClassNames_NonLocalized[iClass] );
@@ -6401,6 +6404,25 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 			}
 		}
 	}
+
+	if ( TFGameRules() )
+	{
+		if ( this->GetTeamNumber() == TFGameRules()->GetWinningTeam() )
+		{
+			criteriaSet.AppendCriteria( "OnWinningTeam", "1" );
+		}
+		else
+		{
+			criteriaSet.AppendCriteria( "OnWinningTeam", "0" );
+		}
+
+		int iGameRoundState = TFGameRules()->State_Get();
+		criteriaSet.AppendCriteria( "GameRound", UTIL_VarArgs( "%d", iGameRoundState ) );
+
+		bool bIsRedTeam = GetTeamNumber() == TF_TEAM_RED;
+		criteriaSet.AppendCriteria( "OnRedTeam", UTIL_VarArgs( "%d", bIsRedTeam ) );
+	}
+
 }
 
 //-----------------------------------------------------------------------------
