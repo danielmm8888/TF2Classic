@@ -47,6 +47,8 @@ $Project "Client (TF)"
 		$File	"ver_panel.h"
 		$File	"hud_vote.cpp"
 		$File	"hud_vote.h"
+		$File	"bsp_utils.cpp"
+		$File	"bsp_utils.h"
 		
 		$Folder	"game_controls"
 		{

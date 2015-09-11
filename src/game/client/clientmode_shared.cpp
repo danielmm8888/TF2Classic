@@ -65,7 +65,8 @@ extern ConVar replay_rendersetting_renderglow;
 #include "econ_item_description.h"
 #endif
 
-#if defined ( TF_CLASSIC_CLIENT ) || defined ( TF_CLASSIC )
+#if defined ( TF_CLASSIC_CLIENT )
+#include "c_tf_player.h"
 #include "tf_gamerules.h"
 #endif
 
@@ -89,6 +90,12 @@ extern ConVar v_viewmodel_fov;
 extern ConVar voice_modenable;
 
 extern bool IsInCommentaryMode( void );
+extern const char* GetWearLocalizationString( float flWear );
+
+CON_COMMAND( cl_reload_localization_files, "Reloads all localization files" )
+{
+	g_pVGuiLocalize->ReloadLocalizationFiles();
+}
 
 #ifdef VOICE_VOX_ENABLE
 void VoxCallback( IConVar *var, const char *oldString, float oldFloat )
@@ -145,7 +152,7 @@ CON_COMMAND( hud_reloadscheme, "Reloads hud layout and animation scripts." )
 	if ( !mode )
 		return;
 
-	mode->ReloadScheme();
+	mode->ReloadScheme(true);
 }
 
 #ifdef _DEBUG
@@ -296,8 +303,14 @@ ClientModeShared::~ClientModeShared()
 	delete m_pViewport; 
 }
 
-void ClientModeShared::ReloadScheme( void )
+void ClientModeShared::ReloadScheme( bool flushLowLevel )
 {
+	// Invalidate the global cache first.
+	if (flushLowLevel)
+	{
+		KeyValuesSystem()->InvalidateCache();
+	}
+
 	m_pViewport->ReloadScheme( "resource/ClientScheme.res" );
 	ClearKeyValuesCache();
 }
@@ -339,7 +352,7 @@ void ClientModeShared::Init()
  	Assert( m_pReplayReminderPanel );
 #endif
 
-	ListenForGameEvent( "player_connect" );
+	ListenForGameEvent( "player_connect_client" );
 	ListenForGameEvent( "player_disconnect" );
 	ListenForGameEvent( "player_team" );
 	ListenForGameEvent( "server_cvar" );
@@ -425,7 +438,7 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 
 	if( ::input->CAM_IsThirdPerson() )
 	{
-		Vector cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
+		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
 		Vector cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
 
 		cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
@@ -436,25 +449,6 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 
 		Vector camForward, camRight, camUp;
 		
-		static ConVarRef c_thirdpersonshoulder("c_thirdpersonshoulder");
-		if (c_thirdpersonshoulder.GetBool())
-		{
-			static ConVarRef c_thirdpersonshoulderoffset("c_thirdpersonshoulderoffset");
-			static ConVarRef c_thirdpersonshoulderheight("c_thirdpersonshoulderheight");
-			static ConVarRef c_thirdpersonshoulderaimdist("c_thirdpersonshoulderaimdist");
-
-			// add the shoulder offset to the origin in the cameras right vector
-			VectorMA(pSetup->origin, c_thirdpersonshoulderoffset.GetFloat(), camRight, pSetup->origin);
-
-			// add the shoulder height to the origin in the cameras up vector
-			VectorMA(pSetup->origin, c_thirdpersonshoulderheight.GetFloat(), camUp, pSetup->origin);
-
-			// adjust the yaw to the aim-point
-			camAngles[YAW] += RAD2DEG(atan(c_thirdpersonshoulderoffset.GetFloat() / (c_thirdpersonshoulderaimdist.GetFloat() + cam_ofs[ROLL])));
-
-			// adjust the pitch to the aim-point
-			camAngles[PITCH] += RAD2DEG(atan(c_thirdpersonshoulderheight.GetFloat() / (c_thirdpersonshoulderaimdist.GetFloat() + cam_ofs[ROLL])));
-		}
 
 		if ( g_ThirdPersonManager.IsOverridingThirdPerson() == false )
 		{
@@ -800,8 +794,6 @@ bool ClientModeShared::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 			return false;
 	}
 #endif 
-	g_GlowObjectManager.RenderGlowEffects(pSetup, 0 );
-
 	return true;
 }
 
@@ -892,7 +884,7 @@ void ClientModeShared::LevelShutdown( void )
 
 void ClientModeShared::Enable()
 {
-	vgui::VPANEL pRoot = VGui_GetClientDLLRootPanel();;
+	vgui::VPANEL pRoot = VGui_GetClientDLLRootPanel();
 
 	// Add our viewport to the root panel.
 	if( pRoot != 0 )
@@ -919,7 +911,7 @@ void ClientModeShared::Enable()
 
 void ClientModeShared::Disable()
 {
-	vgui::VPANEL pRoot = VGui_GetClientDLLRootPanel();;
+	vgui::VPANEL pRoot = VGui_GetClientDLLRootPanel();
 
 	// Remove our viewport from the root panel.
 	if( pRoot != 0 )
@@ -948,7 +940,7 @@ void ClientModeShared::Layout()
 		m_pViewport->SetBounds(0, 0, wide, tall);
 		if ( changed )
 		{
-			ReloadScheme();
+			ReloadScheme(false);
 		}
 	}
 }
@@ -980,7 +972,7 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 
 	const char *eventname = event->GetName();
 
-	if ( Q_strcmp( "player_connect", eventname ) == 0 )
+	if ( Q_strcmp( "player_connect_client", eventname ) == 0 )
 	{
 		if ( !hudChat )
 			return;
@@ -1085,7 +1077,7 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 				}
 				else
 				{
-#if defined (TF_CLASSIC) || defined (TF_CLASSIC_CLIENT)
+#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
 					if ( TFGameRules() && TFGameRules()->IsDeathmatch() && pTeam->GetTeamNumber() == TF_TEAM_RED )
 					{
 						g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#TF_Joined_DM" ), 1, wszPlayerName );
@@ -1096,7 +1088,6 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 					}
 #else
 					g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#game_player_joined_team" ), 2, wszPlayerName, wszTeam );
-
 #endif
 				}
 
@@ -1152,7 +1143,7 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 		{
 			CBasePlayer *pSpectatorTarget = UTIL_PlayerByIndex( GetSpectatorTarget() );
 
-			if ( pSpectatorTarget && (GetSpectatorMode() == OBS_MODE_IN_EYE || GetSpectatorMode() == OBS_MODE_CHASE) )
+			if ( pSpectatorTarget && (GetSpectatorMode() == OBS_MODE_IN_EYE || GetSpectatorMode() == OBS_MODE_CHASE || GetSpectatorMode() == OBS_MODE_POI) )
 			{
 				if ( pSpectatorTarget->GetTeamNumber() == team )
 				{
@@ -1259,10 +1250,14 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 		entityquality_t iItemQuality = event->GetInt( "quality" );
 		int iMethod = event->GetInt( "method" );
 		int iItemDef = event->GetInt( "itemdef" );
+		bool bIsStrange = event->GetInt( "isstrange" );
+		bool bIsUnusual = event->GetInt( "isunusual" );
+		float flWear = event->GetFloat( "wear" );
+
 		C_BasePlayer *pPlayer = UTIL_PlayerByIndex( iPlayerIndex );
 		const GameItemDefinition_t *pItemDefinition = dynamic_cast<GameItemDefinition_t *>( GetItemSchema()->GetItemDefinition( iItemDef ) );
 
-		if ( !pPlayer || !pItemDefinition )
+		if ( !pPlayer || !pItemDefinition || pItemDefinition->IsHidden() )
 			return;
 
 		if ( g_PR )
@@ -1282,19 +1277,101 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 				_snwprintf( wszItemFound, ARRAYSIZE( wszItemFound ), L"%ls", g_pVGuiLocalize->Find( pszLocString ) );
 
 				wchar_t *colorMarker = wcsstr( wszItemFound, L"::" );
+				const CEconItemRarityDefinition* pItemRarity = GetItemSchema()->GetRarityDefinition( pItemDefinition->GetRarity() );
+
 				if ( colorMarker )
-				{
-					const char *pszQualityColorString = EconQuality_GetColorString( (EEconItemQuality)iItemQuality );
-					if ( pszQualityColorString )
+				{	
+					if ( pItemRarity )
 					{
-						hudChat->SetCustomColor( pszQualityColorString );
-						*(colorMarker+1) = COLOR_CUSTOM;
+						attrib_colors_t colorRarity = pItemRarity->GetAttribColor();
+						vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+						vgui::IScheme *pScheme = vgui::scheme()->GetIScheme( scheme );
+						Color color = pScheme->GetColor( GetColorNameForAttribColor( colorRarity ), Color( 255, 255, 255, 255 ) );
+						hudChat->SetCustomColor( color );
 					}
+					else
+					{
+						const char *pszQualityColorString = EconQuality_GetColorString( (EEconItemQuality)iItemQuality );
+						if ( pszQualityColorString )
+						{
+							hudChat->SetCustomColor( pszQualityColorString );
+						}
+					}
+
+					*(colorMarker+1) = COLOR_CUSTOM;
 				}
 
 				// TODO: Update the localization strings to only have two format parameters since that's all we need.
 				wchar_t wszLocalizedString[256];
-				g_pVGuiLocalize->ConstructString( wszLocalizedString, sizeof( wszLocalizedString ), wszItemFound, 3, wszPlayerName, CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItemDefinition, iItemQuality ).GetFullName(), L"" );
+				g_pVGuiLocalize->ConstructString( 
+					wszLocalizedString, 
+					sizeof( wszLocalizedString ), 
+					LOCCHAR( "%s1" ),
+					1, 
+					CEconItemLocalizedFullNameGenerator( GLocalizationProvider(), pItemDefinition, iItemQuality ).GetFullName()
+				);
+
+				locchar_t tempName[MAX_ITEM_NAME_LENGTH];
+				if ( pItemRarity )
+				{
+					// grade and Wear
+					loc_scpy_safe( tempName, wszLocalizedString );
+
+					const locchar_t *loc_WearText = LOCCHAR("");
+					const char *pszTooltipText = "TFUI_InvTooltip_Rarity";
+
+					if ( !IsWearableSlot( pItemDefinition->GetDefaultLoadoutSlot() ) )
+					{
+						loc_WearText = g_pVGuiLocalize->Find( GetWearLocalizationString( flWear ) );
+					}
+					else
+					{
+						pszTooltipText = "TFUI_InvTooltip_RarityNoWear";
+					}
+
+					g_pVGuiLocalize->ConstructString( wszLocalizedString,
+						ARRAYSIZE( wszLocalizedString ) * sizeof( locchar_t ),
+						g_pVGuiLocalize->Find( pszTooltipText ),
+						3,
+						g_pVGuiLocalize->Find( pItemRarity->GetLocKey() ),
+						tempName,
+						loc_WearText
+					);
+
+					if ( bIsUnusual )
+					{
+						loc_scpy_safe( tempName, wszLocalizedString );
+
+						g_pVGuiLocalize->ConstructString( wszLocalizedString,
+							ARRAYSIZE( wszLocalizedString ) * sizeof( locchar_t ),
+							LOCCHAR( "%s1 %s2" ),
+							2,
+							g_pVGuiLocalize->Find( "rarity4" ),
+							tempName 
+						);
+					}
+
+					if ( bIsStrange )
+					{
+						loc_scpy_safe( tempName, wszLocalizedString );
+
+						g_pVGuiLocalize->ConstructString( wszLocalizedString,
+							ARRAYSIZE( wszLocalizedString ) * sizeof( locchar_t ),
+							LOCCHAR( "%s1 %s2" ),
+							2,
+							g_pVGuiLocalize->Find( "strange" ),
+							tempName
+						);
+					}
+				}
+				
+				loc_scpy_safe( tempName, wszLocalizedString );
+				g_pVGuiLocalize->ConstructString(
+					wszLocalizedString,
+					sizeof( wszLocalizedString ),
+					wszItemFound,
+					3,
+					wszPlayerName, tempName, L"" );
 
 				char szLocalized[256];
 				g_pVGuiLocalize->ConvertUnicodeToANSI( wszLocalizedString, szLocalized, sizeof( szLocalized ) );

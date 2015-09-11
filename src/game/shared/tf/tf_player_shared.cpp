@@ -720,9 +720,9 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		{
 			m_pOuter->ResetTauntHandle();
 
-			m_pOuter->SnapEyeAngles( m_pOuter->m_angTauntCamera );
-			m_pOuter->SetAbsAngles( m_pOuter->m_angTauntCamera );
-			m_pOuter->SetLocalAngles( m_pOuter->m_angTauntCamera );
+			//m_pOuter->SnapEyeAngles( m_pOuter->m_angTauntCamera );
+			//m_pOuter->SetAbsAngles( m_pOuter->m_angTauntCamera );
+			//m_pOuter->SetLocalAngles( m_pOuter->m_angTauntCamera );
 
 			RemoveCond( TF_COND_TAUNTING );
 		}

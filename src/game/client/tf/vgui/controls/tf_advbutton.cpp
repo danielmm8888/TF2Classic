@@ -191,8 +191,8 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 		return;
 
 	bool bAnimation = ((pButton->m_fXShift == 0 && pButton->m_fYShift == 0) ? false : true);
-	AnimationController::PublicValue_t p_AnimLeave = { 0, 0, 0, 0 };
-	AnimationController::PublicValue_t p_AnimHover = { pButton->m_fXShift, pButton->m_fYShift, 0, 0 };
+	Color p_AnimLeave( 0, 0, 0, 0 );
+	Color p_AnimHover( pButton->m_fXShift, pButton->m_fYShift, 0, 0 );
 	switch (flag)
 	{
 	//We can add additional stuff like animation here

@@ -243,7 +243,7 @@ void CTFAdvSlider::SetPercentage(float fPerc)
 		Q_snprintf(sValue, sizeof(sValue), "%2.1f", fValue);
 	}
 	pValueLabel->SetText(sValue);
-	AnimationController::PublicValue_t p_AnimHover = { fPos, scroll_y, 0, 0 };
+	Color p_AnimHover( fPos, scroll_y, 0, 0 );
 	vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.05f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 }
 

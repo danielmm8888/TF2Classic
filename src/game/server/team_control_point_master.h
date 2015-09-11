@@ -132,6 +132,7 @@ public:
 	float GetLastOwnershipChangeTime( void ) { return m_flLastOwnershipChangeTime; }
 
 	int GetCurrentRoundIndex() { return m_iCurrentRoundIndex; }
+	bool ShouldSwitchTeamsOnRoundWin( void ) { return m_bSwitchTeamsOnWin; }
 
 private:
 	void EXPORT CPMThink( void );
@@ -208,7 +209,7 @@ private:
 
 	COutputEvent m_OnWonByTeam1;
 	COutputEvent m_OnWonByTeam2;
-#ifdef TF_CLASSIC
+#if defined ( TF_CLASSIC )
 	COutputEvent m_OnWonByTeam3;
 	COutputEvent m_OnWonByTeam4;
 #endif

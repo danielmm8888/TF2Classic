@@ -100,12 +100,17 @@ struct PlayerRoundScore_t
 
 #define MAX_TEAMGOAL_STRING		256
 
-class CTFGameRules : public CTeamplayRoundBasedRules, public CGameEventListener
+class CTFGameRules : public CTeamplayRoundBasedRules
 {
 public:
 	DECLARE_CLASS( CTFGameRules, CTeamplayRoundBasedRules );
 
 	CTFGameRules();
+
+	enum
+	{
+		HALLOWEEN_SCENARIO_DOOMSDAY
+	};
 
 	// Damage Queries.
 	virtual bool	Damage_IsTimeBased( int iDmgType );			// Damage types that are time-based.
@@ -239,8 +244,12 @@ public:
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
 
-	bool			IsFourTeamGame( void ){ return m_bFourTeamMode; };
-	bool			IsDeathmatch(void){ return m_nGameType == TF_GAMETYPE_DM; };
+	virtual bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
+	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
+	virtual bool    IsMannVsMachineMode( void ) { return false; };
+	virtual bool    IsHalloweenScenario( int iEventType ) { return false; };
+	virtual bool	IsPVEModeActive( void ) { return false; };
+	virtual bool	IsCompetitiveMode( void ){ return false; };
 
 #ifdef CLIENT_DLL
 

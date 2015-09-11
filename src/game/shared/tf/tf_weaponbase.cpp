@@ -2273,7 +2273,7 @@ acttable_t CTFWeaponBase::m_acttableItem2[] =
 
 ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
-acttable_t *CTFWeaponBase::ActivityList( void )
+acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
@@ -2302,72 +2302,36 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	case TF_WPN_TYPE_PRIMARY:
 	default:
 		pTable = m_acttablePrimary;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_ITEM1:
 		pTable = m_acttableItem1;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_ITEM2:
 		pTable = m_acttableItem2;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	}
 
 	return pTable;
 }
-
-int CTFWeaponBase::ActivityListCount( void )
-{
-	int iWeaponRole = 0;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-	int iSize = 0;
-
-	switch( iWeaponRole )
-	{
-	case TF_WPN_TYPE_PRIMARY:
-	default:
-		iSize = ARRAYSIZE(m_acttablePrimary);
-		break;
-	case TF_WPN_TYPE_SECONDARY:
-		iSize = ARRAYSIZE(m_acttableSecondary);
-		break;
-	case TF_WPN_TYPE_MELEE:
-		iSize = ARRAYSIZE(m_acttableMelee);
-		break;
-	case TF_WPN_TYPE_BUILDING:
-		iSize = ARRAYSIZE(m_acttableBuilding);
-		break;
-	case TF_WPN_TYPE_PDA:
-		iSize = ARRAYSIZE(m_acttablePDA);
-		break;
-	case TF_WPN_TYPE_ITEM1:
-		iSize = ARRAYSIZE(m_acttableItem1);
-		break;
-	case TF_WPN_TYPE_ITEM2:
-		iSize = ARRAYSIZE(m_acttableItem2);
-		break;
-	}
-
-	return iSize;
-}
-
-
-
 
 // -----------------------------------------------------------------------------
 // Purpose:

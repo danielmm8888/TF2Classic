@@ -56,16 +56,22 @@ BEGIN_DATADESC(CTriggerAreaCapture)
 	// Outputs
 	DEFINE_OUTPUT( m_OnStartTeam1,	"OnStartTeam1" ),
 	DEFINE_OUTPUT( m_OnStartTeam2,	"OnStartTeam2" ),
-	DEFINE_OUTPUT( m_OnStartTeam3,  "OnStartTeam3" ),
-	DEFINE_OUTPUT( m_OnStartTeam4,  "OnStartTeam4" ),
+#if defined ( TF_CLASSIC )
+	DEFINE_OUTPUT( m_OnStartTeam3,	"OnStartTeam3" ),
+	DEFINE_OUTPUT( m_OnStartTeam4,	"OnStartTeam4" ),
+#endif
 	DEFINE_OUTPUT( m_OnBreakTeam1,	"OnBreakTeam1" ),
 	DEFINE_OUTPUT( m_OnBreakTeam2,	"OnBreakTeam2" ),
-	DEFINE_OUTPUT( m_OnBreakTeam3,  "OnBreakTeam3" ),
-	DEFINE_OUTPUT( m_OnBreakTeam4,  "OnBreakTeam4" ),
+#if defined ( TF_CLASSIC )
+	DEFINE_OUTPUT( m_OnBreakTeam3,	"OnBreakTeam3" ),
+	DEFINE_OUTPUT( m_OnBreakTeam4,	"OnBreakTeam4" ),
+#endif
 	DEFINE_OUTPUT( m_OnCapTeam1,	"OnCapTeam1" ),
 	DEFINE_OUTPUT( m_OnCapTeam2,	"OnCapTeam2" ),
+#if defined ( TF_CLASSIC )
 	DEFINE_OUTPUT( m_OnCapTeam3,	"OnCapTeam3" ),
 	DEFINE_OUTPUT( m_OnCapTeam4,	"OnCapTeam4" ),
+#endif
 
 
 	DEFINE_OUTPUT( m_StartOutput,	"OnStartCap" ),
@@ -542,7 +548,7 @@ void CTriggerAreaCapture::CaptureThink( void )
 
 					if ( !bRepeatBlocker )
 					{
-                        m_hPoint->CaptureBlocked( pBlockingPlayer );
+                        m_hPoint->CaptureBlocked( pBlockingPlayer, NULL );
 
 						// Add this guy to our blocker list
 						int iNew = m_Blockers.AddToTail();
@@ -758,12 +764,14 @@ void CTriggerAreaCapture::StartCapture( int team, int capmode )
 	case 2: 
 		m_OnStartTeam2.FireOutput( this, this );
 		break;
-	case 3:
+#if defined ( TF_CLASSIC )
+	case 3: 
 		m_OnStartTeam3.FireOutput( this, this );
 		break;
-	case 4:
+	case 4: 
 		m_OnStartTeam4.FireOutput( this, this );
 		break;
+#endif
 	default:
 		Assert(0);
 		break;
@@ -875,12 +883,14 @@ void CTriggerAreaCapture::EndCapture( int team )
 	case 2: 
 		m_OnCapTeam2.FireOutput( this, this );
 		break;
-	case 3:
+#if defined ( TF_CLASSIC )
+	case 3: 
 		m_OnCapTeam3.FireOutput( this, this );
 		break;
-	case 4:
+	case 4: 
 		m_OnCapTeam4.FireOutput( this, this );
 		break;
+#endif
 	default:
 		Assert(0);
 		break;
@@ -900,6 +910,12 @@ void CTriggerAreaCapture::EndCapture( int team )
 	m_bCapturing = false;
 	m_nCapturingTeam = TEAM_UNASSIGNED;
 	SetCapTimeRemaining( 0 );
+
+	// play any special cap sounds. need to do this before we update the owner of the point.
+	if ( TeamplayRoundBasedRules() )
+	{
+		TeamplayRoundBasedRules()->PlaySpecialCapSounds( m_nOwningTeam, m_hPoint.Get() );
+	}
 
 	//there may have been more than one capper, but only report this one.
 	//he hasn't gotten points yet, and his name will go in the cap string if its needed
@@ -931,12 +947,6 @@ void CTriggerAreaCapture::EndCapture( int team )
 			}
 		}
 	}
-
-	// play any special cap sounds
-	if ( TeamplayRoundBasedRules() )
-	{
-		TeamplayRoundBasedRules()->PlaySpecialCapSounds( m_nOwningTeam );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -955,12 +965,14 @@ void CTriggerAreaCapture::BreakCapture( bool bNotEnoughPlayers )
 		case 2: 
 			m_OnBreakTeam2.FireOutput( this, this );
 			break;
-		case 3:
+#if defined ( TF_CLASSIC )
+		case 3: 
 			m_OnBreakTeam3.FireOutput( this, this );
 			break;
-		case 4:
+		case 4: 
 			m_OnBreakTeam4.FireOutput( this, this );
 			break;
+#endif
 		default:
 			Assert(0);
 			break;
@@ -1165,7 +1177,7 @@ bool CTriggerAreaCapture::CheckIfDeathCausesBlock( CBaseMultiplayerPlayer *pVict
 
 	if ( bBreakCap )
 	{
-		m_hPoint->CaptureBlocked( pKiller );
+		m_hPoint->CaptureBlocked( pKiller, pVictim );
 		//BreakCapture( true );
 	}
 

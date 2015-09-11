@@ -28,7 +28,7 @@
 #define CLIENTNAME_TIMED_OUT "%s timed out"
 
 // This is the default, see shareddefs.h for mod-specific value, which can override this
-#define DEFAULT_TICK_INTERVAL	(0.008)
+#define DEFAULT_TICK_INTERVAL	(0.015)				// 15 msec is the default
 #define MINIMUM_TICK_INTERVAL   (0.001)
 #define MAXIMUM_TICK_INTERVAL	(0.1)
 
@@ -46,7 +46,15 @@
 #define MAX_PLAYERS_PER_CLIENT		1	// One player per PC
 #endif
 
-#define MAX_MAP_NAME				32	
+// Max decorated map name, with things like workshop/cp_foo.ugc123456
+#define MAX_MAP_NAME				96
+
+// Max name used in save files. Needs to be left at 32 for SourceSDK compatibility.
+#define MAX_MAP_NAME_SAVE			32
+
+// Max non-decorated map name for e.g. server browser (just cp_foo)
+#define MAX_DISPLAY_MAP_NAME		32
+
 #define	MAX_NETWORKID_LENGTH		64  // num chars for a network (i.e steam) ID
 
 // BUGBUG: Reconcile with or derive this from the engine's internal definition!
