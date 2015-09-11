@@ -62,7 +62,6 @@ void CTFBackgroundPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
 	AutoLayout();
-	VideoReplay();
 };
 
 
@@ -73,11 +72,17 @@ void CTFBackgroundPanel::OnCommand(const char* command)
 
 void CTFBackgroundPanel::VideoReplay()
 {
-	if (m_pVideo && m_pzVideoLink[0] != '\0' && !bInGameLayout)
+	if (!m_pVideo)
+		return;
+	
+	if (IsVisible() && m_pzVideoLink[0] != '\0' && !bInGameLayout)
 	{
-		m_pVideo->SetVisible(true);
-		m_pVideo->SetEnabled(true);
+		m_pVideo->Activate();
 		m_pVideo->BeginPlaybackNoAudio(m_pzVideoLink);
+	}
+	else
+	{
+		m_pVideo->Shutdown();
 	}
 }
 
@@ -94,20 +99,13 @@ void CTFBackgroundPanel::OnThink()
 void CTFBackgroundPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
-	if (m_pVideo)
-	{
-		m_pVideo->SetVisible(true);
-	}
+	VideoReplay();
 };
 
 void CTFBackgroundPanel::GameLayout()
 {
 	BaseClass::GameLayout();
-
-	if (m_pVideo)
-	{
-		m_pVideo->SetVisible(false);
-	}
+	VideoReplay();
 };
 
 char* CTFBackgroundPanel::GetRandomVideo(bool bWidescreen)
