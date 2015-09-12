@@ -63,9 +63,9 @@ CTFViewModel::~CTFViewModel()
 // TODO:  Turning this off by setting interp 0.0 instead of 0.1 for now since we have a timing bug to resolve
 ConVar cl_wpn_sway_interp( "cl_wpn_sway_interp", "0.0", FCVAR_CLIENTDLL );
 ConVar cl_wpn_sway_scale( "cl_wpn_sway_scale", "5.0", FCVAR_CLIENTDLL );
-ConVar v_viewmodel_offset_x("viewmodel_offset_x", "0", FCVAR_ARCHIVE);
-ConVar v_viewmodel_offset_y("viewmodel_offset_y", "0", FCVAR_ARCHIVE);
-ConVar v_viewmodel_offset_z("viewmodel_offset_z", "0", FCVAR_ARCHIVE);
+ConVar v_viewmodel_offset_x( "viewmodel_offset_x", "0", FCVAR_ARCHIVE );
+ConVar v_viewmodel_offset_y( "viewmodel_offset_y", "0", FCVAR_ARCHIVE );
+ConVar v_viewmodel_offset_z( "viewmodel_offset_z", "0", FCVAR_ARCHIVE );
 #endif
 
 //-----------------------------------------------------------------------------
@@ -391,9 +391,8 @@ void CTFViewModel::ProcessMuzzleFlashEvent()
 	pWeapon->ProcessMuzzleFlashEvent();
 }
 
-
 //-----------------------------------------------------------------------------
-// Purpose: Used for spy invisiblity material
+// Purpose: 
 //-----------------------------------------------------------------------------
 int CTFViewModel::GetSkin()
 {

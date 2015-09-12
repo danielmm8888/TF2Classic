@@ -898,10 +898,20 @@ public:
 			}
 			else
 			{
-				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >( pEntity );
+				C_TFViewModel *pVM = dynamic_cast< C_TFViewModel* >( pEntity );
 				if ( pVM )
 				{
 					pPlayer = (C_TFPlayer*)pVM->GetOwner();
+				}
+				else
+				{
+					C_TFViewmodelAddon *pVMAddon = dynamic_cast< C_TFViewmodelAddon* >( pEntity );
+					if ( pVMAddon )
+					{
+						pVM = pVMAddon->m_viewmodel.Get();
+						if ( pVM )
+							pPlayer = (C_TFPlayer*)pVM->GetOwner();
+					}
 				}
 			}
 		}
@@ -1104,7 +1114,7 @@ public:
 			Hype Mode: 50 2 50
 		*/
 
-		if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED))
+		if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED) )
 		{
 			switch ( pPlayer->GetTeamNumber() )
 			{
@@ -1122,7 +1132,7 @@ public:
 				break;
 			}
 		}
-		else if (pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE) )
+		else if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE) )
 		{
 			Vector critColor = pPlayer->m_vecPlayerColor;
 			critColor *= 255;
@@ -3628,6 +3638,7 @@ void C_TFPlayer::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ClientPlayerRespawn( void )
 {
+	SetClientSideGlowEnabled(true);
 	if ( IsLocalPlayer() )
 	{
 		// Dod called these, not sure why
@@ -3753,7 +3764,11 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );
 
-		ret = pViewmodel->DrawOverriddenViewmodel( flags );
+		C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pViewmodel);
+		if (pVMAddon)
+			ret = pVMAddon->DrawOverriddenViewmodel( flags );
+		else
+			ret = pViewmodel->DrawOverriddenViewmodel( flags );
 
 		modelrender->ForcedMaterialOverride( NULL );
 	}
