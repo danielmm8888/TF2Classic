@@ -42,6 +42,11 @@ void OverrideMainMenu()
 	}
 }
 
+CON_COMMAND(tf2c_mainmenu_reload, "Reload Main Menu")
+{
+	MAINMENU_ROOT->InvalidatePanelsLayout(true, true);
+}
+
 CON_COMMAND(showloadout, "Show loadout screen (new)")
 {
 	if (!guiroot)
@@ -51,11 +56,10 @@ CON_COMMAND(showloadout, "Show loadout screen (new)")
 	MAINMENU_ROOT->ShowPanel(LOADOUT_MENU, true);
 }
 
-void CheckMessages(const CCommand &args)
+CON_COMMAND_F(tf2c_checkmessages, "Check for the messages", FCVAR_DEVELOPMENTONLY)
 {
 	MAINMENU_ROOT->CheckMessage();
 }
-ConCommand tf2c_checkmessages("tf2c_checkmessages", CheckMessages, "Check for the messages", FCVAR_DEVELOPMENTONLY);
 
 ConVar tf2c_checkfrequency("tf2c_checkfrequency", "900", FCVAR_DEVELOPMENTONLY, "Messages check frequency (seconds)");
 
@@ -195,19 +199,12 @@ void CTFMainMenu::ApplySchemeSettings(vgui::IScheme *pScheme)
 void CTFMainMenu::PerformLayout()
 {
 	BaseClass::PerformLayout();
-	AutoLayout();
 };
 
 void CTFMainMenu::OnCommand(const char* command)
 {
 	engine->ExecuteClientCmd(command);
 }
-
-void InvalidatePanelsLayout(const CCommand &args)
-{
-	MAINMENU_ROOT->InvalidatePanelsLayout(true, true);
-}
-ConCommand tf2c_mainmenu_reload("tf2c_mainmenu_reload", InvalidatePanelsLayout);
 
 void CTFMainMenu::InvalidatePanelsLayout(bool layoutNow, bool reloadScheme)
 {	
@@ -220,6 +217,7 @@ void CTFMainMenu::InvalidatePanelsLayout(bool layoutNow, bool reloadScheme)
 			GetMenuPanel(i)->SetVisible(bVisible);
 		}
 	}	
+	AutoLayout();
 }
 
 void CTFMainMenu::LaunchInvalidatePanelsLayout()
