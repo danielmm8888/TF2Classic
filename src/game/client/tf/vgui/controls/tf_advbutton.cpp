@@ -191,8 +191,8 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 		return;
 
 	bool bAnimation = ((pButton->m_fXShift == 0 && pButton->m_fYShift == 0) ? false : true);
-	Color p_AnimLeave( 0, 0, 0, 0 );
-	Color p_AnimHover( pButton->m_fXShift, pButton->m_fYShift, 0, 0 );
+	AnimationController::PublicValue_t p_AnimLeave(0, 0);
+	AnimationController::PublicValue_t p_AnimHover(pButton->m_fXShift, pButton->m_fYShift);
 	switch (flag)
 	{
 	//We can add additional stuff like animation here
@@ -202,12 +202,12 @@ void CTFAdvButton::SendAnimation(MouseState flag)
 	case MOUSE_ENTERED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorArmed, Color(255, 255, 255, 255)));
 		if (bAnimation)
-			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
 		break;
 	case MOUSE_EXITED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorSelected, Color(255, 255, 255, 255)));
 		if (bAnimation)
-			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+			vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimLeave, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
 		break;
 	case MOUSE_PRESSED:
 		pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDepressed, Color(255, 255, 255, 255)));

@@ -18,6 +18,9 @@
 
 namespace vgui
 {
+#ifdef TF_CLASSIC_CLIENT
+	static CUtlSymbolTable g_ScriptSymbols(0, 128, true);
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Handles controlling panel animation
@@ -76,6 +79,38 @@ public:
 	// runs the specific animation command (doesn't use script file at all)
 	void RunAnimationCommand(vgui::Panel *panel, const char *variable, float targetValue, float startDelaySeconds, float durationSeconds, Interpolators_e interpolator, float animParameter = 0 );
 	void RunAnimationCommand(vgui::Panel *panel, const char *variable, Color targetValue, float startDelaySeconds, float durationSeconds, Interpolators_e interpolator, float animParameter = 0 );
+#ifdef TF_CLASSIC_CLIENT
+	struct PublicValue_t
+	{
+		PublicValue_t(float _a = 0.0f, float _b = 0.0f, float _c = 0.0f, float _d = 0.0f) :
+			a(_a), b(_b), c(_c), d(_d) {};
+		float a, b, c, d;
+	};
+	void RunAnimationCommand(vgui::Panel *panel, const char *variable, PublicValue_t targetValue, float startDelaySeconds, float duration, Interpolators_e interpolator, float animParameter)
+	{
+		// clear any previous animations of this variable
+		UtlSymId_t var = g_ScriptSymbols.AddString(variable);
+		RemoveQueuedAnimationByType(panel, var, UTL_INVAL_SYMBOL);
+
+		// build a new animation
+		AnimCmdAnimate_t animateCmd;
+		memset(&animateCmd, 0, sizeof(animateCmd));
+		animateCmd.panel = 0;
+		animateCmd.variable = var;
+		animateCmd.target.a = targetValue.a;
+		animateCmd.target.b = targetValue.b;
+		animateCmd.target.c = targetValue.c;
+		animateCmd.target.d = targetValue.d;
+		animateCmd.interpolationFunction = interpolator;
+		animateCmd.interpolationParameter = animParameter;
+		animateCmd.startTime = startDelaySeconds;
+		animateCmd.duration = duration;
+
+		// start immediately
+		StartCmd_Animate(panel, 0, animateCmd);
+	}
+#endif
+ 
 
 private:
 	bool UpdateScreenSize();
