@@ -217,56 +217,6 @@ void CTargetID::PerformLayout( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTargetID::SetColorForTargetTeam( int iTeamNumber )
-{
-#if 0
-	switch( iTeamNumber )
-	{
-	case TF_TEAM_BLUE:
-		return m_cBlueColor;
-		break;
-
-	case TF_TEAM_RED:
-		return m_cRedColor;
-		break;
-
-	case TF_TEAM_GREEN:
-		return m_cGreenColor;
-		break;
-
-	case TF_TEAM_YELLOW:
-		return m_cYellowColor;
-		break;
-
-	default:
-		return m_cSpecColor;
-		break;
-	}
-#else
-	switch ( iTeamNumber )
-	{
-	case TF_TEAM_RED:
-		m_pBGPanel->SetImage("../hud/freezecam_red_bg");
-		break;
-	case TF_TEAM_BLUE:
-		m_pBGPanel->SetImage("../hud/freezecam_blue_bg");
-		break;
-	case TF_TEAM_GREEN:
-		m_pBGPanel->SetImage("../hud/freezecam_green_bg");
-		break;
-	case TF_TEAM_YELLOW:
-		m_pBGPanel->SetImage("../hud/freezecam_yellow_bg");
-		break;
-	default:
-		m_pBGPanel->SetImage("../hud/freezecam_black_bg");
-		break;
-	}
-#endif
-} 
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 int	CTargetID::CalculateTargetIndex( C_TFPlayer *pLocalTFPlayer ) 
 { 
 	int iIndex = pLocalTFPlayer->GetIDTarget(); 
@@ -455,7 +405,7 @@ void CTargetID::UpdateID( void )
 		m_pTargetHealth->SetHealth( flHealth, flMaxHealth, iMaxBuffedHealth );
 		m_pTargetHealth->SetVisible( bShowHealth );
 
-		SetColorForTargetTeam( iColorNum );
+		m_pBGPanel->SetBGImage( iColorNum );
 
 		if ( m_pAvatar )
 		{
