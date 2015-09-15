@@ -20,7 +20,7 @@
 
 extern INetworkStringTable *g_pStringTableServerMapCycle;
 
-#ifdef TF_CLIENT_DLL
+#if defined TF_CLIENT_DLL || defined TF_CLASSIC_CLIENT
 extern INetworkStringTable *g_pStringTableServerPopFiles;
 extern INetworkStringTable *g_pStringTableServerMapCycleMvM;
 #endif
@@ -83,7 +83,7 @@ public:
 	void			AddVoteIssues( CUtlVector< VoteIssue_t > &m_VoteSetupIssues );
 	void			AddVoteIssueParams_MapCycle( CUtlStringList &m_VoteSetupMapCycle );
 
-#ifdef TF_CLIENT_DLL
+#if defined TF_CLIENT_DLL || defined TF_CLASSIC_CLIENT
 	void			AddVoteIssueParams_PopFiles( CUtlStringList &m_VoteSetupPopFiles );
 #endif
 
@@ -107,7 +107,7 @@ private:
 	CUtlVector< VoteIssue_t >	m_VoteIssues;
 	CUtlVector<const char*>	m_VoteIssuesMapCycle;
 
-#ifdef TF_CLIENT_DLL
+#if defined TF_CLIENT_DLL || defined TF_CLASSIC_CLIENT
 	CUtlVector<const char*>	m_VoteIssuesPopFiles;
 #endif
 
@@ -164,7 +164,7 @@ private:
 	CUtlVector< VoteIssue_t > m_VoteSetupIssues;
 	CUtlStringList		m_VoteSetupMapCycle;
 	
-#ifdef TF_CLIENT_DLL
+#if defined TF_CLIENT_DLL || defined TF_CLASSIC_CLIENT
 	CUtlStringList		m_VoteSetupPopFiles;
 #endif
 

@@ -12,11 +12,7 @@
 #include "gameinterface.h"
 #include "fmtstr.h"
 
-#ifdef TF_CLASSIC
-#include "tf/tf_gamerules.h"
-#endif
-
-#ifdef TF_DLL
+#if defined TF_DLL || defined TF_CLASSIC
 #include "tf/tf_gamerules.h"
 #include "tf/tf_voteissues.h"
 #endif
@@ -991,7 +987,7 @@ void CVoteController::AddPlayerToNameLockedList( CSteamID steamID, float flDurat
 //-----------------------------------------------------------------------------
 bool CVoteController::IsPlayerBeingKicked( CBasePlayer *pPlayer )
 {
-#ifdef TF_DLL
+#if defined TF_DLL || defined TF_CLASSIC
 	if ( pPlayer && m_iActiveIssueIndex != INVALID_ISSUE )
 	{
 		CKickIssue *pKickIssue = dynamic_cast< CKickIssue* >( m_potentialIssues[m_iActiveIssueIndex] );

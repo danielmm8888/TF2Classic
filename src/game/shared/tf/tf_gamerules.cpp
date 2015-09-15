@@ -45,6 +45,7 @@
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
 	#include "vote_controller.h"
+	#include "tf_voteissues.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -2181,6 +2182,9 @@ void CTFGameRules::CreateStandardEntities()
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
 
 	CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
+
+	CKickIssue* pIssue = new CKickIssue("Kick");
+	pIssue->Init();
 }
 
 //-----------------------------------------------------------------------------
