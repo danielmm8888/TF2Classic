@@ -76,7 +76,8 @@ void CTFMainMenuPanel::PerformLayout()
 	char szNickName[64];
 	Q_snprintf(szNickName, sizeof(szNickName),
 		(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
-	SetDialogVariable("nickname", szNickName);
+	SetDialogVariable("nickname", szNickName); 
+	OnNotificationUpdate();
 	AutoLayout();
 };
 

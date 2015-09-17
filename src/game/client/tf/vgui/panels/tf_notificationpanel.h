@@ -30,8 +30,6 @@ public:
 private:
 	char		sTitle[64];
 	char		sMessage[128];
-	CExLabel	*m_pTitle;
-	CExLabel	*m_pMessage;
 	int			iCurrent;
 	int			iCount;
 };

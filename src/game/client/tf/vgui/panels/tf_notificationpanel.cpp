@@ -32,9 +32,6 @@ bool CTFNotificationPanel::Init(void)
 	iCurrent = 0;
 	iCount = 0;
 
-	m_pTitle = NULL;
-	m_pMessage = NULL;
-
 	return true;
 }
 
@@ -43,9 +40,6 @@ void CTFNotificationPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	BaseClass::ApplySchemeSettings(pScheme);
 
 	LoadControlSettings("resource/UI/main_menu/NotificationPanel.res");
-
-	m_pTitle = dynamic_cast<CExLabel *>(FindChildByName("TitleLabel"));
-	m_pMessage = dynamic_cast<CExLabel *>(FindChildByName("MessageLabel"));
 
 	UpdateLabels();
 }
@@ -92,17 +86,15 @@ void CTFNotificationPanel::UpdateLabels()
 
 	char sCount[32];
 	Q_snprintf(sCount, sizeof(sCount), "(%d/%d)", iCurrent + 1, iCount);
-	dynamic_cast<CExLabel *>(FindChildByName("CountLabel"))->SetText(sCount);
+	SetDialogVariable("count", sCount);
 
 	MainMenuNotification* pNotification = MAINMENU_ROOT->GetNotification(iCurrent);
 	Q_snprintf(sTitle, sizeof(sTitle), pNotification->sTitle);
 	Q_snprintf(sMessage, sizeof(sMessage), pNotification->sMessage);
-	if (m_pTitle && m_pMessage && IsVisible())
-	{
-		m_pTitle->SetText(sTitle);
-		m_pMessage->SetText(sMessage);
-		pNotification->bUnread = false;
-	}
+
+	SetDialogVariable("title", sTitle);
+	SetDialogVariable("message", sMessage);
+	pNotification->bUnread = !IsVisible();
 }
 
 void CTFNotificationPanel::RemoveCurrent()
