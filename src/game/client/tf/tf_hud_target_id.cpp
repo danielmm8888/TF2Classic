@@ -23,6 +23,8 @@ DECLARE_HUDELEMENT( CSecondaryTargetID );
 
 using namespace vgui;
 
+ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -207,6 +209,8 @@ void CTargetID::PerformLayout( void )
 	int iX,iY;
 	GetPos( iX, iY );
 	SetPos( (ScreenWidth() - iWidth) * 0.5, iY );
+
+	SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 
 	if ( m_pBGPanel )
 	{
