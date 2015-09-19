@@ -959,6 +959,17 @@ void CTFPlayer::Spawn()
 	{
 		m_Local.m_iHideHUD |= HIDEHUD_CHAT;
 	}
+
+	IGameEvent *event = gameeventmanager->CreateEvent( "player_spawn" );
+
+	if ( event )
+	{
+		event->SetInt( "userid", GetUserID() );
+		event->SetInt( "team", GetTeamNumber() );
+		event->SetInt( "class", GetPlayerClass()->GetClassIndex() );
+		gameeventmanager->FireEvent( event );
+	}
+
 }
 
 //-----------------------------------------------------------------------------
