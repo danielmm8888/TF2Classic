@@ -175,8 +175,7 @@ enum
 {
 	TF_BUILDING_SENTRY				= (1<<0),
 	TF_BUILDING_DISPENSER			= (1<<1),
-	TF_BUILDING_TELEPORT_ENTRY		= (1<<2),
-	TF_BUILDING_TELEPORT_EXIT		= (1<<3),
+	TF_BUILDING_TELEPORT			= (1<<2),
 };
 
 //-----------------------------------------------------------------------------
@@ -695,8 +694,7 @@ enum
 enum
 {
 	OBJ_DISPENSER=0,
-	OBJ_TELEPORTER_ENTRANCE,
-	OBJ_TELEPORTER_EXIT,
+	OBJ_TELEPORTER,
 	OBJ_SENTRYGUN,
 
 	// Attachment Objects
@@ -761,12 +759,18 @@ enum
 	TELEPORTER_STATE_RECEIVING,					
 	TELEPORTER_STATE_RECEIVING_RELEASE,
 	TELEPORTER_STATE_RECHARGING,				// Waiting for recharge
+	TELEPORTER_STATE_UPGRADING
 };
 
+#define OBJECT_MODE_NONE			0
 #define TELEPORTER_TYPE_ENTRANCE	0
 #define TELEPORTER_TYPE_EXIT		1
 
 #define TELEPORTER_RECHARGE_TIME				10		// seconds to recharge
+
+extern int g_iTeleporterRechargeTimes[];
+extern float g_flDispenserAmmoRates[];
+extern float g_flDispenserHealRates[];
 
 //-------------------------
 // Shared Sentry State
@@ -893,12 +897,14 @@ public:
 	int		m_Cost;							// Base object resource cost
 	float	m_CostMultiplierPerInstance;	// Cost multiplier
 	int		m_UpgradeCost;					// Base object resource cost for upgrading
+	float	m_flUpgradeDuration;
 	int		m_MaxUpgradeLevel;				// Max object upgrade level
 	char	*m_pBuilderWeaponName;			// Names shown for each object onscreen when using the builder weapon
 	char	*m_pBuilderPlacementString;		// String shown to player during placement of this object
 	int		m_SelectionSlot;				// Weapon selection slots for objects
 	int		m_SelectionPosition;			// Weapon selection positions for objects
 	bool	m_bSolidToPlayerMovement;
+	bool	m_bUseItemInfo;
 	char    *m_pViewModel;					// View model to show in builder weapon for this object
 	char    *m_pPlayerModel;				// World model to show attached to the player
 	int		m_iDisplayPriority;				// Priority for ordering in the hud display ( higher is closer to top )
@@ -906,10 +912,16 @@ public:
 	char	*m_pExplodeSound;				// gamesound to play when object explodes
 	char	*m_pExplosionParticleEffect;	// particle effect to play when object explodes
 	bool	m_bAutoSwitchTo;				// should we let players switch back to the builder weapon representing this?
+	char	*m_pUpgradeSound;				// gamesound to play when upgrading
+	int		m_BuildCount;					// ???
+	bool	m_bRequiresOwnBuilder;			// ???
+
+	CUtlVector< const char * > m_AltModes;
 
 	// HUD weapon selection menu icon ( from hud_textures.txt )
 	char	*m_pIconActive;
 	char	*m_pIconInactive;
+	char	*m_pIconMenu;
 
 	// HUD building status icon
 	char	*m_pHudStatusIcon;
@@ -964,6 +976,28 @@ typedef enum
 	HUD_NOTIFY_NO_TELE_WITH_FLAG,
 
 	HUD_NOTIFY_SPECIAL,
+
+	HUD_NOTIFY_GOLDEN_WRENCH,
+
+	HUD_NOTIFY_RD_ROBOT_ATTACKED,
+
+	HUD_NOTIFY_HOW_TO_CONTROL_GHOST,
+	HUD_NOTIFY_HOW_TO_CONTROL_KART,
+
+	HUD_NOTIFY_PASSTIME_HOWTO,
+	HUD_NOTIFY_PASSTIME_BALL_BASKET,
+	HUD_NOTIFY_PASSTIME_BALL_ENDZONE,
+	HUD_NOTIFY_PASSTIME_SCORE,
+	HUD_NOTIFY_PASSTIME_FRIENDLY_SCORE,
+	HUD_NOTIFY_PASSTIME_ENEMY_SCORE,
+	HUD_NOTIFY_PASSTIME_NO_TELE,
+	HUD_NOTIFY_PASSTIME_NO_CARRY,
+	HUD_NOTIFY_PASSTIME_NO_INVULN,
+	HUD_NOTIFY_PASSTIME_NO_DISGUISE,
+	HUD_NOTIFY_PASSTIME_NO_CLOAK,
+	HUD_NOTIFY_PASSTIME_NO_OOB,
+	HUD_NOTIFY_PASSTIME_NO_HOLSTER,
+	HUD_NOTIFY_PASSTIME_NO_TAUNT,
 
 	NUM_STOCK_NOTIFICATIONS
 } HudNotification_t;

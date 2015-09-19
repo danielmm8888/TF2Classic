@@ -35,8 +35,7 @@
 const char *szLocalizedObjectNames[OBJ_LAST] =
 {
 	"#TF_Object_Dispenser",
-	"#TF_Object_Tele_Entrance",
-	"#TF_Object_Tele_Exit",
+	"#TF_Object_Tele",
 	"#TF_Object_Sentry",
 	"#TF_object_sapper"			
 };

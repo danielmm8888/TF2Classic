@@ -389,6 +389,11 @@ int MeleeArmActTable[13][2] = {
 	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
 };
 
+int BuildingArmActTable[2][2] = {
+	{ ACT_VM_DRAW, ACT_ENGINEER_BLD_VM_DRAW },
+	{ ACT_VM_IDLE, ACT_ENGINEER_BLD_VM_IDLE },
+};
+
 int PdaArmActTable[11][2] = {
 	{ ACT_VM_DRAW, ACT_PDA_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_PDA_VM_HOLSTER },
@@ -500,6 +505,14 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 			{
 				if (MeleeArmActTable[i][0] == iActivity)
 					return MeleeArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_BUILDING:
+			for (int i = 0; i < 2; i++)
+			{
+				if (BuildingArmActTable[i][0] == iActivity)
+					return BuildingArmActTable[i][1];
 			}
 			return iActivity;
 

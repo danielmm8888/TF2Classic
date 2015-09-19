@@ -346,7 +346,7 @@ bool HintCallbackNeedsResources_Dispenser( CBasePlayer *pPlayer )
 }
 bool HintCallbackNeedsResources_Teleporter( CBasePlayer *pPlayer )
 {
-	return ( pPlayer->GetAmmoCount( TF_AMMO_METAL ) > CalculateObjectCost( OBJ_TELEPORTER_ENTRANCE ) );
+	return ( pPlayer->GetAmmoCount( TF_AMMO_METAL ) > CalculateObjectCost( OBJ_TELEPORTER ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -1254,7 +1254,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
 {
-	for (int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon)
+	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
 		const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
@@ -2447,24 +2447,66 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "build" ) )
 	{
+		int iBuilding = 0;
+		int iMode = 0;
+
 		if ( args.ArgC() == 2 )
 		{
 			// player wants to build something
-			int iBuilding = atoi( args[ 1 ] );
+			iBuilding = atoi( args[ 1 ] );
+			iMode = 0;
 
-			StartBuildingObjectOfType( iBuilding );
+			if (iBuilding == 3)
+				iBuilding = iMode = 1;
+
+			StartBuildingObjectOfType( iBuilding, iMode );
 		}
+		else if ( args.ArgC() == 3 )
+		{
+			// player wants to build something
+			iBuilding = atoi( args[ 1 ] );
+			iMode = atoi( args[ 2 ] );
+
+			StartBuildingObjectOfType( iBuilding, iMode );
+		}
+		else
+		{
+			Warning( "Usage: build <building> <mode>\n" );
+			return true;
+		}
+
 		return true;
 	}
 	else if ( FStrEq( pcmd, "destroy" ) )
 	{
+		int iBuilding = 0;
+		int iMode = 0;
+
 		if ( args.ArgC() == 2 )
 		{
 			// player wants to destroy something
-			int iBuilding = atoi( args[ 1 ] );
+			iBuilding = atoi( args[ 1 ] );
+			iMode = 0;
 
-			DetonateOwnedObjectsOfType( iBuilding );
+			if ( iBuilding == 3 )
+				iBuilding = iMode = 1;
+
+			DetonateOwnedObjectsOfType( iBuilding, iMode );
 		}
+		else if ( args.ArgC() == 3 )
+		{
+			// player wants to destroy something
+			iBuilding = atoi( args[ 1 ] );
+			iMode = atoi( args[ 2 ] );
+
+			DetonateOwnedObjectsOfType( iBuilding, iMode );
+		}
+		else
+		{
+			Warning( "Usage: destroy <building> <mode>\n" );
+			return true;
+		}
+
 		return true;
 	}
 	else if ( FStrEq( pcmd, "extendfreeze" ) )
@@ -2645,7 +2687,7 @@ bool CTFPlayer::CanDisguise( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::DetonateOwnedObjectsOfType( int iType )
+void CTFPlayer::DetonateOwnedObjectsOfType( int iType, int iMode )
 {
 	int i;
 	int iNumObjects = GetObjectCount();
@@ -2653,7 +2695,7 @@ void CTFPlayer::DetonateOwnedObjectsOfType( int iType )
 	{
 		CBaseObject *pObj = GetObject(i);
 
-		if ( pObj && pObj->GetType() == iType )
+		if ( pObj && pObj->GetType() == iType && pObj->GetObjectMode() == iMode )
 		{
 			SpeakConceptIfAllowed( MP_CONCEPT_DETONATED_OBJECT, pObj->GetResponseRulesModifier() );
 			pObj->DetonateObject();
@@ -2686,10 +2728,10 @@ void CTFPlayer::DetonateOwnedObjectsOfType( int iType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::StartBuildingObjectOfType( int iType )
+void CTFPlayer::StartBuildingObjectOfType( int iType, int iMode )
 {
 	// early out if we can't build this type of object
-	if ( CanBuild( iType ) != CB_CAN_BUILD )
+	if ( CanBuild( iType, iMode ) != CB_CAN_BUILD )
 		return;
 
 	for ( int i = 0; i < WeaponCount(); i++) 
@@ -2708,6 +2750,7 @@ void CTFPlayer::StartBuildingObjectOfType( int iType )
 		if ( pBuilder )
 		{
 			pBuilder->SetSubType( iType );
+			pBuilder->SetObjectMode( iMode );
 
 			if ( GetActiveTFWeapon() == pBuilder )
 			{
@@ -3062,7 +3105,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		if ( pInflictor && pInflictor->IsBaseObject() )
 		{
 			CBaseObject *pObject = assert_cast<CBaseObject *>( pInflictor );
-			if ( pObject->ObjectType() == OBJ_TELEPORTER_EXIT )
+			if ( pObject->ObjectType() == OBJ_TELEPORTER && pObject->GetObjectMode() == TELEPORTER_TYPE_EXIT )
 			{
 				bAllowDamage = true;
 			}
@@ -3896,6 +3939,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	// Don't overflow the value for this.
 	m_iHealth = 0;
+
+	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
+	{
+		m_Shared.GetCarriedObject()->DropCarriedObject( this );
+		m_Shared.GetCarriedObject()->DestroyObject();
+	}
 
 	// If we died in sudden death and we're an engineer, explode our buildings
 	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && TFGameRules()->InStalemate() )

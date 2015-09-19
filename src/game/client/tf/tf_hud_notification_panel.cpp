@@ -373,7 +373,87 @@ const char *CHudNotificationPanel::GetNotificationByType( int iType )
 		pszResult = "resource/UI/notifications/notify_special.res";
 		break;
 
+	case HUD_NOTIFY_GOLDEN_WRENCH:
+		pszResult = "resource/UI/notifications/notify_golden_wrench.res";
+		break;
+
+	case HUD_NOTIFY_RD_ROBOT_ATTACKED:
+		if ( bOnBlueTeam )
+		{
+			pszResult = "resource/UI/notifications/notify_rd_robot_attacked_blue.res";
+		}
+		else
+		{
+			pszResult = "resource/UI/notifications/notify_rd_robot_attacked_red.res";
+		}
+		break;
+
+	case HUD_NOTIFY_HOW_TO_CONTROL_GHOST:
+		pszResult = "resource/UI/notifications/notify_how_to_control_ghost.res";
+		break;
+
+	case HUD_NOTIFY_HOW_TO_CONTROL_KART:
+		pszResult = "resource/UI/notifications/notify_how_to_control_kart.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_HOWTO:
+		pszResult = "resource/UI/notifications/notify_passtime_howto.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_BALL_BASKET:
+		pszResult = "resource/UI/notifications/notify_passtime_ball_basket.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_BALL_ENDZONE:
+		pszResult = "resource/UI/notifications/notify_passtime_ball_endzone.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_SCORE:
+		pszResult = "resource/UI/notifications/notify_passtime_score.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_FRIENDLY_SCORE:
+		pszResult = "resource/UI/notifications/notify_passtime_friendly_score.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_ENEMY_SCORE:
+		pszResult = "resource/UI/notifications/notify_passtime_enemy_score.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_TELE:
+		pszResult = "resource/UI/notifications/notify_passtime_no_tele.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_CARRY:
+		pszResult = "resource/UI/notifications/notify_passtime_no_carry.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_INVULN :
+		pszResult = "resource/UI/notifications/notify_passtime_no_invuln.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_DISGUISE:
+		pszResult = "resource/UI/notifications/notify_passtime_no_disguise.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_CLOAK:
+		pszResult = "resource/UI/notifications/notify_passtime_no_cloak.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_OOB:
+		pszResult = "resource/UI/notifications/notify_passtime_no_oob.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_HOLSTER:
+		pszResult = "resource/UI/notifications/notify_passtime_no_holster.res";
+		break;
+
+	case HUD_NOTIFY_PASSTIME_NO_TAUNT:
+		pszResult = "resource/UI/notifications/notify_passtime_no_taunt.res";
+		break;
+
 	default:
+		DevMsg("Failed to load notification res file '%s' specified in %s.");
 		break;
 	}
 

@@ -17,6 +17,7 @@
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 #include "tf_viewmodel.h"
+#include "tf_weapon_wrench.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -41,6 +42,7 @@
 #include "tf_team.h"
 #include "tf_gamestats.h"
 #include "tf_playerclass.h"
+#include "tf_weapon_builder.h"
 #endif
 
 ConVar tf_spy_invis_time( "tf_spy_invis_time", "1.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "Transition time in and out of spy invisibility", true, 0.1, true, 5.0 );
@@ -131,6 +133,8 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_bAirDash) ),
 	RecvPropInt( RECVINFO( m_nPlayerState ) ),
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
+	RecvPropEHandle( RECVINFO( m_hCarriedObject ) ),
+	RecvPropBool( RECVINFO( m_bCarryingObject ) ),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -179,6 +183,8 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_bAirDash ), 1, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nPlayerState ), Q_log2( TF_STATE_COUNT )+1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
+	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
+	SendPropBool( SENDINFO( m_bCarryingObject ) ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -2657,7 +2663,7 @@ bool CTFPlayer::HasTheFlag( void )
 //-----------------------------------------------------------------------------
 // Purpose: Return true if this player's allowed to build another one of the specified object
 //-----------------------------------------------------------------------------
-int CTFPlayer::CanBuild( int iObjectType )
+int CTFPlayer::CanBuild( int iObjectType, int iObjectMode )
 {
 	if ( iObjectType < 0 || iObjectType >= OBJ_LAST )
 		return CB_UNKNOWN_OBJECT;
@@ -2671,7 +2677,7 @@ int CTFPlayer::CanBuild( int iObjectType )
 	}
 #endif
 
-	int iObjectCount = GetNumObjects( iObjectType );
+	int iObjectCount = GetNumObjects( iObjectType, iObjectMode );
 
 	// Make sure we haven't hit maximum number
 	if ( iObjectCount >= GetObjectInfo( iObjectType )->m_nMaxObjects && GetObjectInfo( iObjectType )->m_nMaxObjects != -1 )
@@ -2694,15 +2700,15 @@ int CTFPlayer::CanBuild( int iObjectType )
 //-----------------------------------------------------------------------------
 // Purpose: Get the number of objects of the specified type that this player has
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetNumObjects( int iObjectType )
+int CTFPlayer::GetNumObjects( int iObjectType, int iObjectMode )
 {
 	int iCount = 0;
-	for (int i = 0; i < GetObjectCount(); i++)
+	for ( int i = 0; i < GetObjectCount(); i++ )
 	{
-		if ( !GetObject(i) )
+		if ( !GetObject( i ) )
 			continue;
 
-		if ( GetObject(i)->GetType() == iObjectType )
+		if ( GetObject( i )->GetType() == iObjectType && GetObject( i )->GetObjectMode() == iObjectMode && !GetObject( i )->IsBeingCarried() )
 		{
 			iCount++;
 		}
@@ -2861,6 +2867,92 @@ bool CTFPlayer::CanAttack( void )
 	return true;
 }
 
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayer::TryToPickupBuilding( void )
+{
+	return false;
+
+	if ( IsActiveTFWeapon( TF_WEAPON_BUILDER ) )
+		return false;
+
+	Vector vecForward; 
+	AngleVectors( EyeAngles(), &vecForward );
+	Vector vecSwingStart = Weapon_ShootPosition();
+	Vector vecSwingEnd = vecSwingStart + vecForward * 100;
+
+	// only trace against objects
+
+	// See if we hit anything.
+	trace_t trace;	
+
+	CTraceFilterIgnorePlayers traceFilter( NULL, COLLISION_GROUP_NONE );
+	UTIL_TraceLine( vecSwingStart, vecSwingEnd, MASK_SOLID, &traceFilter, &trace );
+	if ( trace.fraction >= 1.0 )
+	{
+		UTIL_TraceLine( vecSwingStart, vecSwingEnd, MASK_SOLID, &traceFilter, &trace );
+	}
+	
+	// We hit, setup the smack.
+	if ( trace.fraction < 1.0f &&
+		 trace.m_pEnt &&
+		 trace.m_pEnt->IsBaseObject() &&
+		 trace.m_pEnt->GetTeamNumber() == GetTeamNumber() )
+	{
+		CBaseObject *pObject = dynamic_cast<CBaseObject*>( trace.m_pEnt );
+		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() )
+		{
+			CTFWeaponBase *pWpn = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
+
+			if ( pWpn )
+			{
+				CTFWeaponBuilder *pBuilder = dynamic_cast< CTFWeaponBuilder * >( pWpn );
+				
+				// Is this the builder that builds the object we're looking for?
+				if ( pBuilder )
+				{
+					pObject->MakeCarriedObject( this );
+					
+					pBuilder->SetSubType( pObject->ObjectType() );
+					pBuilder->SetObjectMode( pObject->GetObjectMode() );
+
+					SpeakConceptIfAllowed( MP_CONCEPT_PICKUP_BUILDING );
+
+					// try to switch to this weapon
+					Weapon_Switch( pBuilder );
+
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void CTFPlayerShared::SetCarriedObject( CBaseObject *pObj )
+{
+	if ( pObj )
+	{
+		m_bCarryingObject = true;
+		m_hCarriedObject = pObj;
+	}
+	else
+	{
+		m_bCarryingObject = false;
+		m_hCarriedObject = NULL;
+	}
+}
+
+CBaseObject* CTFPlayerShared::GetCarriedObject(void)
+{
+	CBaseObject *pObj = m_hCarriedObject.Get();
+	return pObj;
+}
+
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Weapons can call this on secondary attack and it will link to the class
 // ability
@@ -2903,6 +2995,15 @@ bool CTFPlayer::DoClassSpecialSkill( void )
 			}
 		}
 		bDoSkill = true;
+		break;
+
+	case TF_CLASS_ENGINEER:
+		{
+			bDoSkill = false;
+#ifdef GAME_DLL
+			bDoSkill = TryToPickupBuilding();
+#endif
+		}
 		break;
 
 	default:

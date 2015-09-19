@@ -51,10 +51,15 @@ public:
 	void RefillThink( void );
 	void DispenseThink( void );
 
+	virtual float GetDispenserRadius( void );
+	virtual float GetHealRate( void );
+
 	virtual void StartTouch( CBaseEntity *pOther );
 	virtual void EndTouch( CBaseEntity *pOther );
 
 	virtual int	ObjectCaps( void ) { return (BaseClass::ObjectCaps() | FCAP_IMPULSE_USE); }
+
+	virtual int GetBaseHealth( void );
 
 	bool DispenseAmmo( CTFPlayer *pPlayer );
 
@@ -65,21 +70,25 @@ public:
 	void RemoveHealingTarget( CBaseEntity *pOther );
 	bool IsHealingTarget( CBaseEntity *pTarget );
 
+	void ResetHealingTargets( void );
+
 	bool CouldHealTarget( CBaseEntity *pTarget );
 
 	Vector GetHealOrigin( void );
 
 	CUtlVector< EHANDLE >	m_hHealingTargets;
 
-	virtual bool	OnWrenchHit(CTFPlayer *pPlayer);
+	virtual bool	OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos );
 
-	int				GetUpgradeLevel(void) { return m_iUpgradeLevel; }
-
-private:
-
-	bool CanBeUpgraded( CTFPlayer *pPlayer );
+	virtual bool	IsUpgrading( void ) const;
+	virtual int		GetMaxUpgradeLevel( void );
+	virtual char	*GetPlacementModel( void );
 
 private:
+
+	void StartUpgrading( void );
+	void FinishUpgrading( void );
+
 
 	//CNetworkArray( EHANDLE, m_hHealingTargets, MAX_DISPENSER_HEALING_TARGETS );
 
@@ -89,17 +98,25 @@ private:
 
 	CNetworkVar( int, m_iAmmoMetal );
 
-	// Upgrade Level ( 1, 2, 3 )
-	CNetworkVar( int, m_iUpgradeLevel );
-
 	// Time when the upgrade animation will complete
 	float m_flUpgradeCompleteTime;
 
 	float m_flNextAmmoDispense;
 
+	bool m_bIsUpgrading;
+
 	EHANDLE m_hTouchTrigger;
 
 	DECLARE_DATADESC();
+};
+
+class CObjectCartDispenser : public CObjectDispenser
+{
+	DECLARE_CLASS( CObjectCartDispenser, CObjectDispenser );
+
+public:
+	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
+
 };
 
 #endif // TF_OBJ_DISPENSER_H

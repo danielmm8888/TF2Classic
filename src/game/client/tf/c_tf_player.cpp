@@ -905,7 +905,7 @@ public:
 				}
 				else
 				{
-					C_TFViewmodelAddon *pVMAddon = dynamic_cast< C_TFViewmodelAddon* >( pEntity );
+					C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast< C_ViewmodelAttachmentModel* >( pEntity );
 					if ( pVMAddon )
 					{
 						pVM = pVMAddon->m_viewmodel.Get();
@@ -1189,7 +1189,7 @@ public:
 			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
 		}
 
-		C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon*>(pEntity);
+		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
 		if (pVMAddon)
 		{
 			if (pVMAddon->m_viewmodel.Get())
@@ -1343,7 +1343,7 @@ void CInvisProxy::OnBind(C_BaseEntity *pEnt)
 	C_TFPlayer *pPlayer = ToTFPlayer(pEnt);
 
 	C_TFViewModel *pVM;
-	C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pEnt);
+	C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pEnt);
 	if (pVMAddon)
 	{
 		pVM = dynamic_cast<C_TFViewModel *>(pVMAddon->m_viewmodel.Get());
@@ -1962,6 +1962,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		if ( event )
 		{
 			event->SetInt( "building_type", -1 );
+			event->SetInt( "object_mode", OBJECT_MODE_NONE );
 			gameeventmanager->FireEventClientSide( event );
 		}
 	
@@ -3457,7 +3458,7 @@ C_BaseObject *C_TFPlayer::GetObject( int index )
 //-----------------------------------------------------------------------------
 // Purpose: Get a specific buildable that this player owns
 //-----------------------------------------------------------------------------
-C_BaseObject *C_TFPlayer::GetObjectOfType( int iObjectType )
+C_BaseObject *C_TFPlayer::GetObjectOfType( int iObjectType, int iObjectMode )
 {
 	int iCount = m_aObjects.Count();
 
@@ -3471,7 +3472,7 @@ C_BaseObject *C_TFPlayer::GetObjectOfType( int iObjectType )
 		if ( pObj->IsDormant() || pObj->IsMarkedForDeletion() )
 			continue;
 
-		if ( pObj->GetType() == iObjectType )
+		if ( pObj->GetType() == iObjectType && pObj->GetObjectMode() == iObjectMode )
 		{
 			return pObj;
 		}
@@ -3764,7 +3765,7 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );
 
-		C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pViewmodel);
+		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pViewmodel);
 		if (pVMAddon)
 			ret = pVMAddon->DrawOverriddenViewmodel( flags );
 		else

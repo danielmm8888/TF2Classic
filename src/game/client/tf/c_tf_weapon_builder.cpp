@@ -269,7 +269,7 @@ bool C_TFWeaponBuilder::CanBeSelected( void )
 	if ( !pOwner )
 		return false;
 
-	if ( pOwner->CanBuild( m_iObjectType ) != CB_CAN_BUILD )
+	if ( pOwner->CanBuild( m_iObjectType, m_iObjectMode ) != CB_CAN_BUILD )
 		return false;
 
 	return HasAmmo();
@@ -344,4 +344,25 @@ Activity C_TFWeaponBuilder::GetDrawActivity( void )
 	{
 		return BaseClass::GetDrawActivity();
 	}
+}
+
+void C_TFWeaponBuilder::UpdateViewModel( void )
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+	
+	GetViewModel( m_nViewModelIndex );
+
+	int vmType = vm->GetViewModelType();
+	if ( vmType == vm->VMTYPE_L4D )
+		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
+	else if (vmType == vm->VMTYPE_TF2)
+		vm->UpdateViewmodelAddon( GetObjectInfo( m_iObjectType )->m_pViewModel );
+	else
+		vm->RemoveViewmodelAddon();
 }

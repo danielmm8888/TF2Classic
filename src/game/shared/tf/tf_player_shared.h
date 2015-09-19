@@ -209,6 +209,13 @@ public:
 	bool	IsPlayerDominatingMe( int iPlayerIndex );
 	void	SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated );
 
+	bool	IsCarryingObject( void ) { return m_bCarryingObject; }
+
+#ifdef GAME_DLL
+	void				SetCarriedObject( CBaseObject *pObj );
+	CBaseObject*		GetCarriedObject( void );
+#endif
+
 	int		GetKillstreak( void ) { return m_nStreaks.Get(0); }
 	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
 	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
@@ -315,8 +322,8 @@ private:
 	int	m_nOldDisguiseClass;
 
 	CNetworkVar( int, m_iDesiredPlayerClass );
-	CNetworkVar(int, m_iDesiredWeaponID);
-	CNetworkVar(int, m_iRespawnParticleID);
+	CNetworkVar( int, m_iDesiredWeaponID );
+	CNetworkVar( int, m_iRespawnParticleID );
 
 	float m_flNextBurningSound;
 
@@ -335,6 +342,9 @@ private:
 	CNetworkArray( bool, m_bPlayerDominated, MAX_PLAYERS+1 );		// array of state per other player whether player is dominating other players
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player
 	
+	CNetworkHandle( CBaseObject, m_hCarriedObject );
+	CNetworkVar( bool, m_bCarryingObject );
+
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
 	CUtlVector<CTFDamageEvent> m_DamageEvents;

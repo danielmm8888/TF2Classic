@@ -35,6 +35,10 @@ public:
 	virtual bool	IsPlacementPosValid( void );
 	virtual void	SetModel( const char *pModel );
 
+	virtual void	StartUpgrading( void );
+	virtual void	FinishUpgrading( void );
+	virtual bool	IsUpgrading( void ) const;
+
 	virtual void	FinishedBuilding( void );
 
 	void SetState( int state );
@@ -43,13 +47,25 @@ public:
 	void TeleporterThink( void );
 	void TeleporterTouch( CBaseEntity *pOther );
 
-	virtual void TeleporterSend( CTFPlayer *pPlayer ) { Assert(0); }
-	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay ) { Assert(0); }
+	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
+	virtual void TeleporterSend( CTFPlayer *pPlayer );
+
+	CObjectTeleporter *CopyUpgradeStateToMatch( CObjectTeleporter *pObjToCopyTo, bool bCopyTo );
 
 	CObjectTeleporter *GetMatchingTeleporter( void );
 	CObjectTeleporter *FindMatch( void );	// Find the teleport partner to this object
 
+	virtual bool InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos );
+
+	virtual bool Command_Repair( CTFPlayer *pActivator );
+
+	virtual bool CheckUpgradeOnHit( CTFPlayer *pPlayer );
+
 	bool IsMatchingTeleporterReady( void );
+
+	bool PlayerCanBeTeleported( CTFPlayer *pSender );
+
+	bool IsSendingPlayer( CTFPlayer *pSender );
 
 	int GetState( void ) { return m_iState; }	// state of the object ( building, charging, ready etc )
 
@@ -57,6 +73,10 @@ public:
 	{
 		m_hTeleportingPlayer = pPlayer;
 	}
+
+	virtual int GetBaseHealth( void );
+	virtual int	GetMaxUpgradeLevel( void );
+	virtual char *GetPlacementModel( void );
 
 protected:
 	CNetworkVar( int, m_iState );
@@ -83,28 +103,6 @@ protected:
 
 private:
 	DECLARE_DATADESC();
-};
-
-class CObjectTeleporter_Entrance : public CObjectTeleporter
-{
-public:
-	DECLARE_CLASS( CObjectTeleporter_Entrance, CObjectTeleporter );
-
-	CObjectTeleporter_Entrance();
-
-	virtual void Spawn();
-	virtual void TeleporterSend( CTFPlayer *pPlayer );
-};
-
-class CObjectTeleporter_Exit : public CObjectTeleporter
-{
-public:
-	DECLARE_CLASS( CObjectTeleporter_Exit, CObjectTeleporter );
-
-	CObjectTeleporter_Exit();
-
-	virtual void Spawn();
-	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 };
 
 #endif // TF_OBJ_TELEPORTER_H

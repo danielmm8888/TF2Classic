@@ -196,8 +196,7 @@ void CObjectSapper::SetupAttachedVersion( void )
 			}
 			break;
 
-		case OBJ_TELEPORTER_ENTRANCE:
-		case OBJ_TELEPORTER_EXIT:
+		case OBJ_TELEPORTER:
 			SetModel( SAPPER_MODEL_TELEPORTER_PLACEMENT );
 			break;
 
@@ -263,8 +262,7 @@ void CObjectSapper::OnGoActive( void )
 		}
 		break;
 
-	case OBJ_TELEPORTER_ENTRANCE:
-	case OBJ_TELEPORTER_EXIT:
+	case OBJ_TELEPORTER:
 		SetModel( SAPPER_MODEL_TELEPORTER );
 		break;
 

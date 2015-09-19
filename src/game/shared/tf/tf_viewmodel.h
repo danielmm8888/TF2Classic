@@ -71,7 +71,7 @@ public:
 
 	virtual int DrawModel( int flags );
 
-	CHandle< C_TFViewmodelAddon > m_viewmodelAddon;
+	CHandle< C_ViewmodelAttachmentModel > m_viewmodelAddon;
 	char m_viewmodelAddonName[128];
 
 	void UpdateViewmodelAddon( const char *pszModelname );

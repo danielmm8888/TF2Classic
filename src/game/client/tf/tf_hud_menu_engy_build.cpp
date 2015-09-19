@@ -144,7 +144,12 @@ void CHudMenuEngyBuild::ApplySchemeSettings( IScheme *pScheme )
 	// Set the cost label
 	for ( int i=0; i<4; i++ )
 	{
-		int iCost = GetObjectInfo( GetBuildingIDFromSlot( i+1 ) )->m_Cost;
+		int iBuilding = 0;
+		int iMode = 0;
+
+		GetBuildingIDAndModeFromSlot( i + 1, iBuilding, iMode );
+
+		int iCost = GetObjectInfo( iBuilding )->m_Cost;
 
 		m_pAvailableObjects[i]->SetDialogVariable( "metal", iCost );
 		m_pAlreadyBuiltObjects[i]->SetDialogVariable( "metal", iCost );
@@ -181,30 +186,29 @@ bool CHudMenuEngyBuild::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CHudMenuEngyBuild::GetBuildingIDFromSlot( int iSlot )
+void CHudMenuEngyBuild::GetBuildingIDAndModeFromSlot(int iSlot, int &iBuildingID, int &iObjectMode)
 {
-	int iBuilding = OBJ_LAST;
 	switch( iSlot )
 	{
 	case 1:
-		iBuilding = OBJ_SENTRYGUN;
+		iBuildingID = OBJ_SENTRYGUN;
 		break;
 	case 2:
-		iBuilding = OBJ_DISPENSER;
+		iBuildingID = OBJ_DISPENSER;
 		break;
 	case 3:
-		iBuilding = OBJ_TELEPORTER_ENTRANCE;
+		iBuildingID = OBJ_TELEPORTER;
+		iObjectMode = TELEPORTER_TYPE_ENTRANCE;
 		break;
 	case 4:
-		iBuilding = OBJ_TELEPORTER_EXIT;
+		iBuildingID = OBJ_TELEPORTER;
+		iObjectMode = TELEPORTER_TYPE_EXIT;
 		break;
 
 	default:
 		Assert( !"What slot are we asking for and why?" );
 		break;
 	}
-
-	return iBuilding;
 }
 
 //-----------------------------------------------------------------------------
@@ -340,15 +344,18 @@ void CHudMenuEngyBuild::SendBuildMessage( int iSlot )
 	if ( !pLocalPlayer )
 		return;
 
-	int iBuilding = GetBuildingIDFromSlot( iSlot );
+	int iBuilding = 0;
+	int iMode = 0;
 
-	C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding );
+	GetBuildingIDAndModeFromSlot( iSlot, iBuilding, iMode );
+
+	C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding, iMode );
 	int iCost = GetObjectInfo( iBuilding )->m_Cost;
 
 	if ( pObj == NULL && pLocalPlayer->GetAmmoCount( TF_AMMO_METAL ) >= iCost )
 	{
 		char szCmd[128];
-		Q_snprintf( szCmd, sizeof(szCmd), "build %d", iBuilding );
+		Q_snprintf( szCmd, sizeof(szCmd), "build %d %d", iBuilding, iMode );
 		engine->ClientCmd( szCmd );
 	}
 	else
@@ -366,14 +373,17 @@ bool CHudMenuEngyBuild::SendDestroyMessage( int iSlot )
 
 	bool bSuccess = false;
 
-	int iBuilding = GetBuildingIDFromSlot( iSlot );
+	int iBuilding = 0;
+	int iMode = 0;
 
-	C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding );
+	GetBuildingIDAndModeFromSlot(iSlot, iBuilding, iMode);
+
+	C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding, iMode );
 
 	if ( pObj != NULL )
 	{
 		char szCmd[128];
-		Q_snprintf( szCmd, sizeof(szCmd), "destroy %d", iBuilding );
+		Q_snprintf( szCmd, sizeof(szCmd), "destroy %d %d", iBuilding, iMode );
 		engine->ClientCmd( szCmd );
 		bSuccess = true; 
 	}
@@ -396,14 +406,17 @@ void CHudMenuEngyBuild::OnTick( void )
 
 	for ( int i=0;i<4; i++ )
 	{
-		int iRemappedObjectID = GetBuildingIDFromSlot( i + 1 );
+		int iRemappedObjectID = 0;
+		int iMode = 0;
+
+		GetBuildingIDAndModeFromSlot( i + 1, iRemappedObjectID, iMode );
 
 		// update this slot
 		C_BaseObject *pObj = NULL;
 
 		if ( pLocalPlayer )
 		{
-			pObj = pLocalPlayer->GetObjectOfType( iRemappedObjectID );
+			pObj = pLocalPlayer->GetObjectOfType( iRemappedObjectID, iMode );
 		}			
 
 		m_pAvailableObjects[i]->SetVisible( false );
@@ -465,8 +478,11 @@ void CHudMenuEngyBuild::SetVisible( bool state )
 		int iSlot;
 		for ( iSlot = 1; iSlot <= 4; iSlot++ )
 		{
-			int iBuilding = GetBuildingIDFromSlot( iSlot );
-			C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding );
+			int iBuilding = 0;
+			int iMode = 0;
+
+			GetBuildingIDAndModeFromSlot(iSlot, iBuilding, iMode);
+			C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding, iMode );
 
 			if ( pObj == NULL )
 			{
@@ -516,10 +532,13 @@ void CHudMenuEngyBuild::UpdateHintLabels( void )
 	// hilight the action we can perform ( build or destroy or neither )
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if ( pLocalPlayer )
+	if (pLocalPlayer)
 	{
-		int iBuilding = GetBuildingIDFromSlot( m_iSelectedItem );
-		C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding );
+		int iBuilding = 0;
+		int iMode = 0;
+
+		GetBuildingIDAndModeFromSlot(m_iSelectedItem, iBuilding, iMode);
+		C_BaseObject *pObj = pLocalPlayer->GetObjectOfType( iBuilding, iMode );
 
 		bool bDestroyLabelBright = false;
 		bool bBuildLabelBright = false;

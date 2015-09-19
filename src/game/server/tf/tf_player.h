@@ -190,6 +190,8 @@ public:
 	void				ClientHearVox( const char *pSentence );
 	void				DisplayLocalItemStatus( CTFGoal *pGoal );
 
+	bool				TryToPickupBuilding( void );
+
 	int					BuildObservableEntityList( void );
 	virtual int			GetNextObserverSearchStartPoint( bool bReverse ); // Where we should start looping the player list in a FindNextObserverTarget call
 	virtual CBaseEntity *FindNextObserverTarget(bool bReverse);
@@ -238,11 +240,11 @@ public:
 	void AddBuildResources( int iAmount );
 
 	bool IsBuilding( void );
-	int CanBuild( int iObjectType );
+	int CanBuild( int iObjectType, int iObjectMode );
 
 	CBaseObject	*GetObject( int index );
 	int	GetObjectCount( void );
-	int GetNumObjects( int iObjectType );
+	int GetNumObjects( int iObjectType, int iObjectMode );
 	void RemoveAllObjects( bool bSilent );
 	void StopPlacement( void );
 	int	StartedBuildingObject( int iObjectType );
@@ -252,8 +254,8 @@ public:
 	void OwnedObjectDestroyed( CBaseObject *pObject );
 	void RemoveObject( CBaseObject *pObject );
 	bool PlayerOwnsObject( CBaseObject *pObject );
-	void DetonateOwnedObjectsOfType( int iType );
-	void StartBuildingObjectOfType( int iType );
+	void DetonateOwnedObjectsOfType( int iType, int iMode );
+	void StartBuildingObjectOfType( int iType, int iMode );
 
 	CTFTeam *GetTFTeam( void );
 	CTFTeam *GetOpposingTFTeam( void );

@@ -420,6 +420,19 @@ void CBaseObject::OnGoActive( void )
 			SetBodygroup( index, 1 );
 		}
 	}
+
+	// TODO: Move this to InitializeMapPlacedObject
+
+	// Rapidly go through upgrade levels if the keyvalue is set.
+	if ( m_iDefaultUpgrade > 0 )
+	{
+		for ( int i = 0; i < m_iDefaultUpgrade && i < 2; i++ )
+		{
+			StartUpgrading();
+			FinishUpgrading();
+		}
+	}
+
 #endif
 }
 

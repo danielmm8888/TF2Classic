@@ -53,15 +53,18 @@ public:
 	virtual void	StartPlacement( CTFPlayer *pPlayer );
 
 	// Engineer hit me with a wrench
-	virtual bool	OnWrenchHit( CTFPlayer *pPlayer );
+	virtual bool	OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos );
 
 	virtual void	OnStartDisabled( void );
 	virtual void	OnEndDisabled( void );
 
 	virtual int		GetTracerAttachment( void );
 
-	void			UpgradeThink( void );
 	virtual bool	IsUpgrading( void ) const;
+
+	virtual int		GetBaseHealth( void );
+	virtual int		GetMaxUpgradeLevel( void );
+	virtual char	*GetPlacementModel( void );
 
 private:
 
@@ -107,11 +110,6 @@ private:
 	QAngle m_vecGoalAngles;
 
 	float m_flTurnRate;
-
-	// Time when the upgrade animation will complete
-	float m_flUpgradeCompleteTime;
-
-	CNetworkVar( int, m_iUpgradeMetalRequired );
 
 	// Ammo
 	CNetworkVar( int, m_iAmmoShells );

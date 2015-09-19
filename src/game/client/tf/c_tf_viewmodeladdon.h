@@ -13,9 +13,9 @@
 
 class C_TFViewModel;
 
-class C_TFViewmodelAddon : public C_BaseViewModel
+class C_ViewmodelAttachmentModel : public C_BaseViewModel
 {
-	DECLARE_CLASS( C_TFViewmodelAddon, C_BaseViewModel );
+	DECLARE_CLASS( C_ViewmodelAttachmentModel, C_BaseViewModel );
 public:
 
 	virtual int	InternalDrawModel(int flags);

@@ -2128,6 +2128,8 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	if ( pAssister )
 	{
 		CTF_GameStats.Event_AssistKill( ToTFPlayer( pAssister ), pVictim );
+		if ( pObject )
+			pObject->IncrementAssists();
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );

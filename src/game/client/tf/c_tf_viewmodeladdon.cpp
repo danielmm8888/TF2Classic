@@ -15,12 +15,12 @@
 
 extern ConVar r_drawothermodels;
 
-void C_TFViewmodelAddon::SetViewmodel(C_TFViewModel *vm)
+void C_ViewmodelAttachmentModel::SetViewmodel( C_TFViewModel *vm )
 {
 	m_viewmodel.Set(vm);
 }
 
-int C_TFViewmodelAddon::InternalDrawModel(int flags)
+int C_ViewmodelAttachmentModel::InternalDrawModel( int flags )
 {
 	CMatRenderContextPtr pRenderContext(materials);
 
@@ -39,7 +39,7 @@ int C_TFViewmodelAddon::InternalDrawModel(int flags)
 //			which in this case is CTFViewModel::DrawModel.
 //			This is basically just a straight copy of C_BaseAnimating::DrawModel, without the FollowEntity part
 //-----------------------------------------------------------------------------
-int C_TFViewmodelAddon::DrawOverriddenViewmodel(int flags)
+int C_ViewmodelAttachmentModel::DrawOverriddenViewmodel( int flags )
 {
 	if ( !m_bReadyToDraw )
 		return 0;
@@ -83,7 +83,7 @@ int C_TFViewmodelAddon::DrawOverriddenViewmodel(int flags)
 }
 
 
-int C_TFViewmodelAddon::DrawModel( int flags )
+int C_ViewmodelAttachmentModel::DrawModel( int flags )
 {
 	if ( !IsVisible() )
 		return 0;

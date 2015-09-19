@@ -8,6 +8,7 @@
 #include "tf_player.h"
 #include "tf_team.h"
 #include "tf_obj.h"
+#include "tf_weapon_wrench.h"
 #include "tf_weaponbase.h"
 #include "rope.h"
 #include "rope_shared.h"
@@ -96,30 +97,42 @@ BEGIN_DATADESC( CBaseObject )
 END_DATADESC()
 
 
-IMPLEMENT_SERVERCLASS_ST(CBaseObject, DT_BaseObject)
-	SendPropInt(SENDINFO(m_iUpgradeLevel), 3),
-	SendPropInt(SENDINFO(m_iHealth), 13 ),
-	SendPropInt(SENDINFO(m_iMaxHealth), 13 ),
-	SendPropBool(SENDINFO(m_bHasSapper) ),
-	SendPropInt(SENDINFO(m_iObjectType), Q_log2( OBJ_LAST ) + 1, SPROP_UNSIGNED ),
-	SendPropBool(SENDINFO(m_bBuilding) ),
-	SendPropBool(SENDINFO(m_bPlacing) ),
-	SendPropFloat(SENDINFO(m_flPercentageConstructed), 8, 0, 0.0, 1.0f ),
-	SendPropInt(SENDINFO(m_fObjectFlags), OF_BIT_COUNT, SPROP_UNSIGNED ),
-	SendPropEHandle(SENDINFO(m_hBuiltOnEntity)),
+IMPLEMENT_SERVERCLASS_ST( CBaseObject, DT_BaseObject )
+	SendPropInt( SENDINFO( m_iHealth ), 13 ),
+	SendPropInt( SENDINFO( m_iMaxHealth ), 13 ),
+	SendPropBool( SENDINFO( m_bHasSapper ) ),
+	SendPropInt( SENDINFO( m_iObjectType ), Q_log2( OBJ_LAST ) + 1, SPROP_UNSIGNED ),
+	SendPropBool( SENDINFO( m_bBuilding ) ),
+	SendPropBool( SENDINFO( m_bPlacing ) ),
+	SendPropBool( SENDINFO( m_bCarried ) ),
+	SendPropBool( SENDINFO( m_bCarryDeploy ) ),
+	SendPropBool( SENDINFO( m_bMiniBuilding ) ),
+	SendPropFloat( SENDINFO( m_flPercentageConstructed ), 8, 0, 0.0, 1.0f ),
+	SendPropInt( SENDINFO( m_fObjectFlags ), OF_BIT_COUNT, SPROP_UNSIGNED ),
+	SendPropEHandle( SENDINFO( m_hBuiltOnEntity ) ),
 	SendPropBool( SENDINFO( m_bDisabled ) ),
 	SendPropEHandle( SENDINFO( m_hBuilder ) ),
 	SendPropVector( SENDINFO( m_vecBuildMaxs ), -1, SPROP_COORD ),
 	SendPropVector( SENDINFO( m_vecBuildMins ), -1, SPROP_COORD ),
 	SendPropInt( SENDINFO( m_iDesiredBuildRotations ), 2, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bServerOverridePlacement ) ),
-	SendPropInt( SENDINFO(m_iUpgradeMetal), 10),
+	SendPropInt( SENDINFO( m_iUpgradeLevel ), 3 ),
+	SendPropInt( SENDINFO( m_iUpgradeMetal ), 10 ),
+	SendPropInt( SENDINFO( m_iUpgradeMetalRequired ), 10 ),
+	SendPropInt( SENDINFO( m_iHighestUpgradeLevel ), 3 ),
+	SendPropInt( SENDINFO( m_iObjectMode ), 2 ),
+	SendPropBool( SENDINFO( m_bDisposableBuilding ) ),
+	SendPropBool( SENDINFO( m_bWasMapPlaced ) )
 END_SEND_TABLE();
 
 bool PlayerIndexLessFunc( const int &lhs, const int &rhs )	
 { 
 	return lhs < rhs; 
 }
+
+ConVar tf_obj_upgrade_per_hit( "tf_obj_upgrade_per_hit", "25", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+
+extern ConVar tf_cheapobjects;
 
 // This controls whether ropes attached to objects are transmitted or not. It's important that
 // ropes aren't transmitted to guys who don't own them.
@@ -176,6 +189,7 @@ CBaseObject::CBaseObject()
 	m_SolidToPlayers = SOLID_TO_PLAYER_USE_DEFAULT;
 	m_bPlacementOK = false;
 	m_aGibs.Purge();
+	m_iObjectMode = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -235,6 +249,40 @@ int CBaseObject::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 	return BaseClass::ShouldTransmit( pInfo );
 }
 
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
+{
+	// only engineers
+	if ( !ClassCanBuild( pPlayer->GetPlayerClass()->GetClassIndex(), GetType() ) )
+	{
+		return false;
+	}
+
+	// max upgraded
+	if ( GetUpgradeLevel() >= GetMaxUpgradeLevel() )
+	{
+		return false;
+	}
+	
+	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
+	{
+		return false;
+	}
+
+	if ( IsBuilding() )
+	{
+		return false;
+	}
+
+	if ( IsUpgrading() )
+	{
+		return false;
+	}
+
+	return true;
+}
 
 void CBaseObject::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 {
@@ -254,6 +302,19 @@ void CBaseObject::SetTransmit( CCheckTransmitInfo *pInfo, bool bAlways )
 	}
 }
 
+void CBaseObject::DoWrenchHitEffect( Vector vecHitPos, bool bRepair, bool bUpgrade )
+{
+	CPVSFilter filter( vecHitPos );
+	if ( bRepair )
+	{
+		TE_TFParticleEffect( filter, 0.0f, "nutsnbolts_repair", vecHitPos, QAngle( 0, 0, 0 ) );
+	}
+	else if ( bUpgrade )
+	{
+		TE_TFParticleEffect( filter, 0.0f, "nutsnbolts_upgrade", vecHitPos, QAngle( 0, 0, 0 ) );
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -270,6 +331,11 @@ void CBaseObject::Precache()
 	{
 		PrecacheParticleSystem( pEffect );
 	}
+
+	PrecacheParticleSystem( "nutsnbolts_build" );
+	PrecacheParticleSystem( "nutsnbolts_upgrade" );
+	PrecacheParticleSystem( "nutsnbolts_repair" );
+	CBaseEntity::PrecacheModel( "models/weapons/w_models/w_toolbox.mdl" );
 }
 
 
@@ -290,6 +356,10 @@ void CBaseObject::Spawn( void )
 
 	m_iUpgradeLevel = 1;
 	m_iUpgradeMetal = 0;
+
+	m_iUpgradeMetalRequired = GetObjectInfo( ObjectType() )->m_UpgradeCost;
+	m_iHighestUpgradeLevel = GetMaxUpgradeLevel();
+	//m_iHighestUpgradeLevel = GetObjectInfo(ObjectType())->m_MaxUpgradeLevel;
 
 	SetContextThink( &CBaseObject::BaseObjectThink, gpGlobals->curtime + 0.1, OBJ_BASE_THINK_CONTEXT );
 
@@ -481,6 +551,11 @@ void CBaseObject::BaseObjectThink( void )
 		BuildingThink();
 		return;
 	}
+	else if ( IsUpgrading() )
+	{
+		UpgradeThink();
+		return;
+	}
 }
 
 bool CBaseObject::UpdateAttachmentPlacement( void )
@@ -597,7 +672,7 @@ void CBaseObject::DeterminePlaybackRate( void )
 	if ( IsBuilding() )
 	{
 		// Default half rate, author build anim as if one player is building
-		SetPlaybackRate( GetRepairMultiplier() * 0.5 );	
+		SetPlaybackRate( GetConstructionMultiplier() * 0.5 );	
 	}
 	else
 	{
@@ -605,6 +680,128 @@ void CBaseObject::DeterminePlaybackRate( void )
 	}
 
 	StudioFrameAdvance();
+}
+
+#define OBJ_UPGRADE_DURATION	1.5f
+
+//-----------------------------------------------------------------------------
+// Raises the Sentrygun one level
+//-----------------------------------------------------------------------------
+void CBaseObject::StartUpgrading(void)
+{
+	// Increase level
+	m_iUpgradeLevel++;
+
+	// more health
+	int iMaxHealth = GetMaxHealth();
+	SetMaxHealth( iMaxHealth * 1.2 );
+	SetHealth( iMaxHealth * 1.2 );
+
+	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+
+	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType())->m_flUpgradeDuration;
+
+	RemoveAllGestures();
+}
+
+void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	if ( pPlayer )
+	{
+		m_bCarried = true;
+		DestroyScreens();
+		FollowEntity( pPlayer, true );
+
+		SetModel( GetPlacementModel() );
+
+		pPlayer->m_Shared.SetCarriedObject( this );
+
+		AddEffects( EF_NODRAW );
+		AddEFlags( FSOLID_NOT_SOLID );
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
+		if (event)
+		{
+			event->SetInt( "userid", pPlayer->GetUserID() );
+			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
+			gameeventmanager->FireEvent(event, true);	// don't send to clients
+		}
+	}
+
+}
+
+void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	if ( pPlayer )
+		pPlayer->m_Shared.SetCarriedObject( NULL );
+
+	StopFollowingEntity();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Start building the object
+//-----------------------------------------------------------------------------
+bool CBaseObject::RedeployBuilding( CTFPlayer *pBuilder )
+{
+	DropCarriedObject( pBuilder );
+	((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
+	
+	m_bCarryDeploy = true;
+	m_bCarried = false;
+	m_flPercentageConstructed = 0;
+
+	m_nRenderMode = kRenderNormal; 
+	RemoveSolidFlags( FSOLID_NOT_SOLID );
+	RemoveEffects( EF_NODRAW );
+
+	// NOTE: We must spawn the control panels now, instead of during
+	// Spawn, because until placement is started, we don't actually know
+	// the position of the control panel because we don't know what it's
+	// been attached to (could be a vehicle which supplies a different
+	// place for the control panel)
+	// NOTE: We must also spawn it before FinishedBuilding can be called
+	SpawnControlPanels();
+
+	// Tell the object we've been built on that we exist
+	if ( IsBuiltOnAttachment() )
+	{
+		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>((CBaseEntity*)m_hBuiltOnEntity.Get());
+		Assert( pBPInterface );
+		pBPInterface->SetObjectOnBuildPoint( m_iBuiltOnPoint, this );
+	}
+
+	// Start the build animations
+	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
+
+	m_vecBuildOrigin = GetAbsOrigin();
+
+	int contents = UTIL_PointContents( m_vecBuildOrigin );
+	if ( contents & MASK_WATER )
+	{
+		SetWaterLevel( 3 );
+	}
+
+	// instantly play the build anim
+	DetermineAnimation();
+
+	return true;
+}
+
+void CBaseObject::FinishUpgrading( void )
+{
+	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+}
+
+//-----------------------------------------------------------------------------
+// Playing the upgrade animation
+//-----------------------------------------------------------------------------
+void CBaseObject::UpgradeThink(void)
+{
+	if ( gpGlobals->curtime > m_flUpgradeCompleteTime )
+	{
+		FinishUpgrading();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -704,6 +901,14 @@ float CBaseObject::GetTotalTime( void )
 		return ( min( 2.f, flBuildTime ) );
 
 	return flBuildTime;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CBaseObject::GetMaxHealthForCurrentLevel( void )
+{
+	return GetBaseHealth() * pow( 1.2, GetUpgradeLevel() - 1 );
 }
 
 //-----------------------------------------------------------------------------
@@ -1076,8 +1281,7 @@ const char *CBaseObject::GetResponseRulesModifier( void )
 	switch ( GetType() )
 	{
 	case OBJ_DISPENSER: return "objtype:dispenser"; break;
-	case OBJ_TELEPORTER_ENTRANCE: return "objtype:teleporter_entrance"; break;
-	case OBJ_TELEPORTER_EXIT: return "objtype:teleporter_exit"; break;
+	case OBJ_TELEPORTER: return "objtype:teleporter"; break;
 	case OBJ_SENTRYGUN: return "objtype:sentrygun"; break;
 	case OBJ_ATTACHMENT_SAPPER: return "objtype:sapper"; break;
 	default:
@@ -1182,6 +1386,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 		{
 			event->SetInt( "userid", pTFBuilder->GetUserID() );
 			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
 			gameeventmanager->FireEvent( event, true );	// don't send to clients
 		}
 	}
@@ -1622,7 +1827,7 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 bool CBaseObject::Repair( float flHealth )
 {
 	// Multiply it by the repair rate
-	flHealth *= GetRepairMultiplier();
+	flHealth *= GetConstructionMultiplier();
 	if ( !flHealth )
 		return false;
 
@@ -1664,7 +1869,7 @@ bool CBaseObject::Repair( float flHealth )
 	return false;
 }
 
-void CBaseObject::OnRepairHit( CTFPlayer *pPlayer )
+void CBaseObject::OnConstructionHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos )
 {
 	// Get the player index
 	int iPlayerIndex = pPlayer->entindex();
@@ -1682,12 +1887,15 @@ void CBaseObject::OnRepairHit( CTFPlayer *pPlayer )
 	{
 		m_RepairerList[index] = flRepairExpireTime;
 	}
+
+	CPVSFilter filter( vecHitPos );
+	TE_TFParticleEffect( filter, 0.0f, "nutsnbolts_build", vecHitPos, QAngle( 0,0,0 ) );
 }
 
 
-float CBaseObject::GetRepairMultiplier( void )
+float CBaseObject::GetConstructionMultiplier( void )
 {
-	float flMultiplier = 1.0;
+	float flMultiplier = 1.5;
 
 	// expire all the old 
 	int i = m_RepairerList.LastInorder();
@@ -1702,7 +1910,7 @@ float CBaseObject::GetRepairMultiplier( void )
 		else
 		{
 			// Each player hitting it builds twice as fast
-			flMultiplier *= 2.0;
+			flMultiplier += 2.5;
 		}
 	}
 
@@ -2058,14 +2266,13 @@ void CBaseObject::InputSetSolidToPlayer( inputdata_t &inputdata )
 // Input  : 
 // Output : did this wrench hit do any work on the object?
 //-----------------------------------------------------------------------------
-bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer )
+bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos )
 {
 	Assert( pPlayer );
 	if ( !pPlayer )
 		return false;
 
 	bool bDidWork = false;
-
 
 	if ( HasSapper() )
 	{
@@ -2102,13 +2309,13 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer )
 	}
 	else if ( IsBuilding() )
 	{
-		OnRepairHit( pPlayer );
+		OnConstructionHit( pPlayer, pWrench, vecHitPos );
 		bDidWork = true;
 	}
 	else
 	{
 		// upgrade, refill, repair damage
-		bDidWork = OnWrenchHit( pPlayer );
+		bDidWork = OnWrenchHit( pPlayer, pWrench, vecHitPos );
 	}
 
 	return bDidWork;
@@ -2117,10 +2324,70 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CBaseObject::OnWrenchHit( CTFPlayer *pPlayer )
+bool CBaseObject::OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos )
 {
-	// else repair the building
-	return Command_Repair( pPlayer );
+	bool bRepair = false;
+	bool bUpgrade = false;
+
+	// If the player repairs it at all, we're done
+	bRepair = Command_Repair( pPlayer/*, pWrench->GetRepairValue()*/ );
+
+	if ( !bRepair )
+	{
+		// Don't put in upgrade metal until the object is fully healed
+		if ( CanBeUpgraded( pPlayer ) )
+		{
+			bUpgrade = CheckUpgradeOnHit( pPlayer );
+		}
+	}
+
+	DoWrenchHitEffect( vecHitPos, bRepair, bUpgrade );
+
+	return ( bRepair || bUpgrade );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CBaseObject::CheckUpgradeOnHit( CTFPlayer *pPlayer )
+{
+	bool bUpgrade = false;
+
+	int iPlayerMetal = pPlayer->GetAmmoCount( TF_AMMO_METAL );
+	int iAmountToAdd = min( tf_obj_upgrade_per_hit.GetInt(), iPlayerMetal );
+
+	if ( iAmountToAdd > ( m_iUpgradeMetalRequired - m_iUpgradeMetal ) )
+		iAmountToAdd = ( m_iUpgradeMetalRequired - m_iUpgradeMetal );
+
+	if ( tf_cheapobjects.GetBool() == false )
+	{
+		pPlayer->RemoveAmmo( iAmountToAdd, TF_AMMO_METAL );
+	}
+	m_iUpgradeMetal += iAmountToAdd;
+
+	if ( iAmountToAdd > 0 )
+	{
+		bUpgrade = true;
+	}
+
+	if ( m_iUpgradeMetal >= m_iUpgradeMetalRequired )
+	{
+		StartUpgrading();
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "player_upgradedobject" );
+		if ( event )
+		{
+			event->SetInt( "userid", pPlayer->GetUserID() );
+			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
+			event->SetBool( "isbuilder", pPlayer == GetBuilder() );
+			gameeventmanager->FireEvent( event, true );	// don't send to clients
+		}
+
+		m_iUpgradeMetal = 0;
+	}
+
+	return bUpgrade;
 }
 
 //-----------------------------------------------------------------------------
@@ -2128,31 +2395,33 @@ bool CBaseObject::OnWrenchHit( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 bool CBaseObject::Command_Repair( CTFPlayer *pActivator )
 {
-	int iAmountToHeal = min( 100, GetMaxHealth() - GetHealth() );
-
-	// repair the building
-	int iRepairCost = ceil( (float)( iAmountToHeal ) * 0.2f );
-
-	TRACE_OBJECT( UTIL_VarArgs( "%0.2f CObjectDispenser::Command_Repair ( %d / %d ) - cost = %d\n", gpGlobals->curtime, 
-		GetHealth(),
-		GetMaxHealth(),
-		iRepairCost ) );
-
-	if ( iRepairCost > 0 )
+	if ( GetHealth() < GetMaxHealth() )
 	{
-		if ( iRepairCost > pActivator->GetBuildResources() )
+		int iAmountToHeal = min( 100, GetMaxHealth() - GetHealth() );
+
+		// repair the building
+		int iRepairCost = ceil( (float)( iAmountToHeal ) * 0.2f );
+	
+		TRACE_OBJECT( UTIL_VarArgs( "%0.2f CObjectDispenser::Command_Repair ( %d / %d ) - cost = %d\n", gpGlobals->curtime, 
+			GetHealth(),
+			GetMaxHealth(),
+			iRepairCost ) );
+
+		if ( iRepairCost > 0 )
 		{
-			iRepairCost = pActivator->GetBuildResources();
+			if ( iRepairCost > pActivator->GetBuildResources() )
+			{
+				iRepairCost = pActivator->GetBuildResources();
+			}
+
+			pActivator->RemoveBuildResources( iRepairCost );
+
+			float flNewHealth = min( GetMaxHealth(), m_flHealth + ( iRepairCost * 5 ) );
+			SetHealth( flNewHealth );
+	
+			return ( iRepairCost > 0 );
 		}
-
-		pActivator->RemoveBuildResources( iRepairCost );
-
-		float flNewHealth = min( GetMaxHealth(), m_flHealth + ( iRepairCost * 5 ) );
-		SetHealth( flNewHealth );
-
-		return ( iRepairCost > 0 );
 	}
-
 	return false;
 }
 
@@ -2430,7 +2699,7 @@ int CBaseObject::DrawDebugTextOverlays(void)
 
 		if ( IsBuilding() )
 		{
-			Q_snprintf( tempstr, sizeof( tempstr ),"Build Rate: %.1f", GetRepairMultiplier() );
+			Q_snprintf( tempstr, sizeof( tempstr ),"Build Rate: %.1f", GetConstructionMultiplier() );
 			EntityText(text_offset,tempstr,0);
 			text_offset++;
 		}

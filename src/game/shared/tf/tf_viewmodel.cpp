@@ -103,7 +103,7 @@ void CTFViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *wea
 //-----------------------------------------------------------------------------
 void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 {
-	C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+	C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 	
 	if ( pEnt && pEnt->GetModelIndex() == modelinfo->GetModelIndex(pszModelname) )
 	{
@@ -122,7 +122,7 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 		RemoveViewmodelAddon();
 	}
 
-	pEnt = new class C_TFViewmodelAddon;
+	pEnt = new class C_ViewmodelAttachmentModel;
 	if (!pEnt)
 		return;
 
@@ -161,7 +161,7 @@ int	CTFViewModel::LookupAttachment(const char *pAttachmentName)
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 		if (pEnt)
 			return pEnt->LookupAttachment(pAttachmentName);
 	}
@@ -176,7 +176,7 @@ bool CTFViewModel::GetAttachment(int number, matrix3x4_t &matrix)
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 		if (pEnt)
 			return pEnt->GetAttachment(number, matrix);
 	}
@@ -191,7 +191,7 @@ bool CTFViewModel::GetAttachment(int number, Vector &origin)
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 		if (pEnt)
 			return pEnt->GetAttachment(number, origin);
 	}
@@ -206,7 +206,7 @@ bool CTFViewModel::GetAttachment(int number, Vector &origin, QAngle &angles)
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 		if (pEnt)
 			return pEnt->GetAttachment(number, origin, angles);
 	}
@@ -221,7 +221,7 @@ bool CTFViewModel::GetAttachmentVelocity(int number, Vector &originVel, Quaterni
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_TFViewmodelAddon *pEnt = m_viewmodelAddon.Get();
+		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 		if (pEnt)
 			return pEnt->GetAttachmentVelocity(number, originVel, angleVel);
 	}
@@ -493,7 +493,7 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 		return;
 
 	C_TFViewModel *pVM;
-	C_TFViewmodelAddon *pVMAddon = dynamic_cast<C_TFViewmodelAddon *>(pEnt);
+	C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pEnt);
 	if (pVMAddon)
 	{
 		pVM = dynamic_cast<C_TFViewModel *>(pVMAddon->m_viewmodel.Get());

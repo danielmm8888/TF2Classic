@@ -130,8 +130,8 @@ public:
 
 	int	GetObjectCount( void );
 	C_BaseObject *GetObject( int index );
-	C_BaseObject *GetObjectOfType( int iObjectType );
-	int GetNumObjects( int iObjectType );
+	C_BaseObject *GetObjectOfType( int iObjectType, int iObjectMode );
+	int GetNumObjects( int iObjectType, int iObjectMode );
 
 	virtual bool ShouldCollide( int collisionGroup, int contentsMask ) const;
 
@@ -216,7 +216,7 @@ public:
 	Vector m_vecRagdollVelocity;
 
 	// Objects
-	int CanBuild( int iObjectType );
+	int CanBuild( int iObjectType, int iObjectMode );
 	CUtlVector< CHandle<C_BaseObject> > m_aObjects;
 
 	virtual CStudioHdr *OnNewModel( void );

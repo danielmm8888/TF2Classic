@@ -17,6 +17,7 @@
 #include "c_baseobject.h"
 
 #include "tf_hud_menu_engy_destroy.h"
+#include "tf_hud_menu_engy_build.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -181,12 +182,15 @@ int	CHudMenuEngyDestroy::HudElementKeyInput( int down, ButtonCode_t keynum, cons
 
 	if ( iSlot >= 0 )
 	{
-		int iBuildingID = MapIndexToObjectID( iSlot );
+		int iBuildingID = 0;
+		int iMode = 0;
 
-		if ( pLocalPlayer->GetObjectOfType( iBuildingID ) != NULL )
+		GetBuildingIDAndModeFromSlot( iSlot + 1, iBuildingID, iMode );
+
+		if ( pLocalPlayer->GetObjectOfType( iBuildingID, iMode ) != NULL )
 		{
 			char szCmd[128];
-			Q_snprintf( szCmd, sizeof(szCmd), "destroy %d; lastinv", iBuildingID );
+			Q_snprintf( szCmd, sizeof(szCmd), "destroy %d %d; lastinv", iBuildingID, iMode );
 			engine->ExecuteClientCmd( szCmd );
 		}
 		else
@@ -209,26 +213,31 @@ void CHudMenuEngyDestroy::ErrorSound( void )
 	}
 }
 
-int CHudMenuEngyDestroy::MapIndexToObjectID( int index )
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudMenuEngyDestroy::GetBuildingIDAndModeFromSlot(int iSlot, int &iBuildingID, int &iObjectMode)
 {
-	static int iRemapIndexToObjectID[4] = 
+	switch( iSlot )
 	{
-		OBJ_SENTRYGUN,
-		OBJ_DISPENSER,
-		OBJ_TELEPORTER_ENTRANCE,
-		OBJ_TELEPORTER_EXIT
-	};
+	case 1:
+		iBuildingID = OBJ_SENTRYGUN;
+		break;
+	case 2:
+		iBuildingID = OBJ_DISPENSER;
+		break;
+	case 3:
+		iBuildingID = OBJ_TELEPORTER;
+		iObjectMode = TELEPORTER_TYPE_ENTRANCE;
+		break;
+	case 4:
+		iBuildingID = OBJ_TELEPORTER;
+		iObjectMode = TELEPORTER_TYPE_EXIT;
+		break;
 
-	Assert( index >= 0 && index <= 3 );
-
-	if ( index >= 0 && index <= 3 )
-	{
-		return iRemapIndexToObjectID[index];
-	}
-	else
-	{
-		Assert( !"Bad param to CHudMenuEngyBuild::MMapIndexToObjectID" );
-		return OBJ_LAST;
+	default:
+		Assert( !"What slot are we asking for and why?" );
+		break;
 	}
 }
 
@@ -240,14 +249,17 @@ void CHudMenuEngyDestroy::OnTick( void )
 
 	for ( i=0;i<4; i++ )
 	{
-		int iRemappedObjectID = MapIndexToObjectID( i );
+		int iRemappedObjectID = 0;
+		int iMode = 0;
+
+		GetBuildingIDAndModeFromSlot(i + 1, iRemappedObjectID, iMode);
 
 		// update this slot
 		C_BaseObject *pObj = NULL;
 
 		if ( pLocalPlayer )
 		{
-			pObj = pLocalPlayer->GetObjectOfType( iRemappedObjectID );
+			pObj = pLocalPlayer->GetObjectOfType( iRemappedObjectID, iMode );
 		}			
 
 		m_pActiveItems[i]->SetVisible( false );

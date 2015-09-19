@@ -37,24 +37,32 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 // Remove aliasing of name due to shared code
 #undef CBaseObject
 
-IMPLEMENT_CLIENTCLASS_DT(C_BaseObject, DT_BaseObject, CBaseObject)
-	RecvPropInt(RECVINFO(m_iUpgradeLevel)),
-	RecvPropInt(RECVINFO(m_iHealth)),
-	RecvPropInt(RECVINFO(m_iMaxHealth)),
-	RecvPropInt(RECVINFO(m_bHasSapper)),
-	RecvPropInt(RECVINFO(m_iObjectType)),
-	RecvPropInt(RECVINFO(m_bBuilding)),
-	RecvPropInt(RECVINFO(m_bPlacing)),
-	RecvPropFloat(RECVINFO(m_flPercentageConstructed)),
-	RecvPropInt(RECVINFO(m_fObjectFlags)),
-	RecvPropEHandle(RECVINFO(m_hBuiltOnEntity)),
-	RecvPropInt( RECVINFO( m_bDisabled ) ),
+IMPLEMENT_CLIENTCLASS_DT( C_BaseObject, DT_BaseObject, CBaseObject )
+	RecvPropInt( RECVINFO( m_iHealth ) ),
+	RecvPropInt( RECVINFO( m_iMaxHealth ) ),
+	RecvPropBool( RECVINFO( m_bHasSapper ) ),
+	RecvPropInt( RECVINFO( m_iObjectType ) ),
+	RecvPropBool( RECVINFO( m_bBuilding ) ),
+	RecvPropBool( RECVINFO( m_bPlacing ) ),
+	RecvPropBool( RECVINFO( m_bCarried ) ),
+	RecvPropBool( RECVINFO( m_bCarryDeploy ) ),
+	RecvPropBool( RECVINFO( m_bMiniBuilding ) ),
+	RecvPropFloat( RECVINFO( m_flPercentageConstructed ) ),
+	RecvPropInt( RECVINFO( m_fObjectFlags ) ),
+	RecvPropEHandle( RECVINFO( m_hBuiltOnEntity ) ),
+	RecvPropBool( RECVINFO( m_bDisabled ) ),
 	RecvPropEHandle( RECVINFO( m_hBuilder ) ),
 	RecvPropVector( RECVINFO( m_vecBuildMaxs ) ),
 	RecvPropVector( RECVINFO( m_vecBuildMins ) ),
 	RecvPropInt( RECVINFO( m_iDesiredBuildRotations ) ),
-	RecvPropInt( RECVINFO( m_bServerOverridePlacement ) ),
-	RecvPropInt( RECVINFO(m_iUpgradeMetal)),
+	RecvPropBool( RECVINFO( m_bServerOverridePlacement ) ),
+	RecvPropInt( RECVINFO( m_iUpgradeLevel ) ),
+	RecvPropInt( RECVINFO( m_iUpgradeMetal ) ),
+	RecvPropInt( RECVINFO( m_iUpgradeMetalRequired ) ),
+	RecvPropInt( RECVINFO( m_iHighestUpgradeLevel ) ),
+	RecvPropInt( RECVINFO( m_iObjectMode ) ),
+	RecvPropBool( RECVINFO( m_bDisposableBuilding ) ),
+	RecvPropBool( RECVINFO( m_bWasMapPlaced ) ),
 END_RECV_TABLE()
 
 ConVar cl_obj_test_building_damage( "cl_obj_test_building_damage", "-1", FCVAR_CHEAT, "debug building damage", true, -1, true, BUILDING_DAMAGE_LEVEL_CRITICAL );
@@ -188,6 +196,7 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 		if ( event )
 		{
 			event->SetInt( "building_type", GetType() );
+			event->SetInt( "object_mode", GetObjectMode() );
 			gameeventmanager->FireEventClientSide( event );
 		}
 	}
@@ -779,12 +788,38 @@ void C_BaseObject::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 		}
 
 		// building or live, show health
-		const char *printFormatString = "#TF_playerid_object";
+		const char *printFormatString;
+		
+		if ( GetObjectInfo(GetType())->m_AltModes.Count() > 0 )
+		{
+			printFormatString = "#TF_playerid_object_mode";
 
-		g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString),
-			3,
-			wszObjectName,
-			wszBuilderName );
+			pszStatusName = GetObjectInfo( GetType() )->m_AltModes.Element( m_iObjectMode * 3 + 1 );
+			wchar_t *wszObjectModeName = g_pVGuiLocalize->Find( pszStatusName );
+
+			if ( !wszObjectModeName )
+			{
+				wszObjectModeName = L"";
+			}
+
+			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString),
+				4,
+				wszObjectName,
+				wszBuilderName,
+				wszObjectModeName);
+		}
+		else
+		{
+			if ( m_bMiniBuilding )
+				printFormatString = "#TF_playerid_object_mini";
+			else
+				printFormatString = "#TF_playerid_object";
+
+			g_pVGuiLocalize->ConstructString( sIDString, iMaxLenInBytes, g_pVGuiLocalize->Find( printFormatString ),
+				3,
+				wszObjectName,
+				wszBuilderName );
+		}
 	}
 }
 
@@ -794,6 +829,55 @@ void C_BaseObject::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 void C_BaseObject::GetTargetIDDataString( wchar_t *sDataString, int iMaxLenInBytes )
 {
 	sDataString[0] = '\0';
+
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pLocalPlayer )
+		return;
+
+	wchar_t wszBuilderName[ MAX_PLAYER_NAME_LENGTH ];
+	wchar_t wszObjectName[ 32 ];
+	wchar_t wszUpgradeProgress[ 32 ];
+	wchar_t wszLevel[ 5 ];
+
+	_snwprintf(wszLevel, ARRAYSIZE(wszLevel) - 1, L"%d", m_iUpgradeLevel);
+
+	g_pVGuiLocalize->ConvertANSIToUnicode( GetStatusName(), wszObjectName, sizeof(wszObjectName) );
+
+	C_BasePlayer *pBuilder = GetOwner();
+
+	if ( pBuilder )
+	{
+		g_pVGuiLocalize->ConvertANSIToUnicode( pBuilder->GetPlayerName(), wszBuilderName, sizeof(wszBuilderName) );
+	}
+	else
+	{
+		wszBuilderName[0] = '\0';
+	}
+
+	if (m_iUpgradeLevel >= m_iHighestUpgradeLevel)
+	{
+		const char *printFormatString = "#TF_playerid_object_level";
+
+		g_pVGuiLocalize->ConstructString(sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString),
+			1,
+			wszLevel);
+	}
+	else
+	{
+		// level 1 and 2 show upgrade progress
+		_snwprintf(wszUpgradeProgress, ARRAYSIZE(wszUpgradeProgress) - 1, L"%d / %d", m_iUpgradeMetal, m_iUpgradeMetalRequired);
+		wszUpgradeProgress[ARRAYSIZE(wszUpgradeProgress) - 1] = '\0';
+
+		const char *printFormatString = "#TF_playerid_object_upgrading_level";		
+
+		g_pVGuiLocalize->ConstructString(sDataString, iMaxLenInBytes, g_pVGuiLocalize->Find(printFormatString),
+			2,
+			wszLevel,
+			wszUpgradeProgress);
+	}
+
+
+
 }
 
 //-----------------------------------------------------------------------------
