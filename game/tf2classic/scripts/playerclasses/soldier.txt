@@ -7,6 +7,7 @@ PlayerClass
 	"name"			"soldier"
 	"model"			"models/player/soldier.mdl"
 	"model_hwm"		"models/player/hwm/soldier.mdl"
+	"model_hands"	"models/weapons/c_models/c_soldier_arms.mdl"
 	"localize_name"	"TF_Class_Name_Soldier"
 	"speed_max"		"240"
 //	"health_max"		"100"
@@ -19,19 +20,25 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_NAIL"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_SHOVEL"
+	"weapon1"		"TF_WEAPON_ROCKETLAUNCHER"
 	"weapon2"		"TF_WEAPON_SHOTGUN_SOLDIER"
-	"weapon3"		"TF_WEAPON_ROCKETLAUNCHER"
+	"weapon3"		"TF_WEAPON_SHOVEL"
 	
 	//"DontDoNewJump"	"1"
+
+	//Thirdperson
+	"cameraoffset_forward"	"85"
+	"cameraoffset_right"	"25"
+	"cameraoffset_up"	"0"
+
 
 	AmmoMax
 	{
 		"tf_ammo_primary"	"20"
 		"tf_ammo_secondary"	"32"
 		"tf_ammo_metal"		"100"
-		"tf_ammo_grenades1"	"0"
-		"tf_ammo_grenades2"	"0"
+		"tf_ammo_grenades1"	"1"
+		"tf_ammo_grenades2"	"1"
 	}	
 	
 	// Death Sounds

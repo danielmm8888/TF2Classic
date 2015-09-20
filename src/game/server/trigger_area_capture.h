@@ -161,16 +161,23 @@ private:
 
 	COutputEvent m_OnStartTeam1;
 	COutputEvent m_OnStartTeam2;
+#if defined ( TF_CLASSIC )
 	COutputEvent m_OnStartTeam3;
 	COutputEvent m_OnStartTeam4;
+#endif
 	COutputEvent m_OnBreakTeam1;
 	COutputEvent m_OnBreakTeam2;
+#if defined ( TF_CLASSIC )
 	COutputEvent m_OnBreakTeam3;
 	COutputEvent m_OnBreakTeam4;
+#endif
+
 	COutputEvent m_OnCapTeam1;
 	COutputEvent m_OnCapTeam2;
+#if defined ( TF_CLASSIC )
 	COutputEvent m_OnCapTeam3;
 	COutputEvent m_OnCapTeam4;
+#endif
 
 	COutputEvent m_StartOutput;
 	COutputEvent m_BreakOutput;

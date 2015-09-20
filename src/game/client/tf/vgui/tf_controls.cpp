@@ -114,7 +114,7 @@ CExRichText::CExRichText(Panel *parent, const char *name) : RichText(parent, nam
 	m_pUpArrow = new CTFImagePanel( this, "UpArrow" );
 	if ( m_pUpArrow )
 	{
-		m_pUpArrow->SetShouldScaleImage( true );
+		//m_pUpArrow->SetShouldScaleImage( true );
 		m_pUpArrow->SetImage( "chalkboard_scroll_up" );
 		m_pUpArrow->SetFgColor( Color( 255, 255, 255, 255 ) );
 		m_pUpArrow->SetAlpha( 255 );
@@ -132,7 +132,7 @@ CExRichText::CExRichText(Panel *parent, const char *name) : RichText(parent, nam
 	m_pDownArrow = new CTFImagePanel( this, "DownArrow" );
 	if ( m_pDownArrow )
 	{
-		m_pDownArrow->SetShouldScaleImage( true );
+		//m_pDownArrow->SetShouldScaleImage( true );
 		m_pDownArrow->SetImage( "chalkboard_scroll_down" );
 		m_pDownArrow->SetFgColor( Color( 255, 255, 255, 255 ) );
 		m_pDownArrow->SetAlpha( 255 );

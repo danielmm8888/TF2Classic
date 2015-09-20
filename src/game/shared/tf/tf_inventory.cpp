@@ -65,7 +65,7 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool Hud
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
 	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
-	if (iSlot >= iCount || iSlot < 0)
+	if (iWeapon >= iCount || iWeapon < 0)
 		return false;
 	if (!Weapons[iClass][iSlot][iWeapon])
 		return false;
@@ -133,7 +133,6 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"Primary",
 	"Secondary",
 	"Melee",
-	"Building",
 	"PDA",
 	"PDA"
 };
@@ -225,7 +224,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
 		},
 		{
-			TF_WEAPON_BUILDER
+			TF_WEAPON_BUILDER					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
 		},
 		{
 			TF_WEAPON_KNIFE
@@ -270,7 +269,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 
 		},
 		{
-			TF_WEAPON_PISTOL_DM
+			TF_WEAPON_PISTOL
 		},
 		{
 			TF_WEAPON_CROWBAR

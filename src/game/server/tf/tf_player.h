@@ -179,6 +179,7 @@ public:
 	void				UpdateSkin( int iTeam );
 
 	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound = false );
+	int					GetMaxAmmo( int iAmmoIndex );
 
 	bool				CanAttack( void );
 
@@ -188,6 +189,8 @@ public:
 	virtual bool		ClientCommand( const CCommand &args );
 	void				ClientHearVox( const char *pSentence );
 	void				DisplayLocalItemStatus( CTFGoal *pGoal );
+
+	bool				TryToPickupBuilding( void );
 
 	int					BuildObservableEntityList( void );
 	virtual int			GetNextObserverSearchStartPoint( bool bReverse ); // Where we should start looping the player list in a FindNextObserverTarget call
@@ -206,9 +209,10 @@ public:
 	EHANDLE TeamFortress_GetDisguiseTarget( int nTeam, int nClass );
 
 	void TeamFortress_ClientDisconnected();
-	void TeamFortress_RemoveEverythingFromWorld();
+	void TeamFortress_RemoveEverythingFromWorld( bool bSilent = true );
 	void TeamFortress_RemoveRockets();
 	void TeamFortress_RemovePipebombs();
+	void TeamFortress_RemoveFlames();
 
 	CTFTeamSpawn *GetSpawnPoint( void ){ return m_pSpawnPoint; }
 		
@@ -236,11 +240,11 @@ public:
 	void AddBuildResources( int iAmount );
 
 	bool IsBuilding( void );
-	int CanBuild( int iObjectType );
+	int CanBuild( int iObjectType, int iObjectMode );
 
 	CBaseObject	*GetObject( int index );
 	int	GetObjectCount( void );
-	int GetNumObjects( int iObjectType );
+	int GetNumObjects( int iObjectType, int iObjectMode );
 	void RemoveAllObjects( bool bSilent );
 	void StopPlacement( void );
 	int	StartedBuildingObject( int iObjectType );
@@ -250,8 +254,8 @@ public:
 	void OwnedObjectDestroyed( CBaseObject *pObject );
 	void RemoveObject( CBaseObject *pObject );
 	bool PlayerOwnsObject( CBaseObject *pObject );
-	void DetonateOwnedObjectsOfType( int iType );
-	void StartBuildingObjectOfType( int iType );
+	void DetonateOwnedObjectsOfType( int iType, int iMode );
+	void StartBuildingObjectOfType( int iType, int iMode );
 
 	CTFTeam *GetTFTeam( void );
 	CTFTeam *GetOpposingTFTeam( void );
@@ -269,6 +273,7 @@ public:
 
 	// Dropping Ammo
 	void DropAmmoPack( void );
+	void DropFakeWeapon( CTFWeaponBase *pWeapon );
 
 	bool CanDisguise( void );
 	bool CanGoInvisible( void );
@@ -295,6 +300,9 @@ public:
 
 	bool ShouldAutoRezoom( void ) { return m_bAutoRezoom; }
 	void SetAutoRezoom( bool bAutoRezoom ) { m_bAutoRezoom = bAutoRezoom; }
+
+	bool ShouldAutoReload( void ) { return m_bAutoReload; }
+	void SetAutoReload( bool bAutoReload ) { m_bAutoReload = bAutoReload; }
 
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 
@@ -353,6 +361,8 @@ public:
 
 	float	m_flNextNameChangeTime;
 
+	bool	m_bIsPlayerADev;
+
 	int					StateGet( void ) const;
 
 	void				SetOffHandWeapon( CTFWeaponBase *pWeapon );
@@ -390,9 +400,13 @@ public:
 
 	virtual bool			WantsLagCompensationOnEntity( const CBasePlayer	*pPlayer, const CUserCmd *pCmd, const CBitVec<MAX_EDICTS> *pEntityTransmitBits ) const;
 
+	float				MedicGetChargeLevel( void );
+
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );
+
+	float	m_flSpawnProtectTime;
 
 private:
 
@@ -418,6 +432,7 @@ private:
 	void				HandleCommand_JoinTeam( const char *pTeamName );
 	void				HandleCommand_JoinClass( const char *pClassName );
 	void				HandleCommand_JoinTeam_NoMenus( const char *pTeamName );
+	void				HandleCommand_JoinTeam_NoKill( const char *pTeamName );
 
 	// Bots.
 	friend void			Bot_Think( CTFPlayer *pBot );
@@ -452,8 +467,6 @@ private:
 	bool				PlayDeathAnimation( const CTakeDamageInfo &info, CTakeDamageInfo &info_modified );
 
 	bool				GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes );
-
-	void				ChangeWeapon( TFPlayerClassData_t *pData );
 
 private:
 	// Map introductions
@@ -534,6 +547,7 @@ private:
 
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
+	bool				m_bAutoReload;
 
 	COutputEvent		m_OnDeath;
 

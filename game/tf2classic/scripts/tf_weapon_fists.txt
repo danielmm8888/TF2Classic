@@ -41,7 +41,7 @@ WeaponData
 	{
 		"weapon"
 		{
-				"file"		"sprites/bucket_fists_red"
+				"file"		"sprites/bucket_fists"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"
@@ -49,7 +49,7 @@ WeaponData
 		}
 		"weapon_s"
 		{	
-				"file"		"sprites/bucket_fists_blue"
+				"file"		"sprites/bucket_fists"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"

@@ -172,7 +172,7 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		if (args.FindArg( "-all" ))
 			iClass = 9 - count ;
 
-		int iTeam = TF_TEAM_BLUE;
+		int iTeam = TEAM_UNASSIGNED;
 		pVal = args.FindArg( "-team" );
 		if ( pVal )
 		{
@@ -189,7 +189,7 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 			else if ( stricmp( pVal, "random" ) == 0 )
 				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
 			else
-				iTeam = TF_TEAM_BLUE;
+				iTeam = TEAM_UNASSIGNED;
 		}
 
 		char const *pName = args.FindArg( "-name" );
@@ -340,7 +340,7 @@ void Bot_Think( CTFPlayer *pBot )
 			pszTeam = "spectator";
 			break;
 		default:
-			Assert( false );
+			pszTeam = "auto";
 			break;
 		}
 		pBot->HandleCommand_JoinTeam( pszTeam );

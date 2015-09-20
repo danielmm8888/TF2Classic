@@ -35,7 +35,6 @@ public:
 	virtual void OnKeyCodePressed( vgui::KeyCode code );
 	virtual void OnClose( void );
 	virtual void GetPanelPos( int &xpos, int &ypos );
-	virtual float GetActiveVideoLength();
 
 	void SetExitCommand( const char *pExitCommand )
 	{
@@ -46,7 +45,6 @@ public:
 	}
 
 	bool BeginPlayback( const char *pFilename );
-	bool BeginPlaybackNoAudio(const char *pFilename);
 
 	void SetBlackBackground( bool bBlack ){ m_bBlackBackground = bBlack; }
 

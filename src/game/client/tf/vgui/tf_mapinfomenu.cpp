@@ -220,14 +220,7 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 		{
 			if ( GetLocalPlayerTeam() == TEAM_UNASSIGNED )
 			{
-				if (TFGameRules()->IsDeathmatch())
-				{
-					engine->ClientCmd("jointeam red");
-				}
-				else
-				{
-					m_pViewPort->ShowPanel(PANEL_TEAM, true);
-				}
+				m_pViewPort->ShowPanel(PANEL_TEAM, true);
 			}
 
 			UTIL_IncrementMapKey( "viewed" );
@@ -296,107 +289,45 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 	}
 
 	// load the map description files
-	char mapRES[ MAX_PATH ];
+	char mapLocalizationString[ MAX_PATH ];
 
-	char uilanguage[ 64 ];
-	engine->GetUILanguage( uilanguage, sizeof( uilanguage ) );
-
-	Q_snprintf( mapRES, sizeof( mapRES ), "maps/%s_%s.txt", mapName, uilanguage );
-
-	// try English if the file doesn't exist for our language
-	if( !g_pFullFileSystem->FileExists( mapRES, "GAME" ) )
-	{
-		Q_snprintf( mapRES, sizeof( mapRES ), "maps/%s_english.txt", mapName );
-
-		// if the file doesn't exist for English either, try the filename without any language extension
-		if( !g_pFullFileSystem->FileExists( mapRES, "GAME" ) )
-		{
-			Q_snprintf( mapRES, sizeof( mapRES ), "maps/%s.txt", mapName );
-		}
-	}
+	Q_snprintf( mapLocalizationString, sizeof( mapLocalizationString ), "%s_description", mapName );
 
 	// if no map specific description exists, load default text
-	if( !g_pFullFileSystem->FileExists( mapRES, "GAME" ) )
+	if ( !g_pVGuiLocalize->Find( mapLocalizationString ) )
 	{
-		const char *pszDefault = "maps/default.txt";
-
 		if ( TFGameRules() )
 		{
+			const char *pszGameTypeAbbreviation = "";
 			if ( TFGameRules()->GetGameType() == TF_GAMETYPE_CTF )
 			{
-				pszDefault = "maps/default_ctf.txt";
+				pszGameTypeAbbreviation = "ctf";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_CP )
 			{
-				pszDefault = "maps/default_cp.txt";
+				pszGameTypeAbbreviation = "cp";
 			}
-		}
-
-		if ( g_pFullFileSystem->FileExists( pszDefault ) )
-		{
-			Q_snprintf ( mapRES, sizeof( mapRES ), pszDefault );
-		}
-		else
-		{
-			m_pMapInfo->SetText( "" );
-
-			// we haven't loaded a valid map image for the current map
-			if ( m_pMapImage && !m_pMapImage->IsVisible() )
+			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ARENA )
 			{
-				if ( m_pMapInfo )
-				{
-					m_pMapInfo->SetWide( m_pMapInfo->GetWide() + ( m_pMapImage->GetWide() * 0.75 ) ); // add in the extra space the images would have taken 
-				}
+				pszGameTypeAbbreviation = "arena";
+			}
+			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_DM )
+			{
+				pszGameTypeAbbreviation = "dm";
 			}
 
-			return; 
+			Q_snprintf( mapLocalizationString, sizeof( mapLocalizationString ), "default_%s_description", pszGameTypeAbbreviation );
 		}
 	}
 
-	FileHandle_t f = g_pFullFileSystem->Open( mapRES, "rb" );
-
-	// read into a memory block
-	int fileSize = g_pFullFileSystem->Size(f);
-	int dataSize = fileSize + sizeof( wchar_t );
-	if ( dataSize % 2 )
-		++dataSize;
-	wchar_t *memBlock = (wchar_t *)malloc(dataSize);
-	memset( memBlock, 0x0, dataSize);
-	int bytesRead = g_pFullFileSystem->Read(memBlock, fileSize, f);
-	if ( bytesRead < fileSize )
+	if ( g_pVGuiLocalize->Find( mapLocalizationString ) )
 	{
-		// NULL-terminate based on the length read in, since Read() can transform \r\n to \n and
-		// return fewer bytes than we were expecting.
-		char *data = reinterpret_cast<char *>( memBlock );
-		data[ bytesRead ] = 0;
-		data[ bytesRead+1 ] = 0;
-	}
-
-	// null-terminate the stream (redundant, since we memset & then trimmed the transformed buffer already)
-	memBlock[dataSize / sizeof(wchar_t) - 1] = 0x0000;
-
-	// check the first character, make sure this a little-endian unicode file
-
-	if ( memBlock[0] != 0xFEFF )
-
-	{
-		// its a ascii char file
-		m_pMapInfo->SetText( reinterpret_cast<char *>( memBlock ) );
+		m_pMapInfo->SetText( g_pVGuiLocalize->Find( mapLocalizationString ) );
 	}
 	else
 	{
-		// ensure little-endian unicode reads correctly on all platforms
-		CByteswap byteSwap;
-		byteSwap.SetTargetBigEndian( false );
-		byteSwap.SwapBufferToTargetEndian( memBlock, memBlock, dataSize/sizeof(wchar_t) );
-
-		m_pMapInfo->SetText( memBlock+1 );
+		m_pMapInfo->SetText( "" );
 	}
-	// go back to the top of the text buffer
-	m_pMapInfo->GotoTextStart();
-
-	g_pFullFileSystem->Close( f	);
-	free(memBlock);
 
 	// we haven't loaded a valid map image for the current map
 	if ( m_pMapImage && !m_pMapImage->IsVisible() )
@@ -493,14 +424,15 @@ struct s_MapTypeInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	"ctf_2fort",	"2Fort",		"#Gametype_CTF",			"VALVe",
-	"cp_dustbowl",	"Dustbowl",		"#Gametype_AttackDefense",	"VALVe",
-	"cp_granary",	"Granary",		"#Gametype_CP",				"VALVe",
-	"cp_well",		"Well",			"#Gametype_CP",				"VALVe",
-	"cp_gravelpit",	"Gravel Pit",	"#Gametype_AttackDefense",	"VALVe",
-	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",		"VALVe",
-	"ctf_well",		"Well",			"#Gametype_CTF",			"VALVe",
-	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"VALVe",
+	"ctf_2fort",	"2Fort",		"#Gametype_CTF",			"Valve",
+	"cp_dustbowl",	"Dustbowl",		"#Gametype_AttackDefense",	"Valve",
+	"cp_granary",	"Granary",		"#Gametype_CP",				"Valve",
+	"cp_well",		"Well",			"#Gametype_CP",				"Valve",
+	"cp_gravelpit",	"Gravel Pit",	"#Gametype_AttackDefense",	"Valve",
+	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",		"Valve",
+	"ctf_well",		"Well",			"#Gametype_CTF",			"Valve",
+	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"Valve",
+	"cp_badlands",	"Badlands",		"#Gametype_CP",				"Valve",
 	//---------------------- TF2C maps ----------------------
 	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM, Nineaxis",
 	"cp_tidal_v4",		"Tidal",			"#Gametype_CP",					"Heyo",

@@ -45,6 +45,7 @@
 	#include "hltvdirector.h"
 	#include "team_train_watcher.h"
 	#include "vote_controller.h"
+	#include "tf_voteissues.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -80,16 +81,31 @@ static int g_TauntCamAchievements[] =
 
 extern ConVar mp_capstyle;
 extern ConVar sv_turbophysics;
+extern ConVar mp_chattime;
 
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
+ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "Time (in seconds) that the DM spawn protection lasts" );
 
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
 ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
+ConVar tf_tournament_classlimit_scout( "tf_tournament_classlimit_scout", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Scouts.\n" );
+ConVar tf_tournament_classlimit_sniper( "tf_tournament_classlimit_sniper", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Snipers.\n" );
+ConVar tf_tournament_classlimit_soldier( "tf_tournament_classlimit_soldier", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Soldiers.\n" );
+ConVar tf_tournament_classlimit_demoman( "tf_tournament_classlimit_demoman", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Demomen.\n" );
+ConVar tf_tournament_classlimit_medic( "tf_tournament_classlimit_medic", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Medics.\n" );
+ConVar tf_tournament_classlimit_heavy( "tf_tournament_classlimit_heavy", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Heavies.\n" );
+ConVar tf_tournament_classlimit_pyro( "tf_tournament_classlimit_pyro", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Pyros.\n" );
+ConVar tf_tournament_classlimit_spy( "tf_tournament_classlimit_spy", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Spies.\n" );
+ConVar tf_tournament_classlimit_engineer( "tf_tournament_classlimit_engineer", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Engineers.\n" );
+ConVar tf_tournament_classchange_allowed( "tf_tournament_classchange_allowed", "1", FCVAR_NOTIFY, "Allow players to change class while the game is active?.\n" );
+ConVar tf_tournament_classchange_ready_allowed( "tf_tournament_classchange_ready_allowed", "1", FCVAR_NOTIFY, "Allow players to change class after they are READY?.\n" );
+ConVar tf_classlimit( "tf_classlimit", "0", FCVAR_NOTIFY, "Limit on how many players can be any class (i.e. tf_class_limit 2 would limit 2 players per class).\n" );
+
 #endif
 
 #ifdef GAME_DLL
@@ -450,6 +466,94 @@ void CTFGameRulesProxy::Activate()
 
 	BaseClass::Activate();
 }
+
+class CTFLogicDeathmatch : public CBaseEntity
+{
+public:
+	DECLARE_CLASS(CTFLogicDeathmatch, CBaseEntity);
+	void	Spawn(void);
+};
+
+LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
+
+void CTFLogicDeathmatch::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
+class CTFLogicVIP : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CTFLogicVIP, CBaseEntity );
+	DECLARE_DATADESC();
+
+	void	Spawn(void);
+
+	inline bool GetEnableCivilian() { return m_bEnableCivilian; }
+	inline bool GetCivilianCountStyle() { return m_bCivilianCountStyle; }
+	inline int GetCivilianAbsoluteCount() { return m_nCivilianAbsoluteCount; }
+	inline int GetCivilianPercentageCount() { return m_nCivilianPercentageCount; }
+	inline bool GetForceCivilian() { return m_bForceCivilian; }
+	inline bool GetEnableCivilianRed() { return m_bEnableCivilianRed; }
+	inline bool GetEnableCivilianBlue() { return m_bEnableCivilianBlue; }
+	inline bool GetEnableCivilianGreen() { return m_bEnableCivilianGreen; }
+	inline bool GetEnableCivilianYellow() { return m_bEnableCivilianYellow; }
+
+private:
+	bool	m_bEnableCivilian;
+	bool	m_bCivilianCountStyle;
+	int		m_nCivilianAbsoluteCount;
+	int		m_nCivilianPercentageCount;
+	bool	m_bForceCivilian;
+	bool	m_bEnableCivilianRed;
+	bool	m_bEnableCivilianBlue;
+	bool	m_bEnableCivilianGreen;
+	bool	m_bEnableCivilianYellow;
+};
+
+LINK_ENTITY_TO_CLASS( tf_logic_vip, CTFLogicVIP );
+
+BEGIN_DATADESC(CTFLogicVIP)
+	DEFINE_KEYFIELD( m_bEnableCivilian, FIELD_BOOLEAN, "EnableCivilian" ),
+	DEFINE_KEYFIELD( m_bCivilianCountStyle, FIELD_BOOLEAN, "CivilianCountStyle" ),
+	DEFINE_KEYFIELD( m_nCivilianAbsoluteCount, FIELD_INTEGER, "CivilianAbsoluteCount" ),
+	DEFINE_KEYFIELD( m_nCivilianPercentageCount, FIELD_INTEGER, "CivilianPercentageCount" ),
+	DEFINE_KEYFIELD( m_bForceCivilian, FIELD_BOOLEAN, "ForceCivilian" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianRed" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianBlue" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianGreen" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianYellow" ),
+END_DATADESC()
+
+void CTFLogicVIP::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
+class CArenaLogic : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CArenaLogic, CBaseEntity );
+	DECLARE_DATADESC();
+	void	Spawn(void);
+};
+
+BEGIN_DATADESC( CArenaLogic )
+
+
+	// Inputs.
+	//DEFINE_INPUTFUNC(FIELD_FLOAT, "SetRedTeamRespawnWaveTime", InputSetRedTeamRespawnWaveTime),
+	//DEFINE_INPUTFUNC(FIELD_FLOAT, "SetBlueTeamRespawnWaveTime", InputSetBlueTeamRespawnWaveTime),
+END_DATADESC()
+
+
+LINK_ENTITY_TO_CLASS( tf_logic_arena, CArenaLogic );
+
+void CArenaLogic::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
 #endif
 
 // (We clamp ammo ourselves elsewhere).
@@ -673,13 +777,23 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
-	if (gEntList.FindEntityByClassname(NULL, "tf_logic_deathmatch") || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
+	CArenaLogic *pArena = dynamic_cast<CArenaLogic*>( gEntList.FindEntityByClassname( NULL, "tf_logic_arena") );
+	if ( pArena )
+	{
+		m_nGameType.Set( TF_GAMETYPE_ARENA );
+		Msg( "Executing server arena config file\n", 1 );
+		engine->ServerCommand( "exec config_arena.cfg\n" );
+		engine->ServerExecute();
+		return;
+	}
+
+	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_deathmatch" ) || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
 	{
 		m_nGameType.Set(TF_GAMETYPE_DM);
 		return;
 	}
 
-	if (gEntList.FindEntityByClassname(NULL, "tf_logic_vip"))
+	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_vip" ) )
 	{
 		// TODO: make a global pointer to this and access its settings
 		m_nGameType.Set(TF_GAMETYPE_VIP);
@@ -694,7 +808,6 @@ void CTFGameRules::Activate()
 	}
 
 	CTeamTrainWatcher *pTrain = dynamic_cast<CTeamTrainWatcher*> (gEntList.FindEntityByClassname(NULL, "team_train_watcher"));
-
 	if (pTrain)
 	{
 		m_nGameType.Set(TF_GAMETYPE_ESCORT);
@@ -706,6 +819,99 @@ void CTFGameRules::Activate()
 		m_nGameType.Set( TF_GAMETYPE_CP );
 		return;
 	}
+}
+
+int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
+{
+	int result;
+
+	if ( IsInTournamentMode() /*||  *((_DWORD *)this + 462) == 7 */ )
+	{
+		if ( iDesiredClassIndex <= TF_CLASS_ENGINEER )
+		{
+			switch ( iDesiredClassIndex )
+			{
+				default:
+					result = -1;
+				case TF_CLASS_ENGINEER:
+					result = tf_tournament_classlimit_engineer.GetInt();
+					break;
+				case TF_CLASS_SPY:
+					result = tf_tournament_classlimit_spy.GetInt();
+					break;
+				case TF_CLASS_PYRO:
+					result = tf_tournament_classlimit_pyro.GetInt();
+					break;
+				case TF_CLASS_HEAVYWEAPONS:
+					result = tf_tournament_classlimit_heavy.GetInt();
+					break;
+				case TF_CLASS_MEDIC:
+					result = tf_tournament_classlimit_medic.GetInt();
+					break;
+				case TF_CLASS_DEMOMAN:
+					result = tf_tournament_classlimit_demoman.GetInt();
+					break;
+				case TF_CLASS_SOLDIER:
+					result = tf_tournament_classlimit_soldier.GetInt();
+					break;
+				case TF_CLASS_SNIPER:
+					result = tf_tournament_classlimit_sniper.GetInt();
+					break;
+				case TF_CLASS_SCOUT:
+					result = tf_tournament_classlimit_scout.GetInt();
+					break;
+			}
+		}
+		else
+		{
+			result = -1;
+		}
+	}
+	else if ( IsInHighlanderMode() )
+	{
+		result = 1;
+	}
+	else if ( tf_classlimit.GetBool() )
+	{
+		result = tf_classlimit.GetInt();
+	}
+	else
+	{
+		result = -1;
+	}
+
+	return result;
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFGameRules::CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClassIndex )
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	CTFTeam *pTFTeam = pTFPlayer->GetTFTeam();
+	int iClassLimit = 0;
+	int iClassCount = 0;
+
+	iClassLimit = GetClassLimit( iDesiredClassIndex );
+	
+	if ( iClassLimit != -1 && pTFTeam && pTFPlayer->GetTeamNumber() >= TF_TEAM_RED )
+	{
+		for ( int i = 0; i < pTFTeam->GetNumPlayers(); i++ )
+		{
+			if ( pTFTeam->GetPlayer( i ) && pTFTeam->GetPlayer( i ) != pPlayer )
+				iClassCount += iDesiredClassIndex == ToTFPlayer( pTFTeam->GetPlayer( i ) )->GetPlayerClass()->GetClassIndex();
+		}
+
+		return iClassLimit > iClassCount;
+	}
+	else
+	{
+		return true;
+	}
+
+	return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1419,21 +1625,11 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 		if (IsDeathmatch() && !g_fGameOver)
 		{
-			for (int i = 1; i <= gpGlobals->maxClients; i++)
-			{
-				CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
-				if (pTFPlayer)
-				{
-					PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
-					int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+			if ( CheckFragLimit() )
+				return;
 
-					if (iScore >= fraglimit.GetFloat())
-					{
-						GoToIntermission();
-						return;
-					}
-				}
-			}
+			if ( CheckTimeLimit() )
+				return;
 		}
 
 		BaseClass::Think();
@@ -1542,6 +1738,30 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		return false;
 	}
 
+	bool CTFGameRules::CheckFragLimit( void )
+	{
+		if ( fraglimit.GetInt() <= 0 )
+			return false;
+
+		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		{
+			CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+			if (pTFPlayer)
+			{
+				PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
+				int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+
+				if (iScore >= fraglimit.GetInt())
+				{
+					GoToIntermission();
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	bool CTFGameRules::IsInPreMatch() const
 	{
 		// TFTODO    return (cb_prematch_time > gpGlobals->time)
@@ -1558,7 +1778,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 	{
 		if (TFGameRules()->IsDeathmatch())
 		{
-			float flWaitTime = 15;
+			float flWaitTime = mp_chattime.GetFloat();
 			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
 
 			// set all players to FL_FROZEN
@@ -1825,18 +2045,20 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 		return NULL;
 	}
 
+	CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
+
 	const char *pszFormat = NULL;
 
 	// team only
 	if ( bTeamOnly == true )
 	{
-		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
 			pszFormat = "TF_Chat_Spec";
 		}
 		else
 		{
-			if ( pPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
+			if ( pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
 			{
 				pszFormat = "TF_Chat_Team_Dead";
 			}
@@ -1854,16 +2076,33 @@ const char *CTFGameRules::GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer )
 			}
 		}
 	}
-	// everyone
+	else if ( pTFPlayer->m_bIsPlayerADev )
+	{
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		{
+			pszFormat = "TF_Chat_DevSpec";
+		}
+		else
+		{
+			if (pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN)
+			{
+				pszFormat = "TF_Chat_DevDead";
+			}
+			else
+			{
+				pszFormat = "TF_Chat_Dev";
+			}
+		}
+	}
 	else
 	{	
-		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+		if ( pTFPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 		{
 			pszFormat = "TF_Chat_AllSpec";	
 		}
 		else
 		{
-			if ( pPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
+			if ( pTFPlayer->IsAlive() == false && State_Get() != GR_STATE_TEAM_WIN )
 			{
 				pszFormat = "TF_Chat_AllDead";
 			}
@@ -1962,6 +2201,9 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	// keep track of their cl_autorezoom value
 	pTFPlayer->SetAutoRezoom( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autorezoom" ) ) > 0 );
 
+	// keep track of their cl_autoreload value
+	pTFPlayer->SetAutoReload( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autoreload" ) ) > 0 );
+
 	const char *pszFov = engine->GetClientConVarValue( pPlayer->entindex(), "fov_desired" );
 	int iFov = atoi(pszFov);
 	iFov = clamp( iFov, 75, 90 );
@@ -1979,18 +2221,13 @@ bool CTFGameRules::CanHaveAmmo( CBaseCombatCharacter *pPlayer, int iAmmoIndex )
 
 		if ( pTFPlayer )
 		{
-			// Get the player class data - contains ammo counts for this class.
-			TFPlayerClassData_t *pData = pTFPlayer->GetPlayerClass()->GetData();
-			if ( pData )
-			{
-				// Get the max carrying capacity for this ammo
-				int iMaxCarry = pData->m_aAmmoMax[iAmmoIndex];
+			// Get the max carrying capacity for this ammo
+			int iMaxCarry = pTFPlayer->GetMaxAmmo( iAmmoIndex );
 
-				// Does the player have room for more of this type of ammo?
-				if ( pTFPlayer->GetAmmoCount( iAmmoIndex ) < iMaxCarry )
-				{
-					return true;
-				}
+			// Does the player have room for more of this type of ammo?
+			if ( pTFPlayer->GetAmmoCount( iAmmoIndex ) < iMaxCarry )
+			{
+				return true;
 			}
 		}
 	}
@@ -2094,6 +2331,8 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	if ( pAssister )
 	{
 		CTF_GameStats.Event_AssistKill( ToTFPlayer( pAssister ), pVictim );
+		if ( pObject )
+			pObject->IncrementAssists();
 	}
 
 	BaseClass::PlayerKilled( pVictim, info );
@@ -2148,6 +2387,9 @@ void CTFGameRules::CreateStandardEntities()
 	pEnt->SetName( AllocPooledString("tf_gamerules" ) );
 
 	CBaseEntity::Create("vote_controller", vec3_origin, vec3_angle);
+
+	CKickIssue* pIssue = new CKickIssue("Kick");
+	pIssue->Init();
 }
 
 //-----------------------------------------------------------------------------
@@ -2761,6 +3003,7 @@ void CTFGameRules::RoundRespawn( void )
 		if ( pPlayer )
 		{
 			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->m_Shared.SetKillstreak(0);
 		}
 	}
 
@@ -3744,8 +3987,60 @@ const char *CTFGameRules::GetGameDescription(void)
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
+{
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return;
+	}
+
+	BaseClass::BalanceTeams( bRequireSwitcheesToBeDead );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
+{
+	BaseClass::PlayerSpawn(pPlayer);
+	if (TFGameRules()->IsDeathmatch())
+	{
+		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
+		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();
+		pTFPlayer->AddFlag(FL_GODMODE);
+		pTFPlayer->m_nRenderFX = kRenderFxHologram;
+		pTFPlayer->AddEffects(EF_ITEM_BLINK);
+		pTFPlayer->GetViewModel()->m_nRenderFX = kRenderFxHologram;
+		pTFPlayer->GetViewModel()->AddEffects(EF_ITEM_BLINK);
+		pTFPlayer->m_flSpawnProtectTime = flSpawnProtectTime;
+	}
+}
+
 #endif
 
+float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers /* = true */ )
+{
+	// No respawn times in deathmatch.
+	if ( IsDeathmatch() )
+		return 0.0f;
+
+	return BaseClass::GetRespawnWaveMaxLength( iTeam, bScaleWithNumPlayers );
+}
+
+bool CTFGameRules::ShouldBalanceTeams( void )
+{
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return false;
+	}
+
+	return BaseClass::ShouldBalanceTeams();
+}
 
 #ifdef CLIENT_DLL
 const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
@@ -3777,68 +4072,3 @@ const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 }
 #endif
 
-
-#ifdef GAME_DLL
-class CTFLogicDeathmatch : public CBaseEntity
-{
-public:
-	DECLARE_CLASS(CTFLogicDeathmatch, CBaseEntity);
-	void	Spawn(void);
-};
-
-LINK_ENTITY_TO_CLASS(tf_logic_deathmatch, CTFLogicDeathmatch);
-
-void CTFLogicDeathmatch::Spawn(void)
-{
-	BaseClass::Spawn();
-}
-
-class CTFLogicVIP : public CBaseEntity
-{
-public:
-	DECLARE_CLASS( CTFLogicVIP, CBaseEntity );
-	DECLARE_DATADESC();
-
-	void	Spawn(void);
-
-	inline bool GetEnableCivilian() { return m_bEnableCivilian; }
-	inline bool GetCivilianCountStyle() { return m_bCivilianCountStyle; }
-	inline int GetCivilianAbsoluteCount() { return m_nCivilianAbsoluteCount; }
-	inline int GetCivilianPercentageCount() { return m_nCivilianPercentageCount; }
-	inline bool GetForceCivilian() { return m_bForceCivilian; }
-	inline bool GetEnableCivilianRed() { return m_bEnableCivilianRed; }
-	inline bool GetEnableCivilianBlue() { return m_bEnableCivilianBlue; }
-	inline bool GetEnableCivilianGreen() { return m_bEnableCivilianGreen; }
-	inline bool GetEnableCivilianYellow() { return m_bEnableCivilianYellow; }
-
-private:
-	bool	m_bEnableCivilian;
-	bool	m_bCivilianCountStyle;
-	int		m_nCivilianAbsoluteCount;
-	int		m_nCivilianPercentageCount;
-	bool	m_bForceCivilian;
-	bool	m_bEnableCivilianRed;
-	bool	m_bEnableCivilianBlue;
-	bool	m_bEnableCivilianGreen;
-	bool	m_bEnableCivilianYellow;
-};
-
-LINK_ENTITY_TO_CLASS( tf_logic_vip, CTFLogicVIP );
-
-BEGIN_DATADESC(CTFLogicVIP)
-	DEFINE_KEYFIELD( m_bEnableCivilian, FIELD_BOOLEAN, "EnableCivilian" ),
-	DEFINE_KEYFIELD( m_bCivilianCountStyle, FIELD_BOOLEAN, "CivilianCountStyle" ),
-	DEFINE_KEYFIELD( m_nCivilianAbsoluteCount, FIELD_INTEGER, "CivilianAbsoluteCount" ),
-	DEFINE_KEYFIELD( m_nCivilianPercentageCount, FIELD_INTEGER, "CivilianPercentageCount" ),
-	DEFINE_KEYFIELD( m_bForceCivilian, FIELD_BOOLEAN, "ForceCivilian" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianRed" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianBlue" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianGreen" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianYellow" ),
-END_DATADESC()
-
-void CTFLogicVIP::Spawn(void)
-{
-	BaseClass::Spawn();
-}
-#endif

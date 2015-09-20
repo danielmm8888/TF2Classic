@@ -62,6 +62,14 @@ void CTFWeaponBuilder::SetSubType( int iSubType )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBuilder::SetObjectMode( int iObjectMode )
+{
+	m_iObjectMode = iObjectMode;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFWeaponBuilder::Precache( void )
@@ -97,7 +105,7 @@ bool CTFWeaponBuilder::CanDeploy( void )
 	if (!pPlayer)
 		return false;
 
-	if ( pPlayer->CanBuild( m_iObjectType ) != CB_CAN_BUILD )
+	if ( pPlayer->CanBuild( m_iObjectType, m_iObjectMode ) != CB_CAN_BUILD )
 	{
 		return false;
 	}
@@ -125,6 +133,7 @@ bool CTFWeaponBuilder::Deploy( void )
 
 		pPlayer->SetNextAttack( gpGlobals->curtime );
 
+		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel(0) );
 		m_iWorldModelIndex = modelinfo->GetModelIndex( GetWorldModel() );
 
 		m_flNextDenySound = 0;
@@ -161,10 +170,14 @@ Activity CTFWeaponBuilder::GetDrawActivity( void )
 //-----------------------------------------------------------------------------
 bool CTFWeaponBuilder::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
+	if ( GetOwner() && ToTFPlayer(GetOwner()) && ToTFPlayer(GetOwner())->m_Shared.IsCarryingObject() )
+		return false;
+
 	if ( m_iBuildState == BS_PLACING || m_iBuildState == BS_PLACING_INVALID )
 	{
 		SetCurrentState( BS_IDLE );
 	}
+
 	StopPlacement();
 
 	return BaseClass::Holster(pSwitchingTo);
@@ -189,7 +202,7 @@ void CTFWeaponBuilder::ItemPostFrame( void )
 	}
 
 	// Check that I still have enough resources to build this item
-	if ( pOwner->CanBuild( m_iObjectType ) != CB_CAN_BUILD )
+	if ( pOwner->CanBuild( m_iObjectType, m_iObjectMode ) != CB_CAN_BUILD )
 	{
 		SwitchOwnersWeaponToLast();
 	}
@@ -350,7 +363,7 @@ void CTFWeaponBuilder::SwitchOwnersWeaponToLast()
 		CBaseCombatWeapon *pWpn = pOwner->Weapon_GetSlot( 2 );
 
 		// Don't store last weapon when we autoswitch off builder
-		CBaseCombatWeapon *pLastWpn = pOwner->Weapon_GetLast();
+		CBaseCombatWeapon *pLastWpn = pOwner->GetLastWeapon();
 
 		if ( pWpn )
 		{
@@ -376,7 +389,7 @@ void CTFWeaponBuilder::SwitchOwnersWeaponToLast()
 	else
 	{
 		// for all other classes, just switch to last weapon used
-		pOwner->Weapon_Switch( pOwner->Weapon_GetLast() );
+		pOwner->Weapon_Switch( pOwner->GetLastWeapon() );
 	}
 }
 
@@ -432,10 +445,18 @@ void CTFWeaponBuilder::StartPlacement( void )
 {
 	StopPlacement();
 
+	/*if ( GetOwner() && ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject() )
+	{
+		m_hObjectBeingBuilt = ToTFPlayer(GetOwner())->m_Shared.GetCarriedObject();
+		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
+		return;
+	}*/
+
 	// Create the slab
 	m_hObjectBeingBuilt = (CBaseObject*)CreateEntityByName( GetObjectInfo( m_iObjectType )->m_pClassName );
 	if ( m_hObjectBeingBuilt )
 	{
+		m_hObjectBeingBuilt->SetObjectMode( m_iObjectMode );
 		m_hObjectBeingBuilt->Spawn();
 		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
 
@@ -488,7 +509,19 @@ bool CTFWeaponBuilder::IsValidPlacement( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBuilder::StartBuilding( void )
 {
+	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 	CBaseObject *pObj = m_hObjectBeingBuilt.Get();
+
+	if ( pPlayer && pPlayer->m_Shared.IsCarryingObject() )
+	{
+		Assert( pObj );
+
+		pObj->RedeployBuilding( ToTFPlayer( GetOwner() ) );
+		m_hObjectBeingBuilt = NULL;
+
+		pPlayer->m_Shared.SetCarriedObject( NULL );
+		return;
+	}
 
 	Assert( pObj );
 
@@ -497,7 +530,6 @@ void CTFWeaponBuilder::StartBuilding( void )
 
 	m_hObjectBeingBuilt = NULL;
 
-	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 	if ( pPlayer )
 	{
 		pPlayer->RemoveInvisibility();
@@ -539,6 +571,9 @@ int CTFWeaponBuilder::GetPosition( void ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBuilder::GetPrintName( void ) const
 {
+	if ( GetObjectInfo( m_iObjectType )->m_AltModes.Count() > 0 )
+		return GetObjectInfo( m_iObjectType )->m_AltModes.Element( m_iObjectMode * 3 + 0 );
+
 	return GetObjectInfo( m_iObjectType )->m_pStatusName;
 }
 
@@ -554,7 +589,7 @@ const char *CTFWeaponBuilder::GetViewModel( int iViewModel ) const
 
 	if ( m_iObjectType != BUILDER_INVALID_OBJECT )
 	{
-		return GetObjectInfo( m_iObjectType )->m_pViewModel;
+		return DetermineViewModelType( GetObjectInfo(m_iObjectType)->m_pViewModel );
 	}
 
 	return BaseClass::GetViewModel();

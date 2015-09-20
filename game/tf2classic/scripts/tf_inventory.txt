@@ -1,6 +1,6 @@
 "Inventory"
 {
-	"undefined"
+	"Undefined"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
@@ -32,7 +32,7 @@
 		"building"		"0"
 		"PDA"		"0"
 	}
-	"demoman"
+	"Demoman"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
@@ -80,7 +80,7 @@
 		"building"		"0"
 		"PDA"		"0"
 	}
-	"civilian"
+	"Civilian"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
@@ -88,7 +88,7 @@
 		"building"		"0"
 		"PDA"		"0"
 	}
-	"mercenary"
+	"Mercenary"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"

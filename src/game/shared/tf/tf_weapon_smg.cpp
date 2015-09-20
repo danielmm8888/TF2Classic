@@ -25,7 +25,6 @@
 
 CREATE_SIMPLE_WEAPON_TABLE(TFSMG, tf_weapon_smg)
 CREATE_SIMPLE_WEAPON_TABLE(TFSMG_Scout, tf_weapon_smg_scout)
-CREATE_SIMPLE_WEAPON_TABLE(TFSMG_DM, tf_weapon_smg_dm)
 
 // Server specific.
 //#ifndef CLIENT_DLL

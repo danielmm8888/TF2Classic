@@ -46,7 +46,7 @@ extern ConVar tf_flag_caps_per_round;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFArrowPanel::CTFArrowPanel( Panel *parent, const char *name ) : CTFImagePanel( parent, name )
+CTFArrowPanel::CTFArrowPanel( Panel *parent, const char *name ) : vgui::Panel( parent, name )
 {
 	m_RedMaterial.Init( "hud/objectives_flagpanel_compass_red", TEXTURE_GROUP_VGUI ); 
 	m_BlueMaterial.Init( "hud/objectives_flagpanel_compass_blue", TEXTURE_GROUP_VGUI ); 
@@ -534,16 +534,16 @@ void CTFHudFlagObjectives::OnTick()
 					switch (pPlayerFlag->GetTeamNumber())
 					{
 						case TF_TEAM_RED:
-							m_pSpecCarriedImage->SetImage(("%s_red", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_red", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_BLUE:
-							m_pSpecCarriedImage->SetImage(("%s_blue", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_blue", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_GREEN:
-							m_pSpecCarriedImage->SetImage(("%s_green", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_green", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 						case TF_TEAM_YELLOW:
-							m_pSpecCarriedImage->SetImage(("%s_yellow", STRING(pPlayerFlag->m_sFlagIcon)));
+							m_pSpecCarriedImage->SetImage(("%s_yellow", STRING(pPlayerFlag->m_szHudIcon)));
 							break;
 					}
 				}

@@ -46,10 +46,10 @@ CTFWrench::CTFWrench()
 }
 
 #ifdef GAME_DLL
-void CTFWrench::OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer )
+void CTFWrench::OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer, Vector vecHitPos )
 {
 	// Did this object hit do any work? repair or upgrade?
-	bool bUsefulHit = pObject->InputWrenchHit( pPlayer );
+	bool bUsefulHit = pObject->InputWrenchHit( pPlayer, this, vecHitPos );
 
 	CDisablePredictionFiltering disabler;
 
@@ -65,25 +65,6 @@ void CTFWrench::OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer 
 	}
 }
 #endif
-
-class CTraceFilterIgnorePlayers : public CTraceFilterSimple
-{
-public:
-	// It does have a base, but we'll never network anything below here..
-	DECLARE_CLASS( CTraceFilterIgnorePlayers, CTraceFilterSimple );
-
-	CTraceFilterIgnorePlayers( const IHandleEntity *passentity, int collisionGroup )
-		: CTraceFilterSimple( passentity, collisionGroup )
-	{
-	}
-
-	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
-	{
-		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
-		return pEntity && !pEntity->IsPlayer();
-	}
-};
-
 
 void CTFWrench::Smack( void )
 {
@@ -126,7 +107,7 @@ void CTFWrench::Smack( void )
 		 trace.m_pEnt->GetTeamNumber() == pPlayer->GetTeamNumber() )
 	{
 #ifdef GAME_DLL
-		OnFriendlyBuildingHit( dynamic_cast< CBaseObject * >( trace.m_pEnt ), pPlayer );
+		OnFriendlyBuildingHit( dynamic_cast< CBaseObject * >( trace.m_pEnt ), pPlayer, trace.endpos );
 #endif
 	}
 	else

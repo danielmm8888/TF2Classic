@@ -34,7 +34,8 @@ WeaponData
 	"bucket_position"	"0"
 
 	// Animation.
-	"viewmodel"	"models/weapons/v_models/v_pistol_engineer.mdl"
+	"viewmodel"		"models/weapons/v_models/v_pistol_engineer.mdl"
+	//"viewmodel_dm"		"models/weapons/v_models/v_pistol_engineer.mdl" // Redundant until we add unique animations.
 	"playermodel"		"models/weapons/w_models/w_pistol.mdl"
 	"anim_prefix"		"ac"
 

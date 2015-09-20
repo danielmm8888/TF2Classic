@@ -26,6 +26,7 @@ public:
 	void	Spawn(void);
 	void	Precache(void);
 	bool	MyTouch(CBasePlayer *pPlayer);
+	void	EndTouch(CBaseEntity *pOther);
 	float	GetRespawnDelay(void);
 
 	int		m_iWeaponNumber;

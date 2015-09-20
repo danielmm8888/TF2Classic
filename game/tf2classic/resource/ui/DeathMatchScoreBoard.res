@@ -247,7 +247,7 @@
 		"tall"			"270"
 		"autoResize"	"0"
 		"pinCorner"		"0"
-		"visible"		"1"
+		"visible"		"0"
 		"enabled"		"1"
 		"border"		"MainMenuBGBorder"
 	
@@ -265,7 +265,7 @@
 			"pinCorner"		"0"
 			"visible"		"1"
 			"enabled"		"1"
-			"fov"			"60"
+			"fov"			"55"
 					
 			"model"
 			{
@@ -283,16 +283,10 @@
 			
 				"modelname"		"models/player/merc_deathmatch.mdl"
 				
-				"attached_model"
-				{
-					"modelname" "models/weapons/w_models/w_rocketlauncher.mdl"
-					"skin"	"0"
-				}
-				
 				"animation"
 				{
-					"name"		"PRIMARY"
-					"activity"	"ACT_MP_STAND_PRIMARY"
+					"name"		"WINSEQ"
+					"sequence"	"winscreen_first"
 					"default"	"1"
 				}			
 			}
@@ -305,10 +299,10 @@
 			"font"			"HudFontMediumSmallBold"
 			"labelText"		"%Player1Name%"
 			"textAlignment"	"center"
-			"xpos"			"140"
+			"xpos"			"130"
 			"ypos"			"205"
 			"zpos"			"3"
-			"wide"			"170"
+			"wide"			"180"
 			"tall"			"20"
 			"autoResize"	"0"
 			"pinCorner"		"0"
@@ -369,8 +363,8 @@
 			"pinCorner"		"0"
 			"visible"		"1"
 			"enabled"		"1"
-			"fov"			"60"
-					
+			"fov"			"55"
+						
 			"model"
 			{
 				"skin"	"0"
@@ -378,7 +372,7 @@
 				"angles_y" "210"
 				"angles_z" "0"
 				"origin_x" "220"
-				"origin_y" "80"
+				"origin_y" "75"
 				"origin_z" "-31"
 				"frame_origin_x"	"0"
 				"frame_origin_y"	"0"
@@ -387,16 +381,10 @@
 			
 				"modelname"		"models/player/merc_deathmatch.mdl"
 				
-				"attached_model"
-				{
-					"modelname" "models/weapons/w_models/w_smg.mdl"
-					"skin"	"0"
-				}
-				
 				"animation"
 				{
-					"name"		"SECONDARY"
-					"activity"	"ACT_MP_STAND_SECONDARY"
+					"name"		"WINSEQ"
+					"sequence"	"winscreen_second"
 					"default"	"1"
 				}			
 			}
@@ -409,7 +397,7 @@
 			"font"			"HudFontSmallBold"
 			"labelText"		"%Player2Name%"
 			"textAlignment"	"center"
-			"xpos"			"10"
+			"xpos"			"0"
 			"ypos"			"185"
 			"zpos"			"3"
 			"wide"			"170"
@@ -428,7 +416,7 @@
 			"font"			"HudFontSmallest"
 			"labelText"		"%Player2Kills%"
 			"textAlignment"	"center"
-			"xpos"			"10"
+			"xpos"			"0"
 			"ypos"			"200"
 			"zpos"			"3"
 			"wide"			"170"
@@ -447,7 +435,7 @@
 			"font"			"HudFontSmallest"
 			"labelText"		"%Player2Deaths%"
 			"textAlignment"	"center"
-			"xpos"			"10"
+			"xpos"			"0"
 			"ypos"			"212"
 			"zpos"			"3"
 			"wide"			"170"
@@ -473,16 +461,16 @@
 			"pinCorner"		"0"
 			"visible"		"1"
 			"enabled"		"1"
-			"fov"			"60"
+			"fov"			"55"
 					
 			"model"
 			{
 				"skin"	"0"
 				"angles_x" "0"
-				"angles_y" "150"
+				"angles_y" "170"
 				"angles_z" "0"
-				"origin_x" "220"
-				"origin_y" "-80"
+				"origin_x" "230"
+				"origin_y" "-75"
 				"origin_z" "-31"
 				"frame_origin_x"	"0"
 				"frame_origin_y"	"0"
@@ -491,16 +479,10 @@
 			
 				"modelname"		"models/player/merc_deathmatch.mdl"
 				
-				"attached_model"
-				{
-					"modelname" "models/weapons/w_models/w_crowbar.mdl"
-					"skin"	"0"
-				}
-				
 				"animation"
 				{
-					"name"		"MELEE"
-					"activity"	"ACT_MP_STAND_MELEE"
+					"name"		"WINSEQ"
+					"sequence"	"winscreen_third"
 					"default"	"1"
 				}			
 			}
@@ -513,7 +495,7 @@
 			"font"			"HudFontSmallBold"
 			"labelText"		"%Player3Name%"
 			"textAlignment"	"center"
-			"xpos"			"270"
+			"xpos"			"280"
 			"ypos"			"185"
 			"zpos"			"3"
 			"wide"			"170"
@@ -532,7 +514,7 @@
 			"font"			"HudFontSmallest"
 			"labelText"		"%Player3Kills%"
 			"textAlignment"	"center"
-			"xpos"			"270"
+			"xpos"			"280"
 			"ypos"			"200"
 			"zpos"			"3"
 			"wide"			"170"
@@ -551,7 +533,7 @@
 			"font"			"HudFontSmallest"
 			"labelText"		"%Player3Deaths%"
 			"textAlignment"	"center"
-			"xpos"			"270"
+			"xpos"			"280"
 			"ypos"			"212"
 			"zpos"			"3"
 			"wide"			"170"

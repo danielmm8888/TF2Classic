@@ -39,7 +39,8 @@ public:
 	virtual int GetRenderGroupPriority() { return 50; }
 
 private:
-	int GetBuildingIDFromSlot( int iSlot );
+
+	void GetBuildingIDAndModeFromSlot( int iSlot, int &iBuildingID, int &iObjectMode );
 
 	void SendBuildMessage( int iSlot );
 	bool SendDestroyMessage( int iSlot );

@@ -20,6 +20,8 @@
 
 BEGIN_DATADESC(CTFBaseDMPowerup)
 
+	DEFINE_KEYFIELD(m_strModelName, FIELD_STRING, "ModelName"),
+	DEFINE_KEYFIELD(m_strPickupSound, FIELD_STRING, "PickupSound"),
 	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
 //	DEFINE_KEYFIELD(m_iEffectDuration, FIELD_INTEGER, "EffectDuration"),
 
@@ -36,6 +38,8 @@ END_SEND_TABLE()
 CTFBaseDMPowerup::CTFBaseDMPowerup()
 {
 	m_iRespawnTime = 0;
+	m_strModelName = MAKE_STRING("models/class_menu/random_class_icon.mdl");
+	m_strPickupSound = MAKE_STRING("HealthKit.Touch");
 //	m_iEffectDuration = 0;
 }
 
@@ -44,7 +48,7 @@ CTFBaseDMPowerup::CTFBaseDMPowerup()
 //-----------------------------------------------------------------------------
 void CTFBaseDMPowerup::Precache(void)
 {
-	PrecacheModel(GetPowerupModel());
+	PrecacheModel(GetPowerupModel());	
 	PrecacheScriptSound(GetPickupSound());
 
 	BaseClass::Precache();
@@ -59,6 +63,8 @@ void CTFBaseDMPowerup::Spawn(void)
 	SetModel(GetPowerupModel());
 
 	BaseClass::Spawn();
+
+	AddEffects( EF_ITEM_BLINK );
 }
 
 //-----------------------------------------------------------------------------

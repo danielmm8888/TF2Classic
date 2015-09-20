@@ -1,0 +1,16 @@
+cp_gravelpit
+cp_dustbowl
+cp_granary
+cp_well
+ctf_2fort
+tc_hydro
+ctf_well
+cp_badlands
+cp_hydro
+cp_furnace_rc
+ctf_landfall_rc
+cp_tidal_v4
+cp_amaranth_rc2
+cp_powerhouse
+ctf_turbine
+cp_gorge

@@ -82,6 +82,7 @@ public:
 
 	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
 
+	virtual CBaseEntity		*GetEnemy( void )			{ return m_hEnemy; }
 
 private:
 
@@ -89,6 +90,8 @@ private:
 	bool		m_bFizzle;
 
 	float		m_flMinSleepTime;
+
+	CHandle<CBaseEntity>	m_hEnemy;
 #endif
 };
 #endif // TF_WEAPON_GRENADE_PIPEBOMB_H

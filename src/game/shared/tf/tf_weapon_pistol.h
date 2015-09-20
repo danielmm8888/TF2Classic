@@ -14,7 +14,6 @@
 #ifdef CLIENT_DLL
 #define CTFPistol C_TFPistol
 #define CTFPistol_Scout C_TFPistol_Scout
-#define CTFPistol_DM C_TFPistol_DM
 #define CTFSixShooter C_TFSixShooter
 #endif
 
@@ -59,17 +58,6 @@ public:
 	DECLARE_PREDICTABLE();
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_PISTOL_SCOUT; }
-};
-
-// Scout specific version
-class CTFPistol_DM : public CTFPistol
-{
-public:
-	DECLARE_CLASS(CTFPistol_DM, CTFPistol);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_PISTOL_DM; }
 };
 
 class CTFSixShooter : public CTFPistol

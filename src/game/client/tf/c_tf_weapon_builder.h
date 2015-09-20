@@ -60,6 +60,8 @@ public:
 	virtual bool CanBeSelected( void );
 	virtual bool VisibleInWeaponSelection( void );
 
+	virtual void UpdateViewModel( void );
+
 	virtual bool HasAmmo( void );
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_BUILDER; }
@@ -74,6 +76,7 @@ public:
 	// Builder Data
 	int			m_iBuildState;
 	unsigned int m_iObjectType;
+	unsigned int m_iObjectMode;
 	float		m_flStartTime;
 	float		m_flTotalTime;
 

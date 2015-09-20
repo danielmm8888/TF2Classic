@@ -14,6 +14,23 @@
 		"enabled"			"1"
 	}	
 	
+	"BackgroundImage"
+	{
+		"ControlName"		"ImagePanel"
+		"fieldName"			"BackgroundImage"
+		"xpos"				"-2"
+		"ypos"				"-2"
+		"zpos"				"-2"
+		"wide"				"f-4"
+		"tall"				"f-4"
+		"autoResize"		"0"
+		"pinCorner"			"0"
+		"scaleimage"		"1"
+		"border"			"AdvRoundedButtonArmed"
+		"visible"			"1"
+		"enabled"			"1"
+	}
+	
 	"ClassLabel"
 	{
 		"ControlName"	"CExLabel"
@@ -32,36 +49,6 @@
 		"enabled"		"1"
 	}
 	
-	"TopLine"
-	{
-		"ControlName"	"ImagePanel"
-		"fieldName"		"TopLine"
-		"xpos"			"c-305"
-		"ypos"			"180"
-		"zpos"			"2"
-		"wide"			"610"
-		"tall"			"10"
-		"visible"		"1"
-		"enabled"		"1"
-		"image"			"loadout_dotted_line"
-		"tileImage"		"1"
-		"tileVertically" "0"
-	}				
-	"BottomLine"
-	{
-		"ControlName"	"ImagePanel"
-		"fieldName"		"BottomLine"
-		"xpos"			"c-305"
-		"ypos"			"440"
-		"zpos"			"2"
-		"wide"			"610"
-		"tall"			"10"
-		"visible"		"1"
-		"enabled"		"1"
-		"image"			"loadout_dotted_line"
-		"tileImage"		"1"
-		"tileVertically" "0"
-	}				
 	
 	"CharacterLoadout"
 	{
@@ -103,17 +90,17 @@
 		"ControlName"	"CTFAdvModelPanel"
 		"fieldName"		"classmodelpanel"
 		
-		"xpos"			"c-300"
-		"ypos"			"140"
+		"xpos"			"c-320"
+		"ypos"			"c-90"
 		"zpos"			"0"		
-		"wide"			"200"
-		"tall"			"340"
+		"wide"			"250"
+		"tall"			"280"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
 
-		"fov"			"23"
+		"fov"			"25"
 		"allow_rot"		"1"
 				
 		"model"
@@ -136,7 +123,7 @@
 			
 			"attached_model"
 			{
-				"modelname" "models/weapons/w_models/w_rocketlauncher.mdl"
+				"modelname" "models/weapons/w_models/w_flamethrower.mdl"
 				"skin"	"0"
 			}
 			
@@ -158,13 +145,60 @@
 			}
 			"animation"
 			{
-				"name"		"BUILDING"
-				"activity"	"ACT_MP_STAND_BUILDING"
-			}
-			"animation"
-			{
 				"name"		"PDA"
 				"activity"	"ACT_MP_STAND_PDA"
+			}	
+			"animation"
+			{
+				"name"		"BUILDING"
+				"activity"	"ACT_MP_STAND_BUILDING"
+			}		
+		}
+	}
+	
+	"gamemodelpanel"
+	{
+		"ControlName"	"CModelPanel"
+		"fieldName"		"gamemodelpanel"
+		
+		"xpos"			"c-320"
+		"ypos"			"c-90"
+		"zpos"			"2"		
+		"wide"			"250"
+		"tall"			"280"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
+		"fov"			"28"
+				
+		"model"
+		{
+			"skin"	"0"
+			"angles_x" "0"
+			"angles_y" "175"
+			"angles_z" "0"
+			"origin_x" "190"
+			"origin_y" "0"
+			"origin_z" "-36"
+			"frame_origin_x"	"0"
+			"frame_origin_y"	"0"
+			"frame_origin_z"	"0"
+			"spotlight" "1"
+		
+			"modelname"		"models/player/merc_deathmatch.mdl"
+			
+			"attached_model"
+			{
+				"modelname" "models/weapons/w_models/w_crowbar.mdl"
+				"skin"	"0"
+			}
+			
+			"animation"
+			{
+				"name"		"MELEE"
+				"activity"	"ACT_MP_STAND_MELEE"
+				"default"	"1"
 			}			
 		}
 	}
@@ -173,267 +207,350 @@
 	{
 		"ControlName"	"CTFWeaponSetPanel"
 		"fieldName"		"weaponsetpanel"		
-		"xpos"			"200"
-		"ypos"			"160"
+		"xpos"			"c-70"
+		"ypos"			"c-70"
 		"zpos"			"-1"		
-		"wide"			"850"
-		"tall"			"450"
+		"wide"			"500"
+		"tall"			"280"
 		"autoResize"	"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
+		//"border"		"MainMenuHighlightBorder"
 	}
+
+	"rgbpanel"
+	{
+		"ControlName"	"CTFRGBPanel"
+		"fieldName"		"rgbpanel"		
+		"xpos"			"c-80"
+		"ypos"			"c-70"
+		"zpos"			"-1"		
+		"wide"			"230"
+		"tall"			"280"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"border"		"TFFatLineBorder"
+	}	
 	
 	"BackButton"
 	{
 		"ControlName"	"CTFAdvButton"
 		"fieldName"		"BackButton"
-		"xpos"			"c-305"
-		"ypos"			"r30"
+		"xpos"			"c-245"
+		"ypos"			"r60"
 		"zpos"			"20"
 		"wide"			"100"
 		"tall"			"25"
-		"autoResize"	"0"
-		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"tabPosition"	"0"
-		"labelText"		"Back"
-		"font"			"HudFontSmallBold"
-		"textAlignment"	"center"
-		"textinsetx"	"50"
-		"dulltext"		"0"
-		"brighttext"	"0"
-		"bgvisible"		"0"
-		"bordervisible"	"1"		
-		"Command"		"back"
-		"sound_depressed"	"UI/buttonclick.wav"
-		"sound_released"	"UI/buttonclickrelease.wav"
-	}
+		"command"		"back"		
+		
+		"SubButton"
+		{
+			"labelText" 		"<< Back (&Q)"
+			"textAlignment"		"center"
+			"font"				"TallTextSmall"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}
+	}	
 
-	"scout_blue"
+	"ParticleLabel"
 	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"scout_blue"
-		"xpos"				"100"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
+		"ControlName"		"CExLabel"
+		"fieldName"			"ParticleLabel"
+		"xpos"				"c-280"
+		"ypos"				"115"
+		"zpos"				"5"
+		"wide"				"300"
+		"tall"				"30"
 		"autoResize"		"0"
-		"pinCorner"			"2"
+		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Scout"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_scout_blu"
-		"textAlignment"		"south"
-		"command"			"select_scout"
-	}
-
-	"soldier_blue"
+		"labelText"			"%classname%"
+		"textAlignment"		"west"
+		"font"				"TeamMenuBold"
+		"fgcolor"			"Button.ArmedTextColor"
+	}	
+	
+	"ParticleLabelShadow"
 	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"soldier_blue"
-		"xpos"				"173"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
+		"ControlName"		"CExLabel"
+		"fieldName"			"ParticleLabelShadow"
+		"xpos"				"c-278"
+		"ypos"				"115"
+		"zpos"				"4"
+		"wide"				"300"
+		"tall"				"30"
 		"autoResize"		"0"
-		"pinCorner"			"2"
+		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Soldier"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_soldier_blu"
-		"textAlignment"		"south"
-		"command"			"select_soldier"
-	}
-
-	"pyro_blue"
+		"labelText"			"%classname%"
+		"textAlignment"		"west"
+		"font"				"TeamMenuBold"
+		"fgcolor"			"Black"
+	}	
+	
+	"classselection"
 	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"pyro_blue"
-		"xpos"				"246"
+		"ControlName"		"CAdvTabs"
+		"fieldName"			"classselection"
+		"xpos"				"c-300"
 		"ypos"				"30"
 		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
+		"wide"				"600"
+		"tall"				"63"
 		"visible"			"1"
 		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
 		"bordervisible"		"0"		
-		"labelText"			"Pyro"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_pyro_blu"
-		"textAlignment"		"south"
-		"command"			"select_pyro"
-	}
-
-	"demoman_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"demoman_blue"
-		"xpos"				"319"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Demoman"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_demo_blu"
-		"textAlignment"		"south"
-		"command"			"select_demoman"
-	}
-
-	"heavyweapons_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"heavyweapons_blue"
-		"xpos"				"392"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Heavy"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_heavy_blu"
-		"textAlignment"		"south"
-		"command"			"select_heavyweapons"
-	}
-
-	"engineer_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"engineer_blue"
-		"xpos"				"465"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Engineer"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_engineer_blu"
-		"textAlignment"		"south"
-		"command"			"select_engineer"
-	}
-
-	"medic_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"medic_blue"
-		"xpos"				"538"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Medic"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_medic_blu"
-		"textAlignment"		"south"
-		"command"			"select_medic"
-	}
-
-	"sniper_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"sniper_blue"
-		"xpos"				"611"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Sniper"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_sniper_blu"
-		"textAlignment"		"south"
-		"command"			"select_sniper"
-	}
-
-	"spy_blue"
-	{
-		"ControlName"		"CTFAdvButton"
-		"fieldName"			"spy_blue"
-		"xpos"				"684"
-		"ypos"				"30"
-		"zpos"				"6"
-		"wide"				"70"
-		"tall"				"140"
-		"scaleImage"		"0"	
-		"autoResize"		"0"
-		"pinCorner"			"2"
-		"visible"			"1"
-		"enabled"			"1"
-		"tabPosition"		"0"
-		"bgvisible"			"0"
-		"bordervisible"		"0"		
-		"labelText"			"Spy"
-		"xshift" 			"0"
-		"yshift" 			"-10"
-		"ButtonImage" 		"class_sel_sm_spy_blu"
-		"textAlignment"		"south"
-		"command"			"select_spy"
+		"offset"			"3"
+	
+	
+		"scout_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"scout_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"		
+			"command"			"select_scout"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/scout"	
+			}
+		}
+	
+		"soldier_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"soldier_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"		
+			"command"			"select_soldier"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/soldier"	
+			}
+		}
+	
+		"pyro_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"pyro_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_pyro"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/pyro"	
+			}
+		}
+	
+		"demoman_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"demoman_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_demoman"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/demo"	
+			}
+		}
+	
+		"heavyweapons_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"heavyweapons_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_heavyweapons"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/heavy"	
+			}
+		}
+	
+		"engineer_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"engineer_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_engineer"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/engineer"	
+			}
+		}
+	
+		"medic_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"medic_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_medic"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/medic"	
+			}
+		}
+	
+		"sniper_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"sniper_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_sniper"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/sniper"	
+			}
+		}
+	
+		"spy_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"spy_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_spy"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/spy"	
+			}
+		}
+	
+		"merc_blue"
+		{
+			"ControlName"		"CTFAdvButton"
+			"fieldName"			"merc_blue"
+			"scaleimage"		"0"	
+			"visible"			"1"
+			"enabled"			"1"
+			"bordervisible"		"0"	
+			"command"			"select_merc"
+			
+			"SubButton"
+			{
+				"labelText" 		""
+				"textAlignment"		"south"
+				"font"				"TallTextSmall"
+				"selectedFgColor_override"		"HudProgressBarActive"
+			}
+			
+			"SubImage"
+			{
+				"image" 			"class_icons/allclass"	
+			}
+		}
 	}
 
 	

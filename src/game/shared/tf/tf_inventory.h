@@ -20,7 +20,7 @@
 #include "c_tf_player.h"
 #endif
 
-#define INVENTORY_SLOTS			6
+#define INVENTORY_SLOTS			5
 #define INVENTORY_WEAPONS		5
 #define INVENTORY_WEAPONS_COUNT	500
 #define INVENTORY_COLNUM		5

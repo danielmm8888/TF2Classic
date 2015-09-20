@@ -164,7 +164,7 @@ Color CHudChat::GetClientColor( int clientIndex )
 		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( clientIndex ) );
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-		if (TFGameRules()->IsDeathmatch())
+		if (pPlayer && TFGameRules()->IsDeathmatch())
 		{
 			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
 			return tf_PR->GetPlayerColor(pPlayer->entindex());

@@ -126,7 +126,7 @@
 	//output Team2PlayersChanged(integer) : "Sent when BLUE team player count changes, due to a player joining or leaving the team."
 ]
 
-@PointClass base(Targetname, TeamNum, EnableDisable, Angles) studio("models/editor/playerstart.mdl") = info_player_teamspawn :
+@PointClass base(Targetname, TeamNum, EnableDisable, Angles) studio("models/player/heavy.mdl") = info_player_teamspawn :
 	"This entity marks the spawn point for Team Fortress players."
 [
 	controlpoint(target_destination) : "Associated Control Point" : : "The team_control_point associated with this spawn. Ownership of control points will control this spawn point's enabled state."
@@ -137,7 +137,7 @@
 	round_yellowspawn(target_destination) : "Yellow spawn for round" : : "Yellow spawn point when the associated round is being played."
 ]
 
-@PointClass base(PlayerClass, Angles) studio("models/editor/playerstart.mdl") = info_player_deathmatch :
+@PointClass base(PlayerClass, Angles) studio("models/player/merc_deathmatch.mdl") = info_player_deathmatch :
 	"This entity indicates the position and facing direction at which the player will spawn during a deathmatch map. Any number of "+
 	"info_player_deathmatch entities may be placed in a map."
 [
@@ -162,8 +162,22 @@
 	flag_model(string) : "Model" : "models/flag/briefcase.mdl" : "The model to be used for this entity."
 	flag_icon(string) : "Icon" : "../hud/objectives_flagpanel_carried" : "The icons used for the HUD in some game modes. Format: materials/vgui/[materialname]_red and materials/vgui/[materialname]_blue"
 	flag_paper(string) : "Paper Particle" : "player_intel_papertrail" : "Particle effect used for the falling paper trail."
-	//flag_trail(string) : "Trail Effect" : "flagtrail" : "Materials used for the trail effect. Format: materials/effects/[materialname]_red and materials/effects/[materialname]_blu"
+	flag_trail(string) : "Trail Effect" : "flagtrail" : "Materials used for the trail effect. Format: materials/effects/[materialname]_red and materials/effects/[materialname]_blu"
 
+	trail_effect(choices) : "Use Trail Effect" : 1 : "Use trail effect when the player is carrying the flag." =
+	[
+		0 : "None"
+		1 : "All Effects"
+		2 : "Paper Trail Only"
+		3 : "Color Trail Only"
+	]
+	
+	VisibleWhenDisabled(choices) : "Visible When Disabled" : 0 : "Flag appears semitransparent when disabled." =
+	[
+		0 : "No"
+		1 : "Yes"
+	] 
+	
 	// Outputs
 	output OnReturn(void)  : "Sent when the flag is returned via timer."
 	output OnPickup(void)  : "Sent when the flag is picked up."
@@ -310,7 +324,7 @@
 @PointClass base(Item) studio("models/items/medkit_large.mdl") = item_healthkit_full : "Health Kit Full" []
 @PointClass base(Item) studio("models/items/medkit_small.mdl") = item_healthkit_small :	"Health Kit Small" []
 @PointClass base(Item) studio("models/items/medkit_medium.mdl") = item_healthkit_medium : "Health Kit Medium" []
-@PointClass base(Item) studio("models/items/medkit_small.mdl") = item_healthkit_tiny :	"Health Kit Tiny" []
+@PointClass base(Item) studio("models/items/medkit_overheal.mdl") = item_healthkit_tiny :	"Health Kit Tiny" []
 
 @PointClass base(Item) studio("models/items/ammopack_large.mdl") = item_ammopack_full :	"Ammo Pack Full" []
 @PointClass base(Item) studio("models/items/ammopack_small.mdl") = item_ammopack_small : "Ammo Pack Small" []
@@ -449,9 +463,16 @@
 		1: "Hide Control Point on HUD" : 0
 		2: "Start with model hidden" : 0
 		4: "Disable shadow" : 0
+		8: "Disable sounds" : 0
 	]
 
-	point_printname(string) : "Print Name" : "TODO: Set Name" : "LOCALIZED name to print on the HUD."
+	point_start_locked(choices) : "Start locked" : 0 : "Locked means the point will not be available for capture until it is unlocked via its input."  =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	
+	point_printname(string) : "Print Name" : "TODO: Set Name" : "LOCALIZED name to print on the HUD." 
 	point_group(integer) : "Group Index" : 0 : "Used for grouping points together under a team_control_point_master (not using control point rounds)."
 	point_default_owner(choices) : "Default Owner" : 0 : "Default Owner of the control point."  =
 	[
@@ -463,14 +484,15 @@
 	]
 	point_index(integer) : "Index" : 0 : "Index of this point (must be unique)."
 
-	point_warn_on_cap(choices) : "Warn on capture" : 0 : "Warn the team that owns the control point when the opposing team starts to capture it."  =
+	point_warn_on_cap(choices) : "Warning Type" : 0 : "Type of warning to issue to the team that owns the control point when the opposing team starts to capture it."  =
 	[
-		0 : "No"
-		1 : "Yes"
+		0 : "Normal Announcements"
+		1 : "Final Capture Point Warning"
+		2 : "No Announcements"
 	]
 
-	point_warn_sound(string) : "Warning sound" : "ControlPoint.CaptureWarn" : "Sound to be played when this point is being captured (if warn on capture is set)."
-
+	point_warn_sound(string) : "Warning sound" : "ControlPoint.CaptureWarn" : "Sound to be played when this point is being captured (if warn on capture is set)." 
+	
 	random_owner_on_restart(choices) : "Randomly set the owner on restart" : 0 : "Randomly set the owner of this point during a full restart of the map. The ratio of default owners among the points with this flag will be kept when selecting random owners."  =
 	[
 		0 : "No"
@@ -483,13 +505,11 @@
 	team_timedpoints_4(integer) : "Time-based point value for GREEN." : 0
 	team_timedpoints_5(integer) : "Time-based point value for YELLOW." : 0
 
-
 	team_capsound_0(sound) : "Reset Sound" : "" : "Sound made when point resets."
 	team_capsound_2(sound) : "Red Capture Sound" : "" : "Sound made when RED captures."
 	team_capsound_3(sound) : "Blue Capture Sound" : "" : "Sound made when BLUE captures."
 	team_capsound_4(sound) : "Green Capture Sound" : "" : "Sound made when GREEN captures."
 	team_capsound_5(sound) : "Yellow Capture Sound" : "" : "Sound made when YELLOW captures."
-
 
 	team_model_0(studio) 	: "Reset Model" : "models/effects/cappoint_hologram.mdl" : "Model when point reset."
 	team_model_2(studio) 	: "RED Model" : "models/effects/cappoint_hologram.mdl" : "Model when RED owns the point."
@@ -497,13 +517,11 @@
 	team_model_4(studio) 	: "GREEN Model" : "models/effects/cappoint_hologram.mdl" : "Model when GREEN owns the point."
 	team_model_5(studio) 	: "YELLOW Model" : "models/effects/cappoint_hologram.mdl" : "Model when YELLOW owns the point."
 
-
 	team_bodygroup_0(integer) : "Reset model bodygroup" : 3
 	team_bodygroup_2(integer) : "RED model bodygroup" : 1
 	team_bodygroup_3(integer) : "BLUE model bodygroup" : 1
 	team_bodygroup_4(integer) : "GREEN model bodygroup" : 1
 	team_bodygroup_5(integer) : "YELLOW model bodygroup" : 1
-
 
 	team_icon_0(material)	: "HUD icon neutral" : "sprites/obj_icons/icon_obj_neutral" : "HUD icon material when no one owns the point."
 	team_icon_2(material)	: "HUD icon RED" : "sprites/obj_icons/icon_obj_red" : "HUD icon material when RED owns the point."
@@ -511,13 +529,11 @@
 	team_icon_4(material)	: "HUD icon GREEN" : "sprites/obj_icons/icon_obj_grn" : "HUD icon material when GREEN owns the point."
 	team_icon_5(material)	: "HUD icon YELLOW" : "sprites/obj_icons/icon_obj_ylw" : "HUD icon material when YELLOW owns the point."
 
-
 	team_overlay_0(material) : "HUD overlay neutral" : "" : "HUD material that will overlay the icon when no one owns the point."
 	team_overlay_2(material) : "HUD overlay RED" : "" : "HUD material that will overlay the icon when RED owns the point."
 	team_overlay_3(material) : "HUD overlay BLUE" : "" : "HUD material that will overlay the icon when BLUE owns the point."
 	team_overlay_4(material) : "HUD overlay GREEN" : "" : "HUD material that will overlay the icon when GREEN owns the point."
 	team_overlay_5(material) : "HUD overlay YELLOW" : "" : "HUD material that will overlay the icon when YELLOW owns the point."
-
 
  	team_previouspoint_2_0(target_source) : "RED Previous Required Point 1" : "" : "The name of a previous capture point that RED must own to be able to capture this point. If empty, the team must own all points preceding this one."
 	team_previouspoint_2_1(target_source) : "RED Previous Required Point 2" : "" : "The name of a second previous capture point that RED must own to be able to capture this point."
@@ -531,8 +547,6 @@
 	team_previouspoint_5_0(target_source) : "YELLOW Previous Required Point 1" : "" : "The name of a previous capture point that YELLOW must own to be able to capture this point. If empty, the team must own all points preceding this one."
 	team_previouspoint_5_1(target_source) : "YELLOW Previous Required Point 2" : "" : "The name of a second previous capture point that YELLOW must own to be able to capture this point."
 	team_previouspoint_5_2(target_source) : "YELLOW Previous Required Point 3" : "" : "The name of a third previous capture point that YELLOW must own to be able to capture this point."
-
-
 
 	// Outputs
 	output OnOwnerChangedToTeam1(void) : "Sent when owner is changed to RED."
@@ -552,6 +566,8 @@
 	output OnCapTeam3(void) : "Sent when GREEN capture this point."
 	output OnCapTeam4(void) : "Sent when YELLOW capture this point."
 
+	output OnUnlocked(void) : "Sent when point is unlocked via the SetLocked(0) or SetUnlockTime inputs."
+	
 	input SetOwner(integer) : "Set the owner of the point."
 	input HideModel(void) : "Hide the control point model."
 	input ShowModel(void) : "Show the control point model again."
@@ -572,6 +588,7 @@
 	cpr_restrict_team_cap_win(choices) : "Restrict team from winning" : 0 : "Prevent this team from winning by capping all the points" =
 	[
 		0 : "Neither"
+		1 : "Both"
 		2 : "Red"
 		3 : "Blue"
 		4 : "Green"
@@ -593,10 +610,13 @@
 	team_base_icon_4(material) : "Material for the GREEN Base icon" : "sprites/obj_icons/icon_base_grn"
 	team_base_icon_5(material) : "Material for the YELLOW Base icon" : "sprites/obj_icons/icon_base_ylw"
 	caplayout(string) : "Cap Layout" : "" : "A string that tells the HUD how to lay out the cap points. It should be a string with indexes of cap points seperated by commas to denote a new line. So <2,0 1> would create a pyramid, with cap point 2 on the top and cap points 0 & 1 on the bottom."
-
+	custom_position_x(float) : "Custom cap position X" : -1 : "Set the cap layout custom X position [0,1]"
+	custom_position_y(float) : "Custom cap position Y" : -1 : "Set the cap layout custom Y position [0,1]"
+	
 	cpm_restrict_team_cap_win(choices) : "Restrict team from winning" : 0 : "Prevent this team from winning by capping all the points. This field is ignored if you're using control_point_rounds in your map (set this field inside the rounds)." =
 	[
 		0 : "Neither"
+		1 : "Both"
 		2 : "Red"
 		3 : "Blue"
 		4 : "Green"
@@ -609,6 +629,20 @@
 		1 : "Yes"
 	]
 
+	score_style(choices) : "Scoring style" : 0 : "Sets the style of scoring used for capture point maps." = 
+	[
+		0 : "Add team score for each round won"
+		1 : "Add team score for each captured point"
+	]
+	
+	play_all_rounds(choices) : "Play all rounds before changelevel" : 0 : "Determines whether the server may changelevel when mp_timelimit is up before all mini-rounds have been completed (for maps like Dustbowl)." = 
+	[
+		0 : "Changelevel normally"
+		1 : "Only changelevel after all mini-rounds have been played to completion"
+	]	
+	
+	partial_cap_points_rate(float) : "Partial cap rate" : 0 : "Rate at which to give partial cap points for area captures."
+	
 	output OnWonByTeam1(void) : "Sent when RED wins the game."
 	output OnWonByTeam2(void) : "Sent when BLUE wins the game."
 	output OnWonByTeam3(void) : "Sent when GREEN wins the game."
@@ -616,6 +650,8 @@
 
 	input SetWinner(integer) : "Set the winner of the round to this team (0 for a stalemate)."
 	input SetCapLayout(string) : "Set the cap layout string."
+	input SetCapLayoutCustomPositionX(float) : "Set the cap layout custom X position [0,1]"
+	input SetCapLayoutCustomPositionY(float) : "Set the cap layout custom Y position [0,1]"
 ]
 
 @SolidClass base(Targetname, EnableDisable, Parentname) = trigger_capture_area : "Capture Area"
@@ -718,18 +754,18 @@
 [
 	WeaponNumber(Choices) : "Weapon" : 0 =
 	[
-		65 : "Shotgun ( Primary )"
-		66 : "Scattergun ( Primary )"
-		67 : "Flamethrower ( Primary )"
-		70 : "Sniper rifle ( Primary )"
-		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
-		75 : "Double barrel shotgun ( Primary )"
-		21 : "Rocket launcher ( Primary )"
+		15 : "Scattergun ( Primary )"
+		16 : "Sniper rifle ( Primary )"
 		17 : "Minigun ( Primary )"
-		68 : "Pistol ( Secondary )"
-		69 : "SMG ( Secondary )"
-		76 : "Six Shooter ( Secondary )"
+		21 : "Rocket launcher ( Primary )"
+		22 : "Pipebomb launcher ( Primary )"
+		24 : "Flamethrower ( Primary )"
+		67 : "Sten Gun ( Primary )"
+		68 : "Double barrel shotgun ( Primary )"
+		12 : "Shotgun ( Secondary )"
+		18 : "SMG ( Secondary )"
+		37 : "Pistol ( Secondary )"
+		69 : "Six Shooter ( Secondary )"
 		5 : "Crowbar ( Melee )"
 	]
 	
@@ -753,17 +789,17 @@
 	weapon1(Choices) : "Weapon 1" : 0 =
 	[
 		0 : "-none-"
-		65 : "Shotgun ( Primary )"
-		66 : "Scattergun ( Primary )"
-		67 : "Flamethrower ( Primary )"
-		70 : "Sniper rifle ( Primary )"
-		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
-		75 : "Double barrel shotgun ( Primary )"
-		21 : "Rocket launcher ( Primary )"
+		15 : "Scattergun ( Primary )"
+		16 : "Sniper rifle ( Primary )"
 		17 : "Minigun ( Primary )"
-		68 : "Pistol ( Secondary )"
-		69 : "SMG ( Secondary )"
+		21 : "Rocket launcher ( Primary )"
+		22 : "Pipebomb launcher ( Primary )"
+		24 : "Flamethrower ( Primary )"
+		74 : "Sten Gun ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		12 : "Shotgun ( Secondary )"
+		18 : "SMG ( Secondary )"
+		37 : "Pistol ( Secondary )"
 		76 : "Six Shooter ( Secondary )"
 		5 : "Crowbar ( Melee )"
 	]
@@ -771,17 +807,17 @@
 	weapon2(Choices) : "Weapon 2" : 0 =
 	[
 		0 : "-none-"
-		65 : "Shotgun ( Primary )"
-		66 : "Scattergun ( Primary )"
-		67 : "Flamethrower ( Primary )"
-		70 : "Sniper rifle ( Primary )"
-		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
-		75 : "Double barrel shotgun ( Primary )"
-		21 : "Rocket launcher ( Primary )"
+		15 : "Scattergun ( Primary )"
+		16 : "Sniper rifle ( Primary )"
 		17 : "Minigun ( Primary )"
-		68 : "Pistol ( Secondary )"
-		69 : "SMG ( Secondary )"
+		21 : "Rocket launcher ( Primary )"
+		22 : "Pipebomb launcher ( Primary )"
+		24 : "Flamethrower ( Primary )"
+		74 : "Sten Gun ( Primary )"
+		75 : "Double barrel shotgun ( Primary )"
+		12 : "Shotgun ( Secondary )"
+		18 : "SMG ( Secondary )"
+		37 : "Pistol ( Secondary )"
 		76 : "Six Shooter ( Secondary )"
 		5 : "Crowbar ( Melee )"
 	]
@@ -794,43 +830,7 @@
 		67 : "Flamethrower ( Primary )"
 		70 : "Sniper rifle ( Primary )"
 		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
-		75 : "Double barrel shotgun ( Primary )"
-		21 : "Rocket launcher ( Primary )"
-		17 : "Minigun ( Primary )"
-		68 : "Pistol ( Secondary )"
-		69 : "SMG ( Secondary )"
-		76 : "Six Shooter ( Secondary )"
-		5 : "Crowbar ( Melee )"
-	]
-
-	weapon4(Choices) : "Weapon 4" : 0 =
-	[
-		0 : "-none-"
-		65 : "Shotgun ( Primary )"
-		66 : "Scattergun ( Primary )"
-		67 : "Flamethrower ( Primary )"
-		70 : "Sniper rifle ( Primary )"
-		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
-		75 : "Double barrel shotgun ( Primary )"
-		21 : "Rocket launcher ( Primary )"
-		17 : "Minigun ( Primary )"
-		68 : "Pistol ( Secondary )"
-		69 : "SMG ( Secondary )"
-		76 : "Six Shooter ( Secondary )"
-		5 : "Crowbar ( Melee )"
-	]
-
-	weapon5(Choices) : "Weapon 5" : 0 =
-	[
-		0 : "-none-"
-		65 : "Shotgun ( Primary )"
-		66 : "Scattergun ( Primary )"
-		67 : "Flamethrower ( Primary )"
-		70 : "Sniper rifle ( Primary )"
-		71 : "Pipebomb launcher ( Primary )"
-		74 : "Assault rifle ( Primary )"
+		74 : "Sten Gun ( Primary )"
 		75 : "Double barrel shotgun ( Primary )"
 		21 : "Rocket launcher ( Primary )"
 		17 : "Minigun ( Primary )"
@@ -844,7 +844,16 @@
 	//input EquipWeapons(void) : "Equips all of the players on the current server with the specified weapons."
 ]
 
-@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_critdamage : "CritDamage" 
+@PointClass base(Item) studio("models/items/powerup_crit.mdl") = item_powerup_critdamage : "Powerup Crit" 
 [
+	ModelName(string)    : "Model override" : "models/items/powerup_crit.mdl"
+	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
+]
+
+@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_shortuber : "Powerup uber" 
+[
+	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
+	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]

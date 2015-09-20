@@ -42,12 +42,6 @@ static ConVar c_mindistance( "c_mindistance",   "30", FCVAR_ARCHIVE| FCVAR_CHEAT
 static ConVar c_orthowidth( "c_orthowidth",   "100", FCVAR_ARCHIVE| FCVAR_CHEAT );
 static ConVar c_orthoheight( "c_orthoheight",   "100", FCVAR_ARCHIVE | FCVAR_CHEAT );
 
-static ConVar c_thirdpersonshoulder("c_thirdpersonshoulder", "false", FCVAR_ARCHIVE); // flag to indicate when we are using thirdperson-shoulder
-static ConVar c_thirdpersonshoulderoffset("c_thirdpersonshoulderoffset", "20.0", FCVAR_ARCHIVE); // camera right offset for thirdperson-shoulder
-static ConVar c_thirdpersonshoulderdist("c_thirdpersonshoulderdist", "40.0", FCVAR_ARCHIVE); // camera distance from the player when in thirdperson-shoulder
-static ConVar c_thirdpersonshoulderheight("c_thirdpersonshoulderheight", "5.0", FCVAR_ARCHIVE); // camera height above the player
-static ConVar c_thirdpersonshoulderaimdist("c_thirdpersonshoulderaimdist", "120.0", FCVAR_ARCHIVE); // the distance in front of the player to focus the camera
-
 static kbutton_t cam_pitchup, cam_pitchdown, cam_yawleft, cam_yawright;
 static kbutton_t cam_in, cam_out; // -- "cam_move" is unused
 
@@ -66,6 +60,7 @@ void CAM_ToThirdPerson(void)
 {
 	if ( cl_thirdperson.GetBool() == false )
 	{
+		g_ThirdPersonManager.SetDesiredCameraOffset( Vector( cam_idealdist.GetFloat(), cam_idealdistright.GetFloat(), cam_idealdistup.GetFloat() ) );
 		g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	}
 
@@ -77,11 +72,6 @@ void CAM_ToThirdPerson(void)
 	{
 		localPlayer->ThirdPersonSwitch( true );
 	}
-}
-
-void CAM_ToThirdPersonShoulder(void)
-{
-	input->CAM_ToThirdPersonShoulder();
 }
 
 /*
@@ -699,22 +689,6 @@ void CInput::CAM_ToThirdPerson(void)
 	cam_command.SetValue( 0 );
 }
 
-void CInput::CAM_ToThirdPersonShoulder(void)
-{
-	if (c_thirdpersonshoulder.GetBool())
-	{
-		cam_command.SetValue(2);
-		c_thirdpersonshoulder.SetValue(false);
-		cam_idealdist.SetValue(cam_idealdist.GetDefault());
-	}
-	else
-	{
-		cam_command.SetValue(1);
-		c_thirdpersonshoulder.SetValue(true);
-		cam_idealdist.SetValue(c_thirdpersonshoulderdist.GetFloat());
-	}
-}
-
 /*
 ==============================
 CAM_ToFirstPerson
@@ -932,10 +906,9 @@ static ConCommand endcamin( "-camin", CAM_InUp );
 static ConCommand startcamout( "+camout", CAM_OutDown );
 static ConCommand camout( "-camout", CAM_OutUp );
 static ConCommand thirdperson_mayamode( "thirdperson_mayamode", ::CAM_ToThirdPerson_MayaMode, "Switch to thirdperson Maya-like camera controls.", FCVAR_CHEAT );
-static ConCommand thirdpersonshoulder("thirdpersonshoulder", ::CAM_ToThirdPersonShoulder, "Switch to thirdperson-shoulder camera.");
 
 // TF allows servers to push people into first/thirdperson, for mods
-#if defined(TF_CLIENT_DLL) || defined(TF_CLASSIC_CLIENT)
+#if defined( TF_CLIENT_DLL ) || defined ( TF_CLASSIC_CLIENT )
 static ConCommand thirdperson( "thirdperson", ::CAM_ToThirdPerson, "Switch to thirdperson camera.", FCVAR_CHEAT | FCVAR_SERVER_CAN_EXECUTE );
 static ConCommand firstperson( "firstperson", ::CAM_ToFirstPerson, "Switch to firstperson camera.", FCVAR_SERVER_CAN_EXECUTE );
 #else

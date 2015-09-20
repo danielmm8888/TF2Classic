@@ -68,8 +68,8 @@ static char* pszHoverupSound[TF_CLASS_MENU_BUTTONS] =
 	"music.class_menu_07",
 	"music.class_menu_08",
 	"music.class_menu_09",
-	0,
-	0,
+	"music.class_menu_09",
+	"music.class_menu_09",
 	"music.class_menu_69"
 };
 
@@ -424,13 +424,16 @@ void CTFClassMenu::OnShowPage( const char *pagename )
 		{
 			int iClass = iRemapIndexToClass[GetChildCount() - TF_CLASS_COUNT_ALL - i - 1];
 			CLocalPlayerFilter filter;
-			if (button == g_lastButton)
+			if (iClass < sizeof(pszHoverupSound))
 			{
-				C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
-			}
-			else 
-			{
-				C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
+				if (button == g_lastButton)
+				{
+					C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
+				}
+				else
+				{
+					C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
+				}
 			}
 		}
 	}

@@ -19,7 +19,6 @@
 
 #define TF_HEALTHKIT_MODEL			"models/items/healthkit.mdl"
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
-#define TF_HEALTHKIT_TINY_SOUND		"HealthKit.Touch" // TODO unique short sound
 
 extern ConVar tf_max_health_boost;
 
@@ -51,6 +50,8 @@ void CHealthKit::Precache( void )
 {
 	PrecacheModel( GetPowerupModel() );
 	PrecacheScriptSound( TF_HEALTHKIT_PICKUP_SOUND );
+	PrecacheScriptSound( "OverhealPillRattle.Touch" );
+	PrecacheScriptSound( "OverhealPillNoRattle.Touch" );
 }
 
 //-----------------------------------------------------------------------------
@@ -75,7 +76,14 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 					WRITE_STRING(GetClassname());
 					MessageEnd();
 
-					EmitSound(user, entindex(), TF_HEALTHKIT_TINY_SOUND);
+					if (pPlayer->GetHealth() > pPlayer->GetMaxHealth())
+					{
+						EmitSound( user, entindex(), "OverhealPillRattle.Touch" );
+					}
+					else
+					{
+						EmitSound(user, entindex(), "OverhealPillNoRattle.Touch");
+					}
 
 					bSuccess = true;
 				}

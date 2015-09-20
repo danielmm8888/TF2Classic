@@ -17,6 +17,7 @@
 #include "tf_hud_deathmatchstatus.h"
 #include "hud_controlpointicons.h"
 #include "GameEventListener.h"
+#include "c_tf_player.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

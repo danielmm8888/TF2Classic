@@ -194,18 +194,12 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_UMBRELLA",
 	"TF_WEAPON_KRITZKRIEG",
 	"TF_WEAPON_UBERSAW",
-	"TF_WEAPON_SHOTGUN_DM",
-	"TF_WEAPON_SCATTERGUN_DM",
-	"TF_WEAPON_FLAMETHROWER_DM",
-	"TF_WEAPON_PISTOL_DM",
-	"TF_WEAPON_SMG_DM",
-	"TF_WEAPON_SNIPERRIFLE_DM",
-	"TF_WEAPON_GRENADELAUNCHER_DM",
 	"TF_WEAPON_FLAREGUN",
-	"TF_WEAPON_GRENADE_FLARE",
-	"TF_WEAPON_ASSAULTRIFLE",
+	"TF_WEAPON_GRENADE_FLARE",	
+	"TF_WEAPON_STENGUN",
 	"TF_WEAPON_DOUBLEBARREL",
 	"TF_WEAPON_SIXSHOOTER",
+	"TF_WEAPON_CHAINSAW",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -272,23 +266,17 @@ int g_aWeaponDamageTypes[] =
 	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
 	DMG_BULLET,		// TF_WEAPON_OVERHEALER,
 	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC
-	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE
-	DMG_CLUB, // TF_WEAPON_UMBRELLA
-	DMG_BULLET,		// TF_WEAPON_KRITZ
-	DMG_SLASH,		// TF_WEAPON_UBERSAW
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_DM
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,  // TF_WEAPON_SCATTERGUN_DM
-	DMG_IGNITE | DMG_PREVENT_PHYSICS_FORCE | DMG_PREVENT_PHYSICS_FORCE,		// TF_WEAPON_FLAMETHROWER_DM
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_PISTOL_DM
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_DM
-	DMG_BULLET | DMG_USE_HITLOCATIONS,	// TF_WEAPON_SNIPERRIFLE_DM
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_GRENADELAUNCHER_DM
-	DMG_IGNITE | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_FLAREGUN
+	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC,
+	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE,
+	DMG_CLUB, // TF_WEAPON_UMBRELLA,
+	DMG_BULLET,		// TF_WEAPON_KRITZ,
+	DMG_SLASH,		// TF_WEAPON_UBERSAW,
+	DMG_IGNITE | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_FLAREGUN,
 	DMG_IGNITE | DMG_HALF_FALLOFF,		// TF_WEAPON_GRENADE_FLARE,
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_ASSAULTRIFLE
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_DOUBLEBARREL
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SIXSHOOTER
+	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_STENGUN,
+	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_DOUBLEBARREL,
+	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SIXSHOOTER,
+	DMG_SLASH,		// TF_WEAPON_CHAINSAW,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
@@ -472,6 +460,7 @@ CObjectInfo::CObjectInfo( char *pObjectName )
 	m_Cost = -9999;
 	m_CostMultiplierPerInstance = -999;
 	m_UpgradeCost = -9999;
+	m_flUpgradeDuration = -9999;
 	m_MaxUpgradeLevel = -9999;
 	m_pBuilderWeaponName = NULL;
 	m_pBuilderPlacementString = NULL;
@@ -480,6 +469,7 @@ CObjectInfo::CObjectInfo( char *pObjectName )
 	m_bSolidToPlayerMovement = false;
 	m_pIconActive = NULL;
 	m_pIconInactive = NULL;
+	m_pIconMenu = NULL;
 	m_pViewModel = NULL;
 	m_pPlayerModel = NULL;
 	m_iDisplayPriority = 0;
@@ -487,6 +477,7 @@ CObjectInfo::CObjectInfo( char *pObjectName )
 	m_pExplodeSound = NULL;
 	m_pExplosionParticleEffect = NULL;
 	m_bAutoSwitchTo = false;
+	m_pUpgradeSound = NULL;
 }
 
 
@@ -498,17 +489,18 @@ CObjectInfo::~CObjectInfo()
 	delete [] m_pBuilderPlacementString;
 	delete [] m_pIconActive;
 	delete [] m_pIconInactive;
+	delete [] m_pIconMenu;
 	delete [] m_pViewModel;
 	delete [] m_pPlayerModel;
 	delete [] m_pExplodeSound;
 	delete [] m_pExplosionParticleEffect;
+	delete [] m_pUpgradeSound;
 }
 
 CObjectInfo g_ObjectInfos[OBJ_LAST] =
 {
 	CObjectInfo( "OBJ_DISPENSER" ),
-	CObjectInfo( "OBJ_TELEPORTER_ENTRANCE" ),
-	CObjectInfo( "OBJ_TELEPORTER_EXIT" ),
+	CObjectInfo( "OBJ_TELEPORTER" ),
 	CObjectInfo( "OBJ_SENTRYGUN" ),
 	CObjectInfo( "OBJ_ATTACHMENT_SAPPER" ),
 };
@@ -566,8 +558,10 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 			(pInfo->m_Cost = pSub->GetInt( "Cost", -999 )) == -999 ||
 			(pInfo->m_CostMultiplierPerInstance = pSub->GetFloat( "CostMultiplier", -999 )) == -999 ||
 			(pInfo->m_UpgradeCost = pSub->GetInt( "UpgradeCost", -999 )) == -999 ||
+			(pInfo->m_flUpgradeDuration = pSub->GetInt( "UpgradeDuration", -999)) == -999 ||
 			(pInfo->m_MaxUpgradeLevel = pSub->GetInt( "MaxUpgradeLevel", -999 )) == -999 ||
 			(pInfo->m_SelectionSlot = pSub->GetInt( "SelectionSlot", -999 )) == -999 ||
+			(pInfo->m_BuildCount = pSub->GetInt( "BuildCount", -999 )) == -999 ||
 			(pInfo->m_SelectionPosition = pSub->GetInt( "SelectionPosition", -999 )) == -999 )
 		{
 			Error( "Missing data for object '%s' in %s.", pInfo->m_pObjectName, pFilename );
@@ -582,16 +576,38 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 		pInfo->m_bSolidToPlayerMovement = pSub->GetInt( "SolidToPlayerMovement", 0 ) ? true : false;
 		pInfo->m_pIconActive = ReadAndAllocStringValue( pSub, "IconActive", pFilename );
 		pInfo->m_pIconInactive = ReadAndAllocStringValue( pSub, "IconInactive", pFilename );
+		pInfo->m_pIconMenu = ReadAndAllocStringValue( pSub, "IconMenu", pFilename );
+		pInfo->m_bUseItemInfo = pSub->GetInt( "UseItemInfo", 0 ) ? true : false;
 		pInfo->m_pViewModel = ReadAndAllocStringValue( pSub, "Viewmodel", pFilename );
 		pInfo->m_pPlayerModel = ReadAndAllocStringValue( pSub, "Playermodel", pFilename );
 		pInfo->m_iDisplayPriority = pSub->GetInt( "DisplayPriority", 0 );
 		pInfo->m_pHudStatusIcon = ReadAndAllocStringValue( pSub, "HudStatusIcon", pFilename );
 		pInfo->m_bVisibleInWeaponSelection = ( pSub->GetInt( "VisibleInWeaponSelection", 1 ) > 0 );
 		pInfo->m_pExplodeSound = ReadAndAllocStringValue( pSub, "ExplodeSound", pFilename );
+		pInfo->m_pUpgradeSound = ReadAndAllocStringValue( pSub, "UpgradeSound", pFilename );
 		pInfo->m_pExplosionParticleEffect = ReadAndAllocStringValue( pSub, "ExplodeEffect", pFilename );
 		pInfo->m_bAutoSwitchTo = ( pSub->GetInt( "autoswitchto", 0 ) > 0 );
 
 		pInfo->m_iMetalToDropInGibs = pSub->GetInt( "MetalToDropInGibs", 0 );
+		pInfo->m_bRequiresOwnBuilder = pSub->GetBool( "RequiresOwnBuilder", 0 );
+		// PistonMiner: Added Object Mode key
+		KeyValues *pAltModes = pSub->FindKey("AltModes");
+		if (pAltModes)
+		{
+			for (int i = 0; i < 4; ++i) // load at most 4 object modes
+			{
+				char altModeBuffer[256]; // Max size of 0x100
+				V_snprintf(altModeBuffer, ARRAYSIZE(altModeBuffer), "AltMode%d", i);
+				KeyValues *pCurAltMode = pAltModes->FindKey(altModeBuffer);
+				if (!pCurAltMode)
+					break;
+
+				// Save logic here
+				pInfo->m_AltModes.AddToTail(ReadAndAllocStringValue( pCurAltMode, "StatusName", pFilename ));
+				pInfo->m_AltModes.AddToTail(ReadAndAllocStringValue( pCurAltMode, "ModeName", pFilename ));
+				pInfo->m_AltModes.AddToTail(ReadAndAllocStringValue( pCurAltMode, "IconMenu", pFilename ));
+			}
+		}
 	}
 
 	pValues->deleteThis();
@@ -666,3 +682,22 @@ bool ClassCanBuild( int iClass, int iObjectType )
 
 	return ( iClass == TF_CLASS_ENGINEER );
 }
+
+int g_iTeleporterRechargeTimes[] =
+{
+	10,
+	5,
+	3
+};
+
+float g_flDispenserAmmoRates[] = {
+	0.2,
+	0.3,
+	0.4
+};
+
+float g_flDispenserHealRates[] = {
+	10.0,
+	15.0,
+	20.0
+};

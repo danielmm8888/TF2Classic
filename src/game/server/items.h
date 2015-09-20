@@ -74,7 +74,7 @@ public:
 	bool	CreateItemVPhysicsObject( void );
 	virtual bool	ItemCanBeTouchedByPlayer( CBasePlayer *pPlayer );
 
-#if defined( HL2MP ) || defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( HL2MP ) || defined( TF_DLL ) || defined ( TF_CLASSIC )
 	void	FallThink( void );
 	float  m_flNextResetCheckTime;
 #endif
@@ -82,9 +82,10 @@ public:
 	DECLARE_DATADESC();
 protected:
 	virtual void ComeToRest( void );
+	bool		m_bActivateWhenAtRest;
 
 private:
-	bool		m_bActivateWhenAtRest;
+	
 	COutputEvent m_OnPlayerTouch;
 	COutputEvent m_OnCacheInteraction;
 	

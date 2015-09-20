@@ -4,6 +4,7 @@
 //
 //=============================================================================//
 #include "cbase.h"
+#include "glow_outline_effect.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -16,6 +17,7 @@ public:
 
 	void	Spawn();
 	void	ClientThink();
+	void	HandleGlowEffect();
 
 private:
 	QAngle		qAngle;
@@ -41,6 +43,18 @@ void C_WeaponSpawner::ClientThink()
 
 	SetAbsAngles(qAngle);
 
+	HandleGlowEffect();
+
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 }
+
+void C_WeaponSpawner::HandleGlowEffect()
+{
+	if (g_GlowObjectManager.HasGlowEffect(this))
+		return;
+
+	g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.94f, 0.0f), 1.0f, false, true, 0);
+}
+
+
 

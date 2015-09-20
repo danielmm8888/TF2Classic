@@ -100,12 +100,17 @@ struct PlayerRoundScore_t
 
 #define MAX_TEAMGOAL_STRING		256
 
-class CTFGameRules : public CTeamplayRoundBasedRules, public CGameEventListener
+class CTFGameRules : public CTeamplayRoundBasedRules
 {
 public:
 	DECLARE_CLASS( CTFGameRules, CTeamplayRoundBasedRules );
 
 	CTFGameRules();
+
+	enum
+	{
+		HALLOWEEN_SCENARIO_DOOMSDAY
+	};
 
 	// Damage Queries.
 	virtual bool	Damage_IsTimeBased( int iDmgType );			// Damage types that are time-based.
@@ -126,6 +131,14 @@ public:
 	bool			IsBirthday( void );
 
 	virtual const unsigned char *GetEncryptionKey( void ) { return (unsigned char *)"E2NcUkG2"; }
+
+	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
+
+#ifdef GAME_DLL
+	virtual void BalanceTeams( bool bRequireSwitcheesToBeDead );
+#endif
+
+	virtual bool ShouldBalanceTeams( void );
 
 #ifdef GAME_DLL
 public:
@@ -174,6 +187,9 @@ public:
 	virtual void	SetHudType(int iHudType){ m_iHudType = iHudType; };
 
 	virtual bool	AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
+
+	virtual int		GetClassLimit( int iDesiredClassIndex );
+	virtual bool	CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClassIndex );
 
 	void			SetTeamGoalString( int iTeam, const char *pszGoal );
 
@@ -231,8 +247,13 @@ public:
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
 
-	bool			IsFourTeamGame( void ){ return m_bFourTeamMode; };
-	bool			IsDeathmatch(void){ return m_nGameType == TF_GAMETYPE_DM; };
+	virtual bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
+	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
+	virtual bool    IsMannVsMachineMode( void ) { return false; };
+	virtual bool	IsInArenaMode( void ) { return m_nGameType == TF_GAMETYPE_ARENA; }
+	virtual bool    IsHalloweenScenario(int iEventType) { return false; };
+	virtual bool	IsPVEModeActive( void ) { return false; };
+	virtual bool	IsCompetitiveMode( void ){ return false; };
 
 #ifdef CLIENT_DLL
 
@@ -254,8 +275,8 @@ public:
 	virtual bool ClientCommand( CBaseEntity *pEdict, const CCommand &args );
 	virtual void Think();
 
-	bool CheckTimeLimit();
 	bool CheckWinLimit();
+	bool CheckFragLimit();
 	bool CheckCapsPerRound();
 
 	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info );
@@ -311,6 +332,8 @@ public:
 
 	void	SendHudNotification( IRecipientFilter &filter, HudNotification_t iType );
 	void	SendHudNotification( IRecipientFilter &filter, const char *pszText, const char *pszIcon, int iTeam = TEAM_UNASSIGNED );
+
+	virtual void PlayerSpawn( CBasePlayer *pPlayer );
 
 private:
 

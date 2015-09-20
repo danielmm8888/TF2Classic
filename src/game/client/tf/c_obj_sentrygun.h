@@ -35,15 +35,13 @@ public:
 	virtual bool	IsUpgrading( void ) const;
 
 	virtual void GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
-	virtual void GetTargetIDDataString( wchar_t *sDataString, int iMaxLenInBytes );
 
 	virtual BuildingHudAlert_t GetBuildingAlertLevel( void );
-
-	int GetUpgradeMetalRequired( void ) { return SENTRYGUN_UPGRADE_METAL; }
 
 	virtual const char *GetHudStatusIcon( void );
 
 	int GetKills( void ) { return m_iKills; }
+	int GetAssists( void ) { return m_iAssists; }
 
 	virtual void GetShadowRenderBounds( Vector &mins, Vector &maxs, ShadowType_t shadowType );
 
@@ -73,6 +71,7 @@ private:
 	int m_iAmmoRockets;
 
 	int m_iKills;
+	int m_iAssists;
 
 	CNewParticleEffect *m_pDamageEffects;
 

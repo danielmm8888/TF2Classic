@@ -66,6 +66,7 @@ void CTFProjectile_Rocket::Precache()
 	PrecacheParticleSystem( "critical_rocket_red" );
 	PrecacheParticleSystem( "critical_rocket_green" );
 	PrecacheParticleSystem( "critical_rocket_yellow" );
+	PrecacheParticleSystem( "critical_rocket_dm" );
 	PrecacheParticleSystem( "rockettrail" );
 	BaseClass::Precache();
 }

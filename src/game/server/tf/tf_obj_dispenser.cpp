@@ -20,6 +20,9 @@
 // Ground placed version
 #define DISPENSER_MODEL_PLACEMENT			"models/buildables/dispenser_blueprint.mdl"
 // *_UPGRADE models are models used during the upgrade transition
+// Valve fucked up the naming of the models. the _light ones (which should be the transition models)
+// are actually the ones that are set AFTER the upgrade transition.
+
 #define DISPENSER_MODEL_LEVEL_1				"models/buildables/dispenser_light.mdl"
 #define DISPENSER_MODEL_LEVEL_1_UPGRADE		"models/buildables/dispenser.mdl"
 #define DISPENSER_MODEL_LEVEL_2				"models/buildables/dispenser_lvl2_light.mdl"
@@ -27,11 +30,11 @@
 #define DISPENSER_MODEL_LEVEL_3				"models/buildables/dispenser_lvl3_light.mdl"
 #define DISPENSER_MODEL_LEVEL_3_UPGRADE		"models/buildables/dispenser_lvl3.mdl"
 
-#define DISPENSER_MINS			Vector( -20, -20, 0)
-#define DISPENSER_MAXS			Vector( 20, 20, 55)	// tweak me
+#define DISPENSER_MINS			Vector( -20, -20, 0 )
+#define DISPENSER_MAXS			Vector( 20, 20, 55 )	// tweak me
 
-#define DISPENSER_TRIGGER_MINS			Vector(-70, -70, 0)
-#define DISPENSER_TRIGGER_MAXS			Vector( 70,  70, 50)	// tweak me
+#define DISPENSER_TRIGGER_MINS			Vector( -70, -70, 0 )
+#define DISPENSER_TRIGGER_MAXS			Vector( 70,  70, 50 )	// tweak me
 
 #define REFILL_CONTEXT			"RefillContext"
 #define DISPENSE_CONTEXT		"DispenseContext"
@@ -76,8 +79,8 @@ BEGIN_DATADESC( CObjectDispenser )
 END_DATADESC()
 
 
-LINK_ENTITY_TO_CLASS(obj_dispenser, CObjectDispenser);
-PRECACHE_REGISTER(obj_dispenser);
+LINK_ENTITY_TO_CLASS( obj_dispenser, CObjectDispenser );
+PRECACHE_REGISTER( obj_dispenser );
 
 #define DISPENSER_MAX_HEALTH	150
 
@@ -91,9 +94,6 @@ PRECACHE_REGISTER(obj_dispenser);
 #define DISPENSER_DROP_METAL		40
 
 ConVar obj_dispenser_heal_rate( "obj_dispenser_heal_rate", "10.0", FCVAR_CHEAT |FCVAR_DEVELOPMENTONLY );
-//LEVEL 2 15
-//LEVEL 3 20
-
 
 extern ConVar tf_cheapobjects;
 
@@ -173,7 +173,7 @@ CObjectDispenser::~CObjectDispenser()
 //-----------------------------------------------------------------------------
 void CObjectDispenser::Spawn()
 {
-	SetModel( DISPENSER_MODEL_PLACEMENT );
+	SetModel( GetPlacementModel() );
 	SetSolid( SOLID_BBOX );
 
 	UTIL_SetSize(this, DISPENSER_MINS, DISPENSER_MAXS);
@@ -283,22 +283,22 @@ void CObjectDispenser::Precache()
 	PrecacheModel( DISPENSER_MODEL_PLACEMENT );
 
 	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_1 );
-	PrecacheGibsForModel(iModelIndex);
+	PrecacheGibsForModel( iModelIndex );
 
 	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_1_UPGRADE );
 	PrecacheGibsForModel( iModelIndex );
 
-//	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_2 );
-//	PrecacheGibsForModel(iModelIndex);
+	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_2 );
+	PrecacheGibsForModel(iModelIndex);
 
-//	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_2_UPGRADE );
-//	PrecacheGibsForModel(iModelIndex);
+	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_2_UPGRADE );
+	PrecacheGibsForModel(iModelIndex);
 
-//	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_3 );
-//	PrecacheGibsForModel(iModelIndex);
+	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_3 );
+	PrecacheGibsForModel(iModelIndex);
 
-//	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_3_UPGRADE );
-//	PrecacheGibsForModel(iModelIndex);
+	iModelIndex = PrecacheModel( DISPENSER_MODEL_LEVEL_3_UPGRADE );
+	PrecacheGibsForModel(iModelIndex);
 
 	PrecacheVGuiScreen( "screen_obj_dispenser_blue" );
 	PrecacheVGuiScreen( "screen_obj_dispenser_red" );
@@ -316,51 +316,42 @@ void CObjectDispenser::Precache()
 	PrecacheParticleSystem( "dispenser_heal_yellow" );
 }
 
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-bool CObjectDispenser::CanBeUpgraded(CTFPlayer *pPlayer)
-{
-	// Already upgrading
-//	if (m_iState == SENTRY_STATE_UPGRADING)
-	{
-//		return false;
-	}
-
-	// only engineers
-	if (!ClassCanBuild(pPlayer->GetPlayerClass()->GetClassIndex(), GetType()))
-	{
-		return false;
-	}
-
-	// max upgraded
-	if (m_iUpgradeLevel >= 3)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 #define DISPENSER_UPGRADE_DURATION	1.5f
 
 //-----------------------------------------------------------------------------
 // Hit by a friendly engineer's wrench
 //-----------------------------------------------------------------------------
-bool CObjectDispenser::OnWrenchHit(CTFPlayer *pPlayer)
+bool CObjectDispenser::OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos )
 {
 	bool bDidWork = false;
 
-	// If the player repairs it at all, we're done
-	if (GetHealth() < GetMaxHealth())
-	{
-		if (Command_Repair(pPlayer))
-		{
-			bDidWork = true;
-		}
-	}
+	bDidWork = BaseClass::OnWrenchHit( pPlayer, pWrench, vecHitPos );
 
 	return bDidWork;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+bool CObjectDispenser::IsUpgrading( void ) const
+{
+	return m_bIsUpgrading;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+char *CObjectDispenser::GetPlacementModel( void )
+{
+	return DISPENSER_MODEL_PLACEMENT;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+int CObjectDispenser::GetMaxUpgradeLevel(void)
+{
+	return 3;
 }
 
 //-----------------------------------------------------------------------------
@@ -416,20 +407,75 @@ bool CObjectDispenser::ClientCommand( CTFPlayer *pPlayer, const CCommand &args )
 	return BaseClass::ClientCommand( pPlayer, args );
 }
 
+//-----------------------------------------------------------------------------
+// Raises the dispenser one level
+//-----------------------------------------------------------------------------
+void CObjectDispenser::StartUpgrading( void )
+{
+	ResetHealingTargets();
+
+	BaseClass::StartUpgrading();
+
+	switch( GetUpgradeLevel() + 1 )
+	{
+	case 1:
+		SetModel( DISPENSER_MODEL_LEVEL_1_UPGRADE );
+		break;
+	case 2:
+		SetModel( DISPENSER_MODEL_LEVEL_2_UPGRADE );
+		break;
+	case 3:
+		SetModel( DISPENSER_MODEL_LEVEL_3_UPGRADE );
+		break;
+	default:
+		Assert(0);
+		break;
+	}
+
+	m_bIsUpgrading = true;
+}
+
+void CObjectDispenser::FinishUpgrading( void )
+{
+	switch( GetUpgradeLevel() )
+	{
+	case 1:
+		SetModel( DISPENSER_MODEL_LEVEL_1 );
+		break;
+	case 2:
+		SetModel( DISPENSER_MODEL_LEVEL_2 );
+		break;
+	case 3:
+		SetModel( DISPENSER_MODEL_LEVEL_3 );
+		break;
+	default:
+		Assert(0);
+		break;
+	}
+
+	m_bIsUpgrading = false;
+
+	BaseClass::FinishUpgrading();
+
+	SetActivity( ACT_RESET );
+}
+
 bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
 {
 	int iTotalPickedUp = 0;
 
 	// primary
-	int iPrimary = pPlayer->GiveAmmo( DISPENSER_DROP_PRIMARY, TF_AMMO_PRIMARY );
+	int ammo = ceil(pPlayer->GetMaxAmmo(TF_AMMO_PRIMARY) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1]);
+	ammo;
+	int iPrimary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_PRIMARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
 	iTotalPickedUp += iPrimary;
 
 	// secondary
-	int iSecondary = pPlayer->GiveAmmo( DISPENSER_DROP_SECONDARY, TF_AMMO_SECONDARY );
+	int iSecondary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_SECONDARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
 	iTotalPickedUp += iSecondary;
 
 	// metal
-	int iMetal = pPlayer->GiveAmmo( min( m_iAmmoMetal, DISPENSER_DROP_METAL ), TF_AMMO_METAL );
+	int iMetal = pPlayer->GiveAmmo( min( m_iAmmoMetal, DISPENSER_DROP_METAL + 10 * ( GetUpgradeLevel() - 1 ) ), TF_AMMO_METAL );
 	m_iAmmoMetal -= iMetal;
 	iTotalPickedUp += iMetal;
 
@@ -441,6 +487,21 @@ bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
 
 	// return false if we didn't pick up anything
 	return false;
+}
+
+int CObjectDispenser::GetBaseHealth( void )
+{
+  return DISPENSER_MAX_HEALTH;
+}
+
+float CObjectDispenser::GetDispenserRadius( void )
+{
+	return 64.0f;
+}
+
+float CObjectDispenser::GetHealRate( void )
+{
+	return g_flDispenserHealRates[ GetUpgradeLevel() - 1 ];
 }
 
 void CObjectDispenser::RefillThink( void )
@@ -491,7 +552,7 @@ void CObjectDispenser::DispenseThink( void )
 		int iNumNearbyPlayers = 0;
 
 		// find players in sphere, that are visible
-		static float flRadius = 64;
+		static float flRadius = GetDispenserRadius();
 		Vector vecOrigin = GetAbsOrigin() + Vector(0,0,32);
 
 		CBaseEntity *pListOfNearbyEntities[32];
@@ -513,6 +574,16 @@ void CObjectDispenser::DispenseThink( void )
 		m_flNextAmmoDispense = gpGlobals->curtime + ( ( iNumNearbyPlayers > 0 ) ? 1.0 : 0.1 );
 	}	
 
+	ResetHealingTargets();
+
+	SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectDispenser::ResetHealingTargets( void )
+{
 	// for each player in touching list
 	int iSize = m_hTouchingEntities.Count();
 	for ( int i = iSize-1; i >= 0; i-- )
@@ -536,8 +607,6 @@ void CObjectDispenser::DispenseThink( void )
 			StartHealing( pEnt );
 		}	
 	}
-
-	SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
@@ -580,7 +649,7 @@ void CObjectDispenser::StartHealing( CBaseEntity *pOther )
 
 	if ( pPlayer )
 	{
-		pPlayer->m_Shared.Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
+		pPlayer->m_Shared.Heal( GetOwner(), GetHealRate(), true );
 	}
 }
 
@@ -682,3 +751,5 @@ int CObjectDispenser::DrawDebugTextOverlays(void)
 	}
 	return text_offset;
 }
+
+LINK_ENTITY_TO_CLASS( mapobj_cart_dispenser, CObjectCartDispenser );

@@ -28,6 +28,7 @@ public:
 	DECLARE_SERVERCLASS();
 
 	virtual void	SetSubType( int iSubType );
+	virtual void	SetObjectMode( int iObjectMode );
 	virtual void	Precache( void );
 	virtual bool	CanDeploy( void );
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
@@ -70,6 +71,7 @@ public:
 public:
 	CNetworkVar( int, m_iBuildState );
 	CNetworkVar( unsigned int, m_iObjectType );
+	CNetworkVar( unsigned int, m_iObjectMode );
 
 	CNetworkHandle( CBaseObject, m_hObjectBeingBuilt );
 

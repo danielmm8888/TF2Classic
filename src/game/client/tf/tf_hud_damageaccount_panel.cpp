@@ -103,7 +103,7 @@ void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
 	if (Q_strcmp("player_damaged", pEventName) == 0)
 	{
 		if ( m_pDamageAccountLabel
-			&& C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "userid_from" ) ) // Did we shoot the guy?
+			&& C_TFPlayer::GetLocalTFPlayer() && C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt("userid_from")) // Did we shoot the guy?
 		{
 			if ( event->GetInt( "userid_from" ) == event->GetInt( "userid_to" ) )
 			{

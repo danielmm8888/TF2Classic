@@ -215,24 +215,18 @@ void CTFHunterRifle::HandleZooms( void )
 //-----------------------------------------------------------------------------
 bool CTFHunterRifle::Reload(void)
 {
-	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
-	if (m_iReloadMode == TF_RELOAD_START)
+	if ( BaseClass::Reload() == true )
 	{
 		ZoomOut();
+		if ( Clip1() > 0 )
+			m_iClip1 = 0;
 
-		// If I don't have any spare ammo, I can't reload
-		if (GetOwner()->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
-			return false;
-
-		if (Clip1() >= GetMaxClip1())
-			return false;
+		return true;
 	}
 
-	if (Clip1() > 0)
-		m_iClip1 = 0;
-
-	return BaseClass::Reload();
+	return false;
 }
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -246,6 +240,8 @@ void CTFHunterRifle::ItemPostFrame( void )
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 	if ( !pPlayer )
 		return;
+
+	CheckReload();
 
 	if ( !CanAttack() )
 	{
@@ -274,11 +270,25 @@ void CTFHunterRifle::ItemPostFrame( void )
 	// Fire.
 	if ( pPlayer->m_nButtons & IN_ATTACK )
 	{
-		if (!ReloadOrSwitchWeapons() && (m_bInReload == false))
-			Fire( pPlayer );
+		Fire( pPlayer );
 	}
 
-	BaseClass::ItemPostFrame();
+	//  Reload pressed / Clip Empty
+	if ( ( pPlayer->m_nButtons & IN_RELOAD ) && !m_bInReload ) 
+	{
+		// reload when reload is pressed, or if no buttons are down and weapon is empty.
+		Reload();
+	}
+
+	// Idle.
+	if ( !( ( pPlayer->m_nButtons & IN_ATTACK) || ( pPlayer->m_nButtons & IN_ATTACK2 ) ) )
+	{
+		// No fire buttons down or reloading
+		if ( !ReloadOrSwitchWeapons() && ( m_bInReload == false ) )
+		{
+			WeaponIdle();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -286,16 +296,15 @@ void CTFHunterRifle::ItemPostFrame( void )
 //-----------------------------------------------------------------------------
 void CTFHunterRifle::Fire(CTFPlayer *pPlayer)
 {
+	if (m_flNextPrimaryAttack > gpGlobals->curtime)
+		return;
+
 	// Check the ammo.
 	if (Clip1() <= 0)
 	{
-		Reload();
 		HandleFireOnEmpty();
 		return;
 	}
-
-	if (m_flNextPrimaryAttack > gpGlobals->curtime)
-		return;
 
 	// Fire the Hunter shot.
 	PrimaryAttack();

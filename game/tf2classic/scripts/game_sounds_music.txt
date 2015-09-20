@@ -318,3 +318,19 @@
 	 "volume"		    "1.0"
 	 "wave" 			  "#*music/bump_in_the_night.wav"
 }
+
+"music.dm_winpanel"
+{
+	"channel"		"CHAN_STATIC"
+	"soundlevel"		"SNDLVL_NONE"
+	"volume"		"1.0"
+	"wave"		"#*music/dm_winpanel_01.wav"
+}
+
+"music.dm_winpanel_first"
+{
+	"channel"		"CHAN_STATIC"
+	"soundlevel"		"SNDLVL_NONE"
+	"volume"		"1.0"
+	"wave"		"#*music/dm_winpanel_02.wav"
+}

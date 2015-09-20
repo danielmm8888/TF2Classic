@@ -108,6 +108,9 @@ public:
 	char	m_szExplosionPlayerEffect[128];
 	char	m_szExplosionWaterEffect[128];
 
+	// DM Viewmodel
+	char	m_szViewModelDM[MAX_WEAPON_STRING];
+
 	bool	m_bDontDrop;
 };
 
