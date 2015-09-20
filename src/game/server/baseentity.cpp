@@ -63,7 +63,7 @@
 #include "tier1/utlstring.h"
 #include "utlhashtable.h"
 
-#if defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined (TF_DLL) || defined (TF_CLASSIC)
 #include "tf_gamerules.h"
 #endif
 
@@ -86,6 +86,7 @@ bool CBaseEntity::sm_bDisableTouchFuncs = false;	// Disables PhysicsTouch and Ph
 bool CBaseEntity::sm_bAccurateTriggerBboxChecks = true;	// set to false for legacy behavior in ep1
 
 int CBaseEntity::m_nPredictionRandomSeed = -1;
+int CBaseEntity::m_nPredictionRandomSeedServer = -1;
 CBasePlayer *CBaseEntity::m_pPredictionPlayer = NULL;
 
 // Used to make sure nobody calls UpdateTransmitState directly.
@@ -1440,10 +1441,10 @@ int CBaseEntity::OnTakeDamage( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 // Purpose: Scale damage done and call OnTakeDamage
 //-----------------------------------------------------------------------------
-void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
+int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 {
 	if ( !g_pGameRules )
-		return;
+		return 0;
 
 	bool bHasPhysicsForceDamage = !g_pGameRules->Damage_NoPhysicsForce( inputInfo.GetDamageType() );
 	if ( bHasPhysicsForceDamage && inputInfo.GetDamageType() != DMG_GENERIC )
@@ -1475,12 +1476,12 @@ void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 	// Make sure our damage filter allows the damage.
 	if ( !PassesDamageFilter( inputInfo ))
 	{
-		return;
+		return 0;
 	}
 
 	if( !g_pGameRules->AllowDamage(this, inputInfo) )
 	{
-		return;
+		return 0;
 	}
 
 	if ( PhysIsInCallback() )
@@ -1502,8 +1503,9 @@ void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 
 		//Msg("%s took %.2f Damage, at %.2f\n", GetClassname(), info.GetDamage(), gpGlobals->curtime );
 
-		OnTakeDamage( info );
+		return OnTakeDamage( info );
 	}
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -2025,6 +2027,7 @@ void CBaseEntity::UpdateOnRemove( void )
 		GlobalEntity_SetState( m_iGlobalname, GLOBAL_DEAD );
 	}
 #endif
+
 	VPhysicsDestroyObject();
 
 	// This is only here to allow the MOVETYPE_NONE to be set without the
@@ -6092,7 +6095,7 @@ void CBaseEntity::SetLocalAngles( const QAngle& angles )
 		{
 			Warning( "Bad SetLocalAngles(%f,%f,%f) on %s\n", angles.x, angles.y, angles.z, GetDebugName() );
 		}
-		Assert( false );
+		AssertMsg( false, "Bad SetLocalAngles(%f,%f,%f) on %s\n", angles.x, angles.y, angles.z, GetDebugName() );
 		return;
 	}
 

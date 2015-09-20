@@ -17,6 +17,7 @@
 
 #if defined( TF_DLL ) || defined( TF_CLASSIC )
 #include "tf_shareddefs.h"
+#include "tf_gamerules.h"
 #endif
 
 #define CONTROL_POINT_UNLOCK_THINK			"UnlockThink"
@@ -57,19 +58,13 @@ BEGIN_DATADESC(CTeamControlPoint)
 
 	DEFINE_OUTPUT(	m_OnCapTeam1,		"OnCapTeam1" ),	// these are fired whenever the point changes modes
 	DEFINE_OUTPUT(	m_OnCapTeam2,		"OnCapTeam2" ),
-	DEFINE_OUTPUT(  m_OnCapTeam3,		"OnCapTeam3" ),
-	DEFINE_OUTPUT(  m_OnCapTeam4,		"OnCapTeam4" ),
 	DEFINE_OUTPUT(	m_OnCapReset,		"OnCapReset" ),
 
 	DEFINE_OUTPUT(	m_OnOwnerChangedToTeam1,	"OnOwnerChangedToTeam1" ),	// these are fired when a team does the work to change the owner
 	DEFINE_OUTPUT(	m_OnOwnerChangedToTeam2,	"OnOwnerChangedToTeam2" ),
-	DEFINE_OUTPUT(	m_OnOwnerChangedToTeam3,	"OnOwnerChangedToTeam3" ),
-	DEFINE_OUTPUT(	m_OnOwnerChangedToTeam4,	"OnOwnerChangedToTeam4" ),
 
 	DEFINE_OUTPUT(	m_OnRoundStartOwnedByTeam1,	"OnRoundStartOwnedByTeam1" ),	// these are fired when a round is starting
 	DEFINE_OUTPUT(	m_OnRoundStartOwnedByTeam2,	"OnRoundStartOwnedByTeam2" ),
-	DEFINE_OUTPUT(	m_OnRoundStartOwnedByTeam3, "OnRoundStartOwnedByTeam3" ),
-	DEFINE_OUTPUT(	m_OnRoundStartOwnedByTeam4, "OnRoundStartOwnedByTeam4" ),
 
 	DEFINE_OUTPUT(	m_OnUnlocked, "OnUnlocked" ),
 
@@ -227,7 +222,7 @@ void CTeamControlPoint::Precache( void )
 		// Skip over spectator
 		if ( i == TEAM_SPECTATOR )
 			continue;
-
+		
 #ifdef TF_CLASSIC
 		// Don't pass GRN and YLW since they're not player teams.
 		if ( i > TF_TEAM_BLUE )
@@ -281,6 +276,7 @@ void CTeamControlPoint::Precache( void )
 
 #if defined (TF_DLL) || defined (TF_CLASSIC)
 	PrecacheScriptSound( "Announcer.ControlPointContested" );
+	PrecacheScriptSound( "Announcer.ControlPointContested_Neutral" );
 #endif
 }
 
@@ -318,7 +314,7 @@ void CTeamControlPoint::HandleScoring( int iTeam )
 		CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
 		if ( pMaster && !pMaster->WouldNewCPOwnerWinGame( this, iTeam ) )
 		{
-#if defined( TF_DLL )
+#ifdef TF_DLL
 			if ( TeamplayRoundBasedRules()->GetGameType() == TF_GAMETYPE_ESCORT )
 			{
 				CBroadcastRecipientFilter filter;
@@ -635,12 +631,6 @@ void CTeamControlPoint::InternalSetOwner( int iCapTeam, bool bMakeSound, int iNu
 		case 2: 
 			m_OnCapTeam2.FireOutput( this, this );
 			break;
-		case 3:
-			m_OnCapTeam3.FireOutput( this, this );
-			break;
-		case 4:
-			m_OnCapTeam4.FireOutput( this, this );
-			break;
 		default:
 			Assert(0);
 			break;
@@ -671,7 +661,15 @@ void CTeamControlPoint::InternalSetOwner( int iCapTeam, bool bMakeSound, int iNu
 
 			Assert( playerIndex > 0 && playerIndex <= gpGlobals->maxClients );
 
-			PlayerCapped( ToBaseMultiplayerPlayer(UTIL_PlayerByIndex( playerIndex )) );
+			CBaseMultiplayerPlayer *pPlayer = ToBaseMultiplayerPlayer( UTIL_PlayerByIndex( playerIndex ) );
+			PlayerCapped( pPlayer );
+
+#ifdef TF_DLL
+			if ( TFGameRules() && TFGameRules()->IsHolidayActive( kHoliday_EOTL ) )
+			{
+				TFGameRules()->DropBonusDuck( pPlayer->GetAbsOrigin(), ToTFPlayer( pPlayer ), NULL, NULL, false, true );
+			}
+#endif
 		}
 
 		// Remap team to get first game team = 1
@@ -682,12 +680,6 @@ void CTeamControlPoint::InternalSetOwner( int iCapTeam, bool bMakeSound, int iNu
 			break;
 		case 2: 
 			m_OnOwnerChangedToTeam2.FireOutput( this, this );
-			break;
-		case 3:
-			m_OnOwnerChangedToTeam3.FireOutput( this, this );
-			break;
-		case 4:
-			m_OnOwnerChangedToTeam4.FireOutput( this, this );
 			break;
 		}
 
@@ -757,7 +749,7 @@ void CTeamControlPoint::SendCapString( int iCapTeam, int iNumCappingPlayers, int
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer )
+void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer, CBaseMultiplayerPlayer *pVictim )
 {
 	if( strlen( STRING(m_iszPrintName) ) <= 0 )
 		return;
@@ -770,6 +762,10 @@ void CTeamControlPoint::CaptureBlocked( CBaseMultiplayerPlayer *pPlayer )
 		event->SetString( "cpname", STRING(m_iszPrintName) );
 		event->SetInt( "blocker", pPlayer->entindex() );
 		event->SetInt( "priority", 9 );
+		if ( pVictim )
+		{
+			event->SetInt( "victim", pVictim->entindex() );
+		}
 
 		gameeventmanager->FireEvent( event );
 	}
@@ -992,12 +988,6 @@ void CTeamControlPoint::InputRoundActivate( inputdata_t &inputdata )
 		break;
 	case 2: 
 		m_OnRoundStartOwnedByTeam2.FireOutput( this, this );
-		break;
-	case 3:
-		m_OnRoundStartOwnedByTeam3.FireOutput( this, this );
-		break;
-	case 4:
-		m_OnRoundStartOwnedByTeam4.FireOutput( this, this );
 		break;
 	}
 

@@ -636,10 +636,17 @@ void CBaseEntity::SetPredictionRandomSeed( const CUserCmd *cmd )
 	if ( !cmd )
 	{
 		m_nPredictionRandomSeed = -1;
+#ifdef GAME_DLL
+		m_nPredictionRandomSeedServer = -1;
+#endif
+
 		return;
 	}
 
 	m_nPredictionRandomSeed = ( cmd->random_seed );
+#ifdef GAME_DLL
+	m_nPredictionRandomSeedServer = ( cmd->server_random_seed );
+#endif
 }
 
 
@@ -1679,7 +1686,7 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 	int iSeed = 0;
 	if ( IsPlayer() )
 	{
-		iSeed = CBaseEntity::GetPredictionRandomSeed() & 255;
+		iSeed = CBaseEntity::GetPredictionRandomSeed( info.m_bUseServerRandomSeed ) & 255;
 	}
 
 #if defined( HL2MP ) && defined( GAME_DLL )
@@ -2162,12 +2169,11 @@ void CBaseEntity::DoImpactEffect( trace_t &tr, int nDamageType )
 //-----------------------------------------------------------------------------
 void CBaseEntity::ComputeTracerStartPosition( const Vector &vecShotSrc, Vector *pVecTracerStart )
 {
-#ifndef HL2MP
-	if ( g_pGameRules->IsMultiplayer() && IsPlayer() )
+#ifdef HL2MP
+	if ( g_pGameRules->IsMultiplayer() && (IsPlayer() || IsBaseObject()) )
 	{
 		// NOTE: we do this because in MakeTracer, we force it to use the attachment position
 		// in multiplayer, so the results from this function should never actually get used.
-		// Not all NPCs use attachments, though. (Nicknine)
 		pVecTracerStart->Init( 999, 999, 999 );
 		return;
 	}
@@ -2243,8 +2249,7 @@ int CBaseEntity::GetTracerAttachment( void )
 {
 	int iAttachment = TRACER_DONT_USE_ATTACHMENT;
 
-	// Not all NPCs use attachments. (Nicknine)
-	if ( g_pGameRules->IsMultiplayer() && IsPlayer() )
+	if ( g_pGameRules->IsMultiplayer() && (IsPlayer() || IsBaseObject()) )
 	{
 		iAttachment = 1;
 	}

@@ -42,8 +42,10 @@ struct DeathNoticeItem
 		iKillerID = -1;
 		iVictimID = -1;
 
-		iconPreKiller = NULL;
+		iconPreKillerName = NULL;
+		iconPostKillerName = NULL;
 		wzPreKillerText[0] = 0;
+		iconPostVictimName = NULL;
 	}
 
 	float GetExpiryTime();
@@ -53,15 +55,18 @@ struct DeathNoticeItem
 #if defined (TF_CLASSIC_CLIENT)
 	DeathNoticePlayer   Assister;
 #endif
-
 	char		szIcon[32];		// name of icon to display
 	wchar_t		wzInfoText[32];	// any additional text to display next to icon
 	wchar_t		wzInfoTextEnd[32];	// any additional text to display next to victim name
 	CHudTexture *iconDeath;
 	CHudTexture *iconCritDeath;	// crit background icon
 
-	CHudTexture *iconPreKiller;
+	CHudTexture *iconPreKillerName;
+
+	CHudTexture *iconPostKillerName;
 	wchar_t		wzPreKillerText[32];
+
+	CHudTexture *iconPostVictimName;
 
 	bool		bSelfInflicted;
 	bool		bLocalPlayerInvolved;

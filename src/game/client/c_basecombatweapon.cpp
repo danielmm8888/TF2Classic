@@ -163,7 +163,10 @@ void C_BaseCombatWeapon::OnDataChanged( DataUpdateType_t updateType )
 		}
 	}
 
-	UpdateVisibility();
+	if ( updateType == DATA_UPDATE_CREATED )
+	{
+		UpdateVisibility();
+	}
 
 	m_iOldState = m_iState;
 
@@ -510,6 +513,7 @@ int C_BaseCombatWeapon::CalcOverrideModelIndex()
 		// Temp fix for weapon model not getting set back to viewmodel after
 		// switching back from third person. (Nicknine, danielmm8888)
 		return m_iViewModelIndex;
+
 	}
 	else
 	{

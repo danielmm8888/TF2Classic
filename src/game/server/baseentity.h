@@ -87,7 +87,7 @@ class IHasAttributes;
 
 typedef CUtlVector< CBaseEntity* > EntityList_t;
 
-#if defined( HL2_DLL ) || defined(TF_CLASSIC)
+#if defined( HL2_DLL )
 
 // For CLASSIFY
 enum Class_T
@@ -120,16 +120,6 @@ enum Class_T
 	CLASS_EARTH_FAUNA,
 	CLASS_HACKED_ROLLERMINE,
 	CLASS_COMBINE_HUNTER,
-	CLASS_MACHINE_HL1,
-	CLASS_HUMAN_PASSIVE,
-	CLASS_HUMAN_MILITARY,
-	CLASS_ALIEN_MILITARY,
-	CLASS_ALIEN_MONSTER,
-	CLASS_ALIEN_PREY,
-	CLASS_ALIEN_PREDATOR,
-	CLASS_INSECT,
-	CLASS_PLAYER_BIOWEAPON,
-	CLASS_ALIEN_BIOWEAPON,
 
 	NUM_AI_CLASSES
 };
@@ -195,6 +185,52 @@ enum Class_T
 	CLASS_NONE = 0,
 	CLASS_PLAYER,
 	CLASS_PLAYER_ALLY,
+	NUM_AI_CLASSES
+};
+
+#elif defined( TF_CLASSIC )
+
+enum Class_T
+{
+	CLASS_NONE=0,				
+	CLASS_PLAYER,			
+	CLASS_PLAYER_ALLY,
+	CLASS_PLAYER_ALLY_VITAL,
+	CLASS_ANTLION,
+	CLASS_BARNACLE,
+	CLASS_BULLSEYE,
+	//CLASS_BULLSQUID,	
+	CLASS_CITIZEN_PASSIVE,	
+	CLASS_CITIZEN_REBEL,
+	CLASS_COMBINE,
+	CLASS_COMBINE_GUNSHIP,
+	CLASS_CONSCRIPT,
+	CLASS_HEADCRAB,
+	//CLASS_HOUNDEYE,
+	CLASS_MANHACK,
+	CLASS_METROPOLICE,		
+	CLASS_MILITARY,		
+	CLASS_SCANNER,		
+	CLASS_STALKER,		
+	CLASS_VORTIGAUNT,
+	CLASS_ZOMBIE,
+	CLASS_PROTOSNIPER,
+	CLASS_MISSILE,
+	CLASS_FLARE,
+	CLASS_EARTH_FAUNA,
+	CLASS_HACKED_ROLLERMINE,
+	CLASS_COMBINE_HUNTER,
+	CLASS_MACHINE_HL1,
+	CLASS_HUMAN_PASSIVE,
+	CLASS_HUMAN_MILITARY,
+	CLASS_ALIEN_MILITARY,
+	CLASS_ALIEN_MONSTER,
+	CLASS_ALIEN_PREY,
+	CLASS_ALIEN_PREDATOR,
+	CLASS_INSECT,
+	CLASS_PLAYER_BIOWEAPON,
+	CLASS_ALIEN_BIOWEAPON,
+
 	NUM_AI_CLASSES
 };
 
@@ -914,7 +950,7 @@ public:
 	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
 
 	// This is what you should call to apply damage to an entity.
-	void TakeDamage( const CTakeDamageInfo &info );
+	int TakeDamage( const CTakeDamageInfo &info );
 	virtual void AdjustDamageDirection( const CTakeDamageInfo &info, Vector &dir, CBaseEntity *pEnt ) {}
 
 	virtual int		TakeHealth( float flHealth, int bitsDamageType );
@@ -1758,6 +1794,7 @@ private:
 	//  randon number generators to spit out the same random numbers on both sides for a particular
 	//  usercmd input.
 	static int						m_nPredictionRandomSeed;
+	static int						m_nPredictionRandomSeedServer;
 	static CBasePlayer				*m_pPredictionPlayer;
 
 	// FIXME: Make hierarchy a member of CBaseEntity
@@ -1771,7 +1808,7 @@ private:
 	
 public:
 	// Accessors for above
-	static int						GetPredictionRandomSeed( void );
+	static int						GetPredictionRandomSeed( bool bUseUnSyncedServerPlatTime = false );
 	static void						SetPredictionRandomSeed( const CUserCmd *cmd );
 	static CBasePlayer				*GetPredictionPlayer( void );
 	static void						SetPredictionPlayer( CBasePlayer *player );
@@ -1809,6 +1846,8 @@ public:
 	{
 		return s_bAbsQueriesValid;
 	}
+
+	virtual bool ShouldBlockNav() const { return true; }
 };
 
 // Send tables exposed in this module.

@@ -32,10 +32,10 @@ ConVar anim_showmainactivity( "anim_showmainactivity", "0", FCVAR_CHEAT, "Show t
 
 #define MOVING_MINIMUM_SPEED	0.5f
 
-ConVar anim_showstate( "anim_showstate", "-1", FCVAR_CHEAT | FCVAR_REPLICATED /*| FCVAR_DEVELOPMENTONLY*/, "Show the (client) animation state for the specified entity (-1 for none)." );
-ConVar anim_showstatelog("anim_showstatelog", "0", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "1 to output anim_showstate to Msg(). 2 to store in AnimState.log. 3 for both.");
-ConVar mp_showgestureslots("mp_showgestureslots", "-1", FCVAR_CHEAT | FCVAR_REPLICATED /*| FCVAR_DEVELOPMENTONLY*/, "Show multiplayer client/server gesture slot information for the specified player index (-1 for no one).");
-ConVar mp_slammoveyaw("mp_slammoveyaw", "0", FCVAR_REPLICATED /*| FCVAR_DEVELOPMENTONLY*/, "Force movement yaw along an animation path.");
+ConVar anim_showstate( "anim_showstate", "-1", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Show the (client) animation state for the specified entity (-1 for none)." );
+ConVar anim_showstatelog( "anim_showstatelog", "0", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "1 to output anim_showstate to Msg(). 2 to store in AnimState.log. 3 for both." );
+ConVar mp_showgestureslots( "mp_showgestureslots", "-1", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Show multiplayer client/server gesture slot information for the specified player index (-1 for no one)." );
+ConVar mp_slammoveyaw( "mp_slammoveyaw", "0", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Force movement yaw along an animation path." );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -91,6 +91,10 @@ CMultiPlayerAnimState::CMultiPlayerAnimState( CBasePlayer *pPlayer, MultiPlayerM
 
 	m_flMaxGroundSpeed = 0.0f;
 
+	// If you are forcing aim yaw, your code is almost definitely broken if you don't include a delay between 
+	// teleporting and forcing yaw. This is due to an unfortunate interaction between the command lookback window,
+	// and the fact that m_flEyeYaw is never propogated from the server to the client.
+	// TODO: Fix this after Halloween 2014.
 	m_bForceAimYaw = false;
 
 	Init( pPlayer, movementData );
@@ -1655,6 +1659,10 @@ void CMultiPlayerAnimState::ComputePoseParam_AimYaw( CStudioHdr *pStudioHdr )
 	bool bMoving = ( vecVelocity.Length() > 1.0f ) ? true : false;
 
 	// If we are moving or are prone and undeployed.
+	// If you are forcing aim yaw, your code is almost definitely broken if you don't include a delay between 
+	// teleporting and forcing yaw. This is due to an unfortunate interaction between the command lookback window,
+	// and the fact that m_flEyeYaw is never propogated from the server to the client.
+	// TODO: Fix this after Halloween 2014.
 	if ( bMoving || m_bForceAimYaw )
 	{
 		// The feet match the eye direction when moving - the move yaw takes care of the rest.
@@ -1688,6 +1696,10 @@ void CMultiPlayerAnimState::ComputePoseParam_AimYaw( CStudioHdr *pStudioHdr )
 	m_flGoalFeetYaw = AngleNormalize( m_flGoalFeetYaw );
 	if ( m_flGoalFeetYaw != m_flCurrentFeetYaw )
 	{
+		// If you are forcing aim yaw, your code is almost definitely broken if you don't include a delay between 
+		// teleporting and forcing yaw. This is due to an unfortunate interaction between the command lookback window,
+		// and the fact that m_flEyeYaw is never propogated from the server to the client.
+		// TODO: Fix this after Halloween 2014.
 		if ( m_bForceAimYaw )
 		{
 			m_flCurrentFeetYaw = m_flGoalFeetYaw;

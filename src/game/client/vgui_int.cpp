@@ -32,10 +32,6 @@
 #include "tf_gamerules.h"
 #endif
 
-#if defined( TF_CLASSIC_CLIENT )
-#include "ver_panel.h"
-#endif
-
 using namespace vgui;
 
 void MP3Player_Create( vgui::VPANEL parent );
@@ -201,7 +197,6 @@ void VGui_CreateGlobalPanels( void )
 {
 	VPANEL gameToolParent = enginevgui->GetPanel( PANEL_CLIENTDLL_TOOLS );
 	VPANEL toolParent = enginevgui->GetPanel( PANEL_TOOLS );
-	VPANEL GameUiDll = enginevgui->GetPanel( PANEL_GAMEUIDLL );
 #if defined( TRACK_BLOCKING_IO )
 	VPANEL gameDLLPanel = enginevgui->GetPanel( PANEL_GAMEDLL );
 #endif
@@ -209,10 +204,6 @@ void VGui_CreateGlobalPanels( void )
 	internalCenterPrint->Create( gameToolParent );
 	loadingdisc->Create( gameToolParent );
 	messagechars->Create( gameToolParent );
-
-#if defined (TF_CLASSIC_CLIENT)
-	verPanel->Create(GameUiDll);
-#endif
 
 	// Debugging or related tool
 	fps->Create( toolParent );
@@ -249,10 +240,6 @@ void VGui_Shutdown()
 	messagechars->Destroy();
 	loadingdisc->Destroy();
 	internalCenterPrint->Destroy();
-
-#if defined (TF_CLASSIC_CLIENT)
-	verPanel->Destroy();
-#endif
 
 	if ( g_pClientMode )
 	{

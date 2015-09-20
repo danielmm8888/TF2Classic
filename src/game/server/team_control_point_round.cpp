@@ -21,7 +21,7 @@ BEGIN_DATADESC( CTeamControlPointRound )
 	DEFINE_KEYFIELD( m_nPriority,			FIELD_INTEGER,	"cpr_priority" ),
 	DEFINE_KEYFIELD( m_iInvalidCapWinner,	FIELD_INTEGER,	"cpr_restrict_team_cap_win" ),
 	DEFINE_KEYFIELD( m_iszPrintName,		FIELD_STRING,	"cpr_printname" ),
-	//DEFINE_FIELD( m_ControlPoints, CUtlVector < CHandle < CTeamControlPoint > > ),
+//	DEFINE_FIELD( m_ControlPoints, CUtlVector < CHandle < CTeamControlPoint > > ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "Enable", InputEnable ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "Disable", InputDisable ),
@@ -32,10 +32,6 @@ BEGIN_DATADESC( CTeamControlPointRound )
 	DEFINE_OUTPUT( m_OnEnd,			"OnEnd" ),
 	DEFINE_OUTPUT( m_OnWonByTeam1,	"OnWonByTeam1" ),
 	DEFINE_OUTPUT( m_OnWonByTeam2,	"OnWonByTeam2" ),
-#ifdef TF_CLASSIC
-	DEFINE_OUTPUT( m_OnWonByTeam3, "OnWonByTeam3" ),
-	DEFINE_OUTPUT( m_OnWonByTeam4, "OnWonByTeam4" ),
-#endif
 END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( team_control_point_round, CTeamControlPointRound );
@@ -168,14 +164,6 @@ void CTeamControlPointRound::FireTeamWinOutput( int iWinningTeam )
 	case 2:
 		m_OnWonByTeam2.FireOutput( this, this );
 		break;
-#ifdef TF_CLASSIC
-	case 3:
-		m_OnWonByTeam3.FireOutput(this, this);
-		break;
-	case 4:
-		m_OnWonByTeam4.FireOutput(this, this);
-		break;
-#endif
 	default:
 		Assert(0);
 		break;

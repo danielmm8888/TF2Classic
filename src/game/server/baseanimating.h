@@ -75,7 +75,7 @@ public:
 	// Tells whether or not we're using client-side animation. Used for controlling
 	// the transmission of animtime.
 	bool	IsUsingClientSideAnimation()	{ return m_bClientSideAnimation; }
-
+	
 	//SecobMod__Information: Set to match DutchMegas' Collaborate mod code.
 	void SetClientSideAnimation( bool bNewValue ) { m_bClientSideAnimation = bNewValue; };
 
@@ -111,6 +111,7 @@ public:
 	void    ResetEventIndexes ( void );
 	int		SelectWeightedSequence ( Activity activity );
 	int		SelectWeightedSequence ( Activity activity, int curSequence );
+	int		SelectWeightedSequenceFromModifiers( Activity activity, CUtlSymbol *pActivityModifiers, int iModifierCount );
 	int		SelectHeaviestSequence ( Activity activity );
 	int		LookupActivity( const char *label );
 	int		LookupSequence ( const char *label );
@@ -439,10 +440,14 @@ inline CStudioHdr *CBaseAnimating::GetModelPtr( void )
 		return NULL;
 
 #ifdef _DEBUG
-	// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
-	static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
-	AssertOnce( pModelCache->IsFrameLocking() );
+	if ( !HushAsserts() )
+	{
+		// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
+		static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
+		AssertOnce( pModelCache->IsFrameLocking() );
+	}
 #endif
+
 	if ( !m_pStudioHdr && GetModel() )
 	{
 		LockStudioHdr();

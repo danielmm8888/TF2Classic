@@ -343,6 +343,16 @@ void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const ch
 	}
 }
 
+/*
+		
+
+		
+
+
+
+
+*/
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -351,178 +361,230 @@ void CTFHudDeathNotice::Paint()
 	// Retire any death notices that have expired
 	RetireExpiredDeathNotices();
 
-	CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>(GetClientModeNormal()->GetViewport());
+	CBaseViewport *pViewport = dynamic_cast<CBaseViewport *>( GetClientModeNormal()->GetViewport() );
 	int yStart = pViewport->GetDeathMessageStartHeight();
 
-	surface()->DrawSetTextFont(m_hTextFont);
+	surface()->DrawSetTextFont( m_hTextFont );
 
-	int xMargin = XRES(10);
-	int xSpacing = UTIL_ComputeStringWidth(m_hTextFont, L" ");
+	int xMargin = XRES( 10 );
+	int xSpacing = UTIL_ComputeStringWidth( m_hTextFont, L" " );
 
 	int iCount = m_DeathNotices.Count();
-	for (int i = 0; i < iCount; i++)
+	for ( int i = 0; i < iCount; i++ )
 	{
 		DeathNoticeItem &msg = m_DeathNotices[i];
-
+		
 		CHudTexture *icon = msg.iconDeath;
-		CHudTexture *iconPrekiller = msg.iconPreKiller;
+		CHudTexture *iconPostKillerName = msg.iconPostKillerName;
+		CHudTexture *iconPreKillerName = msg.iconPreKillerName;
+		CHudTexture *iconPostVictimName = msg.iconPostVictimName;
 
-		wchar_t victim[256] = L"";
-		wchar_t killer[256] = L"";
+		wchar_t victim[256]=L"";
+		wchar_t killer[256]=L"";
 		wchar_t assister[256] = L"";
 
 		// TEMP - print the death icon name if we don't have a material for it
 
-		g_pVGuiLocalize->ConvertANSIToUnicode(msg.Victim.szName, victim, sizeof(victim));
-		g_pVGuiLocalize->ConvertANSIToUnicode(msg.Killer.szName, killer, sizeof(killer));
-		g_pVGuiLocalize->ConvertANSIToUnicode(msg.Assister.szName, assister, sizeof(assister));
+		g_pVGuiLocalize->ConvertANSIToUnicode( msg.Victim.szName, victim, sizeof( victim ) );
+		g_pVGuiLocalize->ConvertANSIToUnicode( msg.Killer.szName, killer, sizeof( killer ) );
+		g_pVGuiLocalize->ConvertANSIToUnicode(msg.Assister.szName, assister, sizeof( assister ));
 
-		int iVictimTextWide = UTIL_ComputeStringWidth(m_hTextFont, victim) + xSpacing;
-		int iDeathInfoTextWide = msg.wzInfoText[0] ? UTIL_ComputeStringWidth(m_hTextFont, msg.wzInfoText) + xSpacing : 0;
-		int iDeathInfoEndTextWide = msg.wzInfoTextEnd[0] ? UTIL_ComputeStringWidth(m_hTextFont, msg.wzInfoTextEnd) + xSpacing : 0;
+		int iVictimTextWide = UTIL_ComputeStringWidth( m_hTextFont, victim ) + xSpacing;
+		int iDeathInfoTextWide= msg.wzInfoText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoText ) + xSpacing : 0;
+		int iDeathInfoEndTextWide= msg.wzInfoTextEnd[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzInfoTextEnd ) + xSpacing : 0;
 
-		int iKillerTextWide = killer[0] ? UTIL_ComputeStringWidth(m_hTextFont, killer) + xSpacing : 0;
+		int iKillerTextWide = killer[0] ? UTIL_ComputeStringWidth( m_hTextFont, killer ) + xSpacing : 0;
 		int iLineTall = m_flLineHeight;
-		int iTextTall = surface()->GetFontTall(m_hTextFont);
+		int iTextTall = surface()->GetFontTall( m_hTextFont );
 		int iconWide = 0, iconTall = 0, iDeathInfoOffset = 0, iVictimTextOffset = 0, iconActualWide = 0;
+		
+		int iPreKillerTextWide = msg.wzPreKillerText[0] ? UTIL_ComputeStringWidth( m_hTextFont, msg.wzPreKillerText ) - xSpacing : 0;
+		
+		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPrekillerTall = 0;
+		int iconPostkillerWide = 0, iconPostkillerActualWide = 0, iconPostkillerTall = 0;
 
-		int iPreKillerTextWide = msg.wzPreKillerText[0] ? UTIL_ComputeStringWidth(m_hTextFont, msg.wzPreKillerText) - xSpacing : 0;
-		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPreKillerTall = 0;
+		int iconPostVictimWide = 0, iconPostVictimActualWide = 0, iconPostVictimTall = 0;
 
-		int iAssisterTextWide = assister[0] ? UTIL_ComputeStringWidth(m_hTextFont, assister) + xSpacing : 0;
-		int iPlusTextWide = assister[0] ? UTIL_ComputeStringWidth(m_hTextFont, L"+") + xSpacing : 0;
+		int iAssisterTextWide = assister[0] ? UTIL_ComputeStringWidth( m_hTextFont, assister ) + xSpacing : 0;
+		int iPlusTextWide = assister[0] ? UTIL_ComputeStringWidth( m_hTextFont, L"+" ) + xSpacing : 0;
 
 		// Get the local position for this notice
-		if (icon)
-		{
-			iconActualWide = icon->EffectiveWidth(1.0f);
+		if ( icon )
+		{			
+			iconActualWide = icon->EffectiveWidth( 1.0f );
 			iconWide = iconActualWide + xSpacing;
-			iconTall = icon->EffectiveHeight(1.0f);
-
-			int iconTallDesired = iLineTall - YRES(2);
-			Assert(0 != iconTallDesired);
-			float flScale = (float)iconTallDesired / (float)iconTall;
+			iconTall = icon->EffectiveHeight( 1.0f );
+			
+			int iconTallDesired = iLineTall-YRES(2);
+			Assert( 0 != iconTallDesired );
+			float flScale = (float) iconTallDesired / (float) iconTall;
 
 			iconActualWide *= flScale;
 			iconTall *= flScale;
 			iconWide *= flScale;
 		}
 
-		if (iconPrekiller)
+		if ( iconPreKillerName )
 		{
-			iconPrekillerActualWide = iconPrekiller->EffectiveWidth(1.0f);
+			iconPrekillerActualWide = iconPreKillerName->EffectiveWidth( 1.0f );
 			iconPrekillerWide = iconPrekillerActualWide;
-			iconPreKillerTall = iconPrekiller->EffectiveHeight(1.0f);
+			iconPrekillerTall = iconPreKillerName->EffectiveHeight( 1.0f );
 
-			int iconTallDesired = iLineTall - YRES(2);
-			Assert(0 != iconTallDesired);
-			float flScale = (float)iconTallDesired / (float)iconPreKillerTall;
+			int iconTallDesired = iLineTall - YRES( 2 );
+			Assert( 0 != iconTallDesired );
+			float flScale = (float)iconTallDesired / (float)iconPrekillerTall;
 
 			iconPrekillerActualWide *= flScale;
-			iconPreKillerTall *= flScale;
+			iconPrekillerTall *= flScale;
 			iconPrekillerWide *= flScale;
 		}
 
-		int iTotalWide = iKillerTextWide + iPlusTextWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + (xMargin * 2);
-		iTotalWide += iconPrekillerWide + iPreKillerTextWide;
-
-		int y = yStart + ((iLineTall + m_flLineSpacing) * i);
-		int yText = y + ((iLineTall - iTextTall) / 2);
-		int yIcon = y + ((iLineTall - iconTall) / 2);
-
-		int x = 0;
-		if (m_bRightJustify)
+		if ( iconPostKillerName )
 		{
-			x = GetWide() - iTotalWide;
+			iconPostkillerActualWide = iconPostKillerName->EffectiveWidth( 1.0f );
+			iconPostkillerWide = iconPostkillerActualWide;
+			iconPostkillerTall = iconPostKillerName->EffectiveHeight( 1.0f );
+
+			int iconTallDesired = iLineTall-YRES(2);
+			Assert( 0 != iconTallDesired );
+			float flScale = (float) iconTallDesired / (float) iconPostkillerTall;
+
+			iconPostkillerActualWide *= flScale;
+			iconPostkillerTall *= flScale;
+			iconPostkillerWide *= flScale;
+		}
+		
+		if ( iconPostVictimName )
+		{
+			iconPostVictimActualWide = iconPostVictimName->EffectiveWidth( 1.0f );
+			iconPostVictimWide = iconPostVictimActualWide;
+			iconPostVictimTall = iconPostVictimName->EffectiveHeight( 1.0f );
+
+			int iconTallDesired = iLineTall - YRES( 2 );
+			Assert( 0 != iconTallDesired );
+			float flScale = (float)iconTallDesired / (float)iconPostVictimTall;
+
+			iconPostVictimActualWide *= flScale;
+			iconPostVictimTall *= flScale;
+			iconPostVictimWide *= flScale;
+		}
+
+		int iTotalWide = iKillerTextWide + iPlusTextWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + ( xMargin * 2 );
+		iTotalWide += iconPrekillerWide + iconPostkillerWide + iPreKillerTextWide + iconPostVictimWide;
+
+		int y = yStart + ( ( iLineTall + m_flLineSpacing ) * i );				
+		int yText = y + ( ( iLineTall - iTextTall ) / 2 );
+		int yIcon = y + ( ( iLineTall - iconTall ) / 2 );
+
+		int x=0;
+		if ( m_bRightJustify )
+		{
+			x =	GetWide() - iTotalWide;
 		}
 
 		// draw a background panel for the message
 		Vertex_t vert[NUM_BACKGROUND_COORD];
-		GetBackgroundPolygonVerts(x, y + 1, x + iTotalWide, y + iLineTall - 1, ARRAYSIZE(vert), vert);
-		surface()->DrawSetTexture(-1);
-		surface()->DrawSetColor(GetBackgroundColor(i));
-		surface()->DrawTexturedPolygon(ARRAYSIZE(vert), vert);
+		GetBackgroundPolygonVerts( x, y+1, x+iTotalWide, y+iLineTall-1, ARRAYSIZE( vert ), vert );		
+		surface()->DrawSetTexture( -1 );
+		surface()->DrawSetColor( GetBackgroundColor ( i ) );
+		surface()->DrawTexturedPolygon( ARRAYSIZE( vert ), vert );
 
 		x += xMargin;
+	
+		// prekiller icon
+		if ( iconPreKillerName )
+		{
+			int yPreIconTall = y + ( ( iLineTall - iconPrekillerTall ) / 2 );
+			iconPreKillerName->DrawSelf( x, yPreIconTall, iconPrekillerActualWide, iconPrekillerTall, m_clrIcon);
+			x += iconPrekillerWide + xSpacing;
+		}
 
-		if (killer[0])
+		if ( killer[0] )
 		{
 			// Draw killer's name
-			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Killer.iTeam, msg.bLocalPlayerInvolved), killer);
+			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved ), killer );
 			x += iKillerTextWide;
 		}
 
-		if (assister[0])
+		if ( assister[0] )
 		{
 			// Draw a + between the names
 			// If both killer and assister are on the same team paint + with their team color
 			Color plusColor;
 			if ( msg.Killer.iTeam == msg.Assister.iTeam )
 			{
-				plusColor = GetTeamColor(msg.Killer.iTeam, msg.bLocalPlayerInvolved);
+				plusColor = GetTeamColor( msg.Killer.iTeam, msg.bLocalPlayerInvolved );
 			}
 			else
 			{
-				plusColor = GetInfoTextColor(i, msg.bLocalPlayerInvolved);
+				plusColor = GetInfoTextColor( i, msg.bLocalPlayerInvolved );
 			}
-			DrawText(x, yText, m_hTextFont, plusColor, L"+");
+			DrawText( x, yText, m_hTextFont, plusColor, L"+" );
 			x += iPlusTextWide;
 
 			// Draw assister's name
-			DrawText(x, yText, m_hTextFont, GetTeamColor(msg.Assister.iTeam, msg.bLocalPlayerInvolved), assister);
+			DrawText( x, yText, m_hTextFont, GetTeamColor( msg.Assister.iTeam, msg.bLocalPlayerInvolved ), assister );
 			x += iAssisterTextWide;
 		}
 
 		// prekiller text
-		if (msg.wzPreKillerText[0])
+		if ( msg.wzPreKillerText[0] )
 		{
 			x += xSpacing;
-			DrawText(x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), msg.wzPreKillerText);
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzPreKillerText );
 			x += iPreKillerTextWide;
 		}
 
-		// Prekiller icon
-		if (iconPrekiller)
+		// postkiller icon
+		if ( iconPostKillerName )
 		{
-			int yPreIconTall = y + ((iLineTall - iconPreKillerTall) / 2);
-			iconPrekiller->DrawSelf(x, yPreIconTall, iconPrekillerActualWide, iconPreKillerTall, m_clrIcon);
-			x += iconPrekillerWide + xSpacing;
+			int yPreIconTall = y + ( ( iLineTall - iconPostkillerTall ) / 2 );
+			iconPostKillerName->DrawSelf( x, yPreIconTall, iconPostkillerActualWide, iconPostkillerTall, m_clrIcon );
+			x += iconPostkillerWide + xSpacing;
 		}
 
 		// Draw glow behind weapon icon to show it was a crit death
-		if (msg.bCrit && msg.iconCritDeath)
+		if ( msg.bCrit && msg.iconCritDeath )
 		{
-			msg.iconCritDeath->DrawSelf(x, yIcon, iconActualWide, iconTall, m_clrIcon);
+			msg.iconCritDeath->DrawSelf( x, yIcon, iconActualWide, iconTall, m_clrIcon );
 		}
 
 		// Draw death icon
-		if (icon)
+		if ( icon )
 		{
-			icon->DrawSelf(x, yIcon, iconActualWide, iconTall, m_clrIcon);
+			icon->DrawSelf( x, yIcon, iconActualWide, iconTall, m_clrIcon );
 			x += iconWide;
 		}
 
 		// Draw additional info text next to death icon 
-		if (msg.wzInfoText[0])
+		if ( msg.wzInfoText[0] )
 		{
-			if (msg.bSelfInflicted)
+			if ( msg.bSelfInflicted )
 			{
 				iDeathInfoOffset += iVictimTextWide;
 				iVictimTextOffset -= iDeathInfoTextWide;
 			}
 
-			DrawText(x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), msg.wzInfoText);
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzInfoText );
 			x += iDeathInfoTextWide;
 		}
 
 		// Draw victims name
-		DrawText(x + iVictimTextOffset, yText, m_hTextFont, GetTeamColor(msg.Victim.iTeam, msg.bLocalPlayerInvolved), victim);
+		DrawText( x + iVictimTextOffset, yText, m_hTextFont, GetTeamColor( msg.Victim.iTeam, msg.bLocalPlayerInvolved ), victim );
 		x += iVictimTextWide;
 
-		// Draw Additional Text on the end of the victims name
-		if (msg.wzInfoTextEnd[0])
+		// postkiller icon
+		if ( iconPostVictimName )
 		{
-			DrawText(x, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), msg.wzInfoTextEnd);
+			int yPreIconTall = y + ( ( iLineTall - iconPostVictimTall ) / 2 );
+			iconPostVictimName->DrawSelf( x, yPreIconTall, iconPostVictimActualWide, iconPostVictimTall, m_clrIcon );
+			x += iconPostkillerWide + xSpacing;
+		}
+
+		// Draw Additional Text on the end of the victims name
+		if ( msg.wzInfoTextEnd[0] )
+		{
+			DrawText( x , yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzInfoTextEnd );
 		}
 	}
 }
