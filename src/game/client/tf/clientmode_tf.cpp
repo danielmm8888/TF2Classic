@@ -58,6 +58,7 @@ void HUDMinModeChangedCallBack( IConVar *var, const char *pOldString, float flOl
 {
 	engine->ExecuteClientCmd( "hud_reloadscheme" );
 }
+
 ConVar cl_hud_minmode( "cl_hud_minmode", "0", FCVAR_ARCHIVE, "Set to 1 to turn on the advanced minimalist HUD mode.", HUDMinModeChangedCallBack );
 ConVar tf2c_coloredhud("tf2c_coloredhud", "0", FCVAR_ARCHIVE, "Set to 1 to turn on panel coloring.", HUDMinModeChangedCallBack);
 
@@ -79,13 +80,13 @@ public:
 static CTFModeManager g_ModeManager;
 IVModeManager *modemanager = ( IVModeManager * )&g_ModeManager;
 
-CLIENTEFFECT_REGISTER_BEGIN(PrecachePostProcessingEffectsGlow)
-CLIENTEFFECT_MATERIAL("dev/glow_blur_x")
-CLIENTEFFECT_MATERIAL("dev/glow_blur_y")
-CLIENTEFFECT_MATERIAL("dev/glow_color")
-CLIENTEFFECT_MATERIAL("dev/glow_downsample")
-CLIENTEFFECT_MATERIAL("dev/halo_add_to_screen")
-CLIENTEFFECT_REGISTER_END_CONDITIONAL(engine->GetDXSupportLevel() >= 90)
+CLIENTEFFECT_REGISTER_BEGIN( PrecachePostProcessingEffectsGlow )
+	CLIENTEFFECT_MATERIAL( "dev/glow_blur_x" )
+	CLIENTEFFECT_MATERIAL( "dev/glow_blur_y" )
+	CLIENTEFFECT_MATERIAL( "dev/glow_color" )
+	CLIENTEFFECT_MATERIAL( "dev/glow_downsample" )
+	CLIENTEFFECT_MATERIAL( "dev/halo_add_to_screen" )
+CLIENTEFFECT_REGISTER_END_CONDITIONAL(	engine->GetDXSupportLevel() >= 90 )
 
 // --------------------------------------------------------------------------------- //
 // CTFModeManager implementation.
@@ -243,6 +244,15 @@ bool ClientModeTFNormal::ShouldDrawViewModel()
 	}
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool ClientModeTFNormal::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
+{
+	g_GlowObjectManager.RenderGlowEffects( pSetup, 0 );
+	return BaseClass::DoPostScreenSpaceEffects( pSetup );
 }
 
 int ClientModeTFNormal::GetDeathMessageStartHeight( void )
