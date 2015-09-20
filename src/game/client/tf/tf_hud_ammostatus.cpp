@@ -179,10 +179,8 @@ void CTFHudWeaponAmmo::OnThink()
 		return;
 
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
-	if ( !pWeapon )
-		return;
 
-	if ( tf2c_ammobucket.GetBool() && m_pWeaponBucket )
+	if ( tf2c_ammobucket.GetBool() && m_pWeaponBucket && pWeapon )
 	{
 		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
 		if ( pPlayer )
@@ -204,6 +202,10 @@ void CTFHudWeaponAmmo::OnThink()
 		{
 			m_pWeaponBucket->SetVisible( false );
 		}
+	}
+	else
+	{
+		m_pWeaponBucket->SetVisible( false );
 	}
 
 	if ( m_flNextThink < gpGlobals->curtime )
