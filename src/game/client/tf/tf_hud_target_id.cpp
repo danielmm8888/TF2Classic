@@ -23,7 +23,10 @@ DECLARE_HUDELEMENT( CSecondaryTargetID );
 
 using namespace vgui;
 
+void HUDMinModeChangedCallBack(IConVar *var, const char *pOldString, float flOldValue);
+
 ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
+ConVar tf_hud_target_id_show_avatars( "tf_hud_target_id_show_avatars", "1", FCVAR_ARCHIVE, "Display Steam avatars on TargetID", HUDMinModeChangedCallBack );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -210,11 +213,10 @@ void CTargetID::PerformLayout( void )
 	GetPos( iX, iY );
 	SetPos( (ScreenWidth() - iWidth) * 0.5, iY );
 
-	SetAlpha( tf_hud_target_id_alpha.GetFloat() );
-
 	if ( m_pBGPanel )
 	{
 		m_pBGPanel->SetSize( iWidth, GetTall() );
+		m_pBGPanel->SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 	}
 };
 
@@ -411,10 +413,13 @@ void CTargetID::UpdateID( void )
 
 		m_pBGPanel->SetBGImage( iColorNum );
 
-		if ( m_pAvatar )
+		if ( tf_hud_target_id_show_avatars.GetBool() )
 		{
-			m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
-			m_pAvatar->SetShouldDrawFriendIcon( false );
+			if ( m_pAvatar )
+			{
+				m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
+				m_pAvatar->SetShouldDrawFriendIcon( false );
+			}
 		}
 
 		int iNameW, iDataW, iIgnored;
