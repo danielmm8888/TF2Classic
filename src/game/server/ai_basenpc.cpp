@@ -11154,7 +11154,7 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 	BaseClass::PostConstructor( szClassname );
 	// Ugly hack to get NPC classname on client side. Unfortunately, I don't see any other way,
 	// other than adding a stub client class for every HL2 NPC. (Nicknine)
-	Q_strcpy( m_szClassname.GetForModify(), szClassname );
+	Q_strncpy( m_szClassname.GetForModify(), szClassname, 128 );
 	CreateComponents();
 }
 
