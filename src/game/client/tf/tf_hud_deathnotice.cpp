@@ -51,7 +51,7 @@ public:
 	virtual void Paint( void );
 
 	void PlayRivalrySounds( int iKillerIndex, int iVictimIndex, int iType  );
-	virtual Color GetInfoTextColor(int iDeathNoticeMsg, bool bLocalPlayerInvolved){ return bLocalPlayerInvolved ? Color(0, 0, 0, 255) : Color(255, 255, 255, 255); }
+	virtual Color GetInfoTextColor( int iDeathNoticeMsg ){ return m_DeathNotices[iDeathNoticeMsg].bLocalPlayerInvolved ? Color(0, 0, 0, 255) : Color(255, 255, 255, 255); }
 
 protected:	
 	virtual void OnGameEvent( IGameEvent *event, int iDeathNoticeMsg );
@@ -517,7 +517,7 @@ void CTFHudDeathNotice::Paint()
 			}
 			else
 			{
-				plusColor = GetInfoTextColor( i, msg.bLocalPlayerInvolved );
+				plusColor = GetInfoTextColor( i );
 			}
 			DrawText( x, yText, m_hTextFont, plusColor, L"+" );
 			x += iPlusTextWide;
@@ -531,7 +531,7 @@ void CTFHudDeathNotice::Paint()
 		if ( msg.wzPreKillerText[0] )
 		{
 			x += xSpacing;
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzPreKillerText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzPreKillerText );
 			x += iPreKillerTextWide;
 		}
 
@@ -565,7 +565,7 @@ void CTFHudDeathNotice::Paint()
 				iVictimTextOffset -= iDeathInfoTextWide;
 			}
 
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzInfoText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoText );
 			x += iDeathInfoTextWide;
 		}
 
@@ -584,7 +584,7 @@ void CTFHudDeathNotice::Paint()
 		// Draw Additional Text on the end of the victims name
 		if ( msg.wzInfoTextEnd[0] )
 		{
-			DrawText( x , yText, m_hTextFont, GetInfoTextColor( i, msg.bLocalPlayerInvolved ), msg.wzInfoTextEnd );
+			DrawText( x , yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoTextEnd );
 		}
 	}
 }
