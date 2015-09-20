@@ -188,6 +188,9 @@ public:
 
 	virtual bool	AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
+	virtual int		GetClassLimit( int iDesiredClassIndex );
+	virtual bool	CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClassIndex );
+
 	void			SetTeamGoalString( int iTeam, const char *pszGoal );
 
 	// Speaking, vcds, voice commands.
@@ -247,7 +250,8 @@ public:
 	virtual bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
 	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
 	virtual bool    IsMannVsMachineMode( void ) { return false; };
-	virtual bool    IsHalloweenScenario( int iEventType ) { return false; };
+	virtual bool	IsInArenaMode( void ) { return m_nGameType == TF_GAMETYPE_ARENA; }
+	virtual bool    IsHalloweenScenario(int iEventType) { return false; };
 	virtual bool	IsPVEModeActive( void ) { return false; };
 	virtual bool	IsCompetitiveMode( void ){ return false; };
 

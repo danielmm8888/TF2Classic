@@ -298,12 +298,12 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropExclude( "DT_BaseFlex", "m_blinktoggle" ),
 	SendPropExclude( "DT_BaseFlex", "m_viewtarget" ),
 
-	SendPropBool(SENDINFO(m_bSaveMeParity)),
+	SendPropBool( SENDINFO( m_bSaveMeParity ) ),
 
 	// This will create a race condition will the local player, but the data will be the same so.....
 	SendPropInt( SENDINFO( m_nWaterLevel ), 2, SPROP_UNSIGNED ),
 
-	SendPropEHandle(SENDINFO(m_hItem)),
+	SendPropEHandle( SENDINFO( m_hItem ) ),
 
 	SendPropVector(SENDINFO(m_vecPlayerColor)),
 
@@ -2017,6 +2017,9 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		} while( iClass == GetPlayerClass()->GetClassIndex() );
 	}
 
+	if ( !TFGameRules()->CanPlayerChooseClass( this, iClass ) )
+		return;
+
 	// joining the same class?
 	if ( iClass != TF_CLASS_RANDOM && iClass == GetDesiredPlayerClassIndex() )
 	{
@@ -2029,6 +2032,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		}
 		return;
 	}
+
 	SetNextChangeClassTime(gpGlobals->curtime + 2.0f);
 
 	SetDesiredPlayerClassIndex( iClass );
