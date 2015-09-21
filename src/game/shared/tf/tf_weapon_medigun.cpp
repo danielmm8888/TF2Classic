@@ -532,6 +532,8 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 			{
 				pNPC->Heal( pOwner, GetHealRate() );
 			}
+
+			pNPC->RecalculateInvuln( false );
 		}
 
 		if ( m_flReleaseStartedAt && m_flReleaseStartedAt < (gpGlobals->curtime + 0.2) )
@@ -781,7 +783,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 			CAI_BaseNPC *pNPC = m_hHealingTarget->MyNPCPointer();
 			pNPC->StopHealing( pOwner );
-			//pNPC->RecalculateInvuln( false );
+			pNPC->RecalculateInvuln( false );
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pNPC->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 		}
@@ -909,11 +911,19 @@ void CWeaponMedigun::SecondaryAttack( void )
 
 	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
 
-	if ( m_hHealingTarget && m_hHealingTarget->IsPlayer() )
+	if ( m_hHealingTarget )
 	{
-		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
-		pTFPlayer->m_Shared.RecalculateInvuln();
-		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
+		if ( m_hHealingTarget->IsPlayer() )
+		{
+			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
+			pTFPlayer->m_Shared.RecalculateInvuln();
+			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
+		}
+		else if ( m_hHealingTarget->IsNPC() )
+		{
+			CAI_BaseNPC *pNPC = m_hHealingTarget->MyNPCPointer();
+			pNPC->RecalculateInvuln();
+		}
 	}
 
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_chargedeployed" );

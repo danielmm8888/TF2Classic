@@ -828,6 +828,19 @@ public:
 				m_pResult->SetFloatValue( 0.0 );
 			}
 		}
+		else if ( pEntity->IsNPC() )
+		{
+			// See if it's NPC.
+			C_AI_BaseNPC *pNPC = pEntity->MyNPCPointer();
+			if ( pNPC->InCond( TF_COND_INVULNERABLE ) && !pNPC->InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
+			{
+				m_pResult->SetFloatValue( 1.0 );
+			}
+			else
+			{
+				m_pResult->SetFloatValue( 0.0 );
+			}
+		}
 
 		if ( ToolsEnabled() )
 		{

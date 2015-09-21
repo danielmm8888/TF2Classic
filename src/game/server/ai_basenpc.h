@@ -2152,7 +2152,9 @@ public:
 	void	ConditionGameRulesThink( void );
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
-	//void	RecalculateInvuln( bool bInstantRemove = false );
+	void	RecalculateInvuln( bool bInstantRemove = false );
+	bool	IsProvidingInvuln( CTFPlayer *pPlayer );
+	void	SetInvulnerable( bool bState, bool bInstant = false );
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
 	int		GetNumHealers( void ) { return m_nNumHealers; }

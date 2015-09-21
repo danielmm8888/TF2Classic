@@ -118,6 +118,8 @@ extern ConVar tf_boost_drain_time;
 #include "tf_obj.h"
 #include "tf_gamerules.h"
 #include "tf_team.h"
+#include "tf_weapon_medigun.h"
+#include "triggers.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -860,6 +862,32 @@ int CAI_BaseNPC::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	int bitsDamage = info.GetDamageType();
 
+	// If we're invulnerable, force ourselves to only take damage events only, so we still get pushed
+	if ( InCond( TF_COND_INVULNERABLE ) )
+	{
+		bool bAllowDamage = false;
+
+		// check to see if our attacker is a trigger_hurt entity (and allow it to kill us even if we're invuln)
+		CBaseEntity *pAttacker = info.GetAttacker();
+		if ( pAttacker && pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) )
+		{
+			CTriggerHurt *pTrigger = dynamic_cast<CTriggerHurt *>( pAttacker );
+			if ( pTrigger )
+			{
+				bAllowDamage = true;
+			}
+		}
+
+		if ( !bAllowDamage )
+		{
+			int iOldTakeDamage = m_takedamage;
+			m_takedamage = DAMAGE_EVENTS_ONLY;
+			BaseClass::OnTakeDamage( info );
+			m_takedamage = iOldTakeDamage;
+			return 0;
+		}
+	}
+
 	// Crit modifier
 	if ( info.GetAttacker() != this && !(bitsDamage & (DMG_DROWN | DMG_FALL)) ) 
 	{
@@ -1423,6 +1451,14 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		break;
 	}
 
+#ifdef TF_CLASSIC
+	if ( InCond( TF_COND_INVULNERABLE ) )
+	{ 
+		// Make bullet impacts
+		g_pEffects->Ricochet( ptr->endpos - (vecDir * 8), -vecDir );
+	}
+	else
+#endif
 	if ( subInfo.GetDamage() >= 1.0 && !(subInfo.GetDamageType() & DMG_SHOCK ) )
 	{
 		if( !IsPlayer() || ( IsPlayer() && g_pGameRules->IsMultiplayer() ) )
@@ -14582,7 +14618,7 @@ void CAI_BaseNPC::Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal 
 
 	AddCond( TF_COND_HEALTH_BUFF );
 
-	//RecalculateInvuln();
+	RecalculateInvuln();
 
 	m_nNumHealers = m_aHealers.Count();
 }
@@ -14603,9 +14639,111 @@ void CAI_BaseNPC::StopHealing( CTFPlayer *pPlayer )
 		RemoveCond( TF_COND_HEALTH_BUFF );
 	}
 
-	//RecalculateInvuln();
+	RecalculateInvuln();
 
 	m_nNumHealers = m_aHealers.Count();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CAI_BaseNPC::IsProvidingInvuln( CTFPlayer *pPlayer )
+{
+	if ( !pPlayer->IsPlayerClass(TF_CLASS_MEDIC) )
+		return false;
+
+	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
+	if ( !pWpn )
+		return false;
+
+	CWeaponMedigun *pMedigun = dynamic_cast<CWeaponMedigun*>(pWpn);
+	if ( pMedigun && pMedigun->IsReleasingCharge() )
+		return true;
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::RecalculateInvuln( bool bInstantRemove )
+{
+	bool bShouldBeInvuln = false;
+
+	for ( int i = 0; i < m_aHealers.Count(); i++ )
+	{
+		if ( !m_aHealers[i].pPlayer )
+			continue;
+
+		CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
+		if ( !pPlayer )
+			continue;
+
+		if ( IsProvidingInvuln( pPlayer ) )
+		{
+			bShouldBeInvuln = true;
+			break;
+		}
+	}
+
+	SetInvulnerable( bShouldBeInvuln, bInstantRemove );
+}
+
+extern ConVar tf_invuln_time;
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::SetInvulnerable( bool bState, bool bInstant )
+{
+	bool bCurrentState = InCond( TF_COND_INVULNERABLE );
+	if ( bCurrentState == bState )
+	{
+		if ( bState && m_flInvulnerableOffTime )
+		{
+			m_flInvulnerableOffTime = 0;
+			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
+		}
+		return;
+	}
+
+	if ( bState )
+	{
+		Assert( !m_pOuter->HasTheFlag() );
+
+		if ( m_flInvulnerableOffTime )
+		{
+			m_flInvulnerableOffTime = 0;
+			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
+		}
+
+		// Invulnerable turning on
+		AddCond( TF_COND_INVULNERABLE );
+
+		// remove any persistent damaging conditions
+		if ( InCond( TF_COND_BURNING ) )
+		{
+			RemoveCond( TF_COND_BURNING );
+		}
+	}
+	else
+	{
+		if ( bInstant )
+		{
+			m_flInvulnerableOffTime = 0;
+			RemoveCond( TF_COND_INVULNERABLE );
+			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
+		}
+		else
+		{
+			// We're already in the process of turning it off
+			if ( m_flInvulnerableOffTime )
+				return;
+
+			AddCond( TF_COND_INVULNERABLE_WEARINGOFF );
+			m_flInvulnerableOffTime = gpGlobals->curtime + tf_invuln_time.GetFloat();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -14740,6 +14878,31 @@ void CAI_BaseNPC::ConditionGameRulesThink( void )
 			// Reduce the duration of this burn 
 			float flReduction = 2;	 // ( flReduction + 1 ) x faster reduction
 			m_flFlameRemoveTime -= flReduction * gpGlobals->frametime;
+		}
+	}
+
+	if ( InCond( TF_COND_INVULNERABLE )  )
+	{
+		bool bRemoveInvul = false;
+
+		if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() != GetTeamNumber() ) )
+		{
+			bRemoveInvul = true;
+		}
+		
+		if ( m_flInvulnerableOffTime )
+		{
+			if ( gpGlobals->curtime > m_flInvulnerableOffTime )
+			{
+				bRemoveInvul = true;
+			}
+		}
+
+		if ( bRemoveInvul == true )
+		{
+			m_flInvulnerableOffTime = 0;
+			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
+			RemoveCond( TF_COND_INVULNERABLE );
 		}
 	}
 

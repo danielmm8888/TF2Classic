@@ -20,6 +20,7 @@
 #include "iclientmode.h"
 #include "vgui/ILocalize.h"
 #include "soundenvelope.h"
+#include "IEffects.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -171,6 +172,7 @@ void C_AI_BaseNPC::OnPreDataChanged( DataUpdateType_t updateType )
 	BaseClass::OnPreDataChanged( updateType );
 
 #ifdef TF_CLASSIC_CLIENT
+	m_iOldTeam = GetTeamNumber();
 	m_nOldConditions = m_nPlayerCond;
 #endif
 }
@@ -185,6 +187,19 @@ void C_AI_BaseNPC::OnDataChanged( DataUpdateType_t type )
 	}
 
 #ifdef TF_CLASSIC_CLIENT
+
+	if ( type == DATA_UPDATE_CREATED )
+	{
+		InitInvulnerableMaterial();
+	}
+	else
+	{
+		if ( m_iOldTeam != GetTeamNumber() )
+		{
+			InitInvulnerableMaterial();
+		}
+	}
+
 	if ( InCond( TF_COND_BURNING ) && !m_pBurningSound )
 	{
 		StartBurningSound();
@@ -240,6 +255,55 @@ bool C_AI_BaseNPC::GetRagdollInitBoneArrays( matrix3x4_t *pDeltaBones0, matrix3x
 }
 
 #ifdef TF_CLASSIC_CLIENT
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int	C_AI_BaseNPC::InternalDrawModel( int flags )
+{
+	bool bUseInvulnMaterial = InCond( TF_COND_INVULNERABLE );
+	if ( bUseInvulnMaterial )
+	{
+		modelrender->ForcedMaterialOverride( *GetInvulnMaterialRef() );
+	}
+
+	int ret = BaseClass::InternalDrawModel( flags );
+
+	if ( bUseInvulnMaterial )
+	{
+		modelrender->ForcedMaterialOverride( NULL );
+	}
+
+	return ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Don't take damage decals while invulnerable
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::AddDecal( const Vector& rayStart, const Vector& rayEnd,
+							const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, int maxLODToDecal )
+{
+	if ( InCond( TF_COND_STEALTHED ) )
+	{
+		return;
+	}
+
+	if ( InCond( TF_COND_INVULNERABLE ) )
+	{ 
+		Vector vecDir = rayEnd - rayStart;
+		VectorNormalize(vecDir);
+		g_pEffects->Ricochet( rayEnd - (vecDir * 8), -vecDir );
+		return;
+	}
+
+	// don't decal from inside NPC
+	if ( tr.startsolid )
+	{
+		return;
+	}
+
+	BaseClass::AddDecal( rayStart, rayEnd, decalCenter, hitbox, decalIndex, doTrace, tr, maxLODToDecal );
+}
+
 C_BaseAnimating *C_AI_BaseNPC::BecomeRagdollOnClient()
 {
 	C_BaseAnimating *pRagdoll = BaseClass::BecomeRagdollOnClient();
@@ -384,6 +448,37 @@ void C_AI_BaseNPC::StopBurningSound( void )
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBurningSound );
 		m_pBurningSound = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_AI_BaseNPC::InitInvulnerableMaterial( void )
+{
+	const char *pszMaterial = NULL;
+
+	int iTeam = GetTeamNumber();
+
+	switch ( iTeam )
+	{
+	case TF_TEAM_BLUE:	
+		pszMaterial = "models/effects/invulnfx_blue.vmt";
+		break;
+	case TF_TEAM_RED:	
+		pszMaterial = "models/effects/invulnfx_red.vmt";
+		break;
+	default:
+		break;
+	}
+
+	if ( pszMaterial )
+	{
+		m_InvulnerableMaterial.Init( pszMaterial, TEXTURE_GROUP_CLIENT_EFFECTS );
+	}
+	else
+	{
+		m_InvulnerableMaterial.Shutdown();
 	}
 }
 #endif

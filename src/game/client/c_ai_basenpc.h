@@ -52,11 +52,15 @@ public:
 
 	inline const char		*GetClassname( void ) { return m_szClassname; }
 #ifdef TF_CLASSIC_CLIENT
-	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
+	virtual int				InternalDrawModel( int flags );
+	virtual void AddDecal( const Vector& rayStart, const Vector& rayEnd,
+		const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, int maxLODToDecal = ADDDECAL_TO_ALL_LODS );
 
 	virtual C_BaseAnimating	*BecomeRagdollOnClient();
 	virtual IRagdoll		*GetRepresentativeRagdoll() const;
 	virtual Vector			GetObserverCamOrigin( void );
+
+	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
 
 	int						GetNumHealers( void ) { return m_nNumHealers; }
 	int						GetMaxBuffedHealth( void );
@@ -81,6 +85,9 @@ public:
 
 	void	StartBurningSound( void );
 	void	StopBurningSound( void );
+
+	CMaterialReference *GetInvulnMaterialRef( void ) { return &m_InvulnerableMaterial; }
+	void InitInvulnerableMaterial( void );
 #endif
 
 private:
@@ -104,6 +111,8 @@ private:
 	char m_szClassname[128];
 
 #ifdef TF_CLASSIC_CLIENT
+	int m_iOldTeam;
+
 	// Conditions
 	int m_nPlayerCond;
 	int m_nOldConditions;
@@ -119,6 +128,8 @@ private:
 
 	// Ragdoll
 	EHANDLE				m_hRagdoll;
+
+	CMaterialReference	m_InvulnerableMaterial;
 #endif
 };
 
