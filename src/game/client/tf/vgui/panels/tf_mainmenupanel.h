@@ -3,9 +3,11 @@
 
 #include "tf_menupanelbase.h"
 #include "steam/steam_api.h"
+#include <vgui_controls/HTML.h>
 
 class CAvatarImagePanel;
 class CTFAdvButton;
+class CTFBlogPanel;
 
 enum MusicStatus
 {
@@ -39,6 +41,7 @@ public:
 	void SetVersionLabel();
 	void PlayMusic();
 	void OnNotificationUpdate();
+	void ShowBlogPanel(bool show);
 
 private:
 	CExLabel			*m_pVersionLabel;
@@ -49,9 +52,25 @@ private:
 	int					m_nSongGuid;
 	MusicStatus			m_psMusicStatus;
 	char*				GetRandomMusic();
-	
+
 	CSteamID			m_SteamID;
+	CTFBlogPanel		*m_pBlogPanel;
 };
 
+
+class CTFBlogPanel : public CTFMenuPanelBase
+{
+	DECLARE_CLASS_SIMPLE(CTFBlogPanel, CTFMenuPanelBase);
+
+public:
+	CTFBlogPanel(vgui::Panel* parent, const char *panelName);
+	virtual ~CTFBlogPanel();
+	void PerformLayout();
+	void ApplySchemeSettings(vgui::IScheme *pScheme);
+	void LoadBlogPost(const char* URL);
+
+private:
+	vgui::HTML			*m_pHTMLPanel;
+};
 
 #endif // TFMAINMENUPANEL_H

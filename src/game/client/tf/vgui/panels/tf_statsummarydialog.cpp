@@ -556,11 +556,11 @@ char *CTFStatsSummaryDialog::FormatSeconds(int seconds)
 int __cdecl CTFStatsSummaryDialog::CompareClassStats(const ClassStats_t *pStats0, const ClassStats_t *pStats1)
 {	
 	// sort stats first by right-hand bar graph
-	TFStatType_t statTypePrimary = dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->m_statBarGraph[1];
-	StatDisplay_t statDisplayPrimary = dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->m_displayBarGraph[1];
+	TFStatType_t statTypePrimary = GET_MAINMENUPANEL(CTFStatsSummaryDialog)->m_statBarGraph[1];
+	StatDisplay_t statDisplayPrimary = GET_MAINMENUPANEL(CTFStatsSummaryDialog)->m_displayBarGraph[1];
 	// then by left-hand bar graph
-	TFStatType_t statTypeSecondary = dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->m_statBarGraph[0];
-	StatDisplay_t statDisplaySecondary = dynamic_cast<CTFStatsSummaryDialog*>(GetMenuPanel(STATSUMMARY_MENU))->m_displayBarGraph[0];
+	TFStatType_t statTypeSecondary = GET_MAINMENUPANEL(CTFStatsSummaryDialog)->m_statBarGraph[0];
+	StatDisplay_t statDisplaySecondary = GET_MAINMENUPANEL(CTFStatsSummaryDialog)->m_displayBarGraph[0];
 
 	float flValPrimary0 = GetDisplayValue((ClassStats_t &)*pStats0, statTypePrimary, statDisplayPrimary);
 	float flValPrimary1 = GetDisplayValue((ClassStats_t &)*pStats1, statTypePrimary, statDisplayPrimary);

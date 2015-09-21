@@ -13,6 +13,15 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define BLOG_URL "http://tf2classic.com/upd/?nolinks=1&noheader=1&nofooter=1&fillwrapper=1"
+
+static void OnBlogToggle(IConVar *var, const char *pOldValue, float flOldValue)
+{
+	GET_MAINMENUPANEL(CTFMainMenuPanel)->ShowBlogPanel(((ConVar*)var)->GetBool());
+}
+ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Toggle music in the main menu");
+ConVar tf2c_mainmenu_showblog("tf2c_mainmenu_showblog", "1", FCVAR_ARCHIVE, "Toggle blog in the main menu", OnBlogToggle);
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -45,6 +54,7 @@ bool CTFMainMenuPanel::Init()
 	m_pVersionLabel = NULL;
 	m_pNotificationButton = NULL;
 	m_pProfileAvatar = NULL;
+	m_pBlogPanel = new CTFBlogPanel(this, "BlogPanel");
 
 	bInMenu = true;
 	bInGame = false;
@@ -60,6 +70,7 @@ void CTFMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
 	m_pNotificationButton = dynamic_cast<CTFAdvButton *>(FindChildByName("NotificationButton"));
 	m_pProfileAvatar = dynamic_cast<CAvatarImagePanel *>(FindChildByName("AvatarImage"));
+
 	SetVersionLabel();
 }	
 
@@ -80,6 +91,18 @@ void CTFMainMenuPanel::PerformLayout()
 	OnNotificationUpdate();
 	AutoLayout();
 };
+
+void CTFMainMenuPanel::ShowBlogPanel(bool show)
+{
+	if (m_pBlogPanel)
+	{
+		m_pBlogPanel->SetVisible(show);
+		if (show)
+		{
+			m_pBlogPanel->LoadBlogPost(BLOG_URL);
+		}
+	}
+}
 
 void CTFMainMenuPanel::OnCommand(const char* command)
 {
@@ -127,8 +150,6 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 		BaseClass::OnCommand(command);
 	}
 }
-
-ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Plays music in MainMenu");
 
 void CTFMainMenuPanel::OnTick()
 {
@@ -266,4 +287,43 @@ char* CTFMainMenuPanel::GetRandomMusic()
 	char *szResult = (char*)malloc(sizeof(szPath));
 	Q_strncpy(szResult, szPath, sizeof(szPath));
 	return szResult;	
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Constructor
+//-----------------------------------------------------------------------------
+CTFBlogPanel::CTFBlogPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
+{
+	m_pHTMLPanel = new vgui::HTML(this, "HTMLPanel");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CTFBlogPanel::~CTFBlogPanel()
+{
+}
+
+void CTFBlogPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+
+	LoadControlSettings("resource/UI/main_menu/BlogPanel.res");
+}
+
+void CTFBlogPanel::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	LoadBlogPost(BLOG_URL);
+}
+
+void CTFBlogPanel::LoadBlogPost(const char* URL)
+{
+	if (m_pHTMLPanel)
+	{
+		m_pHTMLPanel->SetVisible(true);
+		m_pHTMLPanel->OpenURL(URL, NULL);
+	}
 }
