@@ -661,6 +661,8 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "TFPlayer.Drown" );
 	PrecacheScriptSound( "TFPlayer.AttackerPain" );
 	PrecacheScriptSound( "TFPlayer.SaveMe" );
+	PrecacheScriptSound( "TFPlayer.InvulnerableOn" );
+	PrecacheScriptSound( "TFPlayer.InvulnerableOff" );
 	PrecacheScriptSound( "Camera.SnapShot" );
 
 	PrecacheScriptSound( "Game.YourTeamLost" );
