@@ -875,6 +875,74 @@ CON_COMMAND( ai_test_los, "Test AI LOS from the player's POV" )
 	NDebugOverlay::Cross3D( tr.endpos, 24, 255, 255, 255, true, 5 );
 }
 
+#ifdef TF_CLASSIC
+CBaseEntity *GetNextCommandEntity( CBasePlayer *pPlayer, const char *name, CBaseEntity *ent );
+
+void CC_NPC_AddCond( const CCommand &args )
+{
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+
+	if ( !pPlayer )
+		return;
+
+	if ( args.ArgC() < 2 )
+	{
+		ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Usage: npc_addcond <condition> <npc_name> <duration>\n" );
+		return;
+	}
+
+	int cond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+	const char *name = args[2];
+
+	CBaseEntity *pEntity = NULL;
+	while ( (pEntity = GetNextCommandEntity( pPlayer, name, pEntity )) != NULL )
+	{
+		CAI_BaseNPC *pNPC = pEntity->MyNPCPointer();
+		if ( pNPC )
+		{
+			if ( args.ArgC() >= 4 )
+			{
+				float duration = atof( args[3] );
+				pNPC->AddCond( cond, duration );
+			}
+			else
+			{
+				pNPC->AddCond( cond );
+			}
+		}
+	}
+}
+static ConCommand npc_addcond( "npc_addcond", CC_NPC_AddCond, "Adds TF2 condition to NPC\n\tArguments:\n\tcondition number\n\t{npc_name} / {npc class_name} / no argument picks what player is looking at\n\tcondition duration", FCVAR_CHEAT );
+
+void CC_NPC_RemoveCond( const CCommand &args )
+{
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
+
+	if ( !pPlayer )
+		return;
+
+	if ( args.ArgC() < 2 )
+	{
+		ClientPrint( pPlayer, HUD_PRINTCONSOLE, "Usage: npc_removecond <condition> <npc_name>\n" );
+		return;
+	}
+
+	int cond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+	const char *name = args[2];
+
+	CBaseEntity *pEntity = NULL;
+	while ( (pEntity = GetNextCommandEntity( pPlayer, name, pEntity )) != NULL )
+	{
+		CAI_BaseNPC *pNPC = pEntity->MyNPCPointer();
+		if ( pNPC )
+		{
+			pNPC->RemoveCond( cond );
+		}
+	}
+}
+static ConCommand npc_removecond( "npc_removecond", CC_NPC_RemoveCond, "Removes TF2 condition from NPC\n\tArguments:\n\tcondition number\n\t{npc_name} / {npc class_name} / no argument picks what player is looking at", FCVAR_CHEAT );
+#endif
+
 #ifdef VPROF_ENABLED
 
 CON_COMMAND(ainet_generate_report, "Generate a report to the console.")
