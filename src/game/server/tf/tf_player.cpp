@@ -1377,7 +1377,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 	if ( iTeam > TF_TEAM_BLUE )
 	{
-		Warning("Access denied.\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Access denied.\n" );
 		return;
 	}
 
