@@ -688,7 +688,7 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 		if ( event )
 		{
-			event->SetInt( "victim", pVictim->entindex() );
+			event->SetInt( "npc_victim", pVictim->entindex() );
 			event->SetString( "victim_name", pVictim->GetClassname() );
 			event->SetInt( "victim_team", pVictim->GetTeamNumber() );
 			event->SetInt( "attacker", killer_ID );
