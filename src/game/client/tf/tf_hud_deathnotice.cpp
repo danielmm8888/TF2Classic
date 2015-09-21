@@ -144,7 +144,7 @@ private:
 using namespace vgui;
 
 static ConVar hud_deathnotice_time( "hud_deathnotice_time", "6", 0 );
-static ConVar hud_deathnotice_npc( "hud_deathnotice_npc", "1", NULL, "Toggle showing NPC death notifications" );
+static ConVar hud_deathnotice_npc( "hud_deathnotice_npc", "1", 0, "Toggle showing NPC death notifications." );
 
 DECLARE_HUDELEMENT( CTFHudDeathNotice );
 
@@ -460,7 +460,7 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 		{
 			victim_name = g_PR->GetPlayerName( victim );
 		}
-		else if ( npc_victim > 0 )	// If the killer is not a player see if this is NPC.
+		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
 		{
 			char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
 			GetLocalizedNPCName( npc_victim_name, nameBuf, sizeof(nameBuf) );
@@ -539,7 +539,7 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 			}
 			else if ( ( event->GetInt( "damagebits" ) & DMG_BLAST ) && !killer && !npc_killer )
 			{
-				// explosive death
+				// environmental explosive death
 				V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, g_pVGuiLocalize->Find( "#DeathMsg_Blast" ), sizeof( m_DeathNotices[iMsg].wzInfoText ) );
 			}
 			else if ( event->GetInt( "damagebits" ) & DMG_DROWN )
