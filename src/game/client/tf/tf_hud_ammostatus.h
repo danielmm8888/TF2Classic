@@ -43,7 +43,6 @@ private:
 private:
 
 	float							m_flNextThink;
-	CTFInventory					*m_pInventory;
 
 	CHandle<C_BaseCombatWeapon>		m_hCurrentActiveWeapon;
 	int								m_nAmmo;
@@ -55,7 +54,7 @@ private:
 	CExLabel						*m_pInReserveShadow;
 	CExLabel						*m_pNoClip;
 	CExLabel						*m_pNoClipShadow;
-	CTFImagePanel					*m_pWeaponBucket;
+	vgui::ImagePanel				*m_pWeaponBucket;
 
 	CPanelAnimationVarAliasType(float, m_flLargeBoxWide, "LargeBoxWide", "108", "proportional_float");
 	CPanelAnimationVarAliasType(float, m_flLargeBoxTall, "LargeBoxTall", "72", "proportional_float");

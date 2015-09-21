@@ -19,7 +19,7 @@
 #include "cbase.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
-#include "tf_modelpanel.h"
+#include "basemodelpanel.h"
 #include "imagemouseoverbutton.h"
 #include "IconPanel.h"
 #include <vgui_controls/CheckButton.h>

@@ -162,4 +162,46 @@ private:
 	ButtonCode_t m_iTeamMenuKey;
 };
 
+
+//-----------------------------------------------------------------------------
+// Purpose: Displays the arena team menu
+//-----------------------------------------------------------------------------
+class CTFDeathmatchTeamMenu : public CTeamMenu
+{
+private:
+	DECLARE_CLASS_SIMPLE(CTFDeathmatchTeamMenu, CTeamMenu);
+
+public:
+	CTFDeathmatchTeamMenu(IViewPort *pViewPort);
+	~CTFDeathmatchTeamMenu();
+
+	virtual const char *GetName(void) { return PANEL_DEATHMATCHTEAMSELECT; }
+	void Update();
+	void ShowPanel(bool bShow);
+
+protected:
+	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
+	virtual void OnKeyCodePressed(vgui::KeyCode code);
+
+	// command callbacks
+	virtual void OnCommand(const char *command);
+
+	virtual void LoadMapPage(const char *mapName);
+
+	virtual void OnTick(void);
+
+private:
+
+	CTFTeamButton	*m_pAutoTeamButton;
+	CTFTeamButton	*m_pSpecTeamButton;
+	CExLabel		*m_pSpecLabel;
+	CExButton		*m_pCancelButton;
+
+
+private:
+	enum { NUM_TEAMS = 3 };
+
+	ButtonCode_t m_iTeamMenuKey;
+};
+
 #endif // TF_TEAMMENU_H

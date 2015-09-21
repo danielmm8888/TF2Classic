@@ -20,15 +20,18 @@
 
 #include "tf_imagepanel.h"
 #include "c_tf_player.h"
+#include "tf_gamerules.h"
 
 using namespace vgui;
 
 DECLARE_BUILD_FACTORY( CTFImagePanel );
 
+extern ConVar tf2c_coloredhud;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFImagePanel::CTFImagePanel(Panel *parent, const char *name) : ImagePanel(parent, name)
+CTFImagePanel::CTFImagePanel(Panel *parent, const char *name) : ScalableImagePanel(parent, name)
 {
 	for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 	{
@@ -50,7 +53,6 @@ void CTFImagePanel::ApplySettings(KeyValues *inResourceData)
 	{
 		Q_strncpy( m_szTeamBG[i], inResourceData->GetString( VarArgs("teambg_%d", i), "" ), sizeof( m_szTeamBG[i] ) );
 	}
-
 	BaseClass::ApplySettings( inResourceData );
 
 	UpdateBGImage();
@@ -63,9 +65,31 @@ void CTFImagePanel::UpdateBGImage(void)
 {
 	if ( m_iBGTeam >= 0 && m_iBGTeam < TF_TEAM_COUNT )
 	{
-		if ( m_szTeamBG[m_iBGTeam] && m_szTeamBG[m_iBGTeam][0] )
+		if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		{
+			int iColorIndex = (tf2c_coloredhud.GetBool() ? IMAGE_BG_EMPTY : IMAGE_BG_DEATHMATCH);
+			if (m_szTeamBG[iColorIndex][0] != '\0')
+			{
+				SetImage(m_szTeamBG[iColorIndex]);
+			}
+		}
+		else if ( m_szTeamBG[m_iBGTeam] && m_szTeamBG[m_iBGTeam][0] )
 		{
 			SetImage( m_szTeamBG[m_iBGTeam] );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFImagePanel::SetBGImage( int iTeamNum )
+{
+	if (iTeamNum >= 0 && iTeamNum < TF_TEAM_COUNT)
+	{
+		if (m_szTeamBG[iTeamNum] && m_szTeamBG[iTeamNum][0])
+		{
+			SetImage(m_szTeamBG[iTeamNum]);
 		}
 	}
 }

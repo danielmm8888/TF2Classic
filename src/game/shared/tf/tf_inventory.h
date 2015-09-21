@@ -20,7 +20,7 @@
 #include "c_tf_player.h"
 #endif
 
-#define INVENTORY_SLOTS			6
+#define INVENTORY_SLOTS			5
 #define INVENTORY_WEAPONS		5
 #define INVENTORY_WEAPONS_COUNT	500
 #define INVENTORY_COLNUM		5
@@ -47,11 +47,13 @@ public:
 	const char* GetSlotName(int iSlot);
 	CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz);
 #endif
-	
-	
+
+
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
 };
+
+CTFInventory *GetTFInventory();
 
 #endif // TF_INVENTORY_H

@@ -63,7 +63,7 @@
 #include "tier1/utlstring.h"
 #include "utlhashtable.h"
 
-#if defined( TF_DLL ) || defined( TF_CLASSIC )
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 #include "tf_gamerules.h"
 #endif
 
@@ -86,6 +86,7 @@ bool CBaseEntity::sm_bDisableTouchFuncs = false;	// Disables PhysicsTouch and Ph
 bool CBaseEntity::sm_bAccurateTriggerBboxChecks = true;	// set to false for legacy behavior in ep1
 
 int CBaseEntity::m_nPredictionRandomSeed = -1;
+int CBaseEntity::m_nPredictionRandomSeedServer = -1;
 CBasePlayer *CBaseEntity::m_pPredictionPlayer = NULL;
 
 // Used to make sure nobody calls UpdateTransmitState directly.
@@ -302,7 +303,7 @@ IMPLEMENT_SERVERCLASS_ST_NOBASE( CBaseEntity, DT_BaseEntity )
 	SendPropInt		(SENDINFO(m_bAnimatedEveryTick),		1, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bAlternateSorting )),
 
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 	SendPropArray3( SENDINFO_ARRAY3(m_nModelIndexOverrides), SendPropInt( SENDINFO_ARRAY(m_nModelIndexOverrides), SP_MODEL_INDEX_BITS, 0 ) ),
 #endif
 
@@ -654,7 +655,7 @@ void CBaseEntity::SetModelIndex( int index )
 
 void CBaseEntity::ClearModelIndexOverrides( void )
 {
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 	for ( int index = 0 ; index < MAX_VISION_MODES ; index++ )
 	{
 		m_nModelIndexOverrides.Set( index, 0 );
@@ -664,7 +665,7 @@ void CBaseEntity::ClearModelIndexOverrides( void )
 
 void CBaseEntity::SetModelIndexOverride( int index, int nValue )
 {
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 	if ( ( index >= VISION_MODE_NONE ) && ( index < MAX_VISION_MODES ) )
 	{
 		if ( nValue != m_nModelIndexOverrides[index] )
@@ -1440,10 +1441,10 @@ int CBaseEntity::OnTakeDamage( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 // Purpose: Scale damage done and call OnTakeDamage
 //-----------------------------------------------------------------------------
-void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
+int CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 {
 	if ( !g_pGameRules )
-		return;
+		return 0;
 
 	bool bHasPhysicsForceDamage = !g_pGameRules->Damage_NoPhysicsForce( inputInfo.GetDamageType() );
 	if ( bHasPhysicsForceDamage && inputInfo.GetDamageType() != DMG_GENERIC )
@@ -1475,12 +1476,12 @@ void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 	// Make sure our damage filter allows the damage.
 	if ( !PassesDamageFilter( inputInfo ))
 	{
-		return;
+		return 0;
 	}
 
 	if( !g_pGameRules->AllowDamage(this, inputInfo) )
 	{
-		return;
+		return 0;
 	}
 
 	if ( PhysIsInCallback() )
@@ -1502,8 +1503,9 @@ void CBaseEntity::TakeDamage( const CTakeDamageInfo &inputInfo )
 
 		//Msg("%s took %.2f Damage, at %.2f\n", GetClassname(), info.GetDamage(), gpGlobals->curtime );
 
-		OnTakeDamage( info );
+		return OnTakeDamage( info );
 	}
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -5357,7 +5359,6 @@ public:
 			//	  ent_create point_servercommand; ent_setname mine; ent_fire mine command "rcon_password mynewpassword"
 			// So, I'm removing the ability for anyone to execute ent_fires on dedicated servers (we can't check to see if
 			// this command is going to connect with a point_servercommand entity here, because they could delay the event and create it later).
-
 #ifdef TF_CLASSIC
 			if ( !sv_allow_ent_fire.GetBool() )
 			{
@@ -5378,6 +5379,13 @@ public:
 #ifdef TF_CLASSIC
 			}
 #endif
+			else if ( gpGlobals->maxClients > 1 )
+			{
+				// On listen servers with more than 1 player, only allow the host to issue ent_fires.
+				CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
+				if ( pPlayer != pHostPlayer )
+					return;
+			}
 
 			if ( command.ArgC() >= 3 )
 			{
@@ -6101,7 +6109,7 @@ void CBaseEntity::SetLocalAngles( const QAngle& angles )
 		{
 			Warning( "Bad SetLocalAngles(%f,%f,%f) on %s\n", angles.x, angles.y, angles.z, GetDebugName() );
 		}
-		Assert( false );
+		AssertMsg( false, "Bad SetLocalAngles(%f,%f,%f) on %s\n", angles.x, angles.y, angles.z, GetDebugName() );
 		return;
 	}
 

@@ -19,7 +19,6 @@
 
 #define TF_HEALTHKIT_MODEL			"models/items/healthkit.mdl"
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
-#define TF_HEALTHKIT_TINY_SOUND		"HealthKit.Touch" // TODO unique short sound
 
 extern ConVar tf_max_health_boost;
 
@@ -51,6 +50,8 @@ void CHealthKit::Precache( void )
 {
 	PrecacheModel( GetPowerupModel() );
 	PrecacheScriptSound( TF_HEALTHKIT_PICKUP_SOUND );
+	PrecacheScriptSound( "OverhealPillRattle.Touch" );
+	PrecacheScriptSound( "OverhealPillNoRattle.Touch" );
 }
 
 //-----------------------------------------------------------------------------
@@ -75,39 +76,50 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 					WRITE_STRING(GetClassname());
 					MessageEnd();
 
-					EmitSound(user, entindex(), TF_HEALTHKIT_TINY_SOUND);
+					if (pPlayer->GetHealth() > pPlayer->GetMaxHealth())
+					{
+						EmitSound( user, entindex(), "OverhealPillRattle.Touch" );
+					}
+					else
+					{
+						EmitSound(user, entindex(), "OverhealPillNoRattle.Touch");
+					}
 
 					bSuccess = true;
 				}
 			}
 		}
-		else if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
+		else
 		{
-			CSingleUserRecipientFilter user( pPlayer );
-			user.MakeReliable();
-
-			UserMessageBegin( user, "ItemPickup" );
-				WRITE_STRING( GetClassname() );
-			MessageEnd();
-
-			EmitSound( user, entindex(), TF_HEALTHKIT_PICKUP_SOUND );
-
-			bSuccess = true;
+			if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
+				bSuccess = true;
 
 			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 			Assert( pTFPlayer );
-
-			// Healthkits also contain a fire blanket.
+			
+			// Remove any negative conditions whether player got healed or not.
 			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
 			{
-				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
+				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
+				bSuccess = true;
 			}
-
-			// Remove tranq condition
 			if ( pTFPlayer->m_Shared.InCond( TF_COND_SLOWED ) )
 			{
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
+				bSuccess = true;
+			}
+
+			if ( bSuccess )
+			{
+				CSingleUserRecipientFilter user( pPlayer );
+				user.MakeReliable();
+
+				UserMessageBegin( user, "ItemPickup" );
+				WRITE_STRING( GetClassname() );
+				MessageEnd();
+
+				EmitSound( user, entindex(), TF_HEALTHKIT_PICKUP_SOUND );
 			}
 		}
 	}

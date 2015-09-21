@@ -90,7 +90,7 @@ class CBuildingStatusItem : public vgui::EditablePanel
 public:
 
 	// actual panel constructor
-	CBuildingStatusItem( Panel *parent, const char *szLayout, int iObjectType );
+	CBuildingStatusItem( Panel *parent, const char *szLayout, int iObjectType, int iObjectMode );
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual void Paint( void );
@@ -105,6 +105,7 @@ public:
 	void SetPositioned(bool val) { bPositioned = val; }
 
 	int GetRepresentativeObjectType();
+	int GetRepresentativeObjectMode();
 	C_BaseObject *GetRepresentativeObject();
 
 	virtual int GetObjectPriority();
@@ -131,6 +132,7 @@ private:
 	char m_szLayout[128];
 
 	int m_iObjectType;
+	int m_iObjectMode;
 	bool m_bActive;
 
 	// Two main subpanels
@@ -146,6 +148,7 @@ private:
 
 	// Alert side panel
 	CBuildingStatusAlertTray *m_pAlertTray;
+	CIconPanel *m_pLevelIcons[3];
 	CIconPanel *m_pWrenchIcon;
 	CIconPanel *m_pSapperIcon;
 
@@ -180,8 +183,8 @@ private:
 
 	CIconPanel *m_pSentryIcons[3];
 
-	CExLabel *m_pRocketsLabel;
-	CExLabel *m_pUpgradeLabel;
+	vgui::ImagePanel *m_pRocketsIcon;
+	CIconPanel *m_pUpgradeIcon;
 	CExLabel *m_pKillsLabel;
 
 	vgui::ContinuousProgressBar *m_pShellsProgress;
@@ -217,6 +220,9 @@ private:
 
 	// ammo
 	vgui::ContinuousProgressBar *m_pAmmoProgress;
+	vgui::ContinuousProgressBar *m_pUpgradeProgress;
+
+	CIconPanel *m_pUpgradeIcon;
 
 };
 
@@ -237,6 +243,9 @@ private:
 	// 2 subpanels
 	vgui::EditablePanel *m_pChargingPanel;
 	vgui::EditablePanel *m_pFullyChargedPanel;
+	vgui::ContinuousProgressBar *m_pUpgradeProgress;
+
+	CIconPanel *m_pUpgradeIcon;
 
 	// children of m_pChargingPanel
 	vgui::ContinuousProgressBar *m_pRechargeTimer;
@@ -255,6 +264,11 @@ class CBuildingStatusItem_TeleporterExit : public CBuildingStatusItem
 
 public:
 	CBuildingStatusItem_TeleporterExit( Panel *parent );
+	virtual void PerformLayout( void );
+
+private:
+	vgui::ContinuousProgressBar *m_pUpgradeProgress;
+	CIconPanel *m_pUpgradeIcon;
 };
 
 //-----------------------------------------------------------------------------
@@ -295,11 +309,11 @@ public:
 
 	virtual void LevelInit( void );
 
-	void AddBuildingPanel( int iBuildingType );
-	CBuildingStatusItem *CreateItemPanel( int iObjectType );
+	void AddBuildingPanel( int iBuildingType, int iBuildingMode );
+	CBuildingStatusItem *CreateItemPanel( int iObjectType, int iObjectMode );
 
 	void UpdateAllBuildings( void );
-	void OnBuildingChanged( int iBuildingType, bool bBuildingIsDead );
+	void OnBuildingChanged( int iBuildingType, int iBuildingMode );
 
 	void RepositionObjectPanels();
 

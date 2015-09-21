@@ -34,17 +34,37 @@ VERSION 1.0
 
 DESCRIPTION INFO_OPTIONS
 {
+	"category0"
+	{
+		"Advanced Options"
+		{ CATEGORY }
+	}
+	
+	"con_enable"
+	{
+		"#GameUI_DeveloperConsoleCheck"
+		{ BOOL }
+		{ "0" }
+	}
+	
 	"category1"
 	{
-		"Combat Options"
+		"#TF_OptionCategory_Combat"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"cl_autoreload"
 	{
 		"#TF_autoreload"
-		//"#Tooltip_autoreload"
+		"#Tooltip_autoreload"
+		{ BOOL }
+		{ "0" }
+	}
+	
+	"hud_fastswitch"
+	{
+		"#GameUI_FastSwitchCheck"
+		"#Tooltip_hud_fastswitch"
 		{ BOOL }
 		{ "0" }
 	}
@@ -52,15 +72,23 @@ DESCRIPTION INFO_OPTIONS
 	"tf_dingalingaling"
 	{
 		"#TF_Hitbeeps"
-		//"#Tooltip_Hitbeeps"
+		"#Tooltip_Hitbeeps"
 		{ BOOL }
 		{ "0" }
 	}
+
+	//"tf_dingaling_volume"
+	//{
+	//	"#TF_Dingaling_Volume"
+	//	"#Tooltip_Dingaling_Volume"
+	//	{ SLIDER 0 1 }
+	//	{ "0.75" }
+	//}
 	
 	"hud_combattext"
 	{
 		"#TF_CombatText"
-		//"#Tooltip_CombatText"
+		"#Tooltip_CombatText"
 		{ BOOL }
 		{ "0" }
 	}
@@ -99,9 +127,8 @@ DESCRIPTION INFO_OPTIONS
 	 	
 	"category2"
 	{
-		"Class Specific Options"
+		"#TF_OptionCategory_ClassSpecific"
 		{ CATEGORY }
-		{ "0" }
 	}
 
 	//"tf_simple_disguise_menu"
@@ -115,7 +142,7 @@ DESCRIPTION INFO_OPTIONS
 	"cl_autorezoom"
 	{
 		"#TF_autozoom"
-		//"#Tooltip_autozoom"
+		"#Tooltip_autozoom"
 		{ BOOL }
 		{ "1" }
 	}
@@ -128,13 +155,13 @@ DESCRIPTION INFO_OPTIONS
 	//	{ "0" }
 	//}	
 	
-	///"tf_medigun_autoheal"
-	//{
-	//	"#TF_medigun_autoheal"
-	//	"#Tooltip_medigun_autoheal"
-	//	{ BOOL }
-	//	{ "0" }
-	//}
+	"tf_medigun_autoheal"
+	{
+		"#TF_medigun_autoheal"
+		"#Tooltip_medigun_autoheal"
+		{ BOOL }
+		{ "0" }
+	}
 	
 	//"hud_medichealtargetmarker"
 	//{
@@ -162,15 +189,14 @@ DESCRIPTION INFO_OPTIONS
 		
 	"category3"
 	{
-		"HUD Options"
+		"#TF_OptionCategory_HUD"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"cl_hud_minmode"
 	{
 		"#GameUI_EnableHUDMinMode"
-		//"#Tooltip_EnableHUDMinMode"
+		"#Tooltip_EnableHUDMinMode"
 		{ BOOL }
 		{ "0" }
 	}
@@ -202,7 +228,7 @@ DESCRIPTION INFO_OPTIONS
 	"glow_outline_effect_enable"
 	{
 		"#TF_UseGlowEffect"
-		//"#Tooltip_UseGlowEffect"
+		"#Tooltip_UseGlowEffect"
 		{ BOOL }
 		{ "1" }
 	}
@@ -218,7 +244,7 @@ DESCRIPTION INFO_OPTIONS
 	"viewmodel_fov"
 	{
 		"#TF_viewmodelfov_option"
-		//"#Tooltip_viewmodelfov_option"
+		"#Tooltip_viewmodelfov_option"
 		{ SLIDER 54 70 }
 		{ "1" }
 	}
@@ -238,7 +264,7 @@ DESCRIPTION INFO_OPTIONS
 	"hud_freezecamhide"
 	{
 		"#TF_FreezeCamHide"
-		//"#Tooltip_FreezeCamHide"
+		"#Tooltip_FreezeCamHide"
 		{ BOOL }
 		{ "0" }
 	}	
@@ -305,6 +331,18 @@ DESCRIPTION INFO_OPTIONS
 	//	{ SLIDER 0 255 }
 	//	{ "100" }
 	//}
+	
+	//"tf_contract_progress_show"
+	//{
+	//	"#TF_Contract_Progress"
+	//	"#ToolTip_TF_Contract_Progress"
+	//	{ LIST
+	//		"#TF_Contract_Progress_None"	"0"
+	//		"#TF_Contract_Progress_All"		"1"
+	//		"#TF_Contract_Progress_Active"	"2"
+	//	}
+	//	{ "1" }
+	//}
 
 	//"category4"
 	//{
@@ -370,12 +408,11 @@ DESCRIPTION INFO_OPTIONS
 	
 	"category4"
 	{
-		"Performance Options"
+		"#TF_OptionCategory_Performance"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
-	//	"tf_particles_disable_weather"
+	//"tf_particles_disable_weather"
 	//{
 	//	"#TF_DisableWeatherParticles"
 	//	"#Tooltip_DisableWeatherParticles"
@@ -386,7 +423,7 @@ DESCRIPTION INFO_OPTIONS
 	"cl_disablehtmlmotd"
 	{
 		"#Valve_DisableHTMLMOTD"
-		//"#Tooltip_DisableHTMLMOTD"
+		"#Tooltip_DisableHTMLMOTD"
 		{ BOOL }
 		{ "0" }
 	}	
@@ -394,35 +431,21 @@ DESCRIPTION INFO_OPTIONS
 	"mp_decals"
 	{
 		"#Valve_Multiplayer_Decal_Limit"
-		{
-			LIST
-			"0" "0"
-			"1024" "1024"
-			"2048" "2048"
-			"4096" "4096"
-		}
-		{ "0" }
-	}	
-		
-	//"mp_decals"
-	//{
-	//	"#Valve_Multiplayer_Decal_Limit"
-	//	"#Tooltip_Multiplayer_Decal_Limit"
-	//	{ NUMBER 0 4096 }
-	//	{ "200" }
-	//}
+		"#Tooltip_Multiplayer_Decal_Limit"
+		{ SLIDER 0 4096 }
+		{ "2048" }
+	}
 	
 	"category5"
 	{
-		"Miscellaneous Options"
+		"#TF_OptionCategory_Misc"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"hud_takesshots"
 	{
 		"#game_takesshots"
-		//"#Tooltip_takesshots"
+		"#Tooltip_takesshots"
 		{ BOOL }
 		{ "0" }
 	}
@@ -430,7 +453,7 @@ DESCRIPTION INFO_OPTIONS
 	"hud_classautokill"
 	{
 		"#TF_classautokill"
-		//"#Tooltip_classautokill"
+		"#Tooltip_classautokill"
 		{ BOOL }
 		{ "1" }
 	}
@@ -441,12 +464,12 @@ DESCRIPTION INFO_OPTIONS
 	//	"#Tooltip_loadoutrespawn"
 	//	{ BOOL }
 	//	{ "1" }
-	//	}
+	//}
 
 	"r_drawviewmodel"
 	{
 		"#TF_drawviewmodel_option"
-		//"#Tooltip_drawviewmodel_option"
+		"#Tooltip_drawviewmodel_option"
 		{ BOOL }
 		{ "1" }
 	}	
@@ -454,7 +477,7 @@ DESCRIPTION INFO_OPTIONS
 	"cl_flipviewmodels"
 	{
 		"#TF_flipviewmodel_option"
-		//"#Tooltip_flipviewmodel_option"
+		"#Tooltip_flipviewmodel_option"
 		{ BOOL }
 		{ "0" }
 	}		
@@ -462,7 +485,7 @@ DESCRIPTION INFO_OPTIONS
 	"cl_playerspraydisable"
 	{
 		"#GameUI_DisableSprays"
-		//"#Tooltip_DisableSprays"
+		"#Tooltip_DisableSprays"
 		{ BOOL }
 		{ "0" }
 	}
@@ -521,34 +544,18 @@ DESCRIPTION INFO_OPTIONS
 	//	}
 	//	{ "1" }
 	//}
-
-
-	"mp_decals"
-	{
-		"#Valve_Multiplayer_Decal_Limit"
-		{ NUMBER 0 4096 }
-		{ "200" }
-	}
-
-	"hud_classautokill"
-	{
-		"#TF_classautokill"
-		{ BOOL }
-		{ "1" }
-	}
 	
-	"tf_medigun_autoheal"
-	{
-		"#TF_medigun_autoheal"
-		{ BOOL }
-		{ "0" }
-	}
+	//"tf_scoreboard_mouse_mode"
+	//{
+	//	"#TF_ScoreBoard_MouseMode"
+	//	{ BOOL }
+	//	{ "0" }
+	//}
 	
 	"category6"
 	{
 		"Team Fortress 2 Classic Options"
 		{ CATEGORY }
-		{ "0" }
 	}
 	
 	"tf2c_model_muzzleflash"
@@ -577,6 +584,13 @@ DESCRIPTION INFO_OPTIONS
 		"Enable dynamic lights for muzzleflashes and the flamethrower"
 		{ BOOL }
 		{ "0" }
+	}
+	
+	"tf2c_coloredhud"
+	{
+		"Enable colored HUD panels in Deathmatch"
+		{ BOOL }
+		{ "1" }
 	}
 	
 }

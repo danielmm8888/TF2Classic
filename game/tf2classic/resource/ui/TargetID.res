@@ -31,8 +31,8 @@
 		"fieldName"		"TargetNameLabel"
 		"font"			"HudFontMediumSmallSecondary"
 		"font_minmode"	"TFFontLarge"
-		"xpos"			"34"
-		"xpos_minmode"	"30"
+		"xpos"			"48"
+		"xpos_minmode"	"38"
 		"ypos"			"10"
 		"ypos_minmode"	"7"
 		"zpos"			"1"
@@ -53,12 +53,10 @@
 		"fieldName"		"TargetDataLabel"
 		"font"			"TFFontMedium"
 		"font_minmode"	"DefaultVerySmall"
-		"xpos"			"34"
-		"xpos_minmode"	"30"
-		"ypos"			"24"	[$WIN32]
-		"ypos_minmode"	"12"	[$WIN32]
-		"ypos"			"22"	[$X360]
-		"ypos_hidef"		"25"	[$X360]
+		"xpos"			"48"
+		"xpos_minmode"	"38"
+		"ypos"			"24"
+		"ypos_minmode"	"12"
 		"zpos"			"1"
 		"wide"			"280"
 		"tall"			"15"
@@ -88,4 +86,23 @@
 		"HealthDeathWarningColor"	"HUDDeathWarning"
 		"TextColor"		"HudOffWhite"
 	}	
+	"AvatarImage"
+	{
+		"ControlName"	"CAvatarImagePanel"
+		"fieldName"		"AvatarImage"
+		"xpos"			"32"
+		"xpos_minmode"	"26"
+		"ypos"			"12"
+		"ypos_minmode"	"8"
+		"zpos"			"1"
+		"wide"			"14"
+		"wide_minmode"	"11"
+		"tall"			"14"
+		"tall_minmode"	"11"
+		"visible"		"1"
+		"enabled"		"1"
+		"image"			""
+		"scaleImage"	"1"	
+		"color_outline"	"52 48 45 255"
+	}
 }

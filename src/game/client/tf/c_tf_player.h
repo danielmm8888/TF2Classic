@@ -27,6 +27,7 @@ class C_BaseObject;
 
 extern ConVar tf_medigun_autoheal;
 extern ConVar cl_autorezoom;
+extern ConVar cl_autoreload;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -42,7 +43,6 @@ public:
 
 	C_TFPlayer();
 	~C_TFPlayer();
-	class CTFInventory *Inventory;
 
 	static C_TFPlayer* GetLocalTFPlayer();
 
@@ -130,8 +130,8 @@ public:
 
 	int	GetObjectCount( void );
 	C_BaseObject *GetObject( int index );
-	C_BaseObject *GetObjectOfType( int iObjectType );
-	int GetNumObjects( int iObjectType );
+	C_BaseObject *GetObjectOfType( int iObjectType, int iObjectMode );
+	int GetNumObjects( int iObjectType, int iObjectMode );
 
 	virtual bool ShouldCollide( int collisionGroup, int contentsMask ) const;
 
@@ -177,6 +177,7 @@ public:
 
 	bool			GetMedigunAutoHeal( void ){ return tf_medigun_autoheal.GetBool(); }
 	bool			ShouldAutoRezoom( void ){ return cl_autorezoom.GetBool(); }
+	bool			ShouldAutoReload( void ){ return cl_autoreload.GetBool(); }
 
 public:
 	// Shared functions
@@ -199,6 +200,7 @@ public:
 
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
+	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );
@@ -214,7 +216,7 @@ public:
 	Vector m_vecRagdollVelocity;
 
 	// Objects
-	int CanBuild( int iObjectType );
+	int CanBuild( int iObjectType, int iObjectMode );
 	CUtlVector< CHandle<C_BaseObject> > m_aObjects;
 
 	virtual CStudioHdr *OnNewModel( void );

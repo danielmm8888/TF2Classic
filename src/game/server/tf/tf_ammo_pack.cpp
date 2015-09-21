@@ -10,6 +10,8 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "explode.h"
+#include "tf_powerup.h"
+#include "entity_ammopack.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -60,9 +62,10 @@ void CTFAmmoPack::Spawn( void )
 
 void CTFAmmoPack::Precache( void )
 {
+	PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
 }
 
-CTFAmmoPack *CTFAmmoPack::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName )
+CTFAmmoPack *CTFAmmoPack::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, bool bUseCustomAmmoCount )
 {
 	CTFAmmoPack *pAmmoPack = static_cast<CTFAmmoPack*>( CBaseAnimating::CreateNoSpawn( "tf_ammo_pack", vecOrigin, vecAngles, pOwner ) );
 	if ( pAmmoPack )
@@ -71,6 +74,7 @@ CTFAmmoPack *CTFAmmoPack::Create( const Vector &vecOrigin, const QAngle &vecAngl
 		DispatchSpawn( pAmmoPack );
 	}
 
+	pAmmoPack->m_bUseCustomAmmoCount = bUseCustomAmmoCount;
 	return pAmmoPack;
 }
 
@@ -116,6 +120,13 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 
 	Assert( pPlayer );
 
+	// tf_ammo_pack (dropped weapons) originally packed killed player's ammo.
+	// This was changed to make them act as medium ammo packs.
+	// PistonMiner: Someone screwed the system up making it impossible 
+	//				to use custom ammo values using GiveAmmo, I changed 
+	//				this to only use this code if no custom ammo is specified.
+#if 0
+	// Old ammo giving code.
 	int iAmmoTaken = 0;
 
 	int i;
@@ -128,6 +139,57 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	{
 		UTIL_Remove( this );
 	}
+#else
+	// Copy-paste from CAmmoPack code.
+
+	bool bSuccess = false;
+
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	if ( !pTFPlayer )
+		return;
+	if ( !m_bUseCustomAmmoCount )
+	{
+		int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
+		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_PRIMARY ) )
+		{
+			bSuccess = true;
+		}
+
+		int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
+		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_SECONDARY ) )
+		{
+			bSuccess = true;
+		}
+
+		//int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
+		// Unlike other ammo, give fixed amount of metal that was given to us at spawn.
+		if ( pPlayer->GiveAmmo( m_iAmmo[TF_AMMO_METAL], TF_AMMO_METAL ) )
+		{
+			bSuccess = true;
+		}
+
+		// Unlike medium ammo packs, restore only 25% cloak.
+		if (pTFPlayer->m_Shared.GetSpyCloakMeter() < 100.0f)
+		{
+			pTFPlayer->m_Shared.SetSpyCloakMeter(min(100.0f, pTFPlayer->m_Shared.GetSpyCloakMeter() + ceil(100.0f * 0.25f)));
+			bSuccess = true;
+		}
+	}
+	else
+	{
+		for ( int i = 0; i < TF_AMMO_COUNT; ++i )
+		{
+			pPlayer->GiveAmmo( m_iAmmo[i], i );
+		}
+		bSuccess = true;
+	}
+
+	// did we give them anything?
+	if ( bSuccess )
+	{
+		UTIL_Remove( this );
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

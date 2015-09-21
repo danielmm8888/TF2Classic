@@ -283,47 +283,11 @@ C_LocalTempEntity *ClientsideProjectileCallback( const CEffectData &data, float 
 		return NULL;
 	}
 
-	Vector vecSrc = data.m_vOrigin;
-
-	// If we're seeing another player shooting the nails, move their start point to the weapon origin
-	if ( pEnt && pEnt->IsPlayer() )
-	{
-		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer != pEnt || ::input->CAM_IsThirdPerson() )
-		{
-			CTFPlayer *pTFPlayer = ToTFPlayer( pEnt );
-			if ( pTFPlayer->GetActiveWeapon() )
-			{
-				pTFPlayer->GetActiveWeapon()->GetAttachment( "muzzle", vecSrc );
-			}
-		}
-		else
-		{
-			C_BaseEntity *pViewModel = pLocalPlayer->GetViewModel();
-
-			if ( pViewModel )
-			{
-				QAngle vecAngles;
-				int iMuzzleFlashAttachment = pViewModel->LookupAttachment( "muzzle" );
-				pViewModel->GetAttachment( iMuzzleFlashAttachment, vecSrc, vecAngles );
-
-				Vector vForward;
-				AngleVectors( vecAngles, &vForward );
-
-				trace_t trace;	
-				UTIL_TraceLine( vecSrc + vForward * -50, vecSrc, MASK_SOLID, pEnt, COLLISION_GROUP_NONE, &trace );
-
-				vecSrc = trace.endpos;
-			}
-		}
-	}
-
-
 	float flGravity = ( flGravityBase * 800 );
 
 	Vector vecGravity(0,0,-flGravity);
 
-	return tempents->ClientProjectile( vecSrc, data.m_vStart, vecGravity, data.m_nMaterial, data.m_fFlags, pEnt, "Impact", pszParticleName );
+	return tempents->ClientProjectile( data.m_vOrigin, data.m_vStart, vecGravity, data.m_nMaterial, data.m_fFlags, pEnt, "Impact", pszParticleName );
 }
 
 //=============================================================================

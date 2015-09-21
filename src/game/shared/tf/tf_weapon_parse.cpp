@@ -34,6 +34,8 @@ CTFWeaponInfo::CTFWeaponInfo()
 	m_bHasTeamSkins_Viewmodel = false;
 	m_bHasTeamSkins_Worldmodel = false;
 
+	m_szViewModelDM[0] = '\0';
+
 	m_szMuzzleFlashModel[0] = '\0';
 	m_flMuzzleFlashModelDuration = 0;
 	m_flMuzzleFlashModelScale = 0;
@@ -79,6 +81,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bDrawCrosshair		= pKeyValuesData->GetInt( "DrawCrosshair", 1 ) > 0;
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iAmmoPerShot			= pKeyValuesData->GetInt( "AmmoPerShot", 1 );
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bUseRapidFireCrits	= ( pKeyValuesData->GetInt( "UseRapidFireCrits", 0 ) != 0 );
+	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo				= pKeyValuesData->GetInt("MaxAmmo", 0);
 
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile = TF_PROJECTILE_NONE;
 	const char *pszProjectileType = pKeyValuesData->GetString( "ProjectileType", "projectile_none" );
@@ -176,6 +179,14 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_bLowerWeapon			= ( pKeyValuesData->GetInt( "LowerMainWeapon", 0 ) != 0 );
 	m_bHasTeamSkins_Viewmodel	= ( pKeyValuesData->GetInt( "HasTeamSkins_Viewmodel", 0 ) != 0 );
 	m_bHasTeamSkins_Worldmodel	= ( pKeyValuesData->GetInt( "HasTeamSkins_Worldmodel", 0 ) != 0 );
+
+	// DM Viewmodel override
+	const char *pszVMData = pKeyValuesData->GetString("viewmodel_dm", NULL);
+	if (pszVMData)
+	{
+		Q_strncpy( m_szViewModelDM, pszVMData, sizeof(m_szViewModelDM) );
+	}
+
 
 	// Model muzzleflash
 	const char *pszMuzzleFlashModel = pKeyValuesData->GetString( "MuzzleFlashModel", NULL );

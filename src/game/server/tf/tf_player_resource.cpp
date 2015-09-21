@@ -17,7 +17,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayerResource, DT_TFPlayerResource )
 	SendPropArray3( SENDINFO_ARRAY3( m_iTotalScore ), SendPropInt( SENDINFO_ARRAY( m_iTotalScore ), 12, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iMaxHealth ), SendPropInt( SENDINFO_ARRAY( m_iMaxHealth ), 10, SPROP_UNSIGNED ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_iPlayerClass ), SendPropInt( SENDINFO_ARRAY( m_iPlayerClass ), 5, SPROP_UNSIGNED ) ),
-	SendPropArray3(SENDINFO_ARRAY3(m_iColors), SendPropVector(SENDINFO_ARRAY(m_iColors), 12, SPROP_NORMAL)),
+	SendPropArray3(SENDINFO_ARRAY3(m_iColors), SendPropVector(SENDINFO_ARRAY3(m_iColors), 12, SPROP_COORD)),
+	SendPropArray3( SENDINFO_ARRAY3( m_iKillstreak ), SendPropInt( SENDINFO_ARRAY( m_iKillstreak ), 10, SPROP_UNSIGNED ) ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_player_manager, CTFPlayerResource );
@@ -53,6 +54,8 @@ void CTFPlayerResource::UpdatePlayerData( void )
 			Vector vecColor = pPlayer->m_vecPlayerColor;
 			m_iColors.Set(i, Vector(vecColor.x, vecColor.y, vecColor.z));
 			//Msg("Server %f %f %f\n", m_iColors.Get(i).x, m_iColors.Get(i).y, m_iColors.Get(i).z);
+
+			m_iKillstreak.Set(i, pPlayer->m_Shared.GetKillstreak());
 			}					
 		}
 	}
@@ -68,6 +71,7 @@ void CTFPlayerResource::Spawn( void )
 		m_iMaxHealth.Set( i, TF_HEALTH_UNDEFINED );
 		m_iPlayerClass.Set( i, TF_CLASS_UNDEFINED );
 		m_iColors.Set(i, Vector(0.0, 0.0, 0.0));
+		m_iKillstreak.Set(i, 0);
 	}
 
 	BaseClass::Spawn();

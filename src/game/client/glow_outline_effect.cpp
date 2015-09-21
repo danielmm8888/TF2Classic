@@ -208,6 +208,11 @@ void CGlowObjectManager::ApplyEntityGlowEffects( const CViewSetup *pSetup, int n
 			}
 			else if ( m_GlowObjectDefinitions[i].m_bRenderWhenUnoccluded )
 			{
+#ifdef TF_CLASSIC_CLIENT
+				// This fixes the problem with objects which are not supposed to show
+				// through walls still showing through walls
+				pMatGlowColor->SetMaterialVarFlag(MATERIAL_VAR_IGNOREZ, false);
+#endif
 				ShaderStencilState_t stencilState;
 				stencilState.m_bEnable = true;
 				stencilState.m_nReferenceValue = 2;

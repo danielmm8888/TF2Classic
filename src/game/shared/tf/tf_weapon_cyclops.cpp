@@ -139,16 +139,5 @@ float CTFCyclops::GetProjectileSpeed(void)
 //-----------------------------------------------------------------------------
 void CTFCyclops::SecondaryAttack(void)
 {
-#ifdef GAME_DLL
-
-	if ( !CanAttack() )
-		return;
-
-	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-	if ( !pOwner )
-		return;
-	// Detonates the sticky launcher projectiles
-	pOwner->DoClassSpecialSkill();
-
-#endif
+	BaseClass::SecondaryAttack();
 }

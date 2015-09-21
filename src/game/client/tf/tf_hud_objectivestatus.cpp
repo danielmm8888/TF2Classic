@@ -28,6 +28,7 @@
 #include "c_team_objectiveresource.h"
 #include "tf_hud_flagstatus.h"
 #include "tf_hud_objectivestatus.h"
+#include "tf_hud_deathmatchstatus.h"
 #include "tf_spectatorgui.h"
 #include "teamplayroundbased_gamerules.h"
 #include "tf_gamerules.h"
@@ -626,7 +627,8 @@ CTFHudObjectiveStatus::CTFHudObjectiveStatus( const char *pElementName ) : CHudE
 	SetParent( pParent );
 
 	m_pFlagPanel = new CTFHudFlagObjectives( this, "ObjectiveStatusFlagPanel" );
-	m_pTimePanel = new CTFHudTimeStatus( this, "ObjectiveStatusTimePanel" );
+	m_pTimePanel = new CTFHudTimeStatus(this, "ObjectiveStatusTimePanel");
+	m_pDMPanel = new CTFHudDeathMatchObjectives(this, "ObjectiveStatusDeathMatchPanel");
 	m_pControlPointIconsPanel = NULL;
 	m_pControlPointProgressBar = new CControlPointProgressBar( this );
 
@@ -668,6 +670,11 @@ void CTFHudObjectiveStatus::Reset()
 	if ( m_pFlagPanel )
 	{
 		m_pFlagPanel->Reset();
+	}
+
+	if (m_pDMPanel)
+	{
+		m_pDMPanel->Reset();
 	}
 }
 
@@ -722,6 +729,17 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 			return;
 			break;
 
+		case TF_GAMETYPE_DM:
+			// turn on the payload panel
+
+			// turn on the control point icons because we don't have a payload hud yet
+			if (m_pDMPanel && !m_pDMPanel->IsVisible())
+			{
+				m_pDMPanel->SetVisible(true);
+			}
+			return;
+			break;
+
 		default:
 			break;
 		}
@@ -755,6 +773,16 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 			}
 			break;
 
+		case TF_GAMETYPE_DM:
+			// turn on the payload panel
+
+			// turn on the control point icons because we don't have a payload hud yet
+			if (m_pDMPanel && !m_pDMPanel->IsVisible())
+			{
+				m_pDMPanel->SetVisible(true);
+			}
+			break;
+
 		default:
 			break;
 
@@ -773,6 +801,11 @@ void CTFHudObjectiveStatus::TurnOffPanels()
 	if (m_pControlPointIconsPanel && m_pControlPointIconsPanel->IsVisible())
 	{
 		m_pControlPointIconsPanel->SetVisible(false);
+	}
+	// turn off the flag panel
+	if (m_pDMPanel && m_pDMPanel->IsVisible())
+	{
+		m_pDMPanel->SetVisible(false);
 	}
 }
 

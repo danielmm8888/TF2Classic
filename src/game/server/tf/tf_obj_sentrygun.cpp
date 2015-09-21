@@ -47,8 +47,8 @@ extern bool IsInCommentaryMode();
 #define SENTRYGUN_RECENTLY_ATTACKED_TIME 2.0
 
 #define SENTRYGUN_MINIGUN_RESIST_LVL_1		0.0
-#define SENTRYGUN_MINIGUN_RESIST_LVL_2		0.2
-#define SENTRYGUN_MINIGUN_RESIST_LVL_3		0.33
+#define SENTRYGUN_MINIGUN_RESIST_LVL_2		0.15
+#define SENTRYGUN_MINIGUN_RESIST_LVL_3		0.20
 
 #define SENTRYGUN_SAPPER_OWNER_DAMAGE_MODIFIER	0.33f
 
@@ -94,6 +94,7 @@ REGISTER_SEND_PROXY_NON_MODIFIED_POINTER( SendProxy_SendLocalObjectDataTable );
 
 BEGIN_NETWORK_TABLE_NOBASE( CObjectSentrygun, DT_SentrygunLocalData )
 	SendPropInt( SENDINFO(m_iKills), 12, SPROP_CHANGES_OFTEN ),
+	SendPropInt( SENDINFO(m_iAssists), 12, SPROP_CHANGES_OFTEN ),
 END_NETWORK_TABLE()
 
 IMPLEMENT_SERVERCLASS_ST( CObjectSentrygun, DT_ObjectSentrygun )
@@ -117,8 +118,6 @@ ConVar tf_sentrygun_metal_per_shell( "tf_sentrygun_metal_per_shell", "1", FCVAR_
 ConVar tf_sentrygun_metal_per_rocket( "tf_sentrygun_metal_per_rocket", "2", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_sentrygun_notarget( "tf_sentrygun_notarget", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
-extern ConVar tf_cheapobjects;
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -140,8 +139,6 @@ void CObjectSentrygun::Spawn()
 	SetModel( SENTRY_MODEL_PLACEMENT );
 	
 	m_takedamage = DAMAGE_YES;
-
-	m_iUpgradeMetalRequired = SENTRYGUN_UPGRADE_METAL;
 
 	SetMaxHealth( SENTRYGUN_MAX_HEALTH );
 	SetHealth( SENTRYGUN_MAX_HEALTH );
@@ -239,13 +236,14 @@ bool CObjectSentrygun::StartBuilding( CBaseEntity *pBuilder )
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::OnGoActive( void )
 {
+	/*
 	CTFPlayer *pBuilder = GetBuilder();
 
 	Assert( pBuilder );
 
 	if ( !pBuilder )
 		return;
-
+	*/
 	SetModel( SENTRY_MODEL_LEVEL_1 );
 
 	m_iState.Set( SENTRY_STATE_SEARCHING );
@@ -282,6 +280,7 @@ void CObjectSentrygun::OnGoActive( void )
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_R] = 0;
 
 	BaseClass::OnGoActive();
+
 }
 
 //-----------------------------------------------------------------------------
@@ -347,38 +346,16 @@ bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
 		return false;
 	}
 
-	// only engineers
-	if ( !ClassCanBuild( pPlayer->GetPlayerClass()->GetClassIndex(), GetType() ) )
-	{
-		return false;
-	}
-
-	// max upgraded
-	if ( m_iUpgradeLevel >= 3 )
-	{
-		return false;
-	}
-
-	return true;
+	return BaseClass::CanBeUpgraded( pPlayer );
 }
-
-#define SENTRY_UPGRADE_DURATION	1.5f
 
 //-----------------------------------------------------------------------------
 // Raises the Sentrygun one level
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::StartUpgrading( void )
 {
-	// Increase level
-	m_iUpgradeLevel++;
+	BaseClass::StartUpgrading( );
 
-	// more health
-	int iMaxHealth = GetMaxHealth();
-	SetMaxHealth( iMaxHealth * 1.2 );
-	SetHealth( iMaxHealth * 1.2 );
-
-	EmitSound( "Building_Sentrygun.Built" );
-		
 	switch( m_iUpgradeLevel )
 	{
 	case 2:
@@ -403,12 +380,6 @@ void CObjectSentrygun::StartUpgrading( void )
 	m_iAmmoShells = m_iMaxAmmoShells;
 
 	m_iState.Set( SENTRY_STATE_UPGRADING );
-
-	SetActivity( ACT_OBJ_UPGRADING );
-
-	m_flUpgradeCompleteTime = gpGlobals->curtime + SENTRY_UPGRADE_DURATION;
-
-	RemoveAllGestures();
 }
 
 void CObjectSentrygun::FinishUpgrading( void )
@@ -418,6 +389,9 @@ void CObjectSentrygun::FinishUpgrading( void )
 
 	switch( m_iUpgradeLevel )
 	{
+	case 1:
+		SetModel( SENTRY_MODEL_LEVEL_1 );
+		break;
 	case 2:
 		SetModel( SENTRY_MODEL_LEVEL_2 );
 		break;
@@ -435,18 +409,7 @@ void CObjectSentrygun::FinishUpgrading( void )
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_L] = LookupAttachment( "rocket_l" );
 	m_iAttachments[SENTRYGUN_ATTACHMENT_ROCKET_R] = LookupAttachment( "rocket_r" );
 
-	EmitSound( "Building_Sentrygun.Built" );
-}
-
-//-----------------------------------------------------------------------------
-// Playing the upgrade animation
-//-----------------------------------------------------------------------------
-void CObjectSentrygun::UpgradeThink( void )
-{
-	if ( gpGlobals->curtime > m_flUpgradeCompleteTime )
-	{
-		FinishUpgrading();
-	}
+	BaseClass::FinishUpgrading();
 }
 
 //-----------------------------------------------------------------------------
@@ -460,45 +423,20 @@ bool CObjectSentrygun::IsUpgrading( void ) const
 //-----------------------------------------------------------------------------
 // Hit by a friendly engineer's wrench
 //-----------------------------------------------------------------------------
-bool CObjectSentrygun::OnWrenchHit( CTFPlayer *pPlayer )
+bool CObjectSentrygun::OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos )
 {
-	bool bDidWork = false;
+	bool bRepair = false;
+	bool bUpgrade = false;
 
-	// If the player repairs it at all, we're done
-	if ( GetHealth() < GetMaxHealth() )
+	bRepair = Command_Repair( pPlayer/*, pWrench->GetRepairValue()*/ );
+
+	// Don't put in upgrade metal until the object is fully healed
+	if ( CanBeUpgraded( pPlayer ) )
 	{
-		if ( Command_Repair( pPlayer ) )
-		{
-			bDidWork = true;
-		}
+		bUpgrade = CheckUpgradeOnHit( pPlayer );
 	}
 
-	// Don't put in upgrade metal until the sentry is fully healed
-	if ( !bDidWork && CanBeUpgraded( pPlayer ) )
-	{
-		int iPlayerMetal = pPlayer->GetAmmoCount( TF_AMMO_METAL );
-		int iAmountToAdd = min( tf_sentrygun_upgrade_per_hit.GetInt(), iPlayerMetal );
-
-		if ( iAmountToAdd > ( m_iUpgradeMetalRequired - m_iUpgradeMetal ) )
-			iAmountToAdd = ( m_iUpgradeMetalRequired - m_iUpgradeMetal );
-
-		if ( tf_cheapobjects.GetBool() == false )
-		{
-			pPlayer->RemoveAmmo( iAmountToAdd, TF_AMMO_METAL );
-		}
-		m_iUpgradeMetal += iAmountToAdd;
-
-		if ( iAmountToAdd > 0 )
-		{
-			bDidWork = true;
-		}
-
-		if ( m_iUpgradeMetal >= m_iUpgradeMetalRequired )
-		{
-			StartUpgrading();
-			m_iUpgradeMetal = 0;
-		}
-	}
+	DoWrenchHitEffect( vecHitPos, bRepair, bUpgrade );
 
 	if ( !IsUpgrading() )
 	{
@@ -524,7 +462,7 @@ bool CObjectSentrygun::OnWrenchHit( CTFPlayer *pPlayer )
 
 			if ( iAmountToAdd > 0 )
 			{
-				bDidWork = true;
+				bRepair = true;
 			}
 		}
 
@@ -543,12 +481,17 @@ bool CObjectSentrygun::OnWrenchHit( CTFPlayer *pPlayer )
 
 			if ( iAmountToAdd > 0 )
 			{
-				bDidWork = true;
+				bRepair = true;
 			}
 		}
 	}
 
-	return bDidWork;
+	return ( bRepair || bUpgrade );
+}
+
+int CObjectSentrygun::GetBaseHealth( void )
+{
+	return 150;
 }
 
 //-----------------------------------------------------------------------------
@@ -636,15 +579,28 @@ bool CObjectSentrygun::FindTarget()
 
 	// Find the opposing team list.
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-	if ( !pPlayer )
-		return false;
-
 	CUtlVector<CTFTeam *> pTeamList;
-	pPlayer->GetOpposingTFTeamList( &pTeamList );
+	CTFTeam *pTeam = NULL;
 
 	//CTFTeam *pTeam = pPlayer->GetOpposingTFTeam();
 	//if ( !pTeam )
 	//	return false;
+
+	if ( pPlayer )
+	{
+		// Try builder's team.
+		pTeam = pPlayer->GetTFTeam();
+	}
+	else
+	{
+		// If we have no builder use our own team number instead.
+		pTeam = GetTFTeam();
+	}
+
+	if ( pTeam )
+		pTeam->GetOpposingTFTeamList( &pTeamList );
+	else
+		return false;
 
 	// If we have an enemy get his minimum distance to check against.
 	Vector vecSegment;
@@ -959,7 +915,7 @@ bool CObjectSentrygun::Fire()
 		// Setup next rocket shot
 		m_flNextRocketAttack = gpGlobals->curtime + 3;
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoRockets--;
 		}
@@ -1055,7 +1011,7 @@ bool CObjectSentrygun::Fire()
 			break;
 		}
 
-		if ( !tf_sentrygun_ammocheat.GetBool() )
+		if ( !tf_sentrygun_ammocheat.GetBool() && !HasSpawnFlags( SF_SENTRY_INFINITE_AMMO ) )
 		{
 			m_iAmmoShells--;
 		}
@@ -1090,6 +1046,22 @@ void CObjectSentrygun::MakeTracer( const Vector &vecTracerSrc, const trace_t &tr
 	// Sentryguns are perfectly accurate, but this doesn't look good for tracers.
 	// Add a little noise to them, but not enough so that it looks like they're missing.
 	BaseClass::MakeTracer( vecTracerSrc, tmptrace, iTracerType );
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+char *CObjectSentrygun::GetPlacementModel(void)
+{
+	return SENTRY_MODEL_PLACEMENT;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+int CObjectSentrygun::GetMaxUpgradeLevel( void )
+{
+	return m_bMiniBuilding ? 1 : 3;
 }
 
 //-----------------------------------------------------------------------------

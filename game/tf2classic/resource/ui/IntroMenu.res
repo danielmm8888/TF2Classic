@@ -101,9 +101,10 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"	"0"	
-		"fillcolor"		"0 0 0 180"
+		"image"			"loadout_bottom_gradient"
+		"tileImage"		"1"
 		"PaintBackgroundType"	"0"
-	}		
+	}			
 	
 	"VideoPanel"
 	{

@@ -19,10 +19,10 @@
 //-----------------------------------------------------------------------------
 // Purpose:  Draws the rotated arrow panels
 //-----------------------------------------------------------------------------
-class CTFArrowPanel : public CTFImagePanel
+class CTFArrowPanel : public vgui::Panel
 {
 public:
-	DECLARE_CLASS_SIMPLE( CTFArrowPanel, CTFImagePanel );
+	DECLARE_CLASS_SIMPLE( CTFArrowPanel, vgui::Panel );
 
 	CTFArrowPanel( vgui::Panel *parent, const char *name );
 	virtual void Paint();

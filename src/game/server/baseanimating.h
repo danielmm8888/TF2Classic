@@ -108,6 +108,7 @@ public:
 	void    ResetEventIndexes ( void );
 	int		SelectWeightedSequence ( Activity activity );
 	int		SelectWeightedSequence ( Activity activity, int curSequence );
+	int		SelectWeightedSequenceFromModifiers( Activity activity, CUtlSymbol *pActivityModifiers, int iModifierCount );
 	int		SelectHeaviestSequence ( Activity activity );
 	int		LookupActivity( const char *label );
 	int		LookupSequence ( const char *label );
@@ -436,10 +437,14 @@ inline CStudioHdr *CBaseAnimating::GetModelPtr( void )
 		return NULL;
 
 #ifdef _DEBUG
-	// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
-	static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
-	AssertOnce( pModelCache->IsFrameLocking() );
+	if ( !HushAsserts() )
+	{
+		// GetModelPtr() is often called before OnNewModel() so go ahead and set it up first chance.
+		static IDataCacheSection *pModelCache = datacache->FindSection( "ModelData" );
+		AssertOnce( pModelCache->IsFrameLocking() );
+	}
 #endif
+
 	if ( !m_pStudioHdr && GetModel() )
 	{
 		LockStudioHdr();
@@ -521,7 +526,7 @@ EXTERN_SEND_TABLE(DT_BaseAnimating);
 #define ANIMATION_SKIN_BITS				10	// 1024 body skin selections FIXME: this seems way high
 #define ANIMATION_BODY_BITS				32	// body combinations
 #define ANIMATION_HITBOXSET_BITS		2	// hit box sets 
-#if defined (TF_DLL) || defined (TF_CLASSIC)
+#if defined( TF_DLL ) || defined( TF_CLASSIC )
 #define ANIMATION_POSEPARAMETER_BITS	8	// pose parameter resolution
 #else
 #define ANIMATION_POSEPARAMETER_BITS	11	// pose parameter resolution

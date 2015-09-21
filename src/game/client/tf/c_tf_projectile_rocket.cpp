@@ -7,6 +7,7 @@
 #include "cbase.h"
 #include "c_tf_projectile_rocket.h"
 #include "particles_new.h"
+#include "tf_gamerules.h"
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Rocket, DT_TFProjectile_Rocket )
 
@@ -61,13 +62,26 @@ void C_TFProjectile_Rocket::CreateRocketTrails( void )
 
 	if ( m_bCritical )
 	{
+		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
+		{
+			C_TFPlayer *pPlayer = ToTFPlayer(GetOwnerEntity());
+			if (pPlayer)
+			{
+				pPlayer->m_Shared.SetParticleToMercColor(
+					ParticleProp()->Create("critical_rocket_dm", PATTACH_ABSORIGIN_FOLLOW)
+					);
+				return;
+			}
+			ParticleProp()->Create("critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW);
+		}
+
 		switch( GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
 			ParticleProp()->Create("critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW);
 			break;
 		case TF_TEAM_BLUE:
-			ParticleProp()->Create( "critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
+			ParticleProp()->Create("critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		case TF_TEAM_GREEN:
 			ParticleProp()->Create("critical_rocket_green", PATTACH_ABSORIGIN_FOLLOW);

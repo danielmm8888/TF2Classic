@@ -36,7 +36,7 @@
 #include "basemultiplayerplayer.h"
 #include "voice_gamemgr.h"
 
-#if defined (TF_DLL) || (TF_CLASSIC)
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 #include "tf_player.h"
 #include "tf_gamerules.h"
 #endif
@@ -56,6 +56,60 @@ extern CBaseEntity*	FindPickerEntity( CBasePlayer* pPlayer );
 extern bool IsInCommentaryMode( void );
 
 ConVar  *sv_cheats = NULL;
+
+enum eAllowPointServerCommand {
+	eAllowNever,
+	eAllowOfficial,
+	eAllowAlways
+};
+
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
+// The default value here should match the default of the convar
+eAllowPointServerCommand sAllowPointServerCommand = eAllowOfficial;
+#else
+eAllowPointServerCommand sAllowPointServerCommand = eAllowAlways;
+#endif // TF_DLL
+
+void sv_allow_point_servercommand_changed( IConVar *pConVar, const char *pOldString, float flOldValue )
+{
+	ConVarRef var( pConVar );
+	if ( !var.IsValid() )
+	{
+		return;
+	}
+
+	const char *pNewValue = var.GetString();
+	if ( V_strcasecmp ( pNewValue, "always" ) == 0 )
+	{
+		sAllowPointServerCommand = eAllowAlways;
+	}
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
+	else if ( V_strcasecmp ( pNewValue, "official" ) == 0 )
+	{
+		sAllowPointServerCommand = eAllowOfficial;
+	}
+#endif // TF_DLL
+	else
+	{
+		sAllowPointServerCommand = eAllowNever;
+	}
+}
+
+ConVar sv_allow_point_servercommand ( "sv_allow_point_servercommand",
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
+                                      // The default value here should match the default of the convar
+                                      "official",
+#else
+                                      // Other games may use this in their official maps, and only TF exposes IsValveMap() currently
+                                      "always",
+#endif // TF_DLL
+                                      FCVAR_NONE,
+                                      "Allow use of point_servercommand entities in map. Potentially dangerous for untrusted maps.\n"
+                                      "  disallow : Always disallow\n"
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
+                                      "  official : Allowed for valve maps only\n"
+#endif // TF_DLL
+                                      "  always   : Allow for all maps", sv_allow_point_servercommand_changed );
 
 void ClientKill( edict_t *pEdict, const Vector &vecForce, bool bExplode = false )
 {
@@ -569,26 +623,22 @@ void CPointServerCommand::InputCommand( inputdata_t& inputdata )
 	if ( !inputdata.value.String()[0] )
 		return;
 
-#ifdef TF_CLASSIC
-	CBasePlayer *pPlayer = dynamic_cast< CBasePlayer * >(inputdata.pCaller);
-	if (pPlayer)
+	bool bAllowed = ( sAllowPointServerCommand == eAllowAlways );
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
+	if ( sAllowPointServerCommand == eAllowOfficial )
 	{
-		//Only allow people with RCON access to use this
-		if (engine->IsDedicatedServer())
-		{
-			if (pPlayer->IsAutoKickDisabled() == false)
-				return;
-		}
-		else if (gpGlobals->maxClients > 1)
-		{
-			CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
-			if (pPlayer != pHostPlayer)
-				return;
-		}
+		bAllowed = TFGameRules() && TFGameRules()->IsValveMap();
 	}
-#endif
+#endif // TF_DLL
 
-	engine->ServerCommand( UTIL_VarArgs( "%s\n", inputdata.value.String() ) );
+	if ( bAllowed )
+	{
+		engine->ServerCommand( UTIL_VarArgs( "%s\n", inputdata.value.String() ) );
+	}
+	else
+	{
+		Warning( "point_servercommand usage blocked by sv_allow_point_servercommand setting\n" );
+	}
 }
 
 BEGIN_DATADESC( CPointServerCommand )
@@ -619,7 +669,7 @@ void CC_DrawLine( const CCommand &args )
 static ConCommand drawline("drawline", CC_DrawLine, "Draws line between two 3D Points.\n\tGreen if no collision\n\tRed is collides with something\n\tArguments: x1 y1 z1 x2 y2 z2", FCVAR_CHEAT);
 
 //------------------------------------------------------------------------------
-// Purpose : Draw a cross at a points.  
+// Purpose : Draw a cross at a points.
 // Input   :
 // Output  :
 //------------------------------------------------------------------------------
@@ -1157,7 +1207,7 @@ void CC_God_f (void)
 	if ( !pPlayer )
 		return;
 
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
    if ( TFGameRules() && ( TFGameRules()->IsPVEModeActive() == false ) )
    {
 	   if ( gpGlobals->deathmatch )
@@ -1315,7 +1365,7 @@ CON_COMMAND_F( setang_exact, "Snap player eyes and orientation to specified pitc
 	pPlayer->Teleport( NULL, &newang, NULL );
 	pPlayer->SnapEyeAngles( newang );
 
-#if defined (TF_DLL) || defined (TF_CLASSIC)
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 	static_cast<CTFPlayer*>( pPlayer )->DoAnimationEvent( PLAYERANIMEVENT_SNAP_YAW );
 #endif
 }

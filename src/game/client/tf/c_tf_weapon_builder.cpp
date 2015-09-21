@@ -13,6 +13,7 @@
 #include "engine/IEngineSound.h"
 #include "c_tf_weapon_builder.h"
 #include "c_weapon__stubs.h"
+#include "tf_viewmodel.h"
 #include "iinput.h"
 #include <vgui/IVGui.h>
 #include "c_tf_player.h"
@@ -92,6 +93,7 @@ bool C_TFWeaponBuilder::Deploy( void )
 
 		pPlayer->SetNextAttack( gpGlobals->curtime );
 
+		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel(0) );
 		m_iWorldModelIndex = modelinfo->GetModelIndex( GetWorldModel() );
 	}
 
@@ -267,7 +269,7 @@ bool C_TFWeaponBuilder::CanBeSelected( void )
 	if ( !pOwner )
 		return false;
 
-	if ( pOwner->CanBuild( m_iObjectType ) != CB_CAN_BUILD )
+	if ( pOwner->CanBuild( m_iObjectType, m_iObjectMode ) != CB_CAN_BUILD )
 		return false;
 
 	return HasAmmo();
@@ -306,7 +308,7 @@ const char *C_TFWeaponBuilder::GetViewModel( int iViewModel ) const
 
 	if ( m_iObjectType != BUILDER_INVALID_OBJECT )
 	{
-		return GetObjectInfo( m_iObjectType )->m_pViewModel;
+		return DetermineViewModelType( GetObjectInfo(m_iObjectType)->m_pViewModel );
 	}
 
 	return BaseClass::GetViewModel();
@@ -332,10 +334,9 @@ const char *C_TFWeaponBuilder::GetWorldModel( void ) const
 
 Activity C_TFWeaponBuilder::GetDrawActivity( void )
 {
-	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
-
-	// hax alert! use the one handed sapper deploy if we're invis
-	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_STEALTHED ) && GetSubType() == OBJ_ATTACHMENT_SAPPER )
+	// sapper used to call different draw animations , one when invis and one when not.
+	// now you can go invis *while* deploying, so let's always use the one-handed deploy.
+	if ( GetSubType() == OBJ_ATTACHMENT_SAPPER )
 	{
 		return ACT_VM_DRAW_DEPLOYED;
 	}
@@ -343,4 +344,25 @@ Activity C_TFWeaponBuilder::GetDrawActivity( void )
 	{
 		return BaseClass::GetDrawActivity();
 	}
+}
+
+void C_TFWeaponBuilder::UpdateViewModel( void )
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+	
+	GetViewModel( m_nViewModelIndex );
+
+	int vmType = vm->GetViewModelType();
+	if ( vmType == vm->VMTYPE_L4D )
+		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
+	else if (vmType == vm->VMTYPE_TF2)
+		vm->UpdateViewmodelAddon( GetObjectInfo( m_iObjectType )->m_pViewModel );
+	else
+		vm->RemoveViewmodelAddon();
 }

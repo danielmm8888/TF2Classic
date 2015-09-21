@@ -32,6 +32,7 @@
 #include "achievementmgr.h"
 #include "tf_hud_freezepanel.h"
 #include "tf_gamestats_shared.h"
+#include "tf_mainmenu.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -757,6 +758,11 @@ ClassStats_t &CTFStatPanel::GetClassStats( int iClass )
 void CTFStatPanel::UpdateStatSummaryPanel()
 {
 	GStatsSummaryPanel()->SetStats( m_aClassStats );
+}
+
+void CTFStatPanel::UpdateMainMenuDialog()
+{
+	MAINMENU_ROOT->SetStats(m_aClassStats);
 }
 
 //-----------------------------------------------------------------------------

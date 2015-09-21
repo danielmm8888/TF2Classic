@@ -14,7 +14,6 @@
 
 #if defined( CLIENT_DLL )
 #define CTFSniperRifle C_TFSniperRifle
-#define CTFSniperRifle_DM C_TFSniperRifle_DM
 #define CSniperDot C_SniperDot
 #endif
 
@@ -139,16 +138,6 @@ private:
 	bool m_bRezoomAfterShot;
 
 	CTFSniperRifle( const CTFSniperRifle & );
-};
-
-class CTFSniperRifle_DM : public CTFSniperRifle
-{
-public:
-	DECLARE_CLASS(CTFSniperRifle_DM, CTFSniperRifle);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SNIPERRIFLE_DM; }
 };
 
 #endif // TF_WEAPON_SNIPERRIFLE_H

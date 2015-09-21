@@ -29,12 +29,13 @@ private:
 public:
 	CTFDeathMatchScoreBoardDialog(IViewPort *pViewPort);
 	virtual ~CTFDeathMatchScoreBoardDialog();
-
+	virtual void OnThink();
 	virtual const char *GetName(void) { return PANEL_DEATHMATCHSCOREBOARD; }
 	virtual void Reset();
 	virtual void Update();
 	virtual void ShowPanel( bool bShow );
 	virtual void UpdatePlayerAvatar( int playerIndex, KeyValues *kv );
+	virtual void OnCommand(const char* command);
 
 protected:
 	virtual void PerformLayout();
@@ -51,6 +52,7 @@ private:
 	void UpdatePlayerDetails();
 	void ClearPlayerDetails();
 	bool ShouldShowAsSpectator( int iPlayerIndex );
+	void ResizeScoreboard();
 	
 	virtual void FireGameEvent( IGameEvent *event );
 
@@ -59,20 +61,31 @@ private:
 	vgui::SectionedListPanel *GetSelectedPlayerList( void );
 
 	vgui::SectionedListPanel	*m_pPlayerListRed;
-	CExLabel					*m_pLabelPlayerName;
-	vgui::ImagePanel			*m_pImagePanelHorizLine;
-	CTFClassImage				*m_pClassImage;
 	vgui::ImagePanel			*m_pRedScoreBG;
+	vgui::EditablePanel *m_pWinPanel;
+	vgui::Menu	*m_pContextMenu;
 
 	int							m_iImageDead;
 	int							m_iImageDominated;
 	int							m_iImageNemesis;
 	int							m_iClassEmblem[TF_CLASS_COUNT_ALL];
 	int							m_iClassEmblemDead[TF_CLASS_COUNT_ALL];
+
+	int		iDefaultTall;
+	int		iSelectedPlayerIndex;
+
+	bool	bLockInput;
+	float	m_flTimeUpdateTeamScore;
+	CUtlVector< Vector > m_vecWinningPlayerColor;
 	
 	CPanelAnimationVarAliasType( int, m_iStatusWidth, "status_width", "12", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iNemesisWidth, "nemesis_width", "20", "proportional_int" );
 	CPanelAnimationVarAliasType(int, m_iNameWidth, "name_width", "236", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iKillsWidth, "kills_width", "23", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iDeathsWidth, "deaths_width", "23", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iKillstreakWidth, "killstreak_width", "23", "proportional_int");
+
+	MESSAGE_FUNC_PARAMS(ShowContextMenu, "ItemContextMenu", data);
 };
 
 const wchar_t *GetPointsString( int iPoints );

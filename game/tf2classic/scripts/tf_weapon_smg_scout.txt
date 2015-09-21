@@ -11,13 +11,14 @@ WeaponData
 	"Damage"		"8"
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
-	"Spread"		"0.025"
+	"Spread"		"0.010"
 	"TimeIdle"		"10.0"
 	"TimeIdleEmpty"		"1.0"
-	"TimeFireDelay"		"0.12"
+	"TimeFireDelay"		"0.10"
 	"ProjectileType"	"projectile_bullet"
 	"BrassModel"		"models/weapons/shells/shell_pistol.mdl"
 	"UseRapidFireCrits"	"1"
+	"MaxAmmo"		"250"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"
@@ -37,9 +38,9 @@ WeaponData
 	"MuzzleflashModelScale"	".5"
 
 	// Animation.
-	"viewmodel"		"models/weapons/v_models/v_smg_scout.mdl"
-	"playermodel"		"models/weapons/w_models/w_smg.mdl"
-	"anim_prefix"		"ac"
+	"viewmodel"		"models/weapons/v_models/v_stengun_merc.mdl"
+	"playermodel"	"models/weapons/w_models/w_stengun.mdl"
+	"anim_prefix"	"ac"
 
 	// Sounds.
 	// Max of 16 per category (ie. max 16 "single_shot" sounds).
@@ -47,8 +48,8 @@ WeaponData
 	{
 		"reload"		"Weapon_SMG.WorldReload"
 		"empty"			"Weapon_SMG.ClipEmpty"	
-		"single_shot"		"Weapon_SMG.Single"
-		"burst"			"Weapon_SMG.SingleCrit"
+		"single_shot"		"Weapon_Sten.Single"
+		"burst"			"Weapon_Sten.SingleCrit"
 	}
 
 	// Weapon Sprite data is loaded by the Client DLL.
@@ -56,7 +57,7 @@ WeaponData
 	{
 		"weapon"
 		{
-				"file"		"sprites/bucket_smg"
+				"file"		"sprites/bucket_stengun"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"
@@ -64,7 +65,7 @@ WeaponData
 		}
 		"weapon_s"
 		{	
-				"file"		"sprites/bucket_smg"
+				"file"		"sprites/bucket_stengun"
 				"x"		"0"
 				"y"		"0"
 				"width"		"200"

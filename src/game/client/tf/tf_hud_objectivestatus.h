@@ -14,8 +14,10 @@
 #include "tf_controls.h"
 #include "tf_imagepanel.h"
 #include "tf_hud_flagstatus.h"
+#include "tf_hud_deathmatchstatus.h"
 #include "hud_controlpointicons.h"
 #include "GameEventListener.h"
+#include "c_tf_player.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -155,6 +157,7 @@ private:
 
 	CTFHudFlagObjectives	*m_pFlagPanel;
 	CTFHudTimeStatus		*m_pTimePanel;
+	CTFHudDeathMatchObjectives *m_pDMPanel;
 	CHudControlPointIcons	*m_pControlPointIconsPanel;
 	CControlPointProgressBar *m_pControlPointProgressBar;
 };

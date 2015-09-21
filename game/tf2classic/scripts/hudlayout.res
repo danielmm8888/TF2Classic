@@ -604,7 +604,8 @@
 		"item_tall"				"28"
 		
 		"show_avatar"			"1"
-		"avatar_xpos"			"-15"
+		"show_friend"			"0"
+		"avatar_xpos"			"2"
 		"avatar_ypos"			"2"
 		"avatar_wide"			"24"
 		"avatar_tall"			"24"
@@ -694,6 +695,19 @@
 		"visible"				"1"
 		"enabled"				"1"
 		"icon_space"			"2"
+	}
+	
+	"CHudVote"
+	{
+		"fieldName"		"CHudVote"
+		"xpos"			"0"			
+		"ypos"			"0"
+		"wide"			"640"
+		"tall"			"480"
+		"visible"		"1"
+		"enabled"		"1"
+		"bgcolor_override"	"0 0 0 0"
+		"PaintBackgroundType"	"0" // rounded corners
 	}
 	
 	HUDAutoAim

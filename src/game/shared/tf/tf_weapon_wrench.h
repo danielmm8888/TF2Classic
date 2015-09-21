@@ -16,10 +16,29 @@
 #define CTFWrench C_TFWrench
 #endif
 
+class CTraceFilterIgnorePlayers : public CTraceFilterSimple
+{
+public:
+	// It does have a base, but we'll never network anything below here..
+	DECLARE_CLASS( CTraceFilterIgnorePlayers, CTraceFilterSimple );
+
+	CTraceFilterIgnorePlayers( const IHandleEntity *passentity, int collisionGroup )
+		: CTraceFilterSimple( passentity, collisionGroup )
+	{
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
+	{
+		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+		return pEntity && !pEntity->IsPlayer();
+	}
+};
+
 //=============================================================================
 //
 // Wrench class.
 //
+
 class CTFWrench : public CTFWeaponBaseMelee
 {
 public:
@@ -33,7 +52,7 @@ public:
 	virtual void		Smack( void );
 
 #ifdef GAME_DLL
-	void OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer );
+	virtual void OnFriendlyBuildingHit( CBaseObject *pObject, CTFPlayer *pPlayer, Vector vecHitPos );
 #endif
 
 private:

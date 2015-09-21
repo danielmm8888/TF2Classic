@@ -20,6 +20,7 @@
 
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
+	#include "tf_weapon_grenade_flare.h"
 	#include "te.h"
 
 #else	// Client specific.
@@ -195,6 +196,11 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
+	case TF_PROJECTILE_FLARE:
+		pProjectile = FireFlare(pPlayer);
+		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
+		break;
+
 	case TF_PROJECTILE_NONE:
 	default:
 		// do nothing!
@@ -313,8 +319,42 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
 	}
 
+#ifndef CLIENT_DLL
 	// Offset actual start point
 	*vecSrc = vecShootPos + (vecForward * vecOffset.x) + (vecRight * vecOffset.y) + (vecUp * vecOffset.z);
+#else
+	// If we're seeing another player shooting the projectile, move their start point to the weapon origin
+	if ( pPlayer )
+	{
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if ( pLocalPlayer != pPlayer || ::input->CAM_IsThirdPerson() )
+		{
+			if ( pPlayer->GetActiveWeapon() )
+			{
+				pPlayer->GetActiveWeapon()->GetAttachment( "muzzle", *vecSrc );
+			}
+		}
+		else
+		{
+			C_BaseEntity *pViewModel = pLocalPlayer->GetViewModel();
+
+			if ( pViewModel )
+			{
+				QAngle vecAngles;
+				int iMuzzleFlashAttachment = pViewModel->LookupAttachment( "muzzle" );
+				pViewModel->GetAttachment( iMuzzleFlashAttachment, *vecSrc, vecAngles );
+
+				Vector vForward;
+				AngleVectors( vecAngles, &vForward );
+
+				trace_t trace;	
+				UTIL_TraceLine( *vecSrc + vForward * -50, *vecSrc, MASK_SOLID, pPlayer, COLLISION_GROUP_NONE, &trace );
+
+				*vecSrc = trace.endpos;
+			}
+		}
+	}
+#endif
 
 	// Find angles that will get us to our desired end point
 	// Only use the trace end if it wasn't too close, which results
@@ -372,13 +412,14 @@ CBaseEntity *CTFWeaponBaseGun::FireNail( CTFPlayer *pPlayer, int iSpecificNail )
 	QAngle angForward;
 	GetProjectileFireSetup( pPlayer, Vector(16,6,-8), &vecSrc, &angForward );
 
-	// Add some spread
-	float flSpread = 1.5;
-	// Tranquilizer Gun darts no spread
-	if (iSpecificNail == TF_PROJECTILE_DART) flSpread = 0.0;
+	// Add some spread (no spread on tranq. gun)
+	if ( iSpecificNail != TF_PROJECTILE_DART )
+	{
+		float flSpread = 1.5;
 
-	angForward.x += RandomFloat(-flSpread, flSpread);
-	angForward.y += RandomFloat(-flSpread, flSpread);
+		angForward.x += RandomFloat(-flSpread, flSpread);
+		angForward.y += RandomFloat(-flSpread, flSpread);
+	}
 
 	CTFBaseProjectile *pProjectile = NULL;
 	switch( iSpecificNail )
@@ -438,6 +479,41 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
+	}
+	return pProjectile;
+
+#endif
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Fire a flare
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
+{
+	PlayWeaponShootSound();
+
+#ifdef GAME_DLL
+
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors(pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp);
+
+	// Create grenades here!!
+	Vector vecSrc = pPlayer->Weapon_ShootPosition();
+	vecSrc += vecForward * 16.0f + vecRight * 8.0f + vecUp * -6.0f;
+
+	Vector vecVelocity = (vecForward * GetProjectileSpeed()) + (vecUp * 200.0f) + (random->RandomFloat(-10.0f, 10.0f) * vecRight) +
+		(random->RandomFloat(-10.0f, 10.0f) * vecUp);
+
+	CTFGrenadeFlareProjectile *pProjectile = CTFGrenadeFlareProjectile::Create(vecSrc, pPlayer->EyeAngles(), vecVelocity,
+		AngularImpulse(600, random->RandomInt(-1200, 1200), 0),
+		pPlayer, GetTFWpnData());
+
+
+	if (pProjectile)
+	{
+		pProjectile->SetCritical(IsCurrentAttackACrit());
 	}
 	return pProjectile;
 

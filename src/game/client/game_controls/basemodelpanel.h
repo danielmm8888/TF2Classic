@@ -27,6 +27,10 @@ public:
 	DECLARE_CLASS( CModelPanelModel, C_BaseFlex );
 
 	virtual bool IsMenuModel() const{ return true; }
+
+#ifdef TF_CLASSIC_CLIENT
+	Vector m_vecModelColor;
+#endif
 };
 
 //-----------------------------------------------------------------------------

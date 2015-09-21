@@ -91,6 +91,7 @@ public:
 	void		ResetStats( void );
 	static ClassStats_t &GetClassStats( int iClass );
 	void		UpdateStatSummaryPanel();
+	void		UpdateMainMenuDialog();
 	bool		IsLocalFileTrusted() { return m_bLocalFileTrusted; }
 	void		SetStatsChanged( bool bChanged ) { m_bStatsChanged = bChanged; }
 	RoundStats_t &GetRoundStatsCurrentGame() { return m_RoundStatsCurrentGame; }

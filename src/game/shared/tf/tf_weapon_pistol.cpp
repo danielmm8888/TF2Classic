@@ -59,16 +59,16 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_pistol_scout );
 
 //============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED(TFPistol_DM, DT_WeaponPistol_DM)
+IMPLEMENT_NETWORKCLASS_ALIASED(TFSixShooter, DT_WeaponSixShooter)
 
-BEGIN_NETWORK_TABLE(CTFPistol_DM, DT_WeaponPistol_DM)
+BEGIN_NETWORK_TABLE(CTFSixShooter, DT_WeaponSixShooter)
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA(CTFPistol_DM)
+BEGIN_PREDICTION_DATA(CTFSixShooter)
 END_PREDICTION_DATA()
 
-LINK_ENTITY_TO_CLASS(tf_weapon_pistol_dm, CTFPistol_DM);
-PRECACHE_WEAPON_REGISTER(tf_weapon_pistol_dm);
+LINK_ENTITY_TO_CLASS(tf_weapon_sixshooter, CTFSixShooter);
+PRECACHE_WEAPON_REGISTER(tf_weapon_sixshooter);
 //=============================================================================
 //
 // Weapon Pistol functions.

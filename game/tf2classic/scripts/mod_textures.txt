@@ -350,11 +350,11 @@
 		}
 		"nailgun"
 		{
-				"dfile"	"HUD/d_images"
-				"dnegfile"	"HUD/dneg_images"
+				"dfile"	"HUD/d_images_tf2c"
+				"dnegfile"	"HUD/dneg_images_tf2c"
 				"x"		"0"
-				"y"		"64"
-				"width"		"64"
+				"y"		"0"
+				"width"		"96"
 				"height"	"32"
 		}
 		"sniperrifle"
@@ -375,6 +375,15 @@
 				"width"		"96"
 				"height"	"32"
 		}
+		"smg_scout"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"0"
+				"y"		"128"
+				"width"		"96"
+				"height"	"32"
+		}
 		"club"
 		{
 				"dfile"	"HUD/d_images"
@@ -382,6 +391,42 @@
 				"x"		"0"
 				"y"		"160"
 				"width"		"96"
+				"height"	"32"
+		}
+		"fishwhacker"
+		{
+				"dfile"	"HUD/d_images_tf2c"
+				"dnegfile"	"HUD/dneg_images_tf2c"
+				"x"		"0"
+				"y"		"96"
+				"width"		"115"
+				"height"	"32"
+		}
+		"crowbar"
+		{
+				"dfile"	"HUD/d_images_tf2c"
+				"dnegfile"	"HUD/dneg_images_tf2c"
+				"x"		"0"
+				"y"		"32"
+				"width"		"96"
+				"height"	"32"
+		}
+		"doublebarrel"
+		{
+				"dfile"	"HUD/d_images_tf2c"
+				"dnegfile"	"HUD/dneg_images_tf2c"
+				"x"		"0"
+				"y"		"64"
+				"width"		"125"
+				"height"	"32"
+		}
+		"hunterrifle"
+		{
+				"dfile"	"HUD/d_images_tf2c"
+				"dnegfile"	"HUD/dneg_images_tf2c"
+				"x"		"0"
+				"y"		"128"
+				"width"		"125"
 				"height"	"32"
 		}
 		"shovel"
@@ -599,6 +644,15 @@
 				"y"		"384"
 				"width"		"48"
 				"height"	"32"
+		}
+		"crit"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"192"
+				"y"		"409"
+				"width"		"64"
+				"height"	"34"
 		}
 		"bluedefend"
 		{

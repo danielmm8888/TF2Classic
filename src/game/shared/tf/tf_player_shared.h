@@ -143,12 +143,16 @@ public:
 	}
 	int		GetDisguiseHealth( void )			{ return m_iDisguiseHealth; }
 	void	SetDisguiseHealth( int iDisguiseHealth );
+	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
+	int		GetDisguiseMaxBuffedHealth( void );
 
 #ifdef CLIENT_DLL
 	void	OnDisguiseChanged( void );
-	void	RecalcDisguiseWeapon( void );
+	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
+
+	bool	SetParticleToMercColor( CNewParticleEffect *pParticle );
 #endif
 
 #ifdef GAME_DLL
@@ -183,6 +187,11 @@ public:
 
 	int		GetDesiredPlayerClassIndex( void );
 
+	int		GetDesiredWeaponIndex( void ) { return m_iDesiredWeaponID; }
+	void	SetDesiredWeaponIndex( int iWeaponID ) { m_iDesiredWeaponID = iWeaponID; }
+	int		GetRespawnParticleID( void ) { return m_iRespawnParticleID; }
+	void	SetRespawnParticleID(int iParticleID) { m_iRespawnParticleID = iParticleID; }
+
 	float	GetSpyCloakMeter() const		{ return m_flCloakMeter; }
 	void	SetSpyCloakMeter( float val ) { m_flCloakMeter = val; }
 
@@ -200,6 +209,17 @@ public:
 	bool	IsPlayerDominatingMe( int iPlayerIndex );
 	void	SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated );
 
+	bool	IsCarryingObject( void ) { return m_bCarryingObject; }
+
+#ifdef GAME_DLL
+	void				SetCarriedObject( CBaseObject *pObj );
+	CBaseObject*		GetCarriedObject( void );
+#endif
+
+	int		GetKillstreak( void ) { return m_nStreaks.Get(0); }
+	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
+	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -211,6 +231,7 @@ private:
 	void OnAddDisguising( void );
 	void OnAddDisguised( void );
 	void OnAddSlowed( void );
+	void OnAddCritboosted(void);
 
 	void OnRemoveZoomed( void );
 	void OnRemoveBurning( void );
@@ -220,6 +241,7 @@ private:
 	void OnRemoveInvulnerable( void );
 	void OnRemoveTeleported( void );
 	void OnRemoveSlowed( void );
+	void OnRemoveCritboosted(void);
 
 	float GetCritMult( void );
 
@@ -251,8 +273,11 @@ private:
 	EHANDLE m_hDisguiseTarget;					// Playing the spy is using for name disguise.
 	CNetworkVar( int, m_iDisguiseTargetIndex );
 	CNetworkVar( int, m_iDisguiseHealth );		// Health to show our enemies in player id
+	CNetworkVar( int, m_iDisguiseMaxHealth );
+	CNetworkVar( float, m_flDisguiseChargeLevel );
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
+	CNetworkVar( bool, m_bDisguiseWeaponParity );
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates
@@ -297,6 +322,8 @@ private:
 	int	m_nOldDisguiseClass;
 
 	CNetworkVar( int, m_iDesiredPlayerClass );
+	CNetworkVar( int, m_iDesiredWeaponID );
+	CNetworkVar( int, m_iRespawnParticleID );
 
 	float m_flNextBurningSound;
 
@@ -310,9 +337,14 @@ private:
 
 	CNetworkVar( int, m_iCritMult );
 
+	CNetworkArray(int, m_nStreaks, 3);
+
 	CNetworkArray( bool, m_bPlayerDominated, MAX_PLAYERS+1 );		// array of state per other player whether player is dominating other players
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player
 	
+	CNetworkHandle( CBaseObject, m_hCarriedObject );
+	CNetworkVar( bool, m_bCarryingObject );
+
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
 	CUtlVector<CTFDamageEvent> m_DamageEvents;
@@ -322,6 +354,8 @@ private:
 	CTFWeaponInfo *m_pDisguiseWeaponInfo;
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
+
+	bool m_bOldDisguiseWeaponParity;
 #endif
 };			   
 

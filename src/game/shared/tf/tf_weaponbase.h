@@ -33,6 +33,7 @@
 #if defined( CLIENT_DLL )
 #define CTFWeaponBase C_TFWeaponBase
 #define CTFWeaponBaseGrenadeProj C_TFWeaponBaseGrenadeProj
+#define CTFViewModel C_TFViewModel
 #include "tf_fx_muzzleflash.h"
 #endif
 
@@ -112,6 +113,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void Precache();
 	virtual bool IsPredicted() const			{ return true; }
 	virtual void FallInit( void );
+	virtual void OnPickedUp( CBaseCombatCharacter *pNewOwner );
 
 	// Weapon Data.
 	CTFWeaponInfo const	&GetTFWpnData() const;
@@ -121,11 +123,19 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_NONE; }
 
 	// View model.
+	virtual int TranslateViewmodelHandActivity( int iActivity );
+	virtual void SetViewModel();
 	virtual const char *GetViewModel( int iViewModel = 0 ) const;
+	virtual const char *DetermineViewModelType(const char *vModel) const;
+
+#ifdef CLIENT_DLL
+	virtual void UpdateViewModel();
+#endif
 
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
+	virtual bool HolsterOnDetach() { return true; }
 
 	// Attacks.
 	virtual void PrimaryAttack();
@@ -139,6 +149,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void AbortReload( void );
 	virtual bool DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 	void SendReloadEvents();
+	virtual bool CanAutoReload( void ) { return true; }
+	virtual bool ReloadOrSwitchWeapons( void );
 
 	virtual bool CanDrop( void ) { return false; }
 
@@ -151,8 +163,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
-	virtual acttable_t *ActivityList( void );
-	virtual int ActivityListCount( void );
+	virtual acttable_t *ActivityList( int &iActivityCount );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
 	static acttable_t m_acttableMelee[];

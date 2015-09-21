@@ -5,6 +5,7 @@
 //=============================================================================
 #include "cbase.h"
 #include "tf_projectile_nail.h"
+#include "tf_gamerules.h"
 
 #ifdef CLIENT_DLL
 #include "c_basetempentity.h"
@@ -74,6 +75,9 @@ float CTFProjectile_Syringe::GetGravity( void )
 //-----------------------------------------------------------------------------
 const char *GetSyringeTrailParticleName( int iTeamNumber, bool bCritical )
 {
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		return (bCritical ? "nailtrails_medic_dm_crit" : "nailtrails_medic_dm");
+
 	switch (iTeamNumber)
 	{
 	case TF_TEAM_RED:
@@ -125,7 +129,9 @@ void ClientsideProjectileSyringeCallback( const CEffectData &data )
 				break;
 			}
 			bool bCritical = ( ( data.m_nDamageType & DMG_CRITICAL ) != 0 );
-			pSyringe->AddParticleEffect( GetSyringeTrailParticleName( pPlayer->GetTeamNumber(), bCritical ) );
+			pPlayer->m_Shared.SetParticleToMercColor(
+				pSyringe->AddParticleEffect(GetSyringeTrailParticleName(pPlayer->GetTeamNumber(), bCritical))
+				);
 			pSyringe->AddEffects( EF_NOSHADOW );
 			pSyringe->flags |= FTENT_USEFASTCOLLISIONS;
 		}
@@ -195,6 +201,9 @@ float CTFProjectile_Nail::GetGravity(void)
 //-----------------------------------------------------------------------------
 const char *GetNailTrailParticleName(int iTeamNumber, bool bCritical)
 {
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		return (bCritical ? "nailtrails_scout_dm_crit" : "nailtrails_scout_dm");
+
 	switch (iTeamNumber)
 	{
 	case TF_TEAM_RED:
@@ -245,7 +254,9 @@ void ClientsideProjectileNailCallback(const CEffectData &data)
 				break;
 			}
 			bool bCritical = ((data.m_nDamageType & DMG_CRITICAL) != 0);
-			pNail->AddParticleEffect(GetNailTrailParticleName(pPlayer->GetTeamNumber(), bCritical));
+			pPlayer->m_Shared.SetParticleToMercColor(
+				pNail->AddParticleEffect(GetNailTrailParticleName(pPlayer->GetTeamNumber(), bCritical))
+				);
 			pNail->AddEffects(EF_NOSHADOW);
 			pNail->flags |= FTENT_USEFASTCOLLISIONS;
 		}
@@ -314,6 +325,9 @@ float CTFProjectile_Dart::GetGravity(void)
 //-----------------------------------------------------------------------------
 const char *GetTranqDartTrailParticleName(int iTeamNumber, bool bCritical)
 {
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+		return (bCritical ? "nailtrails_medic_dm_crit" : "tranq_tracer_teamcolor_dm");
+
 	switch (iTeamNumber)
 	{
 	case TF_TEAM_RED:
@@ -365,7 +379,9 @@ void ClientsideProjectileTranqDartCallback(const CEffectData &data)
 				break;
 			}
 			bool bCritical = ((data.m_nDamageType & DMG_CRITICAL) != 0);
-			pSyringe->AddParticleEffect(GetTranqDartTrailParticleName(pPlayer->GetTeamNumber(), bCritical));
+			pPlayer->m_Shared.SetParticleToMercColor(
+				pSyringe->AddParticleEffect(GetTranqDartTrailParticleName(pPlayer->GetTeamNumber(), bCritical))
+				);
 			pSyringe->AddEffects(EF_NOSHADOW);
 			pSyringe->flags |= FTENT_USEFASTCOLLISIONS;
 		}

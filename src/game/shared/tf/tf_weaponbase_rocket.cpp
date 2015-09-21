@@ -5,6 +5,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "tf_weaponbase_rocket.h"
+#include "tf_gamerules.h"
 
 // Server specific.
 #ifdef GAME_DLL
@@ -134,7 +135,7 @@ void CTFBaseRocket::Spawn( void )
 
 	// Don't collide with players on the owner's team for the first bit of our life
 	m_flCollideWithTeammatesTime = gpGlobals->curtime + 0.25;
-	m_bCollideWithTeammates = false;
+	m_bCollideWithTeammates = TFGameRules()->IsDeathmatch() ? true : false;
 
 #endif
 }
@@ -288,7 +289,7 @@ unsigned int CTFBaseRocket::PhysicsSolidMaskForEntity( void ) const
 	}
 	else
 	{
-		// Collide with both teams
+		// Collide with all teams
 		teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
 	}
 

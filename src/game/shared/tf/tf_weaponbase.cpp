@@ -10,6 +10,7 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "eventlist.h"
+#include "tf_viewmodel.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )
@@ -42,8 +43,7 @@ extern ConVar tf2c_model_muzzleflash;
 extern ConVar tf2c_muzzlelight;
 #endif
 
-ConVar tf_weapon_criticals("tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Whether or not random crits are enabled\n" );
-extern ConVar tf_weapon_criticals_melee;
+ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
 
 //=============================================================================
 //
@@ -245,6 +245,12 @@ void CTFWeaponBase::Precache()
 
 	const CTFWeaponInfo *pTFInfo = &GetTFWpnData();
 
+	// Precache the DM viewmodel (if we have one)
+	if (pTFInfo->m_szViewModelDM[0] != '\0')
+	{
+		PrecacheModel(pTFInfo->m_szViewModelDM);
+	}
+
 	if ( pTFInfo->m_szExplosionSound && pTFInfo->m_szExplosionSound[0] )
 	{
 		CBaseEntity::PrecacheScriptSound( pTFInfo->m_szExplosionSound );
@@ -300,7 +306,10 @@ void CTFWeaponBase::Precache()
 		PrecacheParticleSystem(pTracerEffect);
 		PrecacheParticleSystem(pTracerEffectCrit);
 
-
+		Q_snprintf(pTracerEffect, sizeof(pTracerEffect), "%s_dm", pTFInfo->m_szTracerEffect);
+		Q_snprintf(pTracerEffectCrit, sizeof(pTracerEffectCrit), "%s_dm_crit", pTFInfo->m_szTracerEffect);
+		PrecacheParticleSystem(pTracerEffect);
+		PrecacheParticleSystem(pTracerEffectCrit);
 	}
 }
 
@@ -332,17 +341,317 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 	return GetWeaponID() == iWeapon; 
 }
 
+int PrimaryArmActTable[13][2] = {
+	{ ACT_VM_DRAW, ACT_PRIMARY_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_PRIMARY_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_PRIMARY_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_PRIMARY_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_PRIMARY_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_PRIMARY_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_PRIMARY_VM_RELOAD },
+	{ ACT_VM_RELOAD_START, ACT_PRIMARY_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_PRIMARY_RELOAD_FINISH },
+	{ ACT_VM_DRYFIRE, ACT_PRIMARY_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_PRIMARY_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_PRIMARY_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_PRIMARY_VM_LOWERED_TO_IDLE },
+};
+
+int SecondaryArmActTable[13][2] = {
+	{ ACT_VM_DRAW, ACT_SECONDARY_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_SECONDARY_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_SECONDARY_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_SECONDARY_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_SECONDARY_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_SECONDARY_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_SECONDARY_VM_RELOAD },
+	{ ACT_VM_RELOAD_START, ACT_SECONDARY_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_SECONDARY_RELOAD_FINISH },
+	{ ACT_VM_DRYFIRE, ACT_SECONDARY_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_SECONDARY_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_SECONDARY_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_SECONDARY_VM_LOWERED_TO_IDLE },
+};
+
+int MeleeArmActTable[13][2] = {
+	{ ACT_VM_DRAW, ACT_MELEE_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_MELEE_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_MELEE_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_MELEE_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_MELEE_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_MELEE_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_MELEE_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_MELEE_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_MELEE_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_MELEE_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_MELEE_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
+};
+
+int BuildingArmActTable[2][2] = {
+	{ ACT_VM_DRAW, ACT_ENGINEER_BLD_VM_DRAW },
+	{ ACT_VM_IDLE, ACT_ENGINEER_BLD_VM_IDLE },
+};
+
+int PdaArmActTable[11][2] = {
+	{ ACT_VM_DRAW, ACT_PDA_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_PDA_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_PDA_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_PDA_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_PDA_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_PDA_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_PDA_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_PDA_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_PDA_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_PDA_VM_LOWERED_TO_IDLE },
+};
+
+int Item1ArmActTable[15][2] = {
+	{ ACT_VM_DRAW, ACT_ITEM1_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM1_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM1_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM1_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM1_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM1_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM1_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM1_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM1_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM1_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM1_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_RELOAD_START, ACT_ITEM1_RELOAD_START },
+	{ ACT_VM_RELOAD_FINISH, ACT_ITEM1_RELOAD_FINISH },
+	{ ACT_VM_HITCENTER, ACT_ITEM1_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM1_VM_SWINGHARD },
+};
+
+int Item2ArmActTable[13][2] = {
+	{ ACT_VM_DRAW, ACT_ITEM2_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM2_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM2_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM2_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM2_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM2_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM2_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM2_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM2_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM2_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM2_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_ITEM2_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM2_VM_SWINGHARD },
+};
+
+int Item3ArmActTable[13][2] = {
+	{ ACT_VM_DRAW, ACT_ITEM3_VM_DRAW },
+	{ ACT_VM_HOLSTER, ACT_ITEM3_VM_HOLSTER },
+	{ ACT_VM_IDLE, ACT_ITEM3_VM_IDLE },
+	{ ACT_VM_PULLBACK, ACT_ITEM3_VM_PULLBACK },
+	{ ACT_VM_PRIMARYATTACK, ACT_ITEM3_VM_PRIMARYATTACK },
+	{ ACT_VM_SECONDARYATTACK, ACT_ITEM3_VM_SECONDARYATTACK },
+	{ ACT_VM_RELOAD, ACT_ITEM3_VM_RELOAD },
+	{ ACT_VM_DRYFIRE, ACT_ITEM3_VM_DRYFIRE },
+	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM3_VM_IDLE_TO_LOWERED },
+	{ ACT_VM_IDLE_LOWERED, ACT_ITEM3_VM_IDLE_LOWERED },
+	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM3_VM_LOWERED_TO_IDLE },
+	{ ACT_VM_HITCENTER, ACT_ITEM3_VM_HITCENTER },
+	{ ACT_VM_SWINGHARD, ACT_ITEM3_VM_SWINGHARD },
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
+{
+	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if (pTFPlayer == NULL)
+	{
+		Assert(false); // This shouldn't be possible
+		return iActivity;
+	}
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if (vm == NULL)
+	{
+		return iActivity;
+	}
+
+	if (vm->GetViewModelType() != vm->VMTYPE_TF2)
+		return iActivity;
+
+	// Oh jesus no
+
+	switch ( iWeaponRole )
+	{
+		case TF_WPN_TYPE_PRIMARY:
+			for (int i = 0; i < 13; i++)
+			{
+				if (PrimaryArmActTable[i][0] == iActivity)
+					return PrimaryArmActTable[i][1];
+			}
+			return iActivity;
+		case TF_WPN_TYPE_SECONDARY:
+			for (int i = 0; i < 13; i++)
+			{
+				if (SecondaryArmActTable[i][0] == iActivity)
+					return SecondaryArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_MELEE:
+			for (int i = 0; i < 13; i++)
+			{
+				if (MeleeArmActTable[i][0] == iActivity)
+					return MeleeArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_BUILDING:
+			for (int i = 0; i < 2; i++)
+			{
+				if (BuildingArmActTable[i][0] == iActivity)
+					return BuildingArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_PDA:
+			for (int i = 0; i < 13; i++)
+			{
+				if (PdaArmActTable[i][0] == iActivity)
+					return PdaArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_ITEM1:
+			for (int i = 0; i < 13; i++)
+			{
+				if (Item1ArmActTable[i][0] == iActivity)
+					return Item1ArmActTable[i][1];
+			}
+			return iActivity;
+
+		case TF_WPN_TYPE_ITEM2:
+			for (int i = 0; i < 13; i++)
+			{
+				if (Item2ArmActTable[i][0] == iActivity)
+					return Item2ArmActTable[i][1];
+			}
+			return iActivity;
+
+		default:
+			return iActivity;
+	};
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::SetViewModel()
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+
+	Assert( vm->ViewModelIndex() == m_nViewModelIndex );
+
+	vm->SetViewModelType( vm->VMTYPE_NONE );
+
+	vm->SetWeaponModel( GetViewModel( m_nViewModelIndex ), this );
+
+#ifdef CLIENT_DLL
+	UpdateViewModel();
+#endif
+}
+
+#ifdef CLIENT_DLL
+void CTFWeaponBase::UpdateViewModel(void)
+{
+	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	if ( pTFPlayer == NULL )
+		return;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	if ( vm == NULL )
+		return;
+	
+	GetViewModel( m_nViewModelIndex );
+
+	int vmType = vm->GetViewModelType();
+	if ( vmType == vm->VMTYPE_L4D )
+		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
+	else if (vmType == vm->VMTYPE_TF2)
+		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+	else
+		vm->RemoveViewmodelAddon();
+}
+#endif
+
+const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
+{
+	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
+	if (!pPlayer)
+		return vModel;
+
+	CBaseAnimating *pTemp = new CBaseAnimating();
+	if (!pTemp)
+		return vModel;
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
+
+	pTemp->SetModel(vModel);
+
+	if (pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1)
+	{
+		pTemp->Remove();
+
+		if (vm)
+			vm->SetViewModelType(vm->VMTYPE_TF2);
+
+		return pPlayer->GetPlayerClass()->GetHandModelName();
+	}
+	else if (pTemp->LookupAttachment("l4d") > 0)
+	{
+		pTemp->Remove();
+
+		if (vm)
+			vm->SetViewModelType(vm->VMTYPE_L4D);
+
+		return vModel;
+	}
+
+	pTemp->Remove();
+
+	if (vm)
+		vm->SetViewModelType(vm->VMTYPE_HL2);
+
+	return vModel;
+}
+
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
-	if ( GetPlayerOwner() == NULL )
+	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+	{
+		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
+			return DetermineViewModelType( GetTFWpnData().m_szViewModelDM );
+	}
+
+	if ( GetPlayerOwner() )
+	{
+		return DetermineViewModelType( GetTFWpnData().szViewModel );
+	}
+	else
 	{
 		return BaseClass::GetViewModel();
 	}
-
-	return GetTFWpnData().szViewModel;
 }
 
 //-----------------------------------------------------------------------------
@@ -380,6 +689,8 @@ bool CTFWeaponBase::Holster( CBaseCombatWeapon *pSwitchingTo )
 	}
 #endif
 
+	AbortReload();
+
 	return BaseClass::Holster( pSwitchingTo );
 }
 
@@ -405,6 +716,10 @@ bool CTFWeaponBase::Deploy( void )
 
 	if ( bDeploy )
 	{
+		// Make sure viewmodel index is correct since deathmatch uses alt viewmodels.
+		// May also help custom weapons in the future.
+		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel() );
+
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.
@@ -435,11 +750,29 @@ void CTFWeaponBase::PrimaryAttack( void )
 
 	BaseClass::PrimaryAttack();
 
-	if ( m_bReloadsSingly )
-	{
-		m_iReloadMode.Set( TF_RELOAD_START );
-	}
+	// Due to cl_autoreload we can now interrupt ANY reload.
+	AbortReload();
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
+{
+#ifdef GAME_DLL
+	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
+	int iAmmoType = m_pWeaponInfo->iAmmoType;
+
+	if ( iAmmoType != -1 )
+	{
+		pPlayer->SetAmmoCount(1,iAmmoType);
+		pPlayer->GiveAmmo(pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType);
+	}
+#endif
+
+	BaseClass::OnPickedUp(pNewOwner);
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -483,18 +816,14 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
-	else if ( IsMeleeWeapon() && ((tf_weapon_criticals_melee.GetInt() == 1 && tf_weapon_criticals.GetBool()) || tf_weapon_criticals_melee.GetInt() == 2))
+	else if  (pPlayer->m_Shared.InCond( TF_COND_POWERUP_CRITDAMAGE ) )
 	{
-		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
-	}
-	else if ( tf_weapon_criticals.GetBool() )
-	{
-		// call the weapon-specific helper method
-		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
+		m_bCurrentAttackIsCrit = true;
 	}
 	else
 	{
-		m_bCurrentAttackIsCrit = false;
+		// call the weapon-specific helper method
+		m_bCurrentAttackIsCrit = CalcIsAttackCriticalHelper();
 	}
 }
 
@@ -505,6 +834,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
+		return false;
+
+	// Don't bother checking if random crits are off.
+	if ( !tf_weapon_criticals.GetBool() )
 		return false;
 
 	float flPlayerCritMult = pPlayer->GetCritMult();
@@ -553,6 +886,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 //-----------------------------------------------------------------------------
 bool CTFWeaponBase::Reload( void )
 {
+	// Sorry, people, no speeding it up.
+	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
+		return false;
+
 	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
 	if ( m_iReloadMode == TF_RELOAD_START ) 
 	{
@@ -581,6 +918,9 @@ void CTFWeaponBase::AbortReload( void )
 {
 	BaseClass::AbortReload();
 
+#ifndef CLIENT_DLL
+	StopWeaponSound( RELOAD );
+#endif
 	m_iReloadMode.Set( TF_RELOAD_START );
 }
 
@@ -900,24 +1240,21 @@ void CTFWeaponBase::ItemBusyFrame( void )
 		m_bInAttack2 = false;
 	}
 
-	// Interrupt a reload on reload singly weapons.
-	if ( m_bReloadsSingly )
+	// Interrupt a reload.
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( pPlayer )
 	{
-		CTFPlayer *pPlayer = GetTFPlayerOwner();
-		if ( pPlayer )
+		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( pPlayer->m_nButtons & IN_ATTACK )
+			if ( ( !m_bReloadsSingly || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
 			{
-				if ( ( m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
-				{
-					m_iReloadMode.Set( TF_RELOAD_START );
-					m_bInReload = false;
+				m_iReloadMode.Set( TF_RELOAD_START );
+				m_bInReload = false;
 
-					pPlayer->m_flNextAttack = gpGlobals->curtime;
-					m_flNextPrimaryAttack = gpGlobals->curtime;
+				pPlayer->m_flNextAttack = gpGlobals->curtime;
+				m_flNextPrimaryAttack = gpGlobals->curtime;
 
-					SetWeaponIdleTime( gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeIdle );
-				}
+				SetWeaponIdleTime( gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeIdle );
 			}
 		}
 	}
@@ -1053,6 +1390,46 @@ void CTFWeaponBase::SetWeaponVisible( bool visible )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: If the current weapon has more ammo, reload it. Otherwise, switch 
+//			to the next best weapon we've got. Returns true if it took any action.
+//-----------------------------------------------------------------------------
+bool CTFWeaponBase::ReloadOrSwitchWeapons( void )
+{
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+	Assert( pOwner );
+
+	m_bFireOnEmpty = false;
+
+	// If we don't have any ammo, switch to the next best weapon
+	if ( !HasAnyAmmo() && m_flNextPrimaryAttack < gpGlobals->curtime && m_flNextSecondaryAttack < gpGlobals->curtime )
+	{
+		// weapon isn't useable, switch.
+		if ( ( (GetWeaponFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) == false ) && ( g_pGameRules->SwitchToNextBestWeapon( pOwner, this ) ) )
+		{
+			m_flNextPrimaryAttack = gpGlobals->curtime + 0.3;
+			return true;
+		}
+	}
+	else
+	{
+		// Weapon is useable. Reload if empty and weapon has waited as long as it has to after firing
+		// Also auto-reload if owner has auto-reload enabled.
+		if ( UsesClipsForAmmo1() && !AutoFiresFullClip() && 
+			(m_iClip1 == 0 || (pOwner && pOwner->ShouldAutoReload() && m_iClip1 < GetMaxClip1() && CanAutoReload())) && 
+			(GetWeaponFlags() & ITEM_FLAG_NOAUTORELOAD) == false && 
+			m_flNextPrimaryAttack < gpGlobals->curtime && 
+			m_flNextSecondaryAttack < gpGlobals->curtime )
+		{
+			// if we're successfully reloading, we're done
+			if ( Reload() )
+				return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Allows the weapon to choose proper weapon idle animation
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::WeaponIdle( void )
@@ -1144,8 +1521,14 @@ const char *CTFWeaponBase::GetTracerType( void )
 	{
 		if (GetOwner() && !m_szTracerName[0])
 		{
-			switch (GetOwner()->GetTeamNumber())
+			if (TFGameRules()->IsDeathmatch())
 			{
+				Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "dm");
+			}
+			else
+			{
+				switch (GetOwner()->GetTeamNumber())
+				{
 				case TF_TEAM_RED:
 					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
 					break;
@@ -1161,6 +1544,7 @@ const char *CTFWeaponBase::GetTracerType( void )
 				default:
 					Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red");
 					break;
+				}
 			}
 		}
 
@@ -1585,8 +1969,8 @@ acttable_t CTFWeaponBase::m_acttablePrimary[] =
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_PRIMARY,				false },
 	{ ACT_MP_DEPLOYED,			ACT_MP_DEPLOYED_PRIMARY,			false },
 	{ ACT_MP_SWIM_DEPLOYED,		ACT_MP_SWIM_DEPLOYED_PRIMARY,		false },
-	{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_PRIMARY, false },
-	{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_PRIMARY, false },
+	//{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_PRIMARY, false },
+	//{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_PRIMARY, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_PRIMARY,	false },
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE_DEPLOYED,		ACT_MP_ATTACK_STAND_PRIMARY_DEPLOYED, false },
@@ -1902,7 +2286,7 @@ acttable_t CTFWeaponBase::m_acttableItem2[] =
 
 ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
-acttable_t *CTFWeaponBase::ActivityList( void )
+acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
@@ -1912,8 +2296,7 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	}
 
 #ifdef CLIENT_DLL
-	// If we're disguised, we always show the primary weapon
-	// even though our actual weapon may not be primary 
+	// If we're disguised, we show a different weapon from what we're actually carrying.
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
 	{
@@ -1932,72 +2315,36 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	case TF_WPN_TYPE_PRIMARY:
 	default:
 		pTable = m_acttablePrimary;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_ITEM1:
 		pTable = m_acttableItem1;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_ITEM2:
 		pTable = m_acttableItem2;
+		iActivityCount = ARRAYSIZE( m_acttablePrimary );
 		break;
 	}
 
 	return pTable;
 }
-
-int CTFWeaponBase::ActivityListCount( void )
-{
-	int iWeaponRole = 0;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-	int iSize = 0;
-
-	switch( iWeaponRole )
-	{
-	case TF_WPN_TYPE_PRIMARY:
-	default:
-		iSize = ARRAYSIZE(m_acttablePrimary);
-		break;
-	case TF_WPN_TYPE_SECONDARY:
-		iSize = ARRAYSIZE(m_acttableSecondary);
-		break;
-	case TF_WPN_TYPE_MELEE:
-		iSize = ARRAYSIZE(m_acttableMelee);
-		break;
-	case TF_WPN_TYPE_BUILDING:
-		iSize = ARRAYSIZE(m_acttableBuilding);
-		break;
-	case TF_WPN_TYPE_PDA:
-		iSize = ARRAYSIZE(m_acttablePDA);
-		break;
-	case TF_WPN_TYPE_ITEM1:
-		iSize = ARRAYSIZE(m_acttableItem1);
-		break;
-	case TF_WPN_TYPE_ITEM2:
-		iSize = ARRAYSIZE(m_acttableItem2);
-		break;
-	}
-
-	return iSize;
-}
-
-
-
 
 // -----------------------------------------------------------------------------
 // Purpose:

@@ -55,7 +55,7 @@ public:
 	DECLARE_CLASS(CHealthKitTiny, CHealthKit);
 	powerupsize_t	GetPowerupSize(void) { return POWERUP_TINY; }
 
-	virtual const char *GetPowerupModel(void) { return "models/items/medkit_small.mdl"; } // TODO unique model
+	virtual const char *GetPowerupModel(void) { return "models/items/medkit_overheal.mdl"; } 
 };
 
 #endif // ENTITY_HEALTHKIT_H

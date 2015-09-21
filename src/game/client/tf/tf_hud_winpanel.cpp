@@ -123,6 +123,12 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 		if ( !g_PR )
 			return;
 
+		if (TFGameRules()->IsDeathmatch())
+		{
+			m_bShouldBeVisible = false;
+			return;
+		}
+
 		int iWinningTeam = event->GetInt( "winning_team" );
 		int iWinReason = event->GetInt( "winreason" );
 		int iFlagCapLimit = event->GetInt( "flagcaplimit" );

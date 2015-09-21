@@ -3,6 +3,13 @@
 // Purpose: TF Pipebomb Grenade.
 //
 //=============================================================================//
+// Warning to all who enter trying to figure out grenade code:
+// This file contains both Sticky Bombs and Grenade Launcher grenades. Valve seemed to not be able to decide what the hell
+// they should call them, and so half of the file refers to stickies as pipebombs, and grenades as grenades,
+// and the other half refers to stickies as grenades and grenades as pipebombs.
+// I've tried to mark which ones are which with comments at the start of functions so that future coders know what's up.
+// - Iamgoofball
+//=============================================================================//
 #include "cbase.h"
 #include "tf_weaponbase.h"
 #include "tf_gamerules.h"
@@ -15,6 +22,7 @@
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include "IEffects.h"
+#include "c_team.h"
 // Server specific.
 #else
 #include "tf_player.h"
@@ -88,6 +96,8 @@ CTFGrenadePipebombProjectile::~CTFGrenadePipebombProjectile()
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 int	CTFGrenadePipebombProjectile::GetDamageType( void )
 {
@@ -130,11 +140,16 @@ void CTFGrenadePipebombProjectile::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : const char
+// STICKY = STICKY
+// PIPEBOMB = GRENADE
 //-----------------------------------------------------------------------------
 const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
 	if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
 	{
+		if (TFGameRules()->IsDeathmatch())
+			return "stickybombtrail_dm";
+
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_RED:
@@ -156,6 +171,9 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 	}
 	else
 	{
+		if (TFGameRules()->IsDeathmatch())
+			return "pipebombtrail_dm";
+
 		switch (GetTeamNumber())
 		{
 		case TF_TEAM_RED:
@@ -180,6 +198,8 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : updateType - 
+// STICKY = GRENADE
+// GRENADE = PIPEBOMB
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 {
@@ -188,18 +208,44 @@ void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
 		m_flCreationTime = gpGlobals->curtime;
-		ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
+
+
+		CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
 		m_bPulsed = false;
 
-		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>( m_hLauncher.Get() );
+		C_TFPlayer *pPlayer = ToTFPlayer(GetThrower());
 
-		if ( pLauncher )
+		if (pPlayer && TFGameRules()->IsDeathmatch())
+		{
+			pPlayer->m_Shared.SetParticleToMercColor(pParticle);
+		}
+
+		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>(m_hLauncher.Get());
+
+		if (pLauncher)
 		{
 			pLauncher->AddPipeBomb( this );
 		}
 
 		if ( m_bCritical )
 		{
+			if (TFGameRules()->IsDeathmatch())
+			{
+				if (m_iType == TF_GL_MODE_REMOTE_DETONATE)
+				{
+					pParticle = ParticleProp()->Create("critical_grenade_dm", PATTACH_ABSORIGIN_FOLLOW);
+				}
+				else
+				{
+					pParticle = ParticleProp()->Create("critical_pipe_dm", PATTACH_ABSORIGIN_FOLLOW);
+				}
+
+				if (pPlayer && pParticle)
+				{
+					pPlayer->m_Shared.SetParticleToMercColor(pParticle);
+				}
+				return;
+			}
 			switch( GetTeamNumber() )
 			{
 			case TF_TEAM_BLUE:
@@ -326,6 +372,8 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_pipe );
 
 //-----------------------------------------------------------------------------
 // Purpose:
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE (for once)
 //-----------------------------------------------------------------------------
 CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector &position, const QAngle &angles, 
 																    const Vector &velocity, const AngularImpulse &angVelocity, 
@@ -363,6 +411,8 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 
 //-----------------------------------------------------------------------------
 // Purpose:
+// PIPEBOMB = STICKY
+// GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Spawn()
 {
@@ -374,7 +424,7 @@ void CTFGrenadePipebombProjectile::Spawn()
 	}
 	else
 	{
-		SetModel( TF_WEAPON_PIPEGRENADE_MODEL );
+		SetModel(TF_WEAPON_PIPEGRENADE_MODEL);
 		SetDetonateTimerLength( TF_WEAPON_GRENADE_DETONATE_TIME );
 		SetTouch( &CTFGrenadePipebombProjectile::PipebombTouch );
 	}
@@ -401,6 +451,7 @@ void CTFGrenadePipebombProjectile::Precache()
 	PrecacheParticleSystem( "stickybombtrail_red" );
 	PrecacheParticleSystem( "stickybombtrail_green" );
 	PrecacheParticleSystem( "stickybombtrail_yellow" );
+	PrecacheParticleSystem( "stickybombtrail_dm" );
 
 	BaseClass::Precache();
 }
@@ -487,7 +538,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 		return;
 
 	// Blow up if we hit an enemy we can damage
-	if ( pOther->GetTeamNumber() && pOther->GetTeamNumber() != GetTeamNumber() && pOther->m_takedamage != DAMAGE_NO )
+	if ( pOther->GetTeamNumber() && ( pOther->GetTeamNumber() != GetTeamNumber() || TFGameRules()->IsDeathmatch() ) && pOther->m_takedamage != DAMAGE_NO )
 	{
 		// Check to see if this is a respawn room.
 		if ( !pOther->IsPlayer() )
@@ -502,7 +553,9 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 
 		// Restore damage. See comment in CTFGrenadePipebombProjectile::Create() above to understand this.
 		m_flDamage = m_flFullDamage;
-		Explode( &pTrace, GetDamageType() );
+		// Save this entity as enemy, they will take 100% damage.
+		m_hEnemy = pOther;
+		Detonate();
 	}
 
 	// Train hack!
@@ -525,11 +578,13 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 	if ( !pHitEntity )
 		return;
 
-	if ( m_iType == TF_GL_MODE_REGULAR )
+	if (m_iType == TF_GL_MODE_REGULAR)
 	{
 		// Blow up if we hit an enemy we can damage
 		if ( pHitEntity->GetTeamNumber() && pHitEntity->GetTeamNumber() != GetTeamNumber() && pHitEntity->m_takedamage != DAMAGE_NO )
 		{
+			// Save this entity as enemy, they will take 100% damage.
+			m_hEnemy = pHitEntity;
 			SetThink( &CTFGrenadePipebombProjectile::Detonate );
 			SetNextThink( gpGlobals->curtime );
 		}
@@ -570,7 +625,9 @@ ConVar tf_grenade_force_sleeptime( "tf_grenade_force_sleeptime", "1.0", FCVAR_CH
 ConVar tf_pipebomb_force_to_move( "tf_pipebomb_force_to_move", "1500.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 //-----------------------------------------------------------------------------
-// Purpose: If we are shot after being stuck to the world, move a bit
+// Purpose: If we are shot after being stuck to the world, move a bit, unless we're a sticky, in which case, fizzle out and die.
+// STICKY = STICKY
+// PIPEBOMB = GRENADE
 //-----------------------------------------------------------------------------
 int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 {
@@ -643,5 +700,7 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 
 	return 0;
 }
+
+
 
 #endif

@@ -101,7 +101,7 @@
 #endif
 		SendPropQAngles( SENDINFO_NOCHECK( m_vAngles ), 7 ),
 
-#if defined (TF_DLL) || defined (TF_CLASSIC)
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 		SendPropVector( SENDINFO_NOCHECK( m_vNormal ), 6, 0, -1.0f, 1.0f ),
 #else
 		SendPropVector( SENDINFO_NOCHECK( m_vNormal ), 0, SPROP_NORMAL ),
@@ -116,7 +116,7 @@
 
 		SendPropInt( SENDINFO_NOCHECK( m_nMaterial ), MAX_MODEL_INDEX_BITS, SPROP_UNSIGNED ),
 		SendPropInt( SENDINFO_NOCHECK( m_nDamageType ), 32, SPROP_UNSIGNED ),
-		SendPropInt( SENDINFO_NOCHECK( m_nHitBox ), 11, SPROP_UNSIGNED ),
+		SendPropInt( SENDINFO_NOCHECK( m_nHitBox ), 12, SPROP_UNSIGNED ),
 
 		SendPropInt( SENDINFO_NAME( m_nEntIndex, entindex ), MAX_EDICT_BITS, SPROP_UNSIGNED ),
 

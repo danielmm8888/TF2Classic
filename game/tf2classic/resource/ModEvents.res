@@ -86,10 +86,10 @@
 		"duck_streak_victim"	"short" // (former) duck streak count for victim
 		"rocket_jump"		"bool"		// was the victim rocket jumping
 		
-	//	"dominated"	"short"		// did killer dominate victim with this kill
-	//	"assister_dominated" "short"	// did assister dominate victim with this kill
-	//	"revenge"	"short"		// did killer get revenge on victim with this kill
-	//	"assister_revenge" "short"	// did assister get revenge on victim with this kill
+		"dominated"	"short"		// did killer dominate victim with this kill
+		"assister_dominated" "short"	// did assister dominate victim with this kill
+		"revenge"	"short"		// did killer get revenge on victim with this kill
+		"assister_revenge" "short"	// did assister get revenge on victim with this kill
 	//	"first_blood"	"bool"		// was this a first blood kill
 	//	"feign_death"	"bool"	// the victim is feign death
 	}
@@ -341,10 +341,16 @@
 		"rounds_remaining"	"short"		// # of rounds remaining for wining team, if mini-round
 		"player_1"		"short"
 		"player_1_points"	"short"
+		"player_1_kills"	"short"
+		"player_1_deaths"	"short"
 		"player_2"		"short"
 		"player_2_points"	"short"
+		"player_2_kills"	"short"
+		"player_2_deaths"	"short"
 		"player_3"		"short"
 		"player_3_points"	"short"
+		"player_3_kills"	"short"
+		"player_3_deaths"	"short"
 		"killstreak_player_1"		"short"
 		"killstreak_player_1_count"	"short"
 	}

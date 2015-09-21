@@ -473,7 +473,7 @@ BEGIN_RECV_TABLE_NOBASE(C_BaseEntity, DT_BaseEntity)
 	RecvPropInt		( RECVINFO( m_bAnimatedEveryTick ), 0, RecvProxy_InterpolationAmountChanged ),
 	RecvPropBool	( RECVINFO( m_bAlternateSorting ) ),
 
-#ifdef TF_CLIENT_DLL
+#if defined( TF_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT )
 	RecvPropArray3( RECVINFO_ARRAY(m_nModelIndexOverrides),	RecvPropInt( RECVINFO(m_nModelIndexOverrides[0]) ) ),
 #endif
 
@@ -1150,6 +1150,13 @@ bool C_BaseEntity::InitializeAsClientEntityByIndex( int iIndex, RenderGroup_t re
 	return true;
 }
 
+void C_BaseEntity::TrackAngRotation( bool bTrack )
+{
+	if ( bTrack )
+		AddVar( &m_angRotation, &m_iv_angRotation, LATCH_SIMULATION_VAR );
+	else
+		RemoveVar( &m_angRotation, false );
+}
 
 void C_BaseEntity::Term()
 {
@@ -2459,37 +2466,36 @@ void C_BaseEntity::UnlinkFromHierarchy()
 void C_BaseEntity::ValidateModelIndex( void )
 {
 #ifdef TF_CLIENT_DLL
+	if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_HALLOWEEN ) )
+	{
+		if ( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] > 0 )
+		{
+			SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] );
+			return;
+		}
+	}
+		
+	if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_PYRO ) )
+	{
+		if ( m_nModelIndexOverrides[VISION_MODE_PYRO] > 0 )
+		{
+			SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_PYRO] );
+			return;
+		}
+	}
+
+	if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_ROME ) )
+	{
+		if ( m_nModelIndexOverrides[VISION_MODE_ROME] > 0 )
+		{
+			SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_ROME] );
+			return;
+		}
+	}
+
 	if ( m_nModelIndexOverrides[VISION_MODE_NONE] > 0 ) 
 	{
-		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_HALLOWEEN ) )
-		{
-			if ( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] > 0 )
-			{
-				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_HALLOWEEN] );
-				return;
-			}
-		}
-		
-		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_PYRO ) )
-		{
-			if ( m_nModelIndexOverrides[VISION_MODE_PYRO] > 0 )
-			{
-				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_PYRO] );
-				return;
-			}
-		}
-
-		if ( IsLocalPlayerUsingVisionFilterFlags( TF_VISION_FILTER_ROME ) )
-		{
-			if ( m_nModelIndexOverrides[VISION_MODE_ROME] > 0 )
-			{
-				SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_ROME] );
-				return;
-			}
-		}
-
 		SetModelByIndex( m_nModelIndexOverrides[VISION_MODE_NONE] );		
-
 		return;
 	}
 #endif
@@ -2621,14 +2627,6 @@ void C_BaseEntity::PostDataUpdate( DataUpdateType_t updateType )
 //-----------------------------------------------------------------------------
 void C_BaseEntity::OnDataUnchangedInPVS()
 {
-	Interp_RestoreToLastNetworked( GetVarMapping() );
-
-	// For non-predicted and non-client only ents, we need to latch network values into the interpolation histories
-	if ( !GetPredictable() && !IsClientCreated() )
-	{
-		OnLatchInterpolatedVariables( LATCH_SIMULATION_VAR );
-	}
-
 	Assert( m_hNetworkMoveParent.Get() || !m_hNetworkMoveParent.IsValid() );
 	HierarchySetParent(m_hNetworkMoveParent);
 	
@@ -2708,9 +2706,6 @@ void C_BaseEntity::SetModelByIndex( int nModelIndex )
 	SetModelIndex( nModelIndex );
 }
 
-#ifdef TF_CLASSIC_CLIENT
-ConVar tf2c_use_classic_models("tf2c_use_classic_models", "0", NULL, "Enable the use of custom classic models if available. "); // 0 = never, 1 = if available
-#endif
 
 //-----------------------------------------------------------------------------
 // Set model... (NOTE: Should only be used by client-only entities
@@ -2719,20 +2714,6 @@ bool C_BaseEntity::SetModel( const char *pModelName )
 {
 	if ( pModelName )
 	{
-#ifdef TF_CLASSIC_CLIENT
-		if ( tf2c_use_classic_models.GetBool() )
-		{
-			char szClassicModelName[256];
-			Q_strncpy( szClassicModelName, pModelName, sizeof(szClassicModelName) );
-			Q_strncat( szClassicModelName, "_classic", sizeof(szClassicModelName) );
-
-			int nClassicModelIndex = modelinfo->GetModelIndex( szClassicModelName );
-			SetModelByIndex( nClassicModelIndex );
-
-			if ( nClassicModelIndex != -1 )
-				return true;
-		}
-#endif
 		int nModelIndex = modelinfo->GetModelIndex( pModelName );
 		SetModelByIndex( nModelIndex );
 		return ( nModelIndex != -1 );
@@ -6325,6 +6306,9 @@ bool C_BaseEntity::ValidateEntityAttachedToPlayer( bool &bShouldRetry )
 		if ( FStrEq( pszModel, "models/flag/briefcase.mdl" ) )
 			return true;
 
+		if ( FStrEq( pszModel, "models/passtime/ball/passtime_ball.mdl" ) )
+			return true;
+
 		if ( FStrEq( pszModel, "models/props_doomsday/australium_container.mdl" ) )
 			return true;
 
@@ -6339,6 +6323,13 @@ bool C_BaseEntity::ValidateEntityAttachedToPlayer( bool &bShouldRetry )
 			return true;
 
 		if ( FStrEq( pszModel, "models/props_moonbase/powersupply_flag.mdl" ) )
+			return true;
+
+		// The Halloween 2014 doomsday flag replacement
+		if ( FStrEq( pszModel, "models/flag/ticket_case.mdl" ) )
+			return true;
+
+		if ( FStrEq( pszModel, "models/weapons/c_models/c_grapple_proj/c_grapple_proj.mdl" ) )
 			return true;
 	}
 

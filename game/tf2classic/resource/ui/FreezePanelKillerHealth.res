@@ -45,13 +45,16 @@
 	{
 		"ControlName"	"Label"
 		"fieldName"		"PlayerStatusHealthValue"
-		"xpos"			"75"
-		"ypos"			"32"
+		"xpos"			"6"
+		"ypos"			"11"
 		"zpos"			"5"
-		"wide"			"50"
-		"tall"			"18"
-		"visible"		"0"
-		"enabled"		"0"
+		"wide"			"20"
+		"tall"			"10"
+		"visible"		"1"
+		"enabled"		"1"
+		"labelText"		"%Health%"
 		"textAlignment"	"center"	
-	}								
+		"font"			"SpectatorVerySmall"
+		"fgcolor_override"		"TanDark"
+	}
 }
