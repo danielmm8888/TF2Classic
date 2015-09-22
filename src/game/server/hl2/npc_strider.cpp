@@ -510,7 +510,7 @@ void CNPC_Strider::Spawn()
 	m_iHealth = sk_strider_health.GetFloat();
 	m_iMaxHealth = 500;
 #ifdef TF_CLASSIC
-	m_iHealthAlt = sk_strider_health_alt.GetFloat();
+	m_iHealthAlt = sk_strider_health_alt.GetInt();
 #endif
 
 	m_flFieldOfView = 0.0; // 180 degrees
@@ -3074,7 +3074,7 @@ int CNPC_Strider::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 #ifdef TF_CLASSIC
 	// Bullet damage reduces alternative health counter.
 	// Once alt health reaches 0 explosion is spawned and alt health is reset.
-	if ( info.GetDamageType() & DMG_BULLET )
+	if ( (info.GetDamageType() & DMG_BULLET) && m_takedamage != DAMAGE_EVENTS_ONLY )
 	{
 		m_iHealthAlt -= info.GetDamage();
 		if ( m_iHealthAlt <= 0 )
@@ -3084,7 +3084,7 @@ int CNPC_Strider::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 			info.SetDamageType( DMG_BLAST );
 			info.SetDamage( 100 );
 			info.SetMaxDamage( 100 );
-			m_iHealthAlt = sk_strider_health_alt.GetFloat();
+			m_iHealthAlt = sk_strider_health_alt.GetInt();
 		}
 		else
 		{
@@ -3136,7 +3136,8 @@ int CNPC_Strider::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 				}
 			}
 
-			m_iHealth -= damage;
+			if ( m_takedamage != DAMAGE_EVENTS_ONLY )
+				m_iHealth -= damage;
 
 			m_OnDamaged.FireOutput( info.GetAttacker(), this);
 

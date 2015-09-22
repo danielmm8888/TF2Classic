@@ -558,7 +558,7 @@ void CNPC_CombineGunship::Spawn( void )
 
 	m_iMaxHealth = m_iHealth = 100;
 #ifdef TF_CLASSIC
-	m_iHealthAlt = sk_gunship_health_alt.GetFloat();
+	m_iHealthAlt = sk_gunship_health_alt.GetInt();
 #endif
 
 	m_flFieldOfView = -0.707; // 270 degrees
@@ -2953,7 +2953,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 #ifdef TF_CLASSIC
 	// Bullet damage reduces alternative health counter.
 	// Once alt health reaches 0 explosion is spawned and alt health is reset.
-	if ( info.GetDamageType() & DMG_BULLET )
+	if ( (info.GetDamageType() & DMG_BULLET) && m_takedamage != DAMAGE_EVENTS_ONLY )
 	{
 		m_iHealthAlt -= info.GetDamage();
 		if ( m_iHealthAlt <= 0 )
@@ -2963,7 +2963,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 			info.SetDamageType( DMG_BLAST );
 			info.SetDamage( 100 );
 			info.SetMaxDamage( 100 );
-			m_iHealthAlt = sk_gunship_health_alt.GetFloat();
+			m_iHealthAlt = sk_gunship_health_alt.GetInt();
 		}
 		else
 		{
@@ -2987,7 +2987,7 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 		ApplyAbsVelocityImpulse( damageDir * 200.0f );
 	}
 	
-	if ( m_bInvulnerable == false )
+	if ( m_bInvulnerable == false && m_takedamage != DAMAGE_EVENTS_ONLY )
 	{
 		// Take a percentage of our health away
 		// Adjust health for damage
