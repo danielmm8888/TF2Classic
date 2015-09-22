@@ -14709,8 +14709,6 @@ void CAI_BaseNPC::SetInvulnerable( bool bState, bool bInstant )
 
 	if ( bState )
 	{
-		Assert( !m_pOuter->HasTheFlag() );
-
 		if ( m_flInvulnerableOffTime )
 		{
 			m_flInvulnerableOffTime = 0;
