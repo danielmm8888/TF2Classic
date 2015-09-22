@@ -69,17 +69,18 @@ protected:
 		
  		if ( !Q_strncmp( eventName, "player_death", Q_strlen( "player_death" ) ) )
  		{
-			const int userid = event->GetInt( "userid" );
-			CBasePlayer *pPlayer = UTIL_PlayerByUserId( userid );
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( event->GetInt( "victim" ) );
+
 			if ( !pPlayer )
 			{
 				return false;
 			}
 
-			const int attackerid = event->GetInt( "attacker" );
+			const int userid = pPlayer->GetUserID();
 			const char *weapon = event->GetString( "weapon" );
 			int iCustomDamage = event->GetInt( "customkill" );
-			CBasePlayer *pAttacker = UTIL_PlayerByUserId( attackerid );
+			CBasePlayer *pAttacker = UTIL_PlayerByIndex( event->GetInt( "attacker" ) );
+			const int attackerid = pAttacker ? pAttacker->GetUserID() : 0;
 
 			if ( pPlayer == pAttacker )  
 			{  
@@ -164,8 +165,8 @@ protected:
 			}
  
  			// Assist kill
- 			int assistid = event->GetInt( "assister" );
- 			CBasePlayer *pAssister = UTIL_PlayerByUserId( assistid );
+ 			CBasePlayer *pAssister = UTIL_PlayerByIndex( event->GetInt( "assister" ) );
+			int assistid = pAssister ? pAssister->GetUserID() : -1;
  
  			if ( pAssister )
  			{
@@ -281,8 +282,6 @@ protected:
 			UTIL_LogPrintf( "World triggered \"Game_Over\" reason \"%s\"\n", event->GetString( "reason" ) );
 			UTIL_LogPrintf( "Team \"Red\" final score \"%d\" with \"%d\" players\n", GetGlobalTeam( TF_TEAM_RED )->GetScore(), GetGlobalTeam( TF_TEAM_RED )->GetNumPlayers() );
 			UTIL_LogPrintf( "Team \"Blue\" final score \"%d\" with \"%d\" players\n", GetGlobalTeam( TF_TEAM_BLUE )->GetScore(), GetGlobalTeam( TF_TEAM_BLUE )->GetNumPlayers() );
-			UTIL_LogPrintf(" Team \"Green\" final score \"%d\" with \"%d\" players\n", GetGlobalTeam(TF_TEAM_GREEN)->GetScore(), GetGlobalTeam(TF_TEAM_GREEN)->GetNumPlayers());
-			UTIL_LogPrintf(" Team \"Yellow\" final score \"%d\" with \"%d\" players\n", GetGlobalTeam(TF_TEAM_YELLOW)->GetScore(), GetGlobalTeam(TF_TEAM_YELLOW)->GetNumPlayers());
  			return true;		
  		}
  		else if ( FStrEq( eventName, "player_chargedeployed" ) )

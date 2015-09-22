@@ -3097,7 +3097,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_hurt" );
 	if ( event )
 	{
-		event->SetInt( "userid", GetUserID() );
+		event->SetInt( "victim", entindex() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
 
 		// HLTV event priority, not transmitted
@@ -3106,8 +3106,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		// Hurt by another player.
 		if ( pAttacker->IsPlayer() )
 		{
-			CBasePlayer *pPlayer = ToBasePlayer( pAttacker );
-			event->SetInt( "attacker", pPlayer->GetUserID() );
+			event->SetInt( "attacker", pAttacker->entindex() );
 		}
 		// Hurt by world.
 		else

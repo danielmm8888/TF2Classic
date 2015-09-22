@@ -663,42 +663,37 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	if ( !FClassnameIs( this, "npc_bullseye" ) )
 	{
 		int killer_ID = 0;
-		int killer_index = 0;
 
 		// Find the killer & the scorer
 		CAI_BaseNPC *pVictim = this;
 		CBaseEntity *pInflictor = info.GetInflictor();
 		CBaseEntity *pKiller = info.GetAttacker();
-		CBasePlayer *pScorer = ToBasePlayer( pKiller );
-		CBaseEntity *pAssister = TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
-		CTFPlayer *pPlayerAssister = ToTFPlayer( pAssister );
+		CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim );
+		CBaseEntity *pAssister =  TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
 
-		// Work out what killed NPC, and send a message to all clients about it
+		// Work out what killed the player, and send a message to all clients about it
 		const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
 
 		if ( pScorer )	// Is the killer a client?
 		{
-			killer_ID = pScorer->GetUserID();
+			killer_ID = pScorer->entindex();
 		}
-		if ( pKiller && pKiller->IsNPC() )
+		else if ( pKiller && pKiller->IsNPC() )
 		{
-			// If the killer is NPC then store its entindex.
-			killer_index = pKiller->entindex();
+			killer_ID = pKiller->entindex();
 		}
 
 		IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
 
 		if ( event )
 		{
-			event->SetInt( "npc_victim", pVictim->entindex() );
+			event->SetInt( "victim", pVictim->entindex() );
 			event->SetString( "victim_name", pVictim->GetClassname() );
 			event->SetInt( "victim_team", pVictim->GetTeamNumber() );
 			event->SetInt( "attacker", killer_ID );
-			event->SetInt( "npc_attacker", killer_index );
 			event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
 			event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-			event->SetInt( "assister", ( pPlayerAssister ) ? pPlayerAssister->GetUserID() : -1 );
-			event->SetInt( "npc_assister", ( pAssister && pAssister->IsNPC() ) ? pAssister->entindex() : -1 );
+			event->SetInt( "assister", (pAssister && (pAssister->IsPlayer() || pAssister->IsNPC())) ? pAssister->entindex() : -1 );
 			event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
 			event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
 			event->SetString( "weapon", killer_weapon_name );

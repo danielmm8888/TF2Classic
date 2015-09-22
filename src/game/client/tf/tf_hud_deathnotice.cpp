@@ -333,7 +333,7 @@ void CTFHudDeathNotice::Paint()
 				iVictimTextOffset -= iDeathInfoTextWide;
 			}
 
-			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, Color(255,255,255,255), msg.wzInfoText );
+			DrawText( x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor( i ), msg.wzInfoText );
 			x += iDeathInfoTextWide;
 		}
 
@@ -427,18 +427,17 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 	if ( bPlayerDeath || bObjectDeath || bNPCDeath )
 	{
-		int victim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
-		int killer = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
+		int victim = event->GetInt( "victim" );
+		int killer = event->GetInt( "attacker" );
+
 		const char *killedwith = event->GetString( "weapon" );
 
-		// For NPCs server sends us entindex, classname and team number.
+		// Entities' classnames and teams. Only used for NPCs.
 		// We can't fetch NPC name and team on client side since NPCs outside of PVS don't exist on client side.
 		// So we're sending those over in the net message.
-		int npc_victim = event->GetInt( "npc_victim" );
-		const char *npc_victim_name = event->GetString( "victim_name" );
+		const char *victim_classname = event->GetString( "victim_name" );
+		const char *killer_classname = event->GetString( "attacker_name" );
 		int victim_team = event->GetInt( "victim_team" );
-		int npc_killer = event->GetInt( "npc_attacker" );
-		const char *npc_killer_name = event->GetString( "attacker_name" );
 		int killer_team = event->GetInt( "attacker_team" );
 
 		// Get the names of the players
@@ -447,24 +446,30 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 		if ( killer > 0 )
 		{
-			killer_name = g_PR->GetPlayerName( killer );
-		}
-		else if ( npc_killer > 0 )	// If the killer is not a player see if this is NPC.
-		{
-			char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
-			GetLocalizedNPCName( npc_killer_name, nameBuf, sizeof(nameBuf) );
-			killer_name = nameBuf;
+			if ( killer <= gpGlobals->maxClients )
+			{
+				killer_name = g_PR->GetPlayerName( killer );
+			}
+			else
+			{
+				char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
+				GetLocalizedNPCName( killer_classname, nameBuf, sizeof(nameBuf) );
+				killer_name = nameBuf;
+			}
 		}
 
 		if ( victim > 0 )
 		{
-			victim_name = g_PR->GetPlayerName( victim );
-		}
-		else if ( npc_victim > 0 )	// If the victim is not a player see if this is NPC.
-		{
-			char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
-			GetLocalizedNPCName( npc_victim_name, nameBuf, sizeof(nameBuf) );
-			victim_name = nameBuf;
+			if ( victim <= gpGlobals->maxClients )
+			{
+				victim_name = g_PR->GetPlayerName( victim );
+			}
+			else
+			{
+				char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
+				GetLocalizedNPCName( victim_classname, nameBuf, sizeof(nameBuf) );
+				victim_name = nameBuf;
+			}
 		}
 
 		if ( !killer_name )
@@ -499,20 +504,12 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 		if ( killer > 0 )
 		{
-			m_DeathNotices[iMsg].Killer.iTeam = g_PR->GetTeam( killer );
-		}
-		else if ( npc_killer > 0 )
-		{
-			m_DeathNotices[iMsg].Killer.iTeam = killer_team;
+			m_DeathNotices[iMsg].Killer.iTeam = killer <= gpGlobals->maxClients ? g_PR->GetTeam( killer ) : killer_team;
 		}
 
 		if ( victim > 0 )
 		{
-			m_DeathNotices[iMsg].Victim.iTeam = g_PR->GetTeam( victim );
-		}
-		else if ( npc_victim > 0 )
-		{
-			m_DeathNotices[iMsg].Victim.iTeam = victim_team;
+			m_DeathNotices[iMsg].Victim.iTeam = victim <= gpGlobals->maxClients ? g_PR->GetTeam( victim ) : victim_team;
 		}
 
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, killer_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );
@@ -522,7 +519,7 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 			Q_snprintf( m_DeathNotices[iMsg].szIcon, sizeof(m_DeathNotices[iMsg].szIcon), "d_%s", killedwith );
 		}
 
-		if ( (!killer && !npc_killer) || (killer == victim && npc_killer == npc_victim) )
+		if ( !killer || killer == victim )
 		{
 			m_DeathNotices[iMsg].bSelfInflicted = true;
 			m_DeathNotices[iMsg].Killer.szName[0] = 0;
@@ -537,7 +534,7 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 				// special case icon for hit-by-vehicle death
 				Q_strncpy( m_DeathNotices[iMsg].szIcon, "d_vehicle", ARRAYSIZE( m_DeathNotices[iMsg].szIcon ) );
 			}
-			else if ( ( event->GetInt( "damagebits" ) & DMG_BLAST ) && !killer && !npc_killer )
+			else if ( ( event->GetInt( "damagebits" ) & DMG_BLAST ) && !killer )
 			{
 				// environmental explosive death
 				V_wcsncpy( m_DeathNotices[iMsg].wzInfoText, g_pVGuiLocalize->Find( "#DeathMsg_Blast" ), sizeof( m_DeathNotices[iMsg].wzInfoText ) );
@@ -754,21 +751,23 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		int iLocalPlayerIndex = GetLocalPlayerIndex();
 
 		// if there was an assister, put both the killer's and assister's names in the death message
-		int iAssisterID = engine->GetPlayerForUserID( event->GetInt( "assister" ) );
-		int iNPCAssisterID = event->GetInt( "npc_assister" );
-		const char *npc_assister_name = event->GetString( "assister_name" );
+		int iAssisterID = event->GetInt( "assister" );
+		const char *assister_classname = event->GetString( "assister_name" );
 		int assister_team = event->GetInt( "assister_team" );
 
 		const char *assister_name = NULL;
 		if ( iAssisterID > 0 )
 		{
-			assister_name = g_PR->GetPlayerName( iAssisterID );
-		}
-		else if ( iNPCAssisterID > 0 )
-		{
-			char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
-			GetLocalizedNPCName( npc_assister_name, nameBuf, sizeof(nameBuf) );
-			assister_name = nameBuf;
+			if ( iAssisterID <= gpGlobals->maxClients )
+			{
+				assister_name = g_PR->GetPlayerName( iAssisterID );
+			}
+			else
+			{
+				char nameBuf[MAX_PLAYER_NAME_LENGTH*2];
+				GetLocalizedNPCName( assister_classname, nameBuf, sizeof(nameBuf) );
+				assister_name = nameBuf;
+			}
 		}
 
 		if ( assister_name )
@@ -778,11 +777,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			// whether or not the assister is on the killer's team or not. -danielmm8888
 			if ( iAssisterID > 0 )
 			{
-				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = g_PR->GetTeam(iAssisterID);
-			}
-			else if ( iNPCAssisterID > 0 )
-			{
-				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = assister_team;
+				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = iAssisterID <= gpGlobals->maxClients ? g_PR->GetTeam( iAssisterID ) : assister_team;
 			}
 
 			char szKillerBuf[MAX_PLAYER_NAME_LENGTH];
@@ -808,8 +803,8 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		{
 			// if this death involved a player dominating another player or getting revenge on another player, add an additional message
 			// mentioning that
-			int iKillerID = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
-			int iVictimID = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+			int iKillerID = event->GetInt( "attacker" );
+			int iVictimID = event->GetInt( "victim" );
 		
 			if ( event->GetInt( "dominated" ) > 0 )
 			{
@@ -883,11 +878,9 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		case TF_DMG_CUSTOM_BURNING:
 			{
 				// Show a special fire death icon if this was a suicide or environmental death.
-				int victim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
-				int killer = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
-				int npc_victim = event->GetInt( "victim" );
-				int npc_killer = event->GetInt( "npc_attacker" );
-				if ( (!killer && !npc_killer) || (killer == victim && npc_killer == npc_victim) )
+				int victim = event->GetInt( "victim" );
+				int killer = event->GetInt( "attacker" );
+				if ( !killer || killer == victim )
 				{
 					Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_firedeath", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
 					m_DeathNotices[iDeathNoticeMsg].wzInfoText[0] = 0;
@@ -897,7 +890,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		case TF_DMG_CUSTOM_SUICIDE:
 			{
 				// display a different message if this was suicide, or assisted suicide (suicide w/recent damage, kill awarded to damager)
-				bool bAssistedSuicide = event->GetInt( "userid" ) != event->GetInt( "attacker" );
+				bool bAssistedSuicide = event->GetInt( "victim" ) != event->GetInt( "attacker" );
 				pMsg = g_pVGuiLocalize->Find( bAssistedSuicide ? "#DeathMsg_AssistedSuicide" : "#DeathMsg_Suicide" );
 				if ( pMsg )
 				{
