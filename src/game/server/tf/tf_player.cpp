@@ -7022,9 +7022,7 @@ uint64 powerplay_ids[] =
 	76561198001171456 ^ powerplaymask, // Gamezombie
 	76561198006395451 ^ powerplaymask, // Stachekip
 	76561198037744635 ^ powerplaymask, // Snowshoe
-	76561198025334020 ^ powerplaymask, // DrPySpy
 	76561198007621815 ^ powerplaymask, // HotPocket
-	76561198012705885 ^ powerplaymask, // Nitronik4Ever
 	76561198075858535 ^ powerplaymask, // chowder908
 	76561198031608022 ^ powerplaymask, // kibbleknight
 	76561198027900325 ^ powerplaymask, // over.povered

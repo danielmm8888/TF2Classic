@@ -29,6 +29,9 @@ enum MenuPanel //position in this enum = zpos on the screen
 #define MAINMENU_ROOT guiroot
 #define AutoLayout() (!InGame() ? DefaultLayout() : GameLayout())
 
+#define GET_MAINMENUPANEL( className )												\
+	dynamic_cast<className*>(MAINMENU_ROOT->GetMenuPanel(#className))
+
 struct MainMenuNotification
 {
 	char sTitle[64];
@@ -50,12 +53,13 @@ class CTFMenuPanelBase;
 class CTFMainMenu : public vgui::EditablePanel
 {
 	DECLARE_CLASS_SIMPLE(CTFMainMenu, vgui::EditablePanel);
-	friend class CTFMenuPanelBase;
 
 public:
 	CTFMainMenu(vgui::VPANEL parent);
 	virtual ~CTFMainMenu();
 	IGameUI*	 GetGameUI();
+	CTFMenuPanelBase* GetMenuPanel(int iPanel);
+	CTFMenuPanelBase* GetMenuPanel(const char *name);	
 	virtual void PerformLayout();
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void PaintBackground();
@@ -86,7 +90,6 @@ private:
 	CUtlVector<CTFMenuPanelBase*>		m_pPanels;
 
 	void								AddMenuPanel(CTFMenuPanelBase *m_pPanel, int iPanel);
-	CTFMenuPanelBase*					GetMenuPanel(int iPanel);
 
 	bool								LoadGameUI();
 	bool								bInGameLayout;
