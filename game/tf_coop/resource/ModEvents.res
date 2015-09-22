@@ -66,7 +66,7 @@
 	
 	"npc_death"
 	{ 
-		"victim"	"short"   	// NPC entindex who died
+		"npc_victim"	"short"   	// NPC entindex who died
 		"victim_name"	"string"	// NPC classname who died
 		"victim_team"	"short"	// NPC victim's team
 		"attacker"	"short"	 	// user ID who killed
