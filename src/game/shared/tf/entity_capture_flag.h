@@ -195,7 +195,7 @@ public:
 	float			GetMaxResetTime() { return m_flMaxResetTime; }
 	float			GetReturnProgress( void );
 
-	void			EnableGlowEffect(void);
+	void			UpdateGlowEffect( void );
 
 #endif
 
@@ -266,7 +266,7 @@ private:
 
 	int			m_nOldFlagStatus;
 
-	int			m_nPrevOwnerGlowIndex;
+	int			m_iGlowEffectHandle;
 
 #endif
 

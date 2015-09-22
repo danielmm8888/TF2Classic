@@ -70,7 +70,7 @@
 #include "vote_controller.h"
 #include "ai_speech.h"
 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC )
 #include "econ_wearable.h"
 #endif
 
@@ -7386,7 +7386,7 @@ CBaseEntity *CBasePlayer::HasNamedPlayerItem( const char *pszItemName )
 	return NULL;
 }
 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC )
 //-----------------------------------------------------------------------------
 // Purpose: Add this wearable to the players' equipment list.
 //-----------------------------------------------------------------------------
@@ -7451,7 +7451,7 @@ void CBasePlayer::RemoveWearable( CEconWearable *pItem )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CBasePlayer::PlayWearableAnimsForPlaybackEvent( wearableanimplayback_t iPlayback )
+/*void CBasePlayer::PlayWearableAnimsForPlaybackEvent( wearableanimplayback_t iPlayback )
 {
 	// Tell all our wearables to play their animations
 	FOR_EACH_VEC( m_hMyWearables, i )
@@ -7461,7 +7461,7 @@ void CBasePlayer::PlayWearableAnimsForPlaybackEvent( wearableanimplayback_t iPla
 			m_hMyWearables[i]->PlayAnimForPlaybackEvent( iPlayback );
 		}
 	}
-}
+}*/ //Commented until we get wearableanimplayback_t -danielmm8888
 #endif // USES_ECON_ITEMS
 
 //================================================================================
@@ -8015,7 +8015,7 @@ void SendProxy_CropFlagsToPlayerFlagBitsLength( const SendProp *pProp, const voi
 		SendPropArray	( SendPropEHandle( SENDINFO_ARRAY( m_hViewModel ) ), m_hViewModel ),
 		SendPropString	(SENDINFO(m_szLastPlaceName) ),
 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC )
 		SendPropUtlVector( SENDINFO_UTLVECTOR( m_hMyWearables ), MAX_WEARABLES_SENT_FROM_SERVER, SendPropEHandle( NULL, 0 ) ),
 #endif // USES_ECON_ITEMS
 

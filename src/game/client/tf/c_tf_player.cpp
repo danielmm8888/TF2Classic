@@ -1761,6 +1761,7 @@ void C_TFPlayer::OnPreDataChanged( DataUpdateType_t updateType )
 	m_bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
 	m_iOldDisguiseTeam = m_Shared.GetDisguiseTeam();
 	m_iOldDisguiseClass = m_Shared.GetDisguiseClass();
+	m_hOldActiveWeapon.Set( GetActiveTFWeapon() );
 
 	m_Shared.OnPreDataChanged();
 }
@@ -1773,7 +1774,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	// C_BaseEntity assumes we're networking the entity's angles, so pretend that it
 	// networked the same value we already have.
 	SetNetworkAngles( GetLocalAngles() );
-	
+
 	BaseClass::OnDataChanged( updateType );
 
 	if ( updateType == DATA_UPDATE_CREATED )
@@ -1789,6 +1790,15 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 			InitInvulnerableMaterial();
 			m_bUpdatePartyHat = true;
 		}
+
+		UpdateWearables();
+	}
+
+	if ( GetActiveTFWeapon() && ( !m_hOldActiveWeapon.Get() 
+		|| m_hOldActiveWeapon.Get() && m_hOldActiveWeapon.Get() != GetActiveTFWeapon() )
+		|| m_iOldPlayerClass != m_PlayerClass.GetClassIndex() )
+	{
+		GetActiveTFWeapon()->UpdateViewModel();
 	}
 
 	// Check for full health and remove decals.
@@ -2042,6 +2052,35 @@ void C_TFPlayer::StopBurningSound( void )
 	{
 		CSoundEnvelopeController::GetController().SoundDestroy( m_pBurningSound );
 		m_pBurningSound = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
+{
+	switch ( GetTeamNumber() )
+	{
+		case TF_TEAM_BLUE:
+			*r = 0.49f; *g = 0.66f; *b = 0.7699971f;
+			break;
+
+		case TF_TEAM_RED:
+			*r = 0.74f; *g = 0.23f; *b = 0.23f;
+			break;
+
+		case TF_TEAM_GREEN:
+			*r = 0.03f; *g = 0.68f; *b = 0;
+			break;
+
+		case TF_TEAM_YELLOW:
+			*r = 1.0f; *g = 0.62f; *b = 0;
+			break;
+
+		default:
+			*r = 0.76f; *g = 0.76f; *b = 0.76f;
+			break;
 	}
 }
 
@@ -3765,8 +3804,8 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );
 
-		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pViewmodel);
-		if (pVMAddon)
+		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>( pViewmodel );
+		if ( pVMAddon )
 			ret = pVMAddon->DrawOverriddenViewmodel( flags );
 		else
 			ret = pViewmodel->DrawOverriddenViewmodel( flags );

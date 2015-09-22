@@ -110,10 +110,10 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 		pEnt->m_nSkin = GetSkin();
 		if ( C_BasePlayer::GetLocalPlayer() != GetOwner() ) // Spectator fix
 		{
-			pEnt->SetParent(this);
-			pEnt->AddEffects(EF_BONEMERGE);
+			pEnt->SetParent( this );
+			pEnt->AddEffects( EF_BONEMERGE );
 			pEnt->UpdateVisibility();
-			pEnt->SetViewmodel(this);
+			pEnt->SetViewmodel( this );
 		}
 		return; // we already have the correct add-on
 	}
@@ -123,10 +123,10 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 	}
 
 	pEnt = new class C_ViewmodelAttachmentModel;
-	if (!pEnt)
+	if ( !pEnt )
 		return;
 
-	if (pEnt->InitializeAsClientEntity(pszModelname, RENDER_GROUP_VIEW_MODEL_TRANSLUCENT) == false)
+	if ( pEnt->InitializeAsClientEntity( pszModelname, RENDER_GROUP_VIEW_MODEL_TRANSLUCENT ) == false )
 		return;
 
 	m_viewmodelAddon = pEnt;
@@ -300,8 +300,8 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 	AngleVectors(eyeAngles, &forward, &right, &up);
 	vecNewOrigin += forward*v_viewmodel_offset_x.GetFloat() + right*v_viewmodel_offset_y.GetFloat() + up*v_viewmodel_offset_z.GetFloat();
 
-	if (owner->GetActiveWeapon())
-		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
+//	if ( owner->GetActiveWeapon() )
+//		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
 
 	BaseClass::CalcViewModelView( owner, vecNewOrigin, vecNewAngles );
 

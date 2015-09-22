@@ -116,6 +116,20 @@ class CObjectCartDispenser : public CObjectDispenser
 
 public:
 	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
+	virtual void	OnGoActive( void );	
+	virtual void	Spawn();
+	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName );
+
+private:
+
+	CUtlVector< EHANDLE >	m_hTouchingEntities;
+
+	CNetworkVar( int, m_iAmmoMetal );
+
+	float m_flNextAmmoDispense;
+
+	EHANDLE m_hTouchTrigger;
+
 
 };
 

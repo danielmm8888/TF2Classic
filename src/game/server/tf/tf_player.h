@@ -321,6 +321,7 @@ public:
 	virtual void NoteSpokeVoiceCommand( const char *pszScenePlayed );
 	void	SpeakWeaponFire( int iCustomConcept = MP_CONCEPT_NONE );
 	void	ClearWeaponFireScene( void );
+	void	InputSpeakResponseConcept( inputdata_t &inputdata );
 
 	virtual int DrawDebugTextOverlays( void );
 
