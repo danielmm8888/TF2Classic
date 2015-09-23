@@ -7,6 +7,7 @@
 #include "tf_gamerules.h"
 #include "tf_weapon_knife.h"
 #include "decals.h"
+#include "ai_basenpc_shared.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -134,19 +135,15 @@ bool CTFKnife::IsBehindTarget( CBaseEntity *pTarget )
 {
 	Assert( pTarget );
 
-	// TODO: Make it so only humanoid NPCs can get backstabbed.
-	// The code below only works server side.
-#if 0
-	// Can only backstab humanoid NPCs.
+	// Only certain NPCs can be backstabbed
 	if ( pTarget->IsNPC() )
 	{
-		CBaseCombatCharacter *pBCC = pTarget->MyCombatCharacterPointer();
-		if ( pBCC && (pBCC->GetHullType() != HULL_HUMAN) )
-		{
+		CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
+
+		if ( !pNPC->AllowBackstab() )
 			return false;
-		}
 	}
-#endif
+	
 	// Get the forward view vector of the target, ignore Z
 	Vector vecVictimForward;
 	AngleVectors( pTarget->EyeAngles(), &vecVictimForward, NULL, NULL );

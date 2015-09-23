@@ -926,5 +926,8 @@ typedef enum
 	NUM_STOCK_NOTIFICATIONS
 } HudNotification_t;
 
+extern const char *g_aNPCMechs[];
+extern const char *g_aBackstabNPC[];
+
 
 #endif // TF_SHAREDDEFS_H

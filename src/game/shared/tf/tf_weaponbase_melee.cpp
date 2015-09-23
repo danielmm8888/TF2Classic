@@ -8,6 +8,7 @@
 #include "tf_weaponbase_melee.h"
 #include "effect_dispatch_data.h"
 #include "tf_gamerules.h"
+#include "ai_basenpc_shared.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )
@@ -288,7 +289,8 @@ void CTFWeaponBaseMelee::Smack( void )
 	if ( DoSwingTrace( trace ) )
 	{
 		// Hit sound - immediate.
-		if( trace.m_pEnt->IsPlayer() || trace.m_pEnt->IsNPC() )
+		CAI_BaseNPC *pNPC = trace.m_pEnt->MyNPCPointer();
+		if( trace.m_pEnt->IsPlayer() || ( pNPC && !pNPC->IsMech() ) )
 		{
 			WeaponSound( MELEE_HIT );
 		}

@@ -37,6 +37,7 @@
 #include "ai_navigator.h"
 #include "tier1/functors.h"
 #ifdef TF_CLASSIC
+#include "ai_basenpc_shared.h"
 #include "tf_player.h"
 #endif
 
@@ -2173,6 +2174,9 @@ public:
 	void				ClearDamagerHistory();
 	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
 
+	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_ALLOW_BACKSTAB ) != 0; }
+	bool	IsMech( void ) { return ( m_nTFFlags & TFFL_MECH ) != 0; }
+
 protected:
 	// Burn handling
 	EHANDLE					m_hBurnAttacker;
@@ -2180,6 +2184,9 @@ protected:
 	float					m_flFlameBurnTime;
 	float					m_flFlameRemoveTime;
 	CNetworkVar( bool, m_bBurningDeath );
+
+	// Some networked flags used by TF2C like backstab immunity.
+	CNetworkVar( int, m_nTFFlags );
 
 private:
 	CNetworkVar( int, m_nPlayerCond );

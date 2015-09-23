@@ -11126,8 +11126,8 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropBool( SENDINFO( m_bFadeCorpse ) ),
 	SendPropInt( SENDINFO( m_iDeathPose ), ANIMATION_SEQUENCE_BITS ),
 	SendPropInt( SENDINFO( m_iDeathFrame ), 5 ),
-	SendPropInt(SENDINFO(m_iHealth), 13 ),
-	SendPropInt(SENDINFO(m_iMaxHealth), 13 ),
+	SendPropInt(SENDINFO( m_iHealth ), 13 ),
+	SendPropInt(SENDINFO( m_iMaxHealth ), 13 ),
 	SendPropBool( SENDINFO( m_bSpeedModActive ) ),
 	SendPropInt( SENDINFO( m_iSpeedModRadius ) ),
 	SendPropInt( SENDINFO( m_iSpeedModSpeed ) ),
@@ -11137,7 +11137,8 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 #ifdef TF_CLASSIC
 	SendPropInt( SENDINFO( m_nPlayerCond ), TF_COND_LAST, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
-	SendPropBool( SENDINFO( m_bBurningDeath ) )
+	SendPropBool( SENDINFO( m_bBurningDeath ) ),
+	SendPropInt( SENDINFO( m_nTFFlags ) )
 #endif
 END_SEND_TABLE()
 
@@ -11199,6 +11200,12 @@ void CAI_BaseNPC::Activate( void )
 #ifdef TF_CLASSIC
 	if ( g_TFClassTeams[Classify()] )
 		ChangeTeam( g_TFClassTeams[Classify()] );
+
+	// Have to do it here to ensure it runs for every NPC.
+	if ( FindInList( g_aBackstabNPC, GetClassname() ) )
+		m_nTFFlags |= TFFL_ALLOW_BACKSTAB;
+	if ( FindInList( g_aNPCMechs, GetClassname() ) )
+		m_nTFFlags |= TFFL_MECH;
 #endif
 
 	if ( GetModelPtr() )
@@ -11732,6 +11739,7 @@ CAI_BaseNPC::CAI_BaseNPC(void)
 #ifdef TF_CLASSIC
 	m_nPlayerCond = 0;
 	m_bBurningDeath = false;
+	m_nTFFlags = 0;
 #endif
 }
 

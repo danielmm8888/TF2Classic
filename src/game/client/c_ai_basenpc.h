@@ -14,6 +14,7 @@
 #include "c_basecombatcharacter.h"
 
 #ifdef TF_CLASSIC_CLIENT
+#include "ai_basenpc_shared.h"
 #include "tf_shareddefs.h"
 #endif
 
@@ -87,7 +88,10 @@ public:
 	void	StopBurningSound( void );
 
 	CMaterialReference *GetInvulnMaterialRef( void ) { return &m_InvulnerableMaterial; }
-	void InitInvulnerableMaterial( void );
+	void	InitInvulnerableMaterial( void );
+
+	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_ALLOW_BACKSTAB ) != 0; }
+	bool	IsMech( void ) { return ( m_nTFFlags & TFFL_MECH ) != 0; }
 #endif
 
 private:
@@ -130,6 +134,9 @@ private:
 	EHANDLE				m_hRagdoll;
 
 	CMaterialReference	m_InvulnerableMaterial;
+
+	// Flags
+	int m_nTFFlags;
 #endif
 };
 

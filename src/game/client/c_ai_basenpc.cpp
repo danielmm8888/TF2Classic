@@ -26,6 +26,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#if defined( CAI_BaseNPC )
+#undef CAI_BaseNPC
+#endif
+
 #define PING_MAX_TIME	2.0
 
 IMPLEMENT_CLIENTCLASS_DT( C_AI_BaseNPC, DT_AI_BaseNPC, CAI_BaseNPC )
@@ -46,7 +50,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_AI_BaseNPC, DT_AI_BaseNPC, CAI_BaseNPC )
 #ifdef TF_CLASSIC_CLIENT
 	RecvPropInt( RECVINFO( m_nPlayerCond ) ),
 	RecvPropInt( RECVINFO( m_nNumHealers ) ),
-	RecvPropBool( RECVINFO( m_bBurningDeath ) )
+	RecvPropBool( RECVINFO( m_bBurningDeath ) ),
+	RecvPropInt( RECVINFO( m_nTFFlags ) )
 #endif
 END_RECV_TABLE()
 
