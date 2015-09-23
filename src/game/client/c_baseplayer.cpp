@@ -1448,14 +1448,13 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 		}
 	}
 #ifdef TF_CLASSIC_CLIENT
-	else if ( target && target->IsNPC() )
+	C_AI_BaseNPC *pNPC = target ? target->MyNPCPointer() : NULL;
+	if ( pNPC )
 	{
-		C_AI_BaseNPC *NPC = target->MyNPCPointer();
-
-		if ( NPC->IsAlive() )
+		if ( pNPC->IsAlive() )
 		{
 			// NPC eye height varies so use GetViewOffset().
-			float flEyeHeight = NPC->GetViewOffset().z;
+			float flEyeHeight = pNPC->GetViewOffset().z;
 			return Vector(0,0,flEyeHeight);
 		}
 		else

@@ -3197,7 +3197,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	else if ( pKiller && pKiller->IsNPC() && pInflictor && ( pInflictor == pKiller ) )
 	{
 		// Similar case for NPCs.
-		CAI_BaseNPC *pNPC = pKiller->MyNPCPointer();
+		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pKiller );
 
 		if ( pNPC->GetActiveWeapon() )
 		{
@@ -3349,11 +3349,10 @@ CBaseEntity *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBaseEntity *pKill
 		if ( pRecentDamager && ( pRecentDamager != pTFScorer ) )
 			return pRecentDamager;
 	}
-
-	// See if the killer is NPC.
-	if ( pKiller && pVictim && pKiller->IsNPC() )
+	else if ( pKiller && pVictim && pKiller->IsNPC() )	// See if the killer is NPC.
 	{
-		CAI_BaseNPC *pNPCKiller = pKiller->MyNPCPointer();
+		CAI_BaseNPC *pNPCKiller = assert_cast<CAI_BaseNPC *>( pKiller );
+
 		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pNPCKiller->GetFirstHealer() ) );
 
 		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) )
@@ -3393,11 +3392,9 @@ CBaseEntity *CTFGameRules::GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKill
 		if ( pRecentDamager && ( pRecentDamager != pTFScorer ) )
 			return pRecentDamager;
 	}
-
-	// See if the killer is NPC.
-	if ( pKiller && pVictim && pKiller->IsNPC() )
+	else if ( pKiller && pVictim && pKiller->IsNPC() )
 	{
-		CAI_BaseNPC *pNPCKiller = pKiller->MyNPCPointer();
+		CAI_BaseNPC *pNPCKiller = assert_cast<CAI_BaseNPC *>( pKiller );
 
 		// if victim killed himself, don't award an assist to anyone else, even if there was a recent damager
 		if ( pVictim == pKiller )

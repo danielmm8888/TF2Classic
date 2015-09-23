@@ -289,8 +289,7 @@ void CTFWeaponBaseMelee::Smack( void )
 	if ( DoSwingTrace( trace ) )
 	{
 		// Hit sound - immediate.
-		CAI_BaseNPC *pNPC = trace.m_pEnt->MyNPCPointer();
-		if( trace.m_pEnt->IsPlayer() || ( pNPC && !pNPC->IsMech() ) )
+		if( trace.m_pEnt->IsPlayer() || ( trace.m_pEnt->IsNPC() && !trace.m_pEnt->MyNPCPointer()->IsMech() ) )
 		{
 			WeaponSound( MELEE_HIT );
 		}

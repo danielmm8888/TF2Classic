@@ -496,7 +496,7 @@ void CObjectDispenser::StartHealing( CBaseEntity *pOther )
 	}
 	else if ( pOther && pOther->IsNPC() )
 	{
-		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pOther );
 		pNPC->Heal( GetOwner(), obj_dispenser_heal_rate.GetFloat(), true );
 	}
 }
@@ -521,7 +521,7 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 		}
 		else if ( pOther && pOther->IsNPC() )
 		{
-			CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+			CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pOther );
 			pNPC->StopHealing( GetOwner() );
 		}
 	}

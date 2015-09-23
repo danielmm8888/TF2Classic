@@ -831,7 +831,7 @@ public:
 		else if ( pEntity->IsNPC() )
 		{
 			// See if it's NPC.
-			C_AI_BaseNPC *pNPC = pEntity->MyNPCPointer();
+			C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pEntity );
 			if ( pNPC->InCond( TF_COND_INVULNERABLE ) && !pNPC->InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
 			{
 				m_pResult->SetFloatValue( 1.0 );

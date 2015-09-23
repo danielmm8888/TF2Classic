@@ -136,10 +136,9 @@ bool CTFKnife::IsBehindTarget( CBaseEntity *pTarget )
 	Assert( pTarget );
 
 	// Only certain NPCs can be backstabbed
-	if ( pTarget->IsNPC() )
+	CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
+	if ( pNPC )
 	{
-		CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
-
 		if ( !pNPC->AllowBackstab() )
 			return false;
 	}

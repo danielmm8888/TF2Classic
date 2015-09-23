@@ -996,9 +996,9 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	ApplyMultiDamage();
 
 	// It's better to ignite NPC here rather than NPC code.
-	if ( pOther->IsNPC() )
+	CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
+	if ( pNPC )
 	{
-		CAI_BaseNPC *pNPC = pOther->MyNPCPointer();
 		pNPC->Ignite( TF_BURNING_FLAME_LIFE );
 		// I don't like this but Ignite doesn't allow us to set attacker so we have to do it separately.
 		pNPC->SetBurnAttacker( pAttacker );

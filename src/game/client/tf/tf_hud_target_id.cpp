@@ -172,7 +172,7 @@ bool CTargetID::ShouldDraw( void )
 			}
 			else if ( pEnt->IsNPC() )
 			{
-				bReturn = (pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pLocalTFPlayer->InSameTeam(pEnt) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) );
+				bReturn = ( pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR || pLocalTFPlayer->InSameTeam( pEnt ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) );
 			}
 		}
 	}
@@ -442,7 +442,7 @@ void CTargetID::UpdateID( void )
 			}
 			else if ( pEnt->IsNPC() )
 			{
-				C_AI_BaseNPC *pNPC = pEnt->MyNPCPointer();
+				C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pEnt );
 
 				pNPC->GetTargetIDString( sIDString, sizeof(sIDString) );
 				bShowHealth = true;

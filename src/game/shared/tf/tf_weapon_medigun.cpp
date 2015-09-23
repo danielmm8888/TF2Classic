@@ -323,11 +323,9 @@ bool CWeaponMedigun::AllowedToHealTarget( CBaseEntity *pTarget )
 			return true;
 		}
 	}
-
-	// See if this is NPC.
-	if ( pTarget && pTarget->IsNPC() )
+	else if ( pTarget->IsNPC() )	// See if this is NPC.
 	{
-		CAI_BaseNPC *pNPC = pTarget->MyNPCPointer();
+		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pTarget );
 
 		// Can't heal machines.
 		if ( pNPC->IsMech() )
@@ -519,7 +517,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 	if ( pNewTarget && pNewTarget->IsAlive() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( pNewTarget );
-		CAI_BaseNPC *pNPC = pNewTarget->IsNPC() ? pNewTarget->MyNPCPointer() : NULL;
+		CAI_BaseNPC *pNPC = pNewTarget->MyNPCPointer();
 
 #ifdef GAME_DLL
 		if ( pTFPlayer )
