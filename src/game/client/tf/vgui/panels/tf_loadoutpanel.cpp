@@ -6,7 +6,7 @@
 #include "tf_rgbpanel.h"
 #include "basemodelpanel.h"
 #include <vgui/ILocalize.h>
-#include "c_script_parser.h"
+#include "script_parser.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
