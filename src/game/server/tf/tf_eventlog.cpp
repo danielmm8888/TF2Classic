@@ -69,18 +69,17 @@ protected:
 		
  		if ( !Q_strncmp( eventName, "player_death", Q_strlen( "player_death" ) ) )
  		{
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex( event->GetInt( "victim" ) );
-
+			const int userid = event->GetInt( "userid" );
+			CBasePlayer *pPlayer = UTIL_PlayerByUserId( userid );
 			if ( !pPlayer )
 			{
 				return false;
 			}
 
-			const int userid = pPlayer->GetUserID();
+			const int attackerid = event->GetInt( "attacker" );
 			const char *weapon = event->GetString( "weapon" );
 			int iCustomDamage = event->GetInt( "customkill" );
-			CBasePlayer *pAttacker = UTIL_PlayerByIndex( event->GetInt( "attacker" ) );
-			const int attackerid = pAttacker ? pAttacker->GetUserID() : 0;
+			CBasePlayer *pAttacker = UTIL_PlayerByUserId( attackerid );
 
 			if ( pPlayer == pAttacker )  
 			{  
@@ -165,8 +164,8 @@ protected:
 			}
  
  			// Assist kill
- 			CBasePlayer *pAssister = UTIL_PlayerByIndex( event->GetInt( "assister" ) );
-			int assistid = pAssister ? pAssister->GetUserID() : -1;
+ 			int assistid = event->GetInt( "assister" );
+ 			CBasePlayer *pAssister = UTIL_PlayerByUserId( assistid );
  
  			if ( pAssister )
  			{

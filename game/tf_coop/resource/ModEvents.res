@@ -46,45 +46,51 @@
 	"player_death"		// a game event, name may be 32 charaters long
 	{
 		// this extends the original player_death 
-		"victim"	"short"   	// player entindex who died				
-		"attacker"	"short"	 	// entindex who killed
-		"attacker_name" "string"	// classname who killed
-		"attacker_team"	"byte"	// killer's team
+		"userid"	"short"   	// user ID who died	
+		"attacker"	"short"	 	// user ID who killed
 		"weapon"	"string" 	// weapon name killer used 
-		"damagebits"	"long"		// bits of type of damage
-		"customkill"	"short"		// type of custom kill
-		"assister"	"short"		// entindex of assister
-		"assister_name"	"string" // classname of assister
-		"assister_team"	"byte"	// assister's team
+		"damagebits"	"long"	// bits of type of damage
+		"customkill"	"short"	// type of custom kill
+		"assister"	"short"		// user ID of assister
 		"dominated"	"short"		// did killer dominate victim with this kill
 		"assister_dominated" "short"	// did assister dominate victim with this kill
 		"revenge"	"short"		// did killer get revenge on victim with this kill
 		"assister_revenge" "short"	// did assister get revenge on victim with this kill
-	}
-	
-	"npc_death"
-	{ 
-		"victim"	"short"   	// NPC entindex who died
-		"victim_name"	"string"	// NPC classname who died
-		"victim_team"	"byte"	// NPC victim's team
-		"attacker"	"short"	 	// entindex who killed
-		"attacker_name" "string"	// classname who killed
-		"attacker_team"	"byte"	// killer's team
-		"weapon"	"string" 	// weapon name killer used 
-		"damagebits"	"long"		// bits of type of damage
-		"customkill"	"short"		// type of custom kill
-		"assister"	"short"		// entindex of assister
-		"assister_name"	"string" // classname of assister
-		"assister_team"	"byte"	// assister's team
+		"victim_index"	"short"	// entindex who died
+		"attacker_index"	"short"		// entindex that killed
+		"attacker_name"		"string"	// classname of attacker
+		"attacker_team"		"byte"		// team of attacker
+		"assister_index"	"short"		// entindex of assister
+		"assister_name"		"string"	// classname of assister
+		"assister_team"		"byte"		// team of assister
 	}
 	
 	"object_destroyed"
 	{			
-		"victim"	"short"   	// user ID who died				
+		"userid"	"short"   	// user ID who died	
 		"attacker"	"short"	 	// user ID who killed
 		"assister"	"short"		// user ID of assister
 		"weapon"	"string" 	// weapon name killer used 
 		"objecttype"	"short"		// type of object destroyed
+		"victim_index"		"short"		// entindex who died
+		"attacker_index"	"short"		// entindex that killed
+		"assister_index"	"short"		// entindex of assister
+	}
+	
+	"npc_death"
+	{ 
+		"victim_index"	"short"	// entindex who died
+		"victim_name"	"string"// classname of victim
+		"victim_team"	"byte"	// team of victim
+		"attacker_index"	"short"		// entindex that killed
+		"attacker_name"		"string"	// classname of attacker
+		"attacker_team"		"byte"		// team of attacker
+		"weapon"	"string" 	// weapon name killer used 
+		"damagebits"	"long"	// bits of type of damage
+		"customkill"	"short"	// type of custom kill
+		"assister_index"	"short"		// entindex of assister
+		"assister_name"		"string"	// classname of assister
+		"assister_team"		"byte"		// team of assister
 	}
 
 	"tf_map_time_remaining"

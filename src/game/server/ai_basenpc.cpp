@@ -662,7 +662,7 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	// Bullseyes shouldn't send death notices.
 	if ( !FClassnameIs( this, "npc_bullseye" ) )
 	{
-		int killer_ID = 0;
+		int killer_index = 0;
 
 		// Find the killer & the scorer
 		CAI_BaseNPC *pVictim = this;
@@ -676,26 +676,26 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 		if ( pScorer )	// Is the killer a client?
 		{
-			killer_ID = pScorer->entindex();
+			killer_index = pScorer->entindex();
 		}
 		else if ( pKiller && pKiller->IsNPC() )
 		{
-			killer_ID = pKiller->entindex();
+			killer_index = pKiller->entindex();
 		}
 
 		IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
 
 		if ( event )
 		{
-			event->SetInt( "victim", pVictim->entindex() );
+			event->SetInt( "victim_index", pVictim->entindex() );
 			event->SetString( "victim_name", pVictim->GetClassname() );
 			event->SetInt( "victim_team", pVictim->GetTeamNumber() );
-			event->SetInt( "attacker", killer_ID );
-			event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
-			event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-			event->SetInt( "assister", (pAssister && (pAssister->IsPlayer() || pAssister->IsNPC())) ? pAssister->entindex() : -1 );
-			event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
-			event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
+			event->SetInt( "attacker_index", killer_index );
+			event->SetString( "attacker_name", pKiller ? pKiller->GetClassname() : NULL );
+			event->SetInt( "attacker_team", pKiller ? pKiller->GetTeamNumber() : 0 );
+			event->SetInt( "assister_index", pAssister ? pAssister->entindex() : -1 );
+			event->SetString( "assister_name", pAssister ? pAssister->GetClassname() : NULL );
+			event->SetInt( "assister_team", pAssister ? pAssister->GetTeamNumber() : 0 );
 			event->SetString( "weapon", killer_weapon_name );
 			event->SetInt( "damagebits", info.GetDamageType() );
 			event->SetInt( "customkill", info.GetDamageCustom() );

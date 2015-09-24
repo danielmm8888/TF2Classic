@@ -1771,61 +1771,66 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	
 	m_flLastAction = gpGlobals->curtime;
 
-#ifdef _DEBUG
 	if ( FStrEq( pcmd, "addcond" ) )
 	{
-		if ( args.ArgC() >= 2 )
+		if ( sv_cheats->GetBool() )
 		{
-			int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
-
-			CTFPlayer *pTargetPlayer = this;
-			if ( args.ArgC() >= 4 )
+			if ( args.ArgC() >= 2 )
 			{
-				// Find the matching netname
-				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+
+				CTFPlayer *pTargetPlayer = this;
+				if ( args.ArgC() >= 4 )
 				{
-					CBasePlayer *pPlayer = ToBasePlayer( UTIL_PlayerByIndex(i) );
-					if ( pPlayer )
+					// Find the matching netname
+					for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 					{
-						if ( Q_strstr( pPlayer->GetPlayerName(), args[3] ) )
+						CBasePlayer *pPlayer = ToBasePlayer( UTIL_PlayerByIndex(i) );
+						if ( pPlayer )
 						{
-							pTargetPlayer = ToTFPlayer(pPlayer);
-							break;
+							if ( Q_strstr( pPlayer->GetPlayerName(), args[3] ) )
+							{
+								pTargetPlayer = ToTFPlayer(pPlayer);
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			if ( args.ArgC() >= 3 )
-			{
-				float flDuration = atof( args[2] );
-				pTargetPlayer->m_Shared.AddCond( iCond, flDuration );
+				if ( args.ArgC() >= 3 )
+				{
+					float flDuration = atof( args[2] );
+					pTargetPlayer->m_Shared.AddCond( iCond, flDuration );
+				}
+				else
+				{
+					pTargetPlayer->m_Shared.AddCond( iCond );
+				}
 			}
-			else
-			{
-				pTargetPlayer->m_Shared.AddCond( iCond );
-			}
+			return true;
 		}
-		return true;
 	}
 	else if ( FStrEq( pcmd, "removecond" ) )
 	{
-		if ( args.ArgC() >= 2 )
+		if ( sv_cheats->GetBool() )
 		{
-			int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
-			m_Shared.RemoveCond( iCond );
+			if ( args.ArgC() >= 2 )
+			{
+				int iCond = clamp( atoi( args[1] ), 0, TF_COND_LAST-1 );
+				m_Shared.RemoveCond( iCond );
+			}
+			return true;
 		}
-		return true;
 	}
 	else if ( FStrEq( pcmd, "burn" ) ) 
 	{
-		m_Shared.Burn( this );
-		return true;
+		if ( sv_cheats->GetBool() )
+		{
+			m_Shared.Burn( this );
+			return true;
+		}
 	}
-	else
-#endif
-
-	if ( FStrEq( pcmd, "jointeam" ) )
+	else if ( FStrEq( pcmd, "jointeam" ) )
 	{
 		if ( args.ArgC() >= 2 )
 		{
@@ -3097,7 +3102,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_hurt" );
 	if ( event )
 	{
-		event->SetInt( "victim", entindex() );
+		event->SetInt( "userid", GetUserID() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
 
 		// HLTV event priority, not transmitted
@@ -3106,7 +3111,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		// Hurt by another player.
 		if ( pAttacker->IsPlayer() )
 		{
-			event->SetInt( "attacker", pAttacker->entindex() );
+			CBasePlayer *pPlayer = ToBasePlayer( pAttacker );
+			event->SetInt( "attacker", pPlayer->GetUserID() );
 		}
 		// Hurt by world.
 		else

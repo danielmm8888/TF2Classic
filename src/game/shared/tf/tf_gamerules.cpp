@@ -3473,6 +3473,7 @@ CBasePlayer *CTFGameRules::GetDeathScorer( CBaseEntity *pKiller, CBaseEntity *pI
 void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &info )
 {
 	int killer_ID = 0;
+	int killer_index = 0;
 
 	// Find the killer & the scorer
 	CTFPlayer *pTFPlayerVictim = ToTFPlayer( pVictim );
@@ -3480,30 +3481,36 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	CBaseEntity *pKiller = info.GetAttacker();
 	CBasePlayer *pScorer = GetDeathScorer( pKiller, pInflictor, pVictim );
 	CBaseEntity *pAssister =  GetAssister( pVictim, pKiller, pInflictor );
+	CTFPlayer *pTFAssister = ToTFPlayer( pAssister );
 
 	// Work out what killed the player, and send a message to all clients about it
 	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim );
 
 	if ( pScorer )	// Is the killer a client?
 	{
-		killer_ID = pScorer->entindex();
+		killer_ID = pScorer->GetUserID();
+		killer_index = pScorer->entindex();
 	}
 	else if ( pKiller && pKiller->IsNPC() )
 	{
-		killer_ID = pKiller->entindex();
+		killer_index = pKiller->entindex();
 	}
 
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_death" );
 
+	// Keeping old keys for the sake of compatibility. Killfeed uses entindexes now.
 	if ( event )
 	{
-		event->SetInt( "victim", pVictim->entindex() );
+		event->SetInt( "userid", pVictim->GetUserID() );
+		event->SetInt( "victim_index", pVictim->entindex() );
 		event->SetInt( "attacker", killer_ID );
-		event->SetString( "attacker_name", ( pKiller ) ? pKiller->GetClassname() : NULL );
-		event->SetInt( "attacker_team", ( pKiller ) ? pKiller->GetTeamNumber() : 0 );
-		event->SetInt( "assister", (pAssister && (pAssister->IsPlayer() || pAssister->IsNPC())) ? pAssister->entindex() : -1 );
-		event->SetString( "assister_name", ( pAssister ) ? pAssister->GetClassname() : NULL );
-		event->SetInt( "assister_team", ( pAssister ) ? pAssister->GetTeamNumber() : 0 );
+		event->SetInt( "attacker_index", killer_index );
+		event->SetString( "attacker_name", pKiller ? pKiller->GetClassname() : NULL );
+		event->SetInt( "attacker_team", pKiller ? pKiller->GetTeamNumber() : 0 );
+		event->SetInt( "assister", pTFAssister ? pTFAssister->GetUserID() : -1 );
+		event->SetInt( "assister_index", pAssister ? pAssister->entindex() : -1 );
+		event->SetString( "assister_name", pAssister ? pAssister->GetClassname() : NULL );
+		event->SetInt( "assister_team", pAssister ? pAssister->GetTeamNumber() : 0 );
 		event->SetString( "weapon", killer_weapon_name );
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );

@@ -427,12 +427,12 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 	if ( bPlayerDeath || bObjectDeath || bNPCDeath )
 	{
-		int victim = event->GetInt( "victim" );
-		int killer = event->GetInt( "attacker" );
+		int victim = event->GetInt( "victim_index" );
+		int killer = event->GetInt( "attacker_index" );
 
 		const char *killedwith = event->GetString( "weapon" );
 
-		// Entities' classnames and teams. Only used for NPCs.
+		// Classnames and teams of entities. Only used for NPCs.
 		// We can't fetch NPC name and team on client side since NPCs outside of PVS don't exist on client side.
 		// So we're sending those over in the net message.
 		const char *victim_classname = event->GetString( "victim_name" );
@@ -751,7 +751,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		int iLocalPlayerIndex = GetLocalPlayerIndex();
 
 		// if there was an assister, put both the killer's and assister's names in the death message
-		int iAssisterID = event->GetInt( "assister" );
+		int iAssisterID = event->GetInt( "assister_index" );
 		const char *assister_classname = event->GetString( "assister_name" );
 		int assister_team = event->GetInt( "assister_team" );
 

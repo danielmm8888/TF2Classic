@@ -1800,14 +1800,17 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 		{
 			if ( pTFPlayer )
 			{
-				event->SetInt( "userid", pTFPlayer->entindex() );
+				event->SetInt( "userid", pTFPlayer->GetUserID() );
+				event->SetInt( "victim_index", pTFPlayer->entindex() );
 			}
 			if ( pAssister && ( pAssister != pScorer ) )
 			{
-				event->SetInt( "assister", pAssister->entindex() );
+				event->SetInt( "assister", pAssister->GetUserID() );
+				event->SetInt( "assister_index", pAssister->entindex() );
 			}
 			
-			event->SetInt( "attacker", pScorer->entindex() );	// attacker
+			event->SetInt( "attacker", pScorer->GetUserID() );	// attacker
+			event->SetInt( "attacker_index", pScorer->entindex() );
 			event->SetString( "weapon", killer_weapon_name );
 			event->SetInt( "priority", 6 );		// HLTV event priority, not transmitted
 			event->SetInt( "objecttype", GetType() );

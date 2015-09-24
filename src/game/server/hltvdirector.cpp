@@ -543,13 +543,9 @@ void CHLTVDirector::CreateShotFromEvent( CHLTVGameEvent *event )
 
 	if ( bPlayerHurt || bPlayerKilled )
 	{
-#ifdef TF_CLASSIC
-		CBaseEntity *victim = UTIL_PlayerByIndex( event->m_Event->GetInt("victim") );
-		CBaseEntity *attacker = UTIL_PlayerByIndex( event->m_Event->GetInt("attacker") );
-#else
 		CBaseEntity *victim = UTIL_PlayerByUserId( event->m_Event->GetInt("userid") );
 		CBaseEntity *attacker = UTIL_PlayerByUserId( event->m_Event->GetInt("attacker") );
-#endif
+
 		if ( !victim )
 			return;
 

@@ -1455,13 +1455,8 @@ void CAchievementMgr::FireGameEvent( IGameEvent *event )
 #ifdef CLIENT_DLL
 	else if ( 0 == Q_strcmp( name, "player_death" ) )
 	{
-#ifdef TF_CLASSIC_CLIENT
-		CBaseEntity *pVictim = ClientEntityList().GetEnt( event->GetInt("victim") );
-		CBaseEntity *pAttacker = ClientEntityList().GetEnt( event->GetInt("attacker") );
-#else
 		CBaseEntity *pVictim = ClientEntityList().GetEnt( engine->GetPlayerForUserID( event->GetInt("userid") ) );
 		CBaseEntity *pAttacker = ClientEntityList().GetEnt( engine->GetPlayerForUserID( event->GetInt("attacker") ) );
-#endif
 		OnKillEvent( pVictim, pAttacker, NULL, event );
 	}
 	else if ( 0 == Q_strcmp( name, "localplayer_changeclass" ) )
