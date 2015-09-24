@@ -542,6 +542,10 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 int CTFPlayerShared::GetMaxBuffedHealth( void )
 {
 	float flBoostMax = m_pOuter->GetMaxHealth() * tf_max_health_boost.GetFloat();
+	if (TFGameRules()->GetGameType() == TF_GAMETYPE_DM)
+	{
+		flBoostMax = m_pOuter->GetMaxHealth() * tf2c_dm_max_health_boost.GetFloat();
+	}
 
 	int iRoundDown = floor( flBoostMax / 5 );
 	iRoundDown = iRoundDown * 5;
