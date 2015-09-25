@@ -141,7 +141,7 @@ public:
 		image_inventory_size_w = 0;
 		image_inventory_size_h = 0;
 		V_strcpy_safe(model_player, "");
-		V_strcpy_safe(model_player_viewmodeloverride, "");
+		V_strcpy_safe(model_world, "");
 		attach_to_hands = false;
 	}
 
@@ -164,7 +164,7 @@ public:
 	int	 image_inventory_size_w;
 	int	 image_inventory_size_h;
 	char model_player[128];
-	char model_player_viewmodeloverride[128];
+	char model_world[128];
 	bool attach_to_hands;
 	CUtlDict< EconItemAttribute, unsigned short > attributes;
 	//EconItemVisuals visuals;
@@ -226,10 +226,17 @@ public:
 	template <class type>	
 	static type AttribHookValue(type iValue, const char* text, CEconEntity *pEntity)
 	{
-		CBaseCombatWeapon* pWeapon = dynamic_cast<CBaseCombatWeapon*>(pEntity);
+		CBaseCombatWeapon* pWeapon = dynamic_cast<CBaseCombatWeapon*>( pEntity );
 		float iResult = iValue;
 
-		if (pWeapon)
+		if ( pWeapon == NULL )
+		{
+			CBasePlayer *pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
+			if ( pPlayer )
+				pWeapon = pPlayer->GetActiveWeapon();
+		}
+
+		if ( pWeapon )
 		{
 			int ID = pEntity->GetItemID();
 

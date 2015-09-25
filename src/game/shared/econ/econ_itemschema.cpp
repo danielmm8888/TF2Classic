@@ -182,7 +182,7 @@ public:
 		GET_INT(pItem, pData, image_inventory_size_h);
 
 		GET_STRING(pItem, pData, model_player);
-		GET_STRING(pItem, pData, model_player_viewmodeloverride);
+		GET_STRING(pItem, pData, model_world);
 		
 		for (KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
 		{
@@ -374,32 +374,34 @@ void CEconItemSchema::FireGameEvent(IGameEvent *event)
 	//	return;
 }
 
-const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity)
+const char* CEconItemView::GetWorldDisplayModel( CEconEntity *pEntity )
 {
-	return GetWorldDisplayModel(pEntity->GetItemID());
+	return GetWorldDisplayModel( pEntity->GetItemID() );
 }
 
-const char* CEconItemView::GetWorldDisplayModel(int ID)
-{
-	return GetItemSchema()->GetItemDefinition(ID)->model_player;
-}
-
-const char* CEconItemView::GetViewmodelDisplayModel(CEconEntity *pEntity)
-{
-	return GetViewmodelDisplayModel(pEntity->GetItemID());
-}
-
-const char* CEconItemView::GetViewmodelDisplayModel(int ID)
+const char* CEconItemView::GetWorldDisplayModel( int ID )
 {
 	char modelname[128];
-	Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player_viewmodeloverride, sizeof(modelname));
-	if (!Q_stricmp(modelname, ""))
+	Q_strncpy( modelname, GetItemSchema()->GetItemDefinition( ID )->model_world, sizeof( modelname ) );
+	if ( !Q_stricmp( modelname, "" ) )
 	{
-		Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player, sizeof(modelname));
+		Q_strncpy( modelname, GetItemSchema()->GetItemDefinition( ID )->model_player, sizeof( modelname ) );
 	}
-	char *result = (char*)malloc(sizeof(modelname));
-	Q_strncpy(result, modelname, sizeof(modelname));
+	char *result = (char*)malloc( sizeof( modelname ) );
+	Q_strncpy( result, modelname, sizeof( modelname ) );
 	return result;
+
+	return GetItemSchema()->GetItemDefinition( ID )->model_player;
+}
+
+const char* CEconItemView::GetViewmodelDisplayModel( CEconEntity *pEntity )
+{
+	return GetViewmodelDisplayModel( pEntity->GetItemID() );
+}
+
+const char* CEconItemView::GetViewmodelDisplayModel (int ID )
+{
+	return GetItemSchema()->GetItemDefinition(ID)->model_player;
 }
 
 const char* CEconItemView::GetEntityName(int ID, int iClassIndex/* = 0*/)
