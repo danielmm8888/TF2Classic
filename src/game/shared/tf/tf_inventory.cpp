@@ -30,6 +30,11 @@ int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 	return Weapons[iClass][iSlot][iNum];
 };
 
+int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
+{
+	return Items[iClass][iSlot][iNum];
+};
+
 
 bool CTFInventory::CheckValidSlot(int iClass, int iSlot)
 {
@@ -135,6 +140,146 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"Melee",
 	"PDA",
 	"PDA"
+};
+
+const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
+{
+	{
+
+	},
+	{
+		{
+			13//, TF_WEAPON_NAILGUN
+		},
+		{
+			23//, TF_WEAPON_SMG_SCOUT
+		},
+		{
+			0
+		}
+	},
+	{
+		{
+			14//, TF_WEAPON_HUNTERRIFLE
+		},
+		{
+			16
+		},
+		{
+			3//, TF_WEAPON_FISHWHACKER
+		}
+	},
+	{
+		{
+			18//, TF_WEAPON_ROCKETLAUNCHERBETA
+		},
+		{
+			10
+		},
+		{
+			6
+		}
+	},
+	{
+		{
+			19//, TF_WEAPON_CYCLOPS
+		},
+		{
+			20
+		},
+		{
+			1
+		}
+	},
+	{
+		{
+			17//, TF_WEAPON_SHOTGUN_MEDIC
+		},
+		{
+			29//, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
+		},
+		{
+			8//, TF_WEAPON_UBERSAW
+		}
+	},
+	{
+		{
+			15
+		},
+		{
+			11
+		},
+		{
+			5
+		}
+	},
+	{
+		{
+			21
+		},
+		{
+			12//, TF_WEAPON_FLAREGUN
+		},
+		{
+			2
+		}
+	},
+	{
+		{
+			24//, TF_WEAPON_TRANQ
+		},
+		{
+			735					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
+		},
+		{
+			4
+		},
+		{
+			27
+		},
+		{
+			30
+		}
+	},
+	{
+		{
+			9
+		},
+		{
+			22
+		},
+		{
+			7
+		},
+		{
+			25
+		},
+		{
+			26
+		}
+	},
+	{
+		{
+
+		},
+		{
+
+		},
+		{
+			//TF_WEAPON_UMBRELLA
+		}
+	},
+	{
+		{
+
+		},
+		{
+			22
+		},
+		{
+			//TF_WEAPON_CROWBAR
+		}
+	}
 };
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
