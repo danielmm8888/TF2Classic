@@ -131,6 +131,7 @@ public:
 		V_strcpy_safe(item_type_name, "");
 		V_strcpy_safe(item_name, "");
 		V_strcpy_safe(item_slot, "");
+		anim_slot = 0;
 		V_strcpy_safe(item_quality, "");
 		propername = false;
 		V_strcpy_safe(item_logname, "");
@@ -154,6 +155,7 @@ public:
 	char item_type_name[128];
 	char item_name[128];
 	char item_slot[128];
+	int anim_slot;
 	char item_quality[128];
 	bool propername;
 	char item_logname[128];
@@ -182,6 +184,8 @@ public:
 	static const char* GetEntityName(int ID, int iClassIndex = 0);
 	static bool IsCosmetic(CEconEntity *pEntity);
 	static bool IsCosmetic(int ID);
+	static int GetAnimationSlot(CEconEntity *pEntity);
+	static int GetAnimationSlot(int ID);
 };
 
 //-----------------------------------------------------------------------------
