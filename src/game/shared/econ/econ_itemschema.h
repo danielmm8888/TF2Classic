@@ -12,29 +12,52 @@
 class CEconItemSchema;
 class CEconSchemaParser;
 
-#define GET_STRING(copyto, from, name)													\
-		if (Q_strcmp(from->GetString(#name, ""), "") || !Q_strcmp(copyto->name, ""))	\
-			Q_snprintf(copyto->name, sizeof(copyto->name), from->GetString(#name, ""))
+#define FIND_ELEMENT(dict, str, val)				\
+		unsigned int index = dict.Find(str);		\
+		if (index < dict.Count())					\
+			val = dict.Element(index)				\
+
+#define IF_ELEMENT_FOUND(dict, str)					\
+		unsigned int index = dict.Find(str);		\
+		if (index < dict.Count())					\
+
+#define CALL_ATTRIB_HOOK_INT(value, name)			\
+		value = CAttributeManager::AttribHookValue<int>(value, #name, (CEconEntity*)this)
+
+#define CALL_ATTRIB_HOOK_FLOAT(value, name)			\
+		value = CAttributeManager::AttribHookValue<float>(value, #name, (CEconEntity*)this)
+
+#define CALL_ATTRIB_HOOK_INT_ON_OTHER(ent, value, name)			\
+		value = CAttributeManager::AttribHookValue<int>(value, #name, (CEconEntity*)ent)
+
+#define CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(ent, value, name)			\
+		value = CAttributeManager::AttribHookValue<float>(value, #name, (CEconEntity*)ent)
+
 
 struct EconQuality
 {
-	EconQuality(){
+	EconQuality()
+	{
 		value = 0;
 	}
+
 	int value;
 };
 
 struct EconColor
 {
-	EconColor(){
+	EconColor()
+	{
 		V_strcpy_safe(color_name, "");
 	}
-	char color_name[64];
+
+	char color_name[128];
 };
 
 struct EconAttributeDefinition
 {
-	EconAttributeDefinition(){
+	EconAttributeDefinition()
+	{
 		V_strcpy_safe(name, "");
 		V_strcpy_safe(attribute_class, "");
 		V_strcpy_safe(description_string, "");
@@ -43,38 +66,43 @@ struct EconAttributeDefinition
 		V_strcpy_safe(effect_type, "");
 		stored_as_integer = false;
 	}
-	char name[64];
-	char attribute_class[64];
-	char description_string[64];
-	char description_format[64];
+
+	char name[128];
+	char attribute_class[128];
+	char description_string[128];
+	char description_format[128];
 	bool hidden;
-	char effect_type[64];
+	char effect_type[128];
 	bool stored_as_integer;
 };
 
 struct EconItemAttribute
 {
-	EconItemAttribute(){
+	EconItemAttribute()
+	{
 		V_strcpy_safe(attribute_class, "");
 		value = 0.0f;
 	}
-	char attribute_class[64];
+
+	char attribute_class[128];
 	float value;
 };
 
 
 struct EconItemStyle
 {
-	EconItemStyle(){
+	EconItemStyle()
+	{
 		V_strcpy_safe(image_inventory, "");
 		skin_red = 0;
 		skin_blu = 0;
 		selectable = false;
 	}
+
 	int skin_red;
 	int skin_blu;
 	bool selectable;
-	char image_inventory[64];
+	char image_inventory[128];
 };
 
 struct EconItemVisuals
@@ -84,9 +112,10 @@ struct EconItemVisuals
 		V_strcpy_safe(sound_burst, "");
 		V_strcpy_safe(sound_special1, "");
 	}
-	char sound_single_shot[64];
-	char sound_burst[64];
-	char sound_special1[64];
+
+	char sound_single_shot[128];
+	char sound_burst[128];
+	char sound_special1[128];
 	CUtlDict< const char*, unsigned short > animation_replacement;
 	CUtlDict< EconItemStyle, unsigned short > styles;
 };
@@ -112,31 +141,47 @@ public:
 		image_inventory_size_w = 0;
 		image_inventory_size_h = 0;
 		V_strcpy_safe(model_player, "");
+		V_strcpy_safe(model_player_viewmodeloverride, "");
 		attach_to_hands = false;
 	}
 
-	char name[64];
+	char name[128];
 	CUtlDict< bool, unsigned short > capabilities;
 	CUtlDict< bool, unsigned short > tags;
 	CUtlDict< bool, unsigned short > used_by_classes;
 	bool show_in_armory;
-	char item_class[64];
-	char item_type_name[64];
-	char item_name[64];
-	char item_slot[64];
-	char item_quality[64];
+	char item_class[128];
+	char item_type_name[128];
+	char item_name[128];
+	char item_slot[128];
+	char item_quality[128];
 	bool propername;
-	char item_logname[64];
-	char item_iconname[64];
+	char item_logname[128];
+	char item_iconname[128];
 	int	 min_ilevel;
 	int	 max_ilevel;
-	char image_inventory[64];
+	char image_inventory[128];
 	int	 image_inventory_size_w;
 	int	 image_inventory_size_h;
-	char model_player[64];
+	char model_player[128];
+	char model_player_viewmodeloverride[128];
 	bool attach_to_hands;
 	CUtlDict< EconItemAttribute, unsigned short > attributes;
 	//EconItemVisuals visuals;
+};
+
+
+class CEconItemView
+{
+public:
+	CEconItemView(){}
+	static const char* GetWorldDisplayModel(CEconEntity *pEntity);
+	static const char* GetWorldDisplayModel(int ID);
+	static const char* GetViewmodelDisplayModel(CEconEntity *pEntity);
+	static const char* GetViewmodelDisplayModel(int ID);
+	static const char* GetEntityName(int ID, int iClassIndex = 0);
+	static bool IsCosmetic(CEconEntity *pEntity);
+	static bool IsCosmetic(int ID);
 };
 
 //-----------------------------------------------------------------------------
@@ -160,6 +205,7 @@ public:
 
 	EconItemDefinition* GetItemDefinition(int id);
 	EconAttributeDefinition *GetAttributeDefinition(const char* name);
+	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);	
 	
 private:
 	CUtlDict< int, unsigned short >							m_GameInfo;
@@ -170,6 +216,41 @@ private:
 	CUtlDict< EconAttributeDefinition, unsigned short >		m_Attributes;
 
 	bool m_bInited;
+};
+
+class CAttributeManager
+{
+public:
+	CAttributeManager(){};
+
+	template <class type>	
+	static type AttribHookValue(type iValue, const char* text, CEconEntity *pEntity)
+	{
+		CBaseCombatWeapon* pWeapon = dynamic_cast<CBaseCombatWeapon*>(pEntity);
+		float iResult = iValue;
+
+		if (pWeapon)
+		{
+			int ID = pEntity->GetItemID();
+
+			if (ID > 0)
+			{
+				EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition(ID);
+				EconAttributeDefinition *pAttribDef = GetItemSchema()->GetAttributeDefinitionByClass(text);
+				if (pItemDef && pAttribDef)
+				{
+					unsigned int index = pItemDef->attributes.Find(pAttribDef->name);
+					if (index < pItemDef->attributes.Count())
+					{
+						EconItemAttribute *attribute = &pItemDef->attributes[index];
+						iResult = attribute->value;
+					}
+				}
+			}
+		}
+
+		return iResult;
+	}
 };
 
 CEconItemSchema *GetItemSchema();

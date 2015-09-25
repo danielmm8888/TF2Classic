@@ -16,9 +16,9 @@ IMPLEMENT_NETWORKCLASS_ALIASED( EconWearable, DT_EconWearable )
 
 BEGIN_NETWORK_TABLE( CEconWearable, DT_EconWearable )
 #ifdef GAME_DLL
-	SendPropInt( SENDINFO( m_nParticleType ) ),
+	SendPropString( SENDINFO( m_ParticleName ) ),
 #else
-	RecvPropInt( RECVINFO( m_nParticleType ) ),
+	RecvPropString(RECVINFO(m_ParticleName)),
 #endif
 END_NETWORK_TABLE()
 
@@ -59,6 +59,15 @@ int CEconWearable::GetSkin( void )
 	}
 }
 
+void CEconWearable::SetParticle(const char* name)
+{
+#ifdef GAME_DLL
+	Q_snprintf(m_ParticleName.GetForModify(), PARTICLE_MODIFY_STRING_SIZE, name);
+#else
+	Q_snprintf(m_ParticleName, PARTICLE_MODIFY_STRING_SIZE, name);
+#endif
+}
+
 #ifdef GAME_DLL
 void CEconWearable::Equip( CBasePlayer *pPlayer )
 {
@@ -81,43 +90,12 @@ void CEconWearable::UnEquip( CBasePlayer *pPlayer )
 void CEconWearable::OnDataChanged( DataUpdateType_t type )
 {
 	BaseClass::OnDataChanged( type );
-
 	if ( type == DATA_UPDATE_DATATABLE_CHANGED )
 	{
-		if ( !m_pUnusualParticle )
+		if (Q_stricmp(m_ParticleName, "") && !m_pUnusualParticle)
 		{
-			m_pUnusualParticle = ParticleProp()->Create( GetParticleNameFromEnum(), PATTACH_ABSORIGIN_FOLLOW );
+			m_pUnusualParticle = ParticleProp()->Create(m_ParticleName, PATTACH_ABSORIGIN_FOLLOW);
 		}
-	}
-}
-
-char* CEconWearable::GetParticleNameFromEnum( void )
-{
-	switch ( m_nParticleType )
-	{
-		case UEFF_SUPERRARE_BURNING1:
-			return "superrare_burning1";
-
-		case UEFF_SUPERRARE_CIRCLING_HEART:
-			return "superrare_circling_heart";
-
-		case UEFF_SUPERRARE_GREENENERGY:
-			return "superrare_greenenergy";
-
-		case UEFF_UNUSUAL_ORBIT_CARDS:
-			if ( GetTeamNumber() == TF_TEAM_BLUE )
-				return "unusual_orbit_cards_teamcolor_blue";
-			else if ( GetTeamNumber() == TF_TEAM_RED )
-				return "unusual_orbit_cards_teamcolor_red";
-
-		case UEFF_UTAUNT_FIREWORK:
-			if ( GetTeamNumber() == TF_TEAM_BLUE )
-				return "utaunt_firework_teamcolor_blue";
-			else if ( GetTeamNumber() == TF_TEAM_RED )
-				return "utaunt_firework_teamcolor_red";
-
-		default:
-			return "";
 	}
 }
 

@@ -122,6 +122,10 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int	GetDamageType() const { return g_aWeaponDamageTypes[ GetWeaponID() ]; }
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_NONE; }
 
+	virtual const char		*GetWorldModel(void) const;
+	virtual int				GetMaxClip1(void) const;
+	virtual int				GetDefaultClip1(void) const;
+
 	// View model.
 	virtual int TranslateViewmodelHandActivity( int iActivity );
 	virtual void SetViewModel();
@@ -205,6 +209,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual const char *GetMuzzleFlashParticleEffect( void );
 
 	virtual const char	*GetTracerType( void );
+
 
 	virtual void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 

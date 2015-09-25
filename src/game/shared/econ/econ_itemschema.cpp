@@ -24,22 +24,18 @@ public:
 #define GET_STRING(copyto, from, name)													\
 		if (Q_strcmp(from->GetString(#name, ""), "") || !Q_strcmp(copyto->name, ""))	\
 			Q_snprintf(copyto->name, sizeof(copyto->name), from->GetString(#name, ""))
-	//const char* newval = from->GetString(#name, "");			\
 
 #define GET_BOOL(copyto, from, name)													\
 		if (from->GetBool(#name, false) != false || !copyto->name)						\
-			copyto->name = from->GetBool(#name, false)
-	//bool newval = from->GetBool(#name, false);				\
+			copyto->name = from->GetBool(#name, false)		\
 
 #define GET_FLOAT(copyto, from, name)													\
 		if (from->GetFloat(#name, 0.0f) != 0.0f || !copyto->name)						\
 			copyto->name = from->GetFloat(#name, 0.0f)
-	//float newval = from->GetFloat(#name, 0.0f);				\
 
 #define GET_INT(copyto, from, name)														\
 		if (from->GetInt(#name, 0) != 0 || !copyto->name)								\
 			copyto->name = from->GetInt(#name, 0)
-	//int newval = from->GetInt(#name, 0);					\
 
 
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
@@ -158,14 +154,11 @@ public:
 			pch = strtok(prefab, " ");
 			while (pch != NULL)
 			{
-				unsigned int index = GetItemSchema()->m_PrefabsValues.Find(pch);
-				if (index < GetItemSchema()->m_PrefabsValues.Count())
+				KeyValues *pPrefabValues = NULL;
+				FIND_ELEMENT(GetItemSchema()->m_PrefabsValues, pch, pPrefabValues);
+				if (pPrefabValues)
 				{
-					KeyValues *pPrefabValues = GetItemSchema()->m_PrefabsValues[GetItemSchema()->m_PrefabsValues.Find(pch)];
-					if (pPrefabValues)
-					{
-						ParseItemRec(pPrefabValues, pItem);
-					}
+					ParseItemRec(pPrefabValues, pItem);
 				}
 				pch = strtok(NULL, " ");
 			}
@@ -189,7 +182,7 @@ public:
 		GET_INT(pItem, pData, image_inventory_size_h);
 
 		GET_STRING(pItem, pData, model_player);
-
+		GET_STRING(pItem, pData, model_player_viewmodeloverride);
 		
 		for (KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
 		{
@@ -199,24 +192,39 @@ public:
 			}
 			if (!Q_stricmp(pSubData->GetName(), "tags"))
 			{
-				pItem->tags.Insert(pSubData->GetName(), pSubData->GetBool());
+				for (KeyValues *pTagData = pSubData->GetFirstSubKey(); pTagData != NULL; pTagData = pTagData->GetNextKey())
+				{
+					bool tag = false;
+					FIND_ELEMENT(pItem->tags, pTagData->GetName(), tag);
+					if (!tag)	//insert tag if it wasn't added before
+					{
+						pItem->tags.Insert(pTagData->GetName(), pTagData->GetBool());
+					}
+				}
 			}
 			if (!Q_stricmp(pSubData->GetName(), "used_by_classes"))
 			{
-				pItem->used_by_classes.Insert(pSubData->GetName(), pSubData->GetBool());
+				for (KeyValues *pInfoData = pSubData->GetFirstSubKey(); pInfoData != NULL; pInfoData = pInfoData->GetNextKey())
+				{
+					bool used_by_classes = false;
+					FIND_ELEMENT(pItem->used_by_classes, pInfoData->GetName(), used_by_classes);
+					if (!used_by_classes)	//insert info if it wasn't added before
+					{
+						pItem->tags.Insert(pInfoData->GetName(), pInfoData->GetBool());
+					}
+				}
 			}
 			if (!Q_stricmp(pSubData->GetName(), "attributes"))
 			{
 				for (KeyValues *pAttribData = pSubData->GetFirstSubKey(); pAttribData != NULL; pAttribData = pAttribData->GetNextKey())
 				{
-					unsigned int index = pItem->attributes.Find(pAttribData->GetName());
-					if (index < pItem->attributes.Count())
+					IF_ELEMENT_FOUND(pItem->attributes, pAttribData->GetName())
 					{
-						EconItemAttribute *attribute = &pItem->attributes[index];
+						EconItemAttribute *attribute = &pItem->attributes.Element(index);
 						if (attribute)
 						{
-							GET_FLOAT(attribute, pAttribData, value);
 							GET_STRING(attribute, pAttribData, attribute_class);
+							GET_FLOAT(attribute, pAttribData, value);
 						}						
 					}
 					else
@@ -259,10 +267,8 @@ bool CEconItemSchema::Init()
 {
 	if (!m_bInited)
 	{
-//#if defined( CLIENT_DLL )
 		g_EconSchemaParser.InitParser("scripts/items/items_game*.txt", true, false);
-//#endif
-		
+
 		m_bInited = true;
 	}
 
@@ -319,28 +325,41 @@ EconItemDefinition* CEconItemSchema::GetItemDefinition(int id)
 	EconItemDefinition *itemdef = NULL;
 	char buffer[33];
 	itoa(id, buffer, 10);
-	unsigned int index = m_Items.Find(buffer);
-	if (index < m_Items.Count())
-	{
-		itemdef = m_Items[index];
-	}
+	FIND_ELEMENT(m_Items, buffer, itemdef);
 	return itemdef;
 }
 
 EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition(const char* name)
 {
 	//unsigned int index = m_Attributes.Find(name);
+	//if (index < m_Attributes.Count())
+	//{
+	//	return &m_Attributes[index];
+	//}
 	for (unsigned int i = 0; i < m_Attributes.Count(); i++)
 	{
 		if (!Q_stricmp(m_Attributes[i].name, name))
 		{
 			return &m_Attributes[i];
-		}		
+		}
 	}
+	return NULL;
+}
+
+EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass(const char* name)
+{
+	//unsigned int index = m_Attributes.Find(name);
 	//if (index < m_Attributes.Count())
 	//{
 	//	return &m_Attributes[index];
 	//}
+	for (unsigned int i = 0; i < m_Attributes.Count(); i++)
+	{
+		if (!Q_stricmp(m_Attributes[i].attribute_class, name))
+		{
+			return &m_Attributes[i];
+		}
+	}
 	return NULL;
 }
 
@@ -353,4 +372,83 @@ void CEconItemSchema::FireGameEvent(IGameEvent *event)
 
 	//if (!TFGameRules())
 	//	return;
+}
+
+const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity)
+{
+	return GetWorldDisplayModel(pEntity->GetItemID());
+}
+
+const char* CEconItemView::GetWorldDisplayModel(int ID)
+{
+	return GetItemSchema()->GetItemDefinition(ID)->model_player;
+}
+
+const char* CEconItemView::GetViewmodelDisplayModel(CEconEntity *pEntity)
+{
+	return GetViewmodelDisplayModel(pEntity->GetItemID());
+}
+
+const char* CEconItemView::GetViewmodelDisplayModel(int ID)
+{
+	char modelname[128];
+	Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player_viewmodeloverride, sizeof(modelname));
+	if (!Q_stricmp(modelname, ""))
+	{
+		Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player, sizeof(modelname));
+	}
+	char *result = (char*)malloc(sizeof(modelname));
+	Q_strncpy(result, modelname, sizeof(modelname));
+	return result;
+}
+
+const char* CEconItemView::GetEntityName(int ID, int iClassIndex/* = 0*/)
+{
+	char name[64];
+	Q_strncpy(name, GetItemSchema()->GetItemDefinition(ID)->item_class, sizeof(name));
+	if (iClassIndex > 0)
+	{
+		if (!Q_stricmp(name, "tf_weapon_shotgun"))
+		{
+			if (iClassIndex == TF_CLASS_ENGINEER)
+			{
+				Q_snprintf(name, sizeof(name), "%s_PRIMARY", name);
+			}
+			else if (iClassIndex == TF_CLASS_SOLDIER)
+			{
+				Q_snprintf(name, sizeof(name), "%s_SOLDIER", name);
+			}
+			else if (iClassIndex == TF_CLASS_PYRO)
+			{
+				Q_snprintf(name, sizeof(name), "%s_PYRO", name);
+			}
+			else if (iClassIndex == TF_CLASS_HEAVYWEAPONS)
+			{
+				Q_snprintf(name, sizeof(name), "%s_HWG", name);
+			}
+		}
+		else  if (!Q_stricmp(name, "tf_weapon_pistol"))
+		{
+			if (iClassIndex == TF_CLASS_SCOUT)
+			{
+				Q_snprintf((char*)name, sizeof(name), "%s_SCOUT", name);
+			}
+		}
+	}
+	char *result = (char*)malloc(sizeof(name));
+	Q_strncpy(result, name, sizeof(name));
+	return result;
+}
+
+bool CEconItemView::IsCosmetic(CEconEntity *pEntity)
+{
+	return IsCosmetic(pEntity->GetItemID());
+}
+
+bool CEconItemView::IsCosmetic(int ID)
+{
+	bool result = false;
+
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, "is_cosmetic", result);
+	return result;
 }

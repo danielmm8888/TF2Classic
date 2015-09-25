@@ -21,6 +21,8 @@ struct wearableanimplayback_t
 	int iStub;
 };
 
+class EconItemDefinition;
+
 //-----------------------------------------------------------------------------
 // Purpose: BaseCombatWeapon is derived from this in live tf2.
 //			The only actual use for it I've found so far is for the c_model
@@ -32,11 +34,19 @@ class CEconEntity : public CBaseAnimating
 	DECLARE_NETWORKCLASS();
 
 public:
+	CEconEntity();
+	~CEconEntity();
 
 	virtual int TranslateViewmodelHandActivity( int iActivity ) { return iActivity; }
 
-	virtual void PlayAnimForPlaybackEvent( wearableanimplayback_t iPlayback ) {};
+	virtual void PlayAnimForPlaybackEvent(wearableanimplayback_t iPlayback) {};
 
+	virtual void SetItemID(int id);
+	virtual int GetItemID();
+	virtual bool HasItemDefinition() const;
+
+protected:
+	CNetworkVar(int, m_Item);
 };
 
 #endif

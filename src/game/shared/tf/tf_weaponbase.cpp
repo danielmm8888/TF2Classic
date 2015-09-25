@@ -11,6 +11,7 @@
 #include "tf_gamerules.h"
 #include "eventlist.h"
 #include "tf_viewmodel.h"
+#include "econ_itemschema.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )
@@ -341,6 +342,57 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 	return GetWeaponID() == iWeapon; 
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetWorldModel(void) const
+{
+	if (HasItemDefinition())
+	{
+		const char* pModel = (char*)CEconItemView::GetWorldDisplayModel((CEconEntity*)this);
+		if (pModel && PrecacheModel(pModel))
+		{
+			return pModel;
+		}
+	}
+
+	return CBaseCombatWeapon::GetWorldModel();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetMaxClip1(void) const
+{
+#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
+	float fMaxClipMult = 0;
+	CALL_ATTRIB_HOOK_FLOAT(fMaxClipMult, mult_clipsize);
+	fMaxClipMult *= GetWpnData().iMaxClip1;
+	if (fMaxClipMult != 0)
+		return fMaxClipMult;
+#endif
+
+	return CBaseCombatWeapon::GetMaxClip1();
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetDefaultClip1(void) const
+{
+#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
+	float fDefaultClipMult = 0;
+	CALL_ATTRIB_HOOK_FLOAT(fDefaultClipMult, mult_clipsize);
+	fDefaultClipMult *= GetWpnData().iDefaultClip1;
+	if (fDefaultClipMult != 0)
+		return fDefaultClipMult;
+#endif
+
+	return CBaseCombatWeapon::GetDefaultClip1();
+}
+
+
 int PrimaryArmActTable[13][2] = {
 	{ ACT_VM_DRAW, ACT_PRIMARY_VM_DRAW },
 	{ ACT_VM_HOLSTER, ACT_PRIMARY_VM_HOLSTER },
@@ -582,11 +634,23 @@ void CTFWeaponBase::UpdateViewModel(void)
 	
 	GetViewModel( m_nViewModelIndex );
 
+
 	int vmType = vm->GetViewModelType();
 	if ( vmType == vm->VMTYPE_L4D )
 		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
 	else if (vmType == vm->VMTYPE_TF2)
-		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+	{
+		if (HasItemDefinition())
+		{
+			const char* pModel = (char*)CEconItemView::GetViewmodelDisplayModel((CEconEntity*)this);
+			if (pModel && PrecacheModel(pModel))
+			{
+				vm->UpdateViewmodelAddon(pModel);
+			}
+		}
+		else
+			vm->UpdateViewmodelAddon(GetTFWpnData().szViewModel);
+	}
 	else
 		vm->RemoveViewmodelAddon();
 }
@@ -638,6 +702,15 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
+	if (HasItemDefinition())
+	{
+		const char* pModel = (char*)CEconItemView::GetViewmodelDisplayModel((CEconEntity*)this);
+		if (pModel && PrecacheModel(pModel))
+		{ 
+			return DetermineViewModelType(pModel);
+		}
+	}
+	
 	if (TFGameRules() && TFGameRules()->IsDeathmatch())
 	{
 		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
@@ -774,7 +847,6 @@ void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 
 	BaseClass::OnPickedUp(pNewOwner);
 }
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1935,6 +2007,15 @@ int CTFWeaponBase::GetWorldModelIndex( void )
 
 			return iModelIndex;
 		}	
+	}
+
+	if (HasItemDefinition())
+	{
+		const char* pModel = (char*)CEconItemView::GetWorldDisplayModel((CEconEntity*)this);
+		if (pModel && PrecacheModel(pModel))
+		{
+			return modelinfo->GetModelIndex(pModel);
+		}
 	}
 
 	return BaseClass::GetWorldModelIndex();

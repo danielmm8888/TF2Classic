@@ -50,6 +50,7 @@
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
 #include "econ_wearable.h"
+#include "econ_itemschema.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -790,13 +791,6 @@ bool CTFPlayer::IsReadyToSpawn( void )
 		return false;
 	}
 
-	/*CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
-	pWearable->SetSpecialParticleEffect( UEFF_SUPERRARE_GREENENERGY );
-	PrecacheModel( "models/player/items/scout/batter_helmet.mdl" );
-	pWearable->SetModel( "models/player/items/scout/batter_helmet.mdl" );
-
-	EquipWearable( pWearable );*/
-
 	return ( StateGet() != TF_STATE_DYING );
 }
 
@@ -1206,16 +1200,20 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		// Give us a custom weapon from the inventory.
-		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
-
-		if ( iWeaponID != TF_WEAPON_NONE )
+		// Give us a custom item from the inventory.
+		int iItemID = GetTFInventory()->GetItem(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+		if (iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT)		//hack: Bat ID is zero so we need to check if current class is scout
 		{
-			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
+			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
 
+			if (!pItemInfo)
+				continue;
+
+			const char *pszWeaponName = CEconItemView::GetEntityName( iItemID, GetPlayerClass()->GetClassIndex()) ;
+			
+			int iWeaponID = GetWeaponId(pszWeaponName);
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
-			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 			{
 				Weapon_Detach( pWeapon );
@@ -1226,6 +1224,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( pWeapon )
 			{
+				pWeapon->SetItemID( iItemID );
 				pWeapon->ChangeTeam( GetTeamNumber() );
 				pWeapon->GiveDefaultAmmo();
 
@@ -1235,13 +1234,12 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 				}
 			}
 			else
-			{
 				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
-				if ( pWeapon )
-				{
-					pWeapon->DefaultTouch( this );
-				}
+			if ( pWeapon )
+			{
+				pWeapon->SetItemID( iItemID );		
+				pWeapon->DefaultTouch( this );
 			}
 		}
 		else
@@ -1315,7 +1313,7 @@ void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
 {
-	for (int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++)
+	for ( int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++ )
 	{
 		if (pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE)
 		{
@@ -1429,6 +1427,111 @@ void CTFPlayer::HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPreset
 	}
 }
 
+void CTFPlayer::HandleCommand_GiveParticle(const char* name)
+{
+	for (int i = 0; i < m_hMyWearables.Count(); i++)
+	{
+		CEconWearable *pWearable = m_hMyWearables.Element(i);
+		if (pWearable)
+		{
+			pWearable->SetParticle(name);
+		}
+	}
+}
+
+void CTFPlayer::HandleCommand_GiveEconItem(int ID)
+{
+	int iItemID = ID;
+	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
+	if (!pItemInfo)
+		return;
+
+	bool bCosmetic = CEconItemView::IsCosmetic(ID);
+	if (bCosmetic)
+	{
+		for (int i = 0; i < m_hMyWearables.Count(); i++)
+		{
+			CEconWearable *pWearable = m_hMyWearables.Element(i);
+			if (pWearable)
+			{
+				RemoveWearable(pWearable);
+			}
+		}
+
+		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName("econ_wearable");
+
+		pWearable->SetItemID(iItemID);
+		PrecacheModel(pItemInfo->model_player);
+		pWearable->SetModel(pItemInfo->model_player);
+
+		EquipWearable(pWearable);
+	}
+	else
+	{
+		const char *pszWeaponName = CEconItemView::GetEntityName(iItemID, GetPlayerClass()->GetClassIndex());
+		int iWeaponID = GetWeaponId(pszWeaponName);
+
+		int iSlot = 0;
+		if (!Q_stricmp(pItemInfo->item_slot, "melee"))
+		{
+			iSlot = TF_WPN_TYPE_MELEE;
+		}
+		else if (!Q_stricmp(pItemInfo->item_slot, "secondary"))
+		{
+			iSlot = TF_WPN_TYPE_SECONDARY;
+		}
+		else if (!Q_stricmp(pItemInfo->item_slot, "primary"))
+		{
+			iSlot = TF_WPN_TYPE_PRIMARY;
+		}
+		else if (!Q_stricmp(pItemInfo->item_slot, "pda"))
+		{
+			iSlot = TF_WPN_TYPE_PDA;
+		}
+		else if (!Q_stricmp(pItemInfo->item_slot, "pda2"))
+		{
+			iSlot = TF_WPN_TYPE_ITEM1;
+		}
+		else if (!Q_stricmp(pItemInfo->item_slot, "building"))
+		{
+			iSlot = TF_WPN_TYPE_BUILDING;
+		}
+
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iSlot);
+		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
+		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
+		{
+			Weapon_Detach(pWeapon);
+			UTIL_Remove(pWeapon);
+		}
+
+		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID(iWeaponID);
+
+		if (pWeapon)
+		{
+			pWeapon->SetItemID(iItemID);
+			pWeapon->ChangeTeam(GetTeamNumber());
+			pWeapon->GiveDefaultAmmo();
+
+			if (m_bRegenerating == false)
+			{
+				pWeapon->WeaponReset();
+			}
+		}
+		else
+		{
+			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
+
+			if (pWeapon)
+			{
+				pWeapon->SetItemID(iItemID);
+				pWeapon->DefaultTouch(this);
+			}
+		}
+	
+	}
+
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Find a spawn point for the player.
@@ -2294,6 +2397,63 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if (args.ArgC() >= 4)
 		{
 			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])), abs(atoi(args[3])));
+		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "giveeconitem"))
+	{
+		if (args.ArgC() >= 2)
+		{
+			HandleCommand_GiveEconItem(abs(atoi(args[1])));
+		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "giveparticle"))
+	{
+		if (args.ArgC() >= 2)
+		{
+			HandleCommand_GiveParticle(args[1]);
+		}
+		return true;
+	}
+	else if (FStrEq(pcmd, "getweaponinfos"))
+	{
+		for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
+		{
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iWeapon);
+
+			if (pWeapon && pWeapon->HasItemDefinition())
+			{
+				int ID = pWeapon->GetItemID();
+				EconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
+
+				if (itemdef)
+				{
+					Msg("ItemID %i:\nname %s\nitem_class %s\nitem_type_name %s\n",
+						ID, itemdef->name, itemdef->item_class, itemdef->item_type_name);
+
+					Msg("Attributes:\n");
+					for (unsigned int i = 0; i < itemdef->attributes.Count(); i++)
+					{
+						EconAttributeDefinition *attribute = GetItemSchema()->GetAttributeDefinition(itemdef->attributes.GetElementName(i));
+						if (attribute)
+						{
+							float value = itemdef->attributes.Element(i).value;
+							if (!Q_stricmp(attribute->description_format, "value_is_percentage") || !Q_stricmp(attribute->description_format, "value_is_inverted_percentage"))
+							{
+								value *= 100;
+							}
+
+							wchar_t floatstr[32];
+							_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
+
+							Msg("%s %s\n", attribute->description_string, floatstr);
+						}
+					}
+					Msg("\n");
+				}
+			}
+
 		}
 		return true;
 	}
