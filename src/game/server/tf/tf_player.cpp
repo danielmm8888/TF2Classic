@@ -1234,7 +1234,9 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 				}
 			}
 			else
+			{
 				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+			}
 
 			if ( pWeapon )
 			{
@@ -1251,7 +1253,11 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
 			{
 				Weapon_Detach( pCarriedWeapon );
-				GetViewModel( pCarriedWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
+
+				CTFViewModel *vm = dynamic_cast<CTFViewModel*>( GetViewModel( pCarriedWeapon->m_nViewModelIndex ) );
+				if ( vm )
+					vm->SetWeaponModel(NULL, NULL);
+
 				UTIL_Remove( pCarriedWeapon );
 			}
 		}

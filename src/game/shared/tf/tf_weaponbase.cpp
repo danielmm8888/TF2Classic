@@ -364,15 +364,15 @@ const char *CTFWeaponBase::GetWorldModel(void) const
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::GetMaxClip1(void) const
 {
-#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
+	int iMaxClip = CBaseCombatWeapon::GetMaxClip1();
+
 	float fMaxClipMult = 0;
-	CALL_ATTRIB_HOOK_FLOAT(fMaxClipMult, mult_clipsize);
-	fMaxClipMult *= GetWpnData().iMaxClip1;
+	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
+	fMaxClipMult *= iMaxClip;
 	if (fMaxClipMult != 0)
 		return fMaxClipMult;
-#endif
 
-	return CBaseCombatWeapon::GetMaxClip1();
+	return iMaxClip;
 }
 
 
@@ -381,15 +381,15 @@ int CTFWeaponBase::GetMaxClip1(void) const
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::GetDefaultClip1(void) const
 {
-#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
-	float fDefaultClipMult = 0;
-	CALL_ATTRIB_HOOK_FLOAT(fDefaultClipMult, mult_clipsize);
-	fDefaultClipMult *= GetWpnData().iDefaultClip1;
-	if (fDefaultClipMult != 0)
-		return fDefaultClipMult;
-#endif
+	int iDefaultClip = CBaseCombatWeapon::GetDefaultClip1();
 
-	return CBaseCombatWeapon::GetDefaultClip1();
+	float fDefaultClipMult = 0;
+	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
+	fDefaultClipMult *= iDefaultClip;
+	if ( fDefaultClipMult != 0 )
+		return fDefaultClipMult;
+
+	return iDefaultClip;
 }
 
 
@@ -515,17 +515,17 @@ int Item3ArmActTable[13][2] = {
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
-	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+	const char *pszWeaponType = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
 
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
-	if (pTFPlayer == NULL)
+	CTFPlayer *pTFPlayer = ToTFPlayer (GetOwner() );
+	if ( pTFPlayer == NULL )
 	{
 		Assert(false); // This shouldn't be possible
 		return iActivity;
 	}
 
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel( m_nViewModelIndex, false ) );
-	if (vm == NULL)
+	if ( vm == NULL )
 	{
 		return iActivity;
 	}
@@ -534,6 +534,34 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 		return iActivity;
 
 	// Oh jesus no
+
+	if ( !Q_strcmp( pszWeaponType, "primary" ) )
+	{
+		for (int i = 0; i < 13; i++)
+		{
+			if (PrimaryArmActTable[i][0] == iActivity)
+				return PrimaryArmActTable[i][1];
+		}
+		return iActivity;
+	}
+	else if ( !Q_strcmp( pszWeaponType, "secondary" ) )
+	{
+		for (int i = 0; i < 13; i++)
+		{
+			if (PrimaryArmActTable[i][0] == iActivity)
+				return PrimaryArmActTable[i][1];
+		}
+		return iActivity;
+	}
+	else if ( !Q_strcmp( pszWeaponType, "melee" ) )
+	{
+		for (int i = 0; i < 13; i++)
+		{
+			if (PrimaryArmActTable[i][0] == iActivity)
+				return PrimaryArmActTable[i][1];
+		}
+		return iActivity;
+	}
 
 	switch ( iWeaponRole )
 	{
@@ -547,7 +575,7 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 		case TF_WPN_TYPE_SECONDARY:
 			for (int i = 0; i < 13; i++)
 			{
-				if (SecondaryArmActTable[i][0] == iActivity)
+				if ( SecondaryArmActTable[i][0] == iActivity )
 					return SecondaryArmActTable[i][1];
 			}
 			return iActivity;
@@ -640,12 +668,12 @@ void CTFWeaponBase::UpdateViewModel(void)
 		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
 	else if (vmType == vm->VMTYPE_TF2)
 	{
-		if (HasItemDefinition())
+		if ( HasItemDefinition() )
 		{
 			const char* pModel = (char*)CEconItemView::GetViewmodelDisplayModel((CEconEntity*)this);
-			if (pModel && PrecacheModel(pModel))
+			if ( pModel && PrecacheModel( pModel ) )
 			{
-				vm->UpdateViewmodelAddon(pModel);
+				vm->UpdateViewmodelAddon( pModel );
 			}
 		}
 		else
@@ -976,7 +1004,7 @@ bool CTFWeaponBase::Reload( void )
 	}
 
 	// Reload one object at a time.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 		return ReloadSingly();
 
 	// Normal reload.
@@ -1320,7 +1348,7 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	{
 		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( ( !m_bReloadsSingly || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
+			if ( ( !ReloadsSingly() || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
 			{
 				m_iReloadMode.Set( TF_RELOAD_START );
 				m_bInReload = false;
@@ -1364,7 +1392,7 @@ void CTFWeaponBase::ItemPostFrame( void )
 	BaseClass::ItemPostFrame();
 
 	// Check for reload singly interrupts.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 	{
 		ReloadSinglyPostFrame();
 	}
@@ -1531,7 +1559,7 @@ void CTFWeaponBase::WeaponIdle( void )
 		}
 		else if ( HasWeaponIdleTimeElapsed() ) 
 		{
-			if ( !( m_bReloadsSingly && m_iReloadMode != TF_RELOAD_START ) )
+			if ( !( ReloadsSingly() && m_iReloadMode != TF_RELOAD_START ) )
 			{
 				SendWeaponAnim( ACT_VM_IDLE );
 				m_flTimeWeaponIdle = gpGlobals->curtime + SequenceDuration();
