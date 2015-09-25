@@ -25,6 +25,7 @@
 #include "gamevars_shared.h"
 #include "GameEventListener.h"
 #include "tf_gamestats_shared.h"
+#include "econ_itemschema.h"
 
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"

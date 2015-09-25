@@ -11,6 +11,7 @@
 
 #include "shareddefs.h"
 #include "mp_shareddefs.h"
+#include "econ_itemschema.h"
 
 // Using MAP_DEBUG mode?
 #ifdef MAP_DEBUG
