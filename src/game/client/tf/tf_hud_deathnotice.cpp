@@ -804,7 +804,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 			// if this death involved a player dominating another player or getting revenge on another player, add an additional message
 			// mentioning that
 			int iKillerID = event->GetInt( "attacker" );
-			int iVictimID = event->GetInt( "victim" );
+			int iVictimID = event->GetInt( "userid" );
 		
 			if ( event->GetInt( "dominated" ) > 0 )
 			{
@@ -878,8 +878,8 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		case TF_DMG_CUSTOM_BURNING:
 			{
 				// Show a special fire death icon if this was a suicide or environmental death.
-				int victim = event->GetInt( "victim" );
-				int killer = event->GetInt( "attacker" );
+				int victim = event->GetInt( "victim_index" );
+				int killer = event->GetInt( "attacker_index" );
 				if ( !killer || killer == victim )
 				{
 					Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_firedeath", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
@@ -890,7 +890,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		case TF_DMG_CUSTOM_SUICIDE:
 			{
 				// display a different message if this was suicide, or assisted suicide (suicide w/recent damage, kill awarded to damager)
-				bool bAssistedSuicide = event->GetInt( "victim" ) != event->GetInt( "attacker" );
+				bool bAssistedSuicide = event->GetInt( "victim_index" ) != event->GetInt( "attacker_index" );
 				pMsg = g_pVGuiLocalize->Find( bAssistedSuicide ? "#DeathMsg_AssistedSuicide" : "#DeathMsg_Suicide" );
 				if ( pMsg )
 				{
