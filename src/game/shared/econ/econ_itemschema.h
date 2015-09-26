@@ -130,8 +130,8 @@ public:
 		V_strcpy_safe(item_class, "");
 		V_strcpy_safe(item_type_name, "");
 		V_strcpy_safe(item_name, "");
-		V_strcpy_safe(item_slot, "");
-		anim_slot = 0;
+		item_slot = -1;
+		anim_slot = -1;
 		V_strcpy_safe(item_quality, "");
 		propername = false;
 		V_strcpy_safe(item_logname, "");
@@ -154,8 +154,8 @@ public:
 	char item_class[128];
 	char item_type_name[128];
 	char item_name[128];
-	char item_slot[128];
-	int anim_slot;
+	int  item_slot;
+	int  anim_slot;
 	char item_quality[128];
 	bool propername;
 	char item_logname[128];
@@ -169,6 +169,7 @@ public:
 	char model_world[128];
 	bool attach_to_hands;
 	CUtlDict< EconItemAttribute, unsigned short > attributes;
+	//CUtlDict< EconItemVisuals, unsigned short > visuals;
 	//EconItemVisuals visuals;
 };
 

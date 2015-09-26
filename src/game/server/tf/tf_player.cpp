@@ -1477,33 +1477,7 @@ void CTFPlayer::HandleCommand_GiveEconItem(int ID)
 		const char *pszWeaponName = CEconItemView::GetEntityName(iItemID, GetPlayerClass()->GetClassIndex());
 		int iWeaponID = GetWeaponId(pszWeaponName);
 
-		int iSlot = 0;
-		if (!Q_stricmp(pItemInfo->item_slot, "melee"))
-		{
-			iSlot = TF_WPN_TYPE_MELEE;
-		}
-		else if (!Q_stricmp(pItemInfo->item_slot, "secondary"))
-		{
-			iSlot = TF_WPN_TYPE_SECONDARY;
-		}
-		else if (!Q_stricmp(pItemInfo->item_slot, "primary"))
-		{
-			iSlot = TF_WPN_TYPE_PRIMARY;
-		}
-		else if (!Q_stricmp(pItemInfo->item_slot, "pda"))
-		{
-			iSlot = TF_WPN_TYPE_PDA;
-		}
-		else if (!Q_stricmp(pItemInfo->item_slot, "pda2"))
-		{
-			iSlot = TF_WPN_TYPE_ITEM1;
-		}
-		else if (!Q_stricmp(pItemInfo->item_slot, "building"))
-		{
-			iSlot = TF_WPN_TYPE_BUILDING;
-		}
-
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iSlot);
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(pItemInfo->item_slot);
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
 		{
