@@ -32,6 +32,7 @@ struct WeaponData_t
 	float	m_flTimeReload;					// Time to reload
 	bool	m_bDrawCrosshair;				// Should the weapon draw a crosshair
 	int		m_iProjectile;					// The type of projectile this mode fires
+	int		m_iAttribute;					// The attribute of the weapon.
 	int		m_iAmmoPerShot;					// How much ammo each shot consumes
 	float	m_flProjectileSpeed;			// Start speed for projectiles (nail, etc.); NOTE: union with something non-projectile
 	float	m_flSmackDelay;					// how long after swing should damage happen for melee weapons

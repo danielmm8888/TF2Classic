@@ -188,6 +188,15 @@ CTFWeaponBase::CTFWeaponBase()
 	m_iCurrentSeed = -1;
 }
 
+bool CTFWeaponBase::HasAttribute(int iAttribute)
+{
+	if (m_pWeaponInfo->GetWeaponData(m_iWeaponMode).m_iAttribute == iAttribute)
+	{
+		return true;
+	}
+	return false;
+}
+
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
@@ -2740,6 +2749,7 @@ IMaterial *CWeaponInvisProxy::GetMaterial()
 }
 
 EXPOSE_INTERFACE( CWeaponInvisProxy, IMaterialProxy, "weapon_invis" IMATERIAL_PROXY_INTERFACE_VERSION );
+
 
 #endif // CLIENT_DLL
 

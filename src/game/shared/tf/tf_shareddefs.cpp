@@ -283,6 +283,14 @@ int g_aWeaponDamageTypes[] =
 	TF_DMG_SENTINEL_VALUE
 };
 
+// these map to the projectiles named in g_szProjectileNames
+int g_iWeaponAttributes[] =
+{
+	TF_ATTRIBUTE_NONE,
+	TF_ATTRIBUTE_UBER_ON_HIT,
+	TF_ATTRIBUTE_INCREASE_CAPSPEED,
+};
+
 const char *g_szProjectileNames[] =
 {
 	"",

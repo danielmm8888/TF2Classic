@@ -119,6 +119,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	CTFWeaponInfo const	&GetTFWpnData() const;
 	virtual int GetWeaponID( void ) const;
 	bool IsWeapon( int iWeapon ) const;
+	bool HasAttribute(int iAttribute);
 	virtual int	GetDamageType() const { return g_aWeaponDamageTypes[ GetWeaponID() ]; }
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_NONE; }
 

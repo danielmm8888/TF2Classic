@@ -6,6 +6,7 @@
 
 #include "cbase.h"
 #include "tf_weaponbase_melee.h"
+#include "tf_weaponbase.h"
 #include "tf_weapon_ubersaw.h"
 #include "tf_weapon_medigun.h"
 #include "tf_weapon_kritzkrieg.h"
@@ -325,22 +326,23 @@ void CTFWeaponBaseMelee::Smack( void )
 			iDmgType |= DMG_CRITICAL;
 		}
 		CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-		CTFUbersaw *pUbersaw = dynamic_cast<CTFUbersaw*>(pWpn);
+
+
 		CWeaponMedigun *pMedigun = static_cast<CWeaponMedigun*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_MEDIGUN));
-		if (pMedigun && pUbersaw)
-		{
+		if (pMedigun && pWpn->HasAttribute(1) == true)
+		{	
 			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
 			{
 				pMedigun->AddCharge();
 			}
 		}
 		CWeaponKritzkrieg *pKritzkrieg = static_cast<CWeaponKritzkrieg*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG));
-		if (pKritzkrieg && pUbersaw)
+		if (pKritzkrieg && pWpn->HasAttribute(1) == true)
 		{
-			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
-			{
-				pKritzkrieg->AddCharge();
-			}
+				if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
+				{
+					pKritzkrieg->AddCharge();
+				}
 		}
 		CTakeDamageInfo info( pPlayer, pPlayer, flDamage, iDmgType, iCustomDamage );
 		CalculateMeleeDamageForce( &info, vecForward, vecSwingEnd, 1.0f / flDamage * tf_meleeattackforcescale.GetFloat() );
