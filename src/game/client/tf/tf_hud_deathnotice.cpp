@@ -803,8 +803,8 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		{
 			// if this death involved a player dominating another player or getting revenge on another player, add an additional message
 			// mentioning that
-			int iKillerID = event->GetInt( "attacker" );
-			int iVictimID = event->GetInt( "userid" );
+			int iKillerID = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
+			int iVictimID = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
 		
 			if ( event->GetInt( "dominated" ) > 0 )
 			{
