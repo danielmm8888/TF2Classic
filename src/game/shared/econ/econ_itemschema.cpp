@@ -27,7 +27,7 @@ public:
 
 #define GET_BOOL(copyto, from, name)													\
 		if (from->GetBool(#name, false) != false || !copyto->name)						\
-			copyto->name = from->GetBool(#name, false)		\
+			copyto->name = from->GetBool(#name, false)
 
 #define GET_FLOAT(copyto, from, name)													\
 		if (from->GetFloat(#name, 0.0f) != 0.0f || !copyto->name)						\
@@ -37,6 +37,15 @@ public:
 		if (from->GetInt(#name, 0) != 0 || !copyto->name)								\
 			copyto->name = from->GetInt(#name, 0)
 
+#define GET_STRING_CONVERT(copyto, from, name)											\
+		if (Q_strcmp(pData->GetString(#name, ""), ""))	
+
+#define STRING_CASE(copyto, name, str, val)												\
+		if (Q_strcmp(pData->GetString(#name, ""), #str))								\
+		{																				\
+			copyto->name = val;															\
+		}
+				
 
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
 	{
@@ -169,11 +178,33 @@ public:
 
 		GET_STRING(pItem, pData, item_class);
 		GET_STRING(pItem, pData, item_type_name);
-		GET_STRING(pItem, pData, item_slot);
 		GET_STRING(pItem, pData, item_quality);
 		GET_STRING(pItem, pData, item_logname);
 		GET_STRING(pItem, pData, item_iconname);
-		
+
+		GET_STRING_CONVERT(pItem, pData, item_slot)
+		{
+			STRING_CASE(pItem, item_slot, primary, TF_WPN_TYPE_PRIMARY);
+			STRING_CASE(pItem, item_slot, secondary, TF_WPN_TYPE_SECONDARY);
+			STRING_CASE(pItem, item_slot, melee, TF_WPN_TYPE_MELEE);
+			STRING_CASE(pItem, item_slot, pda, TF_WPN_TYPE_PDA);
+			STRING_CASE(pItem, item_slot, pda2, TF_WPN_TYPE_ITEM1);
+			STRING_CASE(pItem, item_slot, building, TF_WPN_TYPE_BUILDING);
+			STRING_CASE(pItem, item_slot, hat, TF_WPN_TYPE_ITEM2);
+			STRING_CASE(pItem, item_slot, misc, TF_WPN_TYPE_GRENADE);
+		}
+
+		GET_STRING_CONVERT(pItem, pData, anim_slot)
+		{
+			STRING_CASE(pItem, anim_slot, primary, TF_WPN_TYPE_PRIMARY);
+			STRING_CASE(pItem, anim_slot, secondary, TF_WPN_TYPE_SECONDARY);
+			STRING_CASE(pItem, anim_slot, melee, TF_WPN_TYPE_MELEE);
+			STRING_CASE(pItem, anim_slot, building, TF_WPN_TYPE_BUILDING);
+			STRING_CASE(pItem, anim_slot, item1, TF_WPN_TYPE_ITEM1);
+			STRING_CASE(pItem, anim_slot, item2, TF_WPN_TYPE_ITEM2);
+			STRING_CASE(pItem, anim_slot, FORCE_NOT_USED, -1);
+		}
+
 		GET_INT(pItem, pData, min_ilevel);
 		GET_INT(pItem, pData, max_ilevel);
 

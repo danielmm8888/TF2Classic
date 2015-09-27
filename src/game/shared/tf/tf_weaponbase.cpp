@@ -515,7 +515,7 @@ int Item3ArmActTable[13][2] = {
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
-	const char *pszWeaponType = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
+	int iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
 
 	CTFPlayer *pTFPlayer = ToTFPlayer (GetOwner() );
 	if ( pTFPlayer == NULL )
@@ -532,37 +532,7 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 
 	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
 		return iActivity;
-
-	// Oh jesus no
-
-	if ( !Q_strcmp( pszWeaponType, "primary" ) )
-	{
-		for (int i = 0; i < 13; i++)
-		{
-			if (PrimaryArmActTable[i][0] == iActivity)
-				return PrimaryArmActTable[i][1];
-		}
-		return iActivity;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "secondary" ) )
-	{
-		for (int i = 0; i < 13; i++)
-		{
-			if (PrimaryArmActTable[i][0] == iActivity)
-				return PrimaryArmActTable[i][1];
-		}
-		return iActivity;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "melee" ) )
-	{
-		for (int i = 0; i < 13; i++)
-		{
-			if (PrimaryArmActTable[i][0] == iActivity)
-				return PrimaryArmActTable[i][1];
-		}
-		return iActivity;
-	}
-
+	
 	switch ( iWeaponRole )
 	{
 		case TF_WPN_TYPE_PRIMARY:
