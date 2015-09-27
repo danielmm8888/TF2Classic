@@ -2160,7 +2160,7 @@ public:
 	EHANDLE	GetFirstHealer();
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
-	int		TakeHealth( float flHealth, int bitsDamageType );
+	virtual int	TakeHealth( float flHealth, int bitsDamageType );
 	int		GetMaxBuffedHealth( void );
 
 	virtual bool	IsOnFire( void ) { return InCond( TF_COND_BURNING ); }

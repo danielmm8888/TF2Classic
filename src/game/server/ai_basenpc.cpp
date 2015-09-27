@@ -873,6 +873,12 @@ int CAI_BaseNPC::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 		}
 
+		// Allow inputs and such to damage us.
+		if ( bitsDamage == DMG_GENERIC )
+		{
+			bAllowDamage = true;
+		}
+
 		if ( !bAllowDamage )
 		{
 			int iOldTakeDamage = m_takedamage;
