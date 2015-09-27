@@ -3032,13 +3032,234 @@ void CTriggerCamera::InputDisable( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+#ifdef SecobMod__MULTIPLAYER_VIEWCONTROL_CAMERAS
+void CTriggerCamera::Enable( void )
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+
+		if (pPlayer == NULL)
+		{
+			//Must be a Local Server Host if we get here (i think).
+			Assert( m_hPlayer->IsPlayer() );
+			pPlayer = ((CBasePlayer*)m_hPlayer.Get());
+		}
+		m_hPlayer = pPlayer;
+
+		m_state = USE_ON;
+
+		if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
+		{
+			Msg ("Not m_hPlayer or m_hPlayer isn't a player!");
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+			m_hPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() ); 
+			Msg ("m_hPlayer should now be the nearest player.");
+#else
+			m_hPlayer = UTIL_GetLocalPlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
+
+		}
+
+		if ( !m_hPlayer )
+		{
+			DispatchUpdateTransmitState();
+			Msg ("Just dispatched a transmit.");
+			return;
+		}
+
+		Assert( m_hPlayer->IsPlayer() );
+
+		if ( m_hPlayer->IsPlayer() )
+		{
+		}
+		else
+		{
+			Warning( "CTriggerCamera could not find a player!\n");
+			return;
+		}
+
+		// if the player was already under control of a similar trigger, disable the previous trigger.
+		{
+			CBaseEntity *pPrevViewControl = pPlayer->GetViewEntity();
+			if (pPrevViewControl && pPrevViewControl != pPlayer)
+			{
+				CTriggerCamera *pOtherCamera = dynamic_cast<CTriggerCamera *>(pPrevViewControl);
+				if ( pOtherCamera )
+				{
+					if ( pOtherCamera == this )
+					{
+						// what the hell do you think you are doing?
+						Warning("Viewcontrol %s was enabled twice in a row!\n", GetDebugName());
+						return;
+					}
+					else
+					{
+						pOtherCamera->Disable();
+					}
+				}
+			}
+		}
+
+
+		m_nPlayerButtons = pPlayer->m_nButtons;
+
+
+		// Make the player invulnerable while under control of the camera.  This will prevent situations where the player dies while under camera control but cannot restart their game due to disabled player inputs.
+		m_hPlayer->m_takedamage = DAMAGE_NO;
+
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
+		{
+			m_hPlayer->AddSolidFlags( FSOLID_NOT_SOLID );
+		}
+
+		m_flReturnTime = gpGlobals->curtime + m_flWait;
+		m_flSpeed = m_initialSpeed;
+		m_targetSpeed = m_initialSpeed;
+
+		// this pertains to view angles, not translation.
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_SNAP_TO ) )
+		{
+			m_bSnapToGoal = true;
+		}
+
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_TARGET ) )
+		{
+			m_hTarget = m_hPlayer;
+		}
+		else
+		{
+			m_hTarget = GetNextTarget();
+		}
+
+		// If we don't have a target, ignore the attachment / etc
+		if ( m_hTarget )
+		{
+			m_iAttachmentIndex = 0;
+			if ( m_iszTargetAttachment != NULL_STRING )
+			{
+				if ( !m_hTarget->GetBaseAnimating() )
+				{
+					Warning("%s tried to target an attachment (%s) on target %s, which has no model.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
+				}
+				else
+				{
+					m_iAttachmentIndex = m_hTarget->GetBaseAnimating()->LookupAttachment( STRING(m_iszTargetAttachment) );
+					if ( !m_iAttachmentIndex )
+					{
+						Warning("%s could not find attachment %s on target %s.\n", GetClassname(), STRING(m_iszTargetAttachment), STRING(m_hTarget->GetEntityName()) );
+					}
+				}
+			}
+		}
+
+		if ( HasSpawnFlags( SF_CAMERA_PLAYER_TAKECONTROL ) )
+		{
+			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+			{
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+
+				if (pPlayer == NULL)
+				{
+					//Must be a Local Server Host if we get here (i think).
+					Assert( m_hPlayer->IsPlayer() );
+					pPlayer = ((CBasePlayer*)m_hPlayer.Get());
+				}
+				((CBasePlayer*)m_hPlayer.Get())->EnableControl(FALSE);
+
+				if ( ((CBasePlayer*)m_hPlayer.Get())->FlashlightIsOn() )
+				{
+					((CBasePlayer*)m_hPlayer.Get())->FlashlightTurnOff();
+				}
+
+			}
+		}
+
+		if ( m_sPath != NULL_STRING )
+		{
+			m_pPath = gEntList.FindEntityByName( NULL, m_sPath, NULL, m_hPlayer );
+		}
+		else
+		{
+			m_pPath = NULL;
+		}
+
+		m_flStopTime = gpGlobals->curtime;
+		if ( m_pPath )
+		{
+			if ( m_pPath->m_flSpeed != 0 )
+				m_targetSpeed = m_pPath->m_flSpeed;
+
+			m_flStopTime += m_pPath->GetDelay();
+		}
+
+
+		// copy over player information. If we're interpolating from
+		// the player position, do something more elaborate.
+#ifdef HL2_EPISODIC
+		if (m_bInterpolatePosition)
+		{
+			// initialize the values we'll spline between
+			m_vStartPos = m_hPlayer->EyePosition();
+			m_vEndPos = GetAbsOrigin();
+			m_flInterpStartTime = gpGlobals->curtime;
+			UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
+			SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
+
+			SetAbsVelocity( vec3_origin );
+		}
+		else
+#endif
+			if ( HasSpawnFlags( SF_CAMERA_PLAYER_POSITION ) )
+			{
+				UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
+				SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
+				SetAbsVelocity( m_hPlayer->GetAbsVelocity() );
+			}
+			else
+			{
+				SetAbsVelocity( vec3_origin );
+			}
+
+
+			pPlayer->SetViewEntity( this );
+
+			// Hide the player's viewmodel
+			if ( pPlayer->GetActiveWeapon() )
+			{
+				pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
+			}
+
+			// Only track if we have a target
+			if ( m_hTarget )
+			{
+				// follow the player down
+				SetThink( &CTriggerCamera::FollowTarget );
+				SetNextThink( gpGlobals->curtime );
+			}
+
+			m_moveDistance = 0;
+			Move();
+
+			DispatchUpdateTransmitState();
+
+	}
+}
+#else
 void CTriggerCamera::Enable( void )
 {
 	m_state = USE_ON;
 
 	if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
 	{
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		m_hPlayer = UTIL_GetLocalPlayer();
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
+
 	}
 
 	if ( !m_hPlayer )
@@ -3085,16 +3306,16 @@ void CTriggerCamera::Enable( void )
 
 	m_nPlayerButtons = pPlayer->m_nButtons;
 
-	
+
 	// Make the player invulnerable while under control of the camera.  This will prevent situations where the player dies while under camera control but cannot restart their game due to disabled player inputs.
 	m_nOldTakeDamage = m_hPlayer->m_takedamage;
 	m_hPlayer->m_takedamage = DAMAGE_NO;
-	
+
 	if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
 	{
 		m_hPlayer->AddSolidFlags( FSOLID_NOT_SOLID );
 	}
-	
+
 	m_flReturnTime = gpGlobals->curtime + m_flWait;
 	m_flSpeed = m_initialSpeed;
 	m_targetSpeed = m_initialSpeed;
@@ -3154,14 +3375,14 @@ void CTriggerCamera::Enable( void )
 	{
 		if ( m_pPath->m_flSpeed != 0 )
 			m_targetSpeed = m_pPath->m_flSpeed;
-		
+
 		m_flStopTime += m_pPath->GetDelay();
 	}
 
 
 	// copy over player information. If we're interpolating from
 	// the player position, do something more elaborate.
-#if HL2_EPISODIC
+#ifdef HL2_EPISODIC
 	if (m_bInterpolatePosition)
 	{
 		// initialize the values we'll spline between
@@ -3175,40 +3396,90 @@ void CTriggerCamera::Enable( void )
 	}
 	else
 #endif
-	if (HasSpawnFlags(SF_CAMERA_PLAYER_POSITION ) )
+		if (HasSpawnFlags(SF_CAMERA_PLAYER_POSITION ) )
+		{
+			UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
+			SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
+			SetAbsVelocity( m_hPlayer->GetAbsVelocity() );
+		}
+		else
+		{
+			SetAbsVelocity( vec3_origin );
+		}
+
+
+		pPlayer->SetViewEntity( this );
+
+		// Hide the player's viewmodel
+		if ( pPlayer->GetActiveWeapon() )
+		{
+			pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
+		}
+
+		// Only track if we have a target
+		if ( m_hTarget )
+		{
+			// follow the player down
+			SetThink( &CTriggerCamera::FollowTarget );
+			SetNextThink( gpGlobals->curtime );
+		}
+
+		m_moveDistance = 0;
+		Move();
+
+		DispatchUpdateTransmitState();
+}
+#endif //SecobMod__MULTIPLAYER_VIEWCONTROL_CAMERAS
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+#ifdef SecobMod__MULTIPLAYER_VIEWCONTROL_CAMERAS
+void CTriggerCamera::Disable( void )
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		UTIL_SetOrigin( this, m_hPlayer->EyePosition() );
-		SetLocalAngles( QAngle( m_hPlayer->GetLocalAngles().x, m_hPlayer->GetLocalAngles().y, 0 ) );
-		SetAbsVelocity( m_hPlayer->GetAbsVelocity() );
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+		if ( pPlayer == NULL )
+		{
+			//Must be a Local Server Host if we get here (i think).
+			Assert( m_hPlayer->IsPlayer() );
+			pPlayer = ((CBasePlayer*)m_hPlayer.Get());
+		}		
+
+		m_hPlayer = pPlayer;
+
+		if ( m_hPlayer && m_hPlayer->IsAlive() )
+		{
+			if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
+			{
+				m_hPlayer->RemoveSolidFlags( FSOLID_NOT_SOLID );
+			}
+
+			((CBasePlayer*)m_hPlayer.Get())->SetViewEntity( m_hPlayer );
+			((CBasePlayer*)m_hPlayer.Get())->EnableControl(TRUE);
+
+			// Restore the player's viewmodel
+			if ( ((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon() )
+			{
+				((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
+			}
+		}
+
+		//return the player to previous takedamage state
+		m_hPlayer->m_takedamage = DAMAGE_YES;
 	}
-	else
-	{
-		SetAbsVelocity( vec3_origin );
-	}
+	m_state = USE_OFF;
+	m_flReturnTime = gpGlobals->curtime;
+	SetThink( NULL );
 
-
-	pPlayer->SetViewEntity( this );
-
-	// Hide the player's viewmodel
-	if ( pPlayer->GetActiveWeapon() )
-	{
-		pPlayer->GetActiveWeapon()->AddEffects( EF_NODRAW );
-	}
-
-	// Only track if we have a target
-	if ( m_hTarget )
-	{
-		// follow the player down
-		SetThink( &CTriggerCamera::FollowTarget );
-		SetNextThink( gpGlobals->curtime );
-	}
-
-	m_moveDistance = 0;
-	Move();
+	m_OnEndFollow.FireOutput(this, this); // dvsents2: what is the best name for this output?
+	SetLocalAngularVelocity( vec3_angle );
 
 	DispatchUpdateTransmitState();
 }
-
+#else
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3233,6 +3504,13 @@ void CTriggerCamera::Disable( void )
 		m_hPlayer->m_takedamage = m_nOldTakeDamage;
 	}
 
+	//SecobMod__MiscFixes On ep2_outland_01 the game would crash as it didn't find a player, so define them as the nearest player.
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI	
+	CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
+	//return the player to previous takedamage state
+	m_hPlayer->m_takedamage = m_nOldTakeDamage;
+
 	m_state = USE_OFF;
 	m_flReturnTime = gpGlobals->curtime;
 	SetThink( NULL );
@@ -3242,6 +3520,7 @@ void CTriggerCamera::Disable( void )
 
 	DispatchUpdateTransmitState();
 }
+#endif //SecobMod__MULTIPLAYER_VIEWCONTROL_CAMERAS
 
 //-----------------------------------------------------------------------------
 // Purpose: 
