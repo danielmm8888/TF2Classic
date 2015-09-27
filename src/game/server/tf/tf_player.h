@@ -181,8 +181,9 @@ public:
 	void				UpdateModel( void );
 	void				UpdateSkin( int iTeam );
 
+	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoSource ammosource );
 	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound = false );
-	int					GetMaxAmmo( int iAmmoIndex );
+	int					GetMaxAmmo( int iAmmoIndex, int iClassNumber = -1 );
 
 	bool				CanAttack( void );
 

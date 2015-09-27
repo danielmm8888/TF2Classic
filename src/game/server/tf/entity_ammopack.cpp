@@ -60,19 +60,19 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 			return false;
 
 		int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true ) )
+		if ( pTFPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true, TF_AMMO_SOURCE_AMMOPACK ) )
 		{
 			bSuccess = true;
 		}
 
 		int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true ) )
+		if ( pTFPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true, TF_AMMO_SOURCE_AMMOPACK ) )
 		{
 			bSuccess = true;
 		}
 
 		int iMaxMetal = pTFPlayer->GetMaxAmmo( TF_AMMO_METAL );
-		if ( pPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true ) )
+		if ( pTFPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true, TF_AMMO_SOURCE_AMMOPACK ) )
 		{
 			bSuccess = true;
 		}

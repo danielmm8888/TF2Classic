@@ -162,6 +162,7 @@ public:
 	void	RecalculateCrits(bool bInstantRemove = false);
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
+	void	HealthKitPickupEffects( int iAmount );
 #endif
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
