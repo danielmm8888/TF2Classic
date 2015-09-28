@@ -120,6 +120,8 @@ ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, 
 							  );
 
 ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
+ConVar tf2c_coop( "tf2c_coop", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
+
 /**
  * Player hull & eye position for standing, ducking, etc.  This version has a taller
  * player height, but goldsrc-compatible collision bounds.
@@ -660,6 +662,12 @@ void CTFGameRules::Activate()
 	if ( g_hControlPointMasters.Count() )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CP );
+		return;
+	}
+
+	if ( tf2c_coop.GetBool() )
+	{
+		m_nGameType.Set( TF_GAMETYPE_COOP );
 		return;
 	}
 }
@@ -2824,6 +2832,24 @@ Vector CTFGameRules::VecItemRespawnSpot( CItem *pItem )
 QAngle CTFGameRules::VecItemRespawnAngles( CItem *pItem )
 {
 	return pItem->GetOriginalSpawnAngles();
+}
+
+int CTFGameRules::ItemShouldRespawn( CItem *pItem )
+{
+	/*
+	// Items never respawn in co-op.
+	if ( GetGameType() == TF_GAMETYPE_COOP )
+	{
+		return GR_ITEM_RESPAWN_NO;
+	}
+	*/
+	// TEMP - don't respawn items not derived from CTFPowerup.
+	if ( dynamic_cast <CTFPowerup *>( pItem ) == NULL )
+	{
+		return GR_ITEM_RESPAWN_NO;
+	}
+
+	return BaseClass::ItemShouldRespawn( pItem );
 }
 
 float CTFGameRules::FlItemRespawnTime( CItem *pItem )

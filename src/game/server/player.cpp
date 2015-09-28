@@ -82,6 +82,10 @@
 #include "weapon_physcannon.h"
 #endif
 
+#ifdef TF_CLASSIC
+#include "tf_gamerules.h"
+#endif
+
 ConVar autoaim_max_dist( "autoaim_max_dist", "2160" ); // 2160 = 180 feet
 ConVar autoaim_max_deflect( "autoaim_max_deflect", "0.99" );
 
@@ -7729,6 +7733,12 @@ void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 
 void CRevertSaved::InputReload( inputdata_t &inputdata )
 {
+#ifdef TF_CLASSIC
+	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_COOP )
+	{
+		TFGameRules()->SetWinningTeam( TF_TEAM_BLUE, WINREASON_NONE );
+	}
+#else
 	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );
 
 #ifdef HL1_DLL
@@ -7751,6 +7761,7 @@ void CRevertSaved::InputReload( inputdata_t &inputdata )
 		g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 		g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
 	}
+#endif
 }
 
 #ifdef HL1_DLL

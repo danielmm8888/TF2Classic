@@ -46,6 +46,10 @@
 	#endif // GAME_DLL
 #endif
 
+#if defined(TF_CLASSIC_CLIENT) || defined(TF_CLASSIC)
+	#include "tf_gamerules.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1746,6 +1750,56 @@ void CTeamplayRoundBasedRules::State_Think_RND_RUNNING( void )
 
 	// check round restart
 	CheckReadyRestart();
+
+#ifdef TF_CLASSIC
+	// In co-op RED loses if all players die at the same time.
+	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_COOP )
+	{
+		CTeam *pTeam = GetGlobalTeam(TF_TEAM_RED);
+		Assert( pTeam );
+
+		bool bFoundLiveOne = false;
+		int iPlayers = pTeam->GetNumPlayers();
+		if ( iPlayers )
+		{
+			for ( int player = 0; player < iPlayers; player++ )
+			{
+				if ( pTeam->GetPlayer(player) && pTeam->GetPlayer(player)->IsAlive() )
+				{
+					bFoundLiveOne = true;
+					break;
+				}
+			}
+		}
+
+		if ( !bFoundLiveOne )
+		{
+			// The live team has won. 
+			bool bMasterHandled = false;
+			if ( !m_bForceMapReset )
+			{
+				// We're not resetting the map, so give the winners control
+				// of all the points that were in play this round.
+				// Find the control point master.
+				CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
+				if ( pMaster )
+				{
+					variant_t sVariant;
+					sVariant.SetInt( TF_TEAM_BLUE );
+					pMaster->AcceptInput( "SetWinnerAndForceCaps", NULL, NULL, sVariant, 0 );
+					bMasterHandled = true;
+				}
+			}
+
+			if ( !bMasterHandled )
+			{
+				SetWinningTeam( TF_TEAM_BLUE, WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
+			}
+
+			return;
+		}
+	}
+#endif
 
 	// See if we're coming up to the server timelimit, in which case force a stalemate immediately.
 	if ( mp_timelimit.GetInt() > 0 && IsInPreMatch() == false && GetTimeLeft() <= 0 )

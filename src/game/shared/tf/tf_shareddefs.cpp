@@ -73,6 +73,7 @@ const char *g_aGameTypeNames[] =
 	"Undefined",
 	"#Gametype_CTF",
 	"#Gametype_CP",
+	"#Gametype_Coop",
 };
 
 //-----------------------------------------------------------------------------
