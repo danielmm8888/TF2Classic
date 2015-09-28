@@ -762,9 +762,7 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bool bCalledByLevelDesigner )
 {
-#ifndef TF_CLASSIC
-	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
-#else
+#ifdef TF_CLASSIC
 	// Don't bother igniting NPCs who have just been killed by the fire damage.
 	if ( !IsAlive() )
 		return;
@@ -782,6 +780,8 @@ void CAI_BaseNPC::Ignite( float flFlameLifetime, bool bNPCOnly, float flSize, bo
 	m_flFlameRemoveTime = gpGlobals->curtime + flFlameLifetime;
 	// Default attacker to world, Ignite calls from TF2 code need to change this.
 	m_hBurnAttacker = GetContainingEntity( INDEXENT(0) );
+#else
+	BaseClass::Ignite( flFlameLifetime, bNPCOnly, flSize, bCalledByLevelDesigner );
 #endif
 
 #ifdef HL2_EPISODIC
@@ -1387,14 +1387,12 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		break;
 
 	case HITGROUP_HEAD:
-#ifndef TF_CLASSIC
-		subInfo.ScaleDamage( GetHitgroupDamageMultiplier(ptr->hitgroup, info) );
-#else
+#ifdef TF_CLASSIC
 		// If we're attacked by a TF2 player then only the sniper can do headshot damage.
 		if ( info.GetAttacker()->IsPlayer() )
 		{
 			CTFPlayer *pAttacker = ToTFPlayer( info.GetAttacker() );
-			if ( (subInfo.GetDamageType() & DMG_USE_HITLOCATIONS) )
+			if ( subInfo.GetDamageType() & DMG_USE_HITLOCATIONS )
 			{
 				CTFWeaponBase *pWpn = pAttacker->GetActiveTFWeapon();
 				bool bCritical = true;
@@ -1421,6 +1419,8 @@ void CAI_BaseNPC::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir
 		{
 			subInfo.ScaleDamage( GetHitgroupDamageMultiplier(ptr->hitgroup, info) );
 		}
+#else
+		subInfo.ScaleDamage( GetHitgroupDamageMultiplier(ptr->hitgroup, info) );
 #endif
 		if( bDebug ) DevMsg("Hit Location: Head\n");
 		break;

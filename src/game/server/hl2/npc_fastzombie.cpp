@@ -918,10 +918,10 @@ void CFastZombie::DeathSound( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CFastZombie::AlertSound( void )
 {
-#ifndef TF_CLASSIC
-	CBaseEntity *pPlayer = AI_GetSinglePlayer();
-#else
+#ifdef TF_CLASSIC
 	CBaseEntity *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin() );
+#else
+	CBaseEntity *pPlayer = AI_GetSinglePlayer();
 #endif
 	if( pPlayer )
 	{

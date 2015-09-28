@@ -698,11 +698,11 @@ void CNPC_PoisonZombie::HandleAnimEvent( animevent_t *pEvent )
 
 		if ( IsOnFire() )
 		{
-#ifndef TF_CLASSIC
-			pCrab->Ignite( 100.0 );
-#else
+#ifdef TF_CLASSIC
 			pCrab->Ignite( m_flFlameRemoveTime - gpGlobals->curtime );
 			pCrab->SetBurnAttacker( m_hBurnAttacker );
+#else
+			pCrab->Ignite( 100.0 );
 #endif
 		}
 

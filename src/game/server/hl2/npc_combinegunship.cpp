@@ -2928,21 +2928,21 @@ int	CNPC_CombineGunship::OnTakeDamage_Alive( const CTakeDamageInfo &inputInfo )
 	// Allow npc_kill to kill me
 	if ( inputInfo.GetDamageType() != DMG_GENERIC )
 	{
-#ifndef TF_CLASSIC
-		// Ignore mundane bullet damage.
-		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) == false )
-			return 0;
-
-		// Ignore blasts less than this amount
-		if ( inputInfo.GetDamage() < GUNSHIP_MIN_DAMAGE_THRESHOLD )
-			return 0;
-#else
+#ifdef TF_CLASSIC
 		// Ignore anything that is not bullet or blast damage.
 		if ( !(inputInfo.GetDamageType() & (DMG_BLAST|DMG_BULLET)) )
 			return 0;
 
 		// Ignore blasts less than this amount
 		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) && (inputInfo.GetDamage() < GUNSHIP_MIN_DAMAGE_THRESHOLD) )
+			return 0;
+#else
+		// Ignore mundane bullet damage.
+		if ( ( inputInfo.GetDamageType() & DMG_BLAST ) == false )
+			return 0;
+
+		// Ignore blasts less than this amount
+		if ( inputInfo.GetDamage() < GUNSHIP_MIN_DAMAGE_THRESHOLD )
 			return 0;
 #endif
 	}

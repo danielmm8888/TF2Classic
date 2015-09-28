@@ -39,13 +39,13 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
-		CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
-		return ( pHL2Player && pHL2Player->ApplyBattery() );
-#else
+#ifdef TF_CLASSIC
 		// For now, suit batteries don't do anything for TF2 players.
 		// TODO: Find a use for them.
 		return false;
+#else
+		CHL2_Player *pHL2Player = dynamic_cast<CHL2_Player *>( pPlayer );
+		return ( pHL2Player && pHL2Player->ApplyBattery() );
 #endif
 	}
 };

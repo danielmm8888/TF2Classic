@@ -3374,10 +3374,10 @@ bool CNPC_Strider::BecomeRagdoll( const CTakeDamageInfo &info, const Vector &for
 	{
 		// Otherwise just keel over
 		CRagdollProp *pRagdoll = NULL;
-#ifndef TF_CLASSIC
-		CBasePlayer *pPlayer = AI_GetSinglePlayer();
-#else
+#ifdef TF_CLASSIC
 		CBasePlayer *pPlayer = NULL;
+#else
+		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif
 		if ( pPlayer && mat_dxlevel.GetInt() > 0 )
 		{

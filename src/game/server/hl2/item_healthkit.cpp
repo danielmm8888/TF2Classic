@@ -70,24 +70,7 @@ void CHLHealthKit::Precache( void )
 //-----------------------------------------------------------------------------
 bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
-#ifndef TF_CLASSIC
-	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
-	{
-		CSingleUserRecipientFilter user( pPlayer );
-		user.MakeReliable();
-
-		UserMessageBegin( user, "ItemPickup" );
-			WRITE_STRING( GetClassname() );
-		MessageEnd();
-
-		CPASAttenuationFilter filter( pPlayer, "HealthKit.Touch" );
-		EmitSound( filter, pPlayer->entindex(), "HealthKit.Touch" );
-
-		return true;
-	}
-
-	return false;
-#else
+#ifdef TF_CLASSIC
 	bool bSuccess = false;
 
 	if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthkit.GetFloat() / 100)), DMG_GENERIC ) )
@@ -119,6 +102,23 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 	}
 
 	return bSuccess;
+#else
+	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
+	{
+		CSingleUserRecipientFilter user( pPlayer );
+		user.MakeReliable();
+
+		UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
+		MessageEnd();
+
+		CPASAttenuationFilter filter( pPlayer, "HealthKit.Touch" );
+		EmitSound( filter, pPlayer->entindex(), "HealthKit.Touch" );
+
+		return true;
+	}
+
+	return false;
 #endif
 }
 
@@ -148,7 +148,35 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
+#ifdef TF_CLASSIC
+		bool bSuccess = false;
+
+		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthvial.GetFloat() / 100)), DMG_GENERIC ) )
+		{
+			CSingleUserRecipientFilter user( pPlayer );
+			user.MakeReliable();
+
+			UserMessageBegin( user, "ItemPickup" );
+				WRITE_STRING( GetClassname() );
+			MessageEnd();
+
+			EmitSound( user, entindex(), "HealthKit.Touch" );
+
+			bSuccess = true;
+
+			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+
+			Assert( pTFPlayer );
+
+			// Healthkits also contain a fire blanket.
+			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+			{
+				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
+			}
+		}
+
+		return bSuccess;
+#else
 		if ( pPlayer->TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
 		{
 			CSingleUserRecipientFilter user( pPlayer );
@@ -174,37 +202,6 @@ public:
 		}
 
 		return false;
-#else
-		bool bSuccess = false;
-
-		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthvial.GetFloat() / 100)), DMG_GENERIC ) )
-		{
-			CSingleUserRecipientFilter user( pPlayer );
-			user.MakeReliable();
-
-			UserMessageBegin( user, "ItemPickup" );
-				WRITE_STRING( GetClassname() );
-			MessageEnd();
-
-			EmitSound( user, entindex(), "HealthKit.Touch" );
-
-			bSuccess = true;
-
-			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-
-			Assert( pTFPlayer );
-
-			// Healthkits also contain a fire blanket.
-			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
-			{
-				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
-			}
-
-			// Healthkits respawn by default in multiplayer. We don't want this so don't check ItemShouldRespawn.
-			UTIL_Remove(this);
-		}
-
-		return bSuccess;
 #endif
 	}
 

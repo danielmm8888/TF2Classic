@@ -2501,11 +2501,11 @@ void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &ve
 		}
 		if( ShouldIgniteZombieGib() )
 		{
-#ifndef TF_CLASSIC
-			pCrab->Ignite( 30 );
-#else
+#ifdef TF_CLASSIC
 			pCrab->Ignite( m_flFlameRemoveTime - gpGlobals->curtime );
 			pCrab->SetBurnAttacker( m_hBurnAttacker );
+#else
+			pCrab->Ignite( 30 );
 #endif
 		}
 

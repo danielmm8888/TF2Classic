@@ -3107,7 +3107,7 @@ void CNPC_MetroPolice::Event_Killed( const CTakeDamageInfo &info )
 
 	if ( pPlayer != NULL )
 	{
-#ifndef TF_CLASSIC
+#ifdef HL2_DLL
 		CHalfLife2 *pGameRules = static_cast<CHalfLife2 *>(g_pGameRules);
 #elif defined(TF_CLASSIC)
 		CTFGameRules *pGameRules = TFGameRules();

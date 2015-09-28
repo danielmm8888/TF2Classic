@@ -41,7 +41,10 @@ public:
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
+#ifdef TF_CLASSIC
+		// Can be picked up but doesn't actually do anything.
+		return true;
+#else
 		if ( pPlayer->IsSuitEquipped() )
 			return FALSE;
 
@@ -52,11 +55,6 @@ public:
 
 		pPlayer->EquipSuit();
 				
-		return true;
-#else
-		// Can be picked up but doesn't actually do anything.
-		UTIL_Remove( this );
-
 		return true;
 #endif
 	}

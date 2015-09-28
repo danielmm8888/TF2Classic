@@ -102,7 +102,12 @@ public:
 	{
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL, "Pistol"))
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
 		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
@@ -110,14 +115,7 @@ public:
 
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -154,20 +152,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL_LARGE, "Pistol"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -204,20 +201,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1, "SMG1"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -254,20 +250,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_LARGE, "SMG1"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -304,20 +299,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2, "AR2"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -354,20 +348,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_LARGE, "AR2"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -406,20 +399,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357, "357"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -457,20 +449,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357_LARGE, "357"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -509,20 +500,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_CROSSBOW, "XBowBolt" ))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -627,20 +617,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_RPG_ROUND, "RPG_Round"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -677,20 +666,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_GRENADE, "SMG1_Grenade"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -763,20 +751,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_BUCKSHOT, "Buckshot"))
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };
@@ -815,20 +802,19 @@ public:
 #ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_ALTFIRE, "AR2AltFire" ) )
 		{
+#else
+		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-			UTIL_Remove(this);
-		}
-#endif
+
 		return false;
 	}
 };

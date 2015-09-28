@@ -357,12 +357,12 @@ void CItem_DynamicResupply::SpawnFullItem( CItem_DynamicResupply *pMaster, CBase
 	float flTotalProb = 0.0f;
 	for ( i = 0; i < NUM_AMMO_ITEMS; ++i )
 	{
-#ifndef TF_CLASSIC
-		int iAmmoType = GetAmmoDef()->Index( g_DynamicResupplyAmmoItems[i].sAmmoDef );
-		bool bCanSpawn = pPlayer->Weapon_GetWpnForAmmo( iAmmoType ) != NULL;
-#else
+#ifdef TF_CLASSIC
 		// TF2 players can't use HL2 weapons but can still get their ammo from HL2 items so don't check.
 		bool bCanSpawn = true;
+#else
+		int iAmmoType = GetAmmoDef()->Index( g_DynamicResupplyAmmoItems[i].sAmmoDef );
+		bool bCanSpawn = pPlayer->Weapon_GetWpnForAmmo( iAmmoType ) != NULL;
 #endif
 		if ( bCanSpawn && ( g_DynamicResupplyAmmoItems[i].flFullProbability != 0 ) && ( pMaster->m_flDesiredAmmo[i] != 0.0f ) )
 		{
@@ -481,7 +481,10 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 		{
 			// Armor 
 			// Ignore armor if we don't have the suit
-#ifndef TF_CLASSIC
+#ifdef TF_CLASSIC
+			// TF2 players don't have armor so always ignore that.
+			pSpawnInfo[i].m_flCurrentRatio = 1.0;
+#else
 			if ( !pPlayer->IsSuitEquipped() )
 			{
 				pSpawnInfo[i].m_flCurrentRatio = 1.0;
@@ -492,9 +495,6 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 				float flCurrentArmor = pPlayer->ArmorValue() + (pSpawnInfo[i].m_iPotentialItems * sk_battery.GetFloat());
 				pSpawnInfo[i].m_flCurrentRatio = (flCurrentArmor / flMax);
 			}
-#else
-			// TF2 players don't have armor so always ignore that.
-			pSpawnInfo[i].m_flCurrentRatio = 1.0;
 #endif
 		}
 
@@ -536,7 +536,10 @@ void CItem_DynamicResupply::ComputeAmmoRatios( CItem_DynamicResupply* pMaster, C
 
 	for ( int i = 0; i < NUM_AMMO_ITEMS; i++ )
 	{
-#ifndef TF_CLASSIC
+#ifdef TF_CLASSIC
+		flLowestRatio += (pSpawnInfo[i].m_iPotentialItems * g_DynamicResupplyAmmoItems[i].flAmmoRatio);
+		pSpawnInfo[i].m_flCurrentRatio = clamp( flLowestRatio, 0, 1 );;
+#else
 		// Get the ammodef's
 		int iAmmoType = GetAmmoDef()->Index( g_DynamicResupplyAmmoItems[i].sAmmoDef );
 		Assert( iAmmoType != -1 );
@@ -553,9 +556,6 @@ void CItem_DynamicResupply::ComputeAmmoRatios( CItem_DynamicResupply* pMaster, C
 			flCurrentAmmo += (pSpawnInfo[i].m_iPotentialItems * g_DynamicResupplyAmmoItems[i].iAmmoCount);
 			pSpawnInfo[i].m_flCurrentRatio = (flCurrentAmmo / flMax);
 		}
-#else
-		flLowestRatio += (pSpawnInfo[i].m_iPotentialItems * g_DynamicResupplyAmmoItems[i].flAmmoRatio);
-		pSpawnInfo[i].m_flCurrentRatio = clamp( flLowestRatio, 0, 1 );;
 #endif
 
 		// Use the master if we're supposed to
