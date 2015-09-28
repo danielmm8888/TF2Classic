@@ -657,7 +657,7 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 
 #ifdef TF_CLASSIC
 	// Ragdoll should burn if NPC burned to death.
-	m_bBurningDeath = IsOnFire();
+	m_bBurningDeath = IsOnFire() || ( info.GetDamageType() & (DMG_BURN | DMG_IGNITE) );
 
 	// Bullseyes shouldn't send death notices.
 	if ( !FClassnameIs( this, "npc_bullseye" ) )
