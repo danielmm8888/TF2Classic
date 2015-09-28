@@ -52,6 +52,7 @@ struct DeathNoticeItem
 		bSelfInflicted = false;
 		flCreationTime = 0;
 		bLocalPlayerInvolved = false;
+		bCrit = false;
 	}
 
 	float GetExpiryTime();
