@@ -485,13 +485,33 @@ CAI_BaseNPC *CTFTeam::GetNPC( int iIndex )
 	return m_aNPCs[ iIndex ];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Get a pointer to the specified team manager
+//-----------------------------------------------------------------------------
+CTeam *GetGlobalTeam( int iIndex )
+{
+	if ( iIndex < 0 || iIndex >= g_Teams.Count() )
+		return NULL;
+
+	return g_Teams[ iIndex ];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get the number of team managers
+//-----------------------------------------------------------------------------
+int GetNumberOfTeams( void )
+{
+	// HACK: we have 4 teams but only the original 2 are used by players.
+	// So return the original number of teams as to not break stuff.
+	return min( g_Teams.Count(), TF_ORIGINAL_TEAM_COUNT );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Get a pointer to the specified TF team
 //-----------------------------------------------------------------------------
 CTFTeam *GetGlobalTFTeam( int iIndex )
 {
-	if ( iIndex < 0 || iIndex >= GetNumberOfTeams() )
+	if ( iIndex < 0 || iIndex >= g_Teams.Count() )
 		return NULL;
 
 	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );

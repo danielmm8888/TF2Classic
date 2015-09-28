@@ -54,6 +54,7 @@ END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( team_manager, CTeam );
 
+#ifndef TF_CLASSIC
 //-----------------------------------------------------------------------------
 // Purpose: Get a pointer to the specified team manager
 //-----------------------------------------------------------------------------
@@ -65,6 +66,7 @@ CTeam *GetGlobalTeam( int iIndex )
 	return g_Teams[ iIndex ];
 }
 
+// TF2C overrides this.
 //-----------------------------------------------------------------------------
 // Purpose: Get the number of team managers
 //-----------------------------------------------------------------------------
@@ -72,7 +74,7 @@ int GetNumberOfTeams( void )
 {
 	return g_Teams.Size();
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Needed because this is an entity, but should never be used
