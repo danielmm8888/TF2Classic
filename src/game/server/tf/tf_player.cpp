@@ -1098,14 +1098,6 @@ void CTFPlayer::GiveDefaultItems()
 	// Get the player class data.
 	TFPlayerClassData_t *pData = m_PlayerClass.GetData();
 
-	RemoveAllAmmo();
-
-	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
-	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
-	{
-		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo );
-	}
-
 	// Give weapons.
 	if (tf2c_random_weapons.GetBool())
 		ManageRandomWeapons( pData );
@@ -1117,6 +1109,12 @@ void CTFPlayer::GiveDefaultItems()
 
 	// Give a builder weapon for each object the playerclass is allowed to build
 	ManageBuilderWeapons( pData );
+
+	// Give ammo.
+	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
+	{
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo, TF_AMMO_SOURCE_RESUPPLY );
+	}
 
 	// Equip weapons set by tf_player_equip
 	CBaseEntity	*pWeaponEntity = NULL;
@@ -1198,10 +1196,18 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
+	RemoveAllAmmo();
+
+	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
+	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
+	{
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo, TF_AMMO_SOURCE_RESUPPLY );
+	}
+
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		// Give us a custom item from the inventory.
-		int iItemID = GetTFInventory()->GetItem(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+		int iItemID = GetTFInventory()->GetItem( GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon) );
 		if (iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT)		//hack: Bat ID is zero so we need to check if current class is scout
 		{
 			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
@@ -1275,6 +1281,14 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
 {
+	RemoveAllAmmo();
+
+	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
+	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
+	{
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo, TF_AMMO_SOURCE_RESUPPLY );
+	}
+
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
@@ -5142,12 +5156,41 @@ LINK_ENTITY_TO_CLASS( game_intro_viewpoint, CIntroViewpoint );
 //			iMax - Max carrying capability of the player
 // Output : Amount of ammo actually given
 //-----------------------------------------------------------------------------
-int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoSource ammosource )
 {
 	if ( iCount <= 0 )
 	{
         return 0;
 	}
+
+	if ( iAmmoIndex == TF_AMMO_METAL )
+	{
+		if ( ammosource != 1 )
+		{
+			float flMultiplier = 0.0f;
+			CALL_ATTRIB_HOOK_FLOAT( flMultiplier, mult_metal_pickup );
+			iCount = floorf( iCount * flMultiplier );
+		}
+	}
+	/*else if ( CALL_ATTRIB_HOOK_INT( bBool, ammo_becomes_health ) == 1 )
+	{
+		if ( !ammosource )
+		{
+			v7 = (*(int (__cdecl **)(CBaseEntity *, float, _DWORD))(*(_DWORD *)a3 + 260))(a3, (float)iCount, 0);
+			if ( v7 > 0 )
+			{
+				if ( !bSuppressSound )
+					EmitSound( "BaseCombatCharacter.AmmoPickup" );
+					
+				*(float *)&a2.m128i_i32[0] = (float)iCount;
+				HealthKitPickupEffects( iCount );
+			}
+			return v7;
+		}
+
+		if ( ammosource == TF_AMMO_SOURCE_DISPENSER )
+			return v7;
+	}*/
 
 	if ( !g_pGameRules->CanHaveAmmo( this, iAmmoIndex ) )
 	{
@@ -5155,13 +5198,10 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		return 0;
 	}
 
-	if ( iAmmoIndex < 0 || iAmmoIndex >= MAX_AMMO_SLOTS )
-	{
-		return 0;
-	}
+	int iMaxAmmo = GetMaxAmmo( iAmmoIndex );
+	int iAmmoCount = GetAmmoCount( iAmmoIndex );
+	int iAdd = min( iCount, iMaxAmmo - iAmmoCount );
 
-	int iMax = GetMaxAmmo( iAmmoIndex );
-	int iAdd = min( iCount, iMax - GetAmmoCount(iAmmoIndex) );
 	if ( iAdd < 1 )
 	{
 		return 0;
@@ -5173,35 +5213,60 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		EmitSound( "BaseCombatCharacter.AmmoPickup" );
 	}
 
-	CBaseCombatCharacter::GiveAmmo( iAdd, iAmmoIndex, bSuppressSound );
+	BaseClass::GiveAmmo( iAdd, iAmmoIndex, bSuppressSound );
 	return iAdd;
 }
 
-int CTFPlayer::GetMaxAmmo( int iAmmoIndex )
+//-----------------------------------------------------------------------------
+// Purpose: Give the player some ammo.
+// Input  : iCount - Amount of ammo to give.
+//			iAmmoIndex - Index of the ammo into the AmmoInfoArray
+//			iMax - Max carrying capability of the player
+// Output : Amount of ammo actually given
+//-----------------------------------------------------------------------------
+int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+{
+	return GiveAmmo( iCount, iAmmoIndex, bSuppressSound, TF_AMMO_SOURCE_AMMOPACK );
+}
+
+int CTFPlayer::GetMaxAmmo( int iAmmoIndex, int iClassNumber )
 {
 	if ( !GetPlayerClass()->GetData() )
 		return 0;
 
-	int iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
+	int iMaxAmmo = 0;
 
-	// If we have a weapon that overrides max ammo, use its value.
-	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
-	for ( int i = 0; i < WeaponCount(); i++ )
+	if ( iClassNumber != -1 )
 	{
-		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+		iMaxAmmo = GetPlayerClassData( iClassNumber )->m_aAmmoMax[ iAmmoIndex ];
+	}
+	else
+	{
+		iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[ iAmmoIndex ];
+	}
 
-		if ( !pWpn )
-			continue;
-
-		if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
-			continue;
-
-		int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
-		if ( iCustomMaxAmmo )
-		{
-			iMaxAmmo = iCustomMaxAmmo;
+	switch ( iAmmoIndex )
+	{
+		case TF_AMMO_PRIMARY:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_primary );
 			break;
-		}
+
+		case TF_AMMO_SECONDARY:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_secondary );
+			break;
+
+		case TF_AMMO_METAL:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_metal );
+			break;
+
+		case TF_AMMO_GRENADES1:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_grenades1 );
+			break;
+
+		case 6:
+		default:
+			iMaxAmmo = 1;
+			break;
 	}
 
 	return iMaxAmmo;
@@ -5345,7 +5410,7 @@ void CTFPlayer::RemoveBuildResources( int iAmount )
 
 void CTFPlayer::AddBuildResources( int iAmount )
 {
-	GiveAmmo( iAmount, TF_AMMO_METAL );	
+	GiveAmmo( iAmount, TF_AMMO_METAL, TF_AMMO_SOURCE_AMMOPACK );	
 }
 
 //-----------------------------------------------------------------------------

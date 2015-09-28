@@ -465,17 +465,17 @@ bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
 	int iTotalPickedUp = 0;
 
 	// primary
-	int ammo = ceil(pPlayer->GetMaxAmmo(TF_AMMO_PRIMARY) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1]);
+	int ammo = ceil( pPlayer->GetMaxAmmo(TF_AMMO_PRIMARY) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1]);
 	ammo;
-	int iPrimary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_PRIMARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
+	int iPrimary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_PRIMARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY, TF_AMMO_SOURCE_DISPENSER );
 	iTotalPickedUp += iPrimary;
 
 	// secondary
-	int iSecondary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_SECONDARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
+	int iSecondary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_SECONDARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY, TF_AMMO_SOURCE_DISPENSER );
 	iTotalPickedUp += iSecondary;
 
 	// metal
-	int iMetal = pPlayer->GiveAmmo( min( m_iAmmoMetal, DISPENSER_DROP_METAL + 10 * ( GetUpgradeLevel() - 1 ) ), TF_AMMO_METAL );
+	int iMetal = pPlayer->GiveAmmo( min( m_iAmmoMetal, DISPENSER_DROP_METAL + 10 * ( GetUpgradeLevel() - 1 ) ), TF_AMMO_METAL, TF_AMMO_SOURCE_DISPENSER );
 	m_iAmmoMetal -= iMetal;
 	iTotalPickedUp += iMetal;
 

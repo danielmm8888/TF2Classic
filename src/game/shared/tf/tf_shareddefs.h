@@ -206,6 +206,14 @@ enum
 	TF_AMMO_COUNT
 };
 
+enum EAmmoSource
+{
+	TF_AMMO_SOURCE_AMMOPACK = 0, // Default, used for ammopacks
+	TF_AMMO_SOURCE_RESUPPLY = 1, // Maybe?
+	TF_AMMO_SOURCE_DISPENSER = 2,
+	TF_AMMO_SOURCE_COUNT
+};
+
 //-----------------------------------------------------------------------------
 // Grenade Launcher mode (for pipebombs).
 //-----------------------------------------------------------------------------
