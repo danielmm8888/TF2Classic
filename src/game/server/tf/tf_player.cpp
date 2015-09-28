@@ -1205,7 +1205,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if (iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT)		//hack: Bat ID is zero so we need to check if current class is scout
 		{
 			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
-
+			CEconItemView pItem(iItemID);
 			if (!pItemInfo)
 				continue;
 
@@ -1235,7 +1235,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, &pItem );
 			}
 
 			if ( pWeapon )
@@ -1512,6 +1512,49 @@ void CTFPlayer::HandleCommand_GiveEconItem(int ID)
 	}
 
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Create and give the named item to the player, setting the item ID. Then return it.
+//-----------------------------------------------------------------------------
+CBaseEntity	*CTFPlayer::GiveNamedItem(const char *pszName, CEconItemView* pItem)
+{
+	// If I already own this type don't create one
+	if (Weapon_OwnsThisType(pszName))
+		return NULL;
+
+	// Msg( "giving %s\n", pszName );
+
+	EHANDLE pent;
+
+	pent = CreateEntityByName(pszName);
+	if (pent == NULL)
+	{
+		Msg("NULL Ent in GiveNamedItem!\n");
+		return NULL;
+	}
+
+	pent->SetLocalOrigin(GetLocalOrigin());
+	pent->AddSpawnFlags(SF_NORESPAWN);
+
+	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>((CBaseEntity*)pent);
+	if (pWeapon)
+	{
+		//pWeapon->SetSubType(iSubType);
+	}
+
+	if (pItem)
+		pWeapon->SetItemID(pItem->getItemID());
+
+	DispatchSpawn(pent);
+
+	if (pent != NULL && !(pent->IsMarkedForDeletion()))
+	{
+		pent->Touch(this);
+	}
+
+	return pent;
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Find a spawn point for the player.

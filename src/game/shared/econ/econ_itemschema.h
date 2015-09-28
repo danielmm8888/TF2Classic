@@ -9,7 +9,8 @@
 #include "igamesystem.h"
 #include "GameEventListener.h"
 
-class CEconItemSchema;
+class CEconEntity;
+
 class CEconSchemaParser;
 
 #define FIND_ELEMENT(dict, str, val)				\
@@ -171,22 +172,6 @@ public:
 	CUtlDict< EconItemAttribute, unsigned short > attributes;
 	//CUtlDict< EconItemVisuals, unsigned short > visuals;
 	//EconItemVisuals visuals;
-};
-
-
-class CEconItemView
-{
-public:
-	CEconItemView(){}
-	static const char* GetWorldDisplayModel(CEconEntity *pEntity);
-	static const char* GetWorldDisplayModel(int ID);
-	static const char* GetViewmodelDisplayModel(CEconEntity *pEntity);
-	static const char* GetViewmodelDisplayModel(int ID);
-	static const char* GetEntityName(int ID, int iClassIndex = 0);
-	static bool IsCosmetic(CEconEntity *pEntity);
-	static bool IsCosmetic(int ID);
-	static int GetAnimationSlot(CEconEntity *pEntity);
-	static int GetAnimationSlot(int ID);
 };
 
 //-----------------------------------------------------------------------------

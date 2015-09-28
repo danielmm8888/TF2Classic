@@ -73,6 +73,8 @@ $Project "Server (TF)"
 			$File	"$SRCDIR\game\shared\econ\econ_itemschema.h"
 			$File	"$SRCDIR\game\shared\econ\econ_wearable.cpp"
 			$File	"$SRCDIR\game\shared\econ\econ_wearable.h"
+			$File	"$SRCDIR\game\shared\econ\econ_itemview.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_itemview.h"
 		}
 		
 		$Folder	"TF"
