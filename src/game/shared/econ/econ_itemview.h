@@ -40,7 +40,7 @@ public:
 	static const char* GetWorldDisplayModel(int ID);
 	static const char* GetPlayerDisplayModel(CEconEntity *pEntity);
 	static const char* GetPlayerDisplayModel(int ID);
-	static const char* GetEntityName(int ID, int iClassIndex = 0);
+	static const char* GetEntityName( int ID );
 	static bool IsCosmetic(CEconEntity *pEntity);
 	static bool IsCosmetic(int ID);
 	static int GetAnimationSlot(CEconEntity *pEntity);

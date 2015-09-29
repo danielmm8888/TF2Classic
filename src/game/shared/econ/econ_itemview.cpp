@@ -64,39 +64,10 @@ const char* CEconItemView::GetPlayerDisplayModel(int ID)
 	return GetItemSchema()->GetItemDefinition(ID)->model_player;
 }
 
-const char* CEconItemView::GetEntityName(int ID, int iClassIndex/* = 0*/)
+const char* CEconItemView::GetEntityName( int ID )
 {
 	char name[64];
-	Q_strncpy(name, GetItemSchema()->GetItemDefinition(ID)->item_class, sizeof(name));
-	if (iClassIndex > 0)
-	{
-		if (!Q_stricmp(name, "tf_weapon_shotgun"))
-		{
-			if (iClassIndex == TF_CLASS_ENGINEER)
-			{
-				Q_snprintf(name, sizeof(name), "%s_PRIMARY", name);
-			}
-			else if (iClassIndex == TF_CLASS_SOLDIER)
-			{
-				Q_snprintf(name, sizeof(name), "%s_SOLDIER", name);
-			}
-			else if (iClassIndex == TF_CLASS_PYRO)
-			{
-				Q_snprintf(name, sizeof(name), "%s_PYRO", name);
-			}
-			else if (iClassIndex == TF_CLASS_HEAVYWEAPONS)
-			{
-				Q_snprintf(name, sizeof(name), "%s_HWG", name);
-			}
-		}
-		else  if (!Q_stricmp(name, "tf_weapon_pistol"))
-		{
-			if (iClassIndex == TF_CLASS_SCOUT)
-			{
-				Q_snprintf((char*)name, sizeof(name), "%s_SCOUT", name);
-			}
-		}
-	}
+	Q_strncpy( name, GetItemSchema()->GetItemDefinition( ID )->item_class, sizeof( name ) );
 	char *result = (char*)malloc(sizeof(name));
 	Q_strncpy(result, name, sizeof(name));
 	return result;
