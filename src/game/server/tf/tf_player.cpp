@@ -1210,12 +1210,12 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		int iItemID = GetTFInventory()->GetItem( GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon) );
 		if (iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT)		//hack: Bat ID is zero so we need to check if current class is scout
 		{
-			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
-			CEconItemView pItem(iItemID);
+			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
+			CEconItemView pItem( iItemID );
 			if (!pItemInfo)
 				continue;
 
-			const char *pszWeaponName = CEconItemView::GetEntityName( iItemID, GetPlayerClass()->GetClassIndex()) ;
+			const char *pszWeaponName = CEconItemView::GetEntityName( iItemID ) ;
 			
 			int iWeaponID = GetWeaponId(pszWeaponName);
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
@@ -1459,12 +1459,15 @@ void CTFPlayer::HandleCommand_GiveParticle(const char* name)
 	}
 }
 
-void CTFPlayer::HandleCommand_GiveEconItem(int ID)
+void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 {
 	int iItemID = ID;
-	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition(iItemID);
+	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
 	if (!pItemInfo)
 		return;
+
+	CEconItemView pItem( iItemID );
+
 
 	bool bCosmetic = CEconItemView::IsCosmetic(ID);
 	if (bCosmetic)
@@ -1488,7 +1491,8 @@ void CTFPlayer::HandleCommand_GiveEconItem(int ID)
 	}
 	else
 	{
-		const char *pszWeaponName = CEconItemView::GetEntityName(iItemID, GetPlayerClass()->GetClassIndex());
+		CEconItemView pItem( iItemID );
+		const char *pszWeaponName = CEconItemView::GetEntityName( iItemID );
 		int iWeaponID = GetWeaponId(pszWeaponName);
 
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(pItemInfo->item_slot);
@@ -1514,9 +1518,9 @@ void CTFPlayer::HandleCommand_GiveEconItem(int ID)
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, &pItem );
 
-			if (pWeapon)
+			if ( pWeapon )
 			{
 				pWeapon->SetItemID(iItemID);
 				pWeapon->DefaultTouch(this);
@@ -1530,17 +1534,19 @@ void CTFPlayer::HandleCommand_GiveEconItem(int ID)
 //-----------------------------------------------------------------------------
 // Purpose: Create and give the named item to the player, setting the item ID. Then return it.
 //-----------------------------------------------------------------------------
-CBaseEntity	*CTFPlayer::GiveNamedItem(const char *pszName, CEconItemView* pItem)
+CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, CEconItemView* pItem )
 {
 	// If I already own this type don't create one
-	if (Weapon_OwnsThisType(pszName))
+	if ( Weapon_OwnsThisType( pszName ) )
 		return NULL;
 
 	// Msg( "giving %s\n", pszName );
 
+	const char *pszEntName = TranslateWeaponEntForClass( pszName, GetPlayerClass()->GetClassIndex() );
+
 	EHANDLE pent;
 
-	pent = CreateEntityByName(pszName);
+	pent = CreateEntityByName( pszEntName );
 	if (pent == NULL)
 	{
 		Msg("NULL Ent in GiveNamedItem!\n");

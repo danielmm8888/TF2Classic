@@ -800,9 +800,9 @@ const char *TranslateWeaponEntForClass( const char *pszName, int iClass )
 {
 	if ( pszName )
 	{
-		for (int i = 0; i <= ARRAYSIZE(pszWpnEntTranslationList); i++)
+		for (int i = 0; i < ARRAYSIZE(pszWpnEntTranslationList); i++)
 		{
-			if ( V_stricmp( pszName, pszWpnEntTranslationList[i].weapon_name ) )
+			if ( V_stricmp( pszName, pszWpnEntTranslationList[i].weapon_name ) == 0 )
 			{
 				return ( (const char **) &( pszWpnEntTranslationList[i] ) )[ 1 + iClass ];
 			}
