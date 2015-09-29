@@ -438,7 +438,7 @@ int MeleeArmActTable[13][2] = {
 	{ ACT_VM_IDLE_LOWERED, ACT_MELEE_VM_IDLE_LOWERED },
 	{ ACT_VM_LOWERED_TO_IDLE, ACT_MELEE_VM_LOWERED_TO_IDLE },
 	{ ACT_VM_HITCENTER, ACT_MELEE_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
+	{ ACT_VM_SWINGHARD, ACT_MELEE_VM_SWINGHARD },
 };
 
 int BuildingArmActTable[2][2] = {
@@ -515,7 +515,10 @@ int Item3ArmActTable[13][2] = {
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
-	int iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
+	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+
+	if ( GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot > -1 )
+		iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
 
 	CTFPlayer *pTFPlayer = ToTFPlayer (GetOwner() );
 	if ( pTFPlayer == NULL )
