@@ -7,21 +7,23 @@
 
 #ifdef TF_CLASSIC_CLIENT
 BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
+	RecvPropInt(RECVINFO(m_iItemDefinitionIndex)),
 	RecvPropInt(RECVINFO(m_iEntityQuality)),
 	RecvPropInt(RECVINFO(m_iEntityLevel)),
-	RecvPropInt(RECVINFO(m_iItemID)),
+	//RecvPropInt(RECVINFO(m_iItemID)),
 	RecvPropInt(RECVINFO(m_iInventoryPosition)),
 	RecvPropInt(RECVINFO(m_iTeamNumber)),
 	RecvPropInt(RECVINFO(m_bOnlyIterateItemViewAttributes)),
 END_RECV_TABLE()
 #else
 BEGIN_SEND_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
+	SendPropInt(SENDINFO(m_iItemDefinitionIndex)),
 	SendPropInt(SENDINFO(m_iEntityQuality)),
 	SendPropInt(SENDINFO(m_iEntityLevel)),
-	SendPropInt(SENDINFO(m_iItemID)),
+	//SendPropInt(SENDINFO(m_iItemID)),
 	SendPropInt(SENDINFO(m_iInventoryPosition)),
 	SendPropInt(SENDINFO(m_iTeamNumber)),
-	SendPropInt(SENDINFO(m_bOnlyIterateItemViewAttributes)),
+	SendPropBool(SENDINFO(m_bOnlyIterateItemViewAttributes)),
 END_SEND_TABLE()
 #endif
 

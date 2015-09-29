@@ -46,8 +46,8 @@ public:
 	static int GetAnimationSlot(CEconEntity *pEntity);
 	static int GetAnimationSlot(int ID);
 
-	void setItemID(int iItemID) { m_iItemID = iItemID; }
-	int getItemID(void) const { return m_iItemID; }
+	void setItemID(int iItemID) { m_iItemDefinitionIndex = iItemID; }
+	int getItemID(void) const { return m_iItemDefinitionIndex; }
 
 protected:
 
