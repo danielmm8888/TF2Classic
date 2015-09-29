@@ -123,6 +123,8 @@ public:
 	void HandleCommand_GiveEconItem(int ID);
 	void HandleCommand_GiveParticle(const char* name);
 
+	CBaseEntity *GiveNamedItem( const char *pszName, CEconItemView* pItem = NULL );
+
 	void				SaveMe( void );
 
 	void				FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int nDamageType, int nCustomDamageType = TF_DMG_CUSTOM_NONE );

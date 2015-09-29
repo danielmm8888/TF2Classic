@@ -16,6 +16,8 @@
 #define CEconEntity C_EconEntity
 #endif
 
+#include "econ_itemview.h"
+
 struct wearableanimplayback_t
 {
 	int iStub;
@@ -46,7 +48,7 @@ public:
 	virtual bool HasItemDefinition() const;
 
 protected:
-	CNetworkVar(int, m_Item);
+	CNetworkVarEmbedded(CEconItemView, m_Item);
 };
 
 #endif

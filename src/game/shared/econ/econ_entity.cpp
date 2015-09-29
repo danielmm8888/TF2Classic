@@ -14,33 +14,30 @@
 
 IMPLEMENT_NETWORKCLASS_ALIASED( EconEntity, DT_EconEntity )
 
-BEGIN_NETWORK_TABLE( CEconEntity, DT_EconEntity )
 #ifdef TF_CLASSIC_CLIENT
-RecvPropInt(RECVINFO(m_Item)),
+EXTERN_RECV_TABLE(DT_ScriptCreatedItem)
 #else
-SendPropInt(SENDINFO(m_Item)),
+EXTERN_SEND_TABLE(DT_ScriptCreatedItem)
 #endif
-END_NETWORK_TABLE()
-
 
 CEconEntity::CEconEntity()
 {
-	m_Item.Set(-1);
+	m_Item.setItemID(-1);
 }
 
 void CEconEntity::SetItemID(int id)
 {
-	m_Item.Set(id); 
+	m_Item.setItemID(id); 
 }
 
 int CEconEntity::GetItemID()
 { 
-	return m_Item.Get(); 
+	return m_Item.getItemID(); 
 }
 
 bool CEconEntity::HasItemDefinition() const
 {
-	return (m_Item.Get() >= 0); 
+	return (m_Item.getItemID() >= 0); 
 }
 
 CEconEntity::~CEconEntity()
