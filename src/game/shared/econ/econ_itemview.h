@@ -38,8 +38,8 @@ public:
 	CEconItemView( int m_ItemID ){ setItemID(m_ItemID); }
 	static const char* GetWorldDisplayModel(CEconEntity *pEntity);
 	static const char* GetWorldDisplayModel(int ID);
-	static const char* GetViewmodelDisplayModel(CEconEntity *pEntity);
-	static const char* GetViewmodelDisplayModel(int ID);
+	static const char* GetPlayerDisplayModel(CEconEntity *pEntity);
+	static const char* GetPlayerDisplayModel(int ID);
 	static const char* GetEntityName(int ID, int iClassIndex = 0);
 	static bool IsCosmetic(CEconEntity *pEntity);
 	static bool IsCosmetic(int ID);

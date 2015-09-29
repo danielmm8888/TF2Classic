@@ -54,12 +54,12 @@ const char* CEconItemView::GetWorldDisplayModel(int ID)
 	return GetItemSchema()->GetItemDefinition(ID)->model_player;
 }
 
-const char* CEconItemView::GetViewmodelDisplayModel(CEconEntity *pEntity)
+const char* CEconItemView::GetPlayerDisplayModel(CEconEntity *pEntity)
 {
-	return GetViewmodelDisplayModel(pEntity->GetItemID());
+	return GetPlayerDisplayModel(pEntity->GetItemID());
 }
 
-const char* CEconItemView::GetViewmodelDisplayModel(int ID)
+const char* CEconItemView::GetPlayerDisplayModel(int ID)
 {
 	return GetItemSchema()->GetItemDefinition(ID)->model_player;
 }

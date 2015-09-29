@@ -640,7 +640,7 @@ void CTFWeaponBase::UpdateViewModel(void)
 	{
 		if ( HasItemDefinition() )
 		{
-			const char* pModel = (char*)CEconItemView::GetViewmodelDisplayModel((CEconEntity*)this);
+			const char* pModel = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
 			if ( pModel && PrecacheModel( pModel ) )
 			{
 				vm->UpdateViewmodelAddon( pModel );
@@ -702,7 +702,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
 	if (HasItemDefinition())
 	{
-		const char* pModel = (char*)CEconItemView::GetViewmodelDisplayModel((CEconEntity*)this);
+		const char* pModel = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
 		if (pModel && PrecacheModel(pModel))
 		{ 
 			return DetermineViewModelType(pModel);
