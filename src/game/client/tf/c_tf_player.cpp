@@ -1795,8 +1795,8 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	}
 
 	if ( GetActiveTFWeapon() && ( !m_hOldActiveWeapon.Get() 
-		|| m_hOldActiveWeapon.Get() && m_hOldActiveWeapon.Get() != GetActiveTFWeapon() )
-		|| m_iOldPlayerClass != m_PlayerClass.GetClassIndex() )
+		|| m_hOldActiveWeapon.Get() && m_hOldActiveWeapon.Get() != GetActiveTFWeapon()
+		|| m_iOldPlayerClass != m_PlayerClass.GetClassIndex() ) )
 	{
 		GetActiveTFWeapon()->UpdateViewModel();
 	}

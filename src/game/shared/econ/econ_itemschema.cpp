@@ -41,7 +41,7 @@ public:
 		if (Q_strcmp(pData->GetString(#name, ""), ""))	
 
 #define STRING_CASE(copyto, name, str, val)												\
-		if (Q_strcmp(pData->GetString(#name, ""), #str))								\
+		if (!Q_strcmp(pData->GetString(#name, ""), #str))								\
 		{																				\
 			copyto->name = val;															\
 		}
