@@ -951,6 +951,8 @@ bool	ClassCanBuild( int iClass, int iObjectType );
 int		CalculateObjectCost( int iObjectType /*, int iNumberOfObjects, int iTeam, bool bLast = false*/ );
 int		CalculateObjectUpgrade( int iObjectType, int iObjectLevel );
 
+const char *TranslateWeaponEntForClass( const char *pszName, int iClass );
+
 // Shell ejections
 enum
 {

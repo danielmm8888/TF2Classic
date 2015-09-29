@@ -124,6 +124,119 @@ const char *g_aAmmoNames[] =
 	"TF_AMMO_GRENADES2"
 };
 
+struct pszWpnEntTranslationListEntry
+{
+	const char *weapon_name;
+	const char *padding;
+	const char *weapon_scout;
+	const char *weapon_sniper;
+	const char *weapon_soldier;
+	const char *weapon_demoman;
+	const char *weapon_medic;
+	const char *weapon_heavyweapons;
+	const char *weapon_pyro;
+	const char *weapon_spy;
+	const char *weapon_engineer;
+};	
+static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
+{
+	"tf_weapon_shotgun",
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_shotgun_soldier",
+	NULL,
+	NULL,
+	"tf_weapon_shotgun_hwg",
+	"tf_weapon_shotgun_pyro",
+	NULL,
+	"tf_weapon_shotgun_primary",
+
+	"tf_weapon_pistol",
+	NULL,
+	"tf_weapon_pistol_scout",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_pistol",
+
+	"tf_weapon_shovel",
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_shovel",
+	"tf_weapon_bottle",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+
+	"tf_weapon_bottle",
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_shovel",
+	"tf_weapon_bottle",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+
+	"saxxy",
+	NULL,
+	"tf_weapon_bat",
+	"tf_weapon_club",
+	"tf_weapon_shovel",
+	"tf_weapon_bottle",
+	"tf_weapon_bonesaw",
+	"tf_weapon_fireaxe",
+	"tf_weapon_fireaxe",
+	"tf_weapon_knife",
+	"tf_weapon_wrench",
+
+	"tf_weapon_throwable",
+	NULL,
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88D0
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+
+	"tf_weapon_parachute",
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_parachute_primary",
+	"tf_weapon_parachute_secondary",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	0,
+
+	"tf_weapon_revolver",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	"tf_weapon_revolver",
+	"tf_weapon_revolver_secondary",
+};
+
 //-----------------------------------------------------------------------------
 // Weapons.
 //-----------------------------------------------------------------------------
@@ -681,6 +794,21 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	*/
 
 	return ( iClass == TF_CLASS_ENGINEER );
+}
+
+const char *TranslateWeaponEntForClass( const char *pszName, int iClass )
+{
+	if ( pszName )
+	{
+		for (int i = 0; i <= ARRAYSIZE(pszWpnEntTranslationList); i++)
+		{
+			if ( V_stricmp( pszName, pszWpnEntTranslationList[i].weapon_name ) )
+			{
+				return ( (const char **) &( pszWpnEntTranslationList[i] ) )[ 1 + iClass ];
+			}
+		}
+	}
+	return pszName;
 }
 
 int g_iTeleporterRechargeTimes[] =
