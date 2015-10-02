@@ -1,11 +1,10 @@
-#ifndef TF_ECON_ITEMSCHEMA_H
-#define TF_ECON_ITEMSCHEMA_H
+#ifndef ECON_ITEMSCHEMA_H
+#define ECON_ITEMSCHEMA_H
 
 #ifdef _WIN32
 #pragma once
 #endif
 
-#include "tf_shareddefs.h"
 #include "igamesystem.h"
 #include "GameEventListener.h"
 

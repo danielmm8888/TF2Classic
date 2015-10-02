@@ -1,11 +1,12 @@
 #include "cbase.h"
 #include "econ_itemview.h"
+#include "activitylist.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 
-#ifdef TF_CLASSIC_CLIENT
+#ifdef CLIENT_DLL
 BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 	RecvPropInt(RECVINFO(m_iItemDefinitionIndex)),
 	RecvPropInt(RECVINFO(m_iEntityQuality)),
@@ -28,11 +29,10 @@ END_SEND_TABLE()
 #endif
 
 BEGIN_NETWORK_TABLE(CEconEntity, DT_EconEntity)
-#ifdef TF_CLASSIC_CLIENT
-RecvPropDataTable(RECVINFO_DT(m_Item), 0, &REFERENCE_RECV_TABLE(DT_ScriptCreatedItem)),
+#ifdef CLIENT_DLL
+	RecvPropDataTable( RECVINFO_DT( m_Item ), 0, &REFERENCE_RECV_TABLE( DT_ScriptCreatedItem ) ),
 #else
-SendPropDataTable(SENDINFO_DT(m_Item),
-&REFERENCE_SEND_TABLE(DT_ScriptCreatedItem)),
+	SendPropDataTable( SENDINFO_DT( m_Item ), &REFERENCE_SEND_TABLE( DT_ScriptCreatedItem ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -102,12 +102,34 @@ bool CEconItemView::IsCosmetic(int ID)
 	return result;
 }
 
-const char* CEconItemView::GetAnimationReplacement(CEconEntity *pEntity, const char* name)
+Activity CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, Activity actOriginalActivity )
 {
-	return GetAnimationReplacement(pEntity->GetItemDefIndex(), name);
+	return GetActivityOverride( pEntity->GetItemDefIndex(), iTeamNumber, actOriginalActivity );
 }
 
-const char* CEconItemView::GetAnimationReplacement(int ID, const char* name)
+Activity CEconItemView::GetActivityOverride( int ID, int iTeamNumber, Activity actOriginalActivity )
+{
+	Activity actOverridenActivity = ACT_INVALID;
+	for ( unsigned int i = 0; i < GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.Count(); i++ )
+	{
+		const char *szActivityString = GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.GetElementName( i );
+		Activity actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+
+		if ( actOverridenActivity == actOriginalActivity )
+		{
+			szActivityString = GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.Element( i );
+			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+		}
+	}
+	return actOverridenActivity;
+}
+
+const char* CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, const char *name )
+{
+	return GetActivityOverride( pEntity->GetItemDefIndex(), iTeamNumber, name );
+}
+
+const char* CEconItemView::GetActivityOverride( int ID, int iTeamNumber, const char *name )
 {
 	char str[64];
 	FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->visual.animation_replacement, name, str);
@@ -151,17 +173,5 @@ bool CEconItemView::HasTag(int ID, const char* name)
 {
 	bool result = false;
 	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, name, result);
-	return result;
-}
-
-bool CEconItemView::HasBodygroupOverride(CEconEntity *pEntity, const char* name)
-{
-	return HasBodygroupOverride(pEntity->GetItemDefIndex(), name);
-}
-
-bool CEconItemView::HasBodygroupOverride(int ID, const char* name)
-{
-	bool result = false;
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.player_bodygroups, name, result);
 	return result;
 }

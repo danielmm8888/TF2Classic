@@ -36,25 +36,25 @@ class CEconItemView
 public:
 	CEconItemView() {}
 	CEconItemView( int m_ItemID ){ SetItemDefIndex(m_ItemID); }
-	static const char* GetWorldDisplayModel(CEconEntity *pEntity, int iClass = 0);
-	static const char* GetWorldDisplayModel(int ID, int iClass = 0);
-	static const char* GetPlayerDisplayModel(CEconEntity *pEntity);
-	static const char* GetPlayerDisplayModel(int ID);
+	static const char* GetWorldDisplayModel( CEconEntity *pEntity, int iClass = 0 );
+	static const char* GetWorldDisplayModel( int ID, int iClass = 0 );
+	static const char* GetPlayerDisplayModel( CEconEntity *pEntity );
+	static const char* GetPlayerDisplayModel( int ID );
 	static const char* GetEntityName( int ID );
-	static bool IsCosmetic(CEconEntity *pEntity);
-	static bool IsCosmetic(int ID);
-	static int GetAnimationSlot(CEconEntity *pEntity);
-	static int GetAnimationSlot(int ID);
-	static const char* GetAnimationReplacement(CEconEntity *pEntity, const char* name);
-	static const char* GetAnimationReplacement(int ID, const char* name);
+	static bool IsCosmetic( CEconEntity *pEntity );
+	static bool IsCosmetic( int ID );
+	static int GetAnimationSlot( CEconEntity *pEntity );
+	static int GetAnimationSlot( int ID );
+	static Activity GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, Activity actOriginalActivity );
+	static Activity GetActivityOverride( int ID, int iTeamNumber, Activity actOriginalActivity );
+	static const char* GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, const char* name );
+	static const char* GetActivityOverride( int ID, int iTeamNumber, const char* name );
 	static const char* GetSoundOverride(CEconEntity *pEntity, const char* name);
 	static const char* GetSoundOverride(int ID, const char* name);
-	static bool HasCapability(CEconEntity *pEntity, const char* name);
-	static bool HasCapability(int ID, const char* name);
-	static bool HasTag(CEconEntity *pEntity, const char* name);
-	static bool HasTag(int ID, const char* name);
-	static bool HasBodygroupOverride(CEconEntity *pEntity, const char* name);
-	static bool HasBodygroupOverride(int ID, const char* name);
+	static bool HasCapability( CEconEntity *pEntity, const char* name );
+	static bool HasCapability( int ID, const char* name );
+	static bool HasTag( CEconEntity *pEntity, const char* name );
+	static bool HasTag( int ID, const char* name );
 
 	void SetItemDefIndex(int iItemID) { m_iItemDefinitionIndex = iItemID; }
 	int GetItemDefIndex(void) const { return m_iItemDefinitionIndex; }

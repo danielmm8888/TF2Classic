@@ -1,8 +1,8 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: A class that has the ability to magically make money out of thin air
+// Purpose: 
 //
-//===========================================================================//
+//========================================================================//
 
 #include "cbase.h"
 #include "econ_wearable.h"
@@ -18,7 +18,7 @@ BEGIN_NETWORK_TABLE( CEconWearable, DT_EconWearable )
 #ifdef GAME_DLL
 	SendPropString( SENDINFO( m_ParticleName ) ),
 #else
-	RecvPropString(RECVINFO(m_ParticleName)),
+	RecvPropString( RECVINFO( m_ParticleName ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -56,6 +56,22 @@ int CEconWearable::GetSkin( void )
 		default:
 			return 0;
 			break;
+	}
+}
+
+void CEconWearable::UpdateWearableBodyGroups( CBasePlayer *pPlayer )
+{
+ 	for ( unsigned int i = 0; i < GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.Count(); i++ )
+	{
+		const char *szBodyGroupName = GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.GetElementName( i );
+
+		if ( szBodyGroupName )
+		{
+			int iBodyGroup = pPlayer->FindBodygroupByName( szBodyGroupName );
+			int iBodyGroupValue = GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.Element( i );
+
+			pPlayer->SetBodygroup( iBodyGroup, iBodyGroupValue );
+		}
 	}
 }
 

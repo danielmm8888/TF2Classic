@@ -168,6 +168,8 @@ public:
 
 	void	Burn( CTFPlayer *pPlayer );
 
+	void	RecalculatePlayerBodygroups( void );
+
 	// Weapons.
 	CTFWeaponBase *GetActiveTFWeapon() const;
 

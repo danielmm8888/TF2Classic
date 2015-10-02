@@ -1,8 +1,8 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: A class that has the ability to magically make money out of thin air
+// Purpose: 
 //
-//===========================================================================//
+//========================================================================//
 
 #ifndef ECON_WEARABLE_H
 #define ECON_WEARABLE_H
@@ -36,6 +36,7 @@ public:
 	virtual void	Spawn( void );
 	virtual int		GetSkin(void);
 	virtual void	SetParticle(const char* name);
+	virtual void	UpdateWearableBodyGroups( CBasePlayer *pPlayer );
 #ifdef GAME_DLL
 	virtual void	Equip( CBasePlayer *pPlayer );
 	virtual void	UnEquip( CBasePlayer *pPlayer );

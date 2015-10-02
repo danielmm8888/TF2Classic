@@ -1124,6 +1124,15 @@ void CTFPlayerShared::OnRemoveCritboosted(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFPlayerShared::RecalculatePlayerBodygroups( void )
+{
+  //CTFWeaponBase::UpdateWeaponBodyGroups((CTFWeaponBase *)v4, 0);
+  //CEconWearable::UpdateWearableBodyGroups(*((CEconWearable **)this + 521));
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerShared::Burn( CTFPlayer *pAttacker )
 {
 #ifdef CLIENT_DLL

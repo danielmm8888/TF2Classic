@@ -1275,7 +1275,18 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		Weapon_Switch( Weapon_GetSlot( 0 ) );
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
+
+	PostInventoryApplication();
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::PostInventoryApplication( void )
+{
+	m_Shared.RecalculatePlayerBodygroups();
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

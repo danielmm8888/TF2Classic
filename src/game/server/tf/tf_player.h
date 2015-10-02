@@ -385,6 +385,8 @@ public:
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
 	void				ManageGrenades(TFPlayerClassData_t *pData);
 
+	void				PostInventoryApplication( void );
+
 	// Taunts.
 	void				Taunt( void );
 	bool				IsTaunting( void ) { return m_Shared.InCond( TF_COND_TAUNTING ); }

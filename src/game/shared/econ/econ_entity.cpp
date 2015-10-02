@@ -14,7 +14,7 @@
 
 IMPLEMENT_NETWORKCLASS_ALIASED( EconEntity, DT_EconEntity )
 
-#ifdef TF_CLASSIC_CLIENT
+#ifdef CLIENT_DLL
 EXTERN_RECV_TABLE(DT_ScriptCreatedItem)
 #else
 EXTERN_SEND_TABLE(DT_ScriptCreatedItem)

@@ -520,6 +520,16 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 	if ( HasItemDefinition() && GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot > -1 )
 		iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot;
 
+	if ( HasItemDefinition() )
+	{
+		Activity actActivityOverride = CEconItemView::GetActivityOverride( (CEconEntity*)this, GetTeamNumber(), (Activity)iActivity );
+		if ( actActivityOverride != ACT_INVALID )
+		{
+			iActivity = actActivityOverride;
+			return iActivity;
+		}
+	}
+
 	CTFPlayer *pTFPlayer = ToTFPlayer (GetOwner() );
 	if ( pTFPlayer == NULL )
 	{

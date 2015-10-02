@@ -4,8 +4,6 @@
 #include "engine/IEngineSound.h"
 #include "soundenvelope.h"
 #include "script_parser.h"
-#include "tf_gamerules.h"
-
 
 //-----------------------------------------------------------------------------
 // Purpose:
