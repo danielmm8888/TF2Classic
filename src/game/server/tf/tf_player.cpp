@@ -1230,7 +1230,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemID( iItemID );
+				pWeapon->SetItemDefIndex( iItemID );
 				pWeapon->ChangeTeam( GetTeamNumber() );
 				pWeapon->GiveDefaultAmmo();
 
@@ -1246,7 +1246,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemID( iItemID );		
+				pWeapon->SetItemDefIndex(iItemID);
 				pWeapon->DefaultTouch( this );
 			}
 		}
@@ -1483,7 +1483,7 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 
 		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName("econ_wearable");
 
-		pWearable->SetItemID(iItemID);
+		pWearable->SetItemDefIndex(iItemID);
 		PrecacheModel(pItemInfo->model_player);
 		pWearable->SetModel(pItemInfo->model_player);
 
@@ -1507,7 +1507,7 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 
 		if (pWeapon)
 		{
-			pWeapon->SetItemID(iItemID);
+			pWeapon->SetItemDefIndex(iItemID);
 			pWeapon->ChangeTeam(GetTeamNumber());
 			pWeapon->GiveDefaultAmmo();
 
@@ -1522,7 +1522,7 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemID(iItemID);
+				pWeapon->SetItemDefIndex(iItemID);
 				pWeapon->DefaultTouch(this);
 			}
 		}
@@ -1563,7 +1563,7 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, CEconItemView* pItem
 	}
 
 	if (pItem)
-		pWeapon->SetItemID(pItem->getItemID());
+		pWeapon->SetItemDefIndex(pItem->GetItemDefIndex());
 
 	DispatchSpawn(pent);
 
@@ -2467,7 +2467,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 
 			if (pWeapon && pWeapon->HasItemDefinition())
 			{
-				int ID = pWeapon->GetItemID();
+				int ID = pWeapon->GetItemDefIndex();
 				EconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
 
 				if (itemdef)

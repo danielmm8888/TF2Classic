@@ -43,8 +43,8 @@ public:
 
 	virtual void PlayAnimForPlaybackEvent(wearableanimplayback_t iPlayback) {};
 
-	virtual void SetItemID(int id);
-	virtual int GetItemID();
+	virtual void SetItemDefIndex(int id);
+	virtual int GetItemDefIndex();
 	virtual bool HasItemDefinition() const;
 
 protected:

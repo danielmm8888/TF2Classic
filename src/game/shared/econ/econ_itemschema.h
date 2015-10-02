@@ -12,15 +12,7 @@
 class CEconEntity;
 
 class CEconSchemaParser;
-
-#define FIND_ELEMENT(dict, str, val)				\
-		unsigned int index = dict.Find(str);		\
-		if (index < dict.Count())					\
-			val = dict.Element(index)				\
-
-#define IF_ELEMENT_FOUND(dict, str)					\
-		unsigned int index = dict.Find(str);		\
-		if (index < dict.Count())					\
+	
 
 #define CALL_ATTRIB_HOOK_INT(value, name)			\
 		value = CAttributeManager::AttribHookValue<int>(value, #name, (CEconEntity*)this)
@@ -34,6 +26,8 @@ class CEconSchemaParser;
 #define CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(ent, value, name)			\
 		value = CAttributeManager::AttribHookValue<float>(value, #name, (CEconEntity*)ent)
 
+#define CLEAR_STR(name)	\
+		Q_snprintf(name, sizeof(name), "")
 
 struct EconQuality
 {
@@ -49,7 +43,7 @@ struct EconColor
 {
 	EconColor()
 	{
-		V_strcpy_safe(color_name, "");
+		CLEAR_STR(color_name);
 	}
 
 	char color_name[128];
@@ -59,12 +53,12 @@ struct EconAttributeDefinition
 {
 	EconAttributeDefinition()
 	{
-		V_strcpy_safe(name, "");
-		V_strcpy_safe(attribute_class, "");
-		V_strcpy_safe(description_string, "");
-		V_strcpy_safe(description_format, "");
+		CLEAR_STR(name);
+		CLEAR_STR(attribute_class);
+		CLEAR_STR(description_string);
+		CLEAR_STR(description_format);
 		hidden = false;
-		V_strcpy_safe(effect_type, "");
+		CLEAR_STR(effect_type);
 		stored_as_integer = false;
 	}
 
@@ -81,7 +75,7 @@ struct EconItemAttribute
 {
 	EconItemAttribute()
 	{
-		V_strcpy_safe(attribute_class, "");
+		CLEAR_STR(attribute_class);
 		value = 0.0f;
 	}
 
@@ -89,12 +83,13 @@ struct EconItemAttribute
 	float value;
 };
 
-
 struct EconItemStyle
 {
 	EconItemStyle()
 	{
-		V_strcpy_safe(image_inventory, "");
+		CLEAR_STR(name);
+		CLEAR_STR(model_player);
+		CLEAR_STR(image_inventory);
 		skin_red = 0;
 		skin_blu = 0;
 		selectable = false;
@@ -103,22 +98,23 @@ struct EconItemStyle
 	int skin_red;
 	int skin_blu;
 	bool selectable;
+	char name[128];
+	char model_player[128];
 	char image_inventory[128];
+	CUtlDict< const char*, unsigned short > model_player_per_class;
 };
 
 struct EconItemVisuals
 {
-	EconItemVisuals(){
-		V_strcpy_safe(sound_single_shot, "");
-		V_strcpy_safe(sound_burst, "");
-		V_strcpy_safe(sound_special1, "");
+	EconItemVisuals()
+	{
 	}
 
-	char sound_single_shot[128];
-	char sound_burst[128];
-	char sound_special1[128];
+	CUtlDict< bool, unsigned short > player_bodygroups;
 	CUtlDict< const char*, unsigned short > animation_replacement;
-	CUtlDict< EconItemStyle, unsigned short > styles;
+	CUtlDict< const char*, unsigned short > playback_activity;
+	CUtlDict< const char*, unsigned short > misc_info;
+	//CUtlDict< EconItemStyle*, unsigned short > styles;
 };
 
 class EconItemDefinition
@@ -126,24 +122,24 @@ class EconItemDefinition
 public:
 	EconItemDefinition()
 	{
-		V_strcpy_safe(name, "");
+		CLEAR_STR(name);
 		show_in_armory = false;
-		V_strcpy_safe(item_class, "");
-		V_strcpy_safe(item_type_name, "");
-		V_strcpy_safe(item_name, "");
+		CLEAR_STR(item_class);
+		CLEAR_STR(item_type_name);
+		CLEAR_STR(item_name);
 		item_slot = -1;
 		anim_slot = -1;
-		V_strcpy_safe(item_quality, "");
+		CLEAR_STR(item_quality);
 		propername = false;
-		V_strcpy_safe(item_logname, "");
-		V_strcpy_safe(item_iconname, "");
+		CLEAR_STR(item_logname);
+		CLEAR_STR(item_iconname);
 		min_ilevel = 0;
 		max_ilevel = 0;
-		V_strcpy_safe(image_inventory, "");
+		CLEAR_STR(image_inventory);
 		image_inventory_size_w = 0;
 		image_inventory_size_h = 0;
-		V_strcpy_safe(model_player, "");
-		V_strcpy_safe(model_world, "");
+		CLEAR_STR(model_player);
+		CLEAR_STR(model_world);
 		attach_to_hands = false;
 	}
 
@@ -168,10 +164,10 @@ public:
 	int	 image_inventory_size_h;
 	char model_player[128];
 	char model_world[128];
+	CUtlDict< const char*, unsigned short > model_player_per_class;
 	bool attach_to_hands;
 	CUtlDict< EconItemAttribute, unsigned short > attributes;
-	//CUtlDict< EconItemVisuals, unsigned short > visuals;
-	//EconItemVisuals visuals;
+	EconItemVisuals visual;
 };
 
 //-----------------------------------------------------------------------------
@@ -196,7 +192,7 @@ public:
 	EconItemDefinition* GetItemDefinition(int id);
 	EconAttributeDefinition *GetAttributeDefinition(const char* name);
 	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);	
-	
+
 private:
 	CUtlDict< int, unsigned short >							m_GameInfo;
 	CUtlDict< EconQuality, unsigned short >					m_Qualities;
@@ -228,12 +224,12 @@ public:
 
 		if ( pWeapon )
 		{
-			int ID = pEntity->GetItemID();
-
-			if (ID > 0)
+			if (pEntity->HasItemDefinition())
 			{
+				int ID = pEntity->GetItemDefIndex();
 				EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition(ID);
 				EconAttributeDefinition *pAttribDef = GetItemSchema()->GetAttributeDefinitionByClass(text);
+
 				if (pItemDef && pAttribDef)
 				{
 					unsigned int index = pItemDef->attributes.Find(pAttribDef->name);

@@ -517,8 +517,8 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
-	if ( HasItemDefinition() && GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot > -1 )
-		iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemID())->anim_slot;
+	if ( HasItemDefinition() && GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot > -1 )
+		iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot;
 
 	CTFPlayer *pTFPlayer = ToTFPlayer (GetOwner() );
 	if ( pTFPlayer == NULL )

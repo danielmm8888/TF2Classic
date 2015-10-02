@@ -36,29 +36,44 @@ SendPropDataTable(SENDINFO_DT(m_Item),
 #endif
 END_NETWORK_TABLE()
 
-const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity)
+#define FIND_ELEMENT(dict, str, val)					\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())						\
+			val = dict.Element(index)	
+
+#define FIND_ELEMENT_STRING(dict, str, val)				\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())						\
+			Q_snprintf(val, sizeof(val), dict.Element(index))
+
+const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity, int iClass/* = 0*/)
 {
-	return GetWorldDisplayModel(pEntity->GetItemID());
+	return GetWorldDisplayModel(pEntity->GetItemDefIndex());
 }
 
-const char* CEconItemView::GetWorldDisplayModel(int ID)
+const char* CEconItemView::GetWorldDisplayModel(int ID, int iClass/* = 0*/)
 {
 	char modelname[128];
-	Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_world, sizeof(modelname));
+	if (iClass > 0)
+	{
+		FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->model_player_per_class, g_aPlayerClassNames_NonLocalized[iClass], modelname);
+	}
 	if (!Q_stricmp(modelname, ""))
 	{
-		Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player, sizeof(modelname));
+		Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_world, sizeof(modelname));
+		if (!Q_stricmp(modelname, ""))
+		{
+			Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player, sizeof(modelname));
+		}
 	}
 	char *result = (char*)malloc(sizeof(modelname));
 	Q_strncpy(result, modelname, sizeof(modelname));
 	return result;
-
-	return GetItemSchema()->GetItemDefinition(ID)->model_player;
 }
 
 const char* CEconItemView::GetPlayerDisplayModel(CEconEntity *pEntity)
 {
-	return GetPlayerDisplayModel(pEntity->GetItemID());
+	return GetPlayerDisplayModel(pEntity->GetItemDefIndex());
 }
 
 const char* CEconItemView::GetPlayerDisplayModel(int ID)
@@ -77,13 +92,76 @@ const char* CEconItemView::GetEntityName( int ID )
 
 bool CEconItemView::IsCosmetic(CEconEntity *pEntity)
 {
-	return IsCosmetic(pEntity->GetItemID());
+	return IsCosmetic(pEntity->GetItemDefIndex());
 }
 
 bool CEconItemView::IsCosmetic(int ID)
 {
 	bool result = false;
-
 	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, "is_cosmetic", result);
+	return result;
+}
+
+const char* CEconItemView::GetAnimationReplacement(CEconEntity *pEntity, const char* name)
+{
+	return GetAnimationReplacement(pEntity->GetItemDefIndex(), name);
+}
+
+const char* CEconItemView::GetAnimationReplacement(int ID, const char* name)
+{
+	char str[64];
+	FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->visual.animation_replacement, name, str);
+	char *result = (char*)malloc(sizeof(str));
+	Q_strncpy(result, str, sizeof(str));
+	return result;
+}
+
+const char* CEconItemView::GetSoundOverride(CEconEntity *pEntity, const char* name)
+{
+	return GetSoundOverride(pEntity->GetItemDefIndex(), name);
+}
+
+const char* CEconItemView::GetSoundOverride(int ID, const char* name)
+{
+	char str[64];
+	FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->visual.misc_info, name, str);
+	char *result = (char*)malloc(sizeof(str));
+	Q_strncpy(result, str, sizeof(str));
+	return result;
+}
+
+bool CEconItemView::HasCapability(CEconEntity *pEntity, const char* name)
+{
+	return HasCapability(pEntity->GetItemDefIndex(), name);
+}
+
+bool CEconItemView::HasCapability(int ID, const char* name)
+{
+	bool result = false;
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->capabilities, name, result);
+	return result;
+}
+
+bool CEconItemView::HasTag(CEconEntity *pEntity, const char* name)
+{
+	return HasTag(pEntity->GetItemDefIndex(), name);
+}
+
+bool CEconItemView::HasTag(int ID, const char* name)
+{
+	bool result = false;
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, name, result);
+	return result;
+}
+
+bool CEconItemView::HasBodygroupOverride(CEconEntity *pEntity, const char* name)
+{
+	return HasBodygroupOverride(pEntity->GetItemDefIndex(), name);
+}
+
+bool CEconItemView::HasBodygroupOverride(int ID, const char* name)
+{
+	bool result = false;
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.player_bodygroups, name, result);
 	return result;
 }

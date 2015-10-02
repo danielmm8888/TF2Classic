@@ -22,22 +22,22 @@ EXTERN_SEND_TABLE(DT_ScriptCreatedItem)
 
 CEconEntity::CEconEntity()
 {
-	m_Item.setItemID(-1);
+	m_Item.SetItemDefIndex(-1);
 }
 
-void CEconEntity::SetItemID(int id)
+void CEconEntity::SetItemDefIndex(int id)
 {
-	m_Item.setItemID(id); 
+	m_Item.SetItemDefIndex(id);
 }
 
-int CEconEntity::GetItemID()
+int CEconEntity::GetItemDefIndex()
 { 
-	return m_Item.getItemID(); 
+	return m_Item.GetItemDefIndex();
 }
 
 bool CEconEntity::HasItemDefinition() const
 {
-	return (m_Item.getItemID() >= 0); 
+	return (m_Item.GetItemDefIndex() >= 0);
 }
 
 CEconEntity::~CEconEntity()

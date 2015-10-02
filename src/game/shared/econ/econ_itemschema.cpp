@@ -45,7 +45,46 @@ public:
 		{																				\
 			copyto->name = val;															\
 		}
-				
+
+#define FIND_ELEMENT(dict, str, val)					\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())						\
+			val = dict.Element(index)				
+
+#define FIND_ELEMENT_STRING(dict, str, val)				\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())						\
+			Q_snprintf(val, sizeof(val), dict.Element(index))
+
+#define IF_ELEMENT_FOUND(dict, str)						\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())			
+
+#define GET_VALUES_FAST_BOOL(dict, keys)\
+		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
+		{													\
+			IF_ELEMENT_FOUND(dict, pKeyData->GetName())		\
+			{												\
+				dict.Element(index) = pKeyData->GetBool();	\
+			}												\
+			else											\
+			{												\
+				dict.Insert(pKeyData->GetName(), pKeyData->GetBool());\
+			}												\
+		}
+
+#define GET_VALUES_FAST_STRING(dict, keys)\
+		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
+		{													\
+			IF_ELEMENT_FOUND(dict, pKeyData->GetName())		\
+			{												\
+				Q_snprintf((char*)dict.Element(index), sizeof(dict.Element(index)), pKeyData->GetString());		\
+			}												\
+			else											\
+			{												\
+				dict.Insert(pKeyData->GetName(), pKeyData->GetString());										\
+			}												\
+		}	
 
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
 	{
@@ -156,7 +195,7 @@ public:
 	{
 		char prefab[64];
 		Q_snprintf(prefab, sizeof(prefab), pData->GetString("prefab", ""));	//check if there's prefab for prefab.. PREFABSEPTION
-
+		
 		if (Q_strcmp(prefab, ""))
 		{
 			char * pch;
@@ -219,31 +258,19 @@ public:
 		{
 			if (!Q_stricmp(pSubData->GetName(), "capabilities"))
 			{
-				pItem->capabilities.Insert(pSubData->GetName(), pSubData->GetBool());
+				GET_VALUES_FAST_BOOL(pItem->capabilities, pSubData);
 			}
 			if (!Q_stricmp(pSubData->GetName(), "tags"))
 			{
-				for (KeyValues *pTagData = pSubData->GetFirstSubKey(); pTagData != NULL; pTagData = pTagData->GetNextKey())
-				{
-					bool tag = false;
-					FIND_ELEMENT(pItem->tags, pTagData->GetName(), tag);
-					if (!tag)	//insert tag if it wasn't added before
-					{
-						pItem->tags.Insert(pTagData->GetName(), pTagData->GetBool());
-					}
-				}
+				GET_VALUES_FAST_BOOL(pItem->tags, pSubData);
+			}
+			if (!Q_stricmp(pSubData->GetName(), "model_player_per_class"))
+			{
+				GET_VALUES_FAST_STRING(pItem->model_player_per_class, pSubData);
 			}
 			if (!Q_stricmp(pSubData->GetName(), "used_by_classes"))
 			{
-				for (KeyValues *pInfoData = pSubData->GetFirstSubKey(); pInfoData != NULL; pInfoData = pInfoData->GetNextKey())
-				{
-					bool used_by_classes = false;
-					FIND_ELEMENT(pItem->used_by_classes, pInfoData->GetName(), used_by_classes);
-					if (!used_by_classes)	//insert info if it wasn't added before
-					{
-						pItem->tags.Insert(pInfoData->GetName(), pInfoData->GetBool());
-					}
-				}
+				GET_VALUES_FAST_BOOL(pItem->used_by_classes, pSubData);
 			}
 			if (!Q_stricmp(pSubData->GetName(), "attributes"))
 			{
@@ -252,11 +279,8 @@ public:
 					IF_ELEMENT_FOUND(pItem->attributes, pAttribData->GetName())
 					{
 						EconItemAttribute *attribute = &pItem->attributes.Element(index);
-						if (attribute)
-						{
-							GET_STRING(attribute, pAttribData, attribute_class);
-							GET_FLOAT(attribute, pAttribData, value);
-						}						
+						GET_STRING(attribute, pAttribData, attribute_class);
+						GET_FLOAT(attribute, pAttribData, value);
 					}
 					else
 					{
@@ -267,8 +291,68 @@ public:
 					}
 				}
 			}
-		}	
-		
+			if (!Q_stricmp(pSubData->GetName(), "visuals"))
+			{
+				EconItemVisuals *visual = &pItem->visual;
+
+				for (KeyValues *pVisualData = pSubData->GetFirstSubKey(); pVisualData != NULL; pVisualData = pVisualData->GetNextKey())
+				{
+					if (!Q_stricmp(pVisualData->GetName(), "player_bodygroups"))
+					{
+						GET_VALUES_FAST_BOOL(visual->player_bodygroups, pVisualData);
+					}
+					else if (!Q_stricmp(pVisualData->GetName(), "attached_models"))
+					{
+					}
+					else if (!Q_stricmp(pVisualData->GetName(), "animation_replacement"))
+					{
+						GET_VALUES_FAST_STRING(visual->animation_replacement, pVisualData);
+					}
+					else if (!Q_stricmp(pVisualData->GetName(), "playback_activity"))
+					{
+						GET_VALUES_FAST_STRING(visual->playback_activity, pVisualData);
+					}
+					else if (!Q_stricmp(pVisualData->GetName(), "styles"))
+					{
+						/*
+						for (KeyValues *pStyleData = pVisualData->GetFirstSubKey(); pStyleData != NULL; pStyleData = pStyleData->GetNextKey())
+						{
+							EconItemStyle *style;
+							IF_ELEMENT_FOUND(visual->styles, pStyleData->GetName())
+							{
+								style = visual->styles.Element(index);
+							}
+							else
+							{
+								style = new EconItemStyle();
+								visual->styles.Insert(pStyleData->GetName(), style);
+							}
+
+							GET_STRING(style, pStyleData, name);
+							GET_STRING(style, pStyleData, model_player);
+							GET_STRING(style, pStyleData, image_inventory);
+							GET_BOOL(style, pStyleData, selectable);
+							GET_INT(style, pStyleData, skin_red);
+							GET_INT(style, pStyleData, skin_blu);
+
+							for (KeyValues *pStyleModelData = pStyleData->GetFirstSubKey(); pStyleModelData != NULL; pStyleModelData = pStyleModelData->GetNextKey())
+							{
+								if (!Q_stricmp(pStyleModelData->GetName(), "model_player_per_class"))
+								{
+									GET_VALUES_FAST_STRING(style->model_player_per_class, pStyleModelData);
+								}
+							}
+						}
+						*/
+					}
+					else
+					{
+						GET_VALUES_FAST_STRING(visual->misc_info, pVisualData);
+					}
+				}
+			}
+		}
+
 	};
 
 private:

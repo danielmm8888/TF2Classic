@@ -35,9 +35,9 @@ class CEconItemView
 	DECLARE_EMBEDDED_NETWORKVAR();
 public:
 	CEconItemView() {}
-	CEconItemView( int m_ItemID ){ setItemID(m_ItemID); }
-	static const char* GetWorldDisplayModel(CEconEntity *pEntity);
-	static const char* GetWorldDisplayModel(int ID);
+	CEconItemView( int m_ItemID ){ SetItemDefIndex(m_ItemID); }
+	static const char* GetWorldDisplayModel(CEconEntity *pEntity, int iClass = 0);
+	static const char* GetWorldDisplayModel(int ID, int iClass = 0);
 	static const char* GetPlayerDisplayModel(CEconEntity *pEntity);
 	static const char* GetPlayerDisplayModel(int ID);
 	static const char* GetEntityName( int ID );
@@ -45,9 +45,19 @@ public:
 	static bool IsCosmetic(int ID);
 	static int GetAnimationSlot(CEconEntity *pEntity);
 	static int GetAnimationSlot(int ID);
+	static const char* GetAnimationReplacement(CEconEntity *pEntity, const char* name);
+	static const char* GetAnimationReplacement(int ID, const char* name);
+	static const char* GetSoundOverride(CEconEntity *pEntity, const char* name);
+	static const char* GetSoundOverride(int ID, const char* name);
+	static bool HasCapability(CEconEntity *pEntity, const char* name);
+	static bool HasCapability(int ID, const char* name);
+	static bool HasTag(CEconEntity *pEntity, const char* name);
+	static bool HasTag(int ID, const char* name);
+	static bool HasBodygroupOverride(CEconEntity *pEntity, const char* name);
+	static bool HasBodygroupOverride(int ID, const char* name);
 
-	void setItemID(int iItemID) { m_iItemDefinitionIndex = iItemID; }
-	int getItemID(void) const { return m_iItemDefinitionIndex; }
+	void SetItemDefIndex(int iItemID) { m_iItemDefinitionIndex = iItemID; }
+	int GetItemDefIndex(void) const { return m_iItemDefinitionIndex; }
 
 protected:
 
