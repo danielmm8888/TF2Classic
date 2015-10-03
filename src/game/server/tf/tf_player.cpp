@@ -1241,7 +1241,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, &pItem );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &pItem );
 			}
 
 			if ( pWeapon )
@@ -1529,7 +1529,7 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, &pItem );
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &pItem );
 
 			if ( pWeapon )
 			{
@@ -1545,15 +1545,13 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 //-----------------------------------------------------------------------------
 // Purpose: Create and give the named item to the player, setting the item ID. Then return it.
 //-----------------------------------------------------------------------------
-CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, CEconItemView* pItem )
+CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconItemView* pItem )
 {
-	// If I already own this type don't create one
-	if ( Weapon_OwnsThisType( pszName ) )
-		return NULL;
-
-	// Msg( "giving %s\n", pszName );
-
 	const char *pszEntName = TranslateWeaponEntForClass( pszName, GetPlayerClass()->GetClassIndex() );
+
+	// If I already own this type don't create one
+	if ( Weapon_OwnsThisType( pszEntName ) )
+		return NULL;
 
 	EHANDLE pent;
 
@@ -1564,23 +1562,22 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, CEconItemView* pItem
 		return NULL;
 	}
 
-	pent->SetLocalOrigin(GetLocalOrigin());
-	pent->AddSpawnFlags(SF_NORESPAWN);
+	pent->SetLocalOrigin( GetLocalOrigin() );
+	pent->AddSpawnFlags( SF_NORESPAWN );
 
-	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>((CBaseEntity*)pent);
-	if (pWeapon)
+	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( (CBaseEntity*)pent );
+	if ( pWeapon )
 	{
-		//pWeapon->SetSubType(iSubType);
+		pWeapon->SetSubType( iSubType );
+		if ( pItem )
+			pWeapon->SetItemDefIndex( pItem->GetItemDefIndex() );
 	}
 
-	if (pItem)
-		pWeapon->SetItemDefIndex(pItem->GetItemDefIndex());
+	DispatchSpawn( pent );
 
-	DispatchSpawn(pent);
-
-	if (pent != NULL && !(pent->IsMarkedForDeletion()))
+	if ( pent != NULL && !(pent->IsMarkedForDeletion()) ) 
 	{
-		pent->Touch(this);
+		pent->Touch( this );
 	}
 
 	return pent;

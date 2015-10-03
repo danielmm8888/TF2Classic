@@ -347,16 +347,22 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetWorldModel(void) const
 {
-	if (HasItemDefinition())
+	const char* szModelName = NULL;
+	if ( HasItemDefinition() )
 	{
-		const char* pModel = (char*)CEconItemView::GetWorldDisplayModel((CEconEntity*)this);
-		if (pModel && PrecacheModel(pModel))
+		const char* szModelName = (char*)CEconItemView::GetWorldDisplayModel( (CEconEntity*)this );
+		if ( !Q_stricmp( szModelName, "" ) )
 		{
-			return pModel;
+			szModelName = (char*)CEconItemView::GetPlayerDisplayModel( (CEconEntity*)this );
 		}
 	}
 
-	return CBaseCombatWeapon::GetWorldModel();
+	if ( !szModelName || !Q_stricmp( szModelName, "" ) )
+	{
+		szModelName = BaseClass::GetWorldModel();
+	}
+
+	return szModelName;
 }
 
 //-----------------------------------------------------------------------------
@@ -654,7 +660,7 @@ void CTFWeaponBase::UpdateViewModel(void)
 		if ( HasItemDefinition() )
 		{
 			const char* pModel = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
-			if ( pModel && PrecacheModel( pModel ) )
+			if ( pModel )
 			{
 				vm->UpdateViewmodelAddon( pModel );
 			}
@@ -713,16 +719,16 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
-	if (HasItemDefinition())
+	if ( HasItemDefinition() )
 	{
-		const char* pModel = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
-		if (pModel && PrecacheModel(pModel))
+		const char* szModelName = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
+		if ( szModelName[0] != '\0' )
 		{ 
-			return DetermineViewModelType(pModel);
+			return DetermineViewModelType( szModelName );
 		}
 	}
 	
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 	{
 		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
 			return DetermineViewModelType( GetTFWpnData().m_szViewModelDM );
@@ -2019,16 +2025,6 @@ int CTFWeaponBase::GetWorldModelIndex( void )
 			return iModelIndex;
 		}	
 	}
-
-	if (HasItemDefinition())
-	{
-		const char* pModel = (char*)CEconItemView::GetWorldDisplayModel((CEconEntity*)this);
-		if (pModel && PrecacheModel(pModel))
-		{
-			return modelinfo->GetModelIndex(pModel);
-		}
-	}
-
 	return BaseClass::GetWorldModelIndex();
 }
 

@@ -123,7 +123,7 @@ public:
 	void HandleCommand_GiveEconItem(int ID);
 	void HandleCommand_GiveParticle(const char* name);
 
-	CBaseEntity *GiveNamedItem( const char *pszName, CEconItemView* pItem = NULL );
+	CBaseEntity *GiveNamedItem( const char *pszName, int iSubType = NULL, CEconItemView* pItem = NULL );
 
 	void				SaveMe( void );
 

@@ -48,27 +48,12 @@ END_NETWORK_TABLE()
 
 const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity, int iClass/* = 0*/)
 {
-	return GetWorldDisplayModel(pEntity->GetItemDefIndex());
+	return GetWorldDisplayModel( pEntity->GetItemDefIndex() );
 }
 
 const char* CEconItemView::GetWorldDisplayModel(int ID, int iClass/* = 0*/)
 {
-	char modelname[128];
-	if (iClass > 0)
-	{
-		FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->model_player_per_class, g_aPlayerClassNames_NonLocalized[iClass], modelname);
-	}
-	if (!Q_stricmp(modelname, ""))
-	{
-		Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_world, sizeof(modelname));
-		if (!Q_stricmp(modelname, ""))
-		{
-			Q_strncpy(modelname, GetItemSchema()->GetItemDefinition(ID)->model_player, sizeof(modelname));
-		}
-	}
-	char *result = (char*)malloc(sizeof(modelname));
-	Q_strncpy(result, modelname, sizeof(modelname));
-	return result;
+	return GetItemSchema()->GetItemDefinition(ID)->model_world;
 }
 
 const char* CEconItemView::GetPlayerDisplayModel(CEconEntity *pEntity)
@@ -113,7 +98,7 @@ Activity CEconItemView::GetActivityOverride( int ID, int iTeamNumber, Activity a
 	for ( unsigned int i = 0; i < GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.Count(); i++ )
 	{
 		const char *szActivityString = GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.GetElementName( i );
-		Activity actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+		actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
 
 		if ( actOverridenActivity == actOriginalActivity )
 		{
