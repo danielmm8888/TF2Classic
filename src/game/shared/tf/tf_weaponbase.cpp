@@ -604,7 +604,7 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
 
-	pTemp->SetModel(vModel);
+	pTemp->SetModel( vModel );
 
 	if ( pTemp->LookupAttachment("l4d") > 0 )
 	{
@@ -836,6 +836,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
+		return false;
+
+	// Random crits are disabled in DM due to balancing reasons
+	if ( TFGameRules()->IsDeathmatch() )
 		return false;
 
 	// Don't bother checking if random crits are off.
