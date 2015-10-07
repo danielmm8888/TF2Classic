@@ -288,9 +288,12 @@ void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const ch
 	DeathNoticeItem &msg2 = m_DeathNotices[AddDeathNoticeItem()];
 	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
 	Q_strncpy( msg2.Victim.szName, g_PR->GetPlayerName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
-
+	
 	msg2.Killer.iTeam = g_PR->GetTeam(iKillerID);
 	msg2.Victim.iTeam = g_PR->GetTeam(iVictimID);
+
+	msg2.Killer.iPlayerID = iKillerID;
+	msg2.Victim.iPlayerID = iVictimID;
 
 	const wchar_t *wzMsg =  g_pVGuiLocalize->Find( pMsgKey );
 	if ( wzMsg )
