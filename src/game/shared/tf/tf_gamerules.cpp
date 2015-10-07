@@ -1191,6 +1191,12 @@ void CTFGameRules::PreviousRoundEnd( void )
 //-----------------------------------------------------------------------------
 void CTFGameRules::SetupOnStalemateStart( void )
 {
+	// Respawn all the players
+	RespawnPlayers( true );
+
+	if ( TFGameRules()->IsInArenaMode() )
+		return;
+
 	// Remove everyone's objects
 	for ( int i = 1 ; i <= gpGlobals->maxClients ; i++ )
 	{
