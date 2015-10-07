@@ -887,6 +887,8 @@ SectionedListPanel *CTFDeathMatchScoreBoardDialog::GetSelectedPlayerList(void)
 //-----------------------------------------------------------------------------
 void CTFDeathMatchScoreBoardDialog::OnThink()
 {
+	BaseClass::OnThink();
+
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (IsVisible() && pLocalPlayer && pLocalPlayer->m_nButtons & IN_ATTACK2)
 	{
