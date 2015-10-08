@@ -416,3 +416,11 @@ void CTFSpectatorGUI::ShowPanel(bool bShow)
 
 	BaseClass::ShowPanel( bShow );
 }
+
+const char *CTFSpectatorGUI::GetResFilename(void)
+{
+	if ( TFGameRules() && TFGameRules()->IsInTournamentMode() )
+		return "Resource/UI/SpectatorTournament.res";
+
+	return "Resource/UI/Spectator.res";
+}

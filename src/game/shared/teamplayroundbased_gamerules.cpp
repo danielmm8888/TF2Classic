@@ -2153,7 +2153,7 @@ void CTeamplayRoundBasedRules::State_Think_STALEMATE( void )
 				}
 			}
 
-			if ( bFoundLiveOne )
+			if ( bFoundLiveOne && pTeam )
 			{
 				pAliveTeams.AddToTail( pTeam );
 			}
