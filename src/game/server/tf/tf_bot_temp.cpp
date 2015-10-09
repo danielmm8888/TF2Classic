@@ -160,7 +160,7 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		char const *pVal = args.FindArg( "-class" );
 		if ( pVal )
 		{
-			for ( int i=1; i < TF_CLASS_COUNT_ALL; i++ )
+			for ( int i=1; i <= TF_CLASS_ENGINEER; i++ )
 			{
 				if ( stricmp( GetPlayerClassData( i )->m_szClassName, pVal ) == 0 )
 				{
@@ -345,7 +345,7 @@ void Bot_Think( CTFPlayer *pBot )
 		}
 		pBot->HandleCommand_JoinTeam( pszTeam );
 	}
-	else if ( pBot->GetTeamNumber() != TEAM_UNASSIGNED && pBot->GetPlayerClass()->IsClass( TF_CLASS_UNDEFINED ) )
+	else if ( pBot->GetTeamNumber() != TEAM_UNASSIGNED && pBot->IsPlayerClass( TF_CLASS_UNDEFINED ) )
 	{
 		// If they're on a team but haven't picked a class, choose a random class..
 		pBot->HandleCommand_JoinClass( GetPlayerClassData( botdata->m_WantedClass )->m_szClassName );
@@ -385,7 +385,7 @@ void Bot_Think( CTFPlayer *pBot )
 		}
 
 		// Only turn if I haven't been hurt
-		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) && pBot->m_iHealth == 100 )
+		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN)  )
 		{
 			Vector vecEnd;
 			Vector forward;
@@ -596,7 +596,7 @@ void Bot_Think( CTFPlayer *pBot )
 		//sidemove = cos( gpGlobals->curtime * 2.3 + pBot->entindex() ) * speed;
 		sidemove = cos( gpGlobals->curtime + pBot->entindex() ) * speed;
 
-		/*
+		
 		if (sin(gpGlobals->curtime ) < -0.5)
 		{
 			buttons |= IN_DUCK;
@@ -605,7 +605,7 @@ void Bot_Think( CTFPlayer *pBot )
 		{
 			buttons |= IN_WALK;
 		}
-		*/
+		
 
 		pBot->SetLocalAngles( botdata->lastAngles );
 		vecViewAngles = botdata->lastAngles;
