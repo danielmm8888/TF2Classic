@@ -2876,6 +2876,15 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		TraceBleed( info_modified.GetDamage(), vecDir, ptr, info_modified.GetDamageType() );
 	}
 
+	if ( pAttacker && pAttacker->GetActiveTFWeapon() && pAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_UBERSAW )
+	{
+		CWeaponMedigun *pMedigun = pAttacker->GetMedigun();
+		if ( pMedigun )
+		{
+			pMedigun->AddCharge();
+		}
+	}
+
 	AddMultiDamage( info_modified, this );
 }
 
@@ -6994,7 +7003,7 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 	if ( bOn )
 	{
 		m_flPowerPlayTime = gpGlobals->curtime + 99999;
-		m_Shared.RecalculateInvuln();
+		m_Shared.RecalculateChargeEffects();
 		m_Shared.Burn( this );
 
 		PowerplayThink();
@@ -7003,7 +7012,7 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 	{
 		m_flPowerPlayTime = 0.0;
 		m_Shared.RemoveCond( TF_COND_BURNING );
-		m_Shared.RecalculateInvuln();
+		m_Shared.RecalculateChargeEffects();
 	}
 	return true;
 }
