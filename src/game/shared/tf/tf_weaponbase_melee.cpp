@@ -6,9 +6,6 @@
 
 #include "cbase.h"
 #include "tf_weaponbase_melee.h"
-#include "tf_weapon_ubersaw.h"
-#include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "effect_dispatch_data.h"
 #include "tf_gamerules.h"
 
@@ -324,24 +321,7 @@ void CTFWeaponBaseMelee::Smack( void )
 			// TODO: Not removing the old critical path yet, but the new custom damage is marking criticals as well for melee now.
 			iDmgType |= DMG_CRITICAL;
 		}
-		CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-		CTFUbersaw *pUbersaw = dynamic_cast<CTFUbersaw*>(pWpn);
-		CWeaponMedigun *pMedigun = static_cast<CWeaponMedigun*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_MEDIGUN));
-		if (pMedigun && pUbersaw)
-		{
-			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
-			{
-				pMedigun->AddCharge();
-			}
-		}
-		CWeaponKritzkrieg *pKritzkrieg = static_cast<CWeaponKritzkrieg*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG));
-		if (pKritzkrieg && pUbersaw)
-		{
-			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
-			{
-				pKritzkrieg->AddCharge();
-			}
-		}
+
 		CTakeDamageInfo info( pPlayer, pPlayer, flDamage, iDmgType, iCustomDamage );
 		CalculateMeleeDamageForce( &info, vecForward, vecSwingEnd, 1.0f / flDamage * tf_meleeattackforcescale.GetFloat() );
 		trace.m_pEnt->DispatchTraceAttack( info, vecForward, &trace ); 

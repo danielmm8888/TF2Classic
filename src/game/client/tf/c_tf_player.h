@@ -21,6 +21,7 @@
 #include "hintsystem.h"
 #include "c_playerattachedmodel.h"
 #include "iinput.h"
+#include "tf_weapon_medigun.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -200,6 +201,7 @@ public:
 	virtual bool		Weapon_ShouldSetLast( CBaseCombatWeapon *pOldWeapon, CBaseCombatWeapon *pNewWeapon );
 	virtual	bool		Weapon_Switch( C_BaseCombatWeapon *pWeapon, int viewmodelindex = 0 );
 
+	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );

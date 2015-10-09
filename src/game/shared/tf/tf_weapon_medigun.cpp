@@ -45,8 +45,6 @@ ConVar tf_medigun_autoheal( "tf_medigun_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_
 ConVar tf_medigun_lagcomp(  "tf_medigun_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
 #endif
 
-static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
-
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -70,7 +68,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( WeaponMedigun, DT_WeaponMedigun )
 
 BEGIN_NETWORK_TABLE( CWeaponMedigun, DT_WeaponMedigun )
 #if !defined( CLIENT_DLL )
-	SendPropFloat( SENDINFO(m_flChargeLevel), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+	SendPropFloat( SENDINFO( m_flChargeLevel ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 	SendPropEHandle( SENDINFO( m_hHealingTarget ) ),
 	SendPropBool( SENDINFO( m_bHealing ) ),
 	SendPropBool( SENDINFO( m_bAttacking ) ),
@@ -204,8 +202,7 @@ bool CWeaponMedigun::Deploy( void )
 		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 		if ( m_bChargeRelease && pOwner )
 		{
-			pOwner->m_Shared.RecalculateInvuln();
-			pOwner->m_Shared.RecalculateCrits();
+			pOwner->m_Shared.RecalculateChargeEffects();
 		}
 #endif
 
@@ -236,8 +233,7 @@ bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( pOwner )
 	{
-		pOwner->m_Shared.RecalculateInvuln( true );
-		pOwner->m_Shared.RecalculateCrits(true);
+		pOwner->m_Shared.RecalculateChargeEffects( true );
 	}
 #endif
 
@@ -520,8 +516,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 				pTFPlayer->m_Shared.Heal( pOwner, GetHealRate() );
 			}
 
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
-			pTFPlayer->m_Shared.RecalculateCrits(false);
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 		}
 
 		if ( m_flReleaseStartedAt && m_flReleaseStartedAt < (gpGlobals->curtime + 0.2) )
@@ -581,13 +576,32 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::AddCharge(void)
+void CWeaponMedigun::AddCharge( void )
 {
-	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
+#ifdef GAME_DLL
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	CTFPlayer *pHealingTarget = ToTFPlayer( m_hHealingTarget );
+#endif
+
+	float flNewLevel = min( m_flChargeLevel + 0.25, 1.0 );
+
+	if ( flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
+	{
+#ifdef GAME_DLL
+		if ( pPlayer )
+		{
+			pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEREADY );
+		}
+
+		if ( pHealingTarget )
+		{
+			pHealingTarget->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEREADY );
+		}
+#endif
+	}
+
 	m_flChargeLevel = flNewLevel;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -627,7 +641,7 @@ void CWeaponMedigun::DrainCharge( void )
 			}
 			*/
 
-			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateChargeEffects();
 			pOwner->m_Shared.RecalculateCrits();
 #endif
 		}
@@ -744,8 +758,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
-			pTFPlayer->m_Shared.RecalculateCrits( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
@@ -870,16 +883,14 @@ void CWeaponMedigun::SecondaryAttack( void )
 
 #ifdef GAME_DLL
 	CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-	pOwner->m_Shared.RecalculateInvuln();
-	pOwner->m_Shared.RecalculateCrits();
+	pOwner->m_Shared.RecalculateChargeEffects();
 
 	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
 
 	if ( m_hHealingTarget && m_hHealingTarget->IsPlayer() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
-		pTFPlayer->m_Shared.RecalculateInvuln();
-		pTFPlayer->m_Shared.RecalculateCrits();
+		pTFPlayer->m_Shared.RecalculateChargeEffects();
 		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
 	}
 

@@ -31,6 +31,8 @@ public:
 	CTFUbersaw() {}
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_UBERSAW; }
 
+	virtual void		ItemPostFrame( void );
+
 private:
 
 	CTFUbersaw( const CTFUbersaw & ) {}

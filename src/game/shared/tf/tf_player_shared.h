@@ -158,8 +158,8 @@ public:
 #ifdef GAME_DLL
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
-	void	RecalculateInvuln( bool bInstantRemove = false );
-	void	RecalculateCrits(bool bInstantRemove = false);
+	void	RecalculateChargeEffects( bool bInstantRemove = false );
+	void	RecalculateCrits( bool bInstantRemove = false );
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
 #endif

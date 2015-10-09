@@ -767,16 +767,10 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 	// Stops the drain hack.
 	if ( m_pOuter->IsPlayerClass( TF_CLASS_MEDIC ) )
 	{
-		CWeaponMedigun *pWeapon = ( CWeaponMedigun* )m_pOuter->Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
+		CWeaponMedigun *pWeapon = m_pOuter->GetMedigun();
 		if ( pWeapon && pWeapon->IsReleasingCharge() )
 		{
 			pWeapon->DrainCharge();
-		}
-
-		CWeaponKritzkrieg *pKritz = ( CWeaponKritzkrieg* )m_pOuter->Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG );
-		if (pKritz && pKritz->IsReleasingCharge())
-		{
-			pKritz->DrainCharge();
 		}
 	}
 
@@ -804,6 +798,7 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			RemoveCond( TF_COND_INVULNERABLE );
 		}
 	}
+
 	if ( InCond( TF_COND_CRITBOOSTED ) )
 	{
 		bool bRemoveCrits = false;
@@ -1770,7 +1765,7 @@ void CTFPlayerShared::Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserH
 
 	AddCond( TF_COND_HEALTH_BUFF, PERMANENT_CONDITION );
 
-	RecalculateInvuln();
+	RecalculateChargeEffects();
 
 	m_nNumHealers = m_aHealers.Count();
 }
@@ -1791,7 +1786,7 @@ void CTFPlayerShared::StopHealing( CTFPlayer *pPlayer )
 		RemoveCond( TF_COND_HEALTH_BUFF );
 	}
 
-	RecalculateInvuln();
+	RecalculateChargeEffects();
 
 	m_nNumHealers = m_aHealers.Count();
 }
@@ -1801,14 +1796,14 @@ void CTFPlayerShared::StopHealing( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 bool CTFPlayerShared::IsProvidingInvuln( CTFPlayer *pPlayer )
 {
-	if ( !pPlayer->IsPlayerClass(TF_CLASS_MEDIC) )
+	if ( !pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
 		return false;
 
 	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
 	if ( !pWpn )
 		return false;
 
-	CWeaponMedigun *pMedigun = dynamic_cast<CWeaponMedigun*>(pWpn);
+	CWeaponMedigun *pMedigun = dynamic_cast <CWeaponMedigun* >( pWpn );
 	if ( pMedigun && pMedigun->IsReleasingCharge() )
 		return true;
 
@@ -1818,17 +1813,17 @@ bool CTFPlayerShared::IsProvidingInvuln( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFPlayerShared::IsProvidingCrits(CTFPlayer *pPlayer)
+bool CTFPlayerShared::IsProvidingCrits( CTFPlayer *pPlayer )
 {
-	if (!pPlayer->IsPlayerClass(TF_CLASS_MEDIC))
+	if ( !pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
 		return false;
 
 	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
 	if (!pWpn)
 		return false;
 
-	CWeaponKritzkrieg *pKritzkrieg = dynamic_cast<CWeaponKritzkrieg*>(pWpn);
-	if (pKritzkrieg && pKritzkrieg->IsReleasingCharge())
+	CWeaponKritzkrieg *pKritzkrieg = dynamic_cast<CWeaponKritzkrieg*>( pWpn );
+	if ( pKritzkrieg && pKritzkrieg->IsReleasingCharge() )
 		return true;
 
 	return false;
@@ -1837,7 +1832,7 @@ bool CTFPlayerShared::IsProvidingCrits(CTFPlayer *pPlayer)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::RecalculateInvuln( bool bInstantRemove )
+void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 {
 	bool bShouldBeInvuln = false;
 
@@ -1880,35 +1875,35 @@ void CTFPlayerShared::RecalculateInvuln( bool bInstantRemove )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::RecalculateCrits(bool bInstantRemove)
+void CTFPlayerShared::RecalculateCrits( bool bInstantRemove )
 {
 	bool bShouldBeCrit = false;
 
-	if (m_pOuter->m_flPowerPlayTime > gpGlobals->curtime)
+	if ( m_pOuter->m_flPowerPlayTime > gpGlobals->curtime )
 	{
 		bShouldBeCrit = true;
 	}
 
 	// If we're not carrying the flag, and we're being healed by a medic 
 	// who's generating invuln, then we should get invuln.
-	if (!m_pOuter->HasTheFlag())
+	if ( !m_pOuter->HasTheFlag() )
 	{
-		if (IsProvidingCrits(m_pOuter))
+		if ( IsProvidingCrits( m_pOuter ) )
 		{
 			bShouldBeCrit = true;
 		}
 		else
 		{
-			for (int i = 0; i < m_aHealers.Count(); i++)
+			for ( int i = 0; i < m_aHealers.Count(); i++ )
 			{
-				if (!m_aHealers[i].pPlayer)
+				if ( !m_aHealers[i].pPlayer )
 					continue;
 
-				CTFPlayer *pPlayer = ToTFPlayer(m_aHealers[i].pPlayer);
-				if (!pPlayer)
+				CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
+				if ( !pPlayer )
 					continue;
 
-				if (IsProvidingCrits(pPlayer))
+				if ( IsProvidingCrits( pPlayer ) )
 				{
 					bShouldBeCrit = true;
 					break;
@@ -1917,7 +1912,7 @@ void CTFPlayerShared::RecalculateCrits(bool bInstantRemove)
 		}
 	}
 
-	SetCrits(bShouldBeCrit, bInstantRemove);
+	SetCrits( bShouldBeCrit, bInstantRemove );
 }
 
 //-----------------------------------------------------------------------------
@@ -3066,9 +3061,9 @@ const Vector& CTFPlayer::GetClassEyeHeight( void )
 //-----------------------------------------------------------------------------
 float CTFPlayer::MedicGetChargeLevel( void )
 {
-	if ( IsPlayerClass(TF_CLASS_MEDIC) )
+	if ( IsPlayerClass( TF_CLASS_MEDIC ) )
 	{
-		CTFWeaponBase *pWpn = ( CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
+		CTFWeaponBase *pWpn = GetMedigun();
 
 		if ( pWpn == NULL )
 			return 0;
@@ -3079,19 +3074,6 @@ float CTFPlayer::MedicGetChargeLevel( void )
 			return pWeapon->GetChargeLevel();
 	}
 
-	if (IsPlayerClass(TF_CLASS_MEDIC))
-	{
-		CTFWeaponBase *pWpn = (CTFWeaponBase *)Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG);
-
-		if (pWpn == NULL)
-			return 0;
-
-		CWeaponKritzkrieg *pWeapon = dynamic_cast <CWeaponKritzkrieg*>(pWpn);
-
-		if (pWeapon)
-			return pWeapon->GetChargeLevel();
-	}
-
 	// Spy has a fake uber level.
 	if ( IsPlayerClass( TF_CLASS_SPY ) )
 	{
@@ -3099,6 +3081,26 @@ float CTFPlayer::MedicGetChargeLevel( void )
 	}
 
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CWeaponMedigun *CTFPlayer::GetMedigun( void )
+{
+	// This is a temporary workaround until we get conditions working and we can 
+	// just base everything off of the same entity
+
+	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) )
+		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
+
+	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_OVERHEALER ) )
+		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_OVERHEALER );
+
+	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG ) )
+		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG );
+
+	return NULL;
 }
 
 CTFWeaponBase *CTFPlayer::Weapon_OwnsThisID( int iWeaponID )

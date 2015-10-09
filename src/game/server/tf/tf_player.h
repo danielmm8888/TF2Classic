@@ -13,6 +13,7 @@
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
+#include "tf_weapon_medigun.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -403,9 +404,10 @@ public:
 
 	float				MedicGetChargeLevel( void );
 
+	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
-	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );
+	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
 
 	float	m_flSpawnProtectTime;
 
