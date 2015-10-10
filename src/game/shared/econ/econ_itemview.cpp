@@ -68,11 +68,7 @@ const char* CEconItemView::GetPlayerDisplayModel(int ID)
 
 const char* CEconItemView::GetEntityName( int ID )
 {
-	char name[64];
-	Q_strncpy( name, GetItemSchema()->GetItemDefinition( ID )->item_class, sizeof( name ) );
-	char *result = (char*)malloc(sizeof(name));
-	Q_strncpy(result, name, sizeof(name));
-	return result;
+	return GetItemSchema()->GetItemDefinition(ID)->item_class;
 }
 
 bool CEconItemView::IsCosmetic(CEconEntity *pEntity)
@@ -94,16 +90,18 @@ Activity CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamNumb
 
 Activity CEconItemView::GetActivityOverride( int ID, int iTeamNumber, Activity actOriginalActivity )
 {
+	EconItemVisuals *visual = &GetItemSchema()->GetItemDefinition(ID)->visual;
 	Activity actOverridenActivity = ACT_INVALID;
-	for ( unsigned int i = 0; i < GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.Count(); i++ )
+	for ( unsigned int i = 0; i < visual->animation_replacement.Count(); i++ )
 	{
-		const char *szActivityString = GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.GetElementName( i );
+		const char *szActivityString = visual->animation_replacement.GetElementName( i );
 		actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
 
 		if ( actOverridenActivity == actOriginalActivity )
 		{
-			szActivityString = GetItemSchema()->GetItemDefinition( ID )->visual.animation_replacement.Element( i );
+			szActivityString = visual->animation_replacement.Element( i );
 			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+			return actOverridenActivity;
 		}
 	}
 	return actOverridenActivity;
@@ -116,11 +114,9 @@ const char* CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamN
 
 const char* CEconItemView::GetActivityOverride( int ID, int iTeamNumber, const char *name )
 {
-	char str[64];
-	FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->visual.animation_replacement, name, str);
-	char *result = (char*)malloc(sizeof(str));
-	Q_strncpy(result, str, sizeof(str));
-	return result;
+	const char* str = "";
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.animation_replacement, name, str);
+	return str;
 }
 
 const char* CEconItemView::GetSoundOverride(CEconEntity *pEntity, const char* name)
@@ -130,11 +126,9 @@ const char* CEconItemView::GetSoundOverride(CEconEntity *pEntity, const char* na
 
 const char* CEconItemView::GetSoundOverride(int ID, const char* name)
 {
-	char str[64];
-	FIND_ELEMENT_STRING(GetItemSchema()->GetItemDefinition(ID)->visual.misc_info, name, str);
-	char *result = (char*)malloc(sizeof(str));
-	Q_strncpy(result, str, sizeof(str));
-	return result;
+	const char* str = "";
+	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.misc_info, name, str);
+	return str;
 }
 
 bool CEconItemView::HasCapability(CEconEntity *pEntity, const char* name)

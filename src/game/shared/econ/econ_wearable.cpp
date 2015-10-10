@@ -61,14 +61,15 @@ int CEconWearable::GetSkin( void )
 
 void CEconWearable::UpdateWearableBodyGroups( CBasePlayer *pPlayer )
 {
- 	for ( unsigned int i = 0; i < GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.Count(); i++ )
+	EconItemVisuals *visual = &GetItemSchema()->GetItemDefinition(GetItemDefIndex())->visual;
+ 	for ( unsigned int i = 0; i < visual->player_bodygroups.Count(); i++ )
 	{
-		const char *szBodyGroupName = GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.GetElementName( i );
+		const char *szBodyGroupName = visual->player_bodygroups.GetElementName(i);
 
 		if ( szBodyGroupName )
 		{
 			int iBodyGroup = pPlayer->FindBodygroupByName( szBodyGroupName );
-			int iBodyGroupValue = GetItemSchema()->GetItemDefinition( GetItemDefIndex() )->visual.player_bodygroups.Element( i );
+			int iBodyGroupValue = visual->player_bodygroups.Element(i);
 
 			pPlayer->SetBodygroup( iBodyGroup, iBodyGroupValue );
 		}

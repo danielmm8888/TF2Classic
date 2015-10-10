@@ -72,7 +72,7 @@ public:
 		}
 
 #define GET_VALUES_FAST_STRING(dict, keys)\
-		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
+		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())	\
 		{													\
 			IF_ELEMENT_FOUND(dict, pKeyData->GetName())		\
 			{												\
@@ -80,7 +80,7 @@ public:
 			}												\
 			else											\
 			{												\
-				dict.Insert(pKeyData->GetName(), pKeyData->GetString());										\
+				dict.Insert(pKeyData->GetName(), strdup(pKeyData->GetString()));\
 			}												\
 		}	
 
