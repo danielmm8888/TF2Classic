@@ -59,6 +59,7 @@ CTFDamageAccountPanel::CTFDamageAccountPanel( const char *pElementName )
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 	SetScheme( "ClientScheme" );
+	m_pDamageAccountLabel = new Label( this, "CDamageAccountPanel", "" );
 }
 
 //-----------------------------------------------------------------------------
@@ -89,8 +90,6 @@ void CTFDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 	BaseClass::ApplySchemeSettings( pScheme );
 
 	LoadControlSettings( "resource/UI/HudDamageAccount.res" );
-
-	m_pDamageAccountLabel = dynamic_cast< Label * >( FindChildByName( "CDamageAccountPanel" ) );
 }
 
 //-----------------------------------------------------------------------------
