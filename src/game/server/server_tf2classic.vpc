@@ -164,6 +164,8 @@ $Project "Server (TF)"
 			$File	"tf\func_respawnflag.cpp"
 			$File	"tf\func_respawnflag.h"	
 			$File	"tf\tf_vehicle_jeep.cpp"	
+			$File	"tf\tf_generic_bomb.cpp"
+			$File	"tf\tf_generic_bomb.h"	
 			
 			$Folder	"Unused"
 			{
