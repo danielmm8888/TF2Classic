@@ -169,13 +169,13 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 
 	if ( bShow )
 	{		
-		if (TFGameRules()->IsFourTeamGame())
+		if ( TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, true);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, true );
 		}
-		else if (TFGameRules()->IsDeathmatch())
+		else if ( TFGameRules() && TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, true);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, true );
 		}
 		else
 		{
@@ -196,11 +196,11 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	{
 		if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, false);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, false );
 		}
 		else if (TFGameRules() && TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, false);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, false );
 		}
 		else
 		{
@@ -268,7 +268,7 @@ void CTFClientScoreBoardDialog::Update()
 	MoveToCenterOfScreen();
 
 	// Not really sure where to put this
-	if (TFGameRules())
+	if ( TFGameRules() )
 	{
 		if (mp_timelimit.GetInt() > 0)
 		{
