@@ -210,11 +210,11 @@ void CTargetID::PerformLayout( void )
 	GetPos( iX, iY );
 	SetPos( (ScreenWidth() - iWidth) * 0.5, iY );
 
-	SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 
 	if ( m_pBGPanel )
 	{
 		m_pBGPanel->SetSize( iWidth, GetTall() );
+		m_pBGPanel->SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 	}
 };
 
