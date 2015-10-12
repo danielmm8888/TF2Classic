@@ -107,8 +107,12 @@ const char *g_aGameTypeNames[] =
 	"#Gametype_CP",
 	"#Gametype_Escort",
 	"#Gametype_Arena",
+	"#Gametype_RobotDestruction",
+	"#GameType_Passtime",
+	"#GameType_PlayerDestruction",
 	"#Gametype_MVM",
-	"#Gametype_DM"
+	"#Gametype_DM",
+	"#Gametype_VIP",
 };
 
 //-----------------------------------------------------------------------------

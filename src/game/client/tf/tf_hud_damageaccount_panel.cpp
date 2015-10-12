@@ -54,7 +54,7 @@ ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
 CTFDamageAccountPanel::CTFDamageAccountPanel( const char *pElementName )
-	: EditablePanel( NULL, "HudDamageAccount" ), CHudElement ( pElementName )
+	: EditablePanel( NULL, "CDamageAccountPanel" ), CHudElement ( pElementName )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
@@ -154,7 +154,9 @@ bool CTFDamageAccountPanel::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 void CTFDamageAccountPanel::Think( void )
 {
-	m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
+	if ( m_pDamageAccountLabel )
+		m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
+
 	// Hide it?
 	if( gpGlobals->curtime >= m_flRemoveAt )
 	{

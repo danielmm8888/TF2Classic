@@ -93,7 +93,8 @@ void CTFViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *wea
 	BaseClass::SetWeaponModel( modelname, weapon );
 
 #ifdef CLIENT_DLL
-	RemoveViewmodelAddon();
+	if ( !modelname )
+		RemoveViewmodelAddon();
 #endif
 }
 
