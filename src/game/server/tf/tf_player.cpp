@@ -418,6 +418,8 @@ CTFPlayer::CTFPlayer()
 //-----------------------------------------------------------------------------
 void CTFPlayer::TFPlayerThink()
 {
+	AddGlowEffect();
+
 	if ( m_pStateInfo && m_pStateInfo->pfnThink )
 	{
 		(this->*m_pStateInfo->pfnThink)();
@@ -2883,6 +2885,11 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		{
 			pMedigun->AddCharge();
 		}
+	}
+
+	if ( pAttacker && pAttacker->GetActiveTFWeapon() && pAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_HAMMERFISTS )
+	{
+		m_Shared.Burn( pAttacker );
 	}
 
 	AddMultiDamage( info_modified, this );
@@ -6830,7 +6837,7 @@ void CTFPlayer::ClearWeaponFireScene( void )
 	m_flNextSpeakWeaponFire = gpGlobals->curtime;
 }
 
-int CTFPlayer::DrawDebugTextOverlays(void) 
+int CTFPlayer::DrawDebugTextOverlays( void ) 
 {
 	int text_offset = BaseClass::DrawDebugTextOverlays();
 

@@ -477,6 +477,9 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		OnAddCritboosted();
 		break;
 
+	case TF_COND_POWERUP_RAGEMODE:
+		OnAddRagemode();
+
 	default:
 		break;
 	}
@@ -533,6 +536,9 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 	case TF_COND_CRITBOOSTED:
 		OnRemoveCritboosted();
 		break;
+
+	case TF_COND_POWERUP_RAGEMODE:
+		OnRemoveRagemode();
 
 	default:
 		break;
@@ -1095,6 +1101,30 @@ void CTFPlayerShared::OnAddCritboosted(void)
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddRagemode( void )
+{
+#ifdef GAME_DLL
+	CTFWeaponBase *pWeapon = (CTFWeaponBase *)m_pOuter->GiveNamedItem( "tf_weapon_hammerfists" );
+	if ( pWeapon )
+	{
+		pWeapon->DefaultTouch( m_pOuter );
+		m_pOuter->Weapon_Switch( pWeapon );
+	}
+#else
+	if ( m_pOuter->IsLocalPlayer() )
+	{
+		IMaterial *pMaterial = materials->FindMaterial( "effects/invuln_overlay_red", TEXTURE_GROUP_CLIENT_EFFECTS, false );
+		if ( !IsErrorMaterial( pMaterial ) )
+		{
+			view->SetScreenOverlayMaterial(pMaterial);
+		}
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Remove slowdown effect
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnRemoveSlowed(void)
@@ -1104,7 +1134,7 @@ void CTFPlayerShared::OnRemoveSlowed(void)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Remove slowdown effect
+// Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnRemoveCritboosted(void)
 {
@@ -1115,6 +1145,30 @@ void CTFPlayerShared::OnRemoveCritboosted(void)
 	m_pOuter->StopSound("Weapon_General.CritPower");
 #endif
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveRagemode(void)
+{
+#ifdef GAME_DLL
+
+	CTFWeaponBase *pWeapon = (CTFWeaponBase *)m_pOuter->Weapon_OwnsThisID( TF_WEAPON_HAMMERFISTS );
+
+	if ( pWeapon )
+	{
+		m_pOuter->Weapon_Detach( pWeapon );
+		UTIL_Remove( pWeapon );
+		m_pOuter->SwitchToNextBestWeapon( NULL );
+	}
+#else
+	if ( m_pOuter->IsLocalPlayer() )
+	{
+		view->SetScreenOverlayMaterial( NULL );
+	}
+#endif
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 

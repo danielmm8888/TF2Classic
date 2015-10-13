@@ -1153,75 +1153,84 @@ EXPOSE_INTERFACE(CProxyModelGlowColor, IMaterialProxy, "ModelGlowColor" IMATERIA
 class CProxyItemTintColor : public CResultProxy
 {
 public:
-	void OnBind(void *pC_BaseEntity)
+	void OnBind( void *pC_BaseEntity )
 	{
-		Assert(m_pResult);
+		Assert( m_pResult );
 
 		if ( !pC_BaseEntity )
 		{
-			m_pResult->SetVecValue(1, 1, 1);
+			m_pResult->SetVecValue( 1, 1, 1 );
 			return;
 		}
 
-		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
-		if (!pEntity)
+		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+		if ( !pEntity )
 			return;
 
 		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel*>(pEntity);
-		if (pPanelModel)
+		if ( pPanelModel )
 		{
-			m_pResult->SetVecValue(pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z);
+			m_pResult->SetVecValue( pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z );
 			return;
 		}
 
 		C_TFPlayer *pPlayer = null;
 
 		C_TFRagdoll *pRagdoll = dynamic_cast< C_TFRagdoll* >(pEntity);
-		if (pRagdoll)
+		if ( pRagdoll )
 		{
 			EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
-			pPlayer = dynamic_cast<C_TFPlayer*>(hPlayer.Get());
+			pPlayer = ToTFPlayer( hPlayer.Get() );
 		}
 
-		C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
-		if (pWeapon)
+		if ( !pPlayer )
 		{
-			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
-		}
-
-		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
-		if (pVMAddon)
-		{
-			if (pVMAddon->m_viewmodel.Get())
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if ( pWeapon )
 			{
-				pPlayer = (C_TFPlayer*)pVMAddon->m_viewmodel.Get()->GetOwner();
+				pPlayer = ToTFPlayer( pWeapon->GetOwner() );
 			}
 		}
 
-		C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
-		if (pVM)
+		if ( !pPlayer && TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			pPlayer = (C_TFPlayer*)pVM->GetOwner();
-		}
-
-		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
-		{
-			C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj*>(pEntity);
-			if (pGrenade)
+			C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
+			if ( pVMAddon )
 			{
-				pPlayer = ToTFPlayer(pGrenade->GetThrower());
+				if ( pVMAddon->m_viewmodel.Get() )
+				{
+					pPlayer = ToTFPlayer( pVMAddon->m_viewmodel.Get()->GetOwner() );
+				}
+			}
+
+			if ( !pPlayer )
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if ( !pPlayer && pVM )
+				{
+					pPlayer = ToTFPlayer( pVM->GetOwner() );
+				}
+			}
+
+			if ( !pPlayer )
+			{
+				C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj*>(pEntity);
+				if ( pGrenade )
+				{
+					pPlayer = ToTFPlayer( pGrenade->GetThrower() );
+				}
 			}
 		}
 
-		if (!pPlayer)
+		if ( !pPlayer )
 		{
-			pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+			pPlayer = ToTFPlayer( pEntity );
 		}
 
 		// Final check to see if it's a player
-		if (pPlayer)
+		if ( pPlayer )
 		{
-			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+			m_pResult->SetVecValue( pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z );
 			return;
 		}
 

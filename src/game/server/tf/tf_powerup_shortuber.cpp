@@ -1,7 +1,6 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
 // Purpose: FILL IN
-//	  TODO: Add unique model and sound effect. Health kit assets as placeholder.
 //
 //=============================================================================//
 #include "cbase.h"
@@ -30,8 +29,8 @@ LINK_ENTITY_TO_CLASS(item_powerup_shortuber, CTFPowerupShortUber);
 //-----------------------------------------------------------------------------
 CTFPowerupShortUber::CTFPowerupShortUber()
 {
-	m_strModelName = MAKE_STRING("models/class_menu/random_class_icon.mdl");
-	m_strPickupSound = MAKE_STRING("HealthKit.Touch");
+	m_strModelName = MAKE_STRING( "models/class_menu/random_class_icon.mdl" );
+	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
 	m_iRespawnTime = 30;
 }
 

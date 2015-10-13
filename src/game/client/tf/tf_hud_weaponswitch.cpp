@@ -55,6 +55,10 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 	if (!pLocalTFPlayer)
 		return false;
 
+	// Don't draw the weapon selection HUD while the ragemode powerup is active.
+	if ( pLocalTFPlayer->m_Shared.InCond( TF_COND_POWERUP_RAGEMODE ) )
+		return false;
+
 	int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
 	if (iWeaponTo != TF_WEAPON_NONE)
 	{

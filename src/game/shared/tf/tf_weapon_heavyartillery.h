@@ -34,7 +34,13 @@ public:
 
 	virtual int	GetWeaponID( void ) const	{ return TF_WEAPON_HEAVYARTILLERY; }
 
+	virtual void PrimaryAttack( void );
+
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_MINIGUN; }
+
+private:
+
+	void ClipPunchAngleOffset( QAngle &in, const QAngle &punch, const QAngle &clip );
 
 };
 
