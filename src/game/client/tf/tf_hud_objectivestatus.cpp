@@ -450,10 +450,12 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 	if ( !TFGameRules() )
 		return;
 
+	CTeamRoundTimer *pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( m_iTimerIndex ) );
+	if ( !pTimer )
+		return;
+
 	if ( m_pSetupBG && m_pSetupLabel )
 	{
-		CTeamRoundTimer *pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( m_iTimerIndex ) );
-
 		// get the time remaining (in seconds)
 		if ( pTimer )
 		{
@@ -475,28 +477,9 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 	{
 		bool bInOver = TFGameRules()->InOvertime();
 
-		// DEBUG CODE: DO NOT SHIP
 		if ( TFGameRules()->IsInKothMode() )
 		{
-			CTeamRoundTimer *pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( m_iTimerIndex ) );
-			if ( pTimer )
-			{
-				float flTimeRemaining = pTimer->GetTimeRemaining();
-
-				if ( flTimeRemaining <= 0.0f )
-				{
-					bInOver = true;
-				}
-				else
-				{
-					bInOver = false;
-				}
-
-			}
-			else if ( !pTimer )
-			{
-				bInOver = true;
-			}
+			bInOver = pTimer->GetTimeRemaining() <= 0.0f;
 		}
 
 		if ( bInOver )
@@ -506,7 +489,7 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 				m_pOvertimeLabel->SetAlpha( 0 );
 				m_pOvertimeBG->SetAlpha( 0 );
 
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "OvertimeShow" ); 
+				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "OvertimeShow" ); 
 
 				// need to turn off the SuddenDeath images if they're on
 				m_pSuddenDeathBG->SetVisible( false );
@@ -1115,6 +1098,7 @@ void CTFHudKothTimeStatus::Think( void )
 				}
 			}
 
+			// Set overtime panels active on our active panel (if needed)
 			if ( m_pActiveKothTimerPanel )
 				m_pActiveKothTimerPanel->SetExtraTimePanels();
 
