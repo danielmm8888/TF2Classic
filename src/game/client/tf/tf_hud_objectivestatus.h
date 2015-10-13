@@ -150,6 +150,8 @@ public:
 	virtual void Think( void );
 	virtual void UpdateActiveTeam( void );
 
+	virtual int GetRenderGroupPriority( void ) { return 60; }	// higher than build menus
+
 private:
 
 	CPanelAnimationVarAliasType( int, m_nBlueActiveXPos, "blue_active_xpos", "0", "proportional_int" );

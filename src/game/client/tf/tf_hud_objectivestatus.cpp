@@ -475,6 +475,30 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 	{
 		bool bInOver = TFGameRules()->InOvertime();
 
+		// DEBUG CODE: DO NOT SHIP
+		if ( TFGameRules()->IsInKothMode() )
+		{
+			CTeamRoundTimer *pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( m_iTimerIndex ) );
+			if ( pTimer )
+			{
+				float flTimeRemaining = pTimer->GetTimeRemaining();
+
+				if ( flTimeRemaining <= 0.0f )
+				{
+					bInOver = true;
+				}
+				else
+				{
+					bInOver = false;
+				}
+
+			}
+			else if ( !pTimer )
+			{
+				bInOver = true;
+			}
+		}
+
 		if ( bInOver )
 		{
 			if ( !m_pOvertimeBG->IsVisible() )
@@ -1081,8 +1105,8 @@ void CTFHudKothTimeStatus::Think( void )
 
 			if ( !m_pBlueKothTimer->IsVisible() || !m_pRedKothTimer->IsVisible() )
 			{
-				m_pBlueKothTimer->SetVisible( bDisplayBlueTimer );
-				m_pRedKothTimer->SetVisible( bDisplayRedTimer );
+				m_pBlueKothTimer->SetVisible( true ); // bDisplayBlueTimer
+				m_pRedKothTimer->SetVisible( true ); // bDisplayRedTimer
 
 				// If our spectator GUI is visible, invalidate its layout so that it moves the reinforcement label
 				if (g_pSpectatorGUI)
@@ -1091,22 +1115,15 @@ void CTFHudKothTimeStatus::Think( void )
 				}
 			}
 
+			if ( m_pActiveKothTimerPanel )
+				m_pActiveKothTimerPanel->SetExtraTimePanels();
+
 			// Do NOT put a null check here, otherwise the white active timer BG will linger around after a round end
 			if ( pActiveKothTimerPanel != m_pActiveKothTimerPanel )
 			{
 				m_pActiveKothTimerPanel = pActiveKothTimerPanel;
-
-				if ( m_pActiveKothTimerPanel )
-					m_pActiveKothTimerPanel->SetExtraTimePanels();
-
 				UpdateActiveTeam();
 			}
-
-			/*if ( m_pBlueKothTimer->IsVisible() )
-				m_pBlueKothTimer->SetExtraTimePanels();
-
-			if ( m_pRedKothTimer->IsVisible() )
-				m_pRedKothTimer->SetExtraTimePanels();*/
 		}
 		else
 		{
@@ -1114,10 +1131,5 @@ void CTFHudKothTimeStatus::Think( void )
 			m_pRedKothTimer->SetVisible( false );
 			m_pActiveTimerBG->SetVisible( false );
 		}
-	}
-	else
-	{
-
-		Msg("test");
 	}
 }
