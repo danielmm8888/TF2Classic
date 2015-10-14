@@ -1112,13 +1112,15 @@ void CTFPlayerShared::OnAddRagemode( void )
 		pWeapon->DefaultTouch( m_pOuter );
 		m_pOuter->Weapon_Switch( pWeapon );
 	}
+
+	m_pOuter->TeamFortress_SetSpeed();
 #else
 	if ( m_pOuter->IsLocalPlayer() )
 	{
 		IMaterial *pMaterial = materials->FindMaterial( "effects/invuln_overlay_red", TEXTURE_GROUP_CLIENT_EFFECTS, false );
 		if ( !IsErrorMaterial( pMaterial ) )
 		{
-			view->SetScreenOverlayMaterial(pMaterial);
+			view->SetScreenOverlayMaterial( pMaterial );
 		}
 	}
 #endif
@@ -1152,7 +1154,6 @@ void CTFPlayerShared::OnRemoveCritboosted(void)
 void CTFPlayerShared::OnRemoveRagemode(void)
 {
 #ifdef GAME_DLL
-
 	CTFWeaponBase *pWeapon = (CTFWeaponBase *)m_pOuter->Weapon_OwnsThisID( TF_WEAPON_HAMMERFISTS );
 
 	if ( pWeapon )
@@ -1161,6 +1162,8 @@ void CTFPlayerShared::OnRemoveRagemode(void)
 		UTIL_Remove( pWeapon );
 		m_pOuter->SwitchToNextBestWeapon( NULL );
 	}
+
+	m_pOuter->TeamFortress_SetSpeed();
 #else
 	if ( m_pOuter->IsLocalPlayer() )
 	{
@@ -1218,7 +1221,7 @@ void CTFPlayerShared::OnRemoveBurning( void )
 		m_pOuter->m_pBurningEffect = NULL;
 	}
 
-	if ( m_pOuter->IsLocalPlayer() )
+	if ( m_pOuter->IsLocalPlayer() && !InCond( TF_COND_POWERUP_RAGEMODE ) )
 	{
 		view->SetScreenOverlayMaterial( NULL );
 	}
@@ -1381,19 +1384,19 @@ void CTFPlayerShared::OnAddBurning( void )
 			break;
 		}
 
-		if (TFGameRules()->IsDeathmatch())
+		if ( TFGameRules()->IsDeathmatch() )
 			pEffectName = "burningplayer_dm";
 			
 		m_pOuter->m_pBurningEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
 
-		if (TFGameRules()->IsDeathmatch())
-			SetParticleToMercColor(m_pOuter->m_pBurningEffect);
+		if ( TFGameRules()->IsDeathmatch() )
+			SetParticleToMercColor( m_pOuter->m_pBurningEffect );
 
 		m_pOuter->m_flBurnEffectStartTime = gpGlobals->curtime;
 		m_pOuter->m_flBurnEffectEndTime = gpGlobals->curtime + TF_BURNING_FLAME_LIFE;
 	}
 	// set the burning screen overlay
-	if ( m_pOuter->IsLocalPlayer() )
+	if ( m_pOuter->IsLocalPlayer() && !InCond( TF_COND_POWERUP_RAGEMODE ) )
 	{
 		IMaterial *pMaterial = materials->FindMaterial( "effects/imcookin", TEXTURE_GROUP_CLIENT_EFFECTS, false );
 		if ( !IsErrorMaterial( pMaterial ) )
@@ -2649,6 +2652,11 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	{
 		if (maxfbspeed > tf_spy_max_cloaked_speed.GetFloat() )
 			maxfbspeed = tf_spy_max_cloaked_speed.GetFloat();
+	}
+
+	if ( m_Shared.InCond( TF_COND_POWERUP_RAGEMODE ) )
+	{
+		maxfbspeed *= 1.3f;
 	}
 
 	// Reduce our speed if we were tranquilized
