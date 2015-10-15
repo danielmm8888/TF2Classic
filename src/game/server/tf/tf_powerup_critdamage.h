@@ -21,19 +21,19 @@
 class CTFPowerupCritdamage : public CTFBaseDMPowerup
 {
 public:
-	DECLARE_CLASS(CTFPowerupCritdamage, CTFBaseDMPowerup);
+	DECLARE_CLASS( CTFPowerupCritdamage, CTFBaseDMPowerup );
 	DECLARE_DATADESC();
 
 	CTFPowerupCritdamage();
 
-	void	Spawn(void);
-	void	Precache(void);
-	bool	MyTouch(CBasePlayer *pPlayer);
+	void	Spawn( void );
+	void	Precache( void );
+	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual int	GetEffectDuration(void) { return 15; }
-	virtual int	GetCondition(void) { return TF_COND_POWERUP_CRITDAMAGE; }
+	virtual int	GetEffectDuration( void ) { return 15; }
+	virtual int	GetCondition( void ) { return TF_COND_POWERUP_CRITDAMAGE; }
 
-	powerupsize_t	GetPowerupSize(void) { return POWERUP_FULL; }
+	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 };
 
 #endif // POWERUP_CRITDAMAGE_H

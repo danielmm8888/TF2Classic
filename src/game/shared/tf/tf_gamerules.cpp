@@ -29,7 +29,6 @@
 	#include "tf_obj.h"
 	#include "tf_objective_resource.h"
 	#include "tf_player_resource.h"
-	#include "team_control_point_master.h"
 	#include "playerclass_info_parse.h"
 	#include "team_control_point_master.h"
 	#include "coordsize.h"
@@ -1850,7 +1849,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
-		if (IsDeathmatch() && !g_fGameOver)
+		if ( IsDeathmatch() && CountActivePlayers() > 0 && !g_fGameOver )
 		{
 			if ( CheckFragLimit() )
 				return;
@@ -1970,13 +1969,13 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		if ( fraglimit.GetInt() <= 0 )
 			return false;
 
-		for (int i = 1; i <= gpGlobals->maxClients; i++)
+		for ( int i = 1; i <= CountActivePlayers(); i++ )
 		{
-			CTFPlayer *pTFPlayer = ToTFPlayer(UTIL_PlayerByIndex(i));
+			CTFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 			if (pTFPlayer)
 			{
-				PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats(pTFPlayer);
-				int iScore = CalcPlayerScore(&pStats->statsCurrentRound);
+				PlayerStats_t *pStats = CTF_GameStats.FindPlayerStats( pTFPlayer );
+				int iScore = CalcPlayerScore( &pStats->statsCurrentRound );
 
 				if (iScore >= fraglimit.GetInt())
 				{
@@ -4364,6 +4363,9 @@ const char *CTFGameRules::GetGameDescription(void)
 			return "TF2C (CTF)";
 			break;
 		case TF_GAMETYPE_CP:
+			if ( IsInKothMode() )
+				return "TF2C (Koth)";
+
 			return "TF2C (CP)";
 			break;
 		case TF_GAMETYPE_ESCORT:
@@ -4411,11 +4413,11 @@ void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
 		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();
-		pTFPlayer->AddFlag(FL_GODMODE);
-		pTFPlayer->m_nRenderFX = kRenderFxHologram;
-		pTFPlayer->AddEffects(EF_ITEM_BLINK);
-		pTFPlayer->GetViewModel()->m_nRenderFX = kRenderFxHologram;
-		pTFPlayer->GetViewModel()->AddEffects(EF_ITEM_BLINK);
+		pTFPlayer->AddFlag( FL_GODMODE );
+		pTFPlayer->m_nRenderFX = kRenderFxExplode;
+		pTFPlayer->AddEffects( EF_ITEM_BLINK );
+		pTFPlayer->GetViewModel()->m_nRenderFX = kRenderFxExplode;
+		pTFPlayer->GetViewModel()->AddEffects( EF_ITEM_BLINK );
 		pTFPlayer->m_flSpawnProtectTime = flSpawnProtectTime;
 	}
 }

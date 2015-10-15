@@ -18,16 +18,15 @@
 
 //=============================================================================
 
-BEGIN_DATADESC(CTFBaseDMPowerup)
+BEGIN_DATADESC( CTFBaseDMPowerup )
 
-	DEFINE_KEYFIELD(m_strModelName, FIELD_STRING, "ModelName"),
-	DEFINE_KEYFIELD(m_strPickupSound, FIELD_STRING, "PickupSound"),
-	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
-//	DEFINE_KEYFIELD(m_iEffectDuration, FIELD_INTEGER, "EffectDuration"),
+	DEFINE_KEYFIELD( m_strModelName, FIELD_STRING, "ModelName" ),
+	DEFINE_KEYFIELD( m_strPickupSound, FIELD_SOUNDNAME, "PickupSound" ),
+	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
 
 END_DATADESC()
 
-IMPLEMENT_SERVERCLASS_ST(CTFBaseDMPowerup, DT_TFBaseDMPowerup)
+IMPLEMENT_SERVERCLASS_ST( CTFBaseDMPowerup, DT_TFBaseDMPowerup )
 END_SEND_TABLE()
 
 //=============================================================================
@@ -39,17 +38,16 @@ CTFBaseDMPowerup::CTFBaseDMPowerup()
 {
 	m_iRespawnTime = 0;
 	m_strModelName = MAKE_STRING("models/class_menu/random_class_icon.mdl");
-	m_strPickupSound = MAKE_STRING("HealthKit.Touch");
-//	m_iEffectDuration = 0;
+	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------
-void CTFBaseDMPowerup::Precache(void)
+void CTFBaseDMPowerup::Precache( void )
 {
-	PrecacheModel(GetPowerupModel());	
-	PrecacheScriptSound(GetPickupSound());
+	PrecacheModel( GetPowerupModel() );	
+	PrecacheScriptSound( GetPickupSound() );
 
 	BaseClass::Precache();
 }
@@ -57,10 +55,10 @@ void CTFBaseDMPowerup::Precache(void)
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CTFBaseDMPowerup::Spawn(void)
+void CTFBaseDMPowerup::Spawn( void )
 {
 	Precache();
-	SetModel(GetPowerupModel());
+	SetModel( GetPowerupModel() );
 
 	BaseClass::Spawn();
 
@@ -70,7 +68,7 @@ void CTFBaseDMPowerup::Spawn(void)
 //-----------------------------------------------------------------------------
 // Purpose:  
 //-----------------------------------------------------------------------------
-float CTFBaseDMPowerup::GetRespawnDelay(void)
+float CTFBaseDMPowerup::GetRespawnDelay( void )
 {
 	return (float)m_iRespawnTime;
 }
@@ -78,23 +76,23 @@ float CTFBaseDMPowerup::GetRespawnDelay(void)
 //-----------------------------------------------------------------------------
 // Purpose: Touch function
 //-----------------------------------------------------------------------------
-bool CTFBaseDMPowerup::MyTouch(CBasePlayer *pPlayer)
+bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 {
 	bool bSuccess = false;
 
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
-	if (pTFPlayer && ValidTouch(pPlayer))
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pPlayer );
+	if  ( pTFPlayer && ValidTouch( pPlayer ) )
 	{
-		pTFPlayer->m_Shared.AddCond(GetCondition(), GetEffectDuration());
+		pTFPlayer->m_Shared.AddCond( GetCondition(), GetEffectDuration() );
 
-		CSingleUserRecipientFilter user(pPlayer);
+		CSingleUserRecipientFilter user( pPlayer );
 		user.MakeReliable();
 
-		UserMessageBegin(user, "ItemPickup");
-		WRITE_STRING(GetClassname());
+		UserMessageBegin( user, "ItemPickup" );
+		WRITE_STRING( GetClassname() );
 		MessageEnd();
 
-		EmitSound(user, entindex(), GetPickupSound());
+		EmitSound( user, entindex(), GetPickupSound() );
 
 		bSuccess = true;
 	}

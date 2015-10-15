@@ -1,11 +1,12 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: FILL IN
+// Purpose: The Speedshooter powerup. A powerup which increases your firing and
+//			reload time for a certain (yet undetermined) period of time
 //
 //=============================================================================//
 
-#ifndef POWERUP_SHORTUBER_H
-#define POWERUP_SHORTUBER_H
+#ifndef POWERUP_SPEEDSHOOTER_H
+#define POWERUP_SPEEDSHOOTER_H
 
 #ifdef _WIN32
 #pragma once
@@ -15,13 +16,13 @@
 
 //=============================================================================
 
-class CTFPowerupShortUber : public CTFBaseDMPowerup
+class CTFPowerupSpeedshooter : public CTFBaseDMPowerup
 {
 public:
-	DECLARE_CLASS( CTFPowerupShortUber, CTFBaseDMPowerup );
+	DECLARE_CLASS( CTFPowerupSpeedshooter, CTFBaseDMPowerup );
 	DECLARE_DATADESC();
 
-	CTFPowerupShortUber();
+	CTFPowerupSpeedshooter();
 
 	void	Spawn( void );
 	void	Precache( void );
@@ -31,11 +32,11 @@ public:
 	virtual const char *GetPickupSound( void ) { return "HealthKit.Touch"; }
 
 	virtual int	GetEffectDuration( void ) { return 15; }
-	virtual int	GetCondition( void ) { return TF_COND_INVULNERABLE; }
+	virtual int	GetCondition( void ) { return TF_COND_POWERUP_FASTRELOAD; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 };
 
-#endif // POWERUP_SHORTUBER_H
+#endif // POWERUP_SPEEDSHOOTER_H
 
 

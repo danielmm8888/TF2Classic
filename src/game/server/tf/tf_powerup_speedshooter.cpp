@@ -1,6 +1,7 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======//
 //
-// Purpose: FILL IN
+// Purpose: The Speedshooter powerup. A powerup which increases your firing and
+//			reload time for a certain (yet undetermined) period of time
 //
 //=============================================================================//
 #include "cbase.h"
@@ -10,24 +11,24 @@
 #include "tf_player.h"
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
-#include "tf_powerup_shortuber.h"
+#include "tf_powerup_speedshooter.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 //=============================================================================
 
-BEGIN_DATADESC( CTFPowerupShortUber )
+BEGIN_DATADESC( CTFPowerupSpeedshooter )
 END_DATADESC()
 
-LINK_ENTITY_TO_CLASS( item_powerup_shortuber, CTFPowerupShortUber );
+LINK_ENTITY_TO_CLASS( item_powerup_speedshooter, CTFPowerupSpeedshooter );
 
 //=============================================================================
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor 
 //-----------------------------------------------------------------------------
-CTFPowerupShortUber::CTFPowerupShortUber()
+CTFPowerupSpeedshooter::CTFPowerupSpeedshooter()
 {
 	m_strModelName = MAKE_STRING( "models/class_menu/random_class_icon.mdl" );
 	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
@@ -37,7 +38,7 @@ CTFPowerupShortUber::CTFPowerupShortUber()
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CTFPowerupShortUber::Spawn( void )
+void CTFPowerupSpeedshooter::Spawn( void )
 {
 	BaseClass::Spawn();
 }
@@ -45,7 +46,7 @@ void CTFPowerupShortUber::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------
-void CTFPowerupShortUber::Precache( void )
+void CTFPowerupSpeedshooter::Precache( void )
 {
 	BaseClass::Precache();
 }
@@ -53,7 +54,7 @@ void CTFPowerupShortUber::Precache( void )
 //-----------------------------------------------------------------------------
 // Purpose: Touch function
 //-----------------------------------------------------------------------------
-bool CTFPowerupShortUber::MyTouch( CBasePlayer *pPlayer )
+bool CTFPowerupSpeedshooter::MyTouch( CBasePlayer *pPlayer )
 {
 	return BaseClass::MyTouch( pPlayer );
 }

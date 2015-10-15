@@ -18,10 +18,10 @@
 
 //=============================================================================
 
-BEGIN_DATADESC(CTFPowerupCritdamage)
+BEGIN_DATADESC( CTFPowerupCritdamage )
 END_DATADESC()
 
-LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
+LINK_ENTITY_TO_CLASS( item_powerup_critdamage, CTFPowerupCritdamage );
 
 //=============================================================================
 
@@ -39,7 +39,7 @@ CTFPowerupCritdamage::CTFPowerupCritdamage()
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Spawn(void)
+void CTFPowerupCritdamage::Spawn( void )
 {
 	BaseClass::Spawn();
 }
@@ -47,7 +47,7 @@ void CTFPowerupCritdamage::Spawn(void)
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Precache(void)
+void CTFPowerupCritdamage::Precache( void )
 {
 	BaseClass::Precache();
 }
@@ -55,7 +55,7 @@ void CTFPowerupCritdamage::Precache(void)
 //-----------------------------------------------------------------------------
 // Purpose: Touch function
 //-----------------------------------------------------------------------------
-bool CTFPowerupCritdamage::MyTouch(CBasePlayer *pPlayer)
+bool CTFPowerupCritdamage::MyTouch( CBasePlayer *pPlayer )
 {
-	return BaseClass::MyTouch(pPlayer);
+	return BaseClass::MyTouch( pPlayer );
 }
