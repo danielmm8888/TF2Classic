@@ -30,7 +30,8 @@ public:
 	CTFProgressBar( vgui::Panel *parent, const char *name );
 
 	virtual void Paint();
-	void SetPercentage( float flPercentage ){ m_flPercent = flPercentage; }
+	void SetPercentage( float flPercentage ){ m_flPercent = flPercentage; }	
+	void SetIcon( const char* szIcon );
 
 private:
 
