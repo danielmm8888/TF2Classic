@@ -44,13 +44,18 @@ CTFProgressBar::CTFProgressBar( vgui::Panel *parent, const char *name ) : vgui::
 {
 	m_flPercent = 0.0f;
 
-	m_iTexture = vgui::surface()->DrawGetTextureId( "hud/objectives_timepanel_progressbar" );
+	SetIcon( "hud/objectives_timepanel_progressbar" );
+}
+
+void CTFProgressBar::SetIcon( const char* szIcon )
+{
+	m_iTexture = vgui::surface()->DrawGetTextureId( szIcon );
 	if ( m_iTexture == -1 ) // we didn't find it, so create a new one
 	{
-		m_iTexture = vgui::surface()->CreateNewTextureID();	
+		m_iTexture = vgui::surface()->CreateNewTextureID();
 	}
 
-	vgui::surface()->DrawSetTextureFile( m_iTexture, "hud/objectives_timepanel_progressbar", true, false );
+	vgui::surface()->DrawSetTextureFile( m_iTexture, szIcon, true, false );
 }
 
 //-----------------------------------------------------------------------------
