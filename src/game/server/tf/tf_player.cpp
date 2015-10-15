@@ -452,9 +452,9 @@ void CTFPlayer::TFPlayerThink()
 		{
 			RemoveFlag(FL_GODMODE);
 			m_nRenderFX = kRenderFxNone;
-			RemoveEffects(EF_ITEM_BLINK);
+			RemoveEffects( EF_ITEM_BLINK );
 			GetViewModel()->m_nRenderFX = kRenderFxNone;
-			GetViewModel()->RemoveEffects(EF_ITEM_BLINK);
+			GetViewModel()->RemoveEffects( EF_ITEM_BLINK );
 			m_flSpawnProtectTime = 0;
 		}
 	}

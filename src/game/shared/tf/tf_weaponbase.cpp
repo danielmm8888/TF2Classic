@@ -465,8 +465,15 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
-	if (pTFPlayer == NULL)
+	Activity actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
+	if ( actActivityOverride != iActivity )
+	{
+		iActivity = actActivityOverride;
+		return iActivity;
+	}
+	
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
+	if ( pTFPlayer == NULL )
 	{
 		Assert(false); // This shouldn't be possible
 		return iActivity;
@@ -489,60 +496,67 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 			for (int i = 0; i < 13; i++)
 			{
 				if (PrimaryArmActTable[i][0] == iActivity)
-					return PrimaryArmActTable[i][1];
+					iActivity = PrimaryArmActTable[i][1];
 			}
-			return iActivity;
+			break;
+
 		case TF_WPN_TYPE_SECONDARY:
 			for (int i = 0; i < 13; i++)
 			{
 				if (SecondaryArmActTable[i][0] == iActivity)
-					return SecondaryArmActTable[i][1];
+					iActivity = SecondaryArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_MELEE:
 			for (int i = 0; i < 13; i++)
 			{
 				if (MeleeArmActTable[i][0] == iActivity)
-					return MeleeArmActTable[i][1];
+					iActivity = MeleeArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_BUILDING:
 			for (int i = 0; i < 2; i++)
 			{
 				if (BuildingArmActTable[i][0] == iActivity)
-					return BuildingArmActTable[i][1];
+					iActivity = BuildingArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_PDA:
 			for (int i = 0; i < 13; i++)
 			{
 				if (PdaArmActTable[i][0] == iActivity)
-					return PdaArmActTable[i][1];
+					iActivity = PdaArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_ITEM1:
 			for (int i = 0; i < 13; i++)
 			{
 				if (Item1ArmActTable[i][0] == iActivity)
-					return Item1ArmActTable[i][1];
+					iActivity = Item1ArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_ITEM2:
 			for (int i = 0; i < 13; i++)
 			{
 				if (Item2ArmActTable[i][0] == iActivity)
-					return Item2ArmActTable[i][1];
+					iActivity = Item2ArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		default:
 			return iActivity;
 	};
+
+	actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
+	if ( actActivityOverride != iActivity )
+		iActivity = actActivityOverride;
+	
+	return iActivity;
 }
 
 //-----------------------------------------------------------------------------

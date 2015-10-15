@@ -109,8 +109,7 @@ bool CTFWeaponBaseGrenade::Deploy( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenade::Prime() 
 {
-	CTFWeaponInfo weaponInfo = GetTFWpnData();
-	m_flThrowTime = gpGlobals->curtime + weaponInfo.m_flPrimerTime;
+	m_flThrowTime = gpGlobals->curtime + GetTFWpnData().m_flPrimerTime;
 	m_bPrimed = true;
 
 #ifndef CLIENT_DLL

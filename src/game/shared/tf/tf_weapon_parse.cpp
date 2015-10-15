@@ -8,6 +8,11 @@
 #include "tf_weapon_parse.h"
 #include "tf_shareddefs.h"
 #include "tf_playerclass_shared.h"
+#include "activitylist.h"
+
+#define IF_ELEMENT_FOUND(dict, str)						\
+		unsigned int index = dict.Find(str);			\
+		if (index < dict.Count())		
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -63,7 +68,6 @@ CTFWeaponInfo::~CTFWeaponInfo()
 //-----------------------------------------------------------------------------
 void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 {
-	int i;
 
 	BaseClass::Parse( pKeyValuesData, szWeaponName );
 
@@ -86,7 +90,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile = TF_PROJECTILE_NONE;
 	const char *pszProjectileType = pKeyValuesData->GetString( "ProjectileType", "projectile_none" );
 
-	for ( i=0;i<TF_NUM_PROJECTILES;i++ )
+	for ( int i = 0; i < TF_NUM_PROJECTILES; i++ )
 	{
 		if ( FStrEq( pszProjectileType, g_szProjectileNames[i] ) )
 		{
@@ -105,6 +109,25 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	if ( pszBrassModel )
 	{
 		Q_strncpy( m_szBrassModel, pszBrassModel, sizeof( m_szBrassModel ) );
+	}
+
+	// Anim override / Activity replacement
+	for ( KeyValues *pKeyData = pKeyValuesData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )	//look through whole weapon script file
+	{
+		if ( !Q_stricmp( pKeyData->GetName(), "animation_replacement" ) )	//if we found animation_override
+		{
+			for ( KeyValues *pSubData = pKeyData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
+			{     	//look through animation_override node
+				IF_ELEMENT_FOUND( m_AnimationReplacement, pSubData->GetName() )
+				{
+					Q_snprintf( (char*)m_AnimationReplacement.Element(index), sizeof(m_AnimationReplacement.Element(index)), pSubData->GetString() );
+				}
+				else
+				{
+					m_AnimationReplacement.Insert( pSubData->GetName(), strdup( pSubData->GetString() ) );
+				}
+			}
+		}
 	}
 
 	// Secondary fire mode.
@@ -126,7 +149,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_SECONDARY_MODE].m_iProjectile = m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile;
 	pszProjectileType = pKeyValuesData->GetString( "Secondary_ProjectileType", "projectile_none" );
 
-	for ( i=0;i<TF_NUM_PROJECTILES;i++ )
+	for ( int i = 0; i < TF_NUM_PROJECTILES; i++ )
 	{
 		if ( FStrEq( pszProjectileType, g_szProjectileNames[i] ) )
 		{
@@ -242,4 +265,26 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	}
 
 	m_bDontDrop = ( pKeyValuesData->GetInt( "DontDrop", 0 ) > 0 );
+}
+
+Activity CTFWeaponInfo::GetActivityOverride( Activity actOriginalActivity ) const
+{
+	Activity actOverridenActivity = ACT_INVALID;
+	for ( unsigned int i = 0; i < m_AnimationReplacement.Count(); i++ )
+	{
+		const char *szActivityString = m_AnimationReplacement.GetElementName( i );
+		actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+
+		if ( actOverridenActivity == actOriginalActivity )
+		{
+			szActivityString = m_AnimationReplacement.Element( i );
+			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+			return actOverridenActivity;
+		}
+	}
+
+	if ( actOverridenActivity == ACT_INVALID )
+		return actOriginalActivity;
+
+	return actOverridenActivity;
 }

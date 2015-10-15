@@ -113,9 +113,18 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 
 	if ( GetTFPlayer()->GetActiveWeapon() )
 	{
-		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
-	}
+		Activity actOverridenActivity;
 
+		actOverridenActivity = GetTFPlayer()->GetActiveTFWeapon()->GetTFWpnData().GetActivityOverride( translateActivity );
+		if ( actOverridenActivity != translateActivity )
+			return actOverridenActivity;
+
+		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
+
+		actOverridenActivity = GetTFPlayer()->GetActiveTFWeapon()->GetTFWpnData().GetActivityOverride( translateActivity );
+		if ( actOverridenActivity != translateActivity )
+			return actOverridenActivity;
+	}
 	return translateActivity;
 }
 

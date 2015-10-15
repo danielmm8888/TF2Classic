@@ -106,13 +106,15 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 {
 	C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
 	
-	if ( pEnt && pEnt->GetModelIndex() == modelinfo->GetModelIndex(pszModelname) )
+	if ( pEnt && pEnt->GetModelIndex() == modelinfo->GetModelIndex( pszModelname ) )
 	{
 		pEnt->m_nSkin = GetSkin();
+
 		if ( C_BasePlayer::GetLocalPlayer() != GetOwner() ) // Spectator fix
 		{
 			pEnt->SetParent( this );
 			pEnt->AddEffects( EF_BONEMERGE );
+			pEnt->m_nRenderFX = m_nRenderFX;
 			pEnt->UpdateVisibility();
 			pEnt->SetViewmodel( this );
 		}
