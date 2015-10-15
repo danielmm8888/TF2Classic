@@ -13,7 +13,7 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define BLOG_URL "http://tf2classic.com/upd/?nolinks=1&noheader=1&nofooter=1&fillwrapper=1"
+#define BLOG_URL "http://tf2classic.com/?nolinks=1&noheader=1&nofooter=1&fillwrapper=1"
 
 static void OnBlogToggle(IConVar *var, const char *pOldValue, float flOldValue)
 {
@@ -87,7 +87,9 @@ void CTFMainMenuPanel::PerformLayout()
 	char szNickName[64];
 	Q_snprintf(szNickName, sizeof(szNickName),
 		(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
-	SetDialogVariable("nickname", szNickName); 
+	SetDialogVariable("nickname", szNickName);
+
+	ShowBlogPanel(tf2c_mainmenu_showblog.GetBool());
 	OnNotificationUpdate();
 	AutoLayout();
 };
@@ -200,6 +202,7 @@ void CTFMainMenuPanel::Hide()
 void CTFMainMenuPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
+	ShowBlogPanel(tf2c_mainmenu_showblog.GetBool());
 };
 
 void CTFMainMenuPanel::GameLayout()
