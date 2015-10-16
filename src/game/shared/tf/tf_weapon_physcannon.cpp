@@ -1076,6 +1076,15 @@ void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 			m_hOldAttachedObject->VPhysicsDestroyObject();
 		}
 	}
+	else if ( GetOwner()->GetActiveWeapon() != this )
+	{
+		// This is normally done in ItemPreFrame but due to certain issues
+		// we must keep predicted object updated while Grav Gun is inactive.
+		C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
+
+		if ( localplayer && !localplayer->IsObserver() )
+			ManagePredictedObject();
+	}
 
 	// Update effect state when out of parity with the server
 	if ( m_nOldEffectState != m_EffectState )

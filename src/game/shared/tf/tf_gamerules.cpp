@@ -741,7 +741,14 @@ bool CTFGameRules::RoundCleanupShouldIgnore( CBaseEntity *pEnt )
 		return true;
 
 	//There has got to be a better way of doing this.
+	/*
 	if ( Q_strstr( pEnt->GetClassname(), "tf_weapon_" ) )
+		return true;
+	*/
+
+	// Clean up map-placed\dropped weapons.
+	CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pEnt );
+	if ( pTFWeapon && pTFWeapon->GetOwner() )
 		return true;
 
 	return BaseClass::RoundCleanupShouldIgnore( pEnt );
@@ -2836,15 +2843,16 @@ QAngle CTFGameRules::VecItemRespawnAngles( CItem *pItem )
 
 int CTFGameRules::ItemShouldRespawn( CItem *pItem )
 {
-	/*
+#if 0
 	// Items never respawn in co-op.
 	if ( GetGameType() == TF_GAMETYPE_COOP )
 	{
 		return GR_ITEM_RESPAWN_NO;
 	}
-	*/
-	// TEMP - don't respawn items not derived from CTFPowerup.
-	if ( dynamic_cast <CTFPowerup *>( pItem ) == NULL )
+#endif
+
+	// TEMP - don't respawn non-TF items.
+	if ( dynamic_cast<CTFPowerup *>( pItem ) == NULL )
 	{
 		return GR_ITEM_RESPAWN_NO;
 	}
