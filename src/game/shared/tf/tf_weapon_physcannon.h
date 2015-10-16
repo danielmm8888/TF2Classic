@@ -252,7 +252,7 @@ public:
 	bool	DropIfEntityHeld( CBaseEntity *pTarget );	// Drops its held entity if it matches the entity passed in
 	CGrabController &GetGrabController() { return m_grabController; }
 
-	bool	CanHolster( void );
+	bool	CanHolster( void ) const;
 	bool	Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	bool	Deploy( void );
 

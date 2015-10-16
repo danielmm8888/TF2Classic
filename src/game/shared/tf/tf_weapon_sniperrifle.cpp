@@ -142,7 +142,7 @@ bool CTFSniperRifle::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFSniperRifle::CanHolster( void )
+bool CTFSniperRifle::CanHolster( void ) const
 {
  	CTFPlayer *pPlayer = GetTFPlayerOwner();
  	if ( pPlayer )
