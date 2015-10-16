@@ -50,7 +50,6 @@
 #define JEEP_DELTA_LENGTH_MAX	12.0f			// 1 foot
 #define JEEP_FRAMETIME_MIN		1e-6
 
-ConVar	hud_jeephint_numentries( "hud_jeephint_numentries", "10", FCVAR_NONE );
 ConVar	g_jeepexitspeed( "g_jeepexitspeed", "100", FCVAR_CHEAT );
 
 //=============================================================================
@@ -84,11 +83,14 @@ END_DATADESC()
 class CJeepFourWheelServerVehicle : public CFourWheelServerVehicle
 {
 	typedef CFourWheelServerVehicle BaseClass;
-// IServerVehicle
+
 public:
 	bool		NPC_HasPrimaryWeapon( void ) { return true; }
 	void		NPC_AimPrimaryWeapon( Vector vecTarget );
 	int			GetExitAnimToUse( Vector &vecEyeExitEndpoint, bool &bAllPointsBlocked );
+	virtual void	ItemPostFrame( CBasePlayer *player );
+	virtual void	HandlePassengerEntry( CBaseCombatCharacter *pPassenger, bool bAllowEntryOutsideZone = false );
+	//virtual bool	HandlePassengerExit( CBaseCombatCharacter *pPassenger );
 };
 
 //-----------------------------------------------------------------------------
@@ -112,6 +114,7 @@ public:
 	virtual void	Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	virtual void	DampenEyePosition( Vector &vecVehicleEyePos, QAngle &vecVehicleEyeAngles );
 	virtual bool	AllowBlockedExit( CBasePlayer *pPlayer, int nRole ) { return false; }
+	virtual bool	CanEnterVehicle( CBaseEntity *pEntity );
 	virtual bool	CanExitVehicle( CBaseEntity *pEntity );
 	virtual bool	IsVehicleBodyInWater() { return m_WaterData.m_bBodyInWater; }
 
@@ -142,7 +145,12 @@ public:
 	void HeadlightTurnOn( void ) { m_bHeadlightIsOn = true; }
 	void HeadlightTurnOff( void ) { m_bHeadlightIsOn = false; }
 
+	// custom passenger stuff
+	virtual CBaseEntity *GetDriver( void );
+	virtual CBaseEntity *GetPassenger( void );
+
 private:
+	CNetworkHandle( CBasePlayer, m_hPlayerPassenger );
 
 	void		FireCannon( void );
 	void		ChargeCannon( void );
@@ -205,7 +213,9 @@ private:
 	float			m_flPlayerExitedTime;	// Time at which the player last left this vehicle
 	float			m_flLastSawPlayerAt;	// Time at which we last saw the player
 	EHANDLE			m_hLastPlayerInVehicle;
-	bool			m_bHasPoop;
+
+	string_t		m_iszSmokeParticleName;
+	string_t		m_iszFireParticleName;
 
 	CNetworkVar( bool, m_bHeadlightIsOn );
 };
@@ -240,7 +250,9 @@ BEGIN_DATADESC( CPropJeep )
 	DEFINE_FIELD( m_flPlayerExitedTime, FIELD_TIME ),
 	DEFINE_FIELD( m_flLastSawPlayerAt, FIELD_TIME ),
 	DEFINE_FIELD( m_hLastPlayerInVehicle, FIELD_EHANDLE ),
-	DEFINE_FIELD( m_bHasPoop, FIELD_BOOLEAN ),
+
+	DEFINE_KEYFIELD( m_iszSmokeParticleName,	FIELD_STRING, "smoke_particle"),
+	DEFINE_KEYFIELD( m_iszFireParticleName,		FIELD_STRING, "fire_particle"),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "StartRemoveTauCannon", InputStartRemoveTauCannon ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "FinishRemoveTauCannon", InputFinishRemoveTauCannon ),
@@ -248,6 +260,7 @@ BEGIN_DATADESC( CPropJeep )
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CPropJeep, DT_PropJeep )
+	//SendPropEHandle( SENDINFO( m_hPlayerPassenger ) ),
 	SendPropBool( SENDINFO( m_bHeadlightIsOn ) ),
 END_SEND_TABLE();
 
@@ -273,6 +286,7 @@ CPropJeep::CPropJeep( void )
 
 	m_bUnableToFire = true;
 	m_flAmmoCrateCloseTime = 0;
+	m_takedamage = DAMAGE_YES;
 }
 
 //-----------------------------------------------------------------------------
@@ -295,9 +309,11 @@ void CPropJeep::Precache( void )
 	PrecacheScriptSound( "PropJeep.FireChargedCannon" );
 	PrecacheScriptSound( "PropJeep.AmmoOpen" );
 
-	PrecacheScriptSound( "Jeep.GaussCharge" );
+	if ( m_iszSmokeParticleName != NULL_STRING )
+		PrecacheParticleSystem( STRING( m_iszSmokeParticleName ) );
 
-//	PrecacheModel( GAUSS_BEAM_SPRITE );
+	if ( m_iszFireParticleName != NULL_STRING )
+		PrecacheParticleSystem( STRING( m_iszFireParticleName ) );
 
 	BaseClass::Precache();
 }
@@ -394,6 +410,8 @@ int CPropJeep::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		info.SetDamageForce( inputInfo.GetDamageForce() * 10 );
 	}
 	VPhysicsTakeDamage( info );
+
+	if ( GetHealth() <= GetMaxHealth() * 0.45f )
 
 	// reset the damage
 	info.SetDamage( inputInfo.GetDamage() );
@@ -625,12 +643,6 @@ bool CPropJeep::CheckWater( void )
 	m_WaterData.m_bBodyInWater = ( UTIL_PointContents( vecEnginePoint ) & MASK_WATER ) ? true : false;
 	if ( m_WaterData.m_bBodyInWater )
 	{
-		if ( m_bHasPoop )
-		{
-			RemoveAllDecals();
-			m_bHasPoop = false;
-		}
-
 		if ( !m_VehiclePhysics.IsEngineDisabled() )
 		{
 			m_VehiclePhysics.SetDisableEngine( true );
@@ -750,30 +762,6 @@ void CPropJeep::Think(void)
 {
 	BaseClass::Think();
 
-/*
-	CBasePlayer	*pPlayer = UTIL_GetLocalPlayer();
-
-	if ( m_bEngineLocked )
-	{
-		m_bUnableToFire = true;
-		
-		if ( pPlayer != NULL )
-		{
-			pPlayer->m_Local.m_iHideHUD |= HIDEHUD_VEHICLE_CROSSHAIR;
-		}
-	}
-	else
-	{
-		// Start this as false and update it again each frame
-		m_bUnableToFire = false;
-
-		if ( pPlayer != NULL )
-		{
-			pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_VEHICLE_CROSSHAIR;
-		}
-	}
-*/
-
 	// Water!?
 	HandleWater();
 
@@ -846,13 +834,6 @@ void CPropJeep::Think(void)
 				{
 					pServerVehicle->SoundStartDisabled();
 				}
-			}
-
-			// The first few time we get into the jeep, print the jeep help
-			if ( m_iNumberOfEntries < hud_jeephint_numentries.GetInt() )
-			{
-				UTIL_HudHintText( m_hPlayer, "#Valve_Hint_JeepKeys" );
-				m_iNumberOfEntries++;
 			}
 		}
 		
@@ -1173,6 +1154,45 @@ void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 
 	// Fall back and get in the vehicle instead
 	BaseClass::Use( pActivator, pCaller, useType, value );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CBaseEntity *CPropJeep::GetDriver( void ) 
+{ 
+	return m_hPlayer; 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CBaseEntity *CPropJeep::GetPassenger( void ) 
+{ 
+	return m_hPlayerPassenger; 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Return true of the player's allowed to enter the vehicle
+//-----------------------------------------------------------------------------
+bool CPropJeep::CanEnterVehicle( CBaseEntity *pEntity )
+{
+	// Only drivers are supported
+	Assert( pEntity && pEntity->IsPlayer() );
+
+	// Prevent entering if the vehicle's being driven by an NPC
+	if ( GetDriver() && GetDriver() != pEntity )
+	{
+		if ( GetPassenger() && GetPassenger() != pEntity )
+			return false;
+	}
+
+	// Can't enter if we're upside-down
+	if ( IsOverturned() )
+		return false;
+
+	// Prevent entering if the vehicle's locked, or if it's moving too fast.
+	return ( !m_bLocked && (m_nSpeed <= m_flMinimumSpeedToEnterExit) );
 }
 
 //-----------------------------------------------------------------------------
@@ -1582,3 +1602,79 @@ int CJeepFourWheelServerVehicle::GetExitAnimToUse( Vector &vecEyeExitEndpoint, b
 
 	return BaseClass::GetExitAnimToUse( vecEyeExitEndpoint, bAllPointsBlocked );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CJeepFourWheelServerVehicle::ItemPostFrame( CBasePlayer *player )
+{
+	Assert( player == GetDriver() );
+
+	GetDrivableVehicle()->ItemPostFrame( player );
+
+	if ( player->m_nButtons & IN_USE )
+	{
+		if ( GetDrivableVehicle()->CanExitVehicle(player) )
+		{
+			if ( !HandlePassengerExit( player ) && ( player != NULL ) )
+			{
+				player->PlayUseDenySound();
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CJeepFourWheelServerVehicle::HandlePassengerEntry( CBaseCombatCharacter *pPassenger, bool bAllowEntryOutsideZone )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( pPassenger );
+	if ( pPlayer != NULL )
+	{
+		// Find out which hitbox the player's eyepoint is within
+		int iEntryAnim = GetEntryAnimForPoint( pPlayer->EyePosition() );
+
+		// Get this interface for animation queries
+		CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating *>(m_pVehicle);
+		if ( !pAnimating )
+			return;
+
+		// Are we in an entrypoint zone? 
+		if ( iEntryAnim == ACTIVITY_NOT_AVAILABLE )
+		{
+			// Normal get in refuses to allow entry
+			if ( !bAllowEntryOutsideZone )
+				return;
+
+			// We failed to find a valid entry anim, but we've got to get back in because the player's
+			// got stuck exiting the vehicle. For now, just use the first get in anim
+			// UNDONE: We need a better solution for this.
+			iEntryAnim = pAnimating->LookupSequence( m_EntryAnimations[0].szAnimName );
+		}
+
+		// Check to see if this vehicle can be controlled or if it's locked
+		if ( GetDrivableVehicle()->CanEnterVehicle( pPlayer ) )
+		{
+			// Make sure the passenger can get in as well
+			if ( pPlayer->CanEnterVehicle( this, VEHICLE_ROLE_DRIVER ) )
+			{
+				// Setup the "enter" vehicle sequence and skip the animation if it isn't present.
+				pAnimating->SetCycle( 0 );
+				pAnimating->m_flAnimTime = gpGlobals->curtime;
+				pAnimating->ResetSequence( iEntryAnim );
+				pAnimating->ResetClientsideFrame();
+				pAnimating->InvalidateBoneCache();	// This is necessary because we need to query attachment points this frame for blending!
+				GetDrivableVehicle()->SetVehicleEntryAnim( true );
+
+				pPlayer->GetInVehicle( this, VEHICLE_ROLE_DRIVER );
+			}
+		}
+	}
+	else
+	{
+		// NPCs handle transitioning themselves, they should NOT call this function
+		Assert( 0 );
+	}
+}
+

@@ -516,6 +516,17 @@ void CTFPlayer::PreThink()
 	// Pass through to the base class think.
 	BaseClass::PreThink();
 
+	// Riding a vehicle?
+	if ( IsInAVehicle() )	
+	{
+		// make sure we update the client, check for timed damage and update suit even if we are in a vehicle
+		UpdateClientData();		
+		CheckTimeBasedDamage();
+		
+		WaterMove();	
+		return;
+	}
+
 	if (m_nButtons & IN_GRENADE1)
 	{
 		TFPlayerClassData_t *pData = m_PlayerClass.GetData();
@@ -3511,6 +3522,14 @@ bool CTFPlayer::IsPlayerClass( int iClass ) const
 		return false;
 
 	return ( pClass->IsClass( iClass ) );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::LeaveVehicle( const Vector &vecExitPoint, const QAngle &vecExitAngles )
+{
+	BaseClass::LeaveVehicle( vecExitPoint, vecExitAngles );
 }
 
 //-----------------------------------------------------------------------------

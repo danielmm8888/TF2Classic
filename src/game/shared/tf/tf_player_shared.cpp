@@ -2155,6 +2155,17 @@ bool CTFPlayerShared::IsAlly( CBaseEntity *pEntity )
 	return ( pEntity->GetTeamNumber() == m_pOuter->GetTeamNumber() );
 }
 
+bool CTFPlayerShared::IsLoser( void )
+{
+	if ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_TEAM_WIN )
+	{
+		int iWinner = TFGameRules()->GetWinningTeam();
+		if ( iWinner != TEAM_UNASSIGNED && iWinner != m_pOuter->GetTeamNumber() )
+			return true;
+	}
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

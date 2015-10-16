@@ -35,7 +35,7 @@ public:
 	virtual void Spawn();
 	void		 ResetTimers( void );
 
-	virtual bool CanHolster( void );
+	virtual bool CanHolster( void ) const;
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo );
 
 	void		 HandleZooms( void );

@@ -77,9 +77,9 @@ void CTFPlayerMove::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper 
 	BaseClass::SetupMove( player, ucmd, pHelper, move );
 
 	IServerVehicle *pVehicle = player->GetVehicle();
-	if (pVehicle && gpGlobals->frametime != 0)
+	if ( pVehicle && gpGlobals->frametime != 0 )
 	{
-		pVehicle->SetupMove(player, ucmd, pHelper, move);
+		pVehicle->SetupMove( player, ucmd, pHelper, move );
 	}
 
 }
@@ -97,8 +97,8 @@ void CTFPlayerMove::FinishMove( CBasePlayer *player, CUserCmd *ucmd, CMoveData *
 	BaseClass::FinishMove( player, ucmd, move );
 
 	IServerVehicle *pVehicle = player->GetVehicle();
-	if (pVehicle && gpGlobals->frametime != 0)
+	if ( pVehicle && gpGlobals->frametime != 0 )
 	{
-		pVehicle->FinishMove(player, ucmd, move);
+		pVehicle->FinishMove( player, ucmd, move );
 	}
 }

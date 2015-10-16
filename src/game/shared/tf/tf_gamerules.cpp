@@ -979,6 +979,12 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
+	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_deathmatch" ) || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
+	{
+		m_nGameType.Set( TF_GAMETYPE_DM );
+		return;
+	}
+
 	CArenaLogic *pArena = dynamic_cast<CArenaLogic*>( gEntList.FindEntityByClassname( NULL, "tf_logic_arena") );
 	if ( pArena )
 	{
@@ -994,12 +1000,6 @@ void CTFGameRules::Activate()
 	{
 		m_nGameType.Set( TF_GAMETYPE_CP );
 		m_bPlayingKoth = true;
-		return;
-	}
-
-	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_deathmatch" ) || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
-	{
-		m_nGameType.Set( TF_GAMETYPE_DM );
 		return;
 	}
 

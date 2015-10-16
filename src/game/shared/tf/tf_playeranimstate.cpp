@@ -102,6 +102,23 @@ void CTFPlayerAnimState::ClearAnimationState( void )
 	BaseClass::ClearAnimationState();
 }
 
+acttable_t m_acttableLoserState[] = 
+{
+	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_LOSERSTATE,			false },
+	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_LOSERSTATE,			false },
+	{ ACT_MP_RUN,				ACT_MP_RUN_LOSERSTATE,				false },
+	{ ACT_MP_WALK,				ACT_MP_WALK_LOSERSTATE,				false },
+	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_LOSERSTATE,			false },
+	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_LOSERSTATE,		false },
+	{ ACT_MP_JUMP,				ACT_MP_JUMP_LOSERSTATE,				false },
+	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_LOSERSTATE,		false },
+	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_LOSERSTATE,		false },
+	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_LOSERSTATE,		false },
+	{ ACT_MP_SWIM,				ACT_MP_SWIM_LOSERSTATE,				false },
+	{ ACT_MP_DOUBLEJUMP,		ACT_MP_DOUBLEJUMP_LOSERSTATE,		false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_LOSERSTATE, false },
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : actDesired - 
@@ -110,6 +127,17 @@ void CTFPlayerAnimState::ClearAnimationState( void )
 Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 {
 	Activity translateActivity = BaseClass::TranslateActivity( actDesired );
+
+	if ( GetTFPlayer()->m_Shared.IsLoser() )
+	{
+		int actCount = ARRAYSIZE( m_acttableLoserState );
+		for ( int i = 0; i < actCount; i++ )
+		{
+			const acttable_t& act = m_acttableLoserState[ i ];
+			if ( actDesired == act.baseAct)
+				return (Activity)act.weaponAct;
+		}
+	}
 
 	if ( GetTFPlayer()->GetActiveWeapon() )
 	{
@@ -399,7 +427,14 @@ void CTFPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
 			m_bInAirWalk = false;
 
 			// Player the air dash gesture.
-			RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP );
+			if (GetBasePlayer()->GetFlags() & FL_DUCKING)
+			{
+				RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP_CROUCH );
+			}
+			else
+			{
+				RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP );
+			}
 			break;
 		}
 	default:
