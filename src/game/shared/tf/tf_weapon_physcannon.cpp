@@ -1080,10 +1080,7 @@ void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 	{
 		// This is normally done in ItemPreFrame but due to certain issues
 		// we must keep predicted object updated while Grav Gun is inactive.
-		C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
-
-		if ( localplayer && !localplayer->IsObserver() )
-			ManagePredictedObject();
+		ManagePredictedObject();
 	}
 
 	// Update effect state when out of parity with the server
@@ -2220,10 +2217,7 @@ void CWeaponPhysCannon::ItemPreFrame()
 	BaseClass::ItemPreFrame();
 
 #ifdef CLIENT_DLL
-	C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
-
-	if ( localplayer && !localplayer->IsObserver() )
-		ManagePredictedObject();
+	ManagePredictedObject();
 #endif
 
 	// Update the object if the weapon is switched on.
