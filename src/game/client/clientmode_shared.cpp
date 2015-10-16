@@ -434,7 +434,9 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 	if( ::input->CAM_IsThirdPerson() )
 	{
 		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
+
 		//Vector cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
+		Vector cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
 
 		//cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
 
@@ -453,10 +455,9 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 		// get the forward vector
 		AngleVectors( camAngles, &camForward, &camRight, &camUp );
 	
-		//VectorMA( pSetup->origin, -cam_ofs_distance[0], camForward, pSetup->origin );
-		//VectorMA( pSetup->origin, cam_ofs_distance[1], camRight, pSetup->origin );
-		//VectorMA( pSetup->origin, cam_ofs_distance[2], camUp, pSetup->origin );
-		VectorMA( pSetup->origin, -cam_ofs[ROLL], camForward, pSetup->origin );
+		VectorMA( pSetup->origin, -cam_ofs_distance[0], camForward, pSetup->origin );
+		VectorMA( pSetup->origin, cam_ofs_distance[1], camRight, pSetup->origin );
+		VectorMA( pSetup->origin, cam_ofs_distance[2], camUp, pSetup->origin );
 
 		// Override angles from third person camera
 		VectorCopy( camAngles, pSetup->angles );

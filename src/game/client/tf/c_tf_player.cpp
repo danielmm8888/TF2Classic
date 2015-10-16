@@ -1789,11 +1789,12 @@ void C_TFPlayer::TurnOnTauntCam( void )
 
 	QAngle vecCameraOffset( tf_tauntcam_pitch.GetFloat(), tf_tauntcam_yaw.GetFloat(), tf_tauntcam_dist.GetFloat() );
 
-	g_ThirdPersonManager.SetOverridingThirdPerson(true);
+	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( tf_tauntcam_dist.GetFloat(), 0.0f, 0.0f ) );
+	g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	::input->CAM_ToThirdPerson();
 	ThirdPersonSwitch( true );
 
-	::input->CAM_SetCameraThirdData(&m_TauntCameraData, vecCameraOffset);
+	::input->CAM_SetCameraThirdData( &m_TauntCameraData, vecCameraOffset );
 
 	if ( m_hItem )
 	{
@@ -1814,10 +1815,11 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );
 
-	g_ThirdPersonManager.SetOverridingThirdPerson(false);
+	g_ThirdPersonManager.SetDesiredCameraOffset( vec3_origin );
+	g_ThirdPersonManager.SetOverridingThirdPerson( false );
 	::input->CAM_ToFirstPerson();
-	ThirdPersonSwitch(false);
-	::input->CAM_SetCameraThirdData(NULL, vec3_angle);
+	ThirdPersonSwitch( false );
+	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
 
 	// Reset the old view angles.
 	engine->SetViewAngles( m_angTauntEngViewAngles );

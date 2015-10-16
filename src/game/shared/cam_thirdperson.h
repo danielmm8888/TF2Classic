@@ -37,9 +37,6 @@
 #define CAMERA_OFFSET_LERP_TIME 0.5f
 #define CAMERA_UP_OFFSET_LERP_TIME 0.25f
 
-extern const Vector CAM_HULL_MIN;
-extern const Vector CAM_HULL_MAX;
-
 class CThirdPersonManager
 {
 public:

@@ -545,7 +545,6 @@ void CInput::CAM_Think( void )
 	// move the camera closer to the player if it hit something
 	if ( cam_collision.GetInt() )
 	{
-		/*
 		QAngle desiredCamAngles = QAngle( camOffset[ PITCH ], camOffset[ YAW ], camOffset[ DIST ] );
 
 		if ( g_ThirdPersonManager.IsOverridingThirdPerson() == false )
@@ -554,39 +553,6 @@ void CInput::CAM_Think( void )
 		}
 
 		g_ThirdPersonManager.PositionCamera( C_BasePlayer::GetLocalPlayer(), desiredCamAngles );
-		*/
-
-		trace_t trace;
-		C_BasePlayer* localPlayer = C_BasePlayer::GetLocalPlayer();
-
-		if ( localPlayer )
-		{
-			Vector camForward;
-
-			// find our player's origin, and from there, the eye position
-			Vector origin = localPlayer->GetLocalOrigin();
-			origin += localPlayer->GetViewOffset();
-
-			// get the forward vector
-			AngleVectors( QAngle(camOffset[ PITCH ], camOffset[ YAW ], 0), &camForward, NULL, NULL );
-
-			// use our previously #defined hull to collision trace
-			CTraceFilterSimple traceFilter( localPlayer, COLLISION_GROUP_NONE );
-			UTIL_TraceHull( origin, origin - (camForward * camOffset[ DIST ]),
-				CAM_HULL_MIN, CAM_HULL_MAX,
-				MASK_SOLID, &traceFilter, &trace );
-
-			// move the camera closer if it hit something
-			if( trace.fraction < 1.0 )
-			{
-				camOffset[ DIST ] *= trace.fraction;
-			}
-
-			// For now, I'd rather see the insade of a player model than punch the camera through a wall
-			// might try the fade out trick at some point
-			//if( camOffset[ DIST ] < CAM_MIN_DIST )
-			//    camOffset[ DIST ] = CAM_MIN_DIST; // clamp up to minimum
-		}
     }
 
 	if ( cam_showangles.GetInt() )
@@ -675,33 +641,11 @@ void CInput::CAM_CameraThirdThink( void )
 
 	if ( pLocalPlayer )
 	{
-		/*
 		QAngle desiredCamAngles = QAngle( vecCamOffset[ PITCH ], vecCamOffset[ YAW ], vecCamOffset[DIST] );
 	
 		g_ThirdPersonManager.PositionCamera( C_BasePlayer::GetLocalPlayer(), desiredCamAngles );
 		
 	//	vecCamOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
-		*/
-
-		Vector vecForward;
-
-		// Find our player's origin, and from there, the eye position.
-		Vector vecOrigin = pLocalPlayer->GetLocalOrigin();
-		vecOrigin += pLocalPlayer->GetViewOffset();
-
-		// Get the forward vector
-		AngleVectors( QAngle( vecCamOffset[PITCH], vecCamOffset[YAW], 0 ), &vecForward, NULL, NULL );
-
-		// Collision trace and move the camera closer if we hit something.
-		trace_t trace;
-		UTIL_TraceHull( vecOrigin, vecOrigin - ( vecForward * vecCamOffset[DIST] ), m_pCameraThirdData->m_vecHullMin, 
-			m_pCameraThirdData->m_vecHullMax,	MASK_SOLID, pLocalPlayer, 
-			COLLISION_GROUP_NONE, &trace );
-
-		if( trace.fraction < 1.0 )
-		{
-			vecCamOffset[DIST] *= trace.fraction;
-		}
 	}
 
 	ClampRange180( vecCamOffset[PITCH] );
