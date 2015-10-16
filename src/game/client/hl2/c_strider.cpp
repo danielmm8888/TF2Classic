@@ -144,6 +144,9 @@ public:
 	virtual void GetRenderBounds( Vector& theMins, Vector& theMaxs );
 	virtual void ClientThink();
 
+	virtual Vector EyePosition();
+	virtual Vector GetObserverCamOrigin();
+
 private:
 	C_Strider( const C_Strider & );
 	C_StriderFX	m_cannonFX;
@@ -748,6 +751,24 @@ void C_Strider::GetRenderBounds( Vector& theMins, Vector& theMaxs )
 {
 	theMins = m_vecRenderMins;
 	theMaxs = m_vecRenderMaxs;
+}
+
+
+Vector C_Strider::EyePosition( void )
+{
+	Vector vecEyePos;
+	GetAttachment( "minigunbase", vecEyePos );
+	return vecEyePos;
+}
+
+Vector C_Strider::GetObserverCamOrigin( void )
+{
+	if ( IsAlive() )
+	{
+		return EyePosition();
+	}
+
+	return BaseClass::GetObserverCamOrigin();
 }
 
 
