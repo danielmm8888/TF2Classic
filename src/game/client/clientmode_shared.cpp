@@ -438,7 +438,7 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 		//Vector cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
 		Vector cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
 
-		//cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
+		cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
 
 		camAngles[ PITCH ] = cam_ofs[ PITCH ];
 		camAngles[ YAW ] = cam_ofs[ YAW ];
