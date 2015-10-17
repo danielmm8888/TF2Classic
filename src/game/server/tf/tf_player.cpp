@@ -6494,6 +6494,10 @@ void CTFPlayer::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
 	// can't pick up what you're standing on
 	if ( GetGroundEntity() == pObject )
 		return;
+
+	// Must be able to holster current weapon
+	if ( GetActiveWeapon() && GetActiveWeapon()->CanHolster() == false )
+		return;
 	
 	if ( bLimitMassAndSize == true )
 	{
