@@ -50,7 +50,7 @@ public:
 	virtual void SetWeaponModel( const char *pszModelname, CBaseCombatWeapon *weapon );
 
 	int GetViewModelType( void ){ return m_iViewModelType;}
-	void SetViewModelType( int iType ){ this->m_iViewModelType = iType;}
+	void SetViewModelType( int iType ){ this->m_iViewModelType = iType; }
 
 #if defined( CLIENT_DLL )
 	virtual bool ShouldPredict( void )

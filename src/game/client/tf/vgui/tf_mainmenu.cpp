@@ -143,6 +143,19 @@ CTFMenuPanelBase* CTFMainMenu::GetMenuPanel(int iPanel)
 	return m_pPanels[iPanel];
 }
 
+CTFMenuPanelBase* CTFMainMenu::GetMenuPanel(const char *name)
+{
+	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
+	{
+		CTFMenuPanelBase* pMenu = GetMenuPanel(i);
+		if (pMenu && (V_stricmp(pMenu->GetName(), name) == 0))
+		{
+			return pMenu;
+		}
+	}
+	return NULL;
+}
+
 void CTFMainMenu::ShowPanel(MenuPanel iPanel, bool bShowSingle /*= false*/)
 {
 	GetMenuPanel(iPanel)->SetShowSingle(bShowSingle);

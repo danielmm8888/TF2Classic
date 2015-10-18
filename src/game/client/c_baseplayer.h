@@ -386,7 +386,7 @@ public:
 	bool					ShouldAnnounceAchievement( void ){ return m_flNextAchievementAnnounceTime < gpGlobals->curtime; }
 	void					SetNextAchievementAnnounceTime( float flTime ){ m_flNextAchievementAnnounceTime = flTime; }
 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC_CLIENT )
 	// Wearables
 	virtual void			UpdateWearables();
 	C_EconWearable			*GetWearable( int i ) { return m_hMyWearables[i]; }
@@ -613,7 +613,7 @@ protected:
 	int				m_nForceVisionFilterFlags; // Force our vision filter to a specific setting
 	int				m_nLocalPlayerVisionFlags;
 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC_CLIENT )
 	// Wearables
 	CUtlVector<CHandle<C_EconWearable > >	m_hMyWearables;
 #endif

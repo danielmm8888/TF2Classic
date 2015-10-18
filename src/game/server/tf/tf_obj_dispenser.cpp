@@ -753,3 +753,65 @@ int CObjectDispenser::DrawDebugTextOverlays(void)
 }
 
 LINK_ENTITY_TO_CLASS( mapobj_cart_dispenser, CObjectCartDispenser );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::Spawn()
+{
+	CollisionProp()->SetSurroundingBoundsType( USE_BEST_COLLISION_BOUNDS );
+
+	m_takedamage = DAMAGE_NO;
+
+	m_iUpgradeLevel = 1;
+	m_iUpgradeMetal = 0;
+
+	AddFlag( FL_OBJECT ); // So NPCs will notice it
+	SetViewOffset( WorldSpaceCenter() - GetAbsOrigin() );
+
+	if (!VPhysicsGetObject())
+	{
+		VPhysicsInitStatic();
+	}
+
+	if ( MustBeBuiltOnAttachmentPoint() )
+	{
+		AddEffects( EF_NODRAW );
+	}
+
+	SetModel( GetPlacementModel() );
+	SetSolid( SOLID_BBOX );
+
+	UTIL_SetSize( this, DISPENSER_MINS, DISPENSER_MAXS );
+
+	m_iAmmoMetal = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Spawn the vgui control screens on the object
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::GetControlPanelInfo(int nPanelIndex, const char *&pPanelName)
+{
+	return;
+}
+
+//-----------------------------------------------------------------------------
+// 
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::OnGoActive( void )
+{
+	// Put some ammo in the Dispenser
+	m_iAmmoMetal = 25;
+
+	// Begin thinking
+	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 3, REFILL_CONTEXT );
+	SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
+
+	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
+
+	m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
+
+	CBaseObject::OnGoActive();
+
+	EmitSound( "Building_Dispenser.Idle" );
+}

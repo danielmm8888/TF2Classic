@@ -49,6 +49,7 @@
 #include "steam/steam_api.h"
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
+#include "econ_wearable.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -244,6 +245,7 @@ int SendProxyArrayLength_PlayerObjects( const void *pStruct, int objectID )
 }
 
 BEGIN_DATADESC( CTFPlayer )
+	DEFINE_INPUTFUNC( FIELD_STRING,	"SpeakResponseConcept",	InputSpeakResponseConcept ),
 	DEFINE_OUTPUT( m_OnDeath, "OnDeath" ),
 END_DATADESC()
 extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
@@ -788,6 +790,13 @@ bool CTFPlayer::IsReadyToSpawn( void )
 		return false;
 	}
 
+	/*CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
+	pWearable->SetSpecialParticleEffect( UEFF_SUPERRARE_GREENENERGY );
+	PrecacheModel( "models/player/items/scout/batter_helmet.mdl" );
+	pWearable->SetModel( "models/player/items/scout/batter_helmet.mdl" );
+
+	EquipWearable( pWearable );*/
+
 	return ( StateGet() != TF_STATE_DYING );
 }
 
@@ -1122,7 +1131,14 @@ void CTFPlayer::GiveDefaultItems()
 		pWeaponEntity->Touch(this);
 	}
 
-	if (GetActiveWeapon() == NULL)
+	if ( m_bRegenerating == false )
+	{
+		SetActiveWeapon( NULL );
+		Weapon_Switch( Weapon_GetSlot( 0 ) );
+		Weapon_SetLast( Weapon_GetSlot( 1 ) );
+	}
+
+	if ( GetActiveWeapon() == NULL )
 		SwitchToNextBestWeapon(NULL);
 }
 
@@ -1237,6 +1253,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
 			{
 				Weapon_Detach( pCarriedWeapon );
+				GetViewModel( pCarriedWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
 				UTIL_Remove( pCarriedWeapon );
 			}
 		}
@@ -1678,7 +1695,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		return;	// we wouldn't change the team
 	}
 
-	if (HasTheFlag())
+	if ( HasTheFlag() )
 	{
 		DropFlag();
 	}
@@ -2950,6 +2967,7 @@ void CTFPlayer::DropFlag( void )
 
 				gameeventmanager->FireEvent( event );
 			}
+			RemoveGlowEffect();
 		}
 	}
 }
@@ -4327,7 +4345,7 @@ void CTFPlayer::RemoveAllItems( bool removeSuit )
 
 		// hide the weapon model
 		// don't normally have to do this, unless we have a holster animation
-		CTFViewModel *vm = dynamic_cast<CTFViewModel*>(GetViewModel( 1 ));
+		CTFViewModel *vm = dynamic_cast<CTFViewModel*>( GetViewModel( 1 ) );
 		if ( vm )
 		{
 			vm->SetWeaponModel( NULL, NULL );
@@ -6756,6 +6774,14 @@ bool CTFPlayer::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const 
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Mapmaker input to force this NPC to speak a response rules concept
+//-----------------------------------------------------------------------------
+void CTFPlayer::InputSpeakResponseConcept( inputdata_t &inputdata )
+{
+	//Speak( STRING( inputdata.value.StringID() ) );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayer::SpeakWeaponFire( int iCustomConcept )
@@ -6996,9 +7022,7 @@ uint64 powerplay_ids[] =
 	76561198001171456 ^ powerplaymask, // Gamezombie
 	76561198006395451 ^ powerplaymask, // Stachekip
 	76561198037744635 ^ powerplaymask, // Snowshoe
-	76561198025334020 ^ powerplaymask, // DrPySpy
 	76561198007621815 ^ powerplaymask, // HotPocket
-	76561198012705885 ^ powerplaymask, // Nitronik4Ever
 	76561198075858535 ^ powerplaymask, // chowder908
 	76561198031608022 ^ powerplaymask, // kibbleknight
 	76561198027900325 ^ powerplaymask, // over.povered

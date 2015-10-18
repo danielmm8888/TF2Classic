@@ -261,6 +261,8 @@ public:
 
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
 	virtual void	HandleOvertimeBegin();
+	virtual void	GetTeamGlowColor( int nTeam, float &r, float &g, float &b );
+
 
 	bool			ShouldShowTeamGoal( void );
 

@@ -123,6 +123,8 @@ public:
 
 	virtual void	InitPhonemeMappings();
 
+	virtual void	GetGlowEffectColor( float *r, float *g, float *b );
+
 	// Gibs.
 	void InitPlayerGibs( void );
 	void CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVelocity, float flImpactScale );
@@ -353,6 +355,8 @@ public:
 
 	bool			m_bDisguised;
 	int				m_iPreviousMetal;
+
+	EHANDLE			m_hOldActiveWeapon;
 
 	int GetNumActivePipebombs( void );
 

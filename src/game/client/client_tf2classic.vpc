@@ -14,7 +14,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories		"$BASE;tf\vgui,.\tf,$SRCDIR\game\shared\tf,$SRCDIR\game\shared\Multiplayer"
+		$AdditionalIncludeDirectories		"$BASE;tf\vgui,.\tf,$SRCDIR\game\shared\tf,$SRCDIR\game\shared\Multiplayer,$SRCDIR\game\shared\econ"
 		$PreprocessorDefinitions			"$BASE;TF_CLASSIC_CLIENT;GLOWS_ENABLE"
 	}
 }
@@ -62,6 +62,15 @@ $Project "Client (TF)"
 		{
 			$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.cpp"
 			$File	"$SRCDIR\game\shared\Multiplayer\multiplayer_animstate.h"
+		}
+		
+		$Folder	"Econ"
+		{
+			$File	"$SRCDIR\game\shared\econ\ihasowner.h"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_entity.h"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.cpp"
+			$File	"$SRCDIR\game\shared\econ\econ_wearable.h"
 		}
 
 		$Folder	"TF"
@@ -477,8 +486,6 @@ $Project "Client (TF)"
 				$File	"$SRCDIR\game\shared\tf\tf_viewmodel.h"
 				$File	"$SRCDIR\game\shared\tf\tf_inventory.cpp"
 				$File	"$SRCDIR\game\shared\tf\tf_inventory.h"
-				$File	"$SRCDIR\game\shared\tf\econ_entity.cpp"
-				$File	"$SRCDIR\game\shared\tf\econ_entity.h"				
 			}
 		}
 	}

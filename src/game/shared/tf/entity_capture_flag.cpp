@@ -56,6 +56,17 @@ static void RecvProxy_IsDisabled( const CRecvProxyData *pData, void *pStruct, vo
 	}
 }
 
+static void RecvProxy_FlagStatus( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CCaptureFlag *pFlag = (CCaptureFlag *) pStruct;
+
+	if ( pFlag )
+	{
+		pFlag->UpdateGlowEffect();
+	}
+}
+
+
 #endif
 
 //=============================================================================
@@ -78,7 +89,7 @@ BEGIN_NETWORK_TABLE( CCaptureFlag, DT_CaptureFlag )
 #else
 	RecvPropInt( RECVINFO( m_bDisabled ), 0, RecvProxy_IsDisabled ),
 	RecvPropInt( RECVINFO( m_nGameType ) ),
-	RecvPropInt( RECVINFO( m_nFlagStatus ) ),
+	RecvPropInt( RECVINFO( m_nFlagStatus ), 0, RecvProxy_FlagStatus ),
 	RecvPropTime( RECVINFO( m_flResetTime ) ),
 	RecvPropTime( RECVINFO( m_flNeutralTime ) ),
 	RecvPropTime( RECVINFO( m_flMaxResetTime ) ),
@@ -239,6 +250,7 @@ void CCaptureFlag::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( m_nOldFlagStatus != m_nFlagStatus )
 	{
+		UpdateGlowEffect();
 		IGameEvent *pEvent = gameeventmanager->CreateEvent( "flagstatus_update" );
 		if ( pEvent )
 		{
@@ -320,61 +332,16 @@ void CCaptureFlag::Spawn( void )
 #ifdef CLIENT_DLL
 
 // Manage glow effect
-void CCaptureFlag::EnableGlowEffect(void)
+void CCaptureFlag::UpdateGlowEffect( void )
 {
-	if (!g_GlowObjectManager.HasGlowEffect(this))
+	if ( !g_GlowObjectManager.HasGlowEffect( this ) )
 	{
-		switch (GetTeamNumber())
-		{
-		case TF_TEAM_BLUE:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.6f, 0.8f, 1.0f), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_RED:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.25f, 0.25f), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_GREEN:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.03f, 0.68f, 0), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_YELLOW:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.62f, 0), 1.0f, true, true, 0);
-			break;
-		default:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.76f, 0.76f, 0.76f), 1.0f, true, true, 0);
-			break;
-		}
+		m_iGlowEffectHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ) , 1.0f, true, true, 0 );
 	}
 
-	if (m_nFlagStatus == TF_FLAGINFO_STOLEN)
-	{
-		if (GetPrevOwner() && !g_GlowObjectManager.HasGlowEffect(GetPrevOwner()))
-		{
-			Vector vecColor;
-			switch (GetPrevOwner()->GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				vecColor = Vector(0.6f, 0.8f, 1.0f);
-				break;
-			case TF_TEAM_RED:
-				vecColor = Vector(1.0f, 0.25f, 0.25f);
-				break;
-			case TF_TEAM_GREEN:
-				vecColor = Vector(0.03f, 0.68f, 0);
-				break;
-			case TF_TEAM_YELLOW:
-				vecColor = Vector(1.0f, 0.62f, 0);
-				break;
-			default:
-				vecColor = Vector(0.76f, 0.76f, 0.76f);
-				break;
-			}
-			m_nPrevOwnerGlowIndex = g_GlowObjectManager.RegisterGlowObject(GetPrevOwner(), vecColor, 1.0f, true, true, 0);
-		}
-	}
-	else if (m_nPrevOwnerGlowIndex)
-	{
-		g_GlowObjectManager.UnregisterGlowObject(m_nPrevOwnerGlowIndex);
-		m_nPrevOwnerGlowIndex = 0;
-	}
+	Vector vecColor;
+	TFGameRules()->GetTeamGlowColor( GetTeamNumber(), vecColor.x, vecColor.y, vecColor.z );
+	g_GlowObjectManager.SetColor( m_iGlowEffectHandle, vecColor );
 
 }
 
@@ -541,7 +508,7 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 		return;
 	}
 
-	if (pOther->GetTeamNumber() == GetTeamNumber())
+	if ( pOther->GetTeamNumber() == GetTeamNumber() )
 		m_outputOnTouchSameTeam.FireOutput(this, this);
 #endif
 
@@ -628,6 +595,8 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 	pPlayer->TeamFortress_SetSpeed();
 
 #ifdef GAME_DLL
+
+	pPlayer->AddGlowEffect();
 	
 	// Update the parent to set the correct place on the model to attach the flag.
 	int iAttachment = pPlayer->LookupAttachment( "flag" );
@@ -1371,9 +1340,7 @@ float CCaptureFlag::GetReturnProgress()
 void CCaptureFlag::Simulate( void )
 {
 	BaseClass::Simulate();
-
 	ManageTrailEffects();
-	EnableGlowEffect();
 }
 
 void CCaptureFlag::ManageTrailEffects( void )

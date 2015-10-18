@@ -3860,6 +3860,33 @@ bool CTFGameRules::ShouldShowTeamGoal( void )
 	return false;
 }
 
+void CTFGameRules::GetTeamGlowColor( int nTeam, float &r, float &g, float &b )
+{
+	switch ( nTeam )
+	{
+		case TF_TEAM_BLUE:
+			r = 0.49f; g = 0.66f; b = 0.7699971f;
+			break;
+
+		case TF_TEAM_RED:
+			r = 0.74f; g = 0.23f; b = 0.23f;
+			break;
+
+		case TF_TEAM_GREEN:
+			r = 0.03f; g = 0.68f; b = 0;
+			break;
+
+		case TF_TEAM_YELLOW:
+			r = 1.0f; g = 0.62f; b = 0;
+			break;
+
+		default:
+			r = 0.76f; g = 0.76f; b = 0.76f;
+			break;
+	}
+}
+
+
 #endif
 
 #ifdef GAME_DLL

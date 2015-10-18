@@ -77,6 +77,8 @@ protected:
 	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
 	virtual void OnKeyCodePressed( vgui::KeyCode code );
 
+	virtual void SetHighlanderTeamsFullPanels( bool bEnabled );
+
 	// command callbacks
 	virtual void OnCommand( const char *command );
 
@@ -91,6 +93,13 @@ private:
 	CTFTeamButton	*m_pAutoTeamButton;
 	CTFTeamButton	*m_pSpecTeamButton;
 	CExLabel		*m_pSpecLabel;
+
+	CExLabel		*m_pHighlanderLabel;
+	CExLabel		*m_pHighlanderLabelShadow;
+	CExLabel		*m_pTeamFullLabel;
+	CExLabel		*m_pTeamFullLabelShadow;
+	CTFImagePanel	*m_pTeamsFullArrow;
+
 
 #ifdef _X360
 	CTFFooter		*m_pFooter;

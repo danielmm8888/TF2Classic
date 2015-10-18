@@ -472,13 +472,13 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 		return iActivity;
 	}
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel( m_nViewModelIndex, false ) );
 	if (vm == NULL)
 	{
 		return iActivity;
 	}
 
-	if (vm->GetViewModelType() != vm->VMTYPE_TF2)
+	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
 		return iActivity;
 
 	// Oh jesus no
@@ -572,11 +572,11 @@ void CTFWeaponBase::SetViewModel()
 #ifdef CLIENT_DLL
 void CTFWeaponBase::UpdateViewModel(void)
 {
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
 	if ( pTFPlayer == NULL )
 		return;
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel(m_nViewModelIndex, false ) );
 	if ( vm == NULL )
 		return;
 	
@@ -606,23 +606,23 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 
 	pTemp->SetModel(vModel);
 
-	if (pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1)
+	if ( pTemp->LookupAttachment("l4d") > 0 )
 	{
 		pTemp->Remove();
 
-		if (vm)
-			vm->SetViewModelType(vm->VMTYPE_TF2);
-
-		return pPlayer->GetPlayerClass()->GetHandModelName();
-	}
-	else if (pTemp->LookupAttachment("l4d") > 0)
-	{
-		pTemp->Remove();
-
-		if (vm)
-			vm->SetViewModelType(vm->VMTYPE_L4D);
+		if ( vm )
+			vm->SetViewModelType( vm->VMTYPE_L4D );
 
 		return vModel;
+	}
+	else if ( pTemp->SelectWeightedSequence( ACT_VM_IDLE ) == -1 )
+	{
+		pTemp->Remove();
+
+		if ( vm )
+			vm->SetViewModelType( vm->VMTYPE_TF2 );
+
+		return pPlayer->GetPlayerClass()->GetHandModelName();
 	}
 
 	pTemp->Remove();
@@ -729,6 +729,8 @@ bool CTFWeaponBase::Deploy( void )
 		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 		if (!pPlayer)
 			return false;
+
+		GetViewModel( m_nViewModelIndex );
 
 		pPlayer->SetNextAttack( m_flNextPrimaryAttack );
 	}
@@ -2319,27 +2321,27 @@ acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttableSecondary );
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttableMelee );
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttableBuilding );
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttablePDA );
 		break;
 	case TF_WPN_TYPE_ITEM1:
 		pTable = m_acttableItem1;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttableItem1 );
 		break;
 	case TF_WPN_TYPE_ITEM2:
 		pTable = m_acttableItem2;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		iActivityCount = ARRAYSIZE( m_acttableItem2 );
 		break;
 	}
 

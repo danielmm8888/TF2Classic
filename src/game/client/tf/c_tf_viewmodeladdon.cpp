@@ -46,9 +46,7 @@ int C_ViewmodelAttachmentModel::DrawOverriddenViewmodel( int flags )
 
 	int drawn = 0;
 
-#if defined( TF_CLIENT_DLL ) || defined ( TF_CLASSIC_CLIENT )
 	ValidateModelIndex();
-#endif
 
 	if (r_drawothermodels.GetInt())
 	{
@@ -91,13 +89,14 @@ int C_ViewmodelAttachmentModel::DrawModel( int flags )
 	if (m_viewmodel.Get() == NULL)
 		return 0;
 
-	C_BasePlayer *localplayer = C_BasePlayer::GetLocalPlayer();
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	C_TFPlayer *pPlayer = ToTFPlayer( m_viewmodel.Get()->GetOwner() );
 
-	if ( localplayer && localplayer->IsObserver() 
-		&& localplayer->GetObserverTarget() != m_viewmodel.Get()->GetOwner() )
+	if ( pLocalPlayer && pLocalPlayer->IsObserver() 
+		&& pLocalPlayer->GetObserverTarget() != m_viewmodel.Get()->GetOwner() )
 		return false;
 
-	if ( localplayer && !localplayer->IsObserver() && ( localplayer != m_viewmodel.Get()->GetOwner() ) )
+	if ( pLocalPlayer && !pLocalPlayer->IsObserver() && ( pLocalPlayer != pPlayer ) )
 		return false;
 
 	return BaseClass::DrawModel( flags );

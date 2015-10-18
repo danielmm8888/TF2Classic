@@ -10,12 +10,12 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose: SPINNING SHIT
 //-----------------------------------------------------------------------------
-DECLARE_BUILD_FACTORY(CTFRotationPanel);
+DECLARE_BUILD_FACTORY(CTFRotatingImagePanel);
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : ImagePanel(parent, name)
+CTFRotatingImagePanel::CTFRotatingImagePanel(Panel *parent, const char *name) : EditablePanel(parent, name)
 {
 	flRetVal = 0.0f;
 }
@@ -23,10 +23,10 @@ CTFRotationPanel::CTFRotationPanel(Panel *parent, const char *name) : ImagePanel
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRotationPanel::ApplySettings(KeyValues *inResourceData)
+void CTFRotatingImagePanel::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
-	Q_strncpy(pImage, inResourceData->GetString("imagerot", ""), sizeof(pImage));
+	Q_strncpy(pImage, inResourceData->GetString("image", ""), sizeof(pImage));
 	m_Material.Init(pImage, TEXTURE_GROUP_VGUI);
 }
 
@@ -34,7 +34,7 @@ void CTFRotationPanel::ApplySettings(KeyValues *inResourceData)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-float CTFRotationPanel::GetAngleRotation(void)
+float CTFRotatingImagePanel::GetAngleRotation(void)
 {
 	int _x, _y;
 	surface()->SurfaceGetCursorPos(_x, _y);
@@ -52,7 +52,7 @@ float CTFRotationPanel::GetAngleRotation(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFRotationPanel::Paint()
+void CTFRotatingImagePanel::Paint()
 {
 	IMaterial *pMaterial = m_Material;
 	int x = 0;
@@ -63,7 +63,7 @@ void CTFRotationPanel::Paint()
 
 	flRetVal += 0.05f;
 	if (flRetVal >= 360.0f)
-		flRetVal = 0.0f;
+		flRetVal -= 360.0f;
 
 	CMatRenderContextPtr pRenderContext(materials);
 	pRenderContext->MatrixMode(MATERIAL_MODEL);
@@ -72,15 +72,14 @@ void CTFRotationPanel::Paint()
 	VMatrix panelRotation;
 	panelRotation.Identity();
 	MatrixBuildRotationAboutAxis(panelRotation, Vector(0, 0, 1), flRetVal);
-	//	MatrixRotate( panelRotation, Vector( 1, 0, 0 ), 5 );
 	panelRotation.SetTranslation(Vector(x + nWidth / 2, y + nHeight / 2, 0));
-	pRenderContext->LoadMatrix(panelRotation);
 
+	pRenderContext->LoadMatrix(panelRotation);
 	IMesh *pMesh = pRenderContext->GetDynamicMesh(true, NULL, NULL, pMaterial);
 
 	CMeshBuilder meshBuilder;
 	meshBuilder.Begin(pMesh, MATERIAL_QUADS, 1);
-
+	
 	meshBuilder.TexCoord2f(0, 0, 0);
 	meshBuilder.Position3f(-nWidth / 2, -nHeight / 2, 0);
 	meshBuilder.Color4ub(255, 255, 255, 255);
@@ -100,7 +99,6 @@ void CTFRotationPanel::Paint()
 	meshBuilder.Position3f(-nWidth / 2, nHeight / 2, 0);
 	meshBuilder.Color4ub(255, 255, 255, 255);
 	meshBuilder.AdvanceVertex();
-
 	meshBuilder.End();
 
 	pMesh->Draw();

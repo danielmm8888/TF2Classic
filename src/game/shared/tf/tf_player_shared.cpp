@@ -2887,8 +2887,6 @@ bool CTFPlayer::CanAttack( void )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::TryToPickupBuilding( void )
 {
-	return false;
-
 	if ( IsActiveTFWeapon( TF_WEAPON_BUILDER ) )
 		return false;
 

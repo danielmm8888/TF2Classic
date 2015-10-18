@@ -16,6 +16,11 @@
 #define CEconEntity C_EconEntity
 #endif
 
+struct wearableanimplayback_t
+{
+	int iStub;
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: BaseCombatWeapon is derived from this in live tf2.
 //			The only actual use for it I've found so far is for the c_model
@@ -29,6 +34,8 @@ class CEconEntity : public CBaseAnimating
 public:
 
 	virtual int TranslateViewmodelHandActivity( int iActivity ) { return iActivity; }
+
+	virtual void PlayAnimForPlaybackEvent( wearableanimplayback_t iPlayback ) {};
 
 };
 

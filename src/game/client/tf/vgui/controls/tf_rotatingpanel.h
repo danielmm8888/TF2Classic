@@ -4,7 +4,7 @@
 #pragma once
 #endif
 
-#include "tf_imagepanel.h"
+#include "vgui_controls/EditablePanel.h"
 #include <vgui/ISurface.h>
 
 using namespace vgui;
@@ -12,12 +12,12 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 // Purpose:  Draws the rotated arrow panels
 //-----------------------------------------------------------------------------
-class CTFRotationPanel : public ImagePanel
+class CTFRotatingImagePanel : public EditablePanel
 {
 public:
-	DECLARE_CLASS_SIMPLE(CTFRotationPanel, ImagePanel);
+	DECLARE_CLASS_SIMPLE(CTFRotatingImagePanel, EditablePanel);
 
-	CTFRotationPanel(vgui::Panel *parent, const char *name);
+	CTFRotatingImagePanel(vgui::Panel *parent, const char *name);
 	virtual void Paint();
 	virtual void ApplySettings(KeyValues *inResourceData);
 	float GetAngleRotation(void);
