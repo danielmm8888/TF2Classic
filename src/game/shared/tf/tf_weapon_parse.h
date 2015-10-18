@@ -117,6 +117,7 @@ public:
 
 protected:
 	CUtlDict< const char*, unsigned short > m_AnimationReplacement;
+	CUtlDict< const char*, unsigned short > m_AnimationReplacementDM;
 
 };
 

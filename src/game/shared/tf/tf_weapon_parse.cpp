@@ -9,6 +9,7 @@
 #include "tf_shareddefs.h"
 #include "tf_playerclass_shared.h"
 #include "activitylist.h"
+#include "tf_gamerules.h"
 
 #define IF_ELEMENT_FOUND(dict, str)						\
 		unsigned int index = dict.Find(str);			\
@@ -125,6 +126,25 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 				else
 				{
 					m_AnimationReplacement.Insert( pSubData->GetName(), strdup( pSubData->GetString() ) );
+				}
+			}
+		}
+	}
+
+	// DM anim override
+	for ( KeyValues *pKeyData = pKeyValuesData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )	//look through whole weapon script file
+	{
+		if ( !Q_stricmp( pKeyData->GetName(), "animation_replacement_DM" ) )	//if we found animation_override_DM
+		{
+			for ( KeyValues *pSubData = pKeyData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
+			{   //look through the animation_override_dm node
+				IF_ELEMENT_FOUND( m_AnimationReplacementDM, pSubData->GetName() )
+				{
+					Q_snprintf( (char*)m_AnimationReplacementDM.Element(index), sizeof(m_AnimationReplacementDM.Element(index)), pSubData->GetString() );
+				}
+				else
+				{
+					m_AnimationReplacementDM.Insert( pSubData->GetName(), strdup( pSubData->GetString() ) );
 				}
 			}
 		}
@@ -270,16 +290,37 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 Activity CTFWeaponInfo::GetActivityOverride( Activity actOriginalActivity ) const
 {
 	Activity actOverridenActivity = ACT_INVALID;
-	for ( unsigned int i = 0; i < m_AnimationReplacement.Count(); i++ )
-	{
-		const char *szActivityString = m_AnimationReplacement.GetElementName( i );
-		actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
 
-		if ( actOverridenActivity == actOriginalActivity )
+	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
+	{
+		for ( unsigned int i = 0; i < m_AnimationReplacementDM.Count(); i++ )
 		{
-			szActivityString = m_AnimationReplacement.Element( i );
-			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
-			return actOverridenActivity;
+			Activity actNewActivity = ACT_INVALID;
+			const char *szActivityString = m_AnimationReplacementDM.GetElementName( i );
+			actNewActivity = (Activity)ActivityList_IndexForName( szActivityString );
+
+			if ( actNewActivity == actOriginalActivity )
+			{
+				szActivityString = m_AnimationReplacementDM.Element( i );
+				actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+				return actOverridenActivity;
+			}
+		}
+	}
+	else
+	{
+		for ( unsigned int i = 0; i < m_AnimationReplacement.Count(); i++ )
+		{
+			Activity actNewActivity = ACT_INVALID;
+			const char *szActivityString = m_AnimationReplacement.GetElementName( i );
+			actNewActivity = (Activity)ActivityList_IndexForName( szActivityString );
+
+			if ( actNewActivity == actOriginalActivity )
+			{
+				szActivityString = m_AnimationReplacement.Element( i );
+				actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+				return actOverridenActivity;
+			}
 		}
 	}
 
