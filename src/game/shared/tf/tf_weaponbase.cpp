@@ -2652,6 +2652,17 @@ int CTFWeaponBase::GetSkin()
 	return nSkin;
 }
 
+//-----------------------------------------------------------------------------
+// Should this object cast shadows?
+//-----------------------------------------------------------------------------
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) || m_iState != WEAPON_IS_ACTIVE )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
+}
+
 bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options )
 {
 	if( event == 6002 )

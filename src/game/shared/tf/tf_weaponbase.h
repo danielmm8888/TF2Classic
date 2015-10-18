@@ -129,7 +129,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual const char *DetermineViewModelType(const char *vModel) const;
 
 #ifdef CLIENT_DLL
-	virtual void UpdateViewModel();
+	virtual void UpdateViewModel( void );
 #endif
 
 	virtual void Drop( const Vector &vecVelocity );
@@ -241,6 +241,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void	AddViewmodelBob( CBaseViewModel *viewmodel, Vector &origin, QAngle &angles );
 	virtual	float	CalcViewmodelBob( void );
+	virtual ShadowType_t	ShadowCastType( void );
 	virtual int		GetSkin();
 	BobState_t		*GetBobState();
 
