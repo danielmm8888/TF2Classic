@@ -967,6 +967,7 @@ static const char *s_PreserveEnts[] =
 	"entity_suacer",
 	"info_ladder",
 	"info_player_deathmatch",
+	"prop_vehicle_jeep",
 	"", // END Marker
 };
 

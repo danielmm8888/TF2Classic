@@ -420,6 +420,7 @@ enum
 	TF_COND_POWERUP_FASTRELOAD,
 	TF_COND_POWERUP_CLOAK,
 	TF_COND_POWERUP_RAGEMODE,
+	TF_COND_POWERUP_CLASSCHANGE,
 
 	// Add new conditions that should be affected by healing here
 
