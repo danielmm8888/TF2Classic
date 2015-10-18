@@ -340,12 +340,7 @@ void CTFLoadoutPanel::OnThink()
 
 void CTFLoadoutPanel::SetModelClass(int iClass)
 {
-	int len = Q_strlen(pszClassModels[iClass]) + 1;
-	char *pAlloced = new char[len];
-	Assert(pAlloced);
-	Q_strncpy(pAlloced, pszClassModels[iClass], len);
-	m_pClassModelPanel->m_BMPResData.m_pszModelName = pAlloced;
-	m_pClassModelPanel->m_BMPResData.m_nSkin = iCurrentSkin;
+	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), iCurrentSkin);
 }
 
 void CTFLoadoutPanel::UpdateModelPanels()
