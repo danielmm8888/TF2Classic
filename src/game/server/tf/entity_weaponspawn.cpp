@@ -65,6 +65,7 @@ void CWeaponSpawner::Spawn(void)
 	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
 
 	AddEffects( EF_ITEM_BLINK );
+	AddEffects( EF_BRIGHTLIGHT );
 }
 
 float CWeaponSpawner::GetRespawnDelay(void)
@@ -80,16 +81,47 @@ void CWeaponSpawner::Precache(void)
 	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
 }
 
-void CWeaponSpawner::EndTouch(CBaseEntity *pOther)
+
+//-----------------------------------------------------------------------------
+// Purpose:  Override to get rid of EF_NODRAW
+//-----------------------------------------------------------------------------
+CBaseEntity* CWeaponSpawner::Respawn( void )
+{
+	BaseClass::Respawn();
+	RemoveEffects( EF_NODRAW );
+	RemoveEffects( EF_BRIGHTLIGHT );
+	m_nRenderFX = kRenderFxDistort;
+	return this;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponSpawner ::Materialize( void )
+{
+	BaseClass::Materialize();
+
+	if ( !IsDisabled() )
+	{
+		EmitSound( "Item.Materialize" );
+		AddEffects( EF_BRIGHTLIGHT );
+		m_nRenderFX = kRenderFxNone;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:  
+//-----------------------------------------------------------------------------
+void CWeaponSpawner::EndTouch( CBaseEntity *pOther )
 {
 	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pOther);
 
-	if (ValidTouch(pTFPlayer) && pTFPlayer->IsPlayerClass(TF_CLASS_MERCENARY))
+	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 		int iCurrentWeaponID = pTFPlayer->m_Shared.GetDesiredWeaponIndex();
-		if (iCurrentWeaponID == m_iWeaponNumber)
+		if ( iCurrentWeaponID == m_iWeaponNumber )
 		{
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex(TF_WEAPON_NONE);
+			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 		}
 	}
 

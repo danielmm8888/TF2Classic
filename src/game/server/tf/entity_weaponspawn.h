@@ -17,17 +17,19 @@
 class CWeaponSpawner : public CTFPowerup
 {
 public:
-	DECLARE_CLASS(CWeaponSpawner, CTFPowerup);
+	DECLARE_CLASS( CWeaponSpawner, CTFPowerup );
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
 	CWeaponSpawner();
 
-	void	Spawn(void);
-	void	Precache(void);
-	bool	MyTouch(CBasePlayer *pPlayer);
-	void	EndTouch(CBaseEntity *pOther);
-	float	GetRespawnDelay(void);
+	void	Spawn( void );
+	void	Precache( void );
+	virtual CBaseEntity* Respawn( void );
+	virtual void	Materialize( void );
+	bool	MyTouch( CBasePlayer *pPlayer );
+	void	EndTouch( CBaseEntity *pOther );
+	float	GetRespawnDelay( void );
 
 	int		m_iWeaponNumber;
 	int		m_iRespawnTime;
