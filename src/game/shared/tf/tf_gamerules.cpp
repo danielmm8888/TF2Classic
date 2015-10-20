@@ -3269,7 +3269,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	// In case of a sentry kill change the icon according to sentry level.
 	if ( Q_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
 	{
-		CObjectSentrygun *pSentry = assert_cast<CObjectSentrygun *>( pInflictor );
+		CObjectSentrygun *pSentry = static_cast<CObjectSentrygun *>( pInflictor );
 
 		if ( pSentry )
 		{
@@ -3284,15 +3284,13 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 		}
 	}
-
 	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
-	if ( Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
+	else if ( Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
 	{
 		killer_weapon_name = "obj_sentrygun3";
 	}
-
 	// Some special cases for NPCs.
-	if ( Q_strcmp( killer_weapon_name, "strider" ) == 0 )
+	else if ( Q_strcmp( killer_weapon_name, "strider" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_BULLET )
 		{
@@ -3303,16 +3301,14 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = "strider_skewer";
 		}
 	}
-
-	if ( Q_strcmp( killer_weapon_name, "concussiveblast" ) == 0 )
+	else if ( Q_strcmp( killer_weapon_name, "concussiveblast" ) == 0 )
 	{
 		if ( pKiller && FClassnameIs( pKiller, "npc_strider" ) )
 		{
 			killer_weapon_name = "strider_beam";
 		}
 	}
-
-	if ( Q_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
+	else if ( Q_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{

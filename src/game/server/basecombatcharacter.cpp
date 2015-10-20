@@ -2817,7 +2817,7 @@ int CBaseCombatCharacter::IRelationPriority( CBaseEntity *pTarget )
 		// lower priority so NPCs don't attack dispensers and teleporters over players.
 		if ( pTarget->IsBaseObject() )
 		{
-			CBaseObject *pObject = assert_cast<CBaseObject *>(pTarget);
+			CBaseObject *pObject = assert_cast<CBaseObject *>( pTarget );
 
 			if ( pObject && pObject->GetType() != OBJ_SENTRYGUN )
 				return -1;

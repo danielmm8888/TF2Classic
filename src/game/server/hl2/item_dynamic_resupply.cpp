@@ -62,15 +62,15 @@ static DynamicResupplyItems_t g_DynamicResupplyHealthItems[] =
 #ifdef TF_CLASSIC
 static DynamicResupplyItems_t g_DynamicResupplyAmmoItems[] =
 {
-	{ "item_ammo_pistol",			"Pistol",		PackRatios[POWERUP_SMALL],		0.5f },
-	{ "item_ammo_smg1",				"SMG1",			PackRatios[POWERUP_SMALL],			0.4f },
-	{ "item_ammo_smg1_grenade",		"SMG1_Grenade", PackRatios[POWERUP_SMALL], 0.0f },
-	{ "item_ammo_ar2",				"AR2",			PackRatios[POWERUP_MEDIUM],			0.0f },
-	{ "item_box_buckshot",			"Buckshot",		PackRatios[POWERUP_MEDIUM],		0.0f },
+	{ "item_ammo_pistol",			"Pistol",		PackRatios[POWERUP_SMALL],	0.5f },
+	{ "item_ammo_smg1",				"SMG1",			PackRatios[POWERUP_SMALL],	0.4f },
+	{ "item_ammo_smg1_grenade",		"SMG1_Grenade", PackRatios[POWERUP_SMALL],	0.0f },
+	{ "item_ammo_ar2",				"AR2",			PackRatios[POWERUP_MEDIUM],	0.0f },
+	{ "item_box_buckshot",			"Buckshot",		PackRatios[POWERUP_MEDIUM],	0.0f },
 	{ "item_rpg_round",				"RPG_Round",	PackRatios[POWERUP_SMALL],	0.0f },
-	{ "weapon_frag",				"Grenade",		PackRatios[POWERUP_SMALL],						0.1f },
-	{ "item_ammo_357",				"357",			PackRatios[POWERUP_MEDIUM],			0.0f },
-	{ "item_ammo_crossbow",			"XBowBolt",		PackRatios[POWERUP_MEDIUM],		0.0f },
+	{ "weapon_frag",				"Grenade",		PackRatios[POWERUP_SMALL],	0.1f },
+	{ "item_ammo_357",				"357",			PackRatios[POWERUP_MEDIUM],	0.0f },
+	{ "item_ammo_crossbow",			"XBowBolt",		PackRatios[POWERUP_MEDIUM],	0.0f },
 	{ "item_ammo_ar2_altfire",		"AR2AltFire",	PackRatios[POWERUP_SMALL],	0.0f },
 };
 #else
@@ -480,11 +480,11 @@ void CItem_DynamicResupply::ComputeHealthRatios( CItem_DynamicResupply* pMaster,
 		else if ( i == DS_ARMOR_INDEX )
 		{
 			// Armor 
-			// Ignore armor if we don't have the suit
 #ifdef TF_CLASSIC
 			// TF2 players don't have armor so always ignore that.
 			pSpawnInfo[i].m_flCurrentRatio = 1.0;
 #else
+			// Ignore armor if we don't have the suit
 			if ( !pPlayer->IsSuitEquipped() )
 			{
 				pSpawnInfo[i].m_flCurrentRatio = 1.0;

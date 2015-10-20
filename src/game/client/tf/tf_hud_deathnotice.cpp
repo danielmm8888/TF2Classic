@@ -775,7 +775,7 @@ void CTFHudDeathNotice::OnGameEvent( IGameEvent *event, int iDeathNoticeMsg )
 		{
 			// Base TF2 assumes that the assister and killer are on the same team, thus it 
 			// writes both in the same string, which in turn gives them both the killer's team color
-			// whether or not the assister is on the killer's team or not. -danielmm8888
+			// whether the assister is on the killer's team or not. -danielmm8888
 			if ( iAssisterID > 0 )
 			{
 				m_DeathNotices[iDeathNoticeMsg].Assister.iTeam = iAssisterID <= gpGlobals->maxClients ? g_PR->GetTeam( iAssisterID ) : assister_team;
