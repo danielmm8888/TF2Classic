@@ -222,7 +222,9 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-	
+#ifndef CLIENT_DLL
+	BaseClass::FallInit();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1167,6 +1169,9 @@ CBaseEntity *CTFWeaponBase::Respawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::Materialize()
 {
+	BaseClass::Materialize();
+
+#if 0
 	if ( IsEffectActive( EF_NODRAW ) )
 	{
 		RemoveEffects( EF_NODRAW );
@@ -1177,6 +1182,7 @@ void CTFWeaponBase::Materialize()
 
 	SetThink ( &CTFWeaponBase::SUB_Remove );
 	SetNextThink( gpGlobals->curtime + 1 );
+#endif
 }
 
 // -----------------------------------------------------------------------------
@@ -2072,6 +2078,17 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	}
 
 	return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
+}
+
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) )
+		return SHADOWS_NONE;
+
+	if ( m_iState == WEAPON_IS_CARRIED_BY_PLAYER )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
 }
 
 //-----------------------------------------------------------------------------
