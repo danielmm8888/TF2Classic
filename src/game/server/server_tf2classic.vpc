@@ -24,6 +24,7 @@ $Project "Server (TF)"
 {
 	$Folder	"Source Files"
 	{	
+		$File	"env_projectedtexture.h"
 		$File	"ai_relationship.cpp"
 		$File	"basegrenade_concussion.cpp"
 		$File	"basegrenade_contact.cpp"
