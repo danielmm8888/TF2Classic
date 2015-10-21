@@ -87,6 +87,8 @@ void CTFRGBPanel::OnDataChanged()
 	if (!tf2c_setmercparticle)
 		return;
 	int iParticleID = tf2c_setmercparticle->GetInt();
+	if ( !iParticleID )
+		return;
 	Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
 	m_pParticlesPanel->SetParticleName(chParticleName);
 };
