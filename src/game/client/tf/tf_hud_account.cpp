@@ -77,7 +77,7 @@ DECLARE_HUDELEMENT( CHudAccountPanel );
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudAccount" )
+CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "CHudAccountPanel" )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
