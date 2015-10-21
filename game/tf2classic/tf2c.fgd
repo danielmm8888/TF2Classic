@@ -9,6 +9,62 @@
 // Base Classes
 //
 
+@PointClass base(Targetname, Parentname, Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
+	"Projected texture entity."
+[
+	spawnflags(flags) =
+	[
+		1  : "Enabled"				: 1
+		2  : "Always Update (moving light)"	: 0
+	]
+
+	texturename(material)		: "Texture" : "effects/flashlight001" : "path/texture to be projected. Relative to main/materials/"
+	target(target_destination)	: "target" : : "target"	
+	lightfov(float)				: "FOV" : "90.0" : "FOV"
+	nearz(float)				: "NearZ" : "4.0" : "Near Z for projected texture"
+	farz(float)					: "FarZ" : "750.0" : "Far Z for projected texture"	
+	quadraticatten(float)		: "Quadratic attenuation" : "0.0" : "Quadratic attenuation"
+	linearatten(float)			: "Linear attenuation" : "100" : "Linear attenuation"
+	constantatten(float)		: "Constant attenuation" : "0.0" : "Constant attenuation"
+	shadowtatten(float)		: "Shadow attenuation" : "0.0" : "Shadow attenuation"
+	
+	enableshadows(Choices) : "Enable Shadows" : 0 : "Enables/disables shadows from this projected texture." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	shadowquality(Choices) : "Shadow Quality" : 1 : "Quality of shadows." =
+	[
+		0 : "Low"
+		1 : "High"
+	]
+	lightonlytarget(Choices) : "Light Only Target" : 0 : "Limit flashlight effect to only effect target entity." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightworld(Choices) : "Light World" : 1 : "Control whether flashlight effects static world geometry." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightcolor(color255)		: "Light Color" : "255 255 255 200" : "Light Color RGB-Intensity"
+	colortransitiontime(float)	: "Color Transition Time" : "0.5" : "Amount of time it takes for a color change to occur."
+	cameraspace(integer)		: "Camera Space" : 0 : "Angles are interpreted as being relative to camera."
+
+	// Inputs
+	input TurnOn(void)		: "Turn on the texture"
+	input TurnOff(void)		: "Turn off the texture"
+	input AlwaysUpdateOn(void)	: "Turn on per frame updating (for moving lights)"
+	input AlwaysUpdateOff(void)	: "Turn off per frame updating (for moving lights)"
+	input SetFOV(float)		: "Set FOV"
+	input SpotlightTexture(string)		: "Set the spotlight texture"
+	input EnableShadows(bool)		: "Set the if shadows are enabled"
+	input LightColor(color255)		: "Change the light color/brightness"
+	input SetNearZ(float) 	: "Sets the near Z distance."
+	input SetFarZ(float) 	: "Sets the far Z distance."
+]
+
 @BaseClass = TeamNum
 [
 	TeamNum(choices) : "Team" : 0 : "Team" =
@@ -920,6 +976,7 @@
 		22 : "Pipebomb launcher ( Primary )"
 		24 : "Flamethrower ( Primary )"
 		67 : "Sten Gun ( Primary )"
+		71 : "Heavy Artillery ( Primary )"
 		68 : "Double barrel shotgun ( Primary )"
 		12 : "Shotgun ( Secondary )"
 		18 : "SMG ( Secondary )"
@@ -1006,21 +1063,21 @@
 @PointClass base(Item) studio("models/items/powerup_crit.mdl") = item_powerup_critdamage : "Powerup Crit" 
 [
 	ModelName(string)    : "Model override" : "models/items/powerup_crit.mdl"
-	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
 
 @PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_shortuber : "Powerup uber" 
 [
 	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
-	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
 
 @PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_ragemode : "Berserk mode" 
 [
 	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
-	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
 
@@ -1198,5 +1255,79 @@
 	input TurnOn(void) : "Enable sun rendering."
 	input TurnOff(void) : "Disable sun rendering."
 	input SetColor(color255) : "Change the sun's color. Format: <Red 0-255> <Green 0-255> <Blue 0-255>"
+]
+
+//-------------------------------------------------------------------------
+//
+// Vehicles.
+//
+//-------------------------------------------------------------------------
+@BaseClass base(Targetname, Origin, Global, prop_static_base) = BaseVehicle
+[
+	vehiclescript(string) : "Vehicle Script File" : "scripts/vehicles/jeep_test.txt"
+	actionScale(float) : "Scale of action input / framerate" : "1"
+
+	// Inputs
+	input Action(float) : "Set the speed of the action animation"
+
+	input TurnOn(void) : "Turn on: Start engine & enable throttle"
+	input TurnOff(void) : "Turn off: Stop engine, disable throttle, engage brakes."
+
+	input Lock(void) : "Prevent the player from entering or exiting the vehicle."
+	input Unlock(void) : "Re-allow the player to enter or exit the vehicle."
+]
+
+
+@BaseClass base(BaseVehicle) = BaseDriveableVehicle
+[
+	VehicleLocked(choices) : "Start locked" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]	
+
+	// Outputs
+	output PlayerOn(void) : "Player entered the vehicle"
+	output PlayerOff(void) : "Player exited the vehicle"
+	
+	output PressedAttack(void) : "Player Pressed attack key"
+	output PressedAttack2(void) : "Player Pressed attack2 key"
+
+	output AttackAxis(string) : "State of attack button [0,1]"
+	output Attack2Axis(string) : "State of attack2 button [0,1]"
+	
+	// Inputs
+	input HandBrakeOn(void) : "Turns the handbrake on"
+	input HandBrakeOff(void): "Releases the handbrake"
+]
+
+@PointClass base(BaseVehicle) studioprop() = prop_vehicle :
+	"Studiomodel vehicle that can be driven via inputs."
+[
+	// Inputs
+	input Steer(float) : "Steer the vehicle +/-1"
+	input Throttle(float) : "Throttle +/-1"
+
+	spawnflags(flags) =
+	[
+		1 : "Always Think (Run physics every frame)" : 0
+	]
+]
+
+
+@PointClass base(BaseDriveableVehicle) studioprop() = prop_vehicle_driveable :
+	"Generic driveable studiomodel vehicle."
+[
+]
+
+@PointClass base(BaseDriveableVehicle) studioprop() = prop_vehicle_jeep :
+	"Driveable studiomodel jeep."
+[
+	smoke_particle(string)    : "Smoke particle" : ""
+	fire_particle(string)    : "Fire particle" : ""
+	vehicle_health(integer) : "Vehicle max health" : 100
+
+	input StartRemoveTauCannon(void) : "Start the tau removal sequence."
+	input FinishRemoveTauCannon(void) : "Finish the tau removal sequence."
 ]
 
