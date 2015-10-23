@@ -36,6 +36,7 @@ public:
 
 private:
 	CTFWeaponInfo *pWeaponInfo;
+	CNetworkVar( bool, m_bInactive );
 };
 
 #endif // ENTITY_HEALTHKIT_H

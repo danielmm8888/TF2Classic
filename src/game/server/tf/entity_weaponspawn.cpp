@@ -13,6 +13,7 @@
 #include "tf_weaponbase.h"
 #include "basecombatcharacter.h"
 #include "in_buttons.h"
+#include "tf_fx.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -21,6 +22,7 @@ extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
 
 // We don't have a proper sound yet, so we're using this
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
+//#define RESPAWN_PARTICLE "particlename"
 
 BEGIN_DATADESC(CWeaponSpawner)
 
@@ -30,6 +32,7 @@ BEGIN_DATADESC(CWeaponSpawner)
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST(CWeaponSpawner, DT_WeaponSpawner)
+	SendPropBool( SENDINFO( m_bInactive ) )
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
@@ -65,7 +68,6 @@ void CWeaponSpawner::Spawn(void)
 	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
 
 	AddEffects( EF_ITEM_BLINK );
-	AddEffects( EF_BRIGHTLIGHT );
 }
 
 float CWeaponSpawner::GetRespawnDelay(void)
@@ -78,7 +80,8 @@ float CWeaponSpawner::GetRespawnDelay(void)
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Precache(void)
 {
-	PrecacheScriptSound(TF_HEALTHKIT_PICKUP_SOUND);
+	PrecacheScriptSound( TF_HEALTHKIT_PICKUP_SOUND );
+	//PrecacheParticleSystem( RESPAWN_PARTICLE );
 }
 
 
@@ -88,24 +91,29 @@ void CWeaponSpawner::Precache(void)
 CBaseEntity* CWeaponSpawner::Respawn( void )
 {
 	BaseClass::Respawn();
+	m_bInactive = true;
 	RemoveEffects( EF_NODRAW );
-	RemoveEffects( EF_BRIGHTLIGHT );
-	m_nRenderFX = kRenderFxDistort;
+	RemoveEffects( EF_ITEM_BLINK );
+	//m_nRenderMode = kRenderTransColor;
+	//SetRenderColor( 246, 232, 99, 128 );
 	return this;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponSpawner ::Materialize( void )
+void CWeaponSpawner::Materialize( void )
 {
 	BaseClass::Materialize();
 
 	if ( !IsDisabled() )
 	{
 		EmitSound( "Item.Materialize" );
-		AddEffects( EF_BRIGHTLIGHT );
-		m_nRenderFX = kRenderFxNone;
+		CPVSFilter filter( GetAbsOrigin() );
+		//TE_TFParticleEffect( filter, 0.0f, RESPAWN_PARTICLE, GetAbsOrigin(), QAngle( 0,0,0 ) );
+		AddEffects( EF_ITEM_BLINK );
+		SetRenderColor( 255, 255, 255, 255 );
+		m_bInactive = false;
 	}
 }
 

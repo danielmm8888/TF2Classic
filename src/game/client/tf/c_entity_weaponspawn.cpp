@@ -5,6 +5,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "glow_outline_effect.h"
+#include "c_tf_player.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -12,27 +13,34 @@
 class C_WeaponSpawner : public C_BaseAnimating
 {
 public:
-	DECLARE_CLASS(C_WeaponSpawner, C_BaseAnimating);
+	DECLARE_CLASS( C_WeaponSpawner, C_BaseAnimating );
 	DECLARE_CLIENTCLASS();
 
 	void	Spawn();
 	void	ClientThink();
 	void	HandleGlowEffect();
 
+	virtual int	InternalDrawModel( int flags );
+
 private:
+	CMaterialReference	m_InactiveMaterial;
 	QAngle		qAngle;
+	CGlowObject *m_pGlowObject;
+	bool		m_bInactive;
 };
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, C_WeaponSpawner);
 
 IMPLEMENT_CLIENTCLASS_DT(C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner)
+	RecvPropBool( RECVINFO( m_bInactive ) )
 END_RECV_TABLE()
 
-void C_WeaponSpawner::Spawn()
+void C_WeaponSpawner::Spawn( void )
 {
 	BaseClass::Spawn();
 	qAngle = GetAbsAngles();
 	ClientThink();
+	m_InactiveMaterial.Init( "models/weapons/weapon_spawner.vmt", TEXTURE_GROUP_CLIENT_EFFECTS );
 }
 
 void C_WeaponSpawner::ClientThink()
@@ -48,12 +56,36 @@ void C_WeaponSpawner::ClientThink()
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 }
 
+int C_WeaponSpawner::InternalDrawModel( int flags )
+{
+	if ( m_bInactive )
+	{
+		modelrender->ForcedMaterialOverride( m_InactiveMaterial );
+		int iRet = BaseClass::InternalDrawModel( flags );
+		modelrender->ForcedMaterialOverride( NULL );
+		return iRet;
+	}
+	else
+	{
+		return BaseClass::InternalDrawModel(flags);
+	}
+
+}
+
 void C_WeaponSpawner::HandleGlowEffect()
 {
-	if (g_GlowObjectManager.HasGlowEffect(this))
-		return;
+	if ( !m_pGlowObject )
+	{
+		m_pGlowObject = new CGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ), 0.0, false, true );
+	}
 
-	g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.94f, 0.0f), 1.0f, false, true, 0);
+	// DIsable the outline if the weapon has been picked up
+	
+	if ( !m_bInactive )
+		m_pGlowObject->SetAlpha( 1.0f );
+	else
+		m_pGlowObject->SetAlpha( 0.0f );
+
 }
 
 
