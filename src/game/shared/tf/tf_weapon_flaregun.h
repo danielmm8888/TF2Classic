@@ -32,9 +32,6 @@ public:
 
 	virtual void	Spawn( void );
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_FLAREGUN; }
-	virtual void	PrimaryAttack( void );
-	virtual void	LaunchProjectile( void );
-	virtual float	GetProjectileSpeed( void );
 };
 
 #endif // TF_WEAPON_FLAREGUN_H
