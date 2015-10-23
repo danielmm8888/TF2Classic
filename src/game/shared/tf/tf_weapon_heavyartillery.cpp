@@ -49,11 +49,10 @@ void CTFHeavyArtillery::PrimaryAttack( void )
 	BaseClass::PrimaryAttack();
 
 	float maxVerticalKickAngle = m_pWeaponInfo->GetWeaponData(TF_WEAPON_PRIMARY_MODE).m_flPunchAngle;
-	float slideLimitTime = 0.1f;
+	float slideLimitTime = 10.5f;
 
 	// Find how far into our accuracy degradation we are
-	float duration = ( m_fFireDuration > slideLimitTime ) ? slideLimitTime : m_fFireDuration;
-	float kickPerc = duration / slideLimitTime;
+	float kickPerc = m_fFireDuration * slideLimitTime;
 
 	// do this to get a hard discontinuity, clear out anything under 10 degrees punch
 	pPlayer->ViewPunchReset( 10 );
