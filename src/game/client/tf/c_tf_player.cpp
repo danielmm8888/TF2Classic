@@ -119,7 +119,7 @@ static void OnMercParticleChange(IConVar *var = NULL, const char *pOldValue = 0,
 ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE, "Sets merc color's red channel value", OnMercColorChange);
 ConVar tf2c_setmerccolor_g("tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE, "Sets merc color's green channel value", OnMercColorChange);
 ConVar tf2c_setmerccolor_b("tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE, "Sets merc color's blue channel value", OnMercColorChange);
-ConVar tf2c_setmercparticle("tf2c_setmercparticle", "0", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
+ConVar tf2c_setmercparticle("tf2c_setmercparticle", "1", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
 // Moved to the server
 /*
 void tf2c_setmerccolor_f(const CCommand& args)

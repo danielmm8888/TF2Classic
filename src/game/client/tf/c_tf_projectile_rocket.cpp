@@ -33,7 +33,7 @@ C_TFProjectile_Rocket::~C_TFProjectile_Rocket( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFProjectile_Rocket::OnDataChanged(DataUpdateType_t updateType)
+void C_TFProjectile_Rocket::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged(updateType);
 

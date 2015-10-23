@@ -81,7 +81,7 @@ public:
 	static CTFBaseRocket *Create( const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
 
 	virtual void	RocketTouch( CBaseEntity *pOther );
-	void			Explode( trace_t *pTrace, CBaseEntity *pOther );
+	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
 
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual int		GetDamageType() { return g_aWeaponDamageTypes[ GetWeaponID() ]; }

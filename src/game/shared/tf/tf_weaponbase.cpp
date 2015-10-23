@@ -29,6 +29,7 @@
 #include "effect_dispatch_data.h"
 #include "c_te_effect_dispatch.h"
 #include "toolframework_client.h"
+#include "c_env_projectedtexture.h"
 
 // for spy material proxy
 #include "proxyentity.h"
@@ -1736,10 +1737,10 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 		pAttachEnt->GetAttachment( iMuzzleFlashAttachment, vecOrigin, angAngles );
 
 		// Muzzleflash light
-		if (tf2c_muzzlelight.GetBool())
+		if ( tf2c_muzzlelight.GetBool() )
 		{
 			CLocalPlayerFilter filter;
-			TE_DynamicLight(filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH);
+			TE_DynamicLight( filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH );
 		}
 		
 		if ( pszMuzzleFlashEffect )
