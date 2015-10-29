@@ -2757,6 +2757,17 @@ int CTFPlayer::CanBuild( int iObjectType, int iObjectMode )
 	{
 		return CB_CANNOT_BUILD;
 	}
+
+	if ( GetObjectInfo( iObjectType )->m_AltModes.Count() != 0 
+		&& GetObjectInfo( iObjectType )->m_AltModes.Count() <= iObjectMode * 3 )
+	{
+		return CB_CANNOT_BUILD;
+	}
+	else if ( GetObjectInfo( iObjectType )->m_AltModes.Count() == 0 && iObjectMode != 0 )
+	{
+		return CB_CANNOT_BUILD;
+	}
+
 #endif
 
 	int iObjectCount = GetNumObjects( iObjectType, iObjectMode );
