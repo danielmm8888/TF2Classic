@@ -94,6 +94,7 @@ CBaseEntity* CWeaponSpawner::Respawn( void )
 	m_bInactive = true;
 	RemoveEffects( EF_NODRAW );
 	RemoveEffects( EF_ITEM_BLINK );
+	m_nRenderFX = kRenderFxDistort;
 	//m_nRenderMode = kRenderTransColor;
 	//SetRenderColor( 246, 232, 99, 128 );
 	return this;
@@ -112,6 +113,7 @@ void CWeaponSpawner::Materialize( void )
 		CPVSFilter filter( GetAbsOrigin() );
 		//TE_TFParticleEffect( filter, 0.0f, RESPAWN_PARTICLE, GetAbsOrigin(), QAngle( 0,0,0 ) );
 		AddEffects( EF_ITEM_BLINK );
+		m_nRenderFX = kRenderFxNone;
 		SetRenderColor( 255, 255, 255, 255 );
 		m_bInactive = false;
 	}
@@ -146,12 +148,13 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
+#ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByBucket( pWeaponInfo->iSlot );
 		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
 
-		if (pWeapon)
+		if ( pWeapon )
 		{
-			if (pWeapon->GetWeaponID() == m_iWeaponNumber)
+			if ( pWeapon->GetWeaponID() == m_iWeaponNumber )
 			{
 				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
 					bSuccess = true;
@@ -170,14 +173,27 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 			else
 			{
-				pTFPlayer->m_Shared.SetDesiredWeaponIndex(m_iWeaponNumber);
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( m_iWeaponNumber );
 			}
 		}
+#else
+		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_OwnsThisID( m_iWeaponNumber );
+		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
+
+		if ( pWeapon && pWeapon->GetWeaponID() == m_iWeaponNumber )
+		{
+			if ( pWeapon->GetWeaponID() == m_iWeaponNumber )
+			{
+				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
+					bSuccess = true;
+			}
+		}
+#endif
 
 		if ( !pWeapon )
 		{
 			pTFPlayer->GiveNamedItem( pszWeaponName );
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex(TF_WEAPON_NONE);
+			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 			bSuccess = true;
 		}
 

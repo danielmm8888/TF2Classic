@@ -28,7 +28,7 @@ class CTFPlayer;
 class CTFItem : public CDynamicProp
 {
 public:
-	DECLARE_CLASS( CTFItem,CDynamicProp  )
+	DECLARE_CLASS( CTFItem, CDynamicProp  )
 	DECLARE_NETWORKCLASS();
 
 	// Unique identifier.

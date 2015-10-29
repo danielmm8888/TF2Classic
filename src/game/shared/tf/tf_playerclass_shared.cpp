@@ -287,7 +287,7 @@ bool CTFPlayerClassShared::CanBuildObject( int iObjectType )
 	TFPlayerClassData_t  *pData = GetData();
 
 	int i;
-	for ( i=0;i<TF_PLAYER_BUILDABLE_COUNT;i++ )
+	for ( i = 0; i < TF_PLAYER_BUILDABLE_COUNT; i++ )
 	{
 		if ( iObjectType == pData->m_aBuildable[i] )
 		{

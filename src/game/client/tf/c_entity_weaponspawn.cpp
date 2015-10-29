@@ -25,7 +25,7 @@ public:
 private:
 	CMaterialReference	m_InactiveMaterial;
 	QAngle		qAngle;
-	CGlowObject *m_pGlowObject;
+	int			m_nGlowHandle;
 	bool		m_bInactive;
 };
 
@@ -58,7 +58,7 @@ void C_WeaponSpawner::ClientThink()
 
 int C_WeaponSpawner::InternalDrawModel( int flags )
 {
-	if ( m_bInactive )
+	/*if ( m_bInactive )
 	{
 		modelrender->ForcedMaterialOverride( m_InactiveMaterial );
 		int iRet = BaseClass::InternalDrawModel( flags );
@@ -67,24 +67,24 @@ int C_WeaponSpawner::InternalDrawModel( int flags )
 	}
 	else
 	{
-		return BaseClass::InternalDrawModel(flags);
-	}
+		return BaseClass::InternalDrawModel( flags );
+	}*/
 
+	return BaseClass::InternalDrawModel( flags );
 }
 
 void C_WeaponSpawner::HandleGlowEffect()
 {
-	if ( !m_pGlowObject )
+	if ( !g_GlowObjectManager.HasGlowEffect( this ) )
 	{
-		m_pGlowObject = new CGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ), 0.0, false, true );
+		m_nGlowHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector(0.76f, 0.76f, 0.76f), 1.0f, true, true, 0 );
 	}
 
 	// DIsable the outline if the weapon has been picked up
-	
 	if ( !m_bInactive )
-		m_pGlowObject->SetAlpha( 1.0f );
+		g_GlowObjectManager.SetAlpha( m_nGlowHandle, 1.0f );
 	else
-		m_pGlowObject->SetAlpha( 0.0f );
+		g_GlowObjectManager.SetAlpha( m_nGlowHandle, 0.0f );
 
 }
 
