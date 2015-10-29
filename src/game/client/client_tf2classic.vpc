@@ -195,6 +195,7 @@ $Project "Client (TF)"
 			$File	"tf\c_tf_basedmpowerup.cpp"		
 			$File	"tf\c_tf_viewmodeladdon.cpp"
 			$File	"tf\c_tf_viewmodeladdon.h"
+			$File	"tf\c_tf_dropped_weapon.cpp"
 			
 			$Folder	"Unused"
 			{

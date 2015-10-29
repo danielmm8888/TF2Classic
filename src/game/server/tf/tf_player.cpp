@@ -50,6 +50,7 @@
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
 #include "econ_wearable.h"
+#include "tf_dropped_weapon.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -418,7 +419,7 @@ CTFPlayer::CTFPlayer()
 //-----------------------------------------------------------------------------
 void CTFPlayer::TFPlayerThink()
 {
-	AddGlowEffect();
+	//AddGlowEffect();
 
 	if ( m_pStateInfo && m_pStateInfo->pfnThink )
 	{
@@ -4269,6 +4270,18 @@ void CTFPlayer::DropAmmoPack( void )
 	QAngle vecPackAngles;
 	if( !CalculateAmmoPackPositionAndAngles( pWeapon, vecPackOrigin, vecPackAngles ) )
 		return;
+
+	// Drop the active weapon in DM. Ignore the Pistol and Crowbar since those are the default weapons
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
+		{
+			// Use the same values as the ammo pack.
+			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, pszWorldModel, pWeapon->GetWeaponID() );
+			pWeapon->SetModel( pWeapon->GetViewModel() );
+			return;
+		}
+	}
 
 	// Fill the ammo pack with unused player ammo, if out add a minimum amount.
 	int iPrimary = max( 5, GetAmmoCount( TF_AMMO_PRIMARY ) );

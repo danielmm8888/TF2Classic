@@ -175,6 +175,9 @@ $Project "Server (TF)"
 			$File	"tf\tf_vehicle_jeep.cpp"	
 			$File	"tf\tf_generic_bomb.cpp"
 			$File	"tf\tf_generic_bomb.h"	
+			$File	"tf\tf_dropped_weapon.cpp"
+			$File	"tf\tf_dropped_weapon.h"	
+
 			
 			$Folder	"Unused"
 			{
