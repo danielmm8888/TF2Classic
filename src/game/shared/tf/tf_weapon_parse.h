@@ -110,10 +110,17 @@ public:
 	char	m_szExplosionPlayerEffect[128];
 	char	m_szExplosionWaterEffect[128];
 
+	bool	m_bDontDrop;
+
+	// DM specific things
+
 	// DM Viewmodel
 	char	m_szViewModelDM[MAX_WEAPON_STRING];
-
-	bool	m_bDontDrop;
+#ifdef DM_WEAPON_BUCKET
+	// DM Weapon menu slot overrides
+	int		m_iSlotDM;
+	int		m_iPositionDM;
+#endif
 
 protected:
 	CUtlDict< const char*, unsigned short > m_AnimationReplacement;
