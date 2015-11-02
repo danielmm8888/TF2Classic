@@ -2686,8 +2686,8 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		killer_weapon_name = "obj_sentrygun3";
 	}
 
-	// If the inflictor is a teleporter exit this is a telefrag.
-	if ( 0 == Q_strcmp( killer_weapon_name, "obj_teleporter_exit" ) )
+	// Check for telefrag.
+	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
 	{
 		// TODO: Make a telefrag kill icon. Live TF2 still doesn't have one.
 		killer_weapon_name = "telefrag";
