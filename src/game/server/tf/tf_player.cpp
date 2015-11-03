@@ -1509,13 +1509,11 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 		return false;
 	}
 
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() )
 	{
-		// Randomize the start spot
-		for (int i = random->RandomInt(1, 5); i > 0; i--)
-			pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
-		if (!pSpot)  // skip over the null point
-			pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
+		// Randomize the start spot in DM.
+		for ( int i = random->RandomInt( 0, 4 ); i > 0; i-- )
+			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 	}
 
 	// First we try to find a spawn point that is fully clear. If that fails,
@@ -1538,6 +1536,24 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 					continue;
 				}
 
+				if ( bIgnorePlayers && TFGameRules()->IsDeathmatch() )
+				{
+					// We're spawning on a busy spawn point so kill off anyone occupying it.
+					edict_t	*edPlayer;
+					edPlayer = edict();
+					CBaseEntity *ent = NULL;
+					for ( CEntitySphereQuery sphere( pSpot->GetAbsOrigin(), 128 ); ( ent = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
+					{
+						// if ent is a client, telefrag 'em (unless they are ourselves)
+						if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
+						{
+							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH );
+							info.SetDamageCustom( TF_DMG_CUSTOM_TELEFRAG );
+							ent->TakeDamage( info );
+						}
+					}
+				}
+
 				// Found a valid spawn point.
 				return true;
 			}
@@ -1548,25 +1564,9 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 
 		if ( pSpot == pFirstSpot && !bIgnorePlayers )
 		{
-			if (TFGameRules()->IsDeathmatch())
-			{
-				// we haven't found a place to spawn yet,  so kill any guy at the first spawn point and spawn there
-				edict_t	*edPlayer;
-				edPlayer = edict();
-				CBaseEntity *ent = NULL;
-				for (CEntitySphereQuery sphere(pSpot->GetAbsOrigin(), 128); (ent = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity())
-				{
-					// if ent is a client, kill em (unless they are ourselves)
-					if (ent->IsPlayer() && !(ent->edict() == edPlayer))
-						ent->TakeDamage(CTakeDamageInfo(GetContainingEntity(INDEXENT(0)), GetContainingEntity(INDEXENT(0)), 300, DMG_GENERIC));
-				}
-			}
-			else
-			{
-				// Loop through again, ignoring players
-				bIgnorePlayers = true;
-				pSpot = gEntList.FindEntityByClassname(pSpot, pEntClassName);
-			}
+			// Loop through again, ignoring players
+			bIgnorePlayers = true;
+			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 		}
 	} 
 	// Continue until a valid spawn point is found or we hit the start.
@@ -3141,7 +3141,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 		// check to see if our attacker is a trigger_hurt entity (and allow it to kill us even if we're invuln)
 		CBaseEntity *pAttacker = info.GetAttacker();
-		CBaseEntity *pInflictor = info.GetInflictor();
 		if ( pAttacker && pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) )
 		{
 			CTriggerHurt *pTrigger = dynamic_cast<CTriggerHurt *>( pAttacker );
@@ -3152,13 +3151,9 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 
 		// Ubercharge does not save from telefrags.
-		if ( pInflictor && pInflictor->IsBaseObject() )
+		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
 		{
-			CBaseObject *pObject = assert_cast<CBaseObject *>( pInflictor );
-			if ( pObject->ObjectType() == OBJ_TELEPORTER && pObject->GetObjectMode() == TELEPORTER_TYPE_EXIT )
-			{
-				bAllowDamage = true;
-			}
+			bAllowDamage = true;
 		}
 
 		if ( !bAllowDamage )
@@ -3405,32 +3400,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	CTF_GameStats.Event_PlayerDamage( this, info, iHealthBefore - GetHealth() );
 
-	// Send out damage event
-	IGameEvent * event = gameeventmanager->CreateEvent( "player_damaged" );
-	if( event && !m_Shared.InCond( TF_COND_DISGUISED ) )
-	{
-		// Double check for valid TFPlayer
-		CTFPlayer *attacker = NULL;
-		if( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
-		{
-			attacker = ToTFPlayer( info.GetAttacker() );
-		}
-
-		if( attacker )
-		{
-			event->SetInt( "userid_from", attacker->GetUserID() ); // Who shot
-			event->SetInt( "userid_to", GetUserID() ); // Who WAS shot (i.e. us)
-			event->SetInt( "amount", (int)info.GetDamage() );
-			event->SetInt( "type", 1 );
-			// Position used for hit text
-			event->SetFloat( "from_x", info.GetDamagePosition().x );
-			event->SetFloat( "from_y", info.GetDamagePosition().y );
-			event->SetFloat( "from_z", info.GetDamagePosition().z );
-			// Fire off event
-			gameeventmanager->FireEvent( event );
-		}
-	}
-
 	return bTookDamage;
 }
 
@@ -3654,6 +3623,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	{
 		event->SetInt( "userid", GetUserID() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
+		event->SetInt( "damageamount", (int)info.GetDamage() );
+		event->SetInt( "crit", info.GetDamageType() & DMG_CRITICAL ? 1 : 0 );
 
 		// HLTV event priority, not transmitted
 		event->SetInt( "priority", 5 );	
@@ -3754,6 +3725,9 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 	// Check to see if we should allow players to gib.
 	if ( !tf_playergib.GetBool() )
 		return false;
+
+	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
+		return true;
 
 	if ( ( ( info.GetDamageType() & DMG_BLAST ) != 0 ) || ( ( info.GetDamageType() & DMG_HALF_FALLOFF ) != 0 ) )
 		return true;
