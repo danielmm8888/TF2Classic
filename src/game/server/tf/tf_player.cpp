@@ -3400,32 +3400,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 	CTF_GameStats.Event_PlayerDamage( this, info, iHealthBefore - GetHealth() );
 
-	// Send out damage event
-	IGameEvent * event = gameeventmanager->CreateEvent( "player_damaged" );
-	if( event && !m_Shared.InCond( TF_COND_DISGUISED ) )
-	{
-		// Double check for valid TFPlayer
-		CTFPlayer *attacker = NULL;
-		if( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
-		{
-			attacker = ToTFPlayer( info.GetAttacker() );
-		}
-
-		if( attacker )
-		{
-			event->SetInt( "userid_from", attacker->GetUserID() ); // Who shot
-			event->SetInt( "userid_to", GetUserID() ); // Who WAS shot (i.e. us)
-			event->SetInt( "amount", (int)info.GetDamage() );
-			event->SetInt( "type", 1 );
-			// Position used for hit text
-			event->SetFloat( "from_x", info.GetDamagePosition().x );
-			event->SetFloat( "from_y", info.GetDamagePosition().y );
-			event->SetFloat( "from_z", info.GetDamagePosition().z );
-			// Fire off event
-			gameeventmanager->FireEvent( event );
-		}
-	}
-
 	return bTookDamage;
 }
 
@@ -3649,6 +3623,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	{
 		event->SetInt( "userid", GetUserID() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
+		event->SetInt( "damageamount", (int)info.GetDamage() );
+		event->SetInt( "crit", info.GetDamageType() & DMG_CRITICAL ? 1 : 0 );
 
 		// HLTV event priority, not transmitted
 		event->SetInt( "priority", 5 );	
