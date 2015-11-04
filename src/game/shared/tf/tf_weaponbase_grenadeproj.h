@@ -58,10 +58,12 @@ private:
 
 public:
 
+	virtual void			OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void			OnDataChanged( DataUpdateType_t type );
 
 	float					m_flSpawnTime;
 	bool					m_bCritical;
+	int						m_iOldTeamNum;
 
 	// Server specific.
 #else

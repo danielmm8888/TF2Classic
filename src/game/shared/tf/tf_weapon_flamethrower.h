@@ -10,6 +10,7 @@
 
 #include "tf_weaponbase_gun.h"
 #include "tf_weaponbase_rocket.h"
+#include "tf_weapon_grenade_pipebomb.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -55,6 +56,12 @@ public:
 	virtual void	ItemPostFrame( void );
 	virtual void	PrimaryAttack();
 	virtual void	SecondaryAttack();
+
+#ifdef GAME_DLL
+	void			ReflectRocket( CTFProjectile_Rocket *pRocket );
+	void			ReflectGrenade( CTFWeaponBaseGrenadeProj *pGrenade );
+#endif
+
 	virtual bool	Lower( void );
 	virtual void	WeaponReset( void );
 
