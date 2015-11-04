@@ -34,6 +34,9 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 void CTFDroppedWeapon::Spawn( void )
 {
 	BaseClass::Spawn();
+	
+	SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+	SetSolidFlags( FSOLID_TRIGGER );
 
 	// Remove 30s after spawning
 	m_flRemoveTime = gpGlobals->curtime + 30.0f;
