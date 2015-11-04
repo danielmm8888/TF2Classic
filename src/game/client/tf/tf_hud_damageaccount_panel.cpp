@@ -16,6 +16,7 @@
 #include <vgui/IVGui.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
+#include "engine/IEngineSound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -31,6 +32,8 @@ typedef struct
 
 	// die time
 	float m_flDieTime;
+
+	EHANDLE m_hEntity;
 
 	// position of damaged player
 	Vector m_vDamagePos;
@@ -60,6 +63,8 @@ public:
 
 private:
 
+	float m_flLastHitSound;
+
 	int iAccountDeltaHead;
 	dmg_account_delta_t m_AccountDeltaItems[NUM_ACCOUNT_DELTA_ITEMS];
 
@@ -80,7 +85,14 @@ private:
 DECLARE_HUDELEMENT( CDamageAccountPanel );
 
 ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "" );
-ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
+ConVar hud_combattext_batching( "hud_combattext_batching", "0", FCVAR_ARCHIVE, "If set to 1, numbers that are too close together are merged." );
+ConVar hud_combattext_batching_window( "hud_combattext_batching_window", "0.2", FCVAR_ARCHIVE, "Maximum delay between damage events in order to batch numbers." );
+
+ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "If set to 1, play a sound everytime you injure an enemy. The sound can be customized by replacing the 'tf/sound/ui/hitsound.wav' file." );
+ConVar tf_dingaling_volume( "tf_dingaling_volume", "0.75", FCVAR_ARCHIVE, "Desired volume of the hit sound.", true, 0.0, true, 1.0 );
+ConVar tf_dingaling_pitchmindmg( "tf_dingaling_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
+ConVar tf_dingaling_pitchmaxdmg( "tf_dingaling_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
+ConVar tf_dingalingaling_repeat_delay( "tf_dingalingaling_repeat_delay", "0", FCVAR_ARCHIVE, "Desired repeat delay of the hit sound. Set to 0 to play a sound for every instance of damage dealt." );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -91,6 +103,8 @@ CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudEleme
 	SetParent( pParent );
 
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
+
+	m_flLastHitSound = 0.0f;
 
 	iAccountDeltaHead = 0;
 
@@ -176,16 +190,59 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 
 		// Play hit sound, if appliable
 		if ( tf_dingalingaling.GetBool() )
-			vgui::surface()->PlaySound( "ui/hitsound.wav" ); // Ding!
+		{
+			float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
+			if ( flRepeatDelay <= 0 || gpGlobals->curtime - m_flLastHitSound > flRepeatDelay )
+			{
+				EmitSound_t params;
+
+				params.m_pSoundName = "ui/hitsound.wav";
+
+				params.m_flVolume = tf_dingaling_volume.GetFloat();
+
+				float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
+				float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
+				params.m_nPitch = RemapValClamped( (float)event->GetInt( "damageamount" ), 10, 150, flPitchMin, flPitchMax );
+
+				CLocalPlayerFilter filter;
+
+				CBaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
+
+				m_flLastHitSound = gpGlobals->curtime;
+			}
+		}
 
 		// Stop here if we chose not to show hit numbers
 		if ( !hud_combattext.GetBool() )
 			return;
 
+		// Currently only supporting players.
 		CBasePlayer *pVictim = UTIL_PlayerByIndex( iVictim );
 
 		if ( !pVictim )
 			return;
+
+		if ( hud_combattext_batching.GetBool() )
+		{
+			// Cycle through deltas and search for one that belongs to this player.
+			for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+			{
+				if ( m_AccountDeltaItems[i].m_hEntity.Get() == pVictim )
+				{
+					// See if it's lifetime is inside batching window.
+					float flCreateTime = m_AccountDeltaItems[i].m_flDieTime - m_flDeltaLifetime;
+					if ( gpGlobals->curtime - flCreateTime < hud_combattext_batching_window.GetFloat() )
+					{
+						// Update it's die time and damage.
+						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+						m_AccountDeltaItems[i].m_iAmount += event->GetInt( "damageamount" );
+						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
+						return;
+					}
+				}
+			}
+		}
 
 		// create a delta item that floats off the top
 		dmg_account_delta_t *pNewDeltaItem = &m_AccountDeltaItems[iAccountDeltaHead];
@@ -195,7 +252,8 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 		pNewDeltaItem->m_iAmount = event->GetInt( "damageamount" );
-		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition();
+		pNewDeltaItem->m_hEntity = pVictim;
+		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
 }
@@ -231,8 +289,8 @@ void CDamageAccountPanel::Paint( void )
 			if ( !bOnscreen )
 				continue;
 
-			float flHeight = 40.0f;
-			float flYPos = (float)iY + flLifetimePercent * flHeight;
+			float flHeight = 50.0f;
+			float flYPos = (float)iY - ( 1.0 - flLifetimePercent ) * flHeight;
 
 			// Use BIGGER font for crits.
 			vgui::surface()->DrawSetTextFont( m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont );
