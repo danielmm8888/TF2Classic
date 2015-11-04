@@ -21,6 +21,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Rocket, DT_TFProjectile_Rocket )
 
 BEGIN_NETWORK_TABLE( CTFProjectile_Rocket, DT_TFProjectile_Rocket )
 	SendPropBool( SENDINFO( m_bCritical ) ),
+	SendPropBool(SENDINFO(m_bForceUpdate)),
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -44,9 +45,9 @@ CTFProjectile_Rocket *CTFProjectile_Rocket::Create( const Vector &vecOrigin, con
 void CTFProjectile_Rocket::Spawn()
 {
 	CTFPlayer *pPlayer = dynamic_cast< CTFPlayer* >(GetOwnerEntity());
-	if (pPlayer)
+	if (pPlayer) //THIS IS HORRIBLE
 	{
-		if (pPlayer->IsActiveTFWeapon(TF_WEAPON_ROCKETLAUNCHER))
+		if (pPlayer->IsActiveTFWeapon(TF_WEAPON_ROCKETLAUNCHER)) 
 			SetModel(ROCKET_MODEL);
 		else if (pPlayer->IsActiveTFWeapon(TF_WEAPON_ROCKETLAUNCHERBETA))
 			SetModel("models/weapons/w_models/w_rocketbeta.mdl");

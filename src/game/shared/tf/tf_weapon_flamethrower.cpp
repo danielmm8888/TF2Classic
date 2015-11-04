@@ -10,6 +10,7 @@
 #include "ammodef.h"
 #include "tf_gamerules.h"
 #include "tf_player_shared.h"
+#include "tf_weapon_grenade_pipebomb.h"
 
 #if defined( CLIENT_DLL )
 
@@ -54,12 +55,13 @@
 #define TF_FLAMETHROWER_MUZZLEPOS_UP			-12.0f
 
 #define TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK		14.0f
-#define TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK	10
+#define TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK	20
 
 #ifdef CLIENT_DLL
 	extern ConVar tf2c_muzzlelight;
 #endif
-
+	ConVar  tf2c_airblast("tf2c_airblast", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast function of the Flamethrower");
+	ConVar  tf2c_airblast_players("tf2c_airblast_players", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast pushing players");
 IMPLEMENT_NETWORKCLASS_ALIASED( TFFlameThrower, DT_WeaponFlameThrower )
 
 BEGIN_NETWORK_TABLE( CTFFlameThrower, DT_WeaponFlameThrower )
@@ -422,8 +424,154 @@ void CTFFlameThrower::PrimaryAttack()
 //-----------------------------------------------------------------------------
 void CTFFlameThrower::SecondaryAttack()
 {
-	// Disabled until we know what this will do
+	if (!tf2c_airblast.GetBool())
+	{
+		return;
+	}
+#if 0
 	return;
+#else
+	// Are we capable of firing again?
+	if (m_flNextSecondaryAttack > gpGlobals->curtime)
+		return;
+
+	// Get the player owning the weapon.
+	CTFPlayer *pOwner = ToTFPlayer(GetPlayerOwner());
+	if (!pOwner)
+		return;
+
+	if (!CanAttack())
+		return;
+
+#if !defined (CLIENT_DLL)
+	// Let the player remember the usercmd he fired a weapon on. Assists in making decisions about lag compensation.
+	pOwner->NoteWeaponFired();
+
+	pOwner->SpeakWeaponFire();
+	CTF_GameStats.Event_PlayerFiredWeapon(pOwner, false);
+
+	// Move other players back to history positions based on local player's lag
+	lagcompensation->StartLagCompensation(pOwner, pOwner->GetCurrentCommand());
+#endif
+	// TODO: Make airblast particles and sounds.
+
+#if !defined (CLIENT_DLL)
+	QAngle angDir = pOwner->EyeAngles();
+	Vector vecDir;
+	AngleVectors(angDir, &vecDir);
+
+	// Not sure if I did this one correctly, I'm not too good with vectors. (Nicknine)
+	Vector vecOrigin = pOwner->Weapon_ShootPosition() + 80 * 1.5f * vecDir;
+
+	CBaseEntity *pList[128];
+
+	int count = UTIL_EntitiesInBox(pList, 128, vecOrigin - Vector(80, 80, 80), vecOrigin + Vector(80, 80, 80), 0);
+
+	for (int i = 0; i < count; i++)
+	{
+		if (!pList[i])
+			continue;
+
+		if (pList[i] == pOwner)
+			continue;
+		
+		if (pList[i]->IsPlayer() && pList[i]->IsAlive())
+		{
+			if(!tf2c_airblast_players.GetBool())
+			{
+				continue;
+			}
+			CTFPlayer *pTFPlayer = ToTFPlayer(pList[i]);
+
+			if ((!pTFPlayer->InSameTeam(pOwner) || ( TFGameRules() && TFGameRules()->IsDeathmatch() )) && pTFPlayer->GetMoveType() == MOVETYPE_WALK)
+			{
+				// Push enemy players.
+				QAngle angPushDir = pOwner->EyeAngles();
+				Vector vecPushDir;
+
+				// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
+				if (pTFPlayer->GetGroundEntity() != NULL)
+				{
+					angPushDir[PITCH] = min(-45, angPushDir[PITCH]);
+				}
+
+				AngleVectors(angPushDir, &vecPushDir);
+
+				pTFPlayer->SetGroundEntity(NULL);
+				pTFPlayer->ApplyAbsVelocityImpulse(vecPushDir * 500);
+				//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );
+			}
+			else if (pTFPlayer->InSameTeam(pOwner) && pTFPlayer->m_Shared.InCond(TF_COND_BURNING))
+			{
+				// Extinguish teammates.
+				pTFPlayer->m_Shared.RemoveCond(TF_COND_BURNING);
+			}
+		}
+		else if (dynamic_cast<CTFProjectile_Rocket *>(pList[i]) != NULL)
+		{
+			CTFProjectile_Rocket *pRocket = static_cast<CTFProjectile_Rocket *>(pList[i]);
+
+			if (!pRocket)
+				continue;
+
+			// Get rocket's position and speed.
+			Vector vecPos = pRocket->GetAbsOrigin();
+			float flVel = pRocket->GetAbsVelocity().Length();
+
+			Vector vecVelocity;
+			QAngle angForward;
+			GetProjectileReflectSetup(pOwner, vecPos, &angForward, false);
+			// Make it a crit rocket, and force the particles to update
+			pRocket->SetCritical( true );
+			pRocket->ForceTrailUpdate(true);
+
+			// Now change rocket's direction.
+			pRocket->SetAbsAngles(angForward);
+			AngleVectors(angForward, &vecVelocity);
+			pRocket->SetAbsVelocity(vecVelocity * flVel);
+
+			// And change owner.
+			pRocket->SetOwnerEntity(pOwner);
+			pRocket->ChangeTeam(pOwner->GetTeamNumber());
+			pRocket->SetScorer(pOwner);
+		}
+		else if (dynamic_cast<CTFGrenadePipebombProjectile *>(pList[i]) != NULL)
+		{
+			CTFGrenadePipebombProjectile *pGrenade = static_cast<CTFGrenadePipebombProjectile *>(pList[i]);
+
+			if (!pGrenade)
+				continue;
+
+			// Get the grenade's position and speed.
+			Vector vecPos = pGrenade->GetAbsOrigin();
+			float flVel = pGrenade->GetAbsVelocity().Length();
+
+			Vector vecVelocity;
+			QAngle angForward;
+			GetProjectileReflectSetup(pOwner, vecPos, &angForward, false);
+
+			// Now change grenade's direction.
+			pGrenade->SetAbsAngles(angForward);
+			AngleVectors(angForward, &vecVelocity);
+			pGrenade->SetAbsVelocity(vecVelocity * flVel);
+
+			// And change owner.
+			if(pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE)
+			{
+				pGrenade->SetOwnerEntity(pOwner);
+				pGrenade->ChangeTeam(pOwner->GetTeamNumber());
+			}
+		}
+	}
+#endif
+	pOwner->RemoveAmmo(TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType);
+
+	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
+
+#if !defined (CLIENT_DLL)
+	lagcompensation->FinishLagCompensation(pOwner);
+#endif
+#endif
 }
 
 //-----------------------------------------------------------------------------
