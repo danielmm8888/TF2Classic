@@ -74,7 +74,7 @@ extern ConVar	tf_damage_disablespread;
 EHANDLE g_pLastSpawnPoints[TF_TEAM_COUNT];
 
 ConVar tf_playerstatetransitions( "tf_playerstatetransitions", "-2", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "tf_playerstatetransitions <ent index or -1 for all>. Show player state transitions." );
-ConVar tf_playergib( "tf_playergib", "1", FCVAR_PROTECTED, "Allow player gibbing." );
+ConVar tf_playergib( "tf_playergib", "1", FCVAR_PROTECTED, "Allow player gibbing. 0: never, 1: normal, 2: always", true, 0, true, 2 );
 
 ConVar tf_weapon_ragdoll_velocity_min( "tf_weapon_ragdoll_velocity_min", "100", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_weapon_ragdoll_velocity_max( "tf_weapon_ragdoll_velocity_max", "150", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
@@ -3723,14 +3723,19 @@ void CTFPlayer::ClearDamagerHistory()
 bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 {
 	// Check to see if we should allow players to gib.
-	if ( !tf_playergib.GetBool() )
+	int iGibCvar = tf_playergib.GetInt();
+	if ( iGibCvar == 0 )
 		return false;
+
+	if ( iGibCvar == 2 )
+		return true;
 
 	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
 		return true;
 
+	// 85% probability of gibbing when killed by an explosion.
 	if ( ( ( info.GetDamageType() & DMG_BLAST ) != 0 ) || ( ( info.GetDamageType() & DMG_HALF_FALLOFF ) != 0 ) )
-		return true;
+		return ( random->RandomInt( 0, 99 ) > 15 );
 
 	return false;
 }
