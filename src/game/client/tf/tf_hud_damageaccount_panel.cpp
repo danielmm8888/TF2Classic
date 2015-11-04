@@ -32,6 +32,8 @@ typedef struct
 	// die time
 	float m_flDieTime;
 
+	EHANDLE m_hEntity;
+
 	// position of damaged player
 	Vector m_vDamagePos;
 
@@ -80,6 +82,9 @@ private:
 DECLARE_HUDELEMENT( CDamageAccountPanel );
 
 ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "" );
+ConVar hud_combattext_batching( "hud_combattext_batching", "0", FCVAR_ARCHIVE, "If set to 1, numbers that are too close together are merged." );
+ConVar hud_combattext_batching_window( "hud_combattext_batching_window", "0.2", FCVAR_ARCHIVE, "Maximum delay between damage events in order to batch numbers." );
+
 ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
 
 //-----------------------------------------------------------------------------
@@ -187,6 +192,28 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 		if ( !pVictim )
 			return;
 
+		if ( hud_combattext_batching.GetBool() )
+		{
+			// Cycle through deltas and search for one that belongs to this player.
+			for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+			{
+				if ( m_AccountDeltaItems[i].m_hEntity.Get() == pVictim )
+				{
+					// See if it's lifetime is inside batching window.
+					float flCreateTime = m_AccountDeltaItems[i].m_flDieTime - m_flDeltaLifetime;
+					if ( gpGlobals->curtime - flCreateTime < hud_combattext_batching_window.GetFloat() )
+					{
+						// Update it's die time and damage.
+						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+						m_AccountDeltaItems[i].m_iAmount += event->GetInt( "damageamount" );
+						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
+						return;
+					}
+				}
+			}
+		}
+
 		// create a delta item that floats off the top
 		dmg_account_delta_t *pNewDeltaItem = &m_AccountDeltaItems[iAccountDeltaHead];
 
@@ -195,7 +222,8 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 		pNewDeltaItem->m_iAmount = event->GetInt( "damageamount" );
-		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition();
+		pNewDeltaItem->m_hEntity = pVictim;
+		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
 }
@@ -231,8 +259,8 @@ void CDamageAccountPanel::Paint( void )
 			if ( !bOnscreen )
 				continue;
 
-			float flHeight = 40.0f;
-			float flYPos = (float)iY + flLifetimePercent * flHeight;
+			float flHeight = 50.0f;
+			float flYPos = (float)iY - ( 1.0 - flLifetimePercent ) * flHeight;
 
 			// Use BIGGER font for crits.
 			vgui::surface()->DrawSetTextFont( m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont );
