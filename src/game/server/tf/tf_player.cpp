@@ -3735,7 +3735,8 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 
 	// 85% probability of gibbing when killed by an explosion.
 	if ( ( ( info.GetDamageType() & DMG_BLAST ) != 0 ) || ( ( info.GetDamageType() & DMG_HALF_FALLOFF ) != 0 ) )
-		return ( random->RandomInt( 0, 99 ) > 15 );
+		//return ( random->RandomInt( 0, 99 ) > 15 );
+		return true;
 
 	return false;
 }
