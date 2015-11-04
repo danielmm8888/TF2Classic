@@ -665,6 +665,7 @@ enum
 	TF_DMG_WRENCH_FIX,
 	TF_DMG_CUSTOM_MINIGUN,
 	TF_DMG_CUSTOM_SUICIDE,
+	TF_DMG_CUSTOM_TELEFRAG,
 };
 
 enum
@@ -1011,9 +1012,9 @@ typedef enum
 
 // Unused
 // These are all wrong, but they're unused and we don't know the proper values so we'll just wing it.
-#define TF_DEATH_FEIGN_DEATH	(1<<0)
-#define TF_DEATH_AUSTRALIUM		(1<<1) 
-#define TF_DEATH_PURGATORY		(1<<2) 
+#define TF_DEATH_FEIGN_DEATH	0x0020
+#define TF_DEATH_AUSTRALIUM		0x0004 
+#define TF_DEATH_PURGATORY		0x0001
 #define HUD_ALERT_SCRAMBLE_TEAMS 0
 
 
