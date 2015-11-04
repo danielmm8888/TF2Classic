@@ -14,6 +14,7 @@
 #include "basecombatcharacter.h"
 #include "in_buttons.h"
 #include "tf_fx.h"
+#include "tf_dropped_weapon.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -31,8 +32,37 @@ BEGIN_DATADESC(CWeaponSpawner)
 
 END_DATADESC()
 
+//-----------------------------------------------------------------------------
+// Purpose: SendProxy that converts the UtlVector list of players in range to entindexes, where it's reassembled on the client
+//-----------------------------------------------------------------------------
+void SendProxy_NearbyPlayerList( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID )
+{
+	CWeaponSpawner *pSpawner = (CWeaponSpawner*)pStruct;
+
+	// If this assertion fails, then SendProxyArrayLength_PlayerList has failed.
+	Assert( iElement < pSpawner->m_hNearbyPlayers.Size() );
+
+	CBaseEntity *pEnt = pSpawner->m_hNearbyPlayers[iElement].Get();
+	EHANDLE hOther = pEnt;
+
+	SendProxy_EHandleToInt( pProp, pStruct, &hOther, pOut, iElement, objectID );
+}
+
+int SendProxyArrayLength_NearbyPlayerList( const void *pStruct, int objectID )
+{
+	CWeaponSpawner *pSpawner = (CWeaponSpawner*)pStruct;
+	return pSpawner->m_hNearbyPlayers.Count();
+}
+
 IMPLEMENT_SERVERCLASS_ST(CWeaponSpawner, DT_WeaponSpawner)
-	SendPropBool( SENDINFO( m_bInactive ) )
+	SendPropBool( SENDINFO( m_bInactive ) ),
+	SendPropArray2( 
+		SendProxyArrayLength_NearbyPlayerList,
+		SendPropInt( "nearby_player_list_element", 0, SIZEOF_IGNORE, NUM_NETWORKED_EHANDLE_BITS, SPROP_UNSIGNED, SendProxy_NearbyPlayerList ), 
+		MAX_PLAYERS, 
+		0, 
+		"nearby_player_list"
+		),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
@@ -68,9 +98,31 @@ void CWeaponSpawner::Spawn(void)
 	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
 
 	AddEffects( EF_ITEM_BLINK );
+
+	SetThink( &CWeaponSpawner::GlowThink );
+	SetNextThink( gpGlobals->curtime );
 }
 
-float CWeaponSpawner::GetRespawnDelay(void)
+void CWeaponSpawner::GlowThink( void )
+{
+	// Get a list of all the players that are within a 128 unit radius
+	m_hNearbyPlayers.Purge();
+
+	CBaseEntity *pEntityArray [ MAX_PLAYERS ];
+	Vector vecOrigin = GetAbsOrigin();
+	static float flRadius = 128.0f;
+
+	int iNearbyPlayers = UTIL_EntitiesInSphere( pEntityArray, ARRAYSIZE(pEntityArray), vecOrigin, flRadius, FL_CLIENT );
+
+	for ( int i = 0; i < iNearbyPlayers; i++ )
+	{
+		m_hNearbyPlayers.AddToTail( pEntityArray[i] );
+	}
+	
+	SetNextThink( gpGlobals->curtime );
+}
+
+float CWeaponSpawner::GetRespawnDelay( void )
 {
 	return (float)m_iRespawnTime;
 }
@@ -162,11 +214,19 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
 			(pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL) )
 			{
-				// Spawn a weapon model.
-				pTFPlayer->DropFakeWeapon(pWeapon);
+				// Spawn a weapon model. - OLD
+				//pTFPlayer->DropFakeWeapon(pWeapon);
+
+				// Drop a usable weapon
+				Vector vecOrigin;
+				QAngle vecAngles;
+				pTFPlayer->CalculateAmmoPackPositionAndAngles( pWeapon, vecOrigin, vecAngles );
+
+				if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
+					CTFDroppedWeapon::Create( vecOrigin, vecAngles, pWeapon->GetWorldModel(), pWeapon->GetWeaponID() );
 
 				// Check Use button, always replace pistol
-				pTFPlayer->Weapon_Detach(pWeapon);
+				pTFPlayer->Weapon_Detach( pWeapon );
 				pWeapon->WeaponReset();
 				UTIL_Remove(pWeapon);
 				pWeapon = NULL;

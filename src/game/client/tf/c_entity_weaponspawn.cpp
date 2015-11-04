@@ -21,35 +21,65 @@ public:
 	void	HandleGlowEffect();
 
 	virtual int	InternalDrawModel( int flags );
+	virtual void OnPreDataChanged( DataUpdateType_t updateType );
+	virtual void OnDataChanged( DataUpdateType_t updateType );
+
+	CUtlVector< EHANDLE > m_hNearbyPlayers;
 
 private:
 	CMaterialReference	m_InactiveMaterial;
-	QAngle		qAngle;
-	int			m_nGlowHandle;
-	bool		m_bInactive;
+	QAngle				m_qAngle;
+	CGlowObject		   *m_pGlowEffect;
+	bool				m_bInactive;
 };
+
+//-----------------------------------------------------------------------------
+// Purpose: RecvProxy that converts the UtlVector to entindexes
+//-----------------------------------------------------------------------------
+void RecvProxy_NearbyPlayerList( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
+
+	CBaseHandle *pHandle = (CBaseHandle*)(&(pSpawner->m_hNearbyPlayers[pData->m_iElement])); 
+	RecvProxy_IntToEHandle( pData, pStruct, pHandle );
+}
+
+void RecvProxyArrayLength_NearbyPlayerList( void *pStruct, int objectID, int currentArrayLength )
+{
+	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
+
+	if ( pSpawner->m_hNearbyPlayers.Size() != currentArrayLength )
+		pSpawner->m_hNearbyPlayers.SetSize( currentArrayLength );
+}
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, C_WeaponSpawner);
 
 IMPLEMENT_CLIENTCLASS_DT(C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner)
-	RecvPropBool( RECVINFO( m_bInactive ) )
+	RecvPropBool( RECVINFO( m_bInactive ) ),
+	RecvPropArray2( 
+	RecvProxyArrayLength_NearbyPlayerList,
+	RecvPropInt( "nearby_player_list_element", 0, SIZEOF_IGNORE, 0, RecvProxy_NearbyPlayerList ), 
+	MAX_PLAYERS, 
+	0, 
+	"nearby_player_list"
+	)
 END_RECV_TABLE()
 
 void C_WeaponSpawner::Spawn( void )
 {
 	BaseClass::Spawn();
-	qAngle = GetAbsAngles();
+	m_qAngle = GetAbsAngles();
 	ClientThink();
 	m_InactiveMaterial.Init( "models/weapons/weapon_spawner.vmt", TEXTURE_GROUP_CLIENT_EFFECTS );
 }
 
 void C_WeaponSpawner::ClientThink()
 {
-	qAngle.y += 90 * gpGlobals->frametime;
-	if (qAngle.y >= 360)
-		qAngle.y -= 360;
+	m_qAngle.y += 90 * gpGlobals->frametime;
+	if ( m_qAngle.y >= 360 )
+		m_qAngle.y -= 360;
 
-	SetAbsAngles(qAngle);
+	SetAbsAngles( m_qAngle );
 
 	HandleGlowEffect();
 
@@ -73,19 +103,54 @@ int C_WeaponSpawner::InternalDrawModel( int flags )
 	return BaseClass::InternalDrawModel( flags );
 }
 
+void C_WeaponSpawner::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+}
+
+void C_WeaponSpawner::OnDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnDataChanged( updateType );
+
+	/*if ( updateType == DATA_UPDATE_DATATABLE_CHANGED )
+	{
+		HandleGlowEffect();
+	}*/
+}
+
 void C_WeaponSpawner::HandleGlowEffect()
 {
-	if ( !g_GlowObjectManager.HasGlowEffect( this ) )
+	if ( !m_pGlowEffect )
 	{
-		m_nGlowHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector(0.76f, 0.76f, 0.76f), 1.0f, true, true, 0 );
+		m_pGlowEffect = new CGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ), 1.0, true, true, 0 );
 	}
 
 	// DIsable the outline if the weapon has been picked up
-	if ( !m_bInactive )
-		g_GlowObjectManager.SetAlpha( m_nGlowHandle, 1.0f );
-	else
-		g_GlowObjectManager.SetAlpha( m_nGlowHandle, 0.0f );
+	if ( m_bInactive )
+	{
+		m_pGlowEffect->SetAlpha( 0.0f );
+		return;
+	}
 
+	// Only enable the glow if the local player is nearby
+	for ( int i = 0; i < m_hNearbyPlayers.Size(); i++ )
+	{
+		if ( ToBasePlayer( m_hNearbyPlayers.Element(i) ) && ToBasePlayer( m_hNearbyPlayers.Element(i) ) == C_BasePlayer::GetLocalPlayer() )
+		{
+ 			m_pGlowEffect->SetAlpha( 1.0f );
+			return;
+		}
+		else
+		{
+ 			m_pGlowEffect->SetAlpha( 0.0f );
+		}
+	}
+
+	// DIsable the outline if the weapon has been picked up
+	/*if ( !m_bInactive )
+		m_pGlowEffect->SetAlpha( 1.0f );
+	else*/
+		m_pGlowEffect->SetAlpha( 0.0f );
 }
 
 

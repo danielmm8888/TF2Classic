@@ -30,9 +30,12 @@ public:
 	bool	MyTouch( CBasePlayer *pPlayer );
 	void	EndTouch( CBaseEntity *pOther );
 	float	GetRespawnDelay( void );
+	void	GlowThink( void );
 
 	int		m_iWeaponNumber;
 	int		m_iRespawnTime;
+
+	CUtlVector< EHANDLE > m_hNearbyPlayers;
 
 private:
 	CTFWeaponInfo *pWeaponInfo;

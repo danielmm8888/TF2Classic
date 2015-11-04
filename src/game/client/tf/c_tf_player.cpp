@@ -3687,7 +3687,6 @@ void C_TFPlayer::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ClientPlayerRespawn( void )
 {
-	SetClientSideGlowEnabled(true);
 	if ( IsLocalPlayer() )
 	{
 		// Dod called these, not sure why

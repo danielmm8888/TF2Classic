@@ -22,7 +22,7 @@ public:
 	virtual void	Spawn( void );
 
 private:
-	int m_nGlowHandle;
+	CGlowObject *m_pGlowEffect;
 };
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFDroppedWeapon, DT_TFDroppedWeapon )
@@ -35,16 +35,13 @@ LINK_ENTITY_TO_CLASS( tf_dropped_weapon, C_TFDroppedWeapon );
 
 C_TFDroppedWeapon::C_TFDroppedWeapon()
 {
-	m_nGlowHandle = -1;
+	m_pGlowEffect = NULL;
 }
 
 
 C_TFDroppedWeapon::~C_TFDroppedWeapon()
 {
-	if ( m_nGlowHandle != -1 )
-	{
-			g_GlowObjectManager.UnregisterGlowObject( m_nGlowHandle );
-	}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -53,7 +50,7 @@ C_TFDroppedWeapon::~C_TFDroppedWeapon()
 void C_TFDroppedWeapon::Spawn( void )
 {
 	BaseClass::Spawn();
-	m_nGlowHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ) , 0.9f, true, true, 0 );
+	m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 0.9f, true, true, 0 );
 }
 
 

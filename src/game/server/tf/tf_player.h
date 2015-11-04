@@ -413,6 +413,8 @@ public:
 
 	float	m_flSpawnProtectTime;
 
+	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
+
 private:
 
 	int					GetAutoTeam( void );
@@ -447,7 +449,6 @@ private:
 	void				PhysObjectWake();
 
 	// Ammo pack.
-	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 	void AmmoPackCleanUp( void );
 
 	// State.

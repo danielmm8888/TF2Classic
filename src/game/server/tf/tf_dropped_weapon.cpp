@@ -34,6 +34,8 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 void CTFDroppedWeapon::Spawn( void )
 {
 	BaseClass::Spawn();
+
+	// Remove 30s after spawning
 	m_flRemoveTime = gpGlobals->curtime + 30.0f;
 	SetTouch( &CTFDroppedWeapon::WeaponTouch );
 	SetThink( &CTFDroppedWeapon::RemovalThink );
