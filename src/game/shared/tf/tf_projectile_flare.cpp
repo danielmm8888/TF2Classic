@@ -70,9 +70,6 @@ void CTFProjectile_Flare::Spawn()
 {
 	SetModel( TF_WEAPON_FLARE_MODEL );
 	BaseClass::Spawn();
-
-	// We want to get touch functions called so we can damage enemy players
-	AddSolidFlags( FSOLID_TRIGGER );
 }
 
 //-----------------------------------------------------------------------------
@@ -174,7 +171,7 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const
 
 		Vector vecVelocity = vecForward * pFlare->GetProjectileSpeed();
 		pFlare->SetAbsVelocity( vecVelocity );
-		//pFlare->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
+		pFlare->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
 		// Setup the initial angles.
 		QAngle angles;
@@ -210,11 +207,11 @@ void CTFProjectile_Flare::CreateTrails( void )
 
 	if ( enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER )
 	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_POINT_FOLLOW, "trail" );
+		ParticleProp()->Create( "rockettrail_underwater", PATTACH_ABSORIGIN_FOLLOW );
 	}
 	else
 	{
-		ParticleProp()->Create( "rockettrail", PATTACH_POINT_FOLLOW, "trail" );
+		ParticleProp()->Create( "rockettrail", PATTACH_ABSORIGIN_FOLLOW );
 	}
 
 	if ( m_bCritical )
