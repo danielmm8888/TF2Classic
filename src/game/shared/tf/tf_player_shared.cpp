@@ -1773,13 +1773,24 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 		}
 	}
 
-	Assert( iWeaponID != TF_WEAPON_NONE &&  "Cannot find weapon for desired disguise class\n" );
+	if ( iSlot == 0 )
+	{
+		Assert( iWeaponID != TF_WEAPON_NONE &&  "Cannot find primary disguise weapon for desired disguise class\n" );
+	}
 
+	// Don't switch to builder as it's too complicated.
 	if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 	{
 		m_iDisguiseWeaponID = iWeaponID;
 	}
 #else
+	if ( !InCond( TF_COND_DISGUISED ) )
+	{
+		m_iDisguiseWeaponModelIndex = -1;
+		m_pDisguiseWeaponInfo = NULL;
+		return;
+	}
+
 	CTFWeaponInfo *pDisguiseWeaponInfo = GetTFWeaponInfo( m_iDisguiseWeaponID );
 
 	m_pDisguiseWeaponInfo = pDisguiseWeaponInfo;
