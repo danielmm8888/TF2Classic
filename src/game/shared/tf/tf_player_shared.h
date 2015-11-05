@@ -146,9 +146,11 @@ public:
 	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
 	int		GetDisguiseMaxBuffedHealth( void );
 
+	int		GetDisguiseWeaponID( void )			{ return m_iDisguiseWeaponID; }
+	void	RecalcDisguiseWeapon( int iSlot = 0 );
+
 #ifdef CLIENT_DLL
 	void	OnDisguiseChanged( void );
-	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 
@@ -281,7 +283,7 @@ private:
 	CNetworkVar( float, m_flDisguiseChargeLevel );
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
-	CNetworkVar( bool, m_bDisguiseWeaponParity );
+	CNetworkVar( int, m_iDisguiseWeaponID );
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates
@@ -359,7 +361,7 @@ private:
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
-	bool m_bOldDisguiseWeaponParity;
+	int m_iOldDisguiseWeaponID;
 #endif
 };			   
 

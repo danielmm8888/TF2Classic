@@ -1370,38 +1370,46 @@ void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset(int iSlotNum){
+int CTFPlayer::GetWeaponPreset( int iSlotNum )
+{
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		return m_WeaponPresetPrimary[iClass];
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		return m_WeaponPresetSecondary[iClass];
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		return m_WeaponPresetMelee[iClass];
 	}
 
 	return 0;
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset(int iClass, int iSlotNum){
-	if (iSlotNum == 0){
+int CTFPlayer::GetWeaponPreset( int iClass, int iSlotNum )
+{
+	if ( iSlotNum == 0 )
+	{
 		return m_WeaponPresetPrimary[iClass];
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		return m_WeaponPresetSecondary[iClass];
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		return m_WeaponPresetMelee[iClass];
 	}
 
 	return 0;
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: WeaponPreset command handle
@@ -1427,18 +1435,21 @@ void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 //-----------------------------------------------------------------------------
 // Purpose: WeaponPreset command handle
 //-----------------------------------------------------------------------------
-void CTFPlayer::HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
+void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPresetNum )
 {
-	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
 		return;
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		m_WeaponPresetPrimary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		m_WeaponPresetSecondary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
 }
@@ -3451,8 +3462,8 @@ bool CTFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 	{
 		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			if ( !( contentsMask & CONTENTS_REDTEAM ) )
-				return true;
+			// Collide with everyone in deathmatch.
+			return BaseClass::ShouldCollide( collisionGroup, contentsMask );
 		}
 
 		switch( GetTeamNumber() )
