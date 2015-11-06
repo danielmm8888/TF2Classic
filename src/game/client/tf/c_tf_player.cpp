@@ -2096,52 +2096,51 @@ void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFPlayer::OnAddTeleported( void )
+void C_TFPlayer::UpdateRecentlyTeleportedEffect( void )
 {
-	if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_Shared.ShouldShowRecentlyTeleported() )
 	{
-		char *pEffect = NULL;
-
-		int iTeam = GetTeamNumber();
-		if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
 		{
-			iTeam = m_Shared.GetDisguiseTeam();
-		}
+			char *pEffect = NULL;
 
-		switch( iTeam )
-		{
-		case TF_TEAM_RED:
-			pEffect = "player_recent_teleport_red";
-			break;
-		case TF_TEAM_BLUE:
-			pEffect = "player_recent_teleport_blue";
-			break;
-		case TF_TEAM_GREEN:
-			pEffect = "player_recent_teleport_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffect = "player_recent_teleport_yellow";
-			break;
-		default:
-			break;
-		}
+			int iTeam = GetTeamNumber();
+			if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+			{
+				iTeam = m_Shared.GetDisguiseTeam();
+			}
 
-		if ( pEffect )
-		{
-			m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
+			switch ( iTeam )
+			{
+			case TF_TEAM_RED:
+				pEffect = "player_recent_teleport_red";
+				break;
+			case TF_TEAM_BLUE:
+				pEffect = "player_recent_teleport_blue";
+				break;
+			case TF_TEAM_GREEN:
+				pEffect = "player_recent_teleport_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pEffect = "player_recent_teleport_yellow";
+				break;
+			default:
+				break;
+			}
+
+			if ( pEffect )
+			{
+				m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
+			}
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void C_TFPlayer::OnRemoveTeleported( void )
-{
-	if ( m_pTeleporterEffect )
+	else
 	{
-		ParticleProp()->StopEmission( m_pTeleporterEffect );
-		m_pTeleporterEffect = NULL;
+		if ( m_pTeleporterEffect )
+		{
+			ParticleProp()->StopEmission( m_pTeleporterEffect );
+			m_pTeleporterEffect = NULL;
+		}
 	}
 }
 
@@ -4309,6 +4308,45 @@ static ConCommand tf_crashclient( "tf_crashclient", cc_tf_crashclient, "Crashes 
 void C_TFPlayer::ForceUpdateObjectHudState( void )
 {
 	m_bUpdateObjectHudState = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns whether the weapon passed in would occupy a slot already occupied by the carrier
+// Input  : *pWeapon - weapon to test for
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon )
+{
+	if ( pWeapon == NULL )
+		return false;
+
+	//Check to see if there's a resident weapon already in this slot
+	if ( Weapon_GetSlot( pWeapon->GetSlot() ) == NULL )
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the weapon (if any) in the requested slot
+// Input  : slot - which slot to poll
+//-----------------------------------------------------------------------------
+CBaseCombatWeapon *C_TFPlayer::Weapon_GetSlot( int slot ) const
+{
+	int	targetSlot = slot;
+
+	// Check for that slot being occupied already
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( GetWeapon(i) != NULL )
+		{
+			// If the slots match, it's already occupied
+			if ( GetWeapon(i)->GetSlot() == targetSlot )
+				return GetWeapon(i);
+		}
+	}
+
+	return NULL;
 }
 
 #include "c_obj_sentrygun.h"

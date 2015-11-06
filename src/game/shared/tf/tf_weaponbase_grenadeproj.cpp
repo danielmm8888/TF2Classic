@@ -133,6 +133,16 @@ void CTFWeaponBaseGrenadeProj::Spawn()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+void CTFWeaponBaseGrenadeProj::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+	m_iOldTeamNum = m_iTeamNum;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::OnDataChanged( DataUpdateType_t type )
 {
 	BaseClass::OnDataChanged( type );

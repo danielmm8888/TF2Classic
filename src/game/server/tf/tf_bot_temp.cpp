@@ -178,16 +178,21 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		{
 			if ( stricmp( pVal, "red" ) == 0 )
 				iTeam = TF_TEAM_RED;
+			else if ( stricmp( pVal, "blue" ) == 0 )
+				iTeam = TF_TEAM_BLUE;
 			else if ( stricmp( pVal, "green" ) == 0 )
 				iTeam = TF_TEAM_GREEN;
 			else if ( stricmp( pVal, "yellow" ) == 0 )
 				iTeam = TF_TEAM_YELLOW;
 			else if ( stricmp( pVal, "spectator" ) == 0 )
 				iTeam = TEAM_SPECTATOR;
-			else if ( stricmp( pVal, "random" ) == 0 && TFGameRules()->IsFourTeamGame() )
-				iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
 			else if ( stricmp( pVal, "random" ) == 0 )
-				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
+			{
+				if ( TFGameRules()->IsFourTeamGame() )
+					iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+				else
+					iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
+			}
 			else
 				iTeam = TEAM_UNASSIGNED;
 		}
@@ -275,12 +280,14 @@ static void RunPlayerMove( CTFPlayer *fakeclient, const QAngle& viewangles, floa
 		cmd.random_seed = random->RandomInt( 0, 0x7fffffff );
 	}
 
+	/*
 	if ( bot_dontmove.GetBool() )
 	{
 		cmd.forwardmove = 0;
 		cmd.sidemove = 0;
 		cmd.upmove = 0;
 	}
+	*/
 
 	MoveHelperServer()->SetHost( fakeclient );
 	fakeclient->PlayerRunCommand( &cmd, MoveHelperServer() );
@@ -362,10 +369,9 @@ void Bot_Think( CTFPlayer *pBot )
 			bot_saveme.SetValue( bot_saveme.GetInt() - 1 );
 		}
 
-		// Stop when shot
 		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) )
 		{
-			if ( pBot->m_iHealth == 100 )
+			if ( !bot_dontmove.GetBool() )
 			{
 				forwardmove = 600 * ( botdata->backwards ? -1 : 1 );
 				if ( botdata->sidemove != 0.0f )
@@ -384,8 +390,7 @@ void Bot_Think( CTFPlayer *pBot )
 			}
 		}
 
-		// Only turn if I haven't been hurt
-		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN)  )
+		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) && !bot_dontmove.GetBool() )
 		{
 			Vector vecEnd;
 			Vector forward;

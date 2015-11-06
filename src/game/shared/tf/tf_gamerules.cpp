@@ -2649,7 +2649,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// strip certain prefixes from inflictor's classname
-	const char *prefix[] = { "TF_WEAPON_GRENADE_", "TF_WEAPON_", "NPC_", "func_" };
+	const char *prefix[] = { "tf_weapon_grenade_", "tf_weapon_", "NPC_", "func_" };
 	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix

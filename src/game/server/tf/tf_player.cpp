@@ -868,7 +868,7 @@ void CTFPlayer::Spawn()
 	// Create our off hand viewmodel if necessary
 	CreateViewModel( 1 );
 	// Make sure it has no model set, in case it had one before
-	GetViewModel(1)->SetModel( "" );
+	GetViewModel( 1 )->SetWeaponModel( NULL, NULL );
 
 	// Kind of lame, but CBasePlayer::Spawn resets a lot of the state that we initially want on.
 	// So if we're in the welcome state, call its enter function to reset 
@@ -1218,16 +1218,21 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
+	// Seriously, Valve, relying on m_hMyWeapons to be in certain order is stupid.
+
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		// Give us a custom weapon from the inventory.
 		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
 
-		if ( iWeaponID != TF_WEAPON_NONE )
+		// Skip builder since it's handled separately.
+		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 		{
-			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
+			char szWeaponName[256];
+			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
+			Q_strlower( szWeaponName );
 
-			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
@@ -1236,7 +1241,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 				UTIL_Remove( pWeapon );
 			}
 
-			pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID( iWeaponID );
+			pWeapon = Weapon_OwnsThisID( iWeaponID );
 
 			if ( pWeapon )
 			{
@@ -1250,7 +1255,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
 
 				if ( pWeapon )
 				{
@@ -1261,7 +1266,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		else
 		{
 			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
+			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
@@ -1283,41 +1288,43 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
+void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
-		const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
+		int iWeaponID = RandomInt( TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1 );
+		char szWeaponName[256];
+		Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
+		Q_strlower( szWeaponName );
 
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iWeapon);
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
+		if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 		{
-			Weapon_Detach(pWeapon);
-			UTIL_Remove(pWeapon);
+			Weapon_Detach( pWeapon );
+			UTIL_Remove( pWeapon );
 		}
 
-		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID(iWeaponID);
+		pWeapon = Weapon_OwnsThisID( iWeaponID );
 
-		if (pWeapon)
+		if ( pWeapon )
 		{
-			pWeapon->ChangeTeam(GetTeamNumber());
+			pWeapon->ChangeTeam( GetTeamNumber() );
 			pWeapon->GiveDefaultAmmo();
 
-			if (m_bRegenerating == false)
+			if ( m_bRegenerating == false )
 			{
 				pWeapon->WeaponReset();
 			}
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
 
-			if (pWeapon)
+			if ( pWeapon )
 			{
-				pWeapon->DefaultTouch(this);
+				pWeapon->DefaultTouch( this );
 			}
 		}
 	}
@@ -1327,40 +1334,43 @@ void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
+void CTFPlayer::ManageGrenades( TFPlayerClassData_t *pData )
 {
-	for (int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++)
+	for ( int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++ )
 	{
-		if (pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE)
+		if ( pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE )
 		{
-			CTFWeaponBase *pGrenade = (CTFWeaponBase *)GetWeapon(pData->m_aGrenades[iGrenade]);
+			CTFWeaponBase *pGrenade = (CTFWeaponBase *)GetWeapon( pData->m_aGrenades[iGrenade] );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-			if (pGrenade && pGrenade->GetWeaponID() != pData->m_aGrenades[iGrenade])
+			if ( pGrenade && pGrenade->GetWeaponID() != pData->m_aGrenades[iGrenade] )
 			{
-				Weapon_Detach(pGrenade);
-				UTIL_Remove(pGrenade);
+				Weapon_Detach( pGrenade );
+				UTIL_Remove( pGrenade );
 			}
 
-			pGrenade = (CTFWeaponBase *)Weapon_OwnsThisID(pData->m_aGrenades[iGrenade]);
+			pGrenade = (CTFWeaponBase *)Weapon_OwnsThisID( pData->m_aGrenades[iGrenade] );
 
-			if (pGrenade)
+			if ( pGrenade )
 			{
-				pGrenade->ChangeTeam(GetTeamNumber());
+				pGrenade->ChangeTeam( GetTeamNumber() );
 				pGrenade->GiveDefaultAmmo();
 
-				if (m_bRegenerating == false)
+				if ( m_bRegenerating == false )
 				{
 					pGrenade->WeaponReset();
 				}
 			}
 			else
 			{
-				pGrenade = (CTFWeaponBase *)GiveNamedItem(WeaponIdToAlias(pData->m_aGrenades[iGrenade]));
+				char szGrenadeName[256];
+				Q_strcpy( szGrenadeName, WeaponIdToAlias( pData->m_aGrenades[iGrenade] ) );
+				Q_strlower( szGrenadeName );
+				pGrenade = (CTFWeaponBase *)GiveNamedItem( szGrenadeName );
 
-				if (pGrenade)
+				if ( pGrenade )
 				{
-					pGrenade->DefaultTouch(this);
+					pGrenade->DefaultTouch( this );
 				}
 			}
 		}
@@ -1370,56 +1380,67 @@ void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset(int iSlotNum){
+int CTFPlayer::GetWeaponPreset( int iSlotNum )
+{
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		return m_WeaponPresetPrimary[iClass];
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		return m_WeaponPresetSecondary[iClass];
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		return m_WeaponPresetMelee[iClass];
 	}
 
 	return 0;
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset(int iClass, int iSlotNum){
-	if (iSlotNum == 0){
+int CTFPlayer::GetWeaponPreset( int iClass, int iSlotNum )
+{
+	if ( iSlotNum == 0 )
+	{
 		return m_WeaponPresetPrimary[iClass];
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		return m_WeaponPresetSecondary[iClass];
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		return m_WeaponPresetMelee[iClass];
 	}
 
 	return 0;
-};
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: WeaponPreset command handle
 //-----------------------------------------------------------------------------
-void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
+void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 {
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
 		return;
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		m_WeaponPresetPrimary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		m_WeaponPresetSecondary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
 }
@@ -1427,18 +1448,21 @@ void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
 //-----------------------------------------------------------------------------
 // Purpose: WeaponPreset command handle
 //-----------------------------------------------------------------------------
-void CTFPlayer::HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum)
+void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPresetNum )
 {
-	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
 		return;
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		m_WeaponPresetPrimary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		m_WeaponPresetSecondary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
 }
@@ -3451,8 +3475,8 @@ bool CTFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 	{
 		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			if ( !( contentsMask & CONTENTS_REDTEAM ) )
-				return true;
+			// Collide with everyone in deathmatch.
+			return BaseClass::ShouldCollide( collisionGroup, contentsMask );
 		}
 
 		switch( GetTeamNumber() )
@@ -3735,7 +3759,8 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 
 	// 85% probability of gibbing when killed by an explosion.
 	if ( ( ( info.GetDamageType() & DMG_BLAST ) != 0 ) || ( ( info.GetDamageType() & DMG_HALF_FALLOFF ) != 0 ) )
-		return ( random->RandomInt( 0, 99 ) > 15 );
+		//return ( random->RandomInt( 0, 99 ) > 15 );
+		return true;
 
 	return false;
 }
@@ -5630,6 +5655,7 @@ void CTFPlayer::TeleportEffect( void )
 void CTFPlayer::RemoveTeleportEffect( void )
 {
 	m_Shared.RemoveCond( TF_COND_TELEPORTED );
+	m_Shared.SetTeleporterEffectColor( TEAM_UNASSIGNED );
 }
 
 //-----------------------------------------------------------------------------

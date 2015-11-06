@@ -54,6 +54,7 @@ public:
 
 	virtual void OnDataChanged( DataUpdateType_t updateType );
 	virtual const char *GetTrailParticleName( void );
+	virtual void CreateTrails( void );
 	virtual int DrawModel( int flags );
 	virtual void	Simulate( void );
 

@@ -138,6 +138,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
 	RecvPropEHandle( RECVINFO( m_hCarriedObject ) ),
 	RecvPropBool( RECVINFO( m_bCarryingObject ) ),
+	RecvPropInt( RECVINFO( m_iTeleporterEffectColor ) ),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -146,7 +147,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_iDisguiseHealth ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseMaxHealth ) ),
 	RecvPropFloat( RECVINFO( m_flDisguiseChargeLevel ) ),
-	RecvPropBool( RECVINFO( m_bDisguiseWeaponParity ) ),
+	RecvPropInt( RECVINFO( m_iDisguiseWeaponID ) ),
 	// Local Data.
 	RecvPropDataTable( "tfsharedlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFPlayerSharedLocal) ),
 END_RECV_TABLE()
@@ -160,6 +161,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iDesiredWeaponID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iRespawnParticleID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_iDisguiseWeaponID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -189,6 +191,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
 	SendPropBool( SENDINFO( m_bCarryingObject ) ),
+	SendPropInt( SENDINFO( m_iTeleporterEffectColor ), TEAMNUM_NUM_BITS, 0 ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -197,7 +200,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_iDisguiseHealth ), 10 ),
 	SendPropInt( SENDINFO( m_iDisguiseMaxHealth ), 10 ),
 	SendPropFloat( SENDINFO( m_flDisguiseChargeLevel ), 0, SPROP_NOSCALE ),
-	SendPropBool( SENDINFO( m_bDisguiseWeaponParity ) ),
+	SendPropInt( SENDINFO( m_iDisguiseWeaponID ) ),
 	// Local Data.
 	SendPropDataTable( "tfsharedlocaldata", 0, &REFERENCE_SEND_TABLE( DT_TFPlayerSharedLocal ), SendProxy_SendLocalDataTable ),	
 END_SEND_TABLE()
@@ -225,6 +228,10 @@ CTFPlayerShared::CTFPlayerShared()
 
 	m_iDesiredWeaponID = TF_WEAPON_NONE;
 	m_iRespawnParticleID = 0;
+
+	m_iDisguiseWeaponID = TF_WEAPON_NONE;
+
+	m_iTeleporterEffectColor = TEAM_UNASSIGNED;
 
 #ifdef CLIENT_DLL
 	m_iDisguiseWeaponModelIndex = -1;
@@ -335,8 +342,9 @@ void CTFPlayerShared::OnPreDataChanged( void )
 {
 	m_nOldConditions = m_nPlayerCond;
 	m_nOldDisguiseClass = GetDisguiseClass();
+	m_nOldDisguiseTeam = GetDisguiseTeam();
 	m_iOldDisguiseWeaponModelIndex = m_iDisguiseWeaponModelIndex;
-	m_bOldDisguiseWeaponParity = m_bDisguiseWeaponParity;
+	m_iOldDisguiseWeaponID = m_iDisguiseWeaponID;
 }
 
 //-----------------------------------------------------------------------------
@@ -352,17 +360,14 @@ void CTFPlayerShared::OnDataChanged( void )
 		m_nOldConditions = m_nPlayerCond;
 	}	
 
-	if ( m_nOldDisguiseClass != GetDisguiseClass() )
+	if ( m_nOldDisguiseClass != GetDisguiseClass() || m_nOldDisguiseTeam != GetDisguiseTeam() )
 	{
 		OnDisguiseChanged();
 	}
 
-	if ( m_bDisguiseWeaponParity != m_bOldDisguiseWeaponParity )
+	if ( m_iOldDisguiseWeaponID != m_iDisguiseWeaponID )
 	{
-		// Player wants to switch disguise weapon.
-		C_BaseCombatWeapon *pWeapon = m_pOuter->GetActiveWeapon();
-		if ( pWeapon )
-			RecalcDisguiseWeapon( pWeapon->GetSlot() );
+		RecalcDisguiseWeapon();
 	}
 
 	if ( m_iDisguiseWeaponModelIndex != m_iOldDisguiseWeaponModelIndex )
@@ -985,7 +990,8 @@ void CTFPlayerShared::OnAddDisguised( void )
 void CTFPlayerShared::OnDisguiseChanged( void )
 {
 	// recalc disguise model index
-	RecalcDisguiseWeapon();
+	//RecalcDisguiseWeapon();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 }
 #endif
 
@@ -1041,13 +1047,37 @@ void CTFPlayerShared::OnRemoveInvulnerable( void )
 #endif
 }
 
+#ifdef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::ShouldShowRecentlyTeleported( void )
+{
+	if ( m_pOuter->IsPlayerClass( TF_CLASS_SPY ) )
+	{
+		if ( InCond( TF_COND_STEALTHED ) )
+			return false;
+
+		if ( InCond( TF_COND_DISGUISED ) && ( m_pOuter->IsLocalPlayer() || !m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ) )
+		{
+			if ( GetDisguiseTeam() != m_iTeleporterEffectColor )
+				return false;
+		}
+		else if ( m_pOuter->GetTeamNumber() != m_iTeleporterEffectColor )
+			return false;
+	}
+
+	return ( InCond( TF_COND_TELEPORTED ) );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddTeleported( void )
 {
 #ifdef CLIENT_DLL
-	m_pOuter->OnAddTeleported();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 }
 
@@ -1057,7 +1087,7 @@ void CTFPlayerShared::OnAddTeleported( void )
 void CTFPlayerShared::OnRemoveTeleported( void )
 {
 #ifdef CLIENT_DLL
-	m_pOuter->OnRemoveTeleported();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 }
 
@@ -1243,9 +1273,9 @@ void CTFPlayerShared::OnAddStealthed( void )
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_Cloak" );
 	m_pOuter->RemoveAllDecals();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #else
-	// Remove teleporter trail.
-	m_pOuter->RemoveTeleportEffect();
+
 #endif
 
 	m_flInvisChangeCompleteTime = gpGlobals->curtime + tf_spy_invis_time.GetFloat();
@@ -1276,6 +1306,7 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 {
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_UnCloak" );
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 
 	m_pOuter->HolsterOffHandWeapon();
@@ -1330,11 +1361,6 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_pOuter->ParticleProp()->StopParticlesNamed( "speech_mediccall", true );
 
 #else
-	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
-	{
-		m_pOuter->RemoveTeleportEffect();
-	}
-
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
 	m_hDisguiseTarget.Set( NULL );
@@ -1342,6 +1368,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_iDisguiseHealth = 0;
 	m_iDisguiseMaxHealth = 0;
 	m_flDisguiseChargeLevel = 0.0f;
+	m_iDisguiseWeaponID = TF_WEAPON_NONE;
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();
@@ -1602,7 +1629,8 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 	// Ignore disguise of the same type, switch disguise weapon instead.
 	if ( nTeam == m_nDisguiseTeam && nClass == m_nDisguiseClass )
 	{
-		m_bDisguiseWeaponParity = !m_bDisguiseWeaponParity;
+		CTFWeaponBase *pWeapon = m_pOuter->GetActiveTFWeapon();
+		RecalcDisguiseWeapon( pWeapon ? pWeapon->GetSlot() : 0 );
 		return;
 	}
 
@@ -1686,17 +1714,16 @@ void CTFPlayerShared::CompleteDisguise( void )
 		}
 	}
 
-	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
-	{
-		m_pOuter->RemoveTeleportEffect();
-	}
-
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();
 
 	m_pOuter->TeamFortress_SetSpeed();
 
 	m_pOuter->ClearExpression();
+
+	m_iDisguiseWeaponID = TF_WEAPON_NONE;
+
+	RecalcDisguiseWeapon();
 #endif
 }
 
@@ -1723,6 +1750,82 @@ void CTFPlayerShared::RemoveDisguise( void )
 #endif
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
+{
+#ifndef CLIENT_DLL
+	if ( !InCond( TF_COND_DISGUISED ) ) 
+	{
+		m_iDisguiseWeaponID = TF_WEAPON_NONE;
+		return;
+	}
+
+	Assert( m_pOuter->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY );
+
+	CTFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
+
+	int iWeaponID = TF_WEAPON_NONE;
+
+	// Use disguise target's weapons if possible.
+	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) && pDisguiseTarget->IsAlive() )
+	{
+		if ( iSlot < TF_PLAYER_WEAPON_COUNT )
+			iWeaponID = GetTFInventory()->GetWeapon( pDisguiseTarget->GetPlayerClass()->GetClassIndex(), iSlot, pDisguiseTarget->GetWeaponPreset( iSlot ) );
+	}
+	else
+	{
+		TFPlayerClassData_t *pData = GetPlayerClassData( m_nDisguiseClass );
+
+		Assert( pData );
+		// Find the weapon in the same slot
+		for ( int i = 0; i < TF_PLAYER_WEAPON_COUNT; i++ )
+		{
+			if ( pData->m_aWeapons[i] != TF_WEAPON_NONE )
+			{
+				CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( pData->m_aWeapons[i] );;
+
+				// find the weapon with matching slot
+				if ( pWeaponInfo && pWeaponInfo->iSlot == iSlot )
+				{
+					iWeaponID = pData->m_aWeapons[i];
+					break;
+				}
+			}
+		}
+	}
+
+	if ( iSlot == 0 )
+	{
+		Assert( iWeaponID != TF_WEAPON_NONE &&  "Cannot find primary disguise weapon for desired disguise class\n" );
+	}
+
+	// Don't switch to builder as it's too complicated.
+	if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
+	{
+		m_iDisguiseWeaponID = iWeaponID;
+	}
+#else
+	if ( !InCond( TF_COND_DISGUISED ) )
+	{
+		m_iDisguiseWeaponModelIndex = -1;
+		m_pDisguiseWeaponInfo = NULL;
+		return;
+	}
+
+	CTFWeaponInfo *pDisguiseWeaponInfo = GetTFWeaponInfo( m_iDisguiseWeaponID );
+
+	m_pDisguiseWeaponInfo = pDisguiseWeaponInfo;
+	m_iDisguiseWeaponModelIndex = -1;
+
+	if ( pDisguiseWeaponInfo )
+	{
+		m_iDisguiseWeaponModelIndex = modelinfo->GetModelIndex( pDisguiseWeaponInfo->szWorldModel );
+	}
+#endif
+}
+
 #ifdef CLIENT_DLL
 
 //-----------------------------------------------------------------------------
@@ -1741,73 +1844,6 @@ bool CTFPlayerShared::SetParticleToMercColor(CNewParticleEffect *pParticle)
 	}
 	return false;
 }
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
-{
-	if ( !InCond( TF_COND_DISGUISED ) ) 
-	{
-		m_iDisguiseWeaponModelIndex = -1;
-		m_pDisguiseWeaponInfo = NULL;
-		return;
-	}
-
-	Assert( m_pOuter->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY );
-
-	CTFWeaponInfo *pDisguiseWeaponInfo = NULL;
-
-	C_TFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
-
-	// Use disguise target's weapons if possible.
-	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) && pDisguiseTarget->IsAlive() )
-	{
-		if ( pDisguiseTarget->Weapon_GetWeaponByBucket( iSlot ) )
-		{
-			int iWeapon = pDisguiseTarget->Weapon_GetWeaponByBucket( iSlot )->GetWeaponID();
-			pDisguiseWeaponInfo = GetTFWeaponInfo( iWeapon );
-		}
-	}
-	else
-	{
-		TFPlayerClassData_t *pData = GetPlayerClassData( m_nDisguiseClass );
-
-		Assert( pData );
-		// Find the weapon in the same slot
-		for ( int i=0;i<TF_PLAYER_WEAPON_COUNT;i++ )
-		{
-			if ( pData->m_aWeapons[i] != TF_WEAPON_NONE )
-			{
-				CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( pData->m_aWeapons[i] );;
-
-				// find the weapon with matching slot
-				if ( pWeaponInfo && pWeaponInfo->iSlot == iSlot )
-				{
-					pDisguiseWeaponInfo = pWeaponInfo;
-					break;
-				}
-			}
-		}
-	}
-
-	Assert( pDisguiseWeaponInfo != NULL && "Cannot find slot 0 primary weapon for desired disguise class\n" );
-
-	// Stop here if we already have a disguise weapon and attempt to switch to an empty slot.
-	if ( !pDisguiseWeaponInfo && m_pDisguiseWeaponInfo )
-	{
-		return;
-	}
-
-	m_pDisguiseWeaponInfo = pDisguiseWeaponInfo;
-	m_iDisguiseWeaponModelIndex = -1;
-
-	if ( pDisguiseWeaponInfo )
-	{
-		m_iDisguiseWeaponModelIndex = modelinfo->GetModelIndex( pDisguiseWeaponInfo->szWorldModel );
-	}
-}
-
 
 CTFWeaponInfo *CTFPlayerShared::GetDisguiseWeaponInfo( void )
 {
@@ -3233,27 +3269,6 @@ CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByType( int iType )
 		int iWeaponRole = pWpn->GetTFWpnData().m_iWeaponType;
 
 		if ( iWeaponRole == iType )
-		{
-			return pWpn;
-		}
-	}
-
-	return NULL;
-
-}
-
-CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByBucket(int iSlot)
-{
-	for (int i = 0; i < WeaponCount(); i++)
-	{
-		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
-
-		if (pWpn == NULL)
-			continue;
-	
-		int iWeaponSlot = pWpn->GetTFWpnData().iSlot;
-
-		if (iWeaponSlot == iSlot)
 		{
 			return pWpn;
 		}

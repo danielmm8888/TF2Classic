@@ -146,9 +146,11 @@ public:
 	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
 	int		GetDisguiseMaxBuffedHealth( void );
 
+	int		GetDisguiseWeaponID( void )			{ return m_iDisguiseWeaponID; }
+	void	RecalcDisguiseWeapon( int iSlot = 0 );
+
 #ifdef CLIENT_DLL
 	void	OnDisguiseChanged( void );
-	void	RecalcDisguiseWeapon( int iSlot = 0 );
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 
@@ -222,6 +224,12 @@ public:
 	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
 	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
 
+	int		GetTeleporterEffectColor( void ) { return m_iTeleporterEffectColor; }
+	void	SetTeleporterEffectColor( int iTeam ) { m_iTeleporterEffectColor = iTeam; }
+#ifdef CLIENT_DLL
+	bool	ShouldShowRecentlyTeleported( void );
+#endif
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -281,7 +289,7 @@ private:
 	CNetworkVar( float, m_flDisguiseChargeLevel );
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
-	CNetworkVar( bool, m_bDisguiseWeaponParity );
+	CNetworkVar( int, m_iDisguiseWeaponID );
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates
@@ -322,9 +330,6 @@ private:
 
 	float m_flDisguiseCompleteTime;
 
-	int	m_nOldConditions;
-	int	m_nOldDisguiseClass;
-
 	CNetworkVar( int, m_iDesiredPlayerClass );
 	CNetworkVar( int, m_iDesiredWeaponID );
 	CNetworkVar( int, m_iRespawnParticleID );
@@ -349,6 +354,8 @@ private:
 	CNetworkHandle( CBaseObject, m_hCarriedObject );
 	CNetworkVar( bool, m_bCarryingObject );
 
+	CNetworkVar( int, m_iTeleporterEffectColor );
+
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
 	CUtlVector<CTFDamageEvent> m_DamageEvents;
@@ -359,7 +366,11 @@ private:
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
-	bool m_bOldDisguiseWeaponParity;
+	int	m_nOldConditions;
+	int	m_nOldDisguiseClass;
+	int m_nOldDisguiseTeam;
+
+	int m_iOldDisguiseWeaponID;
 #endif
 };			   
 

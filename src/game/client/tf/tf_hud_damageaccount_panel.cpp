@@ -179,16 +179,27 @@ bool CDamageAccountPanel::ShouldDraw( void )
 void CDamageAccountPanel::OnTick( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pPlayer && pPlayer->IsAlive() && C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt( "attacker" ) ) // Did we shoot the guy?
+	if ( pPlayer && pPlayer->IsAlive() && pPlayer->GetUserID() == event->GetInt( "attacker" ) ) // Did we shoot the guy?
 	{
 		int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 		int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		int iDmgAmount = event->GetInt( "damageamount" );
 
 		// No self-damage notifications.
 		if ( iAttacker == iVictim )
 			return;
 
-		// Play hit sound, if appliable
+		// Currently only supporting players.
+		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim ) );
+
+		if ( !pVictim )
+			return;
+
+		// Don't show damage notifications for spies disguised as our team.
+		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
+			return;
+
+		// Play hit sound, if appliable.
 		if ( tf_dingalingaling.GetBool() )
 		{
 			float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
@@ -202,7 +213,7 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 
 				float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
 				float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
-				params.m_nPitch = RemapValClamped( (float)event->GetInt( "damageamount" ), 10, 150, flPitchMin, flPitchMax );
+				params.m_nPitch = RemapValClamped( (float)iDmgAmount, 10, 150, flPitchMin, flPitchMax );
 
 				CLocalPlayerFilter filter;
 
@@ -212,15 +223,16 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 			}
 		}
 
-		// Stop here if we chose not to show hit numbers
+		// Stop here if we chose not to show hit numbers.
 		if ( !hud_combattext.GetBool() )
 			return;
 
-		// Currently only supporting players.
-		CBasePlayer *pVictim = UTIL_PlayerByIndex( iVictim );
-
-		if ( !pVictim )
+		// Don't show the numbers if we can't see the victim.
+		trace_t tr;
+		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), CONTENTS_SOLID|CONTENTS_MOVEABLE, NULL, COLLISION_GROUP_NONE, &tr );
+		if ( tr.fraction != 1.0f )
 			return;
+
 
 		if ( hud_combattext_batching.GetBool() )
 		{
@@ -235,7 +247,7 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 					{
 						// Update it's die time and damage.
 						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-						m_AccountDeltaItems[i].m_iAmount += event->GetInt( "damageamount" );
+						m_AccountDeltaItems[i].m_iAmount += iDmgAmount;
 						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
 						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
 						return;
@@ -251,7 +263,7 @@ void CDamageAccountPanel::OnTick( IGameEvent *event )
 		iAccountDeltaHead %= NUM_ACCOUNT_DELTA_ITEMS;
 
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-		pNewDeltaItem->m_iAmount = event->GetInt( "damageamount" );
+		pNewDeltaItem->m_iAmount = iDmgAmount;
 		pNewDeltaItem->m_hEntity = pVictim;
 		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );

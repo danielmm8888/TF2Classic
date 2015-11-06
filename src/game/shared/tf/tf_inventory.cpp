@@ -133,8 +133,8 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"Primary",
 	"Secondary",
 	"Melee",
-	"PDA",
-	"PDA"
+	"PDA1",
+	"PDA2"
 };
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =

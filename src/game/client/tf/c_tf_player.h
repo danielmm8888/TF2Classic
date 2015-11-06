@@ -161,8 +161,7 @@ public:
 
 	void			StartBurningSound( void );
 	void			StopBurningSound( void );
-	void			OnAddTeleported( void );
-	void			OnRemoveTeleported( void );
+	void			UpdateRecentlyTeleportedEffect( void );
 
 	bool			CanShowClassMenu( void );
 
@@ -204,7 +203,8 @@ public:
 	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
-	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
+	virtual bool		Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon );
+	virtual CBaseCombatWeapon *Weapon_GetSlot( int slot ) const;
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );

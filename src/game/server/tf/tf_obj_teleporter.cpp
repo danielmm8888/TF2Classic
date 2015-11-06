@@ -832,19 +832,9 @@ void CObjectTeleporter::TeleporterThink( void )
 
 			if ( pTeleportingPlayer )
 			{
-				int iPlayerTeam = pTeleportingPlayer->GetTeamNumber();
-				if ( pTeleportingPlayer->IsPlayerClass( TF_CLASS_SPY ) && pTeleportingPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
-				{
-					iPlayerTeam = pTeleportingPlayer->m_Shared.GetDisguiseTeam();
-				}
-
 				int iTeam = GetBuilder() ? GetBuilder()->GetTeamNumber() : GetTeamNumber();
-
-				// Don't show teleporter trail for players with different color.
-				if ( iPlayerTeam == iTeam )
-				{
-					pTeleportingPlayer->TeleportEffect();
-				}
+				pTeleportingPlayer->m_Shared.SetTeleporterEffectColor( iTeam );
+				pTeleportingPlayer->TeleportEffect();
 
 				pTeleportingPlayer->m_Shared.RemoveCond( TF_COND_SELECTED_TO_TELEPORT );
 				CTF_GameStats.Event_PlayerUsedTeleport( GetBuilder(), pTeleportingPlayer );
