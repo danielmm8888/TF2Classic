@@ -4311,6 +4311,45 @@ void C_TFPlayer::ForceUpdateObjectHudState( void )
 	m_bUpdateObjectHudState = true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Returns whether the weapon passed in would occupy a slot already occupied by the carrier
+// Input  : *pWeapon - weapon to test for
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon )
+{
+	if ( pWeapon == NULL )
+		return false;
+
+	//Check to see if there's a resident weapon already in this slot
+	if ( Weapon_GetSlot( pWeapon->GetSlot() ) == NULL )
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the weapon (if any) in the requested slot
+// Input  : slot - which slot to poll
+//-----------------------------------------------------------------------------
+CBaseCombatWeapon *C_TFPlayer::Weapon_GetSlot( int slot ) const
+{
+	int	targetSlot = slot;
+
+	// Check for that slot being occupied already
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( GetWeapon(i) != NULL )
+		{
+			// If the slots match, it's already occupied
+			if ( GetWeapon(i)->GetSlot() == targetSlot )
+				return GetWeapon(i);
+		}
+	}
+
+	return NULL;
+}
+
 #include "c_obj_sentrygun.h"
 
 

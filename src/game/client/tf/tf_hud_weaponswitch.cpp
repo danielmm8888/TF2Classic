@@ -60,7 +60,7 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 	{
 		pWeaponToInfo = GetTFWeaponInfo(iWeaponTo);
 
-		C_TFWeaponBase *pWeaponFrom = pLocalTFPlayer->Weapon_GetWeaponByBucket(pWeaponToInfo->iSlot);		
+		C_TFWeaponBase *pWeaponFrom = (C_TFWeaponBase *)pLocalTFPlayer->Weapon_GetSlot( pWeaponToInfo->iSlot );
 		if (!pWeaponFrom)
 			return false;
 

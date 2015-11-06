@@ -1218,7 +1218,7 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
-	// Seriously, Valve, reliying on m_hMyWeapons to be in certain order is stupid.
+	// Seriously, Valve, relying on m_hMyWeapons to be in certain order is stupid.
 
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
@@ -1232,7 +1232,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
 			Q_strlower( szWeaponName );
 
-			CTFWeaponBase *pWeapon = Weapon_GetWeaponByBucket( iWeapon );
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
@@ -1266,7 +1266,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		else
 		{
 			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = Weapon_GetWeaponByBucket( iWeapon );
+			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
