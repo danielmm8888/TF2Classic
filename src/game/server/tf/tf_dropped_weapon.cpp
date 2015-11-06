@@ -92,7 +92,7 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 	{
 		SetThink( NULL );
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByBucket( GetTFWeaponInfo( m_nWeaponID )->iSlot );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
 
 		if ( pWeapon )
 		{
