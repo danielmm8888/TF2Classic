@@ -1225,7 +1225,9 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 		if ( iWeaponID != TF_WEAPON_NONE )
 		{
-			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
+			char szWeaponName[256];
+			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
+			Q_strlower( szWeaponName );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
@@ -1250,7 +1252,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
 
 				if ( pWeapon )
 				{
@@ -1283,41 +1285,43 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
+void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		int iWeaponID = RandomInt(TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1);
-		const char *pszWeaponName = WeaponIdToAlias(iWeaponID);
+		int iWeaponID = RandomInt( TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1 );
+		char szWeaponName[256];
+		Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
+		Q_strlower( szWeaponName );
 
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(iWeapon);
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if (pWeapon && pWeapon->GetWeaponID() != iWeaponID)
+		if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 		{
-			Weapon_Detach(pWeapon);
-			UTIL_Remove(pWeapon);
+			Weapon_Detach( pWeapon );
+			UTIL_Remove( pWeapon );
 		}
 
-		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID(iWeaponID);
+		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID( iWeaponID );
 
-		if (pWeapon)
+		if ( pWeapon )
 		{
-			pWeapon->ChangeTeam(GetTeamNumber());
+			pWeapon->ChangeTeam( GetTeamNumber() );
 			pWeapon->GiveDefaultAmmo();
 
-			if (m_bRegenerating == false)
+			if ( m_bRegenerating == false )
 			{
 				pWeapon->WeaponReset();
 			}
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem(pszWeaponName);
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
 
-			if (pWeapon)
+			if ( pWeapon )
 			{
-				pWeapon->DefaultTouch(this);
+				pWeapon->DefaultTouch( this );
 			}
 		}
 	}
@@ -1327,40 +1331,43 @@ void CTFPlayer::ManageRandomWeapons(TFPlayerClassData_t *pData)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageGrenades(TFPlayerClassData_t *pData)
+void CTFPlayer::ManageGrenades( TFPlayerClassData_t *pData )
 {
-	for (int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++)
+	for ( int iGrenade = 0; iGrenade < TF_PLAYER_GRENADE_COUNT; iGrenade++ )
 	{
-		if (pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE)
+		if ( pData->m_aGrenades[iGrenade] != TF_WEAPON_NONE )
 		{
-			CTFWeaponBase *pGrenade = (CTFWeaponBase *)GetWeapon(pData->m_aGrenades[iGrenade]);
+			CTFWeaponBase *pGrenade = (CTFWeaponBase *)GetWeapon( pData->m_aGrenades[iGrenade] );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-			if (pGrenade && pGrenade->GetWeaponID() != pData->m_aGrenades[iGrenade])
+			if ( pGrenade && pGrenade->GetWeaponID() != pData->m_aGrenades[iGrenade] )
 			{
-				Weapon_Detach(pGrenade);
-				UTIL_Remove(pGrenade);
+				Weapon_Detach( pGrenade );
+				UTIL_Remove( pGrenade );
 			}
 
-			pGrenade = (CTFWeaponBase *)Weapon_OwnsThisID(pData->m_aGrenades[iGrenade]);
+			pGrenade = (CTFWeaponBase *)Weapon_OwnsThisID( pData->m_aGrenades[iGrenade] );
 
-			if (pGrenade)
+			if ( pGrenade )
 			{
-				pGrenade->ChangeTeam(GetTeamNumber());
+				pGrenade->ChangeTeam( GetTeamNumber() );
 				pGrenade->GiveDefaultAmmo();
 
-				if (m_bRegenerating == false)
+				if ( m_bRegenerating == false )
 				{
 					pGrenade->WeaponReset();
 				}
 			}
 			else
 			{
-				pGrenade = (CTFWeaponBase *)GiveNamedItem(WeaponIdToAlias(pData->m_aGrenades[iGrenade]));
+				char szGrenadeName[256];
+				Q_strcpy( szGrenadeName, WeaponIdToAlias( pData->m_aGrenades[iGrenade] ) );
+				Q_strlower( szGrenadeName );
+				pGrenade = (CTFWeaponBase *)GiveNamedItem( szGrenadeName );
 
-				if (pGrenade)
+				if ( pGrenade )
 				{
-					pGrenade->DefaultTouch(this);
+					pGrenade->DefaultTouch( this );
 				}
 			}
 		}
