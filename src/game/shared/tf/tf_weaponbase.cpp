@@ -769,8 +769,6 @@ bool CTFWeaponBase::Deploy( void )
 		if (!pPlayer)
 			return false;
 
-		GetViewModel( m_nViewModelIndex );
-
 		pPlayer->SetNextAttack( m_flNextPrimaryAttack );
 	}
 
@@ -1291,7 +1289,7 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	{
 		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( ( !m_bReloadsSingly || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
+			if ( ( ( !m_bReloadsSingly && m_bInReload ) || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
 			{
 				m_iReloadMode.Set( TF_RELOAD_START );
 				m_bInReload = false;
