@@ -201,7 +201,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_GetWeaponByBucket( pWeaponInfo->iSlot );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( pWeaponInfo->iSlot );
 		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
 
 		if ( pWeapon )
