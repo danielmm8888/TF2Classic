@@ -868,7 +868,7 @@ void CTFPlayer::Spawn()
 	// Create our off hand viewmodel if necessary
 	CreateViewModel( 1 );
 	// Make sure it has no model set, in case it had one before
-	GetViewModel(1)->SetModel( "" );
+	GetViewModel( 1 )->SetWeaponModel( NULL, NULL );
 
 	// Kind of lame, but CBasePlayer::Spawn resets a lot of the state that we initially want on.
 	// So if we're in the welcome state, call its enter function to reset 
@@ -1223,7 +1223,8 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		// Give us a custom weapon from the inventory.
 		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
 
-		if ( iWeaponID != TF_WEAPON_NONE )
+		// Ignore builder, spy has one in inventory just for show.
+		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 		{
 			char szWeaponName[256];
 			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
@@ -1235,6 +1236,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 			{
 				Weapon_Detach( pWeapon );
+				GetViewModel( pWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
 				UTIL_Remove( pWeapon );
 			}
 
