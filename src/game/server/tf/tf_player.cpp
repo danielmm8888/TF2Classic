@@ -1218,29 +1218,30 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
+	// Seriously, Valve, reliying on m_hMyWeapons to be in certain order is stupid.
+
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		// Give us a custom weapon from the inventory.
 		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
 
-		// Ignore builder, spy has one in inventory just for show.
+		// Skip builder since it's handled separately.
 		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 		{
 			char szWeaponName[256];
 			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
 			Q_strlower( szWeaponName );
 
-			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
+			CTFWeaponBase *pWeapon = Weapon_GetWeaponByBucket( iWeapon );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 			{
 				Weapon_Detach( pWeapon );
-				GetViewModel( pWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
 				UTIL_Remove( pWeapon );
 			}
 
-			pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID( iWeaponID );
+			pWeapon = Weapon_OwnsThisID( iWeaponID );
 
 			if ( pWeapon )
 			{
@@ -1265,7 +1266,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		else
 		{
 			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
+			CTFWeaponBase *pCarriedWeapon = Weapon_GetWeaponByBucket( iWeapon );
 
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
@@ -1305,7 +1306,7 @@ void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 			UTIL_Remove( pWeapon );
 		}
 
-		pWeapon = (CTFWeaponBase *)Weapon_OwnsThisID( iWeaponID );
+		pWeapon = Weapon_OwnsThisID( iWeaponID );
 
 		if ( pWeapon )
 		{
@@ -1423,20 +1424,23 @@ int CTFPlayer::GetWeaponPreset( int iClass, int iSlotNum )
 //-----------------------------------------------------------------------------
 // Purpose: WeaponPreset command handle
 //-----------------------------------------------------------------------------
-void CTFPlayer::HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum)
+void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 {
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if (!GetTFInventory()->CheckValidWeapon(iClass, iSlotNum, iPresetNum))
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
 		return;
 
-	if (iSlotNum == 0){
+	if ( iSlotNum == 0 )
+	{
 		m_WeaponPresetPrimary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 1){
+	else if ( iSlotNum == 1 )
+	{
 		m_WeaponPresetSecondary[iClass] = iPresetNum;
 	}
-	else if (iSlotNum == 2){
+	else if ( iSlotNum == 2 )
+	{
 		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
 }
