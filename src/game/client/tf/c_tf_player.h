@@ -161,8 +161,7 @@ public:
 
 	void			StartBurningSound( void );
 	void			StopBurningSound( void );
-	void			OnAddTeleported( void );
-	void			OnRemoveTeleported( void );
+	void			UpdateRecentlyTeleportedEffect( void );
 
 	bool			CanShowClassMenu( void );
 

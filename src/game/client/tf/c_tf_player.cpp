@@ -2096,52 +2096,51 @@ void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFPlayer::OnAddTeleported( void )
+void C_TFPlayer::UpdateRecentlyTeleportedEffect( void )
 {
-	if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_Shared.ShouldShowRecentlyTeleported() )
 	{
-		char *pEffect = NULL;
-
-		int iTeam = GetTeamNumber();
-		if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
 		{
-			iTeam = m_Shared.GetDisguiseTeam();
-		}
+			char *pEffect = NULL;
 
-		switch( iTeam )
-		{
-		case TF_TEAM_RED:
-			pEffect = "player_recent_teleport_red";
-			break;
-		case TF_TEAM_BLUE:
-			pEffect = "player_recent_teleport_blue";
-			break;
-		case TF_TEAM_GREEN:
-			pEffect = "player_recent_teleport_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffect = "player_recent_teleport_yellow";
-			break;
-		default:
-			break;
-		}
+			int iTeam = GetTeamNumber();
+			if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+			{
+				iTeam = m_Shared.GetDisguiseTeam();
+			}
 
-		if ( pEffect )
-		{
-			m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
+			switch ( iTeam )
+			{
+			case TF_TEAM_RED:
+				pEffect = "player_recent_teleport_red";
+				break;
+			case TF_TEAM_BLUE:
+				pEffect = "player_recent_teleport_blue";
+				break;
+			case TF_TEAM_GREEN:
+				pEffect = "player_recent_teleport_green";
+				break;
+			case TF_TEAM_YELLOW:
+				pEffect = "player_recent_teleport_yellow";
+				break;
+			default:
+				break;
+			}
+
+			if ( pEffect )
+			{
+				m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
+			}
 		}
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void C_TFPlayer::OnRemoveTeleported( void )
-{
-	if ( m_pTeleporterEffect )
+	else
 	{
-		ParticleProp()->StopEmission( m_pTeleporterEffect );
-		m_pTeleporterEffect = NULL;
+		if ( m_pTeleporterEffect )
+		{
+			ParticleProp()->StopEmission( m_pTeleporterEffect );
+			m_pTeleporterEffect = NULL;
+		}
 	}
 }
 

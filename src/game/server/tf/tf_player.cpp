@@ -5642,6 +5642,7 @@ void CTFPlayer::TeleportEffect( void )
 void CTFPlayer::RemoveTeleportEffect( void )
 {
 	m_Shared.RemoveCond( TF_COND_TELEPORTED );
+	m_Shared.SetTeleporterEffectColor( TEAM_UNASSIGNED );
 }
 
 //-----------------------------------------------------------------------------

@@ -137,6 +137,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
 	RecvPropEHandle( RECVINFO( m_hCarriedObject ) ),
 	RecvPropBool( RECVINFO( m_bCarryingObject ) ),
+	RecvPropInt( RECVINFO( m_iTeleporterEffectColor ) ),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -188,6 +189,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
 	SendPropBool( SENDINFO( m_bCarryingObject ) ),
+	SendPropInt( SENDINFO( m_iTeleporterEffectColor ), TEAMNUM_NUM_BITS, 0 ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -226,6 +228,8 @@ CTFPlayerShared::CTFPlayerShared()
 	m_iRespawnParticleID = 0;
 
 	m_iDisguiseWeaponID = TF_WEAPON_NONE;
+
+	m_iTeleporterEffectColor = TEAM_UNASSIGNED;
 
 #ifdef CLIENT_DLL
 	m_iDisguiseWeaponModelIndex = -1;
@@ -336,6 +340,7 @@ void CTFPlayerShared::OnPreDataChanged( void )
 {
 	m_nOldConditions = m_nPlayerCond;
 	m_nOldDisguiseClass = GetDisguiseClass();
+	m_nOldDisguiseTeam = GetDisguiseTeam();
 	m_iOldDisguiseWeaponModelIndex = m_iDisguiseWeaponModelIndex;
 	m_iOldDisguiseWeaponID = m_iDisguiseWeaponID;
 }
@@ -353,7 +358,7 @@ void CTFPlayerShared::OnDataChanged( void )
 		m_nOldConditions = m_nPlayerCond;
 	}	
 
-	if ( m_nOldDisguiseClass != GetDisguiseClass() )
+	if ( m_nOldDisguiseClass != GetDisguiseClass() || m_nOldDisguiseTeam != GetDisguiseTeam() )
 	{
 		OnDisguiseChanged();
 	}
@@ -984,6 +989,7 @@ void CTFPlayerShared::OnDisguiseChanged( void )
 {
 	// recalc disguise model index
 	//RecalcDisguiseWeapon();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 }
 #endif
 
@@ -1039,13 +1045,37 @@ void CTFPlayerShared::OnRemoveInvulnerable( void )
 #endif
 }
 
+#ifdef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::ShouldShowRecentlyTeleported( void )
+{
+	if ( m_pOuter->IsPlayerClass( TF_CLASS_SPY ) )
+	{
+		if ( InCond( TF_COND_STEALTHED ) )
+			return false;
+
+		if ( InCond( TF_COND_DISGUISED ) && ( m_pOuter->IsLocalPlayer() || !m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ) )
+		{
+			if ( GetDisguiseTeam() != m_iTeleporterEffectColor )
+				return false;
+		}
+		else if ( m_pOuter->GetTeamNumber() != m_iTeleporterEffectColor )
+			return false;
+	}
+
+	return ( InCond( TF_COND_TELEPORTED ) );
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddTeleported( void )
 {
 #ifdef CLIENT_DLL
-	m_pOuter->OnAddTeleported();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 }
 
@@ -1055,7 +1085,7 @@ void CTFPlayerShared::OnAddTeleported( void )
 void CTFPlayerShared::OnRemoveTeleported( void )
 {
 #ifdef CLIENT_DLL
-	m_pOuter->OnRemoveTeleported();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 }
 
@@ -1241,9 +1271,9 @@ void CTFPlayerShared::OnAddStealthed( void )
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_Cloak" );
 	m_pOuter->RemoveAllDecals();
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #else
-	// Remove teleporter trail.
-	m_pOuter->RemoveTeleportEffect();
+
 #endif
 
 	m_flInvisChangeCompleteTime = gpGlobals->curtime + tf_spy_invis_time.GetFloat();
@@ -1274,6 +1304,7 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 {
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_UnCloak" );
+	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 
 	m_pOuter->HolsterOffHandWeapon();
@@ -1328,11 +1359,6 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	m_pOuter->ParticleProp()->StopParticlesNamed( "speech_mediccall", true );
 
 #else
-	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
-	{
-		m_pOuter->RemoveTeleportEffect();
-	}
-
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
 	m_hDisguiseTarget.Set( NULL );
@@ -1684,11 +1710,6 @@ void CTFPlayerShared::CompleteDisguise( void )
 		{
 			m_flDisguiseChargeLevel = random->RandomFloat( 0.0f, 0.99f );
 		}
-	}
-
-	if ( m_nDisguiseTeam != m_pOuter->GetTeamNumber() )
-	{
-		m_pOuter->RemoveTeleportEffect();
 	}
 
 	// Update the player model and skin.

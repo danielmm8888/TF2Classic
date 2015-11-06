@@ -224,6 +224,12 @@ public:
 	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
 	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
 
+	int		GetTeleporterEffectColor( void ) { return m_iTeleporterEffectColor; }
+	void	SetTeleporterEffectColor( int iTeam ) { m_iTeleporterEffectColor = iTeam; }
+#ifdef CLIENT_DLL
+	bool	ShouldShowRecentlyTeleported( void );
+#endif
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -324,9 +330,6 @@ private:
 
 	float m_flDisguiseCompleteTime;
 
-	int	m_nOldConditions;
-	int	m_nOldDisguiseClass;
-
 	CNetworkVar( int, m_iDesiredPlayerClass );
 	CNetworkVar( int, m_iDesiredWeaponID );
 	CNetworkVar( int, m_iRespawnParticleID );
@@ -351,6 +354,8 @@ private:
 	CNetworkHandle( CBaseObject, m_hCarriedObject );
 	CNetworkVar( bool, m_bCarryingObject );
 
+	CNetworkVar( int, m_iTeleporterEffectColor );
+
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
 	CUtlVector<CTFDamageEvent> m_DamageEvents;
@@ -360,6 +365,10 @@ private:
 	CTFWeaponInfo *m_pDisguiseWeaponInfo;
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
+
+	int	m_nOldConditions;
+	int	m_nOldDisguiseClass;
+	int m_nOldDisguiseTeam;
 
 	int m_iOldDisguiseWeaponID;
 #endif
