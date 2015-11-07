@@ -1152,6 +1152,7 @@ void CTFPlayer::GiveDefaultItems()
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
 
+	// We may have swapped away our current weapon at resupply locker.
 	if ( GetActiveWeapon() == NULL )
 		SwitchToNextBestWeapon(NULL);
 }
@@ -1228,9 +1229,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		// Skip builder since it's handled separately.
 		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 		{
-			char szWeaponName[256];
-			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
-			Q_strlower( szWeaponName );
+			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
@@ -1255,7 +1254,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
 				if ( pWeapon )
 				{
@@ -4281,7 +4280,7 @@ void CTFPlayer::DropAmmoPack( void )
 		if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
 		{
 			// Use the same values as the ammo pack.
-			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, pszWorldModel, pWeapon->GetWeaponID() );
+			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, pWeapon->GetWeaponID() );
 			pWeapon->SetModel( pWeapon->GetViewModel() );
 			return;
 		}

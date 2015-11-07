@@ -202,7 +202,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	{
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( pWeaponInfo->iSlot );
-		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
+		const char *pszWeaponName = WeaponIdToClassname( m_iWeaponNumber );
 
 		if ( pWeapon )
 		{
@@ -223,12 +223,15 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				pTFPlayer->CalculateAmmoPackPositionAndAngles( pWeapon, vecOrigin, vecAngles );
 
 				if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
-					CTFDroppedWeapon::Create( vecOrigin, vecAngles, pWeapon->GetWorldModel(), pWeapon->GetWeaponID() );
+					CTFDroppedWeapon::Create( vecOrigin, vecAngles, pTFPlayer, pWeapon->GetWorldModel(), pWeapon->GetWeaponID() );
 
 				// Check Use button, always replace pistol
+				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
+				{
+					pWeapon->Holster();
+				}
 				pTFPlayer->Weapon_Detach( pWeapon );
-				pWeapon->WeaponReset();
-				UTIL_Remove(pWeapon);
+				UTIL_Remove( pWeapon );
 				pWeapon = NULL;
 			}
 			else

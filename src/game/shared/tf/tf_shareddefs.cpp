@@ -406,6 +406,24 @@ const char *WeaponIdToAlias( int iWeapon )
 	return g_aWeaponNames[iWeapon];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Entity classnames need to be in lower case. Use this whenever
+// you're spawning a weapon.
+//-----------------------------------------------------------------------------
+const char *WeaponIdToClassname( int iWeapon )
+{
+	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
+
+	if ( pszWeaponAlias == NULL )
+		return NULL;
+
+	static char szEntName[256];
+	Q_strcpy( szEntName, pszWeaponAlias );
+	Q_strlower( szEntName );
+
+	return szEntName;
+}
+
 #ifdef GAME_DLL
 
 //-----------------------------------------------------------------------------

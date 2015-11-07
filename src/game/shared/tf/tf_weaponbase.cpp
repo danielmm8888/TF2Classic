@@ -117,12 +117,14 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	RecvPropInt( RECVINFO( m_iReloadMode ) ),
 	RecvPropBool( RECVINFO( m_bResetParity ) ), 
 	RecvPropBool( RECVINFO( m_bReloadedThroughAnimEvent ) ),
+	RecvPropTime( RECVINFO( m_flLastFireTime ) ),
 // Server specific.
 #else
 	SendPropBool( SENDINFO( m_bLowered ) ),
 	SendPropBool( SENDINFO( m_bResetParity ) ),
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
+	SendPropTime( SENDINFO( m_flLastFireTime ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -131,6 +133,7 @@ BEGIN_PREDICTION_DATA( CTFWeaponBase )
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flLastFireTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 #endif
 END_PREDICTION_DATA()
 
@@ -187,6 +190,7 @@ CTFWeaponBase::CTFWeaponBase()
 	m_iLastCritCheckFrame = 0;
 	m_bCurrentAttackIsCrit = false;
 	m_iCurrentSeed = -1;
+	m_flLastFireTime = 0.0f;
 }
 
 // -----------------------------------------------------------------------------

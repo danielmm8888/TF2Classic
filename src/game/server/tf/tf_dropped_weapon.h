@@ -30,10 +30,11 @@ public:
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
 
-	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, const char *pszModelName, unsigned int nWeaponID );
+	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID );
 
 
 private:
+	float m_flCreationTime;
 	float m_flRemoveTime;
 	int m_nWeaponID;
 };
