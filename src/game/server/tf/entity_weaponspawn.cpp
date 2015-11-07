@@ -226,7 +226,10 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 					CTFDroppedWeapon::Create( vecOrigin, vecAngles, pTFPlayer, pWeapon->GetWorldModel(), pWeapon->GetWeaponID() );
 
 				// Check Use button, always replace pistol
-				pWeapon->Holster();
+				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
+				{
+					pWeapon->Holster();
+				}
 				pTFPlayer->Weapon_Detach( pWeapon );
 				UTIL_Remove( pWeapon );
 				pWeapon = NULL;

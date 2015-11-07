@@ -119,7 +119,10 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 				pTFPlayer->DropFakeWeapon( pWeapon );
 
 				// Check Use button
-				pWeapon->Holster();
+				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
+				{
+					pWeapon->Holster();
+				}
 				pTFPlayer->Weapon_Detach( pWeapon );
 				UTIL_Remove( pWeapon );
 				pWeapon = NULL;

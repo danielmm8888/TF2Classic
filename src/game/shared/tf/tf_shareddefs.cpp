@@ -408,7 +408,7 @@ const char *WeaponIdToAlias( int iWeapon )
 
 //-----------------------------------------------------------------------------
 // Purpose: Entity classnames need to be in lower case. Use this whenever
-//			you're spawning a weapon.
+// you're spawning a weapon.
 //-----------------------------------------------------------------------------
 const char *WeaponIdToClassname( int iWeapon )
 {
