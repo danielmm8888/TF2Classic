@@ -103,6 +103,9 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 		SetThink( NULL );
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
+		char szWeaponName[256];
+		Q_strcpy( szWeaponName, WeaponIdToAlias( m_nWeaponID ) );
+		Q_strlower( szWeaponName );
 
 		if ( pWeapon )
 		{
@@ -139,7 +142,7 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 #endif
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( WeaponIdToAlias( m_nWeaponID ) );
+			pTFPlayer->GiveNamedItem( szWeaponName );
 			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 			UTIL_Remove( this );
 		}
