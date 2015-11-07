@@ -1152,6 +1152,7 @@ void CTFPlayer::GiveDefaultItems()
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
 
+	// We may have swapped away our current weapon at resupply locker.
 	if ( GetActiveWeapon() == NULL )
 		SwitchToNextBestWeapon(NULL);
 }
@@ -4281,7 +4282,7 @@ void CTFPlayer::DropAmmoPack( void )
 		if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
 		{
 			// Use the same values as the ammo pack.
-			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, pszWorldModel, pWeapon->GetWeaponID() );
+			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, pWeapon->GetWeaponID() );
 			pWeapon->SetModel( pWeapon->GetViewModel() );
 			return;
 		}

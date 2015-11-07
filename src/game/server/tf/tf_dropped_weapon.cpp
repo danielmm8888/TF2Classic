@@ -38,6 +38,8 @@ void CTFDroppedWeapon::Spawn( void )
 	SetCollisionGroup( COLLISION_GROUP_DEBRIS );
 	SetSolidFlags( FSOLID_TRIGGER );
 
+	m_flCreationTime = gpGlobals->curtime;
+
 	// Remove 30s after spawning
 	m_flRemoveTime = gpGlobals->curtime + 30.0f;
 	SetTouch( &CTFDroppedWeapon::WeaponTouch );
@@ -54,9 +56,9 @@ void CTFDroppedWeapon::RemovalThink( void )
 	SetNextThink( gpGlobals->curtime + 1.5f );
 }
 
-CTFDroppedWeapon *CTFDroppedWeapon::Create( const Vector &vecOrigin, const QAngle &vecAngles, const char *pszModelName, unsigned int nWeaponID )
+CTFDroppedWeapon *CTFDroppedWeapon::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID )
 {
-	CTFDroppedWeapon *pDroppedWeapon = static_cast<CTFDroppedWeapon*>( CBaseAnimating::CreateNoSpawn( "tf_dropped_weapon", vecOrigin, vecAngles ) );
+	CTFDroppedWeapon *pDroppedWeapon = static_cast<CTFDroppedWeapon*>( CBaseAnimating::CreateNoSpawn( "tf_dropped_weapon", vecOrigin, vecAngles, pOwner ) );
 	if ( pDroppedWeapon )
 	{
 		pDroppedWeapon->SetModelName( AllocPooledString( pszModelName ) );
@@ -78,6 +80,13 @@ bool CTFDroppedWeapon::ValidTouch( CBaseEntity *pPlayer )
 		return false;
 	}
 
+	// Dropper can't pick us up for 1 second.
+	if ( pPlayer == GetOwnerEntity() && gpGlobals->curtime - m_flCreationTime < 1.0f )
+	{
+		return false;
+	}
+
+
 	return true;
 }
 
@@ -90,6 +99,7 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
+		// Don't remove weapon while a player is standing over it.
 		SetThink( NULL );
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
@@ -108,8 +118,8 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 				pTFPlayer->DropFakeWeapon( pWeapon );
 
 				// Check Use button
+				pWeapon->Holster();
 				pTFPlayer->Weapon_Detach( pWeapon );
-				pWeapon->WeaponReset();
 				UTIL_Remove( pWeapon );
 				pWeapon = NULL;
 			}
@@ -145,6 +155,7 @@ void CTFDroppedWeapon::EndTouch( CBaseEntity *pOther )
 	{
 		pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 		SetThink( &CTFDroppedWeapon::RemovalThink );
+		// Don't remove weapon immediately after player stopped touching it.
 		SetNextThink( gpGlobals->curtime + 3.5f );
 	}
 }
