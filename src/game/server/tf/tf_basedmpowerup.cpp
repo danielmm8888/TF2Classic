@@ -83,7 +83,11 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pPlayer );
 	if  ( pTFPlayer && ValidTouch( pPlayer ) )
 	{
+		//Add the condition and duration from derived classes
 		pTFPlayer->m_Shared.AddCond( GetCondition(), GetEffectDuration() );
+		
+		//Give full health
+		SetHealth( GetMaxHealth() );
 
 		CSingleUserRecipientFilter user( pPlayer );
 		user.MakeReliable();
