@@ -232,9 +232,28 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 		// Initialize random system with this seed.
 		RandomSeed( iSeed );	
 
-		// Get circular gaussian spread.
-		float x = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
-		float y = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+		// Determine if the first bullet should be perfectly accurate.
+		bool bPerfectAccuracy = false;
+
+		if ( pWeapon && iBullet == 0 )
+		{
+			float flFireInterval = gpGlobals->curtime - pWeapon->GetLastFireTime();
+			if ( nBulletsPerShot == 1 )
+				bPerfectAccuracy = flFireInterval > 1.25f;
+			else
+				bPerfectAccuracy = flFireInterval > 0.25f;
+		}
+
+		float x = 0.0f;
+		float y = 0.0f;
+
+		// tf_use_fixed_weapon_spread calculations go here.
+		if ( !bPerfectAccuracy )
+		{
+			// Get circular gaussian spread.
+			x = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+			y = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+		}
 
 		// Initialize the varialbe firing information.
 		fireInfo.m_vecDirShooting = vecShootForward + ( x *  flSpread * vecShootRight ) + ( y * flSpread * vecShootUp );
