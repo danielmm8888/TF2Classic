@@ -202,9 +202,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	{
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( pWeaponInfo->iSlot );
-		char szWeaponName[256];
-		Q_strcpy( szWeaponName, WeaponIdToAlias( m_iWeaponNumber ) );
-		Q_strlower( szWeaponName );
+		const char *pszWeaponName = WeaponIdToClassname( m_iWeaponNumber );
 
 		if ( pWeapon )
 		{
@@ -254,7 +252,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( szWeaponName );
+			pTFPlayer->GiveNamedItem( pszWeaponName );
 			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 			bSuccess = true;
 		}

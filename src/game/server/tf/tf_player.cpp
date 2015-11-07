@@ -1229,9 +1229,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		// Skip builder since it's handled separately.
 		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
 		{
-			char szWeaponName[256];
-			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
-			Q_strlower( szWeaponName );
+			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
@@ -1256,7 +1254,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
 				if ( pWeapon )
 				{
