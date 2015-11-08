@@ -699,9 +699,7 @@ void CBaseObject::StartUpgrading(void)
 
 	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
 
-	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType())->m_flUpgradeDuration;
-
-	RemoveAllGestures();
+	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType() )->m_flUpgradeDuration;
 }
 
 void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
