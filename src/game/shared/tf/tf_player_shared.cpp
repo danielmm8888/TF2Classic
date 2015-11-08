@@ -191,7 +191,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
 	SendPropBool( SENDINFO( m_bCarryingObject ) ),
-	SendPropInt( SENDINFO( m_iTeleporterEffectColor ), TEAMNUM_NUM_BITS, 0 ),
+	SendPropInt( SENDINFO( m_iTeleporterEffectColor ), 3, SPROP_UNSIGNED ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -200,7 +200,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_iDisguiseHealth ), 10 ),
 	SendPropInt( SENDINFO( m_iDisguiseMaxHealth ), 10 ),
 	SendPropFloat( SENDINFO( m_flDisguiseChargeLevel ), 0, SPROP_NOSCALE ),
-	SendPropInt( SENDINFO( m_iDisguiseWeaponID ) ),
+	SendPropInt( SENDINFO( m_iDisguiseWeaponID ), Q_log2( TF_WEAPON_COUNT )+1, SPROP_UNSIGNED ),
 	// Local Data.
 	SendPropDataTable( "tfsharedlocaldata", 0, &REFERENCE_SEND_TABLE( DT_TFPlayerSharedLocal ), SendProxy_SendLocalDataTable ),	
 END_SEND_TABLE()
@@ -1756,6 +1756,8 @@ void CTFPlayerShared::RemoveDisguise( void )
 void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 {
 #ifndef CLIENT_DLL
+	// IMPORTANT!!! - This whole function will need to be rewritten if we switch to using item schema.
+	// So please remind me about this when we do. (Nicknine)
 	if ( !InCond( TF_COND_DISGUISED ) ) 
 	{
 		m_iDisguiseWeaponID = TF_WEAPON_NONE;
@@ -1769,10 +1771,10 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 	int iWeaponID = TF_WEAPON_NONE;
 
 	// Use disguise target's weapons if possible.
-	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) && pDisguiseTarget->IsAlive() )
+	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) )
 	{
 		if ( iSlot < TF_PLAYER_WEAPON_COUNT )
-			iWeaponID = GetTFInventory()->GetWeapon( pDisguiseTarget->GetPlayerClass()->GetClassIndex(), iSlot, pDisguiseTarget->GetWeaponPreset( iSlot ) );
+			iWeaponID = GetTFInventory()->GetWeapon(pDisguiseTarget->GetPlayerClass()->GetClassIndex(), iSlot, pDisguiseTarget->GetWeaponPreset(iSlot));
 	}
 	else
 	{
@@ -1798,7 +1800,7 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 
 	if ( iSlot == 0 )
 	{
-		Assert( iWeaponID != TF_WEAPON_NONE &&  "Cannot find primary disguise weapon for desired disguise class\n" );
+		AssertMsg( iWeaponID != TF_WEAPON_NONE, "Cannot find primary disguise weapon for desired disguise class %d\n", m_nDisguiseClass );
 	}
 
 	// Don't switch to builder as it's too complicated.
