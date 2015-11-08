@@ -62,6 +62,9 @@
 
 ConVar  tf2c_airblast( "tf2c_airblast", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast function of the Flamethrower" );
 ConVar  tf2c_airblast_players( "tf2c_airblast_players", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast pushing players" );
+#ifdef GAME_DLL
+ConVar	tf2c_debug_airblast( "tf2c_debug_airblast", "0", FCVAR_CHEAT, "Visualize airblast box." );
+#endif
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFFlameThrower, DT_WeaponFlameThrower )
 
@@ -552,12 +555,23 @@ void CTFFlameThrower::SecondaryAttack()
 
 	int count = UTIL_EntitiesInBox( pList, 128, vecOrigin - Vector( 80, 80, 80 ), vecOrigin + Vector( 80, 80, 80 ), 0 );
 
+	if ( tf2c_debug_airblast.GetBool() )
+	{
+		NDebugOverlay::Box( vecOrigin, -Vector( 80, 80, 80 ), Vector( 80, 80, 80 ), 0, 0, 255, 100, 2.0 );
+	}
+
 	for ( int i = 0; i < count; i++ )
 	{
 		if ( !pList[i] )
 			continue;
 
 		if ( pList[i] == pOwner )
+			continue;
+
+		// Make sure we can actually see this entity so we don't hit anything through walls.
+		trace_t tr;
+		UTIL_TraceLine( pOwner->Weapon_ShootPosition(), pList[i]->WorldSpaceCenter(), MASK_SOLID, this, COLLISION_GROUP_DEBRIS, &tr );
+		if ( tr.fraction != 1.0f )
 			continue;
 
 		if ( pList[i]->IsPlayer() && pList[i]->IsAlive() )
