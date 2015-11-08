@@ -380,6 +380,11 @@ void CObjectSentrygun::StartUpgrading( void )
 	m_iAmmoShells = m_iMaxAmmoShells;
 
 	m_iState.Set( SENTRY_STATE_UPGRADING );
+
+	// Start upgrade anim instantly
+	DetermineAnimation();
+
+	RemoveAllGestures();
 }
 
 void CObjectSentrygun::FinishUpgrading( void )

@@ -709,11 +709,11 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	return ( iClass == TF_CLASS_ENGINEER );
 }
 
-int g_iTeleporterRechargeTimes[] =
+float g_flTeleporterRechargeTimes[] =
 {
-	10,
-	5,
-	3
+	10.0,
+	5.0,
+	3.0
 };
 
 float g_flDispenserAmmoRates[] = {

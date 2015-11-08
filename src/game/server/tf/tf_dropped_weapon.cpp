@@ -34,6 +34,12 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 void CTFDroppedWeapon::Spawn( void )
 {
 	BaseClass::Spawn();
+
+	if ( VPhysicsGetObject() )
+	{
+		// All weapons must have same weight.
+		VPhysicsGetObject()->SetMass( 25.0f );
+	}
 	
 	SetCollisionGroup( COLLISION_GROUP_DEBRIS );
 	SetSolidFlags( FSOLID_TRIGGER );

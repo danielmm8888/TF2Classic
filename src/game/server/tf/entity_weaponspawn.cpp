@@ -93,7 +93,7 @@ void CWeaponSpawner::Spawn(void)
 	SetModel(pWeaponInfo->szWorldModel);
 	BaseClass::Spawn();
 
-	// Ensures consistent BBOX size for all weapons. (danielmm8888)
+	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
 	SetSolid( SOLID_BBOX );
 	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
 

@@ -362,6 +362,10 @@ void CBaseObject::SetActivity( Activity act )
 		m_Activity = act; 
 		SetObjectSequence( sequence );
 	}
+	else
+	{
+		m_Activity = (Activity)ACTIVITY_NOT_AVAILABLE;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -426,7 +430,7 @@ void CBaseObject::OnGoActive( void )
 	// Rapidly go through upgrade levels if the keyvalue is set.
 	if ( m_iDefaultUpgrade > 0 )
 	{
-		for ( int i = 0; i < m_iDefaultUpgrade && i < 2; i++ )
+		for ( int i = 0; i < min( m_iDefaultUpgrade, 2 ); i++ )
 		{
 			StartUpgrading();
 			FinishUpgrading();

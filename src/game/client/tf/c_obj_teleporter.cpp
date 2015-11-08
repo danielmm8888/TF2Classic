@@ -369,7 +369,7 @@ void C_ObjectTeleporter::GetTargetIDDataString( wchar_t *sDataString, int iMaxLe
 	}
 	else if ( m_iState == TELEPORTER_STATE_RECHARGING && gpGlobals->curtime < m_flRechargeTime )
 	{
-		float flPercent = clamp( ( m_flRechargeTime - gpGlobals->curtime ) / g_iTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ], 0.0f, 1.0f );
+		float flPercent = clamp( ( m_flRechargeTime - gpGlobals->curtime ) / g_flTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ], 0.0f, 1.0f );
 
 		wchar_t wszRecharging[ 32 ];
 		_snwprintf( wszRecharging, ARRAYSIZE(wszRecharging) - 1, L"%.0f", 100 - (flPercent * 100) );

@@ -416,7 +416,7 @@ void CObjectDispenser::StartUpgrading( void )
 
 	BaseClass::StartUpgrading();
 
-	switch( GetUpgradeLevel() + 1 )
+	switch( GetUpgradeLevel() )
 	{
 	case 1:
 		SetModel( DISPENSER_MODEL_LEVEL_1_UPGRADE );
@@ -433,6 +433,9 @@ void CObjectDispenser::StartUpgrading( void )
 	}
 
 	m_bIsUpgrading = true;
+
+	// Start upgrade anim instantly
+	DetermineAnimation();
 }
 
 void CObjectDispenser::FinishUpgrading( void )
@@ -508,7 +511,7 @@ void CObjectDispenser::RefillThink( void )
 {
 	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
 
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() )
 	{
 		return;
 	}
@@ -526,7 +529,7 @@ void CObjectDispenser::RefillThink( void )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::DispenseThink( void )
 {
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() )
 	{
 		// Don't heal or dispense ammo
 		SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
