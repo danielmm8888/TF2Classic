@@ -180,13 +180,13 @@ void CObjectSentrygun::Spawn()
 
 void CObjectSentrygun::MakeCarriedObject( CTFPlayer *pPlayer )
 {
-	// Stop thinking
+	// Stop thinking.
 	m_iState.Set( SENTRY_STATE_INACTIVE );
 
-	// Clear enemy
+	// Clear enemy.
 	m_hEnemy = NULL;
 
-	// Reset upgrade values
+	// Reset upgrade values.
 	SetMaxHealth( SENTRYGUN_MAX_HEALTH );
 	SetHealth( SENTRYGUN_MAX_HEALTH );
 	m_iMaxAmmoShells = SENTRYGUN_MAX_SHELLS_1;

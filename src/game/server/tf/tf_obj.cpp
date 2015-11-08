@@ -192,6 +192,7 @@ CBaseObject::CBaseObject()
 	m_bPlacementOK = false;
 	m_aGibs.Purge();
 	m_iObjectMode = 0;
+	m_iDefaultUpgrade = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -761,14 +762,22 @@ void CBaseObject::StartUpgrading(void)
 	SetMaxHealth( iMaxHealth * 1.2 );
 	SetHealth( iMaxHealth * 1.2 );
 
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
+	{
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	}
 
 	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType() )->m_flUpgradeDuration;
 }
 
 void CBaseObject::FinishUpgrading( void )
 {
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
+	{
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	}
 }
 
 //-----------------------------------------------------------------------------

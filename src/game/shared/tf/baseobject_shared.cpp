@@ -430,11 +430,14 @@ void CBaseObject::OnGoActive( void )
 	// Rapidly go through upgrade levels if the keyvalue is set.
 	if ( m_iDefaultUpgrade > 0 )
 	{
-		for ( int i = 0; i < min( m_iDefaultUpgrade, 2 ); i++ )
+		for ( int i = 0; i < min( m_iDefaultUpgrade, GetMaxUpgradeLevel() - 1 ); i++ )
 		{
 			StartUpgrading();
 			FinishUpgrading();
 		}
+
+		// Don't snap to default level again if we get picked up and re-deployed.
+		m_iDefaultUpgrade = 0;
 	}
 #endif
 }

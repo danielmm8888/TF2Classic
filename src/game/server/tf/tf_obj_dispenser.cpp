@@ -212,7 +212,7 @@ void CObjectDispenser::MakeCarriedObject( CTFPlayer *pPlayer )
 	SetContextThink( NULL, 0, DISPENSE_CONTEXT );
 	SetContextThink( NULL, 0, REFILL_CONTEXT );
 
-	// Reset health values
+	// Reset health values.
 	SetMaxHealth( DISPENSER_MAX_HEALTH );
 	m_iHealth = DISPENSER_MAX_HEALTH;
 
@@ -503,6 +503,8 @@ void CObjectDispenser::FinishUpgrading( void )
 
 	SetActivity( ACT_RESET );
 
+	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
+
 	BaseClass::FinishUpgrading();
 }
 
@@ -572,7 +574,7 @@ void CObjectDispenser::RefillThink( void )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::DispenseThink( void )
 {
-	if ( IsDisabled() || IsUpgrading() || IsBeingCarried() )
+	if ( IsDisabled() || IsUpgrading() )
 	{
 		// Don't heal or dispense ammo
 		SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
