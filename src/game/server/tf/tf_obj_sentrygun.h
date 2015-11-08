@@ -66,6 +66,8 @@ public:
 	virtual int		GetMaxUpgradeLevel( void );
 	virtual char	*GetPlacementModel( void );
 
+	virtual void	MakeCarriedObject( CTFPlayer *pPlayer );
+
 private:
 
 	// Main think

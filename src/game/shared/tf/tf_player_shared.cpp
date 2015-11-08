@@ -2699,6 +2699,12 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
+	// Engineer moves slower while a hauling an object.
+	if ( playerclass == TF_CLASS_ENGINEER && m_Shared.IsCarryingObject() )
+	{
+		maxfbspeed *= 0.9f;
+	}
+
 	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		if (maxfbspeed > tf_spy_max_cloaked_speed.GetFloat() )
@@ -3033,7 +3039,7 @@ bool CTFPlayer::TryToPickupBuilding( void )
 		 trace.m_pEnt->GetTeamNumber() == GetTeamNumber() )
 	{
 		CBaseObject *pObject = dynamic_cast<CBaseObject*>( trace.m_pEnt );
-		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() )
+		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() && !pObject->IsUpgrading() )
 		{
 			CTFWeaponBase *pWpn = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
@@ -3074,6 +3080,8 @@ void CTFPlayerShared::SetCarriedObject( CBaseObject *pObj )
 		m_bCarryingObject = false;
 		m_hCarriedObject = NULL;
 	}
+
+	m_pOuter->TeamFortress_SetSpeed();
 }
 
 CBaseObject* CTFPlayerShared::GetCarriedObject(void)

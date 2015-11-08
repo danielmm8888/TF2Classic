@@ -385,6 +385,51 @@ void CBaseObject::Spawn( void )
 	m_bServerOverridePlacement = true;
 }
 
+void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	if ( pPlayer )
+	{
+		m_bCarried = true;
+		DestroyScreens();
+		//FollowEntity( pPlayer, true );
+
+		// Reset upgrade level. Building will automatically upgrade back once re-deployed.
+		// Don't reset upgrade level on teleporters as it breaks stuff horribly.
+		if ( GetType() != OBJ_TELEPORTER )
+		{
+			m_iUpgradeLevel = 1;
+		}
+
+		SetModel( GetPlacementModel() );
+
+		pPlayer->m_Shared.SetCarriedObject( this );
+
+		//AddEffects( EF_NODRAW );
+		AddEFlags( FSOLID_NOT_SOLID );
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
+		if ( event )
+		{
+			event->SetInt( "userid", pPlayer->GetUserID() );
+			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
+			gameeventmanager->FireEvent( event, true );	// don't send to clients
+		}
+	}
+
+}
+
+void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	m_bCarried = false;
+	m_bCarryDeploy = true;
+
+	if ( pPlayer )
+		pPlayer->m_Shared.SetCarriedObject( NULL );
+
+	//StopFollowingEntity();
+}
+
 //-----------------------------------------------------------------------------
 // Returns information about the various control panels
 //-----------------------------------------------------------------------------
@@ -556,6 +601,20 @@ void CBaseObject::BaseObjectThink( void )
 		UpgradeThink();
 		return;
 	}
+
+	if ( m_bCarryDeploy )
+	{
+		if ( m_iUpgradeLevel < m_iGoalUpgradeLevel )
+		{
+			// Keep upgrading until we hit our previous upgrade level.
+			StartUpgrading();
+		}
+		else
+		{
+			// Finished.
+			m_bCarryDeploy = false;
+		}
+	}
 }
 
 bool CBaseObject::UpdateAttachmentPlacement( void )
@@ -691,6 +750,7 @@ void CBaseObject::StartUpgrading(void)
 {
 	// Increase level
 	m_iUpgradeLevel++;
+	m_iGoalUpgradeLevel = max( m_iUpgradeLevel, m_iGoalUpgradeLevel );
 
 	// more health
 	int iMaxHealth = GetMaxHealth();
@@ -700,90 +760,6 @@ void CBaseObject::StartUpgrading(void)
 	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
 
 	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType() )->m_flUpgradeDuration;
-}
-
-void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
-	{
-		m_bCarried = true;
-		DestroyScreens();
-		FollowEntity( pPlayer, true );
-
-		SetModel( GetPlacementModel() );
-
-		pPlayer->m_Shared.SetCarriedObject( this );
-
-		AddEffects( EF_NODRAW );
-		AddEFlags( FSOLID_NOT_SOLID );
-
-		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
-		if (event)
-		{
-			event->SetInt( "userid", pPlayer->GetUserID() );
-			event->SetInt( "object", ObjectType() );
-			event->SetInt( "index", entindex() );	// object entity index
-			gameeventmanager->FireEvent(event, true);	// don't send to clients
-		}
-	}
-
-}
-
-void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
-		pPlayer->m_Shared.SetCarriedObject( NULL );
-
-	StopFollowingEntity();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Start building the object
-//-----------------------------------------------------------------------------
-bool CBaseObject::RedeployBuilding( CTFPlayer *pBuilder )
-{
-	DropCarriedObject( pBuilder );
-	((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
-	
-	m_bCarryDeploy = true;
-	m_bCarried = false;
-	m_flPercentageConstructed = 0;
-
-	m_nRenderMode = kRenderNormal; 
-	RemoveSolidFlags( FSOLID_NOT_SOLID );
-	RemoveEffects( EF_NODRAW );
-
-	// NOTE: We must spawn the control panels now, instead of during
-	// Spawn, because until placement is started, we don't actually know
-	// the position of the control panel because we don't know what it's
-	// been attached to (could be a vehicle which supplies a different
-	// place for the control panel)
-	// NOTE: We must also spawn it before FinishedBuilding can be called
-	SpawnControlPanels();
-
-	// Tell the object we've been built on that we exist
-	if ( IsBuiltOnAttachment() )
-	{
-		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>((CBaseEntity*)m_hBuiltOnEntity.Get());
-		Assert( pBPInterface );
-		pBPInterface->SetObjectOnBuildPoint( m_iBuiltOnPoint, this );
-	}
-
-	// Start the build animations
-	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
-
-	m_vecBuildOrigin = GetAbsOrigin();
-
-	int contents = UTIL_PointContents( m_vecBuildOrigin );
-	if ( contents & MASK_WATER )
-	{
-		SetWaterLevel( 3 );
-	}
-
-	// instantly play the build anim
-	DetermineAnimation();
-
-	return true;
 }
 
 void CBaseObject::FinishUpgrading( void )
@@ -895,7 +871,7 @@ float CBaseObject::GetTotalTime( void )
 {
 	float flBuildTime = GetObjectInfo( ObjectType() )->m_flBuildTime;
 
-	if (tf_fastbuild.GetInt())
+	if ( tf_fastbuild.GetInt() )
 		return ( min( 2.f, flBuildTime ) );
 
 	return flBuildTime;
@@ -1320,7 +1296,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	CTFTeam *pTFTeam = ( CTFTeam * )GetGlobalTeam( GetTeamNumber() );
 
 	// Deduct the cost from the player
-	if ( pBuilder && pBuilder->IsPlayer() )
+	if ( !m_bCarryDeploy && pBuilder && pBuilder->IsPlayer() )
 	{
 		/*
 		if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
@@ -1340,10 +1316,15 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 
 		((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
 	}
+
+	if ( m_bCarryDeploy )
+	{
+		( (CTFPlayer*)pBuilder )->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
+	}
 	
 	// Add this object to the team's list (because we couldn't add it during
 	// placement mode)
-	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
+	if ( !m_bCarryDeploy && pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
 	{
 		pTFTeam->AddObject( this );
 	}
@@ -1375,7 +1356,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	// Start the build animations
 	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
 
-	if ( pBuilder && pBuilder->IsPlayer() )
+	if ( !m_bCarryDeploy && pBuilder && pBuilder->IsPlayer() )
 	{
 		CTFPlayer *pTFBuilder = ToTFPlayer( pBuilder );
 		pTFBuilder->FinishedObject( this );
@@ -1893,7 +1874,11 @@ void CBaseObject::OnConstructionHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vec
 
 float CBaseObject::GetConstructionMultiplier( void )
 {
-	float flMultiplier = 1.5;
+	float flMultiplier = 1.0f;
+
+	// Re-deploy twice as fast.
+	if ( m_bCarryDeploy )
+		flMultiplier *= 2.0f;
 
 	// expire all the old 
 	int i = m_RepairerList.LastInorder();
@@ -1908,7 +1893,7 @@ float CBaseObject::GetConstructionMultiplier( void )
 		else
 		{
 			// Each player hitting it builds twice as fast
-			flMultiplier += 2.5;
+			flMultiplier *= 2.0;
 		}
 	}
 

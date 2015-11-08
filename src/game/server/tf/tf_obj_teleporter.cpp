@@ -98,6 +98,20 @@ void CObjectTeleporter::Spawn()
 	BaseClass::Spawn();
 }
 
+void CObjectTeleporter::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	SetState( TELEPORTER_STATE_BUILDING );
+
+	// Stop thinking.
+	SetContextThink( NULL, 0, TELEPORTER_THINK_CONTEXT );
+	SetTouch( NULL );
+
+	SetPlaybackRate( 0.0f );
+	m_flLastStateChangeTime = 0.0f;
+
+	BaseClass::MakeCarriedObject( pPlayer );
+}
+
 //-----------------------------------------------------------------------------
 // Receive a teleporting player 
 //-----------------------------------------------------------------------------
@@ -676,12 +690,19 @@ void CObjectTeleporter::TeleporterThink( void )
 		{
 			SetState( TELEPORTER_STATE_IDLE );
 			ShowDirectionArrow( false );
-			m_iUpgradeLevel = 1;
-			// We need to adjust for any damage received if we downgraded
-			float iHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
-			SetMaxHealth( GetMaxHealthForCurrentLevel() );
-			SetHealth( (int)floorf( GetMaxHealthForCurrentLevel() * iHealthPercentage ) );
-			m_iUpgradeMetal = 0;
+
+			// Downgrade it back L1 unless the other end is being carried or is redeploying.
+			CObjectTeleporter *pMatch = m_hMatchingTeleporter.Get();
+			if ( !pMatch || ( !pMatch->IsBeingCarried() && !pMatch->IsRedeploying() ) )
+			{
+				m_iUpgradeLevel = 1;
+				m_iGoalUpgradeLevel = 1;
+				// We need to adjust for any damage received if we downgraded
+				float iHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
+				SetMaxHealth( GetMaxHealthForCurrentLevel() );
+				SetHealth( (int)floorf( GetMaxHealthForCurrentLevel() * iHealthPercentage ) );
+				m_iUpgradeMetal = 0;
+			}
 		}
 		return;
 	}
@@ -1100,7 +1121,8 @@ CObjectTeleporter* CObjectTeleporter::FindMatch( void )
 	{
 		CBaseObject *pObj = pBuilder->GetObject(i);
 
-		if ( pObj && pObj->GetType() == GetType() && pObj->GetObjectMode() == iOppositeMode && !pObj->IsDisabled() )
+		if ( pObj && pObj->GetType() == GetType() && pObj->GetObjectMode() == iOppositeMode && !pObj->IsDisabled() &&
+			!pObj->IsBeingCarried() && !pObj->IsRedeploying() )
 		{
 			pMatch = ( CObjectTeleporter * )pObj;
 			CopyUpgradeStateToMatch( pMatch, false );

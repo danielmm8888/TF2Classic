@@ -436,7 +436,6 @@ void CBaseObject::OnGoActive( void )
 			FinishUpgrading();
 		}
 	}
-
 #endif
 }
 
