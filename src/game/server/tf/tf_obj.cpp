@@ -184,6 +184,8 @@ CBaseObject::CBaseObject()
 	m_flPercentageConstructed = 0;
 	m_bPlacing = false;
 	m_bBuilding = false;
+	m_bCarried = false;
+	m_bCarryDeploy = false;
 	m_Activity = ACT_INVALID;
 	m_bDisabled = false;
 	m_SolidToPlayers = SOLID_TO_PLAYER_USE_DEFAULT;
@@ -355,6 +357,7 @@ void CBaseObject::Spawn( void )
 	m_iKills = 0;
 
 	m_iUpgradeLevel = 1;
+	m_iGoalUpgradeLevel = 1;
 	m_iUpgradeMetal = 0;
 
 	m_iUpgradeMetalRequired = GetObjectInfo( ObjectType() )->m_UpgradeCost;
@@ -390,6 +393,7 @@ void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
 	if ( pPlayer )
 	{
 		m_bCarried = true;
+		m_bCarryDeploy = false;
 		DestroyScreens();
 		//FollowEntity( pPlayer, true );
 

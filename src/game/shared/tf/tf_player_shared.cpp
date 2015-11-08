@@ -3039,7 +3039,7 @@ bool CTFPlayer::TryToPickupBuilding( void )
 		 trace.m_pEnt->GetTeamNumber() == GetTeamNumber() )
 	{
 		CBaseObject *pObject = dynamic_cast<CBaseObject*>( trace.m_pEnt );
-		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() && !pObject->IsUpgrading() )
+		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() && !pObject->IsUpgrading() && !pObject->IsRedeploying() )
 		{
 			CTFWeaponBase *pWpn = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
