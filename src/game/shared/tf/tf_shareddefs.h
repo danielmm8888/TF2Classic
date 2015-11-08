@@ -777,7 +777,7 @@ enum
 
 #define TELEPORTER_RECHARGE_TIME				10		// seconds to recharge
 
-extern int g_iTeleporterRechargeTimes[];
+extern float g_flTeleporterRechargeTimes[];
 extern float g_flDispenserAmmoRates[];
 extern float g_flDispenserHealRates[];
 

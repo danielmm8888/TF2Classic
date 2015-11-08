@@ -594,27 +594,33 @@ void CObjectTeleporter::DeterminePlaybackRate( void )
 				// 4 -> 6, stay at low
 				// 6 -> 10, spin to 1.0
 
+				float flScale = g_flTeleporterRechargeTimes[GetUpgradeLevel() - 1] / g_flTeleporterRechargeTimes[0];
+				
+				float flToLow = 4.0f * flScale;
+				float flToHigh = 6.0f * flScale;
+				float flRechargeTime = g_flTeleporterRechargeTimes[GetUpgradeLevel() - 1];
+
 				float flTimeSinceChange = gpGlobals->curtime - m_flLastStateChangeTime;
 
 				float flLowSpinSpeed = 0.15f;
 
-				if ( flTimeSinceChange <= 4.0f )
+				if ( flTimeSinceChange <= flToLow )
 				{
 					flPlaybackRate = RemapVal( gpGlobals->curtime,
 						m_flLastStateChangeTime,
-						m_flLastStateChangeTime + 4.0f,
+						m_flLastStateChangeTime + flToLow,
 						1.0f,
 						flLowSpinSpeed );
 				}
-				else if ( flTimeSinceChange > 4.0f && flTimeSinceChange <= 6.0f )
+				else if ( flTimeSinceChange > flToLow && flTimeSinceChange <= flToHigh )
 				{
 					flPlaybackRate = flLowSpinSpeed;
 				}
 				else
 				{
 					flPlaybackRate = RemapVal( gpGlobals->curtime,
-						m_flLastStateChangeTime + 6.0f,
-						m_flLastStateChangeTime + 10.0f,
+						m_flLastStateChangeTime + flToHigh,
+						m_flLastStateChangeTime + flRechargeTime,
 						flLowSpinSpeed,
 						1.0f );
 				}
@@ -719,7 +725,7 @@ void CObjectTeleporter::TeleporterThink( void )
 		{
 			pMatch->TeleporterReceive( m_hTeleportingPlayer, 1.0 );
 
-			m_flRechargeTime = gpGlobals->curtime + ( BUILD_TELEPORTER_FADEOUT_TIME + BUILD_TELEPORTER_FADEIN_TIME + g_iTeleporterRechargeTimes[ GetUpgradeLevel() - 1] );
+			m_flRechargeTime = gpGlobals->curtime + ( BUILD_TELEPORTER_FADEOUT_TIME + BUILD_TELEPORTER_FADEIN_TIME + g_flTeleporterRechargeTimes[ GetUpgradeLevel() - 1] );
 		
 			// change state to recharging...
 			SetState( TELEPORTER_STATE_RECHARGING );
@@ -867,7 +873,7 @@ void CObjectTeleporter::TeleporterThink( void )
 
 			SetState( TELEPORTER_STATE_RECHARGING );
 
-			m_flMyNextThink = gpGlobals->curtime + ( g_iTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ] );
+			m_flMyNextThink = gpGlobals->curtime + ( g_flTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ] );
 		}
 		break;
 
@@ -985,7 +991,7 @@ int CObjectTeleporter::DrawDebugTextOverlays(void)
 		// recharge time
 		if ( gpGlobals->curtime < m_flRechargeTime )
 		{
-			float flPercent = ( m_flRechargeTime - gpGlobals->curtime ) / g_iTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ];
+			float flPercent = ( m_flRechargeTime - gpGlobals->curtime ) / g_flTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ];
 
 			Q_snprintf( tempstr, sizeof( tempstr ), "Recharging: %.1f", flPercent );
 			EntityText(text_offset,tempstr,0);
