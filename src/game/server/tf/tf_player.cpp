@@ -1127,7 +1127,7 @@ void CTFPlayer::GiveDefaultItems()
 	}
 
 	// Give weapons.
-	if (tf2c_random_weapons.GetBool())
+	if ( tf2c_random_weapons.GetBool() )
 		ManageRandomWeapons( pData );
 	else
 		ManageRegularWeapons( pData );
@@ -1140,9 +1140,9 @@ void CTFPlayer::GiveDefaultItems()
 
 	// Equip weapons set by tf_player_equip
 	CBaseEntity	*pWeaponEntity = NULL;
-	while ((pWeaponEntity = gEntList.FindEntityByClassname(pWeaponEntity, "tf_player_equip")) != NULL)
+	while ( ( pWeaponEntity = gEntList.FindEntityByClassname( pWeaponEntity, "tf_player_equip" ) ) != NULL )
 	{
-		pWeaponEntity->Touch(this);
+		pWeaponEntity->Touch( this );
 	}
 
 	if ( m_bRegenerating == false )
@@ -1154,7 +1154,7 @@ void CTFPlayer::GiveDefaultItems()
 
 	// We may have swapped away our current weapon at resupply locker.
 	if ( GetActiveWeapon() == NULL )
-		SwitchToNextBestWeapon(NULL);
+		SwitchToNextBestWeapon( NULL );
 }
 
 //-----------------------------------------------------------------------------
@@ -1292,9 +1292,7 @@ void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		int iWeaponID = RandomInt( TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1 );
-		char szWeaponName[256];
-		Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
-		Q_strlower( szWeaponName );
+		const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
@@ -1319,7 +1317,7 @@ void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
 			if ( pWeapon )
 			{
@@ -1362,10 +1360,8 @@ void CTFPlayer::ManageGrenades( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				char szGrenadeName[256];
-				Q_strcpy( szGrenadeName, WeaponIdToAlias( pData->m_aGrenades[iGrenade] ) );
-				Q_strlower( szGrenadeName );
-				pGrenade = (CTFWeaponBase *)GiveNamedItem( szGrenadeName );
+				const char *pszGrenadeName = WeaponIdToClassname( pData->m_aGrenades[iGrenade] );
+				pGrenade = (CTFWeaponBase *)GiveNamedItem( pszGrenadeName );
 
 				if ( pGrenade )
 				{
