@@ -78,6 +78,8 @@ public:
 	virtual int	GetMaxUpgradeLevel( void );
 	virtual char *GetPlacementModel( void );
 
+	virtual void	MakeCarriedObject( CTFPlayer *pPlayer );
+
 protected:
 	CNetworkVar( int, m_iState );
 	CNetworkVar( float, m_flRechargeTime );

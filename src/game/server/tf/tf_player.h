@@ -193,6 +193,7 @@ public:
 	void				ClientHearVox( const char *pSentence );
 	void				DisplayLocalItemStatus( CTFGoal *pGoal );
 
+	bool				CanPickupBuilding( CBaseObject *pObject );
 	bool				TryToPickupBuilding( void );
 
 	int					BuildObservableEntityList( void );

@@ -85,6 +85,7 @@ public:
 	virtual int	GetObjectMode( void ) { return m_iObjectMode; }
 
 	virtual bool IsBeingCarried( void ) { return m_bCarried; }
+	virtual bool IsRedeploying( void ) { return m_bCarryDeploy; }
 
 	// Override this method per object to set your local stuff up.
 	virtual void	SetObjectMode( int iObjectMode )
@@ -122,8 +123,6 @@ public:
 	bool			IsPlacing( void ) { return m_bPlacing; };
 	virtual bool	IsUpgrading( void ) const { return false; }
 	bool			MustBeBuiltOnAttachmentPoint( void ) const;
-
-	virtual bool	RedeployBuilding( CTFPlayer *pPlayer );
 
 	// Returns information about the various control panels
 	virtual void 	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName );
@@ -339,6 +338,7 @@ protected:
 	CNetworkVar( int, m_iUpgradeLevel );
 	CNetworkVar( int, m_iHighestUpgradeLevel );
 	CNetworkVar( int, m_iUpgradeMetal );
+	int		m_iGoalUpgradeLevel;
 	int		m_iDefaultUpgrade;
 
 	bool	m_bDying;

@@ -3999,8 +3999,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
 	{
-		m_Shared.GetCarriedObject()->DropCarriedObject( this );
-		m_Shared.GetCarriedObject()->DestroyObject();
+		// Blow it up at our position.
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
+		pObject->DropCarriedObject( this );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC );
+		pObject->Killed( newInfo );
 	}
 
 	// If we died in sudden death and we're an engineer, explode our buildings
@@ -4225,7 +4229,8 @@ void CTFPlayer::DropAmmoPack( void )
 	CTFWeaponBase *pWeapon = NULL;
 	CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();
 
-	if ( !pActiveWeapon || pActiveWeapon->GetTFWpnData().m_bDontDrop )
+	if ( !pActiveWeapon || pActiveWeapon->GetTFWpnData().m_bDontDrop ||
+		( pWeapon->GetWeaponID() == TF_WEAPON_BUILDER && m_Shared.m_bCarryingObject ) )
 	{
 		// Don't drop this one, find another one to drop
 

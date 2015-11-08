@@ -146,6 +146,12 @@ bool CTFWeaponBuilder::Deploy( void )
 			m_iAltFireHint = HINT_ALTFIRE_ROTATE_BUILDING;
 			pPlayer->StartHintTimer( m_iAltFireHint );
 		}
+
+		if ( m_hObjectBeingBuilt && m_hObjectBeingBuilt->IsBeingCarried() )
+		{
+			// We just pressed attack2, don't immediately rotate it.
+			m_bInAttack2 = true;
+		}
 	}
 
 	return bDeploy;
@@ -445,12 +451,12 @@ void CTFWeaponBuilder::StartPlacement( void )
 {
 	StopPlacement();
 
-	/*if ( GetOwner() && ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject() )
+	if ( GetOwner() && ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject() )
 	{
-		m_hObjectBeingBuilt = ToTFPlayer(GetOwner())->m_Shared.GetCarriedObject();
+		m_hObjectBeingBuilt = ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject();
 		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
 		return;
-	}*/
+	}
 
 	// Create the slab
 	m_hObjectBeingBuilt = (CBaseObject*)CreateEntityByName( GetObjectInfo( m_iObjectType )->m_pClassName );
@@ -516,11 +522,7 @@ void CTFWeaponBuilder::StartBuilding( void )
 	{
 		Assert( pObj );
 
-		pObj->RedeployBuilding( ToTFPlayer( GetOwner() ) );
-		m_hObjectBeingBuilt = NULL;
-
-		pPlayer->m_Shared.SetCarriedObject( NULL );
-		return;
+		pObj->DropCarriedObject( pPlayer );
 	}
 
 	Assert( pObj );

@@ -2699,6 +2699,12 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
+	// Engineer moves slower while a hauling an object.
+	if ( playerclass == TF_CLASS_ENGINEER && m_Shared.IsCarryingObject() )
+	{
+		maxfbspeed *= 0.9f;
+	}
+
 	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		if (maxfbspeed > tf_spy_max_cloaked_speed.GetFloat() )
@@ -3001,6 +3007,20 @@ bool CTFPlayer::CanAttack( void )
 }
 
 #ifdef GAME_DLL
+bool CTFPlayer::CanPickupBuilding( CBaseObject *pObject )
+{
+	if ( !pObject )
+		return false;
+
+	if ( pObject->GetBuilder() != this )
+		return false;
+
+	if ( pObject->IsBuilding() || pObject->IsUpgrading() || pObject->IsRedeploying() )
+		return false;
+
+	return true;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3012,7 +3032,9 @@ bool CTFPlayer::TryToPickupBuilding( void )
 	Vector vecForward; 
 	AngleVectors( EyeAngles(), &vecForward );
 	Vector vecSwingStart = Weapon_ShootPosition();
-	Vector vecSwingEnd = vecSwingStart + vecForward * 100;
+	// 5500 with Rescue Ranger.
+	float flRange = 150.0f;
+	Vector vecSwingEnd = vecSwingStart + vecForward * flRange;
 
 	// only trace against objects
 
@@ -3021,19 +3043,14 @@ bool CTFPlayer::TryToPickupBuilding( void )
 
 	CTraceFilterIgnorePlayers traceFilter( NULL, COLLISION_GROUP_NONE );
 	UTIL_TraceLine( vecSwingStart, vecSwingEnd, MASK_SOLID, &traceFilter, &trace );
-	if ( trace.fraction >= 1.0 )
-	{
-		UTIL_TraceLine( vecSwingStart, vecSwingEnd, MASK_SOLID, &traceFilter, &trace );
-	}
 	
-	// We hit, setup the smack.
 	if ( trace.fraction < 1.0f &&
 		 trace.m_pEnt &&
 		 trace.m_pEnt->IsBaseObject() &&
 		 trace.m_pEnt->GetTeamNumber() == GetTeamNumber() )
 	{
 		CBaseObject *pObject = dynamic_cast<CBaseObject*>( trace.m_pEnt );
-		if ( pObject->GetBuilder() == this && !pObject->IsBuilding() )
+		if ( CanPickupBuilding( pObject ) )
 		{
 			CTFWeaponBase *pWpn = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
@@ -3074,6 +3091,8 @@ void CTFPlayerShared::SetCarriedObject( CBaseObject *pObj )
 		m_bCarryingObject = false;
 		m_hCarriedObject = NULL;
 	}
+
+	m_pOuter->TeamFortress_SetSpeed();
 }
 
 CBaseObject* CTFPlayerShared::GetCarriedObject(void)
