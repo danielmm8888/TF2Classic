@@ -187,8 +187,6 @@ void CObjectSentrygun::MakeCarriedObject( CTFPlayer *pPlayer )
 	m_hEnemy = NULL;
 
 	// Reset upgrade values.
-	SetMaxHealth( SENTRYGUN_MAX_HEALTH );
-	SetHealth( SENTRYGUN_MAX_HEALTH );
 	m_iMaxAmmoShells = SENTRYGUN_MAX_SHELLS_1;
 	m_flHeavyBulletResist = SENTRYGUN_MINIGUN_RESIST_LVL_1;
 	SetViewOffset( SENTRYGUN_EYE_OFFSET_LEVEL_1 );
@@ -198,6 +196,13 @@ void CObjectSentrygun::MakeCarriedObject( CTFPlayer *pPlayer )
 
 void CObjectSentrygun::SentryThink( void )
 {
+	// Don't think while re-deploying so we don't target anything inbetween upgrades.
+	if ( IsRedeploying() )
+	{
+		SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime + SENTRY_THINK_DELAY, SENTRYGUN_CONTEXT );
+		return;
+	}
+
 	switch( m_iState )
 	{
 	case SENTRY_STATE_INACTIVE:

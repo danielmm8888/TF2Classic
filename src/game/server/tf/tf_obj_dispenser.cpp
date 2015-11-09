@@ -212,10 +212,6 @@ void CObjectDispenser::MakeCarriedObject( CTFPlayer *pPlayer )
 	SetContextThink( NULL, 0, DISPENSE_CONTEXT );
 	SetContextThink( NULL, 0, REFILL_CONTEXT );
 
-	// Reset health values.
-	SetMaxHealth( DISPENSER_MAX_HEALTH );
-	m_iHealth = DISPENSER_MAX_HEALTH;
-
 	BaseClass::MakeCarriedObject( pPlayer );
 }
 
@@ -503,8 +499,6 @@ void CObjectDispenser::FinishUpgrading( void )
 
 	SetActivity( ACT_RESET );
 
-	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
-
 	BaseClass::FinishUpgrading();
 }
 
@@ -554,10 +548,10 @@ float CObjectDispenser::GetHealRate( void )
 
 void CObjectDispenser::RefillThink( void )
 {
-	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
-
-	if ( IsDisabled() || IsUpgrading() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
+		// Hit a refill time while disabled, so do the next refill ASAP.
+		SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 0.1, REFILL_CONTEXT );
 		return;
 	}
 
@@ -567,6 +561,8 @@ void CObjectDispenser::RefillThink( void )
 		m_iAmmoMetal = min( m_iAmmoMetal + DISPENSER_MAX_METAL_AMMO * ( 0.1 + 0.025 * ( GetUpgradeLevel() - 1 ) ), DISPENSER_MAX_METAL_AMMO );
 		EmitSound( "Building_Dispenser.GenerateMetal" );
 	}
+
+	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
@@ -574,7 +570,7 @@ void CObjectDispenser::RefillThink( void )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::DispenseThink( void )
 {
-	if ( IsDisabled() || IsUpgrading() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
 		// Don't heal or dispense ammo
 		SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
