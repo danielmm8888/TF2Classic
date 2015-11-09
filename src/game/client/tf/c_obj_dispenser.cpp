@@ -221,9 +221,15 @@ void C_ObjectDispenser::UpdateDamageEffects( BuildingDamageLevel_t damageLevel )
 {
 	if ( m_pDamageEffects )
 	{
-		m_pDamageEffects->StopEmission( false, false );
+		ParticleProp()->StopEmission( m_pDamageEffects );
 		m_pDamageEffects = NULL;
 	}
+
+	if ( IsDormant() )
+		return;
+
+	if ( IsPlacing() )
+		return;
 
 	const char *pszEffect = "";
 
