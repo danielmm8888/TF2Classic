@@ -2799,6 +2799,19 @@ int CTFPlayer::CanBuild( int iObjectType, int iObjectMode )
 #ifndef CLIENT_DLL
 	CTFPlayerClass *pCls = GetPlayerClass();
 
+	if ( m_Shared.IsCarryingObject() )
+	{
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		if ( pObject && pObject->GetType() == iObjectType && pObject->GetObjectMode() == iObjectMode )
+		{
+			return CB_CAN_BUILD;
+		}
+		else
+		{
+			Assert(0);
+		}
+	}
+
 	if ( pCls && pCls->CanBuildObject( iObjectType ) == false )
 	{
 		return CB_CANNOT_BUILD;
