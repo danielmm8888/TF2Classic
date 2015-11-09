@@ -4230,7 +4230,7 @@ void CTFPlayer::DropAmmoPack( void )
 	CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();
 
 	if ( !pActiveWeapon || pActiveWeapon->GetTFWpnData().m_bDontDrop ||
-		( pWeapon->GetWeaponID() == TF_WEAPON_BUILDER && m_Shared.m_bCarryingObject ) )
+		( pActiveWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.m_bCarryingObject ) )
 	{
 		// Don't drop this one, find another one to drop
 
