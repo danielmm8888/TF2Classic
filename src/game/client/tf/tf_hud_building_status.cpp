@@ -844,15 +844,15 @@ void CBuildingStatusItem_TeleporterEntrance::OnTick( void )
 
 	if ( pTeleporter && IsActive() )
 	{
+		int iUpgradeLevel = pTeleporter->GetUpgradeLevel();
+
 		if ( pTeleporter->GetState() == TELEPORTER_STATE_RECHARGING )
 		{
 			// Update the recharge
-			static const float flMaxRecharge = 10.5;
+			float flMaxRecharge = 0.5 + g_flTeleporterRechargeTimes[iUpgradeLevel - 1];
 			float flChargeTime = pTeleporter->GetChargeTime();
 			m_pRechargeTimer->SetProgress( 1.0 - ( flChargeTime / flMaxRecharge ) );
 		}
-
-		int iUpgradeLevel = pTeleporter->GetUpgradeLevel();
 
 		// upgrade progress
 		int iMetal = pTeleporter->GetUpgradeMetal();
