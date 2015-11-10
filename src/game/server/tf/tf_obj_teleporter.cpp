@@ -34,7 +34,7 @@ IMPLEMENT_SERVERCLASS_ST( CObjectTeleporter, DT_ObjectTeleporter )
 	SendPropInt( SENDINFO(m_iState), 5 ),
 	SendPropTime( SENDINFO(m_flRechargeTime) ),
 	SendPropInt( SENDINFO(m_iTimesUsed), 6 ),
-	SendPropFloat( SENDINFO(m_flYawToExit), 8, 0, 0.0, 360.0f ),
+	SendPropFloat( SENDINFO(m_flYawToExit), 8, 0, -180.0f, 180.0f ),
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectTeleporter )
@@ -984,7 +984,11 @@ void CObjectTeleporter::ShowDirectionArrow( bool bShow )
 			angleToExit -= GetAbsAngles();
 
 			// pose param is flipped and backwards, adjust.
-			m_flYawToExit = anglemod( -angleToExit.y + 180 );
+			//m_flYawToExit = anglemod( -angleToExit.y + 180.0 );
+			m_flYawToExit = AngleNormalize( -angleToExit.y + 180.0 );
+			// For whatever reason the original code normalizes angle 0 to 360 while pose param
+			// takes angle from -180 to 180. I have no idea how did this work properly
+			// in official TF2 all this time. (Nicknine)
 		}
 	}
 }
