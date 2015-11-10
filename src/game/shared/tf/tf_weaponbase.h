@@ -171,6 +171,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	static acttable_t m_acttableSecondary[];
 	static acttable_t m_acttableMelee[];
 	static acttable_t m_acttableBuilding[];
+	static acttable_t m_acttableBuildingDeployed[];
 	static acttable_t m_acttablePDA[];
 	static acttable_t m_acttableItem1[];
 	static acttable_t m_acttableItem2[];
