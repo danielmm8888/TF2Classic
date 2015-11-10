@@ -2318,18 +2318,10 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector
 			}
 		}
 	}
-	else if ( IsUpgrading() )
-	{
-		bDidWork = false;
-	}
 	else if ( IsBuilding() )
 	{
 		OnConstructionHit( pPlayer, pWrench, vecHitPos );
 		bDidWork = true;
-	}
-	else if ( IsRedeploying() )
-	{
-		bDidWork = false;
 	}
 	else
 	{
