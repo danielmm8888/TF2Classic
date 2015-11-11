@@ -1837,6 +1837,21 @@ int	CTFWeaponBase::InternalDrawModel( int flags )
 	return ret;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
+bool CTFWeaponBase::ShouldDraw( void )
+{
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		if ( pOwner->m_Shared.IsLoser() )
+			return false;
+	}
+
+	return BaseClass::ShouldDraw();
+}
+
 void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 {
 	C_BaseEntity *pAttachEnt;
@@ -1939,7 +1954,8 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 	if ( pOwner && pOwner->IsAlive() == true )
 	{
 		//And he is NOT taunting
-		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false )
+		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false &&
+			pOwner->m_Shared.IsLoser() == false )
 		{
 			//Then why the hell am I NODRAW?
 			if ( pOwner->GetActiveWeapon() == this && IsEffectActive( EF_NODRAW ) )

@@ -236,6 +236,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void	ProcessMuzzleFlashEvent( void );
 	virtual int		InternalDrawModel( int flags );
+	virtual bool	ShouldDraw( void );
 
 	virtual bool	ShouldPredict();
 	virtual void	OnDataChanged( DataUpdateType_t type );

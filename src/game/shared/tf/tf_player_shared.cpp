@@ -381,6 +381,16 @@ void CTFPlayerShared::OnDataChanged( void )
 			pWeapon->SetModelIndex( pWeapon->GetWorldModelIndex() );
 		}
 	}
+
+	if ( IsLoser() )
+	{
+		C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+		if ( pWeapon && !pWeapon->IsEffectActive( EF_NODRAW ) )
+		{
+			pWeapon->SetWeaponVisible( false );
+			pWeapon->UpdateVisibility();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
