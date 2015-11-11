@@ -69,6 +69,7 @@ public:
 	virtual void CategorizePosition( void );
 	virtual void CheckFalling( void );
 	virtual void Duck( void );
+	virtual void HandleDuckingSpeedCrop();
 	virtual Vector GetPlayerViewOffset( bool ducked ) const;
 
 	virtual void	TracePlayerBBox( const Vector& start, const Vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
@@ -1199,6 +1200,20 @@ void CTFGameMovement::Duck( void )
 
 	BaseClass::Duck();
 }
+
+void CTFGameMovement::HandleDuckingSpeedCrop( void )
+{
+	BaseClass::HandleDuckingSpeedCrop();
+
+	// Prevent moving while crouched in loser state.
+	if ( m_pTFPlayer->m_Shared.IsLoser() && m_iSpeedCropped & SPEED_CROPPED_DUCK )
+	{
+		mv->m_flForwardMove = 0.0f;
+		mv->m_flSideMove = 0.0f;
+		mv->m_flUpMove = 0.0f;
+	}
+}
+
 void CTFGameMovement::FullWalkMoveUnderwater()
 {
 	if ( player->GetWaterLevel() == WL_Waist )
