@@ -29,6 +29,7 @@ public:
 	void	SetWeaponID( unsigned int nWeaponID ){ m_nWeaponID = nWeaponID; }
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
+	float	GetCreationTime( void ) { return m_flCreationTime; }
 
 	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID );
 

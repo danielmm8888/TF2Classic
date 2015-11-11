@@ -277,6 +277,7 @@ public:
 
 	// Dropping Ammo
 	void DropAmmoPack( void );
+	void DropWeapon( CTFWeaponBase *pWeapon );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
 
 	bool CanDisguise( void );
@@ -450,6 +451,7 @@ private:
 
 	// Ammo pack.
 	void AmmoPackCleanUp( void );
+	void DroppedWeaponCleanUp( void );
 
 	// State.
 	CPlayerStateInfo	*StateLookupInfo( int nState );

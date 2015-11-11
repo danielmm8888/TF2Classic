@@ -121,8 +121,8 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) )
 			{
-				// Spawn a weapon model.
-				pTFPlayer->DropFakeWeapon( pWeapon );
+				// Drop a usable weapon
+				pTFPlayer->DropWeapon( pWeapon );
 
 				// Check Use button
 				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
