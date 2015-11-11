@@ -570,6 +570,38 @@ void CTFWeaponBaseGrenadeProj::RemoveGrenade( bool bBlinkOut )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGrenadeProj::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
+	if ( pPhysicsObject )
+	{
+		Vector vecOldVelocity, vecVelocity;
+
+		pPhysicsObject->GetVelocity( &vecOldVelocity, NULL );
+
+		float flVel = vecOldVelocity.Length();
+
+		vecVelocity = vecDir;
+		vecVelocity *= flVel;
+		AngularImpulse angVelocity( ( 600, random->RandomInt( -1200, 1200 ), 0 ) );
+
+		// Now change grenade's direction.
+		pPhysicsObject->SetVelocityInstantaneous( &vecVelocity, &angVelocity );
+	}
+
+	CBaseCombatCharacter *pBCC = pDeflectedBy->MyCombatCharacterPointer();
+
+	SetThrower( pBCC );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	if ( !TFGameRules()->IsDeathmatch() )
+		m_nSkin = pDeflectedBy->GetTeamNumber() - 2;
+
+	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: This will hit only things that are in newCollisionGroup, but NOT in collisionGroupAlreadyChecked
 //			Always ignores other grenade projectiles.
 //-----------------------------------------------------------------------------

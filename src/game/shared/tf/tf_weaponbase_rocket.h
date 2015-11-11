@@ -111,7 +111,6 @@ protected:
 	float					m_flCollideWithTeammatesTime;
 	bool					m_bCollideWithTeammates;
 
-
 	CHandle<CBaseEntity>	m_hEnemy;
 
 #endif

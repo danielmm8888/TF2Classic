@@ -416,6 +416,8 @@ public:
 
 	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 
+	virtual bool		IsDeflectable( void ) { return true; }
+
 private:
 
 	int					GetAutoTeam( void );

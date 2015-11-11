@@ -100,3 +100,24 @@ int	CTFProjectile_Rocket::GetDamageType()
 
 	return iDmgType;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFProjectile_Rocket::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	// Get rocket's speed.
+	float flVel = GetAbsVelocity().Length();
+
+	QAngle angForward;
+	VectorAngles( vecDir, angForward );
+
+	// Now change rocket's direction.
+	SetAbsAngles( angForward );
+	SetAbsVelocity( vecDir * flVel );
+
+	// And change owner.
+	SetOwnerEntity( pDeflectedBy );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	SetScorer( pDeflectedBy );
+}

@@ -98,6 +98,9 @@ public:
 	bool					UseImpactNormal()							{ return m_bUseImpactNormal; }
 	const Vector			&GetImpactNormal( void ) const				{ return m_vecImpactNormal; }
 
+	virtual bool			IsDeflectable() { return true; }
+	virtual void			Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+
 protected:
 
 	void					DrawRadius( float flRadius );
