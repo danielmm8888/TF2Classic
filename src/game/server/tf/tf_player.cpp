@@ -1566,8 +1566,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 						// if ent is a client, telefrag 'em (unless they are ourselves)
 						if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
 						{
-							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH );
-							info.SetDamageCustom( TF_DMG_CUSTOM_TELEFRAG );
+							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_CUSTOM_TELEFRAG );
 							ent->TakeDamage( info );
 						}
 					}

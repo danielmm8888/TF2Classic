@@ -814,8 +814,7 @@ void CObjectTeleporter::TeleporterThink( void )
 					// Telefrag all enemy players we've found
 					for ( int player = 0; player < hPlayersToKill.Count(); player++ )
 					{
-						CTakeDamageInfo info( this, pTeleportingPlayer, 1000, DMG_CRUSH );
-						info.SetDamageCustom( TF_DMG_CUSTOM_TELEFRAG );
+						CTakeDamageInfo info( this, pTeleportingPlayer, 1000, DMG_CRUSH, TF_DMG_CUSTOM_TELEFRAG );
 						hPlayersToKill[player]->TakeDamage( info );
 					}
 
