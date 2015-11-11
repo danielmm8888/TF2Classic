@@ -3054,6 +3054,9 @@ bool CTFPlayer::TryToPickupBuilding( void )
 	if ( !tf2c_building_hauling.GetBool() )
 		return false;
 
+	if ( m_Shared.IsLoser() )
+		return false;
+
 	if ( IsActiveTFWeapon( TF_WEAPON_BUILDER ) )
 		return false;
 
