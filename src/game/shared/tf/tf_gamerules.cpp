@@ -2630,12 +2630,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
-	{
-		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
-		killer_weapon_name = "tf_weapon_flamethrower";
-	}
-	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+	if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
 		// If the inflictor is the killer,  then it must be their current weapon doing the damage
 		if ( pScorer->GetActiveWeapon() )
@@ -2646,6 +2641,20 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	else if ( pInflictor )
 	{
 		killer_weapon_name = STRING( pInflictor->m_iClassname );
+	}
+
+	// Taunt kills you DamageCustom as well.
+	switch ( info.GetDamageCustom() )
+	{
+	case TF_DMG_CUSTOM_BURNING:
+		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
+		killer_weapon_name = "tf_weapon_flamethrower";
+		break;
+	case TF_DMG_CUSTOM_TELEFRAG:
+		killer_weapon_name = "telefrag";
+		break;
+	case TF_DMG_CUSTOM_BUILDING_CARRIED:
+		killer_weapon_name = "tf_weapon_building_carried_destroyed";
 	}
 
 	// strip certain prefixes from inflictor's classname
@@ -2679,18 +2688,10 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 		}
 	}
-
-	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
-	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
+	else if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
+		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
-	}
-
-	// Check for telefrag.
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
-	{
-		// TODO: Make a telefrag kill icon. Live TF2 still doesn't have one.
-		killer_weapon_name = "telefrag";
 	}
 
 	return killer_weapon_name;

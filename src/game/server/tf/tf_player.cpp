@@ -4008,7 +4008,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
 		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
 		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
 		pObject->Killed( newInfo );
 	}
 
