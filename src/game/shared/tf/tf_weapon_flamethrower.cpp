@@ -493,11 +493,6 @@ void CTFFlameThrower::SecondaryAttack()
 
 		if ( pList[i]->IsPlayer() && pList[i]->IsAlive() )
 		{
-			if ( !tf2c_airblast_players.GetBool() )
-			{
-				continue;
-			}
-
 			CTFPlayer *pTFPlayer = ToTFPlayer( pList[i] );
 
 			DeflectPlayer( pTFPlayer, pOwner, vecDir );
@@ -535,7 +530,10 @@ void CTFFlameThrower::DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker,
 
 void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir )
 {
-	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && pAttacker->GetMoveType() == MOVETYPE_WALK )
+	if ( !pVictim )
+		return;
+
+	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
 	{
 		// Push enemy players.
 		QAngle angPushDir;
