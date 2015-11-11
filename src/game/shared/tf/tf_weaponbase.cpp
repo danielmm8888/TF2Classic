@@ -2159,31 +2159,6 @@ acttable_t CTFWeaponBase::m_acttableMelee[] =
 	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_MELEE,	false },
 };
 
-acttable_t CTFWeaponBase::m_acttableBuildingDeployed[] = 
-{
-	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_BUILDING_DEPLOYED,			false },
-	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_BUILDING_DEPLOYED,			false },
-	{ ACT_MP_RUN,				ACT_MP_RUN_BUILDING_DEPLOYED,			false },
-	{ ACT_MP_WALK,				ACT_MP_WALK_BUILDING_DEPLOYED,			false },
-	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_JUMP,				ACT_MP_JUMP_BUILDING_DEPLOYED,			false },
-	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_SWIM,				ACT_MP_SWIM_BUILDING_DEPLOYED,			false },
-
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_BUILDING_DEPLOYED,		false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_BUILDING_DEPLOYED,	false },
-
-	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED,	false },
-	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED,	false },
-	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED,	false },
-	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED,	false },
-};
-
 acttable_t CTFWeaponBase::m_acttableBuilding[] =
 {
 	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_BUILDING, false },
@@ -2406,15 +2381,6 @@ acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
 		iActivityCount = ARRAYSIZE( m_acttableBuilding );
-		// TODO: Port hauling animations from live TF2.
-		/*
-		CTFPlayer *pPlayer = GetTFPlayerOwner();
-		if ( pPlayer && pPlayer->m_Shared.IsCarryingObject() )
-		{
-			pTable = m_acttableBuildingDeployed;
-			iActivityCount = ARRAYSIZE( m_acttableBuildingDeployed );
-		}
-		*/
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
