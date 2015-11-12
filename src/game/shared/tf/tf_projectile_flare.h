@@ -43,7 +43,7 @@ public:
 	virtual CBasePlayer *GetScorer( void );
 	virtual CBasePlayer *GetAssistant( void ) { return NULL; }
 
-	//virtual int		GetWeaponID(void) const			{ return TF_WEAPON_GRENADE_FLARE; }
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_FLAREGUN; }
 
 	void	SetScorer( CBaseEntity *pScorer );
 

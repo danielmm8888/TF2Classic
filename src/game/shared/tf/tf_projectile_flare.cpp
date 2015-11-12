@@ -118,6 +118,7 @@ void CTFProjectile_Flare::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
 	SetAbsVelocity( vecDir * flVel );
 
 	// And change owner.
+	IncremenentDeflected();
 	SetOwnerEntity( pDeflectedBy );
 	ChangeTeam( pDeflectedBy->GetTeamNumber() );
 	SetScorer( pDeflectedBy );

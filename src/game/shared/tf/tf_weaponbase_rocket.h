@@ -48,6 +48,9 @@ public:
 	void	Precache( void );
 	void	Spawn( void );
 
+	CNetworkVar( int, m_iDeflected );
+	CNetworkHandle( CBaseEntity, m_hLauncher );
+
 protected:
 
 	// Networked.
@@ -98,6 +101,9 @@ public:
 	virtual CBaseEntity		*GetEnemy( void )			{ return m_hEnemy; }
 
 	void			SetHomingTarget( CBaseEntity *pHomingTarget );
+
+	virtual void	IncremenentDeflected( void );
+	virtual void	SetLauncher( CBaseEntity *pLauncher );
 
 protected:
 

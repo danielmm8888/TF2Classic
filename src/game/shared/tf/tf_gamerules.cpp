@@ -45,6 +45,7 @@
 	#include "team_train_watcher.h"
 	#include "vote_controller.h"
 	#include "tf_voteissues.h"
+	#include "tf_weaponbase_grenadeproj.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -2641,9 +2642,41 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	else if ( pInflictor )
 	{
 		killer_weapon_name = STRING( pInflictor->m_iClassname );
+
+		// See if this was a deflect kill.
+		if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
+		{
+			if ( pRocket->m_iDeflected )
+			{
+				switch ( pRocket->GetWeaponID() )
+				{
+				case TF_WEAPON_ROCKETLAUNCHER:
+					killer_weapon_name = "deflect_rocket";
+					break;
+				case TF_WEAPON_FLAREGUN:
+					killer_weapon_name = "deflect_flare";
+					break;
+				}
+			}
+		}
+		else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
+		{
+			if ( pGrenade->m_iDeflected )
+			{
+				switch ( pGrenade->GetWeaponID() )
+				{
+				case TF_WEAPON_GRENADE_PIPEBOMB:
+					killer_weapon_name = "deflect_sticky";
+					break;
+				case TF_WEAPON_GRENADE_DEMOMAN:
+					killer_weapon_name = "deflect_promode";
+					break;
+				}
+			}
+		}
 	}
 
-	// Taunt kills you DamageCustom as well.
+	// Taunt kills use DamageCustom as well.
 	switch ( info.GetDamageCustom() )
 	{
 	case TF_DMG_CUSTOM_BURNING:
@@ -2655,6 +2688,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		break;
 	case TF_DMG_CUSTOM_BUILDING_CARRIED:
 		killer_weapon_name = "tf_weapon_building_carried_destroyed";
+		break;
 	}
 
 	// strip certain prefixes from inflictor's classname
