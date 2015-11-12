@@ -34,6 +34,8 @@ public:
 
 	virtual void OnDataChanged( DataUpdateType_t updateType );
 
+	virtual void SetDormant( bool bDormant );
+
 	void UpdateEffects( void );
 
 	virtual void UpdateDamageEffects( BuildingDamageLevel_t damageLevel );

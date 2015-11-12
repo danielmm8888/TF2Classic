@@ -225,8 +225,8 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 //-----------------------------------------------------------------------------
 void C_BaseObject::SetDormant( bool bDormant )
 {
-	UpdateDamageEffects( m_damageLevel );
 	BaseClass::SetDormant( bDormant );
+	UpdateDamageEffects( m_damageLevel );
 	//ENTITY_PANEL_ACTIVATE( "analyzed_object", !bDormant );
 }
 

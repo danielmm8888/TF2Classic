@@ -112,6 +112,19 @@ void C_ObjectDispenser::OnDataChanged( DataUpdateType_t updateType )
 
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void C_ObjectDispenser::SetDormant( bool bDormant )
+{
+	if ( !IsDormant() && bDormant )
+	{
+		StopSound( "Building_Dispenser.Heal" );
+	}
+
+	BaseClass::SetDormant( bDormant );
+}
+
 void C_ObjectDispenser::UpdateEffects( void )
 {
 	// Find all the targets we've stopped healing
