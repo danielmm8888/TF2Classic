@@ -4443,7 +4443,7 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 	if ( pDroppedWeapon )
 	{
 		// Don't randomize velocity if we dropped our weapon at will.
-		if ( !IsAlive() )
+		if ( StateGet() != TF_STATE_ACTIVE )
 		{
 			Vector vecRight, vecUp;
 			AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
