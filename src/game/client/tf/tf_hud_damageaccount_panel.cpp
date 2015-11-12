@@ -23,8 +23,8 @@
 
 using namespace vgui;
 
-// Floating delta text items, float off the top of the frame to 
-// show changes to the metal account value
+// Floating delta text items, float off the top of the head to 
+// show damage done
 typedef struct
 {
 	// amount of delta
@@ -59,7 +59,7 @@ public:
 	virtual void	Paint( void );
 
 	virtual void	FireGameEvent( IGameEvent *event );
-	void			OnTick( IGameEvent *event );
+	void			OnDamaged( IGameEvent *event );
 
 private:
 
@@ -108,8 +108,6 @@ CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudEleme
 
 	iAccountDeltaHead = 0;
 
-	SetDialogVariable( "metal", 0 );
-
 	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
@@ -129,7 +127,7 @@ void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 
 	if ( Q_strcmp( type, "player_hurt" ) == 0 )
 	{
-		OnTick( event );
+		OnDamaged( event );
 	}
 	else
 	{
@@ -176,7 +174,7 @@ bool CDamageAccountPanel::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CDamageAccountPanel::OnTick( IGameEvent *event )
+void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer && pPlayer->IsAlive() && pPlayer->GetUserID() == event->GetInt( "attacker" ) ) // Did we shoot the guy?

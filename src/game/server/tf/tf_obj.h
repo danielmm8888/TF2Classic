@@ -84,8 +84,8 @@ public:
 
 	virtual int	GetObjectMode( void ) { return m_iObjectMode; }
 
-	virtual bool IsBeingCarried( void ) { return m_bCarried; }
-	virtual bool IsRedeploying( void ) { return m_bCarryDeploy; }
+	bool			IsBeingCarried( void ) { return m_bCarried; }
+	bool			IsRedeploying( void ) { return m_bCarryDeploy; }
 
 	// Override this method per object to set your local stuff up.
 	virtual void	SetObjectMode( int iObjectMode )
@@ -338,8 +338,8 @@ protected:
 	CNetworkVar( int, m_iUpgradeLevel );
 	CNetworkVar( int, m_iHighestUpgradeLevel );
 	CNetworkVar( int, m_iUpgradeMetal );
-	int		m_iGoalUpgradeLevel;
-	int		m_iDefaultUpgrade;
+	int		m_iGoalUpgradeLevel;		// Used when re-deploying
+	int		m_iDefaultUpgrade;			// Used for map-placed buildings
 
 	bool	m_bDying;
 
@@ -396,6 +396,7 @@ private:
 
 	CNetworkVar( float, m_flPercentageConstructed );	// Used to send to client
 	float	m_flHealth;					// Health during construction. Needed a float due to small increases in health.
+	int		m_iGoalHealth;				// Used when re-deploying
 
 	// Sapper on me
 	CNetworkVar( bool, m_bHasSapper );

@@ -105,6 +105,28 @@ int	CTFProjectile_Flare::GetDamageType()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFProjectile_Flare::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	// Get rocket's speed.
+	float flVel = GetAbsVelocity().Length();
+
+	QAngle angForward;
+	VectorAngles( vecDir, angForward );
+
+	// Now change rocket's direction.
+	SetAbsAngles( angForward );
+	SetAbsVelocity( vecDir * flVel );
+
+	// And change owner.
+	IncremenentDeflected();
+	SetOwnerEntity( pDeflectedBy );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	SetScorer( pDeflectedBy );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 {
 	// Save this entity as enemy, they will take 100% damage.
@@ -135,7 +157,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	CTFPlayer *pPlayer = dynamic_cast <CTFPlayer*>(pOther);
 	if ( pPlayer )
 	{
-		CTakeDamageInfo info( GetScorer(), pPlayer, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
+		CTakeDamageInfo info( this, pAttacker, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );
 	}

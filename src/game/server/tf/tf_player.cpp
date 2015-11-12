@@ -1566,8 +1566,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 						// if ent is a client, telefrag 'em (unless they are ourselves)
 						if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
 						{
-							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH );
-							info.SetDamageCustom( TF_DMG_CUSTOM_TELEFRAG );
+							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_CUSTOM_TELEFRAG );
 							ent->TakeDamage( info );
 						}
 					}
@@ -3866,6 +3865,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Drop a pack with their leftover ammo
 	DropAmmoPack();
 
+	// Also drop our weapon in DM
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		DropWeapon( GetActiveTFWeapon() );
+	}
+
 	// If the player has a capture flag and was killed by another player, award that player a defense
 	if ( HasItem() && pPlayerAttacker && ( pPlayerAttacker != this ) )
 	{
@@ -4003,7 +4008,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
 		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
 		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
 		pObject->Killed( newInfo );
 	}
 
@@ -4138,85 +4143,46 @@ void CTFPlayer::AmmoPackCleanUp( void )
 	{
 		UTIL_Remove( pOldestBox );
 	}
-}		
+}
 
 //-----------------------------------------------------------------------------
-// Purpose: Creates an empty ammo pack to bypass non-working VPhysics on weapons.
+// Purpose: Clean up dropped weapons to avoid overpopulation.
 //-----------------------------------------------------------------------------
-void CTFPlayer::DropFakeWeapon(CTFWeaponBase *pWeapon)
+void CTFPlayer::DroppedWeaponCleanUp( void )
 {
-	// We need to find bones on the world model, so switch the weapon to it.
-	const char *pszWorldModel = pWeapon->GetWorldModel();
-	pWeapon->SetModel(pszWorldModel);
+	// If we have more than 3 dropped weapons out now, destroy the oldest one.
+	int iNumWeps = 0;
+	CTFDroppedWeapon *pOldestWeapon = NULL;
 
-	// Find the position and angle of the weapons so the "ammo box" matches.
-	Vector vecPackOrigin;
-	QAngle vecPackAngles;
-	if (!CalculateAmmoPackPositionAndAngles(pWeapon, vecPackOrigin, vecPackAngles))
-		return;
-
-	// Create the ammo pack using custom ammo which defaults to zero.
-	CTFAmmoPack *pAmmoPack = CTFAmmoPack::Create(vecPackOrigin, vecPackAngles, this, pszWorldModel, true);
-	Assert(pAmmoPack);
-	if (pAmmoPack)
+	// Cycle through all weapons in the world and remove them
+	CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, "tf_dropped_weapon" );
+	while ( pEnt )
 	{
-		// We intentionally don't fill it up here so that the weapon can be picked up to avoid overpopulation but does not grant ammo.
-
-		Vector vecRight, vecUp;
-		AngleVectors(EyeAngles(), NULL, &vecRight, &vecUp);
-
-		// Calculate the initial impulse on the weapon.
-		Vector vecImpulse(0.0f, 0.0f, 0.0f);
-		vecImpulse += vecUp * random->RandomFloat(-0.25, 0.25);
-		vecImpulse += vecRight * random->RandomFloat(-0.25, 0.25);
-		VectorNormalize(vecImpulse);
-		vecImpulse *= random->RandomFloat(tf_weapon_ragdoll_velocity_min.GetFloat(), tf_weapon_ragdoll_velocity_max.GetFloat());
-		vecImpulse += GetAbsVelocity();
-
-		// Cap the impulse.
-		float flSpeed = vecImpulse.Length();
-		if (flSpeed > tf_weapon_ragdoll_maxspeed.GetFloat())
+		CBaseEntity *pOwner = pEnt->GetOwnerEntity();
+		if ( pOwner == this )
 		{
-			VectorScale(vecImpulse, tf_weapon_ragdoll_maxspeed.GetFloat() / flSpeed, vecImpulse);
+			CTFDroppedWeapon *pThisWeapon = dynamic_cast<CTFDroppedWeapon *>( pEnt );
+			Assert( pThisWeapon );
+			if ( pThisWeapon )
+			{
+				iNumWeps++;
+
+				// Find the oldest one
+				if ( pOldestWeapon == NULL || pOldestWeapon->GetCreationTime() > pThisWeapon->GetCreationTime() )
+				{
+					pOldestWeapon = pThisWeapon;
+				}
+			}
 		}
 
-		if (pAmmoPack->VPhysicsGetObject())
-		{
-			// We can probably remove this when the mass on the weapons is correct!
-			pAmmoPack->VPhysicsGetObject()->SetMass(25.0f);
-			AngularImpulse angImpulse(0, random->RandomFloat(0, 100), 0);
-			pAmmoPack->VPhysicsGetObject()->SetVelocityInstantaneous(&vecImpulse, &angImpulse);
-		}
-
-		pAmmoPack->SetInitialVelocity(vecImpulse);
-
-		switch (GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			pAmmoPack->m_nSkin = 0;
-			break;
-		case TF_TEAM_BLUE:
-			pAmmoPack->m_nSkin = 1;
-			break;
-		case TF_TEAM_GREEN:
-			pAmmoPack->m_nSkin = 2;
-			break;
-		case TF_TEAM_YELLOW:
-			pAmmoPack->m_nSkin = 3;
-			break;
-		}
-
-		// Give the ammo pack some health, so that trains can destroy it.
-		pAmmoPack->SetCollisionGroup(COLLISION_GROUP_DEBRIS);
-		pAmmoPack->m_takedamage = DAMAGE_YES;
-		pAmmoPack->SetHealth(900);
-
-		pAmmoPack->SetBodygroup(1, 1);
-
-		// Clean up old ammo packs if they exist in the world
-		AmmoPackCleanUp();
+		pEnt = gEntList.FindEntityByClassname( pEnt, "tf_dropped_weapon" );
 	}
-	pWeapon->SetModel(pWeapon->GetViewModel());
+
+	// If they have more than 3 weapons active, remove the oldest one
+	if ( iNumWeps > 3 && pOldestWeapon )
+	{
+		UTIL_Remove( pOldestWeapon );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -4230,7 +4196,7 @@ void CTFPlayer::DropAmmoPack( void )
 	CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();
 
 	if ( !pActiveWeapon || pActiveWeapon->GetTFWpnData().m_bDontDrop ||
-		( pWeapon->GetWeaponID() == TF_WEAPON_BUILDER && m_Shared.m_bCarryingObject ) )
+		( pActiveWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.m_bCarryingObject ) )
 	{
 		// Don't drop this one, find another one to drop
 
@@ -4275,16 +4241,10 @@ void CTFPlayer::DropAmmoPack( void )
 	if( !CalculateAmmoPackPositionAndAngles( pWeapon, vecPackOrigin, vecPackAngles ) )
 		return;
 
-	// Drop the active weapon in DM. Ignore the Pistol and Crowbar since those are the default weapons
+	// In DM, use medium ammo pack model and drop it along with our weapon ala Gun Mettle.
 	if ( TFGameRules()->IsDeathmatch() )
 	{
-		if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
-		{
-			// Use the same values as the ammo pack.
-			CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, pWeapon->GetWeaponID() );
-			pWeapon->SetModel( pWeapon->GetViewModel() );
-			return;
-		}
+		pszWorldModel = "models/items/ammopack_medium.mdl";
 	}
 
 	// Fill the ammo pack with unused player ammo, if out add a minimum amount.
@@ -4359,6 +4319,185 @@ void CTFPlayer::DropAmmoPack( void )
 		// Clean up old ammo packs if they exist in the world
 		AmmoPackCleanUp();	
 	}	
+	pWeapon->SetModel( pWeapon->GetViewModel() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Creates an empty ammo pack to bypass non-working VPhysics on weapons.
+//-----------------------------------------------------------------------------
+void CTFPlayer::DropFakeWeapon( CTFWeaponBase *pWeapon )
+{
+	if ( !pWeapon || 
+		pWeapon->GetTFWpnData().m_bDontDrop ||
+		( pWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.IsCarryingObject() ) )
+	{
+		// Can't drop this weapon
+		return;
+	}
+
+	// We need to find bones on the world model, so switch the weapon to it.
+	const char *pszWorldModel = pWeapon->GetWorldModel();
+	pWeapon->SetModel( pszWorldModel );
+
+	// Find the position and angle of the weapons so the "ammo box" matches.
+	Vector vecPackOrigin;
+	QAngle vecPackAngles;
+	if ( !CalculateAmmoPackPositionAndAngles( pWeapon, vecPackOrigin, vecPackAngles ) )
+		return;
+
+	// Create the ammo pack using custom ammo which defaults to zero.
+	CTFAmmoPack *pAmmoPack = CTFAmmoPack::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, true );
+	Assert( pAmmoPack );
+	if ( pAmmoPack )
+	{
+		// We intentionally don't fill it up here so that the weapon can be picked up to avoid overpopulation but does not grant ammo.
+
+		Vector vecRight, vecUp;
+		AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
+
+		// Calculate the initial impulse on the weapon.
+		Vector vecImpulse( 0.0f, 0.0f, 0.0f );
+		vecImpulse += vecUp * random->RandomFloat( -0.25, 0.25 );
+		vecImpulse += vecRight * random->RandomFloat( -0.25, 0.25 );
+		VectorNormalize( vecImpulse );
+		vecImpulse *= random->RandomFloat( tf_weapon_ragdoll_velocity_min.GetFloat(), tf_weapon_ragdoll_velocity_max.GetFloat() );
+		vecImpulse += GetAbsVelocity();
+
+		// Cap the impulse.
+		float flSpeed = vecImpulse.Length();
+		if ( flSpeed > tf_weapon_ragdoll_maxspeed.GetFloat() )
+		{
+			VectorScale( vecImpulse, tf_weapon_ragdoll_maxspeed.GetFloat() / flSpeed, vecImpulse );
+		}
+
+		if ( pAmmoPack->VPhysicsGetObject() )
+		{
+			// We can probably remove this when the mass on the weapons is correct!
+			pAmmoPack->VPhysicsGetObject()->SetMass( 25.0f );
+			AngularImpulse angImpulse( 0, random->RandomFloat( 0, 100 ), 0 );
+			pAmmoPack->VPhysicsGetObject()->SetVelocityInstantaneous( &vecImpulse, &angImpulse );
+		}
+
+		pAmmoPack->SetInitialVelocity( vecImpulse );
+
+		switch ( GetTeamNumber() )
+		{
+		case TF_TEAM_RED:
+			pAmmoPack->m_nSkin = 0;
+			break;
+		case TF_TEAM_BLUE:
+			pAmmoPack->m_nSkin = 1;
+			break;
+		case TF_TEAM_GREEN:
+			pAmmoPack->m_nSkin = 2;
+			break;
+		case TF_TEAM_YELLOW:
+			pAmmoPack->m_nSkin = 3;
+			break;
+		}
+
+		// Give the ammo pack some health, so that trains can destroy it.
+		pAmmoPack->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+		pAmmoPack->m_takedamage = DAMAGE_YES;
+		pAmmoPack->SetHealth( 900 );
+
+		pAmmoPack->SetBodygroup( 1, 1 );
+
+		// Clean up old ammo packs if they exist in the world
+		AmmoPackCleanUp();
+	}
+	pWeapon->SetModel( pWeapon->GetViewModel() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Creates tf_dropped_weapon based on selected weapon
+//-----------------------------------------------------------------------------
+void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
+{
+	if ( !pWeapon ||
+		pWeapon->GetTFWpnData().m_bDontDrop ||
+		( pWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.IsCarryingObject() ) )
+	{
+		// Can't drop this weapon
+		return;
+	}
+
+	// Don't drop pistol and crowbar in DM since those are default weapons.
+	if ( TFGameRules()->IsDeathmatch() && 
+		( pWeapon->IsWeapon( TF_WEAPON_PISTOL ) || pWeapon->IsWeapon( TF_WEAPON_CROWBAR ) ) )
+		return;
+
+	// We need to find bones on the world model, so switch the weapon to it.
+	const char *pszWorldModel = pWeapon->GetWorldModel();
+	pWeapon->SetModel( pszWorldModel );
+
+	// Find the position and angle of the weapons so the dropped entity matches.
+	Vector vecPackOrigin;
+	QAngle vecPackAngles;
+	if ( !CalculateAmmoPackPositionAndAngles( pWeapon, vecPackOrigin, vecPackAngles ) )
+		return;
+
+	// Create dropped weapon entity.
+	CTFDroppedWeapon *pDroppedWeapon = CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, pWeapon->GetWeaponID() );;
+	Assert( pDroppedWeapon );
+	if ( pDroppedWeapon )
+	{
+		// Don't randomize velocity if we dropped our weapon at will.
+		if ( StateGet() != TF_STATE_ACTIVE )
+		{
+			Vector vecRight, vecUp;
+			AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
+
+			// Calculate the initial impulse on the weapon.
+			Vector vecImpulse( 0.0f, 0.0f, 0.0f );
+			vecImpulse += vecUp * random->RandomFloat( -0.25, 0.25 );
+			vecImpulse += vecRight * random->RandomFloat( -0.25, 0.25 );
+			VectorNormalize( vecImpulse );
+			vecImpulse *= random->RandomFloat( tf_weapon_ragdoll_velocity_min.GetFloat(), tf_weapon_ragdoll_velocity_max.GetFloat() );
+			vecImpulse += GetAbsVelocity();
+
+			// Cap the impulse.
+			float flSpeed = vecImpulse.Length();
+			if ( flSpeed > tf_weapon_ragdoll_maxspeed.GetFloat() )
+			{
+				VectorScale( vecImpulse, tf_weapon_ragdoll_maxspeed.GetFloat() / flSpeed, vecImpulse );
+			}
+
+			if ( pDroppedWeapon->VPhysicsGetObject() )
+			{
+				// We can probably remove this when the mass on the weapons is correct!
+				//pDroppedWeapon->VPhysicsGetObject()->SetMass( 25.0f );
+				AngularImpulse angImpulse( 0, random->RandomFloat( 0, 100 ), 0 );
+				pDroppedWeapon->VPhysicsGetObject()->SetVelocityInstantaneous( &vecImpulse, &angImpulse );
+			}
+		}
+
+		switch ( GetTeamNumber() )
+		{
+		case TF_TEAM_RED:
+			pDroppedWeapon->m_nSkin = 0;
+			break;
+		case TF_TEAM_BLUE:
+			pDroppedWeapon->m_nSkin = 1;
+			break;
+		case TF_TEAM_GREEN:
+			pDroppedWeapon->m_nSkin = 2;
+			break;
+		case TF_TEAM_YELLOW:
+			pDroppedWeapon->m_nSkin = 3;
+			break;
+		}
+
+		// Give the ammo pack some health, so that trains can destroy it.
+		//pDroppedWeapon->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
+		//pDroppedWeapon->m_takedamage = DAMAGE_YES;
+		//pDroppedWeapon->SetHealth( 900 );
+
+		pDroppedWeapon->SetBodygroup( 1, 1 );
+
+		// Clean up old dropped weapons if they exist in the world
+		DroppedWeaponCleanUp();
+	}
 	pWeapon->SetModel( pWeapon->GetViewModel() );
 }
 

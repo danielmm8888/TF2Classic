@@ -48,6 +48,9 @@ public:
 	void	Precache( void );
 	void	Spawn( void );
 
+	CNetworkVar( int, m_iDeflected );
+	CNetworkHandle( CBaseEntity, m_hLauncher );
+
 protected:
 
 	// Networked.
@@ -99,6 +102,9 @@ public:
 
 	void			SetHomingTarget( CBaseEntity *pHomingTarget );
 
+	virtual void	IncremenentDeflected( void );
+	virtual void	SetLauncher( CBaseEntity *pLauncher );
+
 protected:
 
 	void			FlyThink( void );
@@ -110,7 +116,6 @@ protected:
 
 	float					m_flCollideWithTeammatesTime;
 	bool					m_bCollideWithTeammates;
-
 
 	CHandle<CBaseEntity>	m_hEnemy;
 

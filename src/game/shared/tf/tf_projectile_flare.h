@@ -43,16 +43,18 @@ public:
 	virtual CBasePlayer *GetScorer( void );
 	virtual CBasePlayer *GetAssistant( void ) { return NULL; }
 
-	//virtual int		GetWeaponID(void) const			{ return TF_WEAPON_GRENADE_FLARE; }
+	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_FLAREGUN; }
 
 	void	SetScorer( CBaseEntity *pScorer );
 
 	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 	virtual int		GetDamageType();
 
-	float	GetProjectileSpeed( void ) { return 2000.0f; }
+	virtual bool IsDeflectable() { return true; }
+	virtual void Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
 
 	// Overrides.
+	float	GetProjectileSpeed( void ) { return 2000.0f; }
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
 #else
 

@@ -75,6 +75,8 @@ C_BaseObject::C_BaseObject(  )
 	m_YawPreviewState = YAW_PREVIEW_OFF;
 	m_bBuilding = false;
 	m_bPlacing = false;
+	m_bCarried = false;
+	m_bCarryDeploy = false;
 	m_flPercentageConstructed = 0;
 	m_fObjectFlags = 0;
 
@@ -126,6 +128,7 @@ void C_BaseObject::PreDataUpdate( DataUpdateType_t updateType )
 	m_bWasBuilding = m_bBuilding;
 	m_bOldDisabled = m_bDisabled;
 	m_bWasPlacing = m_bPlacing;
+	m_bWasCarried = m_bCarried;
 
 	m_nObjectOldSequence = GetSequence();
 }
@@ -171,7 +174,7 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 		}
 	}
 
-	if ( !IsBuilding() && m_iHealth != m_iOldHealth )
+	if ( ( !IsBuilding() && m_iHealth != m_iOldHealth ) )
 	{
 		// recalc our damage particle state
 		BuildingDamageLevel_t damageLevel = CalculateDamageLevel();
@@ -182,6 +185,15 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 
 			m_damageLevel = damageLevel;
 		}
+	}
+
+	if ( ( !m_bWasCarried && m_bCarried ) ||
+		( m_bWasBuilding && !m_bBuilding ) )
+	{
+		// Force update damage effect when getting picked up or when finishing construction.
+		BuildingDamageLevel_t damageLevel = CalculateDamageLevel();
+		UpdateDamageEffects( m_damageLevel );
+		m_damageLevel = damageLevel;
 	}
 
 	if ( m_iHealth > m_iOldHealth && m_iHealth == m_iMaxHealth )
@@ -214,6 +226,7 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 void C_BaseObject::SetDormant( bool bDormant )
 {
 	BaseClass::SetDormant( bDormant );
+	UpdateDamageEffects( m_damageLevel );
 	//ENTITY_PANEL_ACTIVATE( "analyzed_object", !bDormant );
 }
 

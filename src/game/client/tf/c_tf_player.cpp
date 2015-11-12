@@ -2457,7 +2457,9 @@ void C_TFPlayer::HandleTaunting( void )
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// Clear the taunt slot.
-	if ( !m_bWasTaunting && m_Shared.InCond( TF_COND_TAUNTING ) )
+	if ( !m_bWasTaunting && (
+		m_Shared.InCond( TF_COND_TAUNTING ) ||
+		m_Shared.IsLoser() ) )
 	{
 		m_bWasTaunting = true;
 
@@ -2468,7 +2470,9 @@ void C_TFPlayer::HandleTaunting( void )
 		}
 	}
 
-	if ( m_bWasTaunting && !m_Shared.InCond( TF_COND_TAUNTING ) )
+	if ( m_bWasTaunting && (
+		!m_Shared.InCond( TF_COND_TAUNTING ) &&
+		!m_Shared.IsLoser() ) )
 	{
 		m_bWasTaunting = false;
 
@@ -3693,10 +3697,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		//ResetLatched();
 
 		// Reset the camera.
-		if ( m_bWasTaunting )
-		{
-			TurnOffTauntCam();
-		}
+		HandleTaunting();
 
 		ResetToneMapping(1.0);
 

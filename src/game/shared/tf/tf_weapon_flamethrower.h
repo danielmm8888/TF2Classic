@@ -58,8 +58,8 @@ public:
 	virtual void	SecondaryAttack();
 
 #ifdef GAME_DLL
-	void			ReflectRocket( CTFProjectile_Rocket *pRocket );
-	void			ReflectGrenade( CTFWeaponBaseGrenadeProj *pGrenade );
+	virtual void	DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker, Vector &vecDir );
+	virtual void	DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir );
 #endif
 
 	virtual bool	Lower( void );

@@ -38,9 +38,13 @@ public:
 	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 	virtual int		GetDamageType();
 
+	virtual bool IsDeflectable() { return true; }
+	virtual void Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+
 private:
 	CBaseHandle m_Scorer;
 	CNetworkVar( bool,	m_bCritical );
+	int m_iDeflects;
 };
 
 #endif	//TF_PROJECTILE_ROCKET_H

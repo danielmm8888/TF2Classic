@@ -57,6 +57,9 @@ BEGIN_NETWORK_TABLE( CTFWeaponBaseGrenadeProj, DT_TFWeaponBaseGrenadeProj )
 	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
 	RecvPropQAngles( RECVINFO_NAME( m_angNetworkAngles, m_angRotation ) ),
 
+	RecvPropInt( RECVINFO( m_iDeflected ) ),
+	RecvPropEHandle( RECVINFO( m_hDeflectOwner ) ),
+
 #else
 	SendPropVector( SENDINFO( m_vInitialVelocity ), 20 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/	),
 	SendPropBool( SENDINFO( m_bCritical ) ),
@@ -66,6 +69,9 @@ BEGIN_NETWORK_TABLE( CTFWeaponBaseGrenadeProj, DT_TFWeaponBaseGrenadeProj )
 
 	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_INTEGRAL|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
 	SendPropQAngles	(SENDINFO(m_angRotation), 6, SPROP_CHANGES_OFTEN, SendProxy_Angles ),
+
+	SendPropInt( SENDINFO( m_iDeflected ), 4, SPROP_UNSIGNED ),
+	SendPropEHandle( SENDINFO( m_hDeflectOwner ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -74,6 +80,9 @@ END_NETWORK_TABLE()
 //-----------------------------------------------------------------------------
 CTFWeaponBaseGrenadeProj::CTFWeaponBaseGrenadeProj()
 {
+	m_iDeflected = 0;
+	m_hDeflectOwner = NULL;
+
 #ifndef CLIENT_DLL
 	m_bUseImpactNormal = false;
 	m_vecImpactNormal.Init();
@@ -567,6 +576,47 @@ void CTFWeaponBaseGrenadeProj::RemoveGrenade( bool bBlinkOut )
 			pGlowSprite->SetNextThink( gpGlobals->curtime + 1.0 );
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGrenadeProj::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
+	if ( pPhysicsObject )
+	{
+		Vector vecOldVelocity, vecVelocity;
+
+		pPhysicsObject->GetVelocity( &vecOldVelocity, NULL );
+
+		float flVel = vecOldVelocity.Length();
+
+		vecVelocity = vecDir;
+		vecVelocity *= flVel;
+		AngularImpulse angVelocity( ( 600, random->RandomInt( -1200, 1200 ), 0 ) );
+
+		// Now change grenade's direction.
+		pPhysicsObject->SetVelocityInstantaneous( &vecVelocity, &angVelocity );
+	}
+
+	CBaseCombatCharacter *pBCC = pDeflectedBy->MyCombatCharacterPointer();
+
+	IncremenentDeflected();
+	m_hDeflectOwner = pDeflectedBy;
+	SetThrower( pBCC );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	if ( !TFGameRules()->IsDeathmatch() )
+		m_nSkin = pDeflectedBy->GetTeamNumber() - 2;
+	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Increment deflects counter
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGrenadeProj::IncremenentDeflected( void )
+{
+	m_iDeflected++;
 }
 
 //-----------------------------------------------------------------------------

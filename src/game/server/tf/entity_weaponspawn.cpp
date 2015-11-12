@@ -218,12 +218,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				//pTFPlayer->DropFakeWeapon(pWeapon);
 
 				// Drop a usable weapon
-				Vector vecOrigin;
-				QAngle vecAngles;
-				pTFPlayer->CalculateAmmoPackPositionAndAngles( pWeapon, vecOrigin, vecAngles );
-
-				if ( pWeapon->GetWeaponID() != TF_WEAPON_PISTOL )
-					CTFDroppedWeapon::Create( vecOrigin, vecAngles, pTFPlayer, pWeapon->GetWorldModel(), pWeapon->GetWeaponID() );
+				pTFPlayer->DropWeapon( pWeapon );
 
 				// Check Use button, always replace pistol
 				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )

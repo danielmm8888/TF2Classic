@@ -237,6 +237,7 @@ private:
 	bool			m_bWasPlacing;
 	bool			m_bPlacing;
 	bool			m_bCarried;
+	bool			m_bWasCarried;
 	bool			m_bCarryDeploy;
 	bool			m_bMiniBuilding;
 	bool			m_bDisabled;

@@ -45,6 +45,7 @@
 	#include "team_train_watcher.h"
 	#include "vote_controller.h"
 	#include "tf_voteissues.h"
+	#include "tf_weaponbase_grenadeproj.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -2630,12 +2631,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
-	{
-		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
-		killer_weapon_name = "tf_weapon_flamethrower";
-	}
-	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+	if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
 		// If the inflictor is the killer,  then it must be their current weapon doing the damage
 		if ( pScorer->GetActiveWeapon() )
@@ -2646,6 +2642,53 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	else if ( pInflictor )
 	{
 		killer_weapon_name = STRING( pInflictor->m_iClassname );
+
+		// See if this was a deflect kill.
+		if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
+		{
+			if ( pRocket->m_iDeflected )
+			{
+				switch ( pRocket->GetWeaponID() )
+				{
+				case TF_WEAPON_ROCKETLAUNCHER:
+					killer_weapon_name = "deflect_rocket";
+					break;
+				case TF_WEAPON_FLAREGUN:
+					killer_weapon_name = "deflect_flare";
+					break;
+				}
+			}
+		}
+		else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
+		{
+			if ( pGrenade->m_iDeflected )
+			{
+				switch ( pGrenade->GetWeaponID() )
+				{
+				case TF_WEAPON_GRENADE_PIPEBOMB:
+					killer_weapon_name = "deflect_sticky";
+					break;
+				case TF_WEAPON_GRENADE_DEMOMAN:
+					killer_weapon_name = "deflect_promode";
+					break;
+				}
+			}
+		}
+	}
+
+	// Taunt kills use DamageCustom as well.
+	switch ( info.GetDamageCustom() )
+	{
+	case TF_DMG_CUSTOM_BURNING:
+		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
+		killer_weapon_name = "tf_weapon_flamethrower";
+		break;
+	case TF_DMG_CUSTOM_TELEFRAG:
+		killer_weapon_name = "telefrag";
+		break;
+	case TF_DMG_CUSTOM_BUILDING_CARRIED:
+		killer_weapon_name = "tf_weapon_building_carried_destroyed";
+		break;
 	}
 
 	// strip certain prefixes from inflictor's classname
@@ -2679,18 +2722,10 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 		}
 	}
-
-	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
-	if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
+	else if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
 	{
+		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
-	}
-
-	// Check for telefrag.
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
-	{
-		// TODO: Make a telefrag kill icon. Live TF2 still doesn't have one.
-		killer_weapon_name = "telefrag";
 	}
 
 	return killer_weapon_name;

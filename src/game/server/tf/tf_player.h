@@ -277,6 +277,7 @@ public:
 
 	// Dropping Ammo
 	void DropAmmoPack( void );
+	void DropWeapon( CTFWeaponBase *pWeapon );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
 
 	bool CanDisguise( void );
@@ -415,6 +416,8 @@ public:
 
 	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 
+	virtual bool		IsDeflectable( void ) { return true; }
+
 private:
 
 	int					GetAutoTeam( void );
@@ -450,6 +453,7 @@ private:
 
 	// Ammo pack.
 	void AmmoPackCleanUp( void );
+	void DroppedWeaponCleanUp( void );
 
 	// State.
 	CPlayerStateInfo	*StateLookupInfo( int nState );

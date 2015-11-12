@@ -60,8 +60,8 @@
 	extern ConVar tf2c_muzzlelight;
 #endif
 
-ConVar  tf2c_airblast( "tf2c_airblast", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast function of the Flamethrower" );
-ConVar  tf2c_airblast_players( "tf2c_airblast_players", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast pushing players" );
+ConVar  tf2c_airblast( "tf2c_airblast", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast function of the Flamethrower." );
+ConVar  tf2c_airblast_players( "tf2c_airblast_players", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast pushing players." );
 #ifdef GAME_DLL
 ConVar	tf2c_debug_airblast( "tf2c_debug_airblast", "0", FCVAR_CHEAT, "Visualize airblast box." );
 #endif
@@ -423,92 +423,6 @@ void CTFFlameThrower::PrimaryAttack()
 #endif
 }
 
-#ifdef GAME_DLL
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFFlameThrower::ReflectRocket( CTFProjectile_Rocket *pRocket )
-{
-	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
-	if ( !pOwner )
-		return;
-
-	// Get rocket's position and speed.
-	Vector vecPos = pRocket->GetAbsOrigin();
-	float flVel = pRocket->GetAbsVelocity().Length();
-
-	Vector vecVelocity;
-	QAngle angForward;
-	GetProjectileReflectSetup( pOwner, vecPos, &angForward, false );
-
-	// Now change rocket's direction.
-	pRocket->SetAbsAngles( angForward );
-	AngleVectors( angForward, &vecVelocity );
-	pRocket->SetAbsVelocity( vecVelocity * flVel );
-
-	// And change owner.
-	pRocket->SetOwnerEntity( pOwner );
-	pRocket->ChangeTeam( pOwner->GetTeamNumber() );
-	pRocket->SetScorer( pOwner );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFFlameThrower::ReflectGrenade( CTFWeaponBaseGrenadeProj *pGrenade )
-{
-	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
-	if ( !pOwner )
-		return;
-
-	// Get the grenade's position and speed.
-	Vector vecPos = pGrenade->GetAbsOrigin();
-
-	Vector vecForward, vecRight, vecUp;
-	pOwner->EyeVectors( &vecForward, &vecRight, &vecUp );
-
-	CTFGrenadePipebombProjectile *pGrenadePipe = dynamic_cast<CTFGrenadePipebombProjectile *>( pGrenade );
-
-	if ( !pGrenadePipe || pGrenadePipe->GetType() == TF_GL_MODE_REGULAR )
-	{
-		IPhysicsObject *pPhysicsObject = pGrenade->VPhysicsGetObject();
-		if ( pPhysicsObject )
-		{
-			Vector vecOldVelocity, vecVelocity;
-
-			pPhysicsObject->GetVelocity( &vecOldVelocity, NULL );
-
-			float flVel = vecOldVelocity.Length();
-
-			vecVelocity = ( vecForward * flVel ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
-				( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
-
-			AngularImpulse angVelocity( ( 600, random->RandomInt( -1200, 1200 ), 0 ) );
-
-			// Now change grenade's direction.
-			pPhysicsObject->SetVelocityInstantaneous( &vecVelocity, &angVelocity );
-		}
-	}
-	else if ( pGrenadePipe && pGrenadePipe->GetType() == TF_GL_MODE_REMOTE_DETONATE )
-	{
-		// This is kind of lame.
-		CTakeDamageInfo info( this, this, 100, DMG_BLAST );
-		CalculateExplosiveDamageForce( &info, vecForward, pOwner->Weapon_ShootPosition() );
-		pGrenadePipe->TakeDamage( info );
-	}
-	// And change owner.
-	if ( !pGrenadePipe || pGrenadePipe->m_iType != TF_GL_MODE_REMOTE_DETONATE )
-	{
-		pGrenade->SetThrower( pOwner );
-		pGrenade->ChangeTeam( pOwner->GetTeamNumber() );
-		if ( !TFGameRules()->IsDeathmatch() )
-			pGrenade->m_nSkin = pOwner->GetTeamNumber() - 2;
-	}
-
-	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -544,9 +458,8 @@ void CTFFlameThrower::SecondaryAttack()
 	// TODO: Make airblast particles and sounds.
 
 #if !defined (CLIENT_DLL)
-	QAngle angDir = pOwner->EyeAngles();
 	Vector vecDir;
-	AngleVectors( angDir, &vecDir );
+	pOwner->EyeVectors( &vecDir );
 
 	// Not sure if I did this one correctly, I'm not too good with vectors. (Nicknine)
 	Vector vecOrigin = pOwner->Weapon_ShootPosition() + 80 * 1.5f * vecDir;
@@ -568,68 +481,34 @@ void CTFFlameThrower::SecondaryAttack()
 		if ( pList[i] == pOwner )
 			continue;
 
+		if ( !pList[i]->IsDeflectable() )
+			continue;
+
 		// Make sure we can actually see this entity so we don't hit anything through walls.
 		trace_t tr;
 		UTIL_TraceLine( pOwner->Weapon_ShootPosition(), pList[i]->WorldSpaceCenter(), MASK_SOLID, this, COLLISION_GROUP_DEBRIS, &tr );
 		if ( tr.fraction != 1.0f )
 			continue;
 
+
 		if ( pList[i]->IsPlayer() && pList[i]->IsAlive() )
 		{
-			if ( !tf2c_airblast_players.GetBool() )
-			{
-				continue;
-			}
-
 			CTFPlayer *pTFPlayer = ToTFPlayer( pList[i] );
 
-			if ( ( !pTFPlayer->InSameTeam( pOwner ) || TFGameRules()->IsDeathmatch() ) && pTFPlayer->GetMoveType() == MOVETYPE_WALK )
-			{
-				// Push enemy players.
-				QAngle angPushDir = pOwner->EyeAngles();
-				Vector vecPushDir;
-
-				// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
-				if ( pTFPlayer->GetGroundEntity() != NULL )
-				{
-					angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
-				}
-
-				AngleVectors( angPushDir, &vecPushDir );
-
-				pTFPlayer->SetGroundEntity( NULL );
-				pTFPlayer->ApplyAbsVelocityImpulse( vecPushDir * 500 );
-				//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );
-			}
-			else if ( pTFPlayer->InSameTeam( pOwner ) && pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
-			{
-				// Extinguish teammates.
-				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
-			}
+			DeflectPlayer( pTFPlayer, pOwner, vecDir );
 		}
-		else if ( dynamic_cast<CTFProjectile_Rocket *>( pList[i] ) != NULL )
+		else
 		{
-			CTFProjectile_Rocket *pRocket = static_cast<CTFProjectile_Rocket *>( pList[i] );
+			Vector vecPos = pList[i]->GetAbsOrigin();
+			Vector vecPushDir;
+			QAngle angForward;
+			GetProjectileReflectSetup( GetTFPlayerOwner(), vecPos, &angForward, false );
 
-			if ( !pRocket )
-				continue;
+			AngleVectors( angForward, &vecPushDir );
 
-			ReflectRocket( pRocket );
-		}
-		else if ( dynamic_cast<CTFWeaponBaseGrenadeProj *>( pList[i] ) != NULL )
-		{
-			CTFWeaponBaseGrenadeProj *pGrenade = static_cast<CTFWeaponBaseGrenadeProj *>( pList[i] );
-
-			if ( !pGrenade )
-				continue;
-
-			ReflectGrenade( pGrenade );
+			DeflectEntity( pList[i], pOwner, vecPushDir );
 		}
 	}
-
-	// The main problem with reflecting is that position of projectile is lagged which also causes
-	// them to disappear on client side before actually hitting. I really have no idea how did
-	// live TF2 handle this.
 #endif
 	pOwner->RemoveAmmo( TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType );
 
@@ -639,6 +518,50 @@ void CTFFlameThrower::SecondaryAttack()
 	lagcompensation->FinishLagCompensation( pOwner );
 #endif
 }
+
+#ifdef GAME_DLL
+void CTFFlameThrower::DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker, Vector &vecDir )
+{
+	if ( pEntity->GetTeamNumber() == pAttacker->GetTeamNumber() )
+		return;
+
+	pEntity->Deflected( pAttacker, vecDir );
+}
+
+void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir )
+{
+	if ( !pVictim )
+		return;
+
+	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
+	{
+		// Push enemy players.
+		QAngle angPushDir;
+		VectorAngles( vecDir, angPushDir );
+
+		// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
+		if ( pVictim->GetGroundEntity() != NULL )
+		{
+			angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
+		}
+
+		AngleVectors( angPushDir, &vecDir );
+		VectorNormalize( vecDir );
+
+		pVictim->SetGroundEntity( NULL );
+		pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
+		//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );
+	}
+	else if ( pVictim->InSameTeam( pAttacker ) )
+	{
+		if ( pVictim->m_Shared.InCond( TF_COND_BURNING ) )
+		{
+			// Extinguish teammates.
+			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
+		}
+	}
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 

@@ -718,6 +718,28 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGrenadePipebombProjectile::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	Vector vecPushSrc = pDeflectedBy->WorldSpaceCenter();
+	Vector vecPushDir = GetAbsOrigin() - vecPushSrc;
+	VectorNormalize( vecPushDir );
+
+	if ( GetType() == TF_GL_MODE_REMOTE_DETONATE )
+	{
+		// This is kind of lame.
+		CTakeDamageInfo info( pDeflectedBy, pDeflectedBy, 100, DMG_BLAST );
+		CalculateExplosiveDamageForce( &info, vecPushDir, vecPushSrc );
+		TakeDamage( info );
+	}
+	else
+	{
+		BaseClass::Deflected( pDeflectedBy, vecDir );
+	}
+	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
+}
 
 
 #endif

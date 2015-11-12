@@ -73,6 +73,8 @@ ConVar tf_damage_disablespread("tf_damage_disablespread", "1", FCVAR_NOTIFY | FC
 ConVar sv_showimpacts("sv_showimpacts", "0", FCVAR_REPLICATED, "Shows client (red) and server (blue) bullet impact point (1=both, 2=client-only, 3=server-only)");
 ConVar sv_showplayerhitboxes("sv_showplayerhitboxes", "0", FCVAR_REPLICATED, "Show lag compensated hitboxes for the specified player index whenever a player fires.");
 
+ConVar tf2c_building_hauling( "tf2c_building_hauling", "1", FCVAR_REPLICATED, "Toggle Engineer's building hauling ability." );
+
 #define TF_SPY_STEALTH_BLINKTIME   0.3f
 #define TF_SPY_STEALTH_BLINKSCALE  0.85f
 
@@ -377,6 +379,16 @@ void CTFPlayerShared::OnDataChanged( void )
 		if( pWeapon )
 		{
 			pWeapon->SetModelIndex( pWeapon->GetWorldModelIndex() );
+		}
+	}
+
+	if ( IsLoser() )
+	{
+		C_BaseCombatWeapon *pWeapon = GetActiveWeapon();
+		if ( pWeapon && !pWeapon->IsEffectActive( EF_NODRAW ) )
+		{
+			pWeapon->SetWeaponVisible( false );
+			pWeapon->UpdateVisibility();
 		}
 	}
 }
@@ -2799,6 +2811,19 @@ int CTFPlayer::CanBuild( int iObjectType, int iObjectMode )
 #ifndef CLIENT_DLL
 	CTFPlayerClass *pCls = GetPlayerClass();
 
+	if ( m_Shared.IsCarryingObject() )
+	{
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		if ( pObject && pObject->GetType() == iObjectType && pObject->GetObjectMode() == iObjectMode )
+		{
+			return CB_CAN_BUILD;
+		}
+		else
+		{
+			Assert(0);
+		}
+	}
+
 	if ( pCls && pCls->CanBuildObject( iObjectType ) == false )
 	{
 		return CB_CANNOT_BUILD;
@@ -3026,6 +3051,12 @@ bool CTFPlayer::CanPickupBuilding( CBaseObject *pObject )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::TryToPickupBuilding( void )
 {
+	if ( !tf2c_building_hauling.GetBool() )
+		return false;
+
+	if ( m_Shared.IsLoser() )
+		return false;
+
 	if ( IsActiveTFWeapon( TF_WEAPON_BUILDER ) )
 		return false;
 
