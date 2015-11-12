@@ -119,6 +119,7 @@ void C_ObjectDispenser::SetDormant( bool bDormant )
 {
 	if ( !IsDormant() && bDormant )
 	{
+		m_bPlayingSound = false;
 		StopSound( "Building_Dispenser.Heal" );
 	}
 
@@ -237,9 +238,6 @@ void C_ObjectDispenser::UpdateDamageEffects( BuildingDamageLevel_t damageLevel )
 		ParticleProp()->StopEmission( m_pDamageEffects );
 		m_pDamageEffects = NULL;
 	}
-
-	if ( IsDormant() )
-		return;
 
 	if ( IsPlacing() )
 		return;

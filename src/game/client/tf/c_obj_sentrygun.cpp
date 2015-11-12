@@ -383,9 +383,6 @@ void C_ObjectSentrygun::UpdateDamageEffects( BuildingDamageLevel_t damageLevel )
 		m_pDamageEffects = NULL;
 	}
 
-	if ( IsDormant() )
-		return;
-
 	if ( IsPlacing() )
 		return;
 
