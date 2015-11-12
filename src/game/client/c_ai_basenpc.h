@@ -62,6 +62,7 @@ public:
 	virtual Vector			GetObserverCamOrigin( void );
 
 	virtual void			GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );
+	virtual void			GetTargetIDDataString( wchar_t *sDataString, int iMaxLenInBytes );
 
 	int						GetNumHealers( void ) { return m_nNumHealers; }
 	int						GetMaxBuffedHealth( void );

@@ -445,6 +445,7 @@ void CTargetID::UpdateID( void )
 				C_AI_BaseNPC *pNPC = assert_cast<C_AI_BaseNPC *>( pEnt );
 
 				pNPC->GetTargetIDString( sIDString, sizeof(sIDString) );
+				pNPC->GetTargetIDDataString( sDataString, sizeof(sDataString) );
 				bShowHealth = true;
 				flHealth = pNPC->GetHealth();
 				flMaxHealth = pNPC->GetMaxHealth();

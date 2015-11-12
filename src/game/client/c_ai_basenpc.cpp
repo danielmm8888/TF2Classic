@@ -430,6 +430,14 @@ void C_AI_BaseNPC::GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void C_AI_BaseNPC::GetTargetIDDataString( wchar_t *sDataString, int iMaxLenInBytes )
+{
+	sDataString[0] = '\0';
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void C_AI_BaseNPC::StartBurningSound( void )
 {
 	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();

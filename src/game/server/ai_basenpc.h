@@ -2137,6 +2137,8 @@ public:
 	virtual void		ChangeTeam( int iTeamNum );
 
 public:
+	void	DeathNotice( const CTakeDamageInfo &info );
+
 	// TF2 conditions
 	int		GetCond() const						{ return m_nPlayerCond; }
 	void	SetCond( int nCond )				{ m_nPlayerCond = nCond; }

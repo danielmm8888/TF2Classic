@@ -1185,7 +1185,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 	}
 }
 
-CBaseEntity *FindPlayerStart(const char *pszClassName);
+CBaseEntity *FindPlayerStart( const char *pszClassName );
 
 //-----------------------------------------------------------------------------
 // Purpose: Find a spawn point for the player.
@@ -1226,7 +1226,6 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 		Warning( "PutClientInServer: no %s on level\n", pSpawnPointName );
 
 		// Look for info_player_start
-
 		pSpot = FindPlayerStart( "info_player_start" );
 		if ( pSpot )
 			return pSpot;
@@ -2759,13 +2758,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				//Msg("Range: %.2f - %.2f\n", flMin, flMax );
 				float flRandomVal;
 
-				if (tf_damage_disablespread.GetBool())
+				if ( tf_damage_disablespread.GetBool() )
 				{
 					flRandomVal = flCenter;
 				}
 				else
 				{
-					flRandomVal = RandomFloat(flMin, flMax);
+					flRandomVal = RandomFloat( flMin, flMax );
 				}
 
 				if ( flRandomVal > 0.5 )

@@ -659,51 +659,7 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	// Ragdoll should burn if NPC burned to death.
 	m_bBurningDeath = IsOnFire() || ( info.GetDamageType() & (DMG_BURN | DMG_IGNITE) );
 
-	// Bullseyes shouldn't send death notices.
-	if ( !FClassnameIs( this, "npc_bullseye" ) )
-	{
-		int killer_index = 0;
-
-		// Find the killer & the scorer
-		CAI_BaseNPC *pVictim = this;
-		CBaseEntity *pInflictor = info.GetInflictor();
-		CBaseEntity *pKiller = info.GetAttacker();
-		CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim );
-		CBaseEntity *pAssister =  TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
-
-		// Work out what killed the player, and send a message to all clients about it
-		const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
-
-		if ( pScorer )	// Is the killer a client?
-		{
-			killer_index = pScorer->entindex();
-		}
-		else if ( pKiller && pKiller->IsNPC() )
-		{
-			killer_index = pKiller->entindex();
-		}
-
-		IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
-
-		if ( event )
-		{
-			event->SetInt( "victim_index", pVictim->entindex() );
-			event->SetString( "victim_name", pVictim->GetClassname() );
-			event->SetInt( "victim_team", pVictim->GetTeamNumber() );
-			event->SetInt( "attacker_index", killer_index );
-			event->SetString( "attacker_name", pKiller ? pKiller->GetClassname() : NULL );
-			event->SetInt( "attacker_team", pKiller ? pKiller->GetTeamNumber() : 0 );
-			event->SetInt( "assister_index", pAssister ? pAssister->entindex() : -1 );
-			event->SetString( "assister_name", pAssister ? pAssister->GetClassname() : NULL );
-			event->SetInt( "assister_team", pAssister ? pAssister->GetTeamNumber() : 0 );
-			event->SetString( "weapon", killer_weapon_name );
-			event->SetInt( "damagebits", info.GetDamageType() );
-			event->SetInt( "customkill", info.GetDamageCustom() );
-			event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
-
-			gameeventmanager->FireEvent( event );
-		}
-	}
+	DeathNotice( info );
 #endif
 	
 	//Adrian: Select a death pose to extrapolate the ragdoll's velocity.
@@ -14575,6 +14531,58 @@ void CAI_BaseNPC::ChangeTeam( int iTeamNum )
 	}
 
 	BaseClass::ChangeTeam( iTeamNum );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Send out npc_death event.
+//-----------------------------------------------------------------------------
+void CAI_BaseNPC::DeathNotice( const CTakeDamageInfo &info )
+{
+	// Bullseyes shouldn't send death notices.
+	if ( Classify() == CLASS_BULLSEYE )
+		return;
+
+	int killer_index = 0;
+
+	// Find the killer & the scorer
+	CAI_BaseNPC *pVictim = this;
+	CBaseEntity *pInflictor = info.GetInflictor();
+	CBaseEntity *pKiller = info.GetAttacker();
+	CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim );
+	CBaseEntity *pAssister = TFGameRules()->GetAssister( pVictim, pKiller, pInflictor );
+
+	// Work out what killed the player, and send a message to all clients about it
+	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
+
+	if ( pScorer )	// Is the killer a client?
+	{
+		killer_index = pScorer->entindex();
+	}
+	else if ( pKiller && pKiller->IsNPC() )
+	{
+		killer_index = pKiller->entindex();
+	}
+
+	IGameEvent * event = gameeventmanager->CreateEvent( "npc_death" );
+
+	if ( event )
+	{
+		event->SetInt( "victim_index", pVictim->entindex() );
+		event->SetString( "victim_name", pVictim->GetClassname() );
+		event->SetInt( "victim_team", pVictim->GetTeamNumber() );
+		event->SetInt( "attacker_index", killer_index );
+		event->SetString( "attacker_name", pKiller ? pKiller->GetClassname() : NULL );
+		event->SetInt( "attacker_team", pKiller ? pKiller->GetTeamNumber() : 0 );
+		event->SetInt( "assister_index", pAssister ? pAssister->entindex() : -1 );
+		event->SetString( "assister_name", pAssister ? pAssister->GetClassname() : NULL );
+		event->SetInt( "assister_team", pAssister ? pAssister->GetTeamNumber() : 0 );
+		event->SetString( "weapon", killer_weapon_name );
+		event->SetInt( "damagebits", info.GetDamageType() );
+		event->SetInt( "customkill", info.GetDamageCustom() );
+		event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
+
+		gameeventmanager->FireEvent( event );
+	}
 }
 
 int CAI_BaseNPC::TakeHealth( float flHealth, int bitsDamageType )
