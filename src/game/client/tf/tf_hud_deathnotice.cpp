@@ -93,6 +93,12 @@ void CTFHudDeathNotice::PlayRivalrySounds( int iKillerIndex, int iVictimIndex, i
 	if ( iKillerIndex != iLocalPlayerIndex && iVictimIndex != iLocalPlayerIndex )
 		return;
 
+	// Stop any sounds that are already playing to avoid ear rape in case of
+	// multiple dominations at once.
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Domination" );
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Nemesis" );
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Revenge" );
+
 	const char *pszSoundName = NULL;
 
 	if ( iType == TF_DEATH_DOMINATION )
@@ -168,23 +174,24 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			// mentioning that
 			int iKillerID = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 			int iVictimID = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+			int nDeathFlags = event->GetInt( "death_flags" );
 		
-			if ( event->GetInt( "dominated" ) > 0 )
+			if ( nDeathFlags & TF_DEATH_DOMINATION )
 			{
 				AddAdditionalMsg( iKillerID, iVictimID, "#Msg_Dominating" );
 				PlayRivalrySounds( iKillerID, iVictimID, TF_DEATH_DOMINATION );
 			}
-			if ( event->GetInt( "assister_dominated" ) > 0 && ( iAssisterID > 0 ) )
+			if ( ( nDeathFlags & TF_DEATH_ASSISTER_DOMINATION ) && ( iAssisterID > 0 ) )
 			{
 				AddAdditionalMsg( iAssisterID, iVictimID, "#Msg_Dominating" );
 				PlayRivalrySounds( iAssisterID, iVictimID, TF_DEATH_DOMINATION );
 			}
-			if ( event->GetInt( "revenge" ) > 0 ) 
+			if ( nDeathFlags & TF_DEATH_REVENGE )
 			{
 				AddAdditionalMsg( iKillerID, iVictimID, "#Msg_Revenge" );
 				PlayRivalrySounds( iKillerID, iVictimID, TF_DEATH_REVENGE );
 			}
-			if ( event->GetInt( "assister_revenge" ) > 0 && ( iAssisterID > 0 ) ) 
+			if ( ( nDeathFlags & TF_DEATH_ASSISTER_REVENGE ) && ( iAssisterID > 0 ) )
 			{
 				AddAdditionalMsg( iAssisterID, iVictimID, "#Msg_Revenge" );
 				PlayRivalrySounds( iAssisterID, iVictimID, TF_DEATH_REVENGE );
