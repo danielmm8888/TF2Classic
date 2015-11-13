@@ -640,6 +640,7 @@ public:
 	virtual void	InputSetBlueTimer( inputdata_t &inputdata );
 	virtual void	InputSetRedTimer( inputdata_t &inputdata );
 	virtual void	InputRoundSpawn( inputdata_t &inputdata );
+	virtual void	InputRoundActivate( inputdata_t &inputdata );
 
 private:
 	int m_iTimerLength;
@@ -658,6 +659,7 @@ BEGIN_DATADESC( CKothLogic )
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetBlueTimer", InputSetBlueTimer ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetRedTimer", InputSetRedTimer ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "RoundSpawn", InputRoundSpawn ),
+	DEFINE_INPUTFUNC( FIELD_VOID, "RoundActivate", InputRoundActivate ),
 
 END_DATADESC()
 
@@ -675,16 +677,15 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 
 	if ( TFGameRules() )
 	{
-		sVariant.SetInt( TFGameRules()->GetTimeLeft() );
+		sVariant.SetInt( m_iTimerLength );
 
-		TFGameRules()->SetBlueKothRoundTimer( (CTeamRoundTimer*)CBaseEntity::Create("team_round_timer", vec3_origin, vec3_angle) );
+		TFGameRules()->SetBlueKothRoundTimer( (CTeamRoundTimer*)CBaseEntity::Create( "team_round_timer", vec3_origin, vec3_angle ) );
 
 		if ( TFGameRules()->GetBlueKothRoundTimer() )
 		{
 			TFGameRules()->GetBlueKothRoundTimer()->SetName( MAKE_STRING( "zz_blue_koth_timer" ) );
 			TFGameRules()->GetBlueKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetBlueKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
-			TFGameRules()->GetBlueKothRoundTimer()->SetTimeRemaining(m_iTimerLength); 
 			TFGameRules()->GetBlueKothRoundTimer()->ChangeTeam( TF_TEAM_BLUE );
 		}
 
@@ -695,9 +696,25 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 			TFGameRules()->GetRedKothRoundTimer()->SetName( MAKE_STRING( "zz_red_koth_timer" ) );
 			TFGameRules()->GetRedKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetRedKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
-			TFGameRules()->GetRedKothRoundTimer()->SetTimeRemaining( m_iTimerLength );
 			TFGameRules()->GetRedKothRoundTimer()->ChangeTeam( TF_TEAM_RED );
 		}
+	}
+}
+
+void CKothLogic::InputRoundActivate( inputdata_t &inputdata )
+{
+	CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
+	if ( !pMaster )
+		return;
+
+	for ( int i = 0; i < pMaster->GetNumPoints(); i++ )
+	{
+		CTeamControlPoint *pPoint = pMaster->GetControlPoint( i );
+
+		variant_t sVariant;
+		sVariant.SetInt( m_iUnlockPoint );
+		pPoint->AcceptInput( "SetLocked", NULL, NULL, sVariant, 0 );
+		pPoint->AcceptInput( "SetUnlockTime", NULL, NULL, sVariant, 0 );
 	}
 }
 
@@ -3692,8 +3709,16 @@ int CTFGameRules::GetFarthestOwnedControlPoint( int iTeam, bool bWithSpawnpoints
 //-----------------------------------------------------------------------------
 bool CTFGameRules::TeamMayCapturePoint( int iTeam, int iPointIndex ) 
 { 
+	// Is point capturing allowed at all?
+	if ( !PointsMayBeCaptured() )
+		return false;
+
+	// If the point is explicitly locked it can't be capped.
+	if ( ObjectiveResource()->GetCPLocked( iPointIndex ) )
+		return false;
+
 	if ( !tf_caplinear.GetBool() )
-		return true; 
+		return true;
 
 	// Any previous points necessary?
 	int iPointNeeded = ObjectiveResource()->GetPreviousPointForPoint( iPointIndex, iTeam, 0 );
