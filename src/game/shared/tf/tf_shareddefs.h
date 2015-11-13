@@ -1013,10 +1013,11 @@ typedef enum
 } HudNotification_t;
 
 // Unused
-// These are all wrong, but they're unused and we don't know the proper values so we'll just wing it.
+#define TF_DEATH_FIRST_BLOOD	0x0010
 #define TF_DEATH_FEIGN_DEATH	0x0020
-#define TF_DEATH_AUSTRALIUM		0x0004 
-#define TF_DEATH_PURGATORY		0x0001
+#define TF_DEATH_PURGATORY		0x0100
+#define TF_DEATH_AUSTRALIUM		0x0400
+
 #define HUD_ALERT_SCRAMBLE_TEAMS 0
 
 
