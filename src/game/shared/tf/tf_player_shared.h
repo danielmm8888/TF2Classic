@@ -107,6 +107,8 @@ public:
 	void	ConditionThink( void );
 	float	GetConditionDuration( int nCond );
 
+	bool	IsCritBoosted( void );
+
 	void	ConditionGameRulesThink( void );
 
 	void	InvisibilityThink( void );
@@ -120,7 +122,7 @@ public:
 	virtual void OnDataChanged( void );
 
 	// check the newly networked conditions for changes
-	void	UpdateConditions( void );
+	void	SyncConditions( int nCond, int nOldCond, int nUnused, int iOffset );
 #endif
 
 	void	Disguise( int nTeam, int nClass );
@@ -224,8 +226,8 @@ public:
 	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
 	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
 
-	int		GetTeleporterEffectColor( void ) { return m_iTeleporterEffectColor; }
-	void	SetTeleporterEffectColor( int iTeam ) { m_iTeleporterEffectColor = iTeam; }
+	int		GetTeleporterEffectColor( void ) { return m_nTeamTeleporterUsed; }
+	void	SetTeleporterEffectColor( int iTeam ) { m_nTeamTeleporterUsed = iTeam; }
 #ifdef CLIENT_DLL
 	bool	ShouldShowRecentlyTeleported( void );
 #endif
@@ -257,6 +259,10 @@ private:
 
 	float GetCritMult( void );
 
+#ifdef CLIENT_DLL
+	void UpdateCritBoostEffect( bool bShow );
+#endif
+
 #ifdef GAME_DLL
 	void  UpdateCritMult( void );
 	void  RecordDamageEvent( const CTakeDamageInfo &info, bool bKill );
@@ -276,6 +282,10 @@ private:
 	// Vars that are networked.
 	CNetworkVar( int, m_nPlayerState );			// Player state.
 	CNetworkVar( int, m_nPlayerCond );			// Player condition flags.
+	// Ugh...
+	CNetworkVar( int, m_nPlayerCondEx );
+	CNetworkVar( int, m_nPlayerCondEx2 );
+	CNetworkVar( int, m_nPlayerCondEx3 );
 	CNetworkArray( float, m_flCondExpireTimeLeft, TF_COND_LAST ); // Time until each condition expires
 
 //TFTODO: What if the player we're disguised as leaves the server?
@@ -354,7 +364,7 @@ private:
 	CNetworkHandle( CBaseObject, m_hCarriedObject );
 	CNetworkVar( bool, m_bCarryingObject );
 
-	CNetworkVar( int, m_iTeleporterEffectColor );
+	CNetworkVar( int, m_nTeamTeleporterUsed );
 
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
@@ -366,11 +376,19 @@ private:
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
-	int	m_nOldConditions;
+	EHANDLE m_hCritEffectHost;
+
 	int	m_nOldDisguiseClass;
 	int m_nOldDisguiseTeam;
 
 	int m_iOldDisguiseWeaponID;
+
+	int	m_nOldConditions;
+	int m_nOldConditionsEx;
+	int m_nOldConditionsEx2;
+	int m_nOldConditionsEx3;
+
+	bool m_bWasCritBoosted;
 #endif
 };			   
 

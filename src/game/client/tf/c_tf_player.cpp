@@ -1114,30 +1114,33 @@ public:
 			Hype Mode: 50 2 50
 		*/
 
-		if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED) )
+		if ( pPlayer && pPlayer->m_Shared.IsCritBoosted() )
 		{
-			switch ( pPlayer->GetTeamNumber() )
+			if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 			{
-			case TF_TEAM_RED:
-				vecColor = Vector(94, 8, 5);
-				break;
-			case TF_TEAM_BLUE:
-				vecColor = Vector(6, 21, 80);
-				break;
-			case TF_TEAM_GREEN:
-				vecColor = Vector(1, 28, 9);
-				break;
-			case TF_TEAM_YELLOW:
-				vecColor = Vector(28, 28, 9);
-				break;
+				Vector critColor = pPlayer->m_vecPlayerColor;
+				critColor *= 255;
+				critColor *= 0.30;
+				vecColor = critColor;
 			}
-		}
-		else if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE) )
-		{
-			Vector critColor = pPlayer->m_vecPlayerColor;
-			critColor *= 255;
-			critColor *= 0.30;
-			vecColor = critColor;
+			else
+			{
+				switch ( pPlayer->GetTeamNumber() )
+				{
+				case TF_TEAM_RED:
+					vecColor = Vector( 94, 8, 5 );
+					break;
+				case TF_TEAM_BLUE:
+					vecColor = Vector( 6, 21, 80 );
+					break;
+				case TF_TEAM_GREEN:
+					vecColor = Vector( 1, 28, 9 );
+					break;
+				case TF_TEAM_YELLOW:
+					vecColor = Vector( 28, 28, 9 );
+					break;
+				}
+			}
 		}
 
 		m_pResult->SetVecValue( vecColor.Base(), 3 );

@@ -851,15 +851,8 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		m_iCurrentSeed = iSeed;
 		RandomSeed( m_iCurrentSeed );
 	}
-	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber() ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if  (pPlayer->m_Shared.InCond( TF_COND_POWERUP_CRITDAMAGE ) )
+
+	if ( pPlayer->m_Shared.IsCritBoosted() )
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
