@@ -376,6 +376,8 @@ private:
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
+	EHANDLE m_hCritEffectHost;
+
 	int	m_nOldDisguiseClass;
 	int m_nOldDisguiseTeam;
 

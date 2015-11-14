@@ -2364,41 +2364,57 @@ float CTFPlayerShared::GetCritMult( void )
 #ifdef CLIENT_DLL
 void CTFPlayerShared::UpdateCritBoostEffect( bool bShow )
 {
+	if ( !m_hCritEffectHost.Get() )
+	{
+		if ( m_pOuter->IsLocalPlayer() )
+		{
+			m_hCritEffectHost = m_pOuter->GetViewModel();
+		}
+		else
+		{
+			m_hCritEffectHost = m_pOuter->GetActiveWeapon();
+		}
+	}
+
 	if ( bShow && IsCritBoosted() )
 	{
-		if ( m_pOuter->GetRenderedWeaponModel() )
-			m_pOuter->GetRenderedWeaponModel()->ParticleProp()->StopEmission( false, true, false );
+		if ( m_hCritEffectHost.Get() )
+			m_hCritEffectHost->ParticleProp()->StopEmission();
 
 		m_pOuter->StopSound( "Weapon_General.CritPower" );
 
-		char *pEffectName = NULL;
-		char pEffectNameTemp[128];
-		C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
+		if ( m_hCritEffectHost.Get() )
+		{
+			char *pEffectName = NULL;
+			char pEffectNameTemp[128];
+			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
 
-		Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "critgun_weaponmodel_%s", pTeam->Get_Name() );
-		pEffectName = pEffectNameTemp;
+			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "critgun_weaponmodel_%s", pTeam->Get_Name() );
+			pEffectName = pEffectNameTemp;
 
-		if ( TFGameRules()->IsDeathmatch() )
-			pEffectName = "critgun_weaponmodel_dm";
+			if ( TFGameRules()->IsDeathmatch() )
+				pEffectName = "critgun_weaponmodel_dm";
 
-		CNewParticleEffect *pCritParticle = m_pOuter->GetRenderedWeaponModel()->ParticleProp()->Create( pEffectName, PATTACH_ROOTBONE_FOLLOW );
+			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
 
-		if ( TFGameRules()->IsDeathmatch() )
-			SetParticleToMercColor( pCritParticle );
+			if ( TFGameRules()->IsDeathmatch() )
+				SetParticleToMercColor( pCritParticle );
 
-		Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "%s_glow", pEffectName );
-		pCritParticle = m_pOuter->GetRenderedWeaponModel()->ParticleProp()->Create( pEffectNameTemp, PATTACH_ROOTBONE_FOLLOW );
+			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "%s_glow", pEffectName );
+			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectNameTemp, PATTACH_ABSORIGIN_FOLLOW );
 
-		if ( TFGameRules()->IsDeathmatch() )
-			SetParticleToMercColor( pCritParticle );
+
+			if ( TFGameRules()->IsDeathmatch() )
+				SetParticleToMercColor( pCritParticle );
+		}
 
 		CLocalPlayerFilter filter;
 		m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_General.CritPower" );
 	}
 	else
 	{
-		if ( m_pOuter->GetRenderedWeaponModel() )
-			m_pOuter->GetRenderedWeaponModel()->ParticleProp()->StopEmission( false, true, false );
+		if ( m_hCritEffectHost.Get() )
+			m_hCritEffectHost->ParticleProp()->StopEmission();
 
 		m_pOuter->StopSound( "Weapon_General.CritPower" );
 	}
