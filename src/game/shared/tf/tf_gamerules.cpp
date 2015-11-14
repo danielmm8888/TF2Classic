@@ -46,6 +46,7 @@
 	#include "vote_controller.h"
 	#include "tf_voteissues.h"
 	#include "tf_weaponbase_grenadeproj.h"
+	#include "eventqueue.h"
 #endif
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -601,29 +602,68 @@ public:
 	DECLARE_CLASS( CArenaLogic, CBaseEntity );
 	DECLARE_DATADESC();
 
-	void	Spawn( void );
+	CArenaLogic();
 
-private:
-	float			m_iCapEnableDelay;
+	void	Spawn( void );
+	void	ArenaLogicThink( void );
 
 	COutputEvent	m_OnArenaRoundStart;
+
+private:
+	float			m_flCapEnableDelay;
+	bool			m_bCapUnlocked;
+
 	COutputEvent	m_OnCapEnabled;
 };
 
 BEGIN_DATADESC( CArenaLogic )
 
-	DEFINE_KEYFIELD( m_iCapEnableDelay, FIELD_FLOAT, "CapEnableDelay" ),
+	DEFINE_KEYFIELD( m_flCapEnableDelay, FIELD_FLOAT, "CapEnableDelay" ),
 
+	// Outputs
 	DEFINE_OUTPUT(	m_OnArenaRoundStart, "OnArenaRoundStart" ),
 	DEFINE_OUTPUT(	m_OnCapEnabled, "OnCapEnabled" ),
+
+	DEFINE_THINKFUNC( ArenaLogicThink ),
 
 END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( tf_logic_arena, CArenaLogic );
 
-void CArenaLogic::Spawn(void)
+CArenaLogic::CArenaLogic()
+{
+	m_flCapEnableDelay = 0.0f;
+	m_bCapUnlocked = false;
+}
+
+void CArenaLogic::Spawn( void )
 {
 	BaseClass::Spawn();
+#if 0
+	SetThink( &CArenaLogic::ArenaLogicThink );
+	SetNextThink( gpGlobals->curtime );
+#endif
+}
+
+void CArenaLogic::ArenaLogicThink( void )
+{
+	// Live TF2 checks m_fCapEnableTime from TFGameRules here.
+#if 0
+	SetNextThink( gpGlobals->curtime + 0.1 );
+
+	if ( TFGameRules()->State_Get() == GR_STATE_STALEMATE )
+	{
+		if ( ObjectiveResource()->GetCPLocked( m_iCapIndex ) )
+		{
+			m_bCapUnlocked = false;
+		}
+		else if ( !m_bCapUnlocked )
+		{
+			m_bCapUnlocked = true;
+			m_OnCapEnabled.FireOutput( this, this );
+		}
+	}
+#endif
 }
 
 
@@ -714,7 +754,7 @@ void CKothLogic::InputRoundActivate( inputdata_t &inputdata )
 		variant_t sVariant;
 		sVariant.SetInt( m_iUnlockPoint );
 		pPoint->AcceptInput( "SetLocked", NULL, NULL, sVariant, 0 );
-		pPoint->AcceptInput( "SetUnlockTime", NULL, NULL, sVariant, 0 );
+		g_EventQueue.AddEvent( pPoint, "SetUnlockTime", sVariant, 0.1, NULL, NULL );
 	}
 }
 
@@ -1425,17 +1465,23 @@ void CTFGameRules::SetupOnStalemateStart( void )
 
 	if ( TFGameRules()->IsInArenaMode() )
 	{
-		IGameEvent *event = gameeventmanager->CreateEvent( "arena_round_start" );
-		if ( event )
+		CArenaLogic *pArena = dynamic_cast<CArenaLogic *>( gEntList.FindEntityByClassname( NULL, "tf_logic_arena" ) );
+		if ( pArena )
 		{
-			gameeventmanager->FireEvent( event );
-		}
+			pArena->m_OnArenaRoundStart.FireOutput( pArena, pArena );
 
-		for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
-		{
-			BroadcastSound( i, "Announcer.AM_RoundStartRandom" );
-		}
+			IGameEvent *event = gameeventmanager->CreateEvent( "arena_round_start" );
+			if ( event )
+			{
+				gameeventmanager->FireEvent( event );
+			}
 
+			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
+			{
+				BroadcastSound( i, "Announcer.AM_RoundStartRandom" );
+			}
+
+		}
 		return;
 	}
 
@@ -2843,6 +2889,42 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		killer_ID = pScorer->GetUserID();
 	}
 
+	int iDeathFlags = pTFPlayerVictim->GetDeathFlags();
+
+	if ( IsInArenaMode() && !m_bFirstBlood && pScorer && pScorer != pTFPlayerVictim )
+	{
+		m_bFirstBlood = true;
+		float flElapsedTime = gpGlobals->curtime - m_flRoundStartTime;
+
+		if ( flElapsedTime <= 20.0 )
+		{
+			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
+			{
+				BroadcastSound( i, "Announcer.AM_FirstBloodFast" );
+			}
+		}
+		else if ( flElapsedTime < 50.0 )
+		{
+			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
+			{
+				BroadcastSound( i, "Announcer.AM_FirstBloodRandom" );
+			}
+		}
+		else
+		{
+			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
+			{
+				BroadcastSound( i, "Announcer.AM_FirstBloodFinally" );
+			}
+		}
+
+		iDeathFlags |= TF_DEATH_FIRST_BLOOD;
+		ToTFPlayer( pScorer )->m_Shared.AddCond( TF_COND_CRITBOOSTED_FIRST_BLOOD, 5.0f );
+	}
+	// Feign death, purgatory death, australium death etc are all processed here.
+
+	pTFPlayerVictim->SetDeathFlags( iDeathFlags );
+
 	IGameEvent * event = gameeventmanager->CreateEvent( "player_death" );
 
 	if ( event )
@@ -2855,6 +2937,8 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );
 		event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
+		event->SetInt( "death_flags", pTFPlayerVictim->GetDeathFlags() );
+#if 0
 		if ( pTFPlayerVictim->GetDeathFlags() & TF_DEATH_DOMINATION )
 		{
 			event->SetInt( "dominated", 1 );
@@ -2871,40 +2955,10 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		{
 			event->SetInt( "assister_revenge", 1 );
 		}
+#endif
 
 		gameeventmanager->FireEvent( event );
 	}
-
-	if ( IsInArenaMode() && !m_bFirstBlood && ToTFPlayer( pKiller ) && ToTFPlayer( pKiller ) != pTFPlayerVictim )
-	{
-		m_bFirstBlood = true;
-		float flElapsedTime = gpGlobals->curtime - m_flRoundStartTime;
-
-		if ( flElapsedTime <= 20.0 )
-		{
-			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
-			{
-				BroadcastSound( i, "Announcer.AM_FirstBloodFast" );
-			}
-		}
-		else if ( flElapsedTime <= 50.0 )
-		{
-			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
-			{
-				BroadcastSound( i, "Announcer.AM_FirstBloodRandom" );
-			}
-		}
-		else
-		{
-			for ( int i = FIRST_GAME_TEAM; i < GetNumberOfTeams(); i++ )
-			{
-				BroadcastSound( i, "Announcer.AM_FirstBloodFinally" );
-			}
-		}
-
-		ToTFPlayer( pKiller )->m_Shared.AddCond( TF_COND_CRITBOOSTED );
-	}
-
 }
 
 void CTFGameRules::ClientDisconnected( edict_t *pClient )
@@ -3475,6 +3529,10 @@ void CTFGameRules::InternalHandleTeamWin( int iWinningTeam )
 					{
 						pPlayer->DropFlag();
 					}
+				}
+				else
+				{
+					pPlayer->m_Shared.AddCond( TF_COND_CRITBOOSTED_BONUS_TIME );
 				}
 
 				pPlayer->TeamFortress_SetSpeed();

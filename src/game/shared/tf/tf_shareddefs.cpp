@@ -709,6 +709,21 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	return ( iClass == TF_CLASS_ENGINEER );
 }
 
+int ConditionExpiresFast( int nCond )
+{
+	// Damaging conds
+	if ( nCond == TF_COND_BURNING ||
+		nCond == TF_COND_BLEEDING )
+		return true;
+
+	// Liquids
+	if ( nCond == TF_COND_URINE ||
+		nCond == TF_COND_MAD_MILK )
+		return true;
+
+	return false;
+}
+
 float g_flTeleporterRechargeTimes[] =
 {
 	10.0,
