@@ -540,6 +540,11 @@ bool CTFPlayerAnimState::HandleMoving( Activity &idealActivity )
 		m_flHoldDeployedPoseUntilTime = 0.0;
 	}
 
+	if ( m_pTFPlayer->m_Shared.IsLoser() )
+	{
+		return BaseClass::HandleMoving( idealActivity );
+	}
+
 	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIMING ) ) 
 	{
 		if ( flSpeed > MOVING_MINIMUM_SPEED )
@@ -573,7 +578,7 @@ bool CTFPlayerAnimState::HandleDucking( Activity &idealActivity )
 {
 	if (GetBasePlayer()->GetFlags() & FL_DUCKING)
 	{
-		if ( GetOuterXYSpeed() < MOVING_MINIMUM_SPEED )
+		if ( GetOuterXYSpeed() < MOVING_MINIMUM_SPEED || m_pTFPlayer->m_Shared.IsLoser() )
 		{
 			idealActivity = ACT_MP_CROUCH_IDLE;		
 			if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIMING ) || m_flHoldDeployedPoseUntilTime > gpGlobals->curtime )

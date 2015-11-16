@@ -1123,7 +1123,9 @@ public:
 				critColor *= 0.30;
 				vecColor = critColor;
 			}
-			else
+			else if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ||
+				pPlayer->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ||
+				pPlayer->GetTeamNumber() == pPlayer->m_Shared.GetDisguiseTeam() )
 			{
 				switch ( pPlayer->GetTeamNumber() )
 				{
@@ -1734,13 +1736,18 @@ void C_TFPlayer::SetDormant( bool bDormant )
 	// If I'm burning, stop the burning sounds
 	if ( !IsDormant() && bDormant )
 	{
-		if ( m_pBurningSound) 
+		if ( m_pBurningSound ) 
 		{
 			StopBurningSound();
 		}
 		if ( m_bIsDisplayingNemesisIcon )
 		{
 			ShowNemesisIcon( false );
+		}
+		// Kill crit effects.
+		if ( m_Shared.IsCritBoosted() )
+		{
+			m_Shared.UpdateCritBoostEffect( true );
 		}
 	}
 
