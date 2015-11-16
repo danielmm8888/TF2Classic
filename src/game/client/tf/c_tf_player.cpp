@@ -1114,10 +1114,7 @@ public:
 			Hype Mode: 50 2 50
 		*/
 
-		if ( pPlayer && pPlayer->m_Shared.IsCritBoosted() &&
-			( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ||
-			pPlayer->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ||
-			pPlayer->GetTeamNumber() == pPlayer->m_Shared.GetDisguiseTeam() ) )
+		if ( pPlayer && pPlayer->m_Shared.IsCritBoosted() )
 		{
 			if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 			{
@@ -1126,7 +1123,9 @@ public:
 				critColor *= 0.30;
 				vecColor = critColor;
 			}
-			else
+			else if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ||
+				pPlayer->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ||
+				pPlayer->GetTeamNumber() == pPlayer->m_Shared.GetDisguiseTeam() )
 			{
 				switch ( pPlayer->GetTeamNumber() )
 				{
