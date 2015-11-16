@@ -260,7 +260,7 @@ private:
 	float GetCritMult( void );
 
 #ifdef CLIENT_DLL
-	void UpdateCritBoostEffect( bool bShow );
+	void UpdateCritBoostEffect( bool bForceHide );
 #endif
 
 #ifdef GAME_DLL
@@ -377,6 +377,7 @@ private:
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
 	EHANDLE m_hCritEffectHost;
+	CSoundPatch *m_pCritSound;
 
 	int	m_nOldDisguiseClass;
 	int m_nOldDisguiseTeam;

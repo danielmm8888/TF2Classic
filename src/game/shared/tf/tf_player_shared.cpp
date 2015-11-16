@@ -247,6 +247,7 @@ CTFPlayerShared::CTFPlayerShared()
 #ifdef CLIENT_DLL
 	m_iDisguiseWeaponModelIndex = -1;
 	m_pDisguiseWeaponInfo = NULL;
+	m_pCritSound = NULL;
 #endif
 }
 
@@ -486,7 +487,7 @@ void CTFPlayerShared::OnDataChanged( void )
 
 	if ( m_bWasCritBoosted != IsCritBoosted() )
 	{
-		UpdateCritBoostEffect( IsCritBoosted() );
+		UpdateCritBoostEffect( false );
 	}
 
 	if ( m_nOldDisguiseClass != GetDisguiseClass() || m_nOldDisguiseTeam != GetDisguiseTeam() )
@@ -1134,8 +1135,7 @@ void CTFPlayerShared::OnDisguiseChanged( void )
 	// recalc disguise model index
 	//RecalcDisguiseWeapon();
 	m_pOuter->UpdateRecentlyTeleportedEffect();
-	bool bShowCrits = !InCond( TF_COND_DISGUISED ) || GetDisguiseTeam() == m_pOuter->GetTeamNumber();
-	UpdateCritBoostEffect( bShowCrits );
+	UpdateCritBoostEffect( false );
 }
 #endif
 
@@ -1422,7 +1422,7 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 {
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_UnCloak" );
-	UpdateCritBoostEffect( true );
+	UpdateCritBoostEffect( false );
 	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 
@@ -1477,7 +1477,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	// They may have called for medic and created a visible medic bubble
 	m_pOuter->ParticleProp()->StopParticlesNamed( "speech_mediccall", true );
 
-	UpdateCritBoostEffect( true );
+	UpdateCritBoostEffect( false );
 
 #else
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
@@ -2314,13 +2314,25 @@ bool CTFPlayerShared::IsAlly( CBaseEntity *pEntity )
 	return ( pEntity->GetTeamNumber() == m_pOuter->GetTeamNumber() );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Used to determine if player should do loser animations.
+//-----------------------------------------------------------------------------
 bool CTFPlayerShared::IsLoser( void )
 {
 	if ( TFGameRules() && TFGameRules()->State_Get() == GR_STATE_TEAM_WIN )
 	{
 		int iWinner = TFGameRules()->GetWinningTeam();
-		if ( iWinner != TEAM_UNASSIGNED && iWinner != m_pOuter->GetTeamNumber() )
+		if ( iWinner != m_pOuter->GetTeamNumber() )
+		{
+			if ( m_pOuter->IsPlayerClass( TF_CLASS_SPY ) )
+			{
+				if ( InCond( TF_COND_DISGUISED ) )
+				{
+					return ( iWinner != GetDisguiseTeam() );
+				}
+			}
 			return true;
+		}
 	}
 	return false;
 }
@@ -2362,10 +2374,38 @@ float CTFPlayerShared::GetCritMult( void )
 }
 
 #ifdef CLIENT_DLL
-void CTFPlayerShared::UpdateCritBoostEffect( bool bShow )
+void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 {
-	if ( !m_hCritEffectHost.Get() )
+	bool bShouldShow = !bForceHide;
+
+	if ( bShouldShow )
 	{
+		if ( !IsCritBoosted() )
+		{
+			bShouldShow = false;
+		}
+		else if ( InCond( TF_COND_STEALTHED ) )
+		{
+			bShouldShow = false;
+		}
+		else if ( InCond( TF_COND_DISGUISED ) &&
+			!m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) &&
+			m_pOuter->GetTeamNumber() != GetDisguiseTeam() )
+		{
+			// Don't show crit effect for disguised enemy spies unless they're disguised
+			// as their own team.
+			bShouldShow = false;
+		}
+	}
+
+	if ( bShouldShow )
+	{
+		if ( m_hCritEffectHost.Get() )
+		{
+			m_hCritEffectHost->ParticleProp()->StopEmission();
+			m_hCritEffectHost = NULL;
+		}
+
 		if ( m_pOuter->IsLocalPlayer() )
 		{
 			m_hCritEffectHost = m_pOuter->GetViewModel();
@@ -2374,17 +2414,11 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bShow )
 		{
 			m_hCritEffectHost = m_pOuter->GetActiveWeapon();
 		}
-	}
-
-	if ( bShow && IsCritBoosted() )
-	{
-		if ( m_hCritEffectHost.Get() )
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-
-		m_pOuter->StopSound( "Weapon_General.CritPower" );
 
 		if ( m_hCritEffectHost.Get() )
 		{
+			m_hCritEffectHost->ParticleProp()->StopEmission();
+
 			char *pEffectName = NULL;
 			char pEffectNameTemp[128];
 			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
@@ -2408,15 +2442,28 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bShow )
 				SetParticleToMercColor( pCritParticle );
 		}
 
-		CLocalPlayerFilter filter;
-		m_pOuter->EmitSound( filter, m_pOuter->entindex(), "Weapon_General.CritPower" );
+		CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+
+		if ( !m_pCritSound )
+		{
+			CLocalPlayerFilter filter;
+			m_pCritSound = controller.SoundCreate( filter, m_pOuter->entindex(), "Weapon_General.CritPower" );
+			controller.Play( m_pCritSound, 1.0, 100 );
+		}
 	}
 	else
 	{
 		if ( m_hCritEffectHost.Get() )
+		{
 			m_hCritEffectHost->ParticleProp()->StopEmission();
+			m_hCritEffectHost = NULL;
+		}
 
-		m_pOuter->StopSound( "Weapon_General.CritPower" );
+		if ( m_pCritSound )
+		{
+			CSoundEnvelopeController::GetController().SoundDestroy( m_pCritSound );
+			m_pCritSound = NULL;
+		}
 	}
 }
 #endif
