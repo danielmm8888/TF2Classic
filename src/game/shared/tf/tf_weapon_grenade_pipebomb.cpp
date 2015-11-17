@@ -62,7 +62,6 @@ RecvPropEHandle( RECVINFO( m_hLauncher ) ),
 SendPropBool( SENDINFO( m_bTouched ) ),
 SendPropInt( SENDINFO( m_iType ), 2 ),
 SendPropEHandle( SENDINFO( m_hLauncher ) ),
-
 #endif
 END_NETWORK_TABLE()
 

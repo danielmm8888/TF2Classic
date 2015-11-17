@@ -156,6 +156,7 @@ public:
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 
+	void	UpdateCritBoostEffect( bool bForceHide );
 	bool	SetParticleToMercColor( CNewParticleEffect *pParticle );
 #endif
 
@@ -169,7 +170,7 @@ public:
 #endif
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
-	void	Burn( CTFPlayer *pPlayer );
+	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon );
 
 	// Weapons.
 	CTFWeaponBase *GetActiveTFWeapon() const;
@@ -259,10 +260,6 @@ private:
 
 	float GetCritMult( void );
 
-#ifdef CLIENT_DLL
-	void UpdateCritBoostEffect( bool bForceHide );
-#endif
-
 #ifdef GAME_DLL
 	void  UpdateCritMult( void );
 	void  RecordDamageEvent( const CTakeDamageInfo &info, bool bKill );
@@ -331,6 +328,7 @@ private:
 
 	// Burn handling
 	CHandle<CTFPlayer>		m_hBurnAttacker;
+	CHandle<CTFWeaponBase>	m_hBurnWeapon;
 	CNetworkVar( int,		m_nNumFlames );
 	float					m_flFlameBurnTime;
 	float					m_flFlameRemoveTime;

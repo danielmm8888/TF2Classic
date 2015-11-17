@@ -368,12 +368,12 @@ bool CTFWeaponBaseMelee::CalcIsAttackCriticalHelper( void )
 	if ( !pPlayer )
 		return false;
 
-	int iShouldCrit = tf_weapon_criticals_melee.GetInt();
+	int nCvarValue = tf_weapon_criticals_melee.GetInt();
 
-	if ( iShouldCrit == 0 )
+	if ( nCvarValue == 0 )
 		return false;
 
-	if ( iShouldCrit == 1 && !tf_weapon_criticals.GetBool() )
+	if ( nCvarValue == 1 && !tf_weapon_criticals.GetBool() )
 		return false;
 
 	float flPlayerCritMult = pPlayer->GetCritMult();

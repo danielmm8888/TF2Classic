@@ -157,7 +157,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	CTFPlayer *pPlayer = dynamic_cast <CTFPlayer*>(pOther);
 	if ( pPlayer )
 	{
-		CTakeDamageInfo info( this, pAttacker, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
+		CTakeDamageInfo info( this, pAttacker, m_hLauncher, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );
 	}

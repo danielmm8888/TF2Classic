@@ -336,7 +336,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		pAttacker = pScorerInterface->GetScorer();
 	}
 
-	CTakeDamageInfo info( this, pAttacker, vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
+	CTakeDamageInfo info( this, pAttacker, m_hLauncher, vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
 	float flRadius = GetRadius();
 	RadiusDamage( info, vecOrigin, flRadius, CLASS_NONE, NULL );
 

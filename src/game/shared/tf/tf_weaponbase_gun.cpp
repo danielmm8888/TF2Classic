@@ -437,6 +437,7 @@ CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 
@@ -523,6 +524,7 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 
@@ -553,6 +555,7 @@ CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 #endif

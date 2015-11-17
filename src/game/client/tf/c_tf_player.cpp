@@ -2110,7 +2110,7 @@ void C_TFPlayer::UpdateRecentlyTeleportedEffect( void )
 {
 	if ( m_Shared.ShouldShowRecentlyTeleported() )
 	{
-		if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
+		if ( !m_pTeleporterEffect )
 		{
 			char *pEffect = NULL;
 
