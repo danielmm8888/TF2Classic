@@ -50,6 +50,7 @@ public:
 	virtual int			GetDamageType();
 
 	CNetworkVar( int, m_iDeflected );
+	CNetworkHandle( CBaseEntity, m_hLauncher );
 	CNetworkHandle( CBaseEntity, m_hDeflectOwner );
 
 private:
@@ -100,6 +101,8 @@ public:
 
 	bool					UseImpactNormal()							{ return m_bUseImpactNormal; }
 	const Vector			&GetImpactNormal( void ) const				{ return m_vecImpactNormal; }
+
+	virtual void			SetLauncher( CBaseEntity *pLauncher ) { m_hLauncher = pLauncher; }
 
 	virtual bool			IsDeflectable() { return true; }
 	virtual void			Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );

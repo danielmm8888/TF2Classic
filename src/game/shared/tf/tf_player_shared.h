@@ -170,7 +170,7 @@ public:
 #endif
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
-	void	Burn( CTFPlayer *pPlayer );
+	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon );
 
 	// Weapons.
 	CTFWeaponBase *GetActiveTFWeapon() const;
@@ -328,6 +328,7 @@ private:
 
 	// Burn handling
 	CHandle<CTFPlayer>		m_hBurnAttacker;
+	CHandle<CTFWeaponBase>	m_hBurnWeapon;
 	CNetworkVar( int,		m_nNumFlames );
 	float					m_flFlameBurnTime;
 	float					m_flFlameRemoveTime;

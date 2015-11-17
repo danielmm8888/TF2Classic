@@ -2691,10 +2691,39 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
 	CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim );
+	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
 
 	const char *killer_weapon_name = "world";
 
-	if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
+	{
+		if ( pWeapon )
+		{
+			killer_weapon_name = pWeapon->GetClassname();
+
+			if ( pInflictor && pInflictor != pScorer )
+			{
+				CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor );
+
+				if ( pRocket && pRocket->m_iDeflected )
+				{
+					// Fire weapon deflects go here.
+					switch ( pRocket->GetWeaponID() )
+					{
+					case TF_WEAPON_FLAREGUN:
+						killer_weapon_name = "deflect_flare";
+						break;
+					}
+				}
+			}
+		}
+		else
+		{
+			// Default to flamethrower if no burn weapon is specified.
+			killer_weapon_name = "tf_weapon_flamethrower";
+		}
+	}
+	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
 		// If the inflictor is the killer,  then it must be their current weapon doing the damage
 		if ( pScorer->GetActiveWeapon() )
@@ -2715,9 +2744,6 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 				{
 				case TF_WEAPON_ROCKETLAUNCHER:
 					killer_weapon_name = "deflect_rocket";
-					break;
-				case TF_WEAPON_FLAREGUN:
-					killer_weapon_name = "deflect_flare";
 					break;
 				}
 			}
@@ -2742,10 +2768,6 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	// Taunt kills use DamageCustom as well.
 	switch ( info.GetDamageCustom() )
 	{
-	case TF_DMG_CUSTOM_BURNING:
-		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons
-		killer_weapon_name = "tf_weapon_flamethrower";
-		break;
 	case TF_DMG_CUSTOM_TELEFRAG:
 		killer_weapon_name = "telefrag";
 		break;

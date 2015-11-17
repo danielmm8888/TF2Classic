@@ -2236,7 +2236,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if ( sv_cheats->GetBool() )
 		{
-			m_Shared.Burn( this );
+			m_Shared.Burn( this, NULL );
 			return true;
 		}
 		return false;
@@ -2919,7 +2919,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 
 	if ( pAttacker && pAttacker->GetActiveTFWeapon() && pAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_HAMMERFISTS )
 	{
-		m_Shared.Burn( pAttacker );
+		m_Shared.Burn( pAttacker, pAttacker->GetActiveTFWeapon() );
 	}
 
 	AddMultiDamage( info_modified, this );
@@ -3106,6 +3106,17 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	if ( !IsAlive() )
 		return 0;
 
+	CTFWeaponBase *pWeapon = NULL;
+
+	if ( inputInfo.GetWeapon() )
+	{
+		pWeapon = dynamic_cast<CTFWeaponBase *>( inputInfo.GetWeapon() );
+	}
+	else if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
+	{
+		pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
+	}
+
 	int iHealthBefore = GetHealth();
 
 	bool bDebug = tf_debug_damage.GetBool();
@@ -3280,24 +3291,20 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				if ( flRandomVal > 0.5 )
 				{
 					// Rocket launcher, Sticky launcher and Scattergun have different short range bonuses
-					if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
+					if ( pWeapon )
 					{
-						CTFWeaponBase *pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
-						if ( pWeapon )
+						switch ( pWeapon->GetWeaponID() )
 						{
-							switch ( pWeapon->GetWeaponID() )
-							{
-							case TF_WEAPON_ROCKETLAUNCHER:
-							case TF_WEAPON_ROCKETLAUNCHERBETA:
-							case TF_WEAPON_PIPEBOMBLAUNCHER:
-								// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
-								flRandomDamage *= 0.5;
-								break;
-							case TF_WEAPON_SCATTERGUN:
-								// Scattergun gets 50% bonus of other weapons at short range
-								flRandomDamage *= 1.5;
-								break;
-							}
+						case TF_WEAPON_ROCKETLAUNCHER:
+						case TF_WEAPON_ROCKETLAUNCHERBETA:
+						case TF_WEAPON_PIPEBOMBLAUNCHER:
+							// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
+							flRandomDamage *= 0.5;
+							break;
+						case TF_WEAPON_SCATTERGUN:
+							// Scattergun gets 50% bonus of other weapons at short range
+							flRandomDamage *= 1.5;
+							break;
 						}
 					}
 				}
@@ -3635,7 +3642,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( bIgniting )
 	{
-		m_Shared.Burn( ToTFPlayer( pAttacker ) );
+		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+		m_Shared.Burn( ToTFPlayer( pAttacker ), pWeapon );
 	}
 
 	// Fire a global game event - "player_hurt"
@@ -7098,7 +7106,7 @@ static ConCommand sv_debug_stuck_particles( "sv_debug_stuck_particles", DebugPar
 void IgnitePlayer()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( ToTFPlayer( UTIL_PlayerByIndex( 1 ) ) );
-	pPlayer->m_Shared.Burn( pPlayer );
+	pPlayer->m_Shared.Burn( pPlayer, NULL );
 }
 static ConCommand cc_IgnitePlayer( "tf_ignite_player", IgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
@@ -7200,7 +7208,7 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 	{
 		m_flPowerPlayTime = gpGlobals->curtime + 99999;
 		m_Shared.RecalculateChargeEffects();
-		m_Shared.Burn( this );
+		m_Shared.Burn( this, NULL );
 
 		PowerplayThink();
 	}
