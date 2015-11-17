@@ -1948,6 +1948,97 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 }
 
 #ifdef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: Crit effects handling.
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
+{
+	bool bShouldShow = !bForceHide;
+
+	if ( bShouldShow )
+	{
+		if ( !IsCritBoosted() )
+		{
+			bShouldShow = false;
+		}
+		else if ( InCond( TF_COND_STEALTHED ) )
+		{
+			bShouldShow = false;
+		}
+		else if ( InCond( TF_COND_DISGUISED ) &&
+			!m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) &&
+			m_pOuter->GetTeamNumber() != GetDisguiseTeam() )
+		{
+			// Don't show crit effect for disguised enemy spies unless they're disguised
+			// as their own team.
+			bShouldShow = false;
+		}
+	}
+
+	if ( bShouldShow )
+	{
+		if ( m_hCritEffectHost.Get() )
+		{
+			m_hCritEffectHost->ParticleProp()->StopEmission();
+			m_hCritEffectHost = NULL;
+		}
+
+		if ( m_pOuter->IsLocalPlayer() )
+		{
+			m_hCritEffectHost = m_pOuter->GetViewModel();
+		}
+		else
+		{
+			m_hCritEffectHost = m_pOuter->GetActiveWeapon();
+		}
+
+		if ( m_hCritEffectHost.Get() )
+		{
+			char *pEffectName = NULL;
+			char pEffectNameTemp[128];
+			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
+
+			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "critgun_weaponmodel_%s", pTeam->Get_Name() );
+			pEffectName = pEffectNameTemp;
+
+			if ( TFGameRules()->IsDeathmatch() )
+				pEffectName = "critgun_weaponmodel_dm";
+
+			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
+
+			if ( TFGameRules()->IsDeathmatch() )
+				SetParticleToMercColor( pCritParticle );
+
+			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "%s_glow", pEffectName );
+			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectNameTemp, PATTACH_ABSORIGIN_FOLLOW );
+
+			if ( TFGameRules()->IsDeathmatch() )
+				SetParticleToMercColor( pCritParticle );
+		}
+
+		if ( !m_pCritSound )
+		{
+			CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+			CLocalPlayerFilter filter;
+			m_pCritSound = controller.SoundCreate( filter, m_pOuter->entindex(), "Weapon_General.CritPower" );
+			controller.Play( m_pCritSound, 1.0, 100 );
+		}
+	}
+	else
+	{
+		if ( m_hCritEffectHost.Get() )
+		{
+			m_hCritEffectHost->ParticleProp()->StopEmission();
+			m_hCritEffectHost = NULL;
+		}
+
+		if ( m_pCritSound )
+		{
+			CSoundEnvelopeController::GetController().SoundDestroy( m_pCritSound );
+			m_pCritSound = NULL;
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1975,7 +2066,6 @@ CTFWeaponInfo *CTFPlayerShared::GetDisguiseWeaponInfo( void )
 
 	return m_pDisguiseWeaponInfo;
 }
-
 #endif
 
 #ifdef GAME_DLL
@@ -2372,101 +2462,6 @@ float CTFPlayerShared::GetCritMult( void )
 
 	return flRemapCritMul;
 }
-
-#ifdef CLIENT_DLL
-void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
-{
-	bool bShouldShow = !bForceHide;
-
-	if ( bShouldShow )
-	{
-		if ( !IsCritBoosted() )
-		{
-			bShouldShow = false;
-		}
-		else if ( InCond( TF_COND_STEALTHED ) )
-		{
-			bShouldShow = false;
-		}
-		else if ( InCond( TF_COND_DISGUISED ) &&
-			!m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) &&
-			m_pOuter->GetTeamNumber() != GetDisguiseTeam() )
-		{
-			// Don't show crit effect for disguised enemy spies unless they're disguised
-			// as their own team.
-			bShouldShow = false;
-		}
-	}
-
-	if ( bShouldShow )
-	{
-		if ( m_hCritEffectHost.Get() )
-		{
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-			m_hCritEffectHost = NULL;
-		}
-
-		if ( m_pOuter->IsLocalPlayer() )
-		{
-			m_hCritEffectHost = m_pOuter->GetViewModel();
-		}
-		else
-		{
-			m_hCritEffectHost = m_pOuter->GetActiveWeapon();
-		}
-
-		if ( m_hCritEffectHost.Get() )
-		{
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-
-			char *pEffectName = NULL;
-			char pEffectNameTemp[128];
-			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
-
-			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "critgun_weaponmodel_%s", pTeam->Get_Name() );
-			pEffectName = pEffectNameTemp;
-
-			if ( TFGameRules()->IsDeathmatch() )
-				pEffectName = "critgun_weaponmodel_dm";
-
-			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
-
-			if ( TFGameRules()->IsDeathmatch() )
-				SetParticleToMercColor( pCritParticle );
-
-			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "%s_glow", pEffectName );
-			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectNameTemp, PATTACH_ABSORIGIN_FOLLOW );
-
-
-			if ( TFGameRules()->IsDeathmatch() )
-				SetParticleToMercColor( pCritParticle );
-		}
-
-		CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
-
-		if ( !m_pCritSound )
-		{
-			CLocalPlayerFilter filter;
-			m_pCritSound = controller.SoundCreate( filter, m_pOuter->entindex(), "Weapon_General.CritPower" );
-			controller.Play( m_pCritSound, 1.0, 100 );
-		}
-	}
-	else
-	{
-		if ( m_hCritEffectHost.Get() )
-		{
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-			m_hCritEffectHost = NULL;
-		}
-
-		if ( m_pCritSound )
-		{
-			CSoundEnvelopeController::GetController().SoundDestroy( m_pCritSound );
-			m_pCritSound = NULL;
-		}
-	}
-}
-#endif
 
 #ifdef GAME_DLL
 //-----------------------------------------------------------------------------

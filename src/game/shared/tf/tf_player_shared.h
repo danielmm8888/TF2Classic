@@ -156,6 +156,7 @@ public:
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 
+	void	UpdateCritBoostEffect( bool bForceHide );
 	bool	SetParticleToMercColor( CNewParticleEffect *pParticle );
 #endif
 
@@ -258,10 +259,6 @@ private:
 	void OnRemoveRagemode( void );
 
 	float GetCritMult( void );
-
-#ifdef CLIENT_DLL
-	void UpdateCritBoostEffect( bool bForceHide );
-#endif
 
 #ifdef GAME_DLL
 	void  UpdateCritMult( void );
