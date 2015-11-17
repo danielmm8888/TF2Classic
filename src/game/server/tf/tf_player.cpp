@@ -3084,7 +3084,7 @@ static float DamageForce( const Vector &size, float damage, float scale )
 	return force;
 }
 
-ConVar tf_debug_damage( "tf_debug_damage", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_debug_damage( "tf_debug_damage", "0", FCVAR_CHEAT );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -3268,13 +3268,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				//Msg("Range: %.2f - %.2f\n", flMin, flMax );
 				float flRandomVal;
 
-				if (tf_damage_disablespread.GetBool())
+				if ( tf_damage_disablespread.GetBool() )
 				{
 					flRandomVal = flCenter;
 				}
 				else
 				{
-					flRandomVal = RandomFloat(flMin, flMax);
+					flRandomVal = RandomFloat( flMin, flMax );
 				}
 
 				if ( flRandomVal > 0.5 )
@@ -3285,15 +3285,18 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 						CTFWeaponBase *pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
 						if ( pWeapon )
 						{
-							if ( pWeapon->GetWeaponID() == TF_WEAPON_ROCKETLAUNCHER || pWeapon->GetWeaponID() == TF_WEAPON_PIPEBOMBLAUNCHER )
+							switch ( pWeapon->GetWeaponID() )
 							{
+							case TF_WEAPON_ROCKETLAUNCHER:
+							case TF_WEAPON_ROCKETLAUNCHERBETA:
+							case TF_WEAPON_PIPEBOMBLAUNCHER:
 								// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
 								flRandomDamage *= 0.5;
-							}
-							else if ( pWeapon->GetWeaponID() == TF_WEAPON_SCATTERGUN )
-							{
+								break;
+							case TF_WEAPON_SCATTERGUN:
 								// Scattergun gets 50% bonus of other weapons at short range
 								flRandomDamage *= 1.5;
+								break;
 							}
 						}
 					}
@@ -3741,20 +3744,27 @@ void CTFPlayer::ClearDamagerHistory()
 bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 {
 	// Check to see if we should allow players to gib.
-	int iGibCvar = tf_playergib.GetInt();
-	if ( iGibCvar == 0 )
+	int nGibCvar = tf_playergib.GetInt();
+	if ( nGibCvar == 0 )
 		return false;
 
-	if ( iGibCvar == 2 )
+	if ( nGibCvar == 2 )
+		return true;
+
+	if ( info.GetDamageType() & DMG_NEVERGIB )
+		return false;
+
+	if ( info.GetDamageType() & DMG_ALWAYSGIB )
 		return true;
 
 	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
 		return true;
 
-	// 85% probability of gibbing when killed by an explosion.
-	if ( ( ( info.GetDamageType() & DMG_BLAST ) != 0 ) || ( ( info.GetDamageType() & DMG_HALF_FALLOFF ) != 0 ) )
-		//return ( random->RandomInt( 0, 99 ) > 15 );
-		return true;
+	if ( ( info.GetDamageType() & DMG_BLAST ) || ( info.GetDamageType() & DMG_HALF_FALLOFF ) )
+	{
+		if ( ( info.GetDamageType() & DMG_CRITICAL ) || m_iHealth < -9 )
+			return true;
+	}
 
 	return false;
 }
@@ -4190,6 +4200,10 @@ void CTFPlayer::DroppedWeaponCleanUp( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::DropAmmoPack( void )
 {
+	// Since weapon is hidden in loser state don't drop ammo pack.
+	if ( m_Shared.IsLoser() )
+		return;
+
 	// We want the ammo packs to look like the player's weapon model they were carrying.
 	// except if they are melee or building weapons
 	CTFWeaponBase *pWeapon = NULL;
@@ -4199,7 +4213,6 @@ void CTFPlayer::DropAmmoPack( void )
 		( pActiveWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.m_bCarryingObject ) )
 	{
 		// Don't drop this one, find another one to drop
-
 		int iWeight = -1;
 
 		// find the highest weighted weapon
