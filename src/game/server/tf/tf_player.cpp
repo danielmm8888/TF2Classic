@@ -96,6 +96,7 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
+ConVar tf2c_allow_spectate_npc( "tf2c_allow_spectate_npc", "0", 0, "Allow spectating NPC. Enabling this is not recommended." );
 
 // Cvars from HL2 player
 ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
@@ -5241,6 +5242,23 @@ int CTFPlayer::BuildObservableEntityList( void )
 		}
 	}
 
+	// Add all NPCs.
+	CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
+	for ( int i = 0; i < g_AI_Manager.NumAIs(); i++ )
+	{
+		CAI_BaseNPC *pNPC = ppAIs[i];
+		
+		if ( pNPC )
+		{
+			m_hObservableEntities.AddToTail( pNPC );
+
+			if ( m_hObserverTarget.Get() == pNPC )
+			{
+				iCurrentIndex = ( m_hObservableEntities.Count() - 1 );
+			}
+		}
+	}
+
 	return iCurrentIndex;
 }
 
@@ -5314,6 +5332,18 @@ bool CTFPlayer::IsValidObserverTarget(CBaseEntity * target)
 		CObserverPoint *pObsPoint = dynamic_cast<CObserverPoint *>(target);
 		if ( pObsPoint && !pObsPoint->CanUseObserverPoint( this ) )
 			return false;
+
+		if ( target->IsNPC() )
+		{
+			if ( tf2c_allow_spectate_npc.GetBool() == false )
+				return false;
+
+			if ( target->IsEffectActive( EF_NODRAW ) ) // don't watch invisible NPC
+				return false;
+
+			if ( target->Classify() == CLASS_BULLSEYE ) // don't watch bullseyes
+				return false;
+		}
 		
 		if ( GetTeamNumber() == TEAM_SPECTATOR )
 			return true;
@@ -5457,6 +5487,67 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 		}
 	}		
 
+	// Lastly, look for an allied NPC.
+	if ( !pReturnTarget )
+	{
+		CTFTeam *pTFTeam = GetTFTeam();
+		flCurDistSqr = ( flMaxDist * flMaxDist );
+		int iNumNPC = pTFTeam->GetNumNPCs();
+		bool bFoundVital = false;
+		CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
+
+		if ( pTeam->GetTeamNumber() == TEAM_SPECTATOR )
+		{
+			iNumNPC = g_AI_Manager.NumAIs();
+		}
+
+		for ( int i = 0; i < iNumNPC; i++ )
+		{
+			CAI_BaseNPC *pNPC = NULL;
+
+			if ( pTeam->GetTeamNumber() == TEAM_SPECTATOR )
+			{
+				pNPC = ppAIs[i];
+			}
+			else
+			{
+				pNPC = pTFTeam->GetNPC(i);
+			}
+
+			if ( !pNPC )
+				continue;
+
+			if ( !IsValidObserverTarget( pNPC ) )
+				continue;
+
+			float flDistSqr = ( pNPC->GetAbsOrigin() - vecOrigin ).LengthSqr();
+
+			// Prioritize vital allies (Alyx, Barney) over other NPC.
+			if ( flDistSqr < flCurDistSqr )
+			{
+				if ( !bFoundVital || pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL )
+				{
+					pReturnTarget = pNPC;
+					flCurDistSqr = flDistSqr;
+
+					if ( pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL )
+					{
+						bFoundVital = true;
+					}
+				}
+			}
+			else if ( !bFoundClass )
+			{
+				if ( pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL )
+				{
+					pReturnTarget = pNPC;
+					flCurDistSqr = flDistSqr;
+					bFoundVital = true;
+				}
+			}
+		}
+	}
+
 	return pReturnTarget;
 }
 
@@ -5552,7 +5643,7 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 		}
 	}
 
-	if ( m_hObserverTarget && m_hObserverTarget->IsBaseObject() )
+	if ( m_hObserverTarget && ( m_hObserverTarget->IsBaseObject() || m_hObserverTarget->IsNPC() ) )
 	{
 		if ( m_iObserverMode == OBS_MODE_IN_EYE )
 		{

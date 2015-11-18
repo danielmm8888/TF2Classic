@@ -2542,23 +2542,14 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		}
 
 		// Run through all NPCs as well.
-		for ( int i = 0; i < TF_TEAM_COUNT; i++ )
+		CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
+		for ( int i = 0; i < g_AI_Manager.NumAIs(); i++ )
 		{
-			CTFTeam *pTeam = TFTeamMgr()->GetTeam( i );
-
-			if ( !pTeam )
+			CAI_BaseNPC *pNPC = ppAIs[i];
+			if ( !pNPC )
 				continue;
 
-			for (int iNPC = 0; iNPC < pTeam->GetNumNPCs(); ++iNPC)
-			{
-				CAI_BaseNPC *pNPC = pTeam->GetNPC(iNPC);
-				if ( !pNPC )
-				{
-					continue;
-				}
-
-				pNPC->ConditionGameRulesThink();
-			}
+			pNPC->ConditionGameRulesThink();
 		}
 	}
 

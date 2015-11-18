@@ -247,13 +247,14 @@ bool ArePlayersOnSameTeam( int iPlayerIndex1, int iPlayerIndex2 )
 	return false;
 }
 
-// TF2C overrides this.
-#ifndef TF_CLASSIC_CLIENT
 //-----------------------------------------------------------------------------
 // Purpose: Get the number of team managers
 //-----------------------------------------------------------------------------
 int GetNumberOfTeams( void )
 {
+#ifdef TF_CLASSIC_CLIENT
+	return min( g_Teams.Count(), 4 );
+#else
 	return g_Teams.Size();
-}
 #endif
+}

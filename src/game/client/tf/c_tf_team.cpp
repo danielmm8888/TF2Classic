@@ -130,16 +130,6 @@ C_TFTeam *GetGlobalTFTeam( int iTeamNumber )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Get the number of team managers
-//-----------------------------------------------------------------------------
-int GetNumberOfTeams( void )
-{
-	// HACK: we have 4 teams but only the original 2 are used by players.
-	// So return the original number of teams as to not break stuff.
-	return min( g_Teams.Count(), TF_ORIGINAL_TEAM_COUNT );
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 int C_TFTeam::GetNumObjects( int iObjectType )

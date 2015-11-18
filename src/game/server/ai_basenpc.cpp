@@ -11150,6 +11150,13 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 	// other than adding a stub client class for every HL2 NPC. (Nicknine)
 	Q_strncpy( m_szClassname.GetForModify(), szClassname, 128 );
 	CreateComponents();
+
+#ifdef TF_CLASSIC
+	if ( FindInList( g_aBackstabNPC, GetClassname() ) )
+		m_nTFFlags |= TFFL_ALLOW_BACKSTAB;
+	if ( FindInList( g_aNPCMechs, GetClassname() ) )
+		m_nTFFlags |= TFFL_MECH;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -11162,12 +11169,6 @@ void CAI_BaseNPC::Activate( void )
 #ifdef TF_CLASSIC
 	if ( g_TFClassTeams[Classify()] )
 		ChangeTeam( g_TFClassTeams[Classify()] );
-
-	// Have to do it here to ensure it runs for every NPC.
-	if ( FindInList( g_aBackstabNPC, GetClassname() ) )
-		m_nTFFlags |= TFFL_ALLOW_BACKSTAB;
-	if ( FindInList( g_aNPCMechs, GetClassname() ) )
-		m_nTFFlags |= TFFL_MECH;
 #endif
 
 	if ( GetModelPtr() )
