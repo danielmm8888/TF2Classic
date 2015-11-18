@@ -2669,6 +2669,103 @@ void C_TFPlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float& f
 	fov = GetFOV();
 }
 
+extern ConVar spec_freeze_traveltime;
+extern ConVar spec_freeze_time;
+
+//-----------------------------------------------------------------------------
+// Purpose: Calculate the view for the player while he's in freeze frame observer mode
+//-----------------------------------------------------------------------------
+void C_TFPlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, float& fov )
+{
+	C_BaseEntity *pTarget = GetObserverTarget();
+	if ( !pTarget )
+	{
+		CalcDeathCamView( eyeOrigin, eyeAngles, fov );
+		return;
+	}
+
+	// Zoom towards our target
+	float flCurTime = ( gpGlobals->curtime - m_flFreezeFrameStartTime );
+	float flBlendPerc = clamp( flCurTime / spec_freeze_traveltime.GetFloat(), 0.f, 1.f );
+	flBlendPerc = SimpleSpline( flBlendPerc );
+
+	Vector vecCamDesired = pTarget->GetObserverCamOrigin();	// Returns ragdoll origin if they're ragdolled
+	VectorAdd( vecCamDesired, GetChaseCamViewOffset( pTarget ), vecCamDesired );
+	Vector vecCamTarget = vecCamDesired;
+	if ( pTarget->IsAlive() )
+	{
+		// Look at their chest, not their head
+		Vector maxs;
+
+		// Obviously you can't apply player height to NPCs.
+		if ( pTarget->IsNPC() )
+		{
+			maxs = pTarget->WorldAlignMaxs();
+		}
+		else
+		{
+			maxs = pTarget->GetBaseAnimating() ? VEC_HULL_MAX_SCALED( pTarget->GetBaseAnimating() ) : VEC_HULL_MAX;
+		}
+
+		vecCamTarget.z -= ( maxs.z * 0.5 );
+	}
+	else
+	{
+		vecCamTarget.z += pTarget->GetBaseAnimating() ? VEC_DEAD_VIEWHEIGHT_SCALED( pTarget->GetBaseAnimating() ).z : VEC_DEAD_VIEWHEIGHT.z;	// look over ragdoll, not through
+	}
+
+	// Figure out a view position in front of the target
+	Vector vecEyeOnPlane = eyeOrigin;
+	vecEyeOnPlane.z = vecCamTarget.z;
+	Vector vecTargetPos = vecCamTarget;
+	Vector vecToTarget = vecTargetPos - vecEyeOnPlane;
+	VectorNormalize( vecToTarget );
+
+	// Stop a few units away from the target, and shift up to be at the same height
+	vecTargetPos = vecCamTarget - ( vecToTarget * m_flFreezeFrameDistance );
+	float flEyePosZ = pTarget->EyePosition().z;
+	vecTargetPos.z = flEyePosZ + m_flFreezeZOffset;
+
+	// Now trace out from the target, so that we're put in front of any walls
+	trace_t trace;
+	C_BaseEntity::PushEnableAbsRecomputations( false ); // HACK don't recompute positions while doing RayTrace
+	UTIL_TraceHull( vecCamTarget, vecTargetPos, WALL_MIN, WALL_MAX, MASK_SOLID, pTarget, COLLISION_GROUP_NONE, &trace );
+	C_BaseEntity::PopEnableAbsRecomputations();
+	if ( trace.fraction < 1.0 )
+	{
+		// The camera's going to be really close to the target. So we don't end up
+		// looking at someone's chest, aim close freezecams at the target's eyes.
+		vecTargetPos = trace.endpos;
+		vecCamTarget = vecCamDesired;
+
+		// To stop all close in views looking up at character's chins, move the view up.
+		vecTargetPos.z += fabs( vecCamTarget.z - vecTargetPos.z ) * 0.85;
+		C_BaseEntity::PushEnableAbsRecomputations( false ); // HACK don't recompute positions while doing RayTrace
+		UTIL_TraceHull( vecCamTarget, vecTargetPos, WALL_MIN, WALL_MAX, MASK_SOLID, pTarget, COLLISION_GROUP_NONE, &trace );
+		C_BaseEntity::PopEnableAbsRecomputations();
+		vecTargetPos = trace.endpos;
+	}
+
+	// Look directly at the target
+	vecToTarget = vecCamTarget - vecTargetPos;
+	VectorNormalize( vecToTarget );
+	VectorAngles( vecToTarget, eyeAngles );
+
+	VectorLerp( m_vecFreezeFrameStart, vecTargetPos, flBlendPerc, eyeOrigin );
+
+	if ( flCurTime >= spec_freeze_traveltime.GetFloat() && !m_bSentFreezeFrame )
+	{
+		IGameEvent *pEvent = gameeventmanager->CreateEvent( "freezecam_started" );
+		if ( pEvent )
+		{
+			gameeventmanager->FireEventClientSide( pEvent );
+		}
+
+		m_bSentFreezeFrame = true;
+		view->FreezeFrame( spec_freeze_time.GetFloat() );
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Do nothing multiplayer_animstate takes care of animation.
 // Input  : playerAnim - 
@@ -3242,6 +3339,21 @@ Vector C_TFPlayer::GetChaseCamViewOffset( CBaseEntity *target )
 {
 	if ( target->IsBaseObject() )
 		return Vector(0,0,64);
+
+	if ( target->IsNPC() )
+	{
+		if ( target->IsAlive() )
+		{
+			// NPC eye height varies so use GetViewOffset.
+			float flEyeHeight = target->GetViewOffset().z;
+			return Vector( 0, 0, flEyeHeight );
+		}
+		else
+		{
+			// Assume it's ragdoll.
+			return VEC_DEAD_VIEWHEIGHT;
+		}
+	}
 
 	return BaseClass::GetChaseCamViewOffset( target );
 }

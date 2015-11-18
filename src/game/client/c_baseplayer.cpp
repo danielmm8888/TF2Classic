@@ -54,10 +54,6 @@
 #include "econ_wearable.h"
 #endif
 
-#ifdef TF_CLASSIC_CLIENT
-#include "c_ai_basenpc.h"
-#endif
-
 // NVNT haptics system interface
 #include "haptics/ihaptics.h"
 
@@ -1447,22 +1443,6 @@ Vector C_BasePlayer::GetChaseCamViewOffset( CBaseEntity *target )
 			return VEC_DEAD_VIEWHEIGHT_SCALED( player );
 		}
 	}
-#ifdef TF_CLASSIC_CLIENT
-	C_AI_BaseNPC *pNPC = target ? target->MyNPCPointer() : NULL;
-	if ( pNPC )
-	{
-		if ( pNPC->IsAlive() )
-		{
-			// NPC eye height varies so use GetViewOffset().
-			float flEyeHeight = pNPC->GetViewOffset().z;
-			return Vector(0,0,flEyeHeight);
-		}
-		else
-		{
-			return VEC_DEAD_VIEWHEIGHT;
-		}
-	}
-#endif
 
 	// assume it's the players ragdoll
 	return VEC_DEAD_VIEWHEIGHT;
@@ -1654,13 +1634,6 @@ void C_BasePlayer::CalcFreezeCamView( Vector& eyeOrigin, QAngle& eyeAngles, floa
 	{
 		// Look at their chest, not their head
 		Vector maxs = pTarget->GetBaseAnimating() ? VEC_HULL_MAX_SCALED( pTarget->GetBaseAnimating() ) : VEC_HULL_MAX;
-#ifdef TF_CLASSIC_CLIENT
-		// Obviously you can't apply player height to NPCs.
-		if ( pTarget->IsNPC() )
-		{
-			maxs = pTarget->WorldAlignMaxs();
-		}
-#endif
 		vecCamTarget.z -= (maxs.z * 0.5);
 	}
 	else

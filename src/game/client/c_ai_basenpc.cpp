@@ -337,10 +337,8 @@ IRagdoll* C_AI_BaseNPC::GetRepresentativeRagdoll() const
 
 		return pRagdoll->m_pRagdoll;
 	}
-	else
-	{
-		return NULL;
-	}
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------
