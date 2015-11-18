@@ -1061,7 +1061,7 @@ void CTFPlayer::GiveDefaultItems()
 	ManageBuilderWeapons( pData );
 
 	// Give gravity gun if allowed.
-	ManageGravityGun( pData );
+	ManageTeamWeapons( pData );
 }
 
 //-----------------------------------------------------------------------------
@@ -1131,10 +1131,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
 			int iWeaponID = pData->m_aWeapons[iWeapon];
-			char szWeaponName[256];
-			Q_strcpy( szWeaponName, WeaponIdToAlias( iWeaponID ) );
-			// Convert to lower case to match old behaviour.
-			Q_strlower( szWeaponName );
+			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
@@ -1159,7 +1156,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( szWeaponName );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
 				if ( pWeapon )
 				{
@@ -1190,43 +1187,64 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Give us all weapons shared by our team.
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageGravityGun( TFPlayerClassData_t *pData )
+void CTFPlayer::ManageTeamWeapons( TFPlayerClassData_t *pData )
 {
-	// For now, just give gravity gun to everyone.
-	if ( !IsPlayerClass( TF_CLASS_UNDEFINED ) )
-	{
-		CTFWeaponBase *pGravGun = Weapon_OwnsThisID( TF_WEAPON_PHYSCANNON );
+	if ( IsPlayerClass( TF_CLASS_UNDEFINED ) )
+		return;
 
-		if ( pGravGun )
+	CTFTeam *pTeam = GetTFTeam();
+	
+	if ( !pTeam )
+		return;
+
+	int numWeapons = pTeam->GetNumWeapons();
+	for ( int i = 0; i < numWeapons; i++ )
+	{
+		int iWeaponID = pTeam->GetWeapon( i );
+
+		if ( iWeaponID == TF_WEAPON_NONE )
+			continue;
+
+		const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
+
+		CTFWeaponBase *pWeapon = Weapon_OwnsThisID( iWeaponID );
+
+		if ( pWeapon )
 		{
-			pGravGun->ChangeTeam( GetTeamNumber() );
-			
+			pWeapon->ChangeTeam( GetTeamNumber() );
+			pWeapon->GiveDefaultAmmo();
+
 			if ( m_bRegenerating == false )
 			{
-				pGravGun->WeaponReset();
+				pWeapon->WeaponReset();
 			}
 		}
 		else
 		{
-			pGravGun = (CTFWeaponBase *)GiveNamedItem( "tf_weapon_physcannon" );
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
 
-			if ( pGravGun )
+			if ( pWeapon )
 			{
-				pGravGun->DefaultTouch( this );
+				pWeapon->DefaultTouch( this );
 			}
 		}
 	}
-	else
-	{
-		// Not supposed to be holding a gravity gun kill it with warp cannon.
-		CTFWeaponBase *pGravGun = Weapon_OwnsThisID( TF_WEAPON_PHYSCANNON );
 
-		if ( pGravGun )
+	// Remove any weapons that we're not supposed to carry.
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( i );
+
+		if ( pWeapon )
 		{
-			Weapon_Detach( pGravGun );
-			UTIL_Remove( pGravGun );
+			if ( pWeapon->GetWeaponID() >= TF_WEAPON_PHYSCANNON && !pTeam->HasWeapon( pWeapon->GetWeaponID() ) )
+			{
+				// Not supposed to be carrying this weapon, nuke it.
+				Weapon_Detach( pWeapon );
+				UTIL_Remove( pWeapon );
+			}
 		}
 	}
 }

@@ -110,6 +110,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void Precache();
 	virtual bool IsPredicted() const			{ return true; }
 	virtual void FallInit( void );
+	virtual void OnPickedUp( CBaseCombatCharacter *pNewOwner );
 
 	// Weapon Data.
 	CTFWeaponInfo const	&GetTFWpnData() const;

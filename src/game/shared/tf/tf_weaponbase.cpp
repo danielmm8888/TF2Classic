@@ -14,6 +14,7 @@
 // Server specific.
 #if !defined( CLIENT_DLL )
 #include "tf_player.h"
+#include "tf_team.h"
 // Client specific.
 #else
 #include "vgui/ISurface.h"
@@ -222,6 +223,28 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
+
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnPickedUp( CBaseCombatCharacter *pNewOwner )
+{
+#ifdef GAME_DLL
+	BaseClass::OnPickedUp( pNewOwner );
+
+	CTFTeam *pTeam = dynamic_cast<CTFTeam *>( pNewOwner->GetTeam() );
+
+	if ( pTeam )
+	{
+		// If this is a shared weapon add it to team inventory.
+		if ( GetWeaponID() >= TF_WEAPON_PHYSCANNON && !pTeam->HasWeapon( GetWeaponID() ) )
+		{
+			pTeam->AddWeapon( GetWeaponID() );
+		}
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

@@ -62,6 +62,13 @@ public:
 
 	void			GetOpposingTFTeamList( CUtlVector<CTFTeam *> *pTeamList );
 
+	int				GetWeapon( int iIndex );
+	bool			HasWeapon( int iWeapon );
+	int				GetNumWeapons( void );
+	void			AddWeapon( int iWeapon );
+	void			RemoveWeapon( int iWeapon );
+	void			RemoveAllWeapons( void );
+
 private:
 	
 	color32						m_TeamColor;
@@ -70,6 +77,8 @@ private:
 
 	CNetworkVar( int, m_nFlagCaptures );
 	CNetworkVar( int, m_iRole );
+
+	CUtlVector<int> m_aWeapons;
 };
 
 class CTFTeamManager

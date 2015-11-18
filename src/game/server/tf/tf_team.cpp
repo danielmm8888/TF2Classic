@@ -496,41 +496,93 @@ CTFTeam *GetGlobalTFTeam( int iIndex )
 	return ( dynamic_cast< CTFTeam* >( g_Teams[iIndex] ) );
 }
 
-void CTFTeam::GetOpposingTFTeamList(CUtlVector<CTFTeam *> *pTeamList)
+//-----------------------------------------------------------------------------
+// Purpose: Get a list of enemy teams.
+//-----------------------------------------------------------------------------
+void CTFTeam::GetOpposingTFTeamList( CUtlVector<CTFTeam *> *pTeamList )
 {
 	int iTeam = GetTeamNumber();
-	switch (iTeam)
+	switch ( iTeam )
 	{
-		case TF_TEAM_RED:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
+	case TF_TEAM_RED:
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_BLUE ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_GREEN ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_YELLOW ) );
+		break;
 
-		case TF_TEAM_BLUE:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
+	case TF_TEAM_BLUE:
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_RED ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_GREEN ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_YELLOW ) );
+		break;
 
-		case TF_TEAM_GREEN:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
+	case TF_TEAM_GREEN:
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_RED ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_BLUE ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_YELLOW ) );
+		break;
 
-		case TF_TEAM_YELLOW:
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			break;
+	case TF_TEAM_YELLOW:
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_RED ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_BLUE ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_GREEN ) );
+		break;
 
-		default:
-			// Makes unassigned sentries shoot everyone, hehe.
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_RED));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_BLUE));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_GREEN));
-			pTeamList->AddToTail(TFTeamMgr()->GetTeam(TF_TEAM_YELLOW));
-			break;
+	default:
+		// Makes unassigned sentries shoot everyone, hehe.
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_RED ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_BLUE ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_GREEN ) );
+		pTeamList->AddToTail( TFTeamMgr()->GetTeam( TF_TEAM_YELLOW ) );
+		break;
 	}
+}
+
+int CTFTeam::GetWeapon( int iIndex )
+{
+	Assert( iIndex >= 0 && iIndex < m_aWeapons.Count() );
+	
+	return m_aWeapons[iIndex];
+}
+
+bool CTFTeam::HasWeapon( int iWeapon )
+{
+	return ( m_aWeapons.Find( iWeapon ) != m_aWeapons.InvalidIndex() );
+}
+
+int CTFTeam::GetNumWeapons( void )
+{
+	return m_aWeapons.Count();
+}
+
+void CTFTeam::AddWeapon( int iWeapon )
+{
+	m_aWeapons.AddToTail( iWeapon );
+	
+	// Give this weapon to every player on the team.
+	for ( int i = 0; i < GetNumPlayers(); i++ )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( GetPlayer( i ) );
+		
+		if ( pPlayer && pPlayer->IsAlive() && !pPlayer->Weapon_OwnsThisID( iWeapon ) )
+		{
+			const char *pszWeaponName = WeaponIdToClassname( iWeapon );
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GiveNamedItem( pszWeaponName );
+
+			if ( pWeapon )
+			{
+				pWeapon->DefaultTouch( this );
+			}
+		}
+	}
+}
+
+void CTFTeam::RemoveWeapon( int iWeapon )
+{
+	m_aWeapons.FindAndRemove( iWeapon );
+}
+
+void CTFTeam::RemoveAllWeapons( void )
+{
+	m_aWeapons.Purge();
 }

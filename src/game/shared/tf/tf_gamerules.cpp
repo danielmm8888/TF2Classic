@@ -3927,7 +3927,7 @@ void CTFGameRules::RoundRespawn( void )
 		}
 	}
 
-	// reset the flag captures
+	// reset the flag captures and clear team inventories
 	int nTeamCount = TFTeamMgr()->GetTeamCount();
 	for ( int iTeam = FIRST_GAME_TEAM; iTeam < nTeamCount; ++iTeam )
 	{
@@ -3936,6 +3936,7 @@ void CTFGameRules::RoundRespawn( void )
 			continue;
 
 		pTeam->SetFlagCaptures( 0 );
+		pTeam->RemoveAllWeapons();
 	}
 
 	BaseClass::RoundRespawn();
