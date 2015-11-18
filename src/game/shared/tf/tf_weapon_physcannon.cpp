@@ -1009,6 +1009,17 @@ int CWeaponPhysCannon::GetSlot( void ) const
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponPhysCannon::FallInit( void )
+{
+#ifndef CLIENT_DLL
+	// Skip TF weapon base as it prevents FallInit of base weapon from running.
+	CBaseCombatWeapon::FallInit();
+#endif
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Precache
 //-----------------------------------------------------------------------------
 void CWeaponPhysCannon::Precache( void )

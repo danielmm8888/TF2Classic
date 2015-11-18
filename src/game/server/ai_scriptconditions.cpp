@@ -735,9 +735,11 @@ bool CAI_ScriptConditions::IsInFOV( CBaseEntity *pViewer, CBaseEntity *pViewed, 
 
 bool CAI_ScriptConditions::PlayerHasLineOfSight( CBaseEntity *pViewer, CBaseEntity *pViewed, bool fNot )
 {
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 	// SecobMod__Information: - Null Pointers: Fixing a null on ep2_outland_09 (and some other maps). This however breaks the map.
-	if (!pViewer)
+	if ( !pViewer )
 		return false;
+#endif
 
 	CBaseCombatCharacter *pCombatantViewer = pViewer->MyCombatCharacterPointer();
 

@@ -222,9 +222,6 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-#ifndef CLIENT_DLL
-	BaseClass::FallInit();
-#endif
 }
 
 //-----------------------------------------------------------------------------

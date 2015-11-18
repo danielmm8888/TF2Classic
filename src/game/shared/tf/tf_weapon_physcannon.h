@@ -237,6 +237,7 @@ public:
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_PHYSCANNON; }
 	virtual void	WeaponReset( void );
 	virtual int		GetSlot( void ) const;
+	virtual void	FallInit( void );
 	void	Drop( const Vector &vecVelocity );
 	void	Precache();
 	virtual void	OnRestore();
