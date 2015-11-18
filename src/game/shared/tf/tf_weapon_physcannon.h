@@ -247,6 +247,7 @@ public:
 	void	WeaponIdle();
 	void	ItemPreFrame();
 	void	ItemPostFrame();
+	void	ItemHolsterFrame();
 
 	void	ForceDrop( void );
 	bool	DropIfEntityHeld( CBaseEntity *pTarget );	// Drops its held entity if it matches the entity passed in

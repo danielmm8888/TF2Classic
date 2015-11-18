@@ -1076,12 +1076,6 @@ void CWeaponPhysCannon::OnDataChanged( DataUpdateType_t type )
 			m_hOldAttachedObject->VPhysicsDestroyObject();
 		}
 	}
-	else if ( GetOwner()->GetActiveWeapon() != this )
-	{
-		// This is normally done in ItemPreFrame but due to certain issues
-		// we must keep predicted object updated while Grav Gun is inactive.
-		ManagePredictedObject();
-	}
 
 	// Update effect state when out of parity with the server
 	if ( m_nOldEffectState != m_EffectState )
@@ -2406,6 +2400,18 @@ void CWeaponPhysCannon::ItemPostFrame()
 	{
 		WeaponIdle();
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CWeaponPhysCannon::ItemHolsterFrame( void )
+{
+	BaseClass::ItemHolsterFrame();
+
+#ifdef CLIENT_DLL
+	ManagePredictedObject();
+#endif
 }
 
 
