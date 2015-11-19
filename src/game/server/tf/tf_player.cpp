@@ -1690,8 +1690,8 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
 	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
 	{
-		ChangeTeam(TF_TEAM_RED);
-		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		ChangeTeam( TF_TEAM_RED );
+		SetDesiredPlayerClassIndex( TF_CLASS_MERCENARY );
 		return;
 	}
 
@@ -1718,7 +1718,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
-		Warning("Four player teams have been disabled!\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
 	}
 
@@ -1856,7 +1856,7 @@ void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
 
 	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
-		Warning("Four player teams have been disabled!\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
 	}
 
@@ -2014,7 +2014,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
 		return;
 
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() )
 		return;
 
 	// In case we don't get the class menu message before the spawn timer
@@ -2043,7 +2043,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	{
 		int i = 0;
 
-		for ( i = TF_CLASS_SCOUT; i <= TF_CLASS_ENGINEER; i++ )
+		for ( i = TF_CLASS_SCOUT; i < TF_CLASS_COUNT_ALL; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -2051,18 +2051,20 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 				break;
 			}
 		}
-		if ( i > TF_LAST_NORMAL_CLASS )
+
+		if ( iClass > TF_LAST_NORMAL_CLASS )
 		{
-			Warning( "HandleCommand_JoinClass( %s ) - invalid class name.\n", pClassName );
+			ClientPrint( this, HUD_PRINTCONSOLE, UTIL_VarArgs( "Invalid class name \"%s\".\n", pClassName ) );
 			return;
 		}
 	}
 	else
 	{
 		// The player has selected Random class...so let's pick one for them.
-		do{
+		do
+		{
 			// Don't let them be the same class twice in a row
-			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER );
+			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
 		} while( iClass == GetPlayerClass()->GetClassIndex() );
 	}
 
@@ -2389,7 +2391,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				// they haven't disguised yet, pick a nice one for them.
 				// exclude some undesirable classes 
 
-				// PistonMiner: Added Mercenary and Civilan to undesired, also made it so it doesnt pick your own team
+				// PistonMiner: Made it so it doesnt pick your own team.
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
@@ -2400,7 +2402,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 					else
 						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
 
-				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
+				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nTeam == GetTeamNumber() );
 			}
 
 			m_Shared.Disguise( nTeam, nClass );
@@ -6655,7 +6657,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 				bool bSameTeam = InSameTeam( pTFPlayer );
 				criteriaSet.AppendCriteria( "crosshair_enemy", bSameTeam ? "No" : "Yes" );
 
-				if ( iClass > TF_CLASS_UNDEFINED && iClass <= TF_LAST_NORMAL_CLASS )
+				if ( iClass > TF_CLASS_UNDEFINED && iClass <= TF_CLASS_COUNT )
 				{
 					criteriaSet.AppendCriteria( "crosshair_on", g_aPlayerClassNames_NonLocalized[iClass] );
 				}
@@ -6769,7 +6771,7 @@ IResponseSystem *CTFPlayer::GetResponseSystem()
 		iClass = m_Shared.GetDisguiseClass();
 	}
 
-	bool bValidClass = ( iClass >= TF_CLASS_SCOUT && iClass <= TF_LAST_NORMAL_CLASS );
+	bool bValidClass = ( iClass >= TF_CLASS_SCOUT && iClass <= TF_CLASS_COUNT );
 	bool bValidConcept = ( m_iCurrentConcept >= 0 && m_iCurrentConcept < MP_TF_CONCEPT_COUNT );
 	Assert( bValidClass );
 	Assert( bValidConcept );

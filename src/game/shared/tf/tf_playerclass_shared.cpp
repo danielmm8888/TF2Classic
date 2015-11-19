@@ -274,7 +274,7 @@ CTFPlayerClassShared::CTFPlayerClassShared()
 //-----------------------------------------------------------------------------
 bool CTFPlayerClassShared::Init( int iClass )
 {
-	Assert ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) );
+	Assert ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_CLASS_COUNT ) );
 	m_iClass = iClass;
 	return true;
 }

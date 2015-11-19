@@ -3449,7 +3449,7 @@ const Vector& CTFPlayer::GetClassEyeHeight( void )
 
 	int iClassIndex = pClass->GetClassIndex();
 
-	if ( iClassIndex < TF_FIRST_NORMAL_CLASS || iClassIndex > TF_LAST_NORMAL_CLASS )
+	if ( iClassIndex < TF_FIRST_NORMAL_CLASS || iClassIndex > TF_CLASS_COUNT )
 		return VEC_VIEW;
 
 	return g_TFClassViewVectors[pClass->GetClassIndex()];
