@@ -95,6 +95,8 @@ ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICAT
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
 ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
+ConVar tf_ctf_bonus_time( "tf_ctf_bonus_time", "10", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
+
 ConVar tf_tournament_classlimit_scout( "tf_tournament_classlimit_scout", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Scouts.\n" );
 ConVar tf_tournament_classlimit_sniper( "tf_tournament_classlimit_sniper", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Snipers.\n" );
 ConVar tf_tournament_classlimit_soldier( "tf_tournament_classlimit_soldier", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Soldiers.\n" );
@@ -107,7 +109,6 @@ ConVar tf_tournament_classlimit_engineer( "tf_tournament_classlimit_engineer", "
 ConVar tf_tournament_classchange_allowed( "tf_tournament_classchange_allowed", "1", FCVAR_NOTIFY, "Allow players to change class while the game is active?.\n" );
 ConVar tf_tournament_classchange_ready_allowed( "tf_tournament_classchange_ready_allowed", "1", FCVAR_NOTIFY, "Allow players to change class after they are READY?.\n" );
 ConVar tf_classlimit( "tf_classlimit", "0", FCVAR_NOTIFY, "Limit on how many players can be any class (i.e. tf_class_limit 2 would limit 2 players per class).\n" );
-
 #endif
 
 #ifdef GAME_DLL
@@ -3377,6 +3378,29 @@ bool CTFGameRules::TimerMayExpire( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::HandleCTFCaptureBonus( int iTeam )
+{
+	float flBoostTime = tf_ctf_bonus_time.GetFloat();
+	if ( flBoostTime > 0.0 )
+	{
+		for ( int i = 1; i < gpGlobals->maxClients; i++ )
+		{
+			CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+			
+			if ( !pPlayer )
+				continue;
+
+			if ( pPlayer->GetTeamNumber() == iTeam && pPlayer->IsAlive() )
+			{
+				pPlayer->m_Shared.AddCond( TF_COND_CRITBOOSTED_CTF_CAPTURE, flBoostTime );
+			}
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -4528,20 +4552,6 @@ const char *CTFGameRules::GetGameDescription(void)
 			return "TF2C";
 			break;
 	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
-{
-	// No team balancing in DM since everybody should be on RED.
-	if ( IsDeathmatch() )
-	{
-		return;
-	}
-
-	BaseClass::BalanceTeams( bRequireSwitcheesToBeDead );
 }
 
 //-----------------------------------------------------------------------------

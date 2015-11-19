@@ -137,10 +137,6 @@ public:
 
 	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
 
-#ifdef GAME_DLL
-	virtual void	BalanceTeams( bool bRequireSwitcheesToBeDead );
-#endif
-
 	virtual bool	ShouldBalanceTeams( void );
 
 	CTeamRoundTimer* GetBlueKothRoundTimer( void ) { return m_hBlueKothTimer.Get(); }
@@ -188,6 +184,8 @@ public:
 
 	virtual bool	TimerMayExpire( void );
 
+	void			HandleCTFCaptureBonus( int iTeam );
+
 	virtual void	Arena_NotifyTeamSizeChange( void );
 	virtual int		Arena_PlayersNeededForMatch( void );
 	virtual void	Arena_ResetLosersScore( bool bUnknown );
@@ -226,10 +224,10 @@ protected:
 	
 	static int		PlayerRoundScoreSortFunc( const PlayerRoundScore_t *pRoundScore1, const PlayerRoundScore_t *pRoundScore2 );
 
-	virtual void FillOutTeamplayRoundWinEvent( IGameEvent *event );
+	virtual void	FillOutTeamplayRoundWinEvent( IGameEvent *event );
 
-	virtual bool CanChangelevelBecauseOfTimeLimit( void );
-	virtual bool CanGoToStalemate( void );
+	virtual bool	CanChangelevelBecauseOfTimeLimit( void );
+	virtual bool	CanGoToStalemate( void );
 #endif // GAME_DLL
 
 public:
