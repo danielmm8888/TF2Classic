@@ -3219,7 +3219,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = pScorer->GetActiveWeapon()->GetClassname(); 
 		}
 	}
-	else if ( pKiller && pKiller->IsNPC() && pInflictor && ( pInflictor == pKiller ) )
+	else if ( pKiller && pKiller->IsNPC() && ( pInflictor == pKiller ) )
 	{
 		// Similar case for NPCs.
 		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pKiller );
@@ -3230,7 +3230,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 		else
 		{
-			killer_weapon_name = STRING( pInflictor->m_iClassname );
+			killer_weapon_name = pNPC->GetClassname();
 		}
 	}
 	else if ( pInflictor )
@@ -3266,12 +3266,12 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		{
 			switch ( pSentry->GetUpgradeLevel() )
 			{
-				case 2:
-					killer_weapon_name = "obj_sentrygun2";
-					break;
-				case 3:
-					killer_weapon_name = "obj_sentrygun3";
-					break;
+			case 2:
+				killer_weapon_name = "obj_sentrygun2";
+				break;
+			case 3:
+				killer_weapon_name = "obj_sentrygun3";
+				break;
 			}
 		}
 	}
@@ -3304,6 +3304,13 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{
 			killer_weapon_name = "vortigaunt_beam";
+		}
+	}
+	else if ( Q_strcmp( killer_weapon_name,  "prop_vehicle_jeep" ) == 0 )
+	{
+		if ( info.GetDamageType() & DMG_SHOCK )
+		{
+			killer_weapon_name = "gauss";
 		}
 	}
 
@@ -3342,67 +3349,23 @@ CBasePlayer *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBasePlayer *pScor
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: universal version for players, returns the player/NPC who assisted in the kill, or NULL if no assister
+// Purpose: returns the player/NPC who assisted in the kill, or NULL if no assister
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFGameRules::GetAssister( CBasePlayer *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor )
+CBaseEntity *CTFGameRules::GetAssister( CBaseEntity *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor )
 {
 	// See if the killer is a player.
 	CTFPlayer *pTFScorer = ToTFPlayer( GetDeathScorer( pKiller, pInflictor, pVictim ) );
-	CTFPlayer *pTFVictim = ToTFPlayer( pVictim );
-	if ( pTFScorer && pTFVictim )
+	if ( pTFScorer )
 	{
 		// if victim killed himself, don't award an assist to anyone else, even if there was a recent damager
-		if ( pTFVictim == pTFScorer )
+		if ( pVictim == pTFScorer )
 			return NULL;
 
 		// If a player is healing the scorer, give that player credit for the assist
 		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pTFScorer->m_Shared.GetFirstHealer() ) );
 		// Must be a medic to receive a healing assist, otherwise engineers get credit for assists from dispensers doing healing.
 		// Also don't give an assist for healing if the inflictor was a sentry gun, otherwise medics healing engineers get assists for the engineer's sentry kills.
-		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) && ( NULL == dynamic_cast<CObjectSentrygun *>( pInflictor ) ) )
-		{
-			return pHealer;
-		}
-
-		// See who has damaged the victim 2nd most recently (most recent is the killer), and if that is within a certain time window.
-		// If so, give that player an assist.  (Only 1 assist granted, to single other most recent damager.)
-		CBaseEntity *pRecentDamager = GetRecentDamager( pTFVictim, 1, TF_TIME_ASSIST_KILL );
-		if ( pRecentDamager && ( pRecentDamager != pTFScorer ) )
-			return pRecentDamager;
-	}
-	else if ( pKiller && pVictim && pKiller->IsNPC() )	// See if the killer is NPC.
-	{
-		CAI_BaseNPC *pNPCKiller = assert_cast<CAI_BaseNPC *>( pKiller );
-
-		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pNPCKiller->GetFirstHealer() ) );
-
-		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) )
-			return pHealer;
-
-		// See who has damaged the victim 2nd most recently (most recent is the killer), and if that is within a certain time window.
-		// If so, give that player an assist.  (Only 1 assist granted, to single other most recent damager.)
-		CBaseEntity *pRecentDamager = GetRecentDamager( pTFVictim, 1, TF_TIME_ASSIST_KILL );
-		if ( pRecentDamager && ( pRecentDamager != pKiller ) )
-			return pRecentDamager;
-	}
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: universal version for NPCs, returns the player/NPC who assisted in the kill, or NULL if no assister
-//-----------------------------------------------------------------------------
-CBaseEntity *CTFGameRules::GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKiller, CBaseEntity *pInflictor )
-{
-	// See if the killer is a player.
-	CTFPlayer *pTFScorer = ToTFPlayer( GetDeathScorer( pKiller, pInflictor, pVictim ) );
-	if ( pTFScorer && pVictim )
-	{
-		// If a player is healing the scorer, give that player credit for the assist
-		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pTFScorer->m_Shared.GetFirstHealer() ) );
-		// Must be a medic to receive a healing assist, otherwise engineers get credit for assists from dispensers doing healing.
-		// Also don't give an assist for healing if the inflictor was a sentry gun, otherwise medics healing engineers get assists for the engineer's sentry kills.
-		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) && ( NULL == dynamic_cast<CObjectSentrygun *>( pInflictor ) ) )
+		if ( pHealer && ( pHealer->IsPlayerClass( TF_CLASS_MEDIC ) ) && ( dynamic_cast<CObjectSentrygun *>( pInflictor ) ) == NULL )
 		{
 			return pHealer;
 		}
@@ -3413,7 +3376,7 @@ CBaseEntity *CTFGameRules::GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKill
 		if ( pRecentDamager && ( pRecentDamager != pTFScorer ) )
 			return pRecentDamager;
 	}
-	else if ( pKiller && pVictim && pKiller->IsNPC() )
+	else if ( pKiller && pKiller->IsNPC() )	// See if the killer is NPC.
 	{
 		CAI_BaseNPC *pNPCKiller = assert_cast<CAI_BaseNPC *>( pKiller );
 
@@ -3423,7 +3386,7 @@ CBaseEntity *CTFGameRules::GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKill
 
 		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pNPCKiller->GetFirstHealer() ) );
 
-		if ( pHealer && ( TF_CLASS_MEDIC == pHealer->GetPlayerClass()->GetClassIndex() ) )
+		if( pHealer && ( pHealer->IsPlayerClass( TF_CLASS_MEDIC ) ) )
 			return pHealer;
 
 		// See who has damaged the victim 2nd most recently (most recent is the killer), and if that is within a certain time window.
@@ -3441,27 +3404,34 @@ CBaseEntity *CTFGameRules::GetAssister( CAI_BaseNPC *pVictim, CBaseEntity *pKill
 //			within the specified time period.  iDamager=0 returns the most recent
 //			damager, iDamager=1 returns the next most recent damager.
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFGameRules::GetRecentDamager( CTFPlayer *pVictim, int iDamager, float flMaxElapsed )
+CBaseEntity *CTFGameRules::GetRecentDamager( CBaseEntity *pVictim, int iDamager, float flMaxElapsed )
 {
 	Assert( iDamager < MAX_DAMAGER_HISTORY );
 
-	DamagerHistory_t &damagerHistory = pVictim->GetDamagerHistory( iDamager );
-	if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
+	CTFPlayer *pTFVictim = ToTFPlayer( pVictim );
+	if ( pTFVictim )
 	{
-		return damagerHistory.hDamager.Get();
+		DamagerHistory_t &damagerHistory = pTFVictim->GetDamagerHistory( iDamager );
+		if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
+		{
+			return damagerHistory.hDamager.Get();
+		}
+
+		return NULL;
 	}
-	return NULL;
-}
 
-CBaseEntity *CTFGameRules::GetRecentDamager( CAI_BaseNPC *pVictim, int iDamager, float flMaxElapsed )
-{
-	Assert( iDamager < MAX_DAMAGER_HISTORY );
-
-	DamagerHistory_t &damagerHistory = pVictim->GetDamagerHistory( iDamager );
-	if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
+	CAI_BaseNPC *pNPC = pVictim->MyNPCPointer();
+	if ( pNPC )
 	{
-		return damagerHistory.hDamager.Get();
+		DamagerHistory_t &damagerHistory = pNPC->GetDamagerHistory( iDamager );
+		if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
+		{
+			return damagerHistory.hDamager.Get();
+		}
+		
+		return NULL;
 	}
+
 	return NULL;
 }
 
