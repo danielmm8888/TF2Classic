@@ -3666,7 +3666,7 @@ void CAI_BaseNPC::RunTask( const Task_t *pTask )
 						if( pHint )
 						{
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-							CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() );
+							CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() );
 #else
 							CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI

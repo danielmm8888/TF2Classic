@@ -568,7 +568,7 @@ void CNPC_PlayerCompanion::DoCustomSpeechAI( void )
 void CNPC_PlayerCompanion::PredictPlayerPush()
 {
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 #else
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI	
@@ -996,7 +996,7 @@ int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
 
 			if( CanReload() && pWeapon->UsesClipsForAmmo1() && pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .5 ) && OccupyStrategySlot( SQUAD_SLOT_EXCLUSIVE_RELOAD ) )
 			{
-					CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() );
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() );
 
 					if ( pPlayer )
 					{
@@ -1282,7 +1282,7 @@ void CNPC_PlayerCompanion::RunTask( const Task_t *pTask )
 		case TASK_PC_GET_PATH_OFF_COMPANION:
 			{
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-					GetNavigator()->SetAllowBigStep( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) );
+					GetNavigator()->SetAllowBigStep( UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ) );
 #else
 if ( AI_IsSinglePlayer() )
 				{
@@ -2944,7 +2944,7 @@ void CNPC_PlayerCompanion::OnFriendDamaged( CBaseCombatCharacter *pSquadmate, CB
 		}
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 #else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -3184,7 +3184,7 @@ float CNPC_PlayerCompanion::GetIdealAccel() const
 
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() );
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() );
 
 	if ( m_bMovingAwayFromPlayer && pPlayer && (pPlayer->GetAbsOrigin() - GetAbsOrigin()).Length2DSqr() < Square(3.0*12.0) ) 
 		multiplier = 2.0;

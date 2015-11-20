@@ -643,6 +643,10 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
+	// We should really replace all occurences of this.
+#ifdef	DEBUG
+	Warning( "UTIL_GetLocalPlayer() called in multiplayer game.\n" );
+#endif
 
 	// first try getting the host, failing that, get *ANY* player
 	CBasePlayer *pHost = UTIL_GetListenServerHost();
@@ -687,7 +691,7 @@ CBasePlayer *UTIL_GetOtherNearestPlayer( const Vector &origin )
 	return pOtherNearest;
 }
 
-CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
+CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin, int iTeam /*= TEAM_ANY*/ )
 {
 	float distToNearest = FLT_MAX;
 	CBasePlayer *pNearest = NULL;
@@ -696,6 +700,13 @@ CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
 	{
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 		if ( !pPlayer )
+			continue;
+
+		// Ignore spectators.
+		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
+			continue;
+
+		if ( iTeam != TEAM_ANY && pPlayer->GetTeamNumber() != iTeam )
 			continue;
 
 		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
@@ -711,7 +722,7 @@ CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
 	return pNearest;
 }
 
-CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
+CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask, int iTeam /*= TEAM_ANY*/ )
 {															
 	float distToNearest = FLT_MAX;
 	CBasePlayer *pNearest = NULL;
@@ -722,53 +733,11 @@ CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
 		if ( !pPlayer )
 			continue;
 
-		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();
-		if ( flDist < distToNearest && pLooker->FVisible( pPlayer, mask ) )
-		{
-			pNearest = pPlayer;
-			distToNearest = flDist;
-		}	
-	}
-
-	return pNearest; 
-}
-
-CBasePlayer *UTIL_GetNearestAlliedPlayer( const Vector &origin, int iTeamNum )
-{
-	float distToNearest = FLT_MAX;
-	CBasePlayer *pNearest = NULL;
-
-	for (int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer || pPlayer->GetTeamNumber() != iTeamNum )
+		// Ignore spectators.
+		if ( pPlayer->GetTeamNumber() == TEAM_SPECTATOR )
 			continue;
 
-		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
-		if ( flDist < distToNearest )
-
-		{
-			pNearest = pPlayer;
-			distToNearest = flDist;
-
-		}
-	}
-
-	return pNearest;
-}
-
-CBasePlayer *UTIL_GetNearestVisibleAlliedPlayer( CBaseEntity *pLooker, int mask )
-{															
-	float distToNearest = FLT_MAX;
-	CBasePlayer *pNearest = NULL;
-
-	for (int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer )
-			continue;
-
-		if ( pLooker->GetTeamNumber() != pPlayer->GetTeamNumber() )
+		if ( iTeam != TEAM_ANY && pPlayer->GetTeamNumber() != iTeam )
 			continue;
 
 		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();

@@ -3365,7 +3365,7 @@ CBaseEntity *CTFGameRules::GetAssister( CBaseEntity *pVictim, CBaseEntity *pKill
 		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pTFScorer->m_Shared.GetFirstHealer() ) );
 		// Must be a medic to receive a healing assist, otherwise engineers get credit for assists from dispensers doing healing.
 		// Also don't give an assist for healing if the inflictor was a sentry gun, otherwise medics healing engineers get assists for the engineer's sentry kills.
-		if ( pHealer && ( pHealer->IsPlayerClass( TF_CLASS_MEDIC ) ) && ( dynamic_cast<CObjectSentrygun *>( pInflictor ) ) == NULL )
+		if ( pHealer && pHealer->IsPlayerClass( TF_CLASS_MEDIC ) && ( dynamic_cast<CObjectSentrygun *>( pInflictor ) ) == NULL )
 		{
 			return pHealer;
 		}
@@ -3386,7 +3386,7 @@ CBaseEntity *CTFGameRules::GetAssister( CBaseEntity *pVictim, CBaseEntity *pKill
 
 		CTFPlayer *pHealer = ToTFPlayer( static_cast<CBaseEntity *>( pNPCKiller->GetFirstHealer() ) );
 
-		if( pHealer && ( pHealer->IsPlayerClass( TF_CLASS_MEDIC ) ) )
+		if( pHealer && pHealer->IsPlayerClass( TF_CLASS_MEDIC ) )
 			return pHealer;
 
 		// See who has damaged the victim 2nd most recently (most recent is the killer), and if that is within a certain time window.

@@ -214,7 +214,7 @@ public:
 
 					pAllyNpc->AddSpawnFlags(SF_NPC_GAG);
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-					pAllyNpc->TargetOrder( UTIL_GetNearestAlliedPlayer( pAllyNpc->GetAbsOrigin(), pAllyNpc->GetTeamNumber() ), &pAllyNpc, 1 ); 
+					pAllyNpc->TargetOrder( UTIL_GetNearestPlayer( pAllyNpc->GetAbsOrigin(), pAllyNpc->GetTeamNumber() ), &pAllyNpc, 1 ); 
 #else
 					pAllyNpc->TargetOrder( UTIL_GetLocalPlayer(), &pAllyNpc, 1 );
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -556,7 +556,7 @@ void CNPC_Citizen::PostNPCInit()
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 		if ( ( m_spawnflags & SF_CITIZEN_FOLLOW ) ) 
 		{
-			m_FollowBehavior.SetFollowTarget( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) );
+			m_FollowBehavior.SetFollowTarget( UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ) );
 #else
 		if ( ( m_spawnflags & SF_CITIZEN_FOLLOW ) && AI_IsSinglePlayer() )
 		{
@@ -948,7 +948,7 @@ void CNPC_Citizen::GatherConditions()
 	if( CanHeal() )
 	{
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		CBasePlayer *pPlayer = UTIL_GetNearestVisibleAlliedPlayer( this );
+		CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer( this, GetTeamNumber() );
 #else
 		CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -1018,7 +1018,7 @@ void CNPC_Citizen::PredictPlayerPush()
 	BaseClass::PredictPlayerPush();
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() );
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() );
 #else
 	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -1534,7 +1534,7 @@ int CNPC_Citizen::TranslateSchedule( int scheduleType )
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
 			else if ( GetEnemy() ) 
 			{
-				CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetEnemy()->GetAbsOrigin(), GetTeamNumber() ); 
+				CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetEnemy()->GetAbsOrigin(), GetTeamNumber() ); 
 				if ( pPlayer && ( ( GetEnemy()->GetAbsOrigin() -  
 #else
 			else
@@ -1816,7 +1816,7 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 					Vector vecEnemyPos = GetEnemy()->BodyTarget(GetAbsOrigin(), false);
 					
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-					CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetEnemy()->GetAbsOrigin(), GetTeamNumber() ); 
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetEnemy()->GetAbsOrigin(), GetTeamNumber() ); 
 #else
 					CBasePlayer *pPlayer = AI_GetSinglePlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI	
@@ -2446,7 +2446,7 @@ bool CNPC_Citizen::ShouldAutoSummon()
 	if ( !IsFollowingCommandPoint() || !IsInPlayerSquad() ) 
 		return false;
 
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() );
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() );
 #else
 	if ( !AI_IsSinglePlayer() || !IsFollowingCommandPoint() || !IsInPlayerSquad() )
 		return false;
@@ -2581,7 +2581,7 @@ bool CNPC_Citizen::SpeakCommandResponse( AIConcept_t concept, const char *modifi
 									"useradio:%d%s",
 									( GetSquad() ) ? GetSquad()->NumMembers() : 1,
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-									ShouldSpeakRadio( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) ), 
+									ShouldSpeakRadio( UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ) ), 
 #else
 									ShouldSpeakRadio( AI_GetSinglePlayer() ),
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -2643,7 +2643,7 @@ void CNPC_Citizen::MoveOrder( const Vector &vecDest, CAI_BaseNPC **Allies, int n
 	}
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 #else
 	CHL2_Player *pPlayer = (CHL2_Player *)UTIL_GetLocalPlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -2864,7 +2864,7 @@ void CNPC_Citizen::TogglePlayerSquadState()
 		}
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-		else if ( m_FollowBehavior.GetFollowTarget() == UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) ) 
+		else if ( m_FollowBehavior.GetFollowTarget() && m_FollowBehavior.GetFollowTarget()->IsPlayer() )
 #else
 		else if ( m_FollowBehavior.GetFollowTarget() == UTIL_GetLocalPlayer() )
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI	
@@ -2894,7 +2894,7 @@ struct SquadCandidate_t
 void CNPC_Citizen::UpdatePlayerSquad()
 {
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 	if ( pPlayer && ( pPlayer->GetAbsOrigin().AsVector2D() - GetAbsOrigin().AsVector2D() ).LengthSqr() < Square(20*12) ) 
 #else
 	if ( !AI_IsSinglePlayer() )
@@ -3244,7 +3244,7 @@ void CNPC_Citizen::FixupPlayerSquad()
 	}
 	else
 	{
-		m_FollowBehavior.SetFollowTarget( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) );
+		m_FollowBehavior.SetFollowTarget( UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ) );
 		m_FollowBehavior.SetParameters( AIF_SIMPLE );
 	}
 }
@@ -3254,12 +3254,12 @@ void CNPC_Citizen::FixupPlayerSquad()
 void CNPC_Citizen::ClearFollowTarget()
 {
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	m_FollowBehavior.SetFollowTarget( UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ) ); 
+	m_FollowBehavior.SetFollowTarget( UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ) );
 #else
 	m_FollowBehavior.SetFollowTarget( NULL );
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 
-m_FollowBehavior.SetParameters( AIF_SIMPLE );
+	m_FollowBehavior.SetParameters( AIF_SIMPLE );
 }
 
 //-----------------------------------------------------------------------------
@@ -3302,7 +3302,7 @@ void CNPC_Citizen::UpdateFollowCommandPoint()
 				ClearFollowTarget();
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-			CBasePlayer *pNearest = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+			CBasePlayer *pNearest = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 			if ( m_FollowBehavior.GetFollowTarget() != pNearest ) 
 			{
 				DevMsg( "Switching to following new nearest player\n" );
@@ -3375,7 +3375,7 @@ CAI_BaseNPC *CNPC_Citizen::GetSquadCommandRepresentative()
 			CUtlVectorFixed<SquadMemberInfo_t, MAX_SQUAD_MEMBERS> candidates;
 
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-			CBasePlayer *pPlayer = UTIL_GetNearestAlliedPlayer( GetAbsOrigin(), GetTeamNumber() ); 
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer( GetAbsOrigin(), GetTeamNumber() ); 
 #else
 			CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
 #endif //SecobMod__Enable_Fixed_Multiplayer_AI
@@ -3892,7 +3892,7 @@ bool CNPC_Citizen::ShouldLookForHealthItem()
 
 	// Player is hurt, don't steal his health.
 #ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-	CBasePlayer *pNearest = UTIL_GetNearestVisibleAlliedPlayer( this ); 
+	CBasePlayer *pNearest = UTIL_GetNearestVisiblePlayer( this, GetTeamNumber() ); 
 	if( pNearest && pNearest->GetHealth() <= pNearest->GetMaxHealth() * 0.75f ) 
 #else
 	if( AI_IsSinglePlayer() && UTIL_GetLocalPlayer()->GetHealth() <= UTIL_GetLocalPlayer()->GetHealth() * 0.75f )
@@ -4301,17 +4301,17 @@ void CCitizenResponseSystem::ResponseThink()
 					CBaseEntity *pNearestCitizen = NULL;
 					CBaseEntity *pCitizen = NULL;
 
-				#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
 					CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
-				#endif //SecobMod__Enable_Fixed_Multiplayer_AI
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
-					while ( (pCitizen = gEntList.FindEntityByClassname( pCitizen, "npc_citizen" ) ) != NULL)
+					while ( ( pCitizen = gEntList.FindEntityByClassname( pCitizen, "npc_citizen" ) ) != NULL )
 					{
-				#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
-					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(pCitizen->GetAbsOrigin()); 
-				#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+						CBasePlayer *pPlayer = UTIL_GetNearestPlayer( pCitizen->GetAbsOrigin() );
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 
-					float flDistToPlayer = (pPlayer->WorldSpaceCenter() - pCitizen->WorldSpaceCenter()).LengthSqr();
+						float flDistToPlayer = ( pPlayer->WorldSpaceCenter() - pCitizen->WorldSpaceCenter() ).LengthSqr();
 						if ( flDistToPlayer < flNearestDist )
 						{
 							flNearestDist = flDistToPlayer;
