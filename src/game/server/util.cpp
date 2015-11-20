@@ -644,9 +644,6 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
 	// We should really replace all occurences of this.
-#ifdef	DEBUG
-	Warning( "UTIL_GetLocalPlayer() called in multiplayer game.\n" );
-#endif
 
 	// first try getting the host, failing that, get *ANY* player
 	CBasePlayer *pHost = UTIL_GetListenServerHost();

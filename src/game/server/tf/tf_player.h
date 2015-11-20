@@ -432,6 +432,7 @@ private:
 	void				InitClass( void );
 	void				GiveDefaultItems();
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
+	void				SelectSpawnPlayer( void );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();
 
@@ -560,6 +561,8 @@ private:
 
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
+
+	EHANDLE				m_hTempSpawnSpot;
 
 	COutputEvent		m_OnDeath;
 

@@ -811,6 +811,13 @@ void CTFPlayer::Spawn()
 	SetMoveType( MOVETYPE_WALK );
 	BaseClass::Spawn();
 
+	if ( m_hTempSpawnSpot.Get() )
+	{
+		// Nuke our temp spawn spot now that we've used it.
+		UTIL_Remove( m_hTempSpawnSpot );
+		m_hTempSpawnSpot = NULL;
+	}
+
 	// Create our off hand viewmodel if necessary
 	CreateViewModel( 1 );
 	// Make sure it has no model set, in case it had one before
@@ -1256,6 +1263,12 @@ CBaseEntity *FindPlayerStart( const char *pszClassName );
 //-----------------------------------------------------------------------------
 CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 {
+	// If we have a temp spawn point set up then use that.
+	if ( m_hTempSpawnSpot )
+	{
+		return ( m_hTempSpawnSpot.Get() );
+	}
+
 	CBaseEntity *pSpot = g_pLastSpawnPoints[ GetTeamNumber() ];
 	const char *pSpawnPointName = "";
 
@@ -1352,6 +1365,115 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 	while ( pSpot != pFirstSpot ); 
 
 	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Search for a player to spawn near
+//-----------------------------------------------------------------------------
+void CTFPlayer::SelectSpawnPlayer( void )
+{
+	if ( !IsReadyToPlay() )
+	{
+		return;
+	}
+
+	if ( TFGameRules()->GetGameType() != TF_GAMETYPE_COOP ||
+		GetTeamNumber() != TF_TEAM_RED ||
+		IsAlive() ||
+		TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ||
+		TFGameRules()->IsInWaitingForPlayers() )
+	{
+		// Conditions are no longer valid, stop the search.
+		return;
+	}
+
+	CUtlVector<CBasePlayer *> vecPlayers;
+
+	// Qualified players are teammates that are alive and not in mid-air.
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+
+		if ( pPlayer && InSameTeam( pPlayer ) && pPlayer->IsAlive() && pPlayer->GetGroundEntity() != NULL )
+		{
+			vecPlayers.AddToTail( pPlayer );
+		}
+	}
+
+	vecPlayers.Shuffle();
+
+	Vector vecSpawnOrigin = vec3_origin;
+	QAngle vecSpawnAngles;
+
+	int numPlayers = vecPlayers.Count();
+	for ( int i = 0; i < numPlayers && vecSpawnOrigin == vec3_origin; i++ )
+	{
+		CBasePlayer *pPlayer = vecPlayers[i];
+
+		if ( !pPlayer )
+			continue;
+
+		Vector vecOrigin = pPlayer->GetAbsOrigin();
+		QAngle vecAngles = pPlayer->GetAbsAngles();
+		vecAngles[PITCH] = 0.0;
+		Vector vecForward, vecRight, vecUp;
+		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
+
+		Vector mins = VEC_HULL_MIN;
+		Vector maxs = VEC_HULL_MAX;
+
+		Vector vecSpawnTests[4] =
+		{
+			( vecOrigin - vecForward * ( maxs.x * 3.0 ) ), // Behind
+			( vecOrigin - vecRight * ( maxs.x * 3.0 ) ), // Left
+			( vecOrigin + vecRight * ( maxs.x * 3.0 ) ), // Right
+			( vecOrigin + vecForward * ( maxs.x * 3.0 ) ), // Front
+		};
+
+		// Try 4 spots around him.
+		for ( int i = 0; i < ARRAYSIZE( vecSpawnTests ); i++ )
+		{
+			Vector testPos = vecSpawnTests[i];
+			Vector endPos = testPos - vecUp * 5;
+			trace_t tr;
+
+			// Must be solid ground below.
+			UTIL_TraceLine( testPos, endPos, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER_MOVEMENT, &tr );
+			if ( tr.fraction < 1.0f )
+			{
+				// Space must be clear.
+				UTIL_TraceHull( testPos, testPos, mins, maxs, MASK_PLAYERSOLID, pPlayer, COLLISION_GROUP_PLAYER_MOVEMENT, &tr );
+				if ( !tr.allsolid && !tr.startsolid )
+				{
+					// Found it!
+					vecSpawnOrigin = testPos;
+					vecSpawnAngles = vecAngles;
+					break;
+				}
+			}
+		}
+	}
+
+	if ( vecSpawnOrigin != vec3_origin )
+	{
+		CTFTeamSpawn *pSpot = dynamic_cast<CTFTeamSpawn *>( CreateEntityByName( "info_player_teamspawn" ) );
+
+		if ( pSpot )
+		{
+			pSpot->SetAbsOrigin( vecSpawnOrigin );
+			pSpot->SetAbsAngles( vecSpawnAngles );
+			pSpot->ChangeTeam( GetTeamNumber() );
+			// Disable it so other players don't accidently snatch it.
+			pSpot->SetDisabled( true );
+
+			m_hTempSpawnSpot = pSpot;
+
+			ForceRespawn();
+			return;
+		}
+	}
+
+	SetContextThink( &CTFPlayer::SelectSpawnPlayer, gpGlobals->curtime + 1.0, "SpawnSearchThink" );
 }
 
 //-----------------------------------------------------------------------------
@@ -4440,6 +4562,22 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ForceRespawn( void )
 {
+	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_COOP &&
+		GetTeamNumber() == TF_TEAM_RED &&
+		!IsAlive() &&
+		!m_hTempSpawnSpot.Get() &&
+		TFGameRules()->State_Get() == GR_STATE_RND_RUNNING &&
+		!TFGameRules()->IsInWaitingForPlayers() )
+	{
+		// In co-op, we respawn near a living teammate.
+		// Only do this if we're dead, allow respawning normally if we, say, change class inside respawn room.
+		SetContextThink( &CTFPlayer::SelectSpawnPlayer, gpGlobals->curtime, "SpawnSearchThink" );
+		return;
+	}
+
+	// Stop searching for spawn point if we're still doing this.
+	SetContextThink( NULL, 0, "SpawnSearchThink" );
+
 	CTF_GameStats.Event_PlayerForceRespawn( this );
 
 	m_flSpawnTime = gpGlobals->curtime;
@@ -5551,7 +5689,7 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 	}		
 
 	// Lastly, look for an allied NPC.
-	if ( !pReturnTarget )
+	if ( !pReturnTarget && tf2c_allow_spectate_npc.GetBool() == true )
 	{
 		CTFTeam *pTFTeam = GetTFTeam();
 		flCurDistSqr = ( flMaxDist * flMaxDist );
@@ -5599,7 +5737,7 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 					}
 				}
 			}
-			else if ( !bFoundClass )
+			else if ( !bFoundVital )
 			{
 				if ( pNPC->Classify() == CLASS_PLAYER_ALLY_VITAL )
 				{
