@@ -172,13 +172,26 @@ Activity CTFWeaponBuilder::GetDrawActivity( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFWeaponBuilder::CanHolster( void ) const
+{
+	// If player is hauling a building he can't switch away without dropping it.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		return false;
+	}
+
+	return BaseClass::CanHolster();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Stop placement when holstering
 //-----------------------------------------------------------------------------
 bool CTFWeaponBuilder::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
-	if ( GetOwner() && ToTFPlayer(GetOwner()) && ToTFPlayer(GetOwner())->m_Shared.IsCarryingObject() )
-		return false;
-
 	if ( m_iBuildState == BS_PLACING || m_iBuildState == BS_PLACING_INVALID )
 	{
 		SetCurrentState( BS_IDLE );

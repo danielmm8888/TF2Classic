@@ -3909,6 +3909,16 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		}
 	}
 
+	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
+	{
+		// Blow it up at our position.
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
+		pObject->DropCarriedObject( this );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
+		pObject->Killed( newInfo );
+	}
+
 	// Remove all items...
 	RemoveAllItems( true );
 
@@ -4021,16 +4031,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	// Don't overflow the value for this.
 	m_iHealth = 0;
-
-	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
-	{
-		// Blow it up at our position.
-		CBaseObject *pObject = m_Shared.GetCarriedObject();
-		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
-		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
-		pObject->Killed( newInfo );
-	}
 
 	// If we died in sudden death and we're an engineer, explode our buildings
 	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && TFGameRules()->InStalemate() )

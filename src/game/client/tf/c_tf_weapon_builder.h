@@ -42,6 +42,7 @@ public:
 	virtual const char *GetWorldModel( void ) const;
 
 	virtual bool Deploy( void );
+	virtual bool CanHolster( void ) const;
 
 	C_BaseObject	*GetPlacementModel( void ) { return m_hObjectBeingBuilt.Get(); }
 
