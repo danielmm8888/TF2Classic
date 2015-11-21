@@ -7734,7 +7734,7 @@ void CRevertSaved::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 void CRevertSaved::InputReload( inputdata_t &inputdata )
 {
 #ifdef TF_CLASSIC
-	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_COOP )
+	if ( TFGameRules()->IsCoOpGameRunning() )
 	{
 		TFGameRules()->SetWinningTeam( TF_TEAM_BLUE, WINREASON_NONE );
 	}

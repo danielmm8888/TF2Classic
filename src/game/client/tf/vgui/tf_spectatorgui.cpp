@@ -118,6 +118,10 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 		// a team has won the round
 		g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find( "#game_respawntime_next_round" ), 0 );
 	}
+	else if ( TFGameRules()->IsCoOpGameRunning() && pPlayer->GetTeamNumber() == TF_STORY_TEAM && pPlayer->m_Shared.GetLivesCount() == 0 )
+	{
+		g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find( "#game_respawntime_no_lives" ), 0 );
+	}
 	else
 	{
 		float flNextRespawn = TFGameRules()->GetNextRespawnWave( pPlayer->GetTeamNumber(), pPlayer );
@@ -221,7 +225,7 @@ void CTFSpectatorGUI::UpdateKeyLabels( void )
 
 	if ( m_pSwitchCamModeKeyLabel )
 	{
-		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) || ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
+		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
 		{
 			if ( m_pSwitchCamModeKeyLabel->IsVisible() )
 			{

@@ -97,6 +97,7 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
 ConVar tf2c_allow_spectate_npc( "tf2c_allow_spectate_npc", "0", 0, "Allow spectating NPC. Enabling this is not recommended." );
+ConVar tf2c_coop_lives( "tf2c_coop_lives", "-1", 0, "Amount of lives RED players start with in co-op. Set to -1 for unlimited lives." );
 
 // Cvars from HL2 player
 ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
@@ -760,6 +761,11 @@ bool CTFPlayer::IsReadyToSpawn( void )
 		return false;
 	}
 
+	if ( TFGameRules()->IsCoOpGameRunning() && IsOnStoryTeam() && m_Shared.GetLivesCount() == 0 )
+	{
+		return false;
+	}
+
 	return ( StateGet() != TF_STATE_DYING );
 }
 
@@ -769,6 +775,11 @@ bool CTFPlayer::IsReadyToSpawn( void )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::ShouldGainInstantSpawn( void )
 {
+	if ( TFGameRules()->IsCoOpGameRunning() && IsOnStoryTeam() && m_Shared.GetLivesCount() == 0 )
+	{
+		return false;
+	}
+
 	return ( GetPlayerClass()->GetClassIndex() == TF_CLASS_UNDEFINED || IsClassMenuOpen() );
 }
 
@@ -1370,20 +1381,17 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 //-----------------------------------------------------------------------------
 // Purpose: Search for a player to spawn near
 //-----------------------------------------------------------------------------
-void CTFPlayer::SelectSpawnPlayer( void )
+void CTFPlayer::SearchCoopSpawnSpot( void )
 {
-	if ( !IsReadyToPlay() )
+	if ( IsAlive() )
 	{
+		// Already spawned.
 		return;
 	}
 
-	if ( TFGameRules()->GetGameType() != TF_GAMETYPE_COOP ||
-		GetTeamNumber() != TF_TEAM_RED ||
-		IsAlive() ||
-		TFGameRules()->State_Get() != GR_STATE_RND_RUNNING ||
-		TFGameRules()->IsInWaitingForPlayers() )
+	if ( !TFGameRules()->IsCoOpGameRunning() || !IsOnStoryTeam() )
 	{
-		// Conditions are no longer valid, stop the search.
+		// No longer spawning this way.
 		return;
 	}
 
@@ -1434,7 +1442,7 @@ void CTFPlayer::SelectSpawnPlayer( void )
 		for ( int i = 0; i < ARRAYSIZE( vecSpawnTests ); i++ )
 		{
 			Vector testPos = vecSpawnTests[i];
-			Vector endPos = testPos - vecUp * 5;
+			Vector endPos = testPos - vecUp * 10;
 			trace_t tr;
 
 			// Must be solid ground below.
@@ -1465,15 +1473,19 @@ void CTFPlayer::SelectSpawnPlayer( void )
 			pSpot->ChangeTeam( GetTeamNumber() );
 			// Disable it so other players don't accidently snatch it.
 			pSpot->SetDisabled( true );
+			pSpot->Spawn();
 
 			m_hTempSpawnSpot = pSpot;
 
-			ForceRespawn();
+			if ( m_bAllowInstantSpawn )
+			{
+				ForceRespawn();
+			}
 			return;
 		}
 	}
 
-	SetContextThink( &CTFPlayer::SelectSpawnPlayer, gpGlobals->curtime + 1.0, "SpawnSearchThink" );
+	SetContextThink( &CTFPlayer::SearchCoopSpawnSpot, gpGlobals->curtime + 1.0, "SpawnSearchThink" );
 }
 
 //-----------------------------------------------------------------------------
@@ -1895,22 +1907,15 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		// by spectating someone inside a respawn room.
 		bInRespawnRoom = (GetObserverTarget() == this);
 	}
-	bool bDeadInstantSpawn = !IsAlive();
-	if ( bDeadInstantSpawn && m_flDeathTime )
-	{
-		// In death mode, don't allow class changes to force respawns ahead of respawn waves
-		float flWaveTime = TFGameRules()->GetNextRespawnWave( GetTeamNumber(), this );
-		bDeadInstantSpawn = (gpGlobals->curtime > flWaveTime);
-	}
 	bool bInStalemateClassChangeTime = false;
 	if ( TFGameRules()->InStalemate() )
 	{
 		// Stalemate overrides respawn rules. Only allow spawning if we're in the class change time.
 		bInStalemateClassChangeTime = TFGameRules()->CanChangeClassInStalemate();
-		bDeadInstantSpawn = false;
 		bInRespawnRoom = false;
 	}
-	if ( bShouldNotRespawn == false && ( m_bAllowInstantSpawn || bDeadInstantSpawn || bInRespawnRoom || bInStalemateClassChangeTime ) )
+	
+	if ( bShouldNotRespawn == false && ( m_bAllowInstantSpawn || bInRespawnRoom || bInStalemateClassChangeTime ) )
 	{
 		ForceRespawn();
 		return;
@@ -1942,8 +1947,8 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( IsAlive() && ( GetHudClassAutoKill() == true ) && bShouldNotRespawn == false )
 	{
 		CommitSuicide( false, true );
-		if (GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER)
-			RemoveAllObjects(false);
+		if ( GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER )
+			RemoveAllObjects( false );
 	}
 }
 
@@ -3494,6 +3499,27 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	StateTransition( TF_STATE_DYING );	// Transition into the dying state.
 
+	// Deplete lives counter.
+	int iLives = m_Shared.GetLivesCount();
+	if ( TFGameRules()->IsCoOpGameRunning() && IsOnStoryTeam() && iLives > 0 )
+	{
+		m_Shared.SetLivesCount( --iLives );
+		if ( iLives > 1 )
+		{
+			char szLivesCount[16];
+			itoa( iLives, szLivesCount, 10 );
+			ClientPrint( this, HUD_PRINTTALK, "#game_lives_left", szLivesCount );
+		}
+		else if ( iLives == 1 )
+		{
+			ClientPrint( this, HUD_PRINTTALK, "#game_lives_one" );
+		}
+		else
+		{
+			ClientPrint( this, HUD_PRINTTALK, "#game_lives_zero" );
+		}
+	}
+
 	CTFPlayer *pPlayerAttacker = NULL;
 	if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
 	{
@@ -4183,6 +4209,9 @@ void CTFPlayer::StateEnterWELCOME( void )
 
 	PhysObjectSleep();
 
+	// Set initial lives count.
+	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
+
 	if ( gpGlobals->eLoadType == MapLoad_Background )
 	{
 		m_bSeenRoundInfo = true;
@@ -4275,7 +4304,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		{
 			mode = OBS_MODE_CHASE;
 		}
-		else if ( mode == OBS_MODE_ROAMING || ( mode > OBS_MODE_FIXED && mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+		else if ( mode == OBS_MODE_ROAMING )
 		{
 			mode = OBS_MODE_IN_EYE;
 		}
@@ -4562,20 +4591,19 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ForceRespawn( void )
 {
-	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_COOP &&
-		GetTeamNumber() == TF_TEAM_RED &&
+	if ( TFGameRules()->IsCoOpGameRunning() &&
+		IsOnStoryTeam() &&
 		!IsAlive() &&
-		!m_hTempSpawnSpot.Get() &&
-		TFGameRules()->State_Get() == GR_STATE_RND_RUNNING &&
-		!TFGameRules()->IsInWaitingForPlayers() )
+		!m_hTempSpawnSpot.Get() )
 	{
 		// In co-op, we respawn near a living teammate.
-		// Only do this if we're dead, allow respawning normally if we, say, change class inside respawn room.
-		SetContextThink( &CTFPlayer::SelectSpawnPlayer, gpGlobals->curtime, "SpawnSearchThink" );
+		// Only do this if we're dead, allow respawning normally if we change class inside respawn room.
+		AllowInstantSpawn();
+		SetContextThink( &CTFPlayer::SearchCoopSpawnSpot, gpGlobals->curtime, "SpawnSearchThink" );
 		return;
 	}
 
-	// Stop searching for spawn point if we're still doing this.
+	// Stop searching for spawn point in case we're still doing this.
 	SetContextThink( NULL, 0, "SpawnSearchThink" );
 
 	CTF_GameStats.Event_PlayerForceRespawn( this );
@@ -5327,9 +5355,6 @@ public:
 	bool CanUseObserverPoint( CTFPlayer *pPlayer )
 	{
 		if ( m_bDisabled )
-			return false;
-
-		if ( ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM ) && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
 			return false;
 
 		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
@@ -6724,6 +6749,15 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 	}
 
 	return true; 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ResetPerRoundStats( void )
+{
+	// Reset lives count.
+	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
 }
 
 //=========================================================

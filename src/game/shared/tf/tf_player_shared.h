@@ -197,6 +197,9 @@ public:
 	bool	IsPlayerDominatingMe( int iPlayerIndex );
 	void	SetPlayerDominatingMe( CTFPlayer *pPlayer, bool bDominated );
 
+	void	SetLivesCount( int iCount ) { m_iLives = iCount; }
+	int		GetLivesCount( void ) { return m_iLives; }
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -302,6 +305,8 @@ private:
 
 	CNetworkArray( bool, m_bPlayerDominated, MAX_PLAYERS+1 );		// array of state per other player whether player is dominating other players
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player
+
+	CNetworkVar( int, m_iLives );
 	
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;

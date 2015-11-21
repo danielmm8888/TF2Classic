@@ -13,6 +13,10 @@
 #include "ai_behavior_lead.h"
 #include "gameinterface.h"
 
+#ifdef TF_CLASSIC
+#include "tf_gamerules.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -366,6 +370,12 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 	if ( npc_ally_deathmessage.GetBool() == 0 )
 		return;
 
+#ifdef TF_CLASSIC
+	if ( TFGameRules()->IsCoOpGameRunning() )
+	{
+		TFGameRules()->SetWinningTeam( TF_TEAM_BLUE, WINREASON_NONE );
+	}
+#else
 	CBaseEntity *pPlayer = AI_GetSinglePlayer();
 
 	if ( pPlayer )	
@@ -386,6 +396,7 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 	// clear any pending autosavedangerous
 	g_ServerGameDLL.m_fAutoSaveDangerousTime = 0.0f;
 	g_ServerGameDLL.m_fAutoSaveDangerousMinHealthToCommit = 0.0f;
+#endif
 }
 
 //-----------------------------------------------------------------------------

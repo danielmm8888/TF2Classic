@@ -319,7 +319,11 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	virtual void ResetPerRoundStats( void );
+
 	virtual void UpdatePlayerSound( void );
+
+	bool IsOnStoryTeam( void ) { return ( GetTeamNumber() == TF_STORY_TEAM ); }
 
 	// HL2 ladder related methods
 	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
@@ -432,7 +436,7 @@ private:
 	void				InitClass( void );
 	void				GiveDefaultItems();
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
-	void				SelectSpawnPlayer( void );
+	void				SearchCoopSpawnSpot( void );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();
 

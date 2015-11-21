@@ -111,8 +111,6 @@ extern ConVar tf_boost_drain_time;
 #include "gamestats.h"
 
 #ifdef TF_CLASSIC
-#include "tf_player.h"
-#include "tf_shareddefs.h"
 #include "tf_weaponbase.h"
 #include "tf_team.h"
 #include "tf_obj.h"
