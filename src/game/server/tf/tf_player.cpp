@@ -4927,7 +4927,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		{
 			mode = OBS_MODE_CHASE;
 		}
-		else if ( mode == OBS_MODE_ROAMING || ( mode > OBS_MODE_FIXED && mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+		else if ( mode == OBS_MODE_ROAMING )
 		{
 			mode = OBS_MODE_IN_EYE;
 		}
@@ -5993,9 +5993,6 @@ public:
 	bool CanUseObserverPoint( CTFPlayer *pPlayer )
 	{
 		if ( m_bDisabled )
-			return false;
-
-		if ( ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM ) && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
 			return false;
 
 		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )

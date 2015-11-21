@@ -221,7 +221,7 @@ void CTFSpectatorGUI::UpdateKeyLabels( void )
 
 	if ( m_pSwitchCamModeKeyLabel )
 	{
-		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) || ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
+		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
 		{
 			if ( m_pSwitchCamModeKeyLabel->IsVisible() )
 			{
