@@ -6,6 +6,7 @@
 
 #include "cbase.h"
 #include "glow_outline_effect.h"
+#include "collisionutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -20,9 +21,11 @@ public:
 	~C_TFDroppedWeapon();
 
 	virtual void	Spawn( void );
+	void	ClientThink();
+	void	HandleGlowEffect();
 
 private:
-	CGlowObject *m_pGlowEffect;
+	int m_iGlowEffectHandle;
 };
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFDroppedWeapon, DT_TFDroppedWeapon )
@@ -35,13 +38,12 @@ LINK_ENTITY_TO_CLASS( tf_dropped_weapon, C_TFDroppedWeapon );
 
 C_TFDroppedWeapon::C_TFDroppedWeapon()
 {
-	m_pGlowEffect = NULL;
+	m_iGlowEffectHandle = -1;
 }
 
 
 C_TFDroppedWeapon::~C_TFDroppedWeapon()
 {
-
 }
 
 //-----------------------------------------------------------------------------
@@ -50,7 +52,20 @@ C_TFDroppedWeapon::~C_TFDroppedWeapon()
 void C_TFDroppedWeapon::Spawn( void )
 {
 	BaseClass::Spawn();
-	m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 0.9f, true, true, 0 );
+	ClientThink();
 }
 
+void C_TFDroppedWeapon::ClientThink()
+{
+	HandleGlowEffect();
 
+	SetNextClientThink( CLIENT_THINK_ALWAYS );
+}
+
+void C_TFDroppedWeapon::HandleGlowEffect()
+{
+	if ( !g_GlowObjectManager.HasGlowEffect( this ) )
+	{
+		m_iGlowEffectHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, false, GLOW_FOR_ALL_SPLIT_SCREEN_SLOTS );
+	}
+}

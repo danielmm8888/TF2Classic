@@ -6,6 +6,7 @@
 #include "cbase.h"
 #include "glow_outline_effect.h"
 #include "c_tf_player.h"
+#include "collisionutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -20,49 +21,16 @@ public:
 	void	ClientThink();
 	void	HandleGlowEffect();
 
-	virtual int	InternalDrawModel( int flags );
-	virtual void OnPreDataChanged( DataUpdateType_t updateType );
-	virtual void OnDataChanged( DataUpdateType_t updateType );
-
-	CUtlVector< EHANDLE > m_hNearbyPlayers;
-
 private:
-	CMaterialReference	m_InactiveMaterial;
 	QAngle				m_qAngle;
 	CGlowObject		   *m_pGlowEffect;
 	bool				m_bInactive;
 };
 
-//-----------------------------------------------------------------------------
-// Purpose: RecvProxy that converts the UtlVector to entindexes
-//-----------------------------------------------------------------------------
-void RecvProxy_NearbyPlayerList( const CRecvProxyData *pData, void *pStruct, void *pOut )
-{
-	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
-
-	CBaseHandle *pHandle = (CBaseHandle*)(&(pSpawner->m_hNearbyPlayers[pData->m_iElement])); 
-	RecvProxy_IntToEHandle( pData, pStruct, pHandle );
-}
-
-void RecvProxyArrayLength_NearbyPlayerList( void *pStruct, int objectID, int currentArrayLength )
-{
-	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
-
-	if ( pSpawner->m_hNearbyPlayers.Size() != currentArrayLength )
-		pSpawner->m_hNearbyPlayers.SetSize( currentArrayLength );
-}
-
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, C_WeaponSpawner);
 
 IMPLEMENT_CLIENTCLASS_DT(C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner)
 	RecvPropBool( RECVINFO( m_bInactive ) ),
-	RecvPropArray2( 
-	RecvProxyArrayLength_NearbyPlayerList,
-	RecvPropInt( "nearby_player_list_element", 0, SIZEOF_IGNORE, 0, RecvProxy_NearbyPlayerList ), 
-	MAX_PLAYERS, 
-	0, 
-	"nearby_player_list"
-	)
 END_RECV_TABLE()
 
 void C_WeaponSpawner::Spawn( void )
@@ -70,7 +38,6 @@ void C_WeaponSpawner::Spawn( void )
 	BaseClass::Spawn();
 	m_qAngle = GetAbsAngles();
 	ClientThink();
-	m_InactiveMaterial.Init( "models/weapons/weapon_spawner.vmt", TEXTURE_GROUP_CLIENT_EFFECTS );
 }
 
 void C_WeaponSpawner::ClientThink()
@@ -86,43 +53,11 @@ void C_WeaponSpawner::ClientThink()
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 }
 
-int C_WeaponSpawner::InternalDrawModel( int flags )
-{
-	/*if ( m_bInactive )
-	{
-		modelrender->ForcedMaterialOverride( m_InactiveMaterial );
-		int iRet = BaseClass::InternalDrawModel( flags );
-		modelrender->ForcedMaterialOverride( NULL );
-		return iRet;
-	}
-	else
-	{
-		return BaseClass::InternalDrawModel( flags );
-	}*/
-
-	return BaseClass::InternalDrawModel( flags );
-}
-
-void C_WeaponSpawner::OnPreDataChanged( DataUpdateType_t updateType )
-{
-	BaseClass::OnPreDataChanged( updateType );
-}
-
-void C_WeaponSpawner::OnDataChanged( DataUpdateType_t updateType )
-{
-	BaseClass::OnDataChanged( updateType );
-
-	/*if ( updateType == DATA_UPDATE_DATATABLE_CHANGED )
-	{
-		HandleGlowEffect();
-	}*/
-}
-
 void C_WeaponSpawner::HandleGlowEffect()
 {
 	if ( !m_pGlowEffect )
 	{
-		m_pGlowEffect = new CGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ), 1.0, true, true, 0 );
+		m_pGlowEffect = new CGlowObject( this, Vector( 0.0f, 0.0f, 1.0f ), 1.0, true, true, 0 );
 	}
 
 	// DIsable the outline if the weapon has been picked up
@@ -132,18 +67,37 @@ void C_WeaponSpawner::HandleGlowEffect()
 		return;
 	}
 
-	// Only enable the glow if the local player is nearby
-	for ( int i = 0; i < m_hNearbyPlayers.Size(); i++ )
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	if ( pPlayer )
 	{
-		if ( ToBasePlayer( m_hNearbyPlayers.Element(i) ) && ToBasePlayer( m_hNearbyPlayers.Element(i) ) == C_BasePlayer::GetLocalPlayer() )
+		Vector vecPlayerOrigin = pPlayer->GetAbsOrigin();
+		Vector vecPlayerMins = vecPlayerOrigin + pPlayer->GetPlayerMins();
+		Vector vecPlayerMaxs = vecPlayerOrigin + pPlayer->GetPlayerMaxs();
+		Vector vecDir = pPlayer->GetAbsOrigin() - vecPlayerOrigin;
+
+		if ( IsBoxIntersectingBox( GetAbsOrigin() + WorldAlignMins(), GetAbsOrigin() + WorldAlignMaxs(), vecPlayerMins, vecPlayerMaxs ) )
 		{
- 			m_pGlowEffect->SetAlpha( 1.0f );
+			// White glow.
+			m_pGlowEffect->SetColor( Vector( 0.76f, 0.76f, 0.76f ) );
+			m_pGlowEffect->SetAlpha( 1.0f );
 			return;
 		}
-		else
+
+		// Temp crutch for glow occluded\unoccluded parameters not working.
+		trace_t tr;
+		UTIL_TraceLine( GetAbsOrigin(), pPlayer->EyePosition(), MASK_OPAQUE, this, COLLISION_GROUP_NONE, &tr );
+
+		if ( tr.fraction == 1.0f )
 		{
- 			m_pGlowEffect->SetAlpha( 0.0f );
+			// Blue glow.
+			m_pGlowEffect->SetColor( Vector( 0.6f, 0.6f, 1.0f ) );
+			m_pGlowEffect->SetAlpha( 1.0f );
+			return;
 		}
+
+		m_pGlowEffect->SetAlpha( 0.0f );
+		return;
 	}
 
 	// DIsable the outline if the weapon has been picked up
