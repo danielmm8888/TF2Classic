@@ -3932,10 +3932,10 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 {
 	// DM uses a different scoring system
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() )
 	{
-		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * 2) +
-					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS]) +
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS]) +
+					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
 					 (pRoundStats->m_iStat[TFSTAT_DOMINATIONS]) +
 					 (pRoundStats->m_iStat[TFSTAT_REVENGE]);
 		return iScore;
