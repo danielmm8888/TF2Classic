@@ -277,7 +277,7 @@ public:
 
 	// Dropping Ammo
 	void DropAmmoPack( void );
-	void DropWeapon( CTFWeaponBase *pWeapon );
+	void DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel = false );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
 
 	bool CanDisguise( void );

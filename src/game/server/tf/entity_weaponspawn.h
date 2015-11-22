@@ -31,12 +31,14 @@ public:
 	void	EndTouch( CBaseEntity *pOther );
 	float	GetRespawnDelay( void );
 
-	int		m_iWeaponNumber;
+	int		m_nWeaponID;
 	int		m_iRespawnTime;
 
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
+
 private:
-	CTFWeaponInfo *pWeaponInfo;
-	CNetworkVar( bool, m_bInactive );
+	CTFWeaponInfo *m_pWeaponInfo;
 };
 
 #endif // ENTITY_HEALTHKIT_H

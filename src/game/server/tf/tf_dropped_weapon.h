@@ -11,20 +11,19 @@
 
 #include "cbase.h"
 #include "tf_item.h"
-#include "props.h"
+#include "items.h"
 
-class CTFDroppedWeapon : public CPhysicsProp
+class CTFDroppedWeapon : public CItem
 {
 public:
-	DECLARE_CLASS( CTFDroppedWeapon, CPhysicsProp );
-	DECLARE_DATADESC();
+	DECLARE_CLASS( CTFDroppedWeapon, CItem );
 	DECLARE_SERVERCLASS();
 
 	CTFDroppedWeapon();
 
 	virtual void	Spawn( void );
 
-	void	WeaponTouch( CBaseEntity *pPlayer );
+	bool	MyTouch( CBasePlayer *pPlayer );
 	virtual bool	ValidTouch( CBaseEntity *pPlayer );
 	void	SetWeaponID( unsigned int nWeaponID ){ m_nWeaponID = nWeaponID; }
 	virtual void EndTouch( CBaseEntity *pOther );

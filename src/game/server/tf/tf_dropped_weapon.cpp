@@ -12,13 +12,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-BEGIN_DATADESC( CTFDroppedWeapon )
-	DEFINE_ENTITYFUNC( WeaponTouch )
-END_DATADESC()
-
-IMPLEMENT_NETWORKCLASS_ALIASED( TFDroppedWeapon, DT_TFDroppedWeapon )
-
-BEGIN_SEND_TABLE( CTFDroppedWeapon, DT_TFDroppedWeapon )
+IMPLEMENT_SERVERCLASS_ST( CTFDroppedWeapon, DT_TFDroppedWeapon )
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_dropped_weapon, CTFDroppedWeapon );
@@ -33,6 +27,9 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 //-----------------------------------------------------------------------------
 void CTFDroppedWeapon::Spawn( void )
 {
+	SetModel( STRING( GetModelName() ) );
+	AddSpawnFlags( SF_NORESPAWN );
+
 	BaseClass::Spawn();
 
 	if ( VPhysicsGetObject() )
@@ -42,13 +39,11 @@ void CTFDroppedWeapon::Spawn( void )
 	}
 	
 	SetCollisionGroup( COLLISION_GROUP_DEBRIS );
-	SetSolidFlags( FSOLID_TRIGGER );
 
 	m_flCreationTime = gpGlobals->curtime;
 
 	// Remove 30s after spawning
 	m_flRemoveTime = gpGlobals->curtime + 30.0f;
-	SetTouch( &CTFDroppedWeapon::WeaponTouch );
 	SetThink( &CTFDroppedWeapon::RemovalThink );
 	SetNextThink( gpGlobals->curtime );
 }
@@ -99,14 +94,17 @@ bool CTFDroppedWeapon::ValidTouch( CBaseEntity *pPlayer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
+bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 {
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pEntity );
+	bool bSuccess = false;
+
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pPlayer );
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 		// Don't remove weapon while a player is standing over it.
 		SetThink( NULL );
+
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
 		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
@@ -115,9 +113,8 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 		{
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
-				pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType );
-				UTIL_Remove( this );
-				return;
+				if ( pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
+					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) )
 			{
@@ -142,18 +139,30 @@ void CTFDroppedWeapon::WeaponTouch( CBaseEntity *pEntity )
 		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_OwnsThisID( m_nWeaponID );
 		if ( pWeapon )
 		{
-			pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType );
-			UTIL_Remove( this );
-			return;
+			if ( pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) );
+				bSuccess = true;
 		}
 #endif
+
 		if ( !pWeapon )
 		{
 			pTFPlayer->GiveNamedItem( pszWeaponName );
 			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
-			UTIL_Remove( this );
+			bSuccess = true;
+		}
+
+		if ( bSuccess )
+		{
+			CSingleUserRecipientFilter user( pPlayer );
+			user.MakeReliable();
+
+			UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
+			MessageEnd();
 		}
 	}
+
+	return bSuccess;
 }
 
 void CTFDroppedWeapon::EndTouch( CBaseEntity *pOther )
@@ -169,7 +178,3 @@ void CTFDroppedWeapon::EndTouch( CBaseEntity *pOther )
 		SetNextThink( gpGlobals->curtime + 3.5f );
 	}
 }
-
-
-
-

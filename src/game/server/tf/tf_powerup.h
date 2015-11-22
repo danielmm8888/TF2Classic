@@ -34,6 +34,8 @@ class CTFPowerup : public CItem
 public:
 	DECLARE_CLASS( CTFPowerup, CItem );
 
+	DECLARE_DATADESC();
+
 	CTFPowerup();
 
 	void			Spawn( void );
@@ -54,11 +56,8 @@ public:
 
 	virtual powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 
-private:
-	bool			m_bDisabled;
-	bool			m_bRespawning;
-
-	DECLARE_DATADESC();
+	CNetworkVarForDerived( bool, m_bDisabled );
+	CNetworkVarForDerived( bool, m_bRespawning );
 };
 
 #endif // TF_POWERUP_H

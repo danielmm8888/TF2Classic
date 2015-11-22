@@ -3888,7 +3888,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Also drop our weapon in DM
 	if ( TFGameRules()->IsDeathmatch() )
 	{
-		DropWeapon( GetActiveTFWeapon() );
+		DropWeapon( GetActiveTFWeapon(), true );
 	}
 
 	// If the player has a capture flag and was killed by another player, award that player a defense
@@ -4435,7 +4435,7 @@ void CTFPlayer::DropFakeWeapon( CTFWeaponBase *pWeapon )
 //-----------------------------------------------------------------------------
 // Purpose: Creates tf_dropped_weapon based on selected weapon
 //-----------------------------------------------------------------------------
-void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
+void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel /*= false*/ )
 {
 	if ( !pWeapon ||
 		pWeapon->GetTFWpnData().m_bDontDrop ||
@@ -4465,8 +4465,8 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 	Assert( pDroppedWeapon );
 	if ( pDroppedWeapon )
 	{
-		// Don't randomize velocity if we dropped our weapon at will.
-		if ( StateGet() != TF_STATE_ACTIVE )
+		// Randomize velocity if we dropped weapon upon being killed.
+		if ( bRandomVel )
 		{
 			Vector vecRight, vecUp;
 			AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
@@ -4488,8 +4488,6 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 
 			if ( pDroppedWeapon->VPhysicsGetObject() )
 			{
-				// We can probably remove this when the mass on the weapons is correct!
-				//pDroppedWeapon->VPhysicsGetObject()->SetMass( 25.0f );
 				AngularImpulse angImpulse( 0, random->RandomFloat( 0, 100 ), 0 );
 				pDroppedWeapon->VPhysicsGetObject()->SetVelocityInstantaneous( &vecImpulse, &angImpulse );
 			}
@@ -4512,7 +4510,6 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 		}
 
 		// Give the ammo pack some health, so that trains can destroy it.
-		//pDroppedWeapon->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
 		//pDroppedWeapon->m_takedamage = DAMAGE_YES;
 		//pDroppedWeapon->SetHealth( 900 );
 

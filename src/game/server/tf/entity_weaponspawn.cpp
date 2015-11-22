@@ -27,13 +27,14 @@ extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
 
 BEGIN_DATADESC(CWeaponSpawner)
 
-	DEFINE_KEYFIELD(m_iWeaponNumber, FIELD_INTEGER, "WeaponNumber"),
-	DEFINE_KEYFIELD(m_iRespawnTime, FIELD_INTEGER, "RespawnTime"),
+	DEFINE_KEYFIELD( m_nWeaponID, FIELD_INTEGER, "WeaponNumber" ),
+	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
 
 END_DATADESC()
 
-IMPLEMENT_SERVERCLASS_ST(CWeaponSpawner, DT_WeaponSpawner)
-	SendPropBool( SENDINFO( m_bInactive ) ),
+IMPLEMENT_SERVERCLASS_ST( CWeaponSpawner, DT_WeaponSpawner )
+	SendPropBool( SENDINFO( m_bDisabled ) ),
+	SendPropBool( SENDINFO( m_bRespawning ) ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
@@ -41,7 +42,7 @@ LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
 
 CWeaponSpawner::CWeaponSpawner()
 {
-	m_iWeaponNumber = TF_WEAPON_SHOTGUN_SOLDIER;
+	m_nWeaponID = TF_WEAPON_SHOTGUN_SOLDIER;
 	m_iRespawnTime = 10;
 }
 
@@ -51,17 +52,17 @@ CWeaponSpawner::CWeaponSpawner()
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Spawn(void)
 {
-	pWeaponInfo = GetTFWeaponInfo(m_iWeaponNumber);
-	if ( !pWeaponInfo )
+	m_pWeaponInfo = GetTFWeaponInfo( m_nWeaponID );
+	if ( !m_pWeaponInfo )
 	{
-		Warning( "tf_weaponspawner has incorrect weapon number %d \n", m_iWeaponNumber );
+		Warning( "tf_weaponspawner has incorrect weapon ID %d\n", m_nWeaponID );
 		UTIL_Remove( this );
 		return;
 	}
 
 	Precache();
 
-	SetModel(pWeaponInfo->szWorldModel);
+	SetModel( m_pWeaponInfo->szWorldModel );
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
@@ -92,7 +93,6 @@ void CWeaponSpawner::Precache(void)
 CBaseEntity* CWeaponSpawner::Respawn( void )
 {
 	BaseClass::Respawn();
-	m_bInactive = true;
 	RemoveEffects( EF_NODRAW );
 	RemoveEffects( EF_ITEM_BLINK );
 	m_nRenderFX = kRenderFxDistort;
@@ -116,7 +116,6 @@ void CWeaponSpawner::Materialize( void )
 		AddEffects( EF_ITEM_BLINK );
 		m_nRenderFX = kRenderFxNone;
 		SetRenderColor( 255, 255, 255, 255 );
-		m_bInactive = false;
 	}
 }
 
@@ -130,7 +129,7 @@ void CWeaponSpawner::EndTouch( CBaseEntity *pOther )
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 		int iCurrentWeaponID = pTFPlayer->m_Shared.GetDesiredWeaponIndex();
-		if ( iCurrentWeaponID == m_iWeaponNumber )
+		if ( iCurrentWeaponID == m_nWeaponID )
 		{
 			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 		}
@@ -150,14 +149,14 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( pWeaponInfo->iSlot );
-		const char *pszWeaponName = WeaponIdToClassname( m_iWeaponNumber );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( m_pWeaponInfo->iSlot );
+		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
 
 		if ( pWeapon )
 		{
-			if ( pWeapon->GetWeaponID() == m_iWeaponNumber )
+			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
-				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
+				if ( pPlayer->GiveAmmo(999, m_pWeaponInfo->iAmmoType) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
@@ -180,20 +179,17 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 			else
 			{
-				pTFPlayer->m_Shared.SetDesiredWeaponIndex( m_iWeaponNumber );
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( m_nWeaponID );
 			}
 		}
 #else
-		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_OwnsThisID( m_iWeaponNumber );
-		const char *pszWeaponName = WeaponIdToAlias( m_iWeaponNumber );
+		CTFWeaponBase *pWeapon = pTFPlayer->Weapon_OwnsThisID( m_nWeaponID );
+		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
 
-		if ( pWeapon && pWeapon->GetWeaponID() == m_iWeaponNumber )
+		if ( pWeapon )
 		{
-			if ( pWeapon->GetWeaponID() == m_iWeaponNumber )
-			{
-				if ( pPlayer->GiveAmmo(999, pWeaponInfo->iAmmoType) )
-					bSuccess = true;
-			}
+			if ( pPlayer->GiveAmmo(999, m_pWeaponInfo->iAmmoType) )
+				bSuccess = true;
 		}
 #endif
 
@@ -206,11 +202,11 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( bSuccess )
 		{
-			CSingleUserRecipientFilter user(pPlayer);
+			CSingleUserRecipientFilter user( pPlayer );
 			user.MakeReliable();
 
-			UserMessageBegin(user, "ItemPickup");
-			WRITE_STRING(GetClassname());
+			UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
 			MessageEnd();
 
 			//EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
