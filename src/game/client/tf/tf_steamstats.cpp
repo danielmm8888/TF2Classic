@@ -202,7 +202,7 @@ void CTFSteamStats::ReportLiveStats()
 	int statsTotals[ARRAYSIZE( g_SteamStats )];
 	Q_memset( &statsTotals, 0, sizeof( statsTotals ) );
 
-	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_LAST_NORMAL_CLASS; iClass++ )
+	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_CLASS_COUNT; iClass++ )
 	{
 		ClassStats_t &classStats = CTFStatPanel::GetClassStats( iClass );
 		for ( int iStat = 0; iStat < ARRAYSIZE( g_SteamStats ); iStat++ )
