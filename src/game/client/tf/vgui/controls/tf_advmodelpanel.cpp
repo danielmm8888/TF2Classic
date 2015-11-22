@@ -60,6 +60,9 @@ void CTFAdvModelPanel::SetParticleName(const char* name)
 	}
 	m_pData = CreateParticleData(name);
 
+	// We failed at creating that particle for whatever reason, bail (!)
+	if (!m_pData) return;
+
 	studiohdr_t *pStudioHdr = m_RootMDL.m_MDL.GetStudioHdr();
 	if (!pStudioHdr)
 		return;
