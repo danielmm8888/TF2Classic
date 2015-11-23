@@ -32,6 +32,9 @@ WeaponData
 	// Buckets.
 	"bucket"		"0"
 	"bucket_position"	"0"
+
+	"bucket_DM"		"4"
+	"bucket_position_DM"	"1"
 	
 	"ExplosionSound"	"Weapon_Grenade_Pipebomb.Explode"
 	"ExplosionEffect"	"ExplosionCore_wall"

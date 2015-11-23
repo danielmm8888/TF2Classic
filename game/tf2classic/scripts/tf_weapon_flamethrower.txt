@@ -27,6 +27,9 @@ WeaponData
 	"bucket"		"0"
 	"bucket_position"	"0"
 
+	"bucket_DM"		"5"
+	"bucket_position_DM"	"0"
+
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_flamethrower_pyro.mdl"
 	//"viewmodel_dm"		"models/weapons/v_models/v_flamethrower_merc.mdl" // Redundant until we add unique animations.

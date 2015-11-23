@@ -1,0 +1,167 @@
+"scripts/tf_music_deathmatch"
+{
+	"intro"
+	{
+		"name"				"intro"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier" 	"0.06"			//this multiplied to mp_fraglimit = amount of score needed to get to the next sequence 
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_guitar_01.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_BASS"
+		{	
+			"wave"		"music/cues/dm_orch_01.wav"
+			"volume"	"0.35"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_01_danger.wav"
+				"volume_override"	"0.40"		
+			}
+		}		
+		
+		"LAYER_PERC"
+		{			
+			"wave" 		"music/cues/dm_drums_01.wav"	
+			"volume"	"1.00"
+		}		
+	}	
+
+	"main"
+	{
+		"name"				"main"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.25"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_guitar_02.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_BASS"
+		{	
+			"wave"		"music/cues/dm_orch_02.wav"
+			"volume"	"0.25"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_02_danger.wav"
+				"volume_override"	"0.45"		
+			}
+		}		
+		
+		"LAYER_PERC"
+		{			
+			"wave" 		"music/cues/dm_drums_02.wav"	
+			"volume"	"1.00"
+		}	
+	}	
+
+	"hard"
+	{
+		"name"				"hard"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.4"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_guitar_03.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_BASS"
+		{	
+			"wave"		"music/cues/dm_orch_03.wav"
+			"volume"	"0.25"		
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_03_danger.wav"
+				"volume_override"	"0.50"		
+			}
+		}		
+		
+		"LAYER_PERC"
+		{			
+			"wave" 		"music/cues/dm_drums_03.wav"	
+			"volume"	"1.00"
+		}	
+	}	
+
+	"second"
+	{
+		"name"				"second"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.6"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_guitar_04.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_BASS"
+		{	
+			"wave"		"music/cues/dm_orch_04.wav"
+			"volume"	"0.35"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_04_danger.wav"
+				"volume_override"	"0.50"		
+			}
+		}		
+		
+		"LAYER_PERC"
+		{			
+			"wave" 		"music/cues/dm_drums_04.wav"	
+			"volume"	"1.00"
+		}	
+	}	
+
+	"final"
+	{
+		"name"				"final"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier" 	"0.9"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_guitar_05.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_BASS"
+		{	
+			"wave"		"music/cues/dm_orch_05.wav"
+			"volume"	"0.40"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_05_danger.wav"
+				"volume_override"	"0.50"		
+			}
+		}		
+		
+		"LAYER_PERC"
+		{			
+			"wave" 		"music/cues/dm_drums_05.wav"	
+			"volume"	"1.00"
+		}	
+	}	
+}

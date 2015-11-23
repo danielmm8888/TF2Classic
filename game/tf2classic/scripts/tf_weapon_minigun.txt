@@ -28,6 +28,9 @@ WeaponData
 	"bucket"		"0"
 	"bucket_position"	"0"
 
+	"bucket_DM"		"2"
+	"bucket_position_DM"	"2"
+
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_minigun_heavy.mdl"
 	"playermodel"		"models/weapons/w_models/w_minigun.mdl"

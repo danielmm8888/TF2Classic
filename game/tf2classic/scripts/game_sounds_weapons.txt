@@ -53,7 +53,7 @@
 // ------------------------------------------------------------------------------------ //
 "Weapon_General.CritPower"
 {
-	"channel"	"CHAN_ITEM"
+	"channel"	"CHAN_STATIC"
 	"soundlevel"	"SNDLVL_74dB"
 	"volume"	"1"
 	"wave"		"weapons/crit_power.wav"
@@ -3028,6 +3028,38 @@
 	"soundlevel"	"SNDLVL_94dB"
 
 	"wave"		")weapons/sentry_rocket.wav"
+}	
+
+"Building_Sentrygun.ShaftFire"	
+{
+	"channel"	"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_94dB"
+	"volume"	"1.0"
+	"wave"		")weapons/sentry_shaft_shoot.wav"
+}
+
+"Building_Sentrygun.ShaftFire2"	
+{
+	"channel"	"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_94dB"
+	"volume"	"1.0"
+	"wave"		")weapons/sentry_shaft_shoot2.wav"
+}
+
+"Building_Sentrygun.ShaftFire3"	
+{
+	"channel"	"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_94dB"
+	"volume"	"1.0"
+	"wave"		")weapons/sentry_shaft_shoot3.wav"
+}
+
+"Building_Sentrygun.ShaftLaserPass"	
+{
+	"channel"	"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_94dB"
+	"volume"	"1.0"
+	"wave"		")weapons/sentry_shaft_laser_pass.wav"
 }
 
 "Building_Sentrygun.Build1"
@@ -3209,6 +3241,20 @@
 }
 
 
+"Building_Sentry.Damage"
+{
+	"channel"		"CHAN_STATIC"
+	"volume"		"1.0"
+	"soundlevel"		"SNDLVL_94dB"
+	"rndwave"
+	{
+		"wave"		"weapons/sentry_damage1.wav"
+		"wave"		"weapons/sentry_damage2.wav"
+		"wave"		"weapons/sentry_damage3.wav"
+		"wave"		"weapons/sentry_damage4.wav"
+	}
+}
+
 // ------------------------------------------------------------------------------------ //
 // TELEPORTER
 // ------------------------------------------------------------------------------------ //
@@ -3337,13 +3383,32 @@
 }
 
 
-"Building_Teleporter.Spin"
+"Building_Teleporter.SpinLevel1"
 {
 	"channel"		"CHAN_WEAPON"
 	"soundlevel"	"SNDLVL_74dB"
 	"pitch"		"PITCH_NORM"
 	"volume"		"1.0"
 	"wave"		"weapons/teleporter_spin.wav"
+}
+
+"Building_Teleporter.SpinLevel2"
+{
+	"channel"		"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_74dB"
+	"pitch"		"PITCH_NORM"
+	"volume"		"1.0"
+	"wave"		"weapons/teleporter_spin2.wav"
+}
+
+
+"Building_Teleporter.SpinLevel3"
+{
+	"channel"		"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_74dB"
+	"pitch"		"PITCH_NORM"
+	"volume"		"1.0"
+	"wave"		"weapons/teleporter_spin3.wav"
 }
 
 "Building_Teleporter.Explode"

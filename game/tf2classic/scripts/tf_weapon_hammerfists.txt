@@ -24,7 +24,7 @@ WeaponData
 
 	// Model & Animation
 	"viewmodel"			"models/weapons/v_models/v_hammerfists_merc.mdl"
-	"playermodel"			""
+	"playermodel"			"models/weapons/w_models/w_hammerfists.mdl"
 	"anim_prefix"			"pipe"
 
 	// Sounds for the weapon. There is a max of 16 sounds per category (i.e. max 16 "single_shot" sounds)

@@ -15,6 +15,18 @@
 		"icon"			"hud_menu_bg"
 		"iconColor"		"255 255 255 255"
 	}
+
+	"Divider"
+	{
+		"ControlName"	"ImagePanel"
+		"fieldName"		"Divider"
+		"xpos"			"8"
+		"ypos"			"47"
+		"zpos"			"1"
+		"wide"			"436"
+		"tall"			"2"
+		"fillcolor"		"255 222 208 255"
+	}
 	
 	"BuildIcon"	
 	{
@@ -245,6 +257,54 @@
 	{
 		"ControlName"	"EditablePanel"
 		"fieldName"		"cant_afford_item_4"
+		"xpos"			"325"
+		"ypos"			"47"
+		"zpos"			"1"
+		"wide"			"100"
+		"tall"			"124"
+		"visible"		"0"
+	}
+
+	"unavailable_item_1"
+	{
+		"ControlName"	"EditablePanel"
+		"fieldName"		"unavailable_item_1"
+		"xpos"			"25"
+		"ypos"			"47"
+		"zpos"			"1"
+		"wide"			"100"
+		"tall"			"124"
+		"visible"		"0"
+	}	
+	
+	"unavailable_item_2"
+	{
+		"ControlName"	"EditablePanel"
+		"fieldName"		"unavailable_item_2"
+		"xpos"			"125"
+		"ypos"			"47"
+		"zpos"			"1"
+		"wide"			"100"
+		"tall"			"124"
+		"visible"		"0"
+	}	
+	
+	"unavailable_item_3"
+	{
+		"ControlName"	"EditablePanel"
+		"fieldName"		"unavailable_item_3"
+		"xpos"			"225"
+		"ypos"			"47"
+		"zpos"			"1"
+		"wide"			"100"
+		"tall"			"124"
+		"visible"		"0"
+	}	
+	
+	"unavailable_item_4"
+	{
+		"ControlName"	"EditablePanel"
+		"fieldName"		"unavailable_item_4"
 		"xpos"			"325"
 		"ypos"			"47"
 		"zpos"			"1"

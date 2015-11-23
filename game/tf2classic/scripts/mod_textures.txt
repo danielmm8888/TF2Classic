@@ -699,6 +699,52 @@
 				"width"		"96"
 				"height"	"32"
 		}
+		"deflect_promode"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"194"
+				"y"		"64"
+				"width"		"64"
+				"height"	"32"
+		}
+		"deflect_sticky"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"194"
+				"y"		"96"
+				"width"		"64"
+				"height"	"32"
+		}
+		"deflect_rocket"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"194"
+				"y"		"128"
+				"width"		"64"
+				"height"	"32"
+		}
+		"deflect_flare"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"194"
+				"y"		"160"
+				"width"		"64"
+				"height"	"32"
+		}
+		"building_carried_destroyed"
+		{
+				"dfile"	"HUD/d_images_v2"
+				"dnegfile"	"HUD/dneg_images_v2"
+				"x"		"0"
+				"y"		"768"
+				"width"		"96"
+				"height"	"32"
+		}
+
 		"obj_status_sentrygun_1"
 		{
 			"file"	"HUD/hud_obj_status_sentry_1"
@@ -743,7 +789,6 @@
 			"width"		"128"
 			"height"	"128"
 		}
-		
 		"obj_status_tele_exit"
 		{
 			"file"	"HUD/hud_obj_status_tele_exit"
@@ -753,6 +798,30 @@
 			"height"	"128"
 		}
 		
+		"obj_status_upgrade_1"
+		{
+			"file"	"HUD/hud_upgrade_1"
+			"x"		"0"
+			"y"		"0"
+			"width"		"64"
+			"height"	"64"
+		}
+		"obj_status_upgrade_2"
+		{
+			"file"	"HUD/hud_upgrade_2"
+			"x"		"0"
+			"y"		"0"
+			"width"		"64"
+			"height"	"64"
+		}
+		"obj_status_upgrade_3"
+		{
+			"file"	"HUD/hud_upgrade_3"
+			"x"		"0"
+			"y"		"0"
+			"width"		"64"
+			"height"	"64"
+		}
 		"obj_status_sapper"
 		{
 			"file"	"HUD/hud_obj_status_sapper"

@@ -2,7 +2,6 @@
 {
 	"CDamageAccountPanel"
 	{
-		"ControlName"			"Label"
 		"fieldName"				"CDamageAccountPanel"
 		"text_x"				"0"
 		"text_y"				"0"

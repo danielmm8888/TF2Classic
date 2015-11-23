@@ -89,7 +89,7 @@
 		"visible"		"1"
 		"enabled"		"1"
 		"textAlignment"	"center"	
-		"labelText"		"You"
+		"labelText"		"#DM_HUD_objectives_you"
 		"font"			"HudFontSmallest"
 		"fgcolor"		"TanLight"
 	}		

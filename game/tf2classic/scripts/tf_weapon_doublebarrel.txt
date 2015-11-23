@@ -32,6 +32,9 @@ WeaponData
 	"bucket"			"0"
 	"bucket_position"		"0"
 
+	"bucket_DM"		"3"
+	"bucket_position_DM"	"1"
+
 	// Animation.
 	"viewmodel"     "models/weapons/v_models/v_supershotgun_mercenary.mdl"
 	"playermodel"   "models/weapons/w_models/w_supershotgun_mercenary.mdl"

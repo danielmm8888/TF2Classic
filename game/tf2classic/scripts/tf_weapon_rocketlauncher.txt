@@ -32,6 +32,9 @@ WeaponData
 	"bucket"		"0"
 	"bucket_position"	"0"	
 
+	"bucket_DM"		"4"
+	"bucket_position_DM"	"0"
+
 	"ExplosionEffect"		"ExplosionCore_wall"
 	"ExplosionPlayerEffect"		"ExplosionCore_MidAir"
 	"ExplosionWaterEffect"		"ExplosionCore_MidAir_underwater"

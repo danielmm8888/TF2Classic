@@ -15,7 +15,45 @@
 		"enabled"		"1"
 		"border"		"TFFatLineBorder"
 	}	
+	
+	"particlesmodelpanel"
+	{
+		"ControlName"	"CTFAdvModelPanel"
+		"fieldName"		"particlesmodelpanel"
+		
+		"xpos"			"15"
+		"ypos"			"130"
+		"zpos"			"0"		
+		"wide"			"200"
+		"tall"			"200"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"1"
+		"enabled"		"1"
 
+		"fov"			"100"
+		"allow_rot"		"0"
+				
+		"model"
+		{
+			"force_pos"	"1"
+			"skin"	"0"
+
+			"angles_x" "0"
+			"angles_y" "90"
+			"angles_z" "0"
+			"origin_x" "170"
+			"origin_y" "0"
+			"origin_z" "-80"
+			"frame_origin_x"	"0"
+			"frame_origin_y"	"0"
+			"frame_origin_z"	"0"
+			"spotlight" "0"
+		
+			"modelname"		"models/props_urban/urban_blast_door.mdl"
+		}
+	}
+	
 	"ColorLabel"
 	{
 		"ControlName"		"CExLabel"
@@ -166,7 +204,7 @@
 		"ControlName"		"CExLabel"
 		"fieldName"			"ParticleLabel"
 		"xpos"				"16"
-		"ypos"				"155"
+		"ypos"				"145"
 		"zpos"				"5"
 		"wide"				"200"
 		"tall"				"22"
@@ -185,7 +223,7 @@
 		"ControlName"		"CExLabel"
 		"fieldName"			"ParticleLabelShadow"
 		"xpos"				"18"
-		"ypos"				"155"
+		"ypos"				"145"
 		"zpos"				"4"
 		"wide"				"200"
 		"tall"				"22"
@@ -204,7 +242,7 @@
 		"ControlName"		"CCvarComboBox"
 		"fieldName"			"ParticleComboBox"
 		"xpos"				"16"
-		"ypos"				"180"
+		"ypos"				"170"
 		"zpos"				"8"
 		"wide"				"195"
 		"tall"				"20"
@@ -216,44 +254,6 @@
 		"border_override"	"AdvRoundedButtonDefault"
 		"font"				"FontStorePromotion"
 	}
-	
-	"ParticleBG"
-	{
-		"ControlName"		"ImagePanel"
-		"fieldName"			"ParticleBG"
-		"xpos"				"16"
-		"ypos"				"205"
-		"zpos"				"6"
-		"wide"				"195"
-		"tall"				"62"
-		"autoResize"		"0"
-		"pinCorner"			"0"
-		"visible"			"1"
-		"enabled"			"1"
-		"image"				""
-		"scaleImage"		"1"
-		"fillcolor"			"0 0 0 255"
-		"PaintBackgroundType"	"2"
-	}
-	
-	"ParticlePreviewLabel"
-	{
-		"ControlName"		"CExLabel"
-		"fieldName"			"ParticlePreviewLabel"
-		"xpos"				"16"
-		"ypos"				"205"
-		"zpos"				"7"
-		"wide"				"195"
-		"tall"				"62"
-		"autoResize"		"0"
-		"pinCorner"			"0"
-		"visible"			"1"
-		"enabled"			"1"
-		"labelText"			"Particles preview :v"
-		"textAlignment"		"center"
-		"font"				"HudFontMediumSmall"
-		"fgcolor"			"Button.ArmedTextColor"
-	}	
 						
 }
 		

@@ -33,6 +33,8 @@ WeaponData
 	"bucket_position"	"0"
 	"TracerEffect"		"bullet_pistol_tracer01"
 
+	"bucket_DM"		"2"
+	"bucket_position_DM"	"1"
 
 	// Muzzleflash
 	"MuzzleFlashModel"	"models/effects/muzzleflash/minigunmuzzle.mdl"
