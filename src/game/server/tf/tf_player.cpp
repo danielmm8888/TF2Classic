@@ -2481,30 +2481,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		Taunt();
 		return true;
 	}
-	else if ( FStrEq(pcmd, "tf2c_setmerccolor") )
-	{
-		if (args.ArgC() < 4)
-		{
-			Warning("Format: tf2c_setmerccolor r g b\n");
-			return true;
-		}
-		m_vecPlayerColor.Set(Vector(
-			min(atoi(args[1]), 255) / 255.0f,
-			min(atoi(args[2]), 255) / 255.0f,
-			min(atoi(args[3]), 255) / 255.0f
-			));
-		return true;
-	}
-	else if (FStrEq(pcmd, "tf2c_setmercparticle"))
-	{
-		if (args.ArgC() < 1)
-		{
-			Warning("Format: tf2c_setmercparticle num\n");
-			return true;
-		}
-		m_Shared.SetRespawnParticleID(atoi(args[1]));
-		return true;
-	}
 	else if ( FStrEq( pcmd, "build" ) )
 	{
 		int iBuilding = 0;

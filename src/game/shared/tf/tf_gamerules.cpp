@@ -2482,6 +2482,14 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	// keep track of their cl_autoreload value
 	pTFPlayer->SetAutoReload( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autoreload" ) ) > 0 );
 
+	// Keep track of their DM colors.
+	float flRed = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
+	float flGreen = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
+	float flBlue = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+	pTFPlayer->m_vecPlayerColor.Set( Vector( flRed, flGreen, flBlue ) );
+
+	pTFPlayer->m_Shared.SetRespawnParticleID( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmercparticle" ) ) );
+
 	const char *pszFov = engine->GetClientConVarValue( pPlayer->entindex(), "fov_desired" );
 	int iFov = atoi(pszFov);
 	iFov = clamp( iFov, 75, 90 );

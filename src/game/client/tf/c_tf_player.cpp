@@ -87,57 +87,35 @@ ConVar cl_autoreload( "cl_autoreload", "1",  FCVAR_USERINFO | FCVAR_ARCHIVE, "Wh
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
-static void OnMercColorChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+static void OnMercColorChange( IConVar *var, const char *pOldValue, float flOldValue )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalPlayer)
+	if ( !pLocalPlayer )
 		return;
 
-	char szCommand[64];
-	int iRed = 0, iGreen = 0, iBlue = 0;
-	ConVar *pColorRed = cvar->FindVar("tf2c_setmerccolor_r");
-	ConVar *pColorGreen = cvar->FindVar("tf2c_setmerccolor_g");
-	ConVar *pColorBlue = cvar->FindVar("tf2c_setmerccolor_b");
-	if (pColorRed) iRed = pColorRed->GetInt();
-	if (pColorGreen) iGreen = pColorGreen->GetInt();
-	if (pColorBlue) iBlue = pColorBlue->GetInt();
-	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", iRed, iGreen, iBlue);
-	engine->ExecuteClientCmd(szCommand);
+	float flRed = tf2c_setmerccolor_r.GetInt() / 255.0f;
+	float flGreen = tf2c_setmerccolor_g.GetInt() / 255.0f;
+	float flBlue = tf2c_setmerccolor_b.GetInt() / 255.0f;
+
+	pLocalPlayer->m_vecPlayerColor = Vector( flRed, flGreen, flBlue );
 }
-static void OnMercParticleChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+
+static void OnMercParticleChange( IConVar *var, const char *pOldValue, float flOldValue )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalPlayer)
+	if ( !pLocalPlayer )
 		return;
-	char szCommand[64];
-	int iRespawnParticleID = 0;
-	ConVar *pRespawnParticle = cvar->FindVar("tf2c_setmercparticle");
-	if (pRespawnParticle) iRespawnParticleID = pRespawnParticle->GetInt();
-	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmercparticle %i", iRespawnParticleID);
-	engine->ServerCmd(szCommand);
+
+	ConVar *pCvar = (ConVar *)var;
+
+	pLocalPlayer->m_Shared.SetRespawnParticleID( pCvar->GetInt() );
 }
-ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE, "Sets merc color's red channel value", OnMercColorChange);
-ConVar tf2c_setmerccolor_g("tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE, "Sets merc color's green channel value", OnMercColorChange);
-ConVar tf2c_setmerccolor_b("tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE, "Sets merc color's blue channel value", OnMercColorChange);
-ConVar tf2c_setmercparticle("tf2c_setmercparticle", "1", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
-// Moved to the server
-/*
-void tf2c_setmerccolor_f(const CCommand& args)
-{
-	if (args.ArgC() < 4)
-	{
-		Msg("Format: tf2c_setmerccolor r g b\n");
-		return;
-	}
-	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	
-	if (!pPlayer)
-		return;
-	pPlayer->m_flPlayerColor[0] = min(atoi(args.Arg(1)), 255) / 255.0f;
-	pPlayer->m_flPlayerColor[1] = min(atoi(args.Arg(2)), 255) / 255.0f;
-	pPlayer->m_flPlayerColor[2] = min(atoi(args.Arg(3)), 255) / 255.0f;
-}
-ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0); */
+
+ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's red channel value", true, 0, true, 255, OnMercColorChange);
+ConVar tf2c_setmerccolor_g( "tf2c_setmerccolor_g", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's green channel value", true, 0, true, 255, OnMercColorChange );
+ConVar tf2c_setmerccolor_b( "tf2c_setmerccolor_b", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's blue channel value", true, 0, true, 255, OnMercColorChange );
+ConVar tf2c_setmercparticle( "tf2c_setmercparticle", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange );
+
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
@@ -1561,6 +1539,7 @@ BEGIN_PREDICTION_DATA( C_TFPlayer )
 	DEFINE_PRED_FIELD( m_nResetEventsParity, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
 	DEFINE_PRED_FIELD( m_nMuzzleFlashParity, FIELD_CHARACTER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE  ),
 	DEFINE_PRED_FIELD( m_hOffHandWeapon, FIELD_EHANDLE, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_vecPlayerColor, FIELD_VECTOR, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // ------------------------------------------------------------------------------------------ //
@@ -2169,12 +2148,6 @@ void C_TFPlayer::OnPlayerClassChange( void )
 		char szCommand[128];
 		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
 		engine->ExecuteClientCmd(szCommand);
-
-		if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			OnMercColorChange();
-			OnMercParticleChange();
-		}
 	}
 }
 

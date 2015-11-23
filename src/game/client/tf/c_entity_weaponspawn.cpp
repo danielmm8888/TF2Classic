@@ -43,6 +43,7 @@ END_RECV_TABLE()
 
 C_WeaponSpawner::C_WeaponSpawner()
 {
+	m_pGlowEffect = NULL;
 	m_bShouldGlow = false;
 	m_bTouchingPlayer = false;
 }
