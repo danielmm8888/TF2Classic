@@ -3937,7 +3937,9 @@ int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS]) +
 					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
 					 (pRoundStats->m_iStat[TFSTAT_DOMINATIONS]) +
-					 (pRoundStats->m_iStat[TFSTAT_REVENGE]);
+					 (pRoundStats->m_iStat[TFSTAT_REVENGE]) -
+					 (pRoundStats->m_iStat[TFSTAT_SUICIDES]) -
+					 (pRoundStats->m_iStat[TFSTAT_ENV_DEATHS]);
 		return iScore;
 	}
 	else

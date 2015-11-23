@@ -722,6 +722,16 @@ void CTFGameStats::Event_PlayerKilledOther( CBasePlayer *pAttacker, CBaseEntity 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFGameStats::Event_PlayerSuicide( CBasePlayer *pPlayer )
+{
+	CTFPlayer *pTFVictim = static_cast<CTFPlayer *>( pPlayer );
+
+	IncrementStat( pTFVictim, TFSTAT_SUICIDES, 1 );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFGameStats::Event_RoundEnd( int iWinningTeam, bool bFullRound, float flRoundTime, bool bWasSuddenDeathWin )
 {
 	TF_Gamestats_LevelStats_t *map = m_reportedStats.m_pCurrentGame;
@@ -863,6 +873,9 @@ void CTFGameStats::Event_PlayerKilled( CBasePlayer *pPlayer, const CTakeDamageIn
 		{
 			death.iAttackClass = TF_CLASS_UNDEFINED;
 			killerOrg = org;
+
+			// Environmental death.
+			IncrementStat( pTFPlayer, TFSTAT_ENV_DEATHS, 1 );
 		}
 	}
 
@@ -960,6 +973,8 @@ bool CTFGameStats::ShouldSendToClient( TFStatType_t statType )
 	case TFSTAT_SHOTS_HIT:
 	case TFSTAT_SHOTS_FIRED:
 	case TFSTAT_DEATHS:
+	case TFSTAT_SUICIDES:
+	case TFSTAT_ENV_DEATHS:
 		return false;
 	default:
 		return true;

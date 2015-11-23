@@ -773,6 +773,11 @@ void CTFPlayer::PrecachePlayerModels( void )
 		PrecacheModel( "models/effects/bday_hat.mdl" );
 	}
 
+	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
+	{
+		PrecacheModel( "models/items/ammopack_medium.mdl" );
+	}
+
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
 	{
@@ -3784,14 +3789,7 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
-	if (pVictim != this)
-	{
-		gamestats->Event_PlayerKilledOther(this, pVictim, info);
-	}
-	else
-	{
-		gamestats->Event_PlayerSuicide(this);
-	}
+	BaseClass::Event_KilledOther( pVictim, info );
 
 	if ( pVictim->IsPlayer() )
 	{
@@ -3834,7 +3832,7 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[ pTFVictim->GetPlayerClass()->GetClassIndex() ] );
 		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
 
-		if (IsAlive())
+		if ( IsAlive() )
 		{
 			m_Shared.IncKillstreak();
 		}
