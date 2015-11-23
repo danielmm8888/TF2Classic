@@ -24,7 +24,7 @@ public:
 
 	void	Spawn( void );
 	void	ClientThink();
-	void	HandleGlowEffect();
+	void	UpdateGlowEffect();
 
 private:
 	CGlowObject *m_pGlowEffect;
@@ -90,17 +90,17 @@ void C_TFDroppedWeapon::ClientThink()
 	if ( m_bShouldGlow != bShouldGlow )
 	{
 		m_bShouldGlow = bShouldGlow;
-		HandleGlowEffect();
+		UpdateGlowEffect();
 	}
 
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 }
 
-void C_TFDroppedWeapon::HandleGlowEffect()
+void C_TFDroppedWeapon::UpdateGlowEffect()
 {
 	if ( !m_pGlowEffect )
 	{
-		m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, true );
+		m_pGlowEffect = new CGlowObject( this, Vector( 0.75f, 0.75f, 0.15f ), 1.0f, true, true );
 	}
 
 	if ( m_bShouldGlow )
