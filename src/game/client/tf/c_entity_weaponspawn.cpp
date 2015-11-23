@@ -113,13 +113,15 @@ void C_WeaponSpawner::ClientThink()
 void C_WeaponSpawner::UpdateGlowEffect()
 {
 	// Destroy effect if we don't want it.
-	if ( m_pGlowEffect && !m_bShouldGlow )
+	if ( !m_bShouldGlow )
 	{
-		delete m_pGlowEffect;
-		m_pGlowEffect = NULL;
+		if ( m_pGlowEffect )
+		{
+			delete m_pGlowEffect;
+			m_pGlowEffect = NULL;
+		}
 	}
-
-	if ( m_bShouldGlow )
+	else
 	{
 		Vector vecColor;
 

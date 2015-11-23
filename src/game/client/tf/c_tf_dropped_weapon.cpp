@@ -5,9 +5,7 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "c_physicsprop.h"
 #include "glow_outline_effect.h"
-#include "collisionutils.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -100,14 +98,17 @@ void C_TFDroppedWeapon::ClientThink()
 
 void C_TFDroppedWeapon::HandleGlowEffect()
 {
-	if ( m_pGlowEffect && !m_bShouldGlow )
-	{
-		delete m_pGlowEffect;
-		m_pGlowEffect = NULL;
-	}
-
 	if ( m_bShouldGlow )
 	{
-		m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, true );
+		if ( !m_pGlowEffect )
+			m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, true );
+	}
+	else
+	{
+		if ( m_pGlowEffect )
+		{
+			delete m_pGlowEffect;
+			m_pGlowEffect = NULL;
+		}
 	}
 }
