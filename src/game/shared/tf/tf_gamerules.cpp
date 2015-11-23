@@ -2068,33 +2068,19 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	void CTFGameRules::GoToIntermission( void )
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 		{
-			float flWaitTime = mp_chattime.GetFloat();
-			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
-
-			// set all players to FL_FROZEN
-			for (int i = 1; i <= MAX_PLAYERS; i++)
-			{
-				CBasePlayer *pPlayer = UTIL_PlayerByIndex(i);
-
-				if (pPlayer)
-				{
-					pPlayer->ShowViewPortPanel(PANEL_SCOREBOARD);
-					pPlayer->AddFlag(FL_FROZEN);
-				}
-			}
-			State_Enter(GR_STATE_TEAM_WIN);
-			g_fGameOver = true;
-			return;
+			// Deathmatch results panel needs this.
+			SendWinPanelInfo();
 		}
+
 		BaseClass::GoToIntermission();
 	}
 
 	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
 		// Friendly fire is ALWAYS on in DM.
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 			return true;
 		
 		// guard against NULL pointers if players disconnect
@@ -2123,7 +2109,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	int CTFGameRules::PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget)
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 			return GR_NOTTEAMMATE;
 
 		return BaseClass::PlayerRelationship(pPlayer, pTarget);
@@ -2283,7 +2269,7 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, bool bIgnorePlayers )
 {
 	// Check the team.
-	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() && !TFGameRules()->IsDeathmatch() )
+	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() && !IsDeathmatch() )
 		return false;
 
 	if ( !pSpot->IsTriggered( pPlayer ) )
@@ -4562,7 +4548,7 @@ const char *CTFGameRules::GetGameDescription(void)
 void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 {
 	BaseClass::PlayerSpawn(pPlayer);
-	if (TFGameRules()->IsDeathmatch())
+	if ( IsDeathmatch() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
 		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();
