@@ -112,14 +112,14 @@ void C_WeaponSpawner::ClientThink()
 
 void C_WeaponSpawner::UpdateGlowEffect()
 {
-	// Destroy effect if we don't want it.
+	if ( !m_pGlowEffect )
+	{
+		m_pGlowEffect = new CGlowObject( this, Vector( 0.6f, 0.6f, 1.0f ), 1.0f, true, true );
+	}
+
 	if ( !m_bShouldGlow )
 	{
-		if ( m_pGlowEffect )
-		{
-			delete m_pGlowEffect;
-			m_pGlowEffect = NULL;
-		}
+		m_pGlowEffect->SetAlpha( 0.0f );
 	}
 	else
 	{
@@ -136,14 +136,8 @@ void C_WeaponSpawner::UpdateGlowEffect()
 			vecColor.Init( 0.6f, 0.6f, 1.0f );
 		}
 
-		if ( !m_pGlowEffect )
-		{
-			m_pGlowEffect = new CGlowObject( this, vecColor, 1.0, true, true );
-		}
-		else
-		{
-			m_pGlowEffect->SetColor( vecColor );
-		}
+		m_pGlowEffect->SetColor( vecColor );
+		m_pGlowEffect->SetAlpha( 1.0f );
 	}
 }
 

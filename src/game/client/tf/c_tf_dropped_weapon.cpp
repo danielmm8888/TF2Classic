@@ -98,17 +98,17 @@ void C_TFDroppedWeapon::ClientThink()
 
 void C_TFDroppedWeapon::HandleGlowEffect()
 {
+	if ( !m_pGlowEffect )
+	{
+		m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, true );
+	}
+
 	if ( m_bShouldGlow )
 	{
-		if ( !m_pGlowEffect )
-			m_pGlowEffect = new CGlowObject( this, Vector( 1.0f, 1.0f, 0.0f ), 1.0f, true, true );
+		m_pGlowEffect->SetAlpha( 1.0f );
 	}
 	else
 	{
-		if ( m_pGlowEffect )
-		{
-			delete m_pGlowEffect;
-			m_pGlowEffect = NULL;
-		}
+		m_pGlowEffect->SetAlpha( 0.0f );
 	}
 }
