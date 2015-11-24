@@ -170,7 +170,7 @@ public:
 #endif
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
-	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon );
+	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon = NULL );
 
 	// Weapons.
 	CTFWeaponBase *GetActiveTFWeapon() const;

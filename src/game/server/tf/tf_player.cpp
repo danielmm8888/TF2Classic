@@ -2243,7 +2243,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if ( sv_cheats->GetBool() )
 		{
-			m_Shared.Burn( this, NULL );
+			m_Shared.Burn( this );
 			return true;
 		}
 		return false;
@@ -7076,7 +7076,7 @@ static ConCommand sv_debug_stuck_particles( "sv_debug_stuck_particles", DebugPar
 void IgnitePlayer()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( ToTFPlayer( UTIL_PlayerByIndex( 1 ) ) );
-	pPlayer->m_Shared.Burn( pPlayer, NULL );
+	pPlayer->m_Shared.Burn( pPlayer );
 }
 static ConCommand cc_IgnitePlayer( "tf_ignite_player", IgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
@@ -7178,7 +7178,7 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 	{
 		m_flPowerPlayTime = gpGlobals->curtime + 99999;
 		m_Shared.RecalculateChargeEffects();
-		m_Shared.Burn( this, NULL );
+		m_Shared.Burn( this );
 
 		PowerplayThink();
 	}
