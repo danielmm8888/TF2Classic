@@ -140,10 +140,6 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 //-----------------------------------------------------------------------------
 void CTFHudWeaponAmmo::UpdateAmmoLabels( bool bPrimary, bool bReserve, bool bNoClip )
 {
-	if (m_pWeaponBucket)
-	{
-		m_pWeaponBucket->SetVisible(true);
-	}
 	if ( m_pInClip && m_pInClipShadow )
 	{
 		if ( m_pInClip->IsVisible() != bPrimary )
@@ -179,33 +175,38 @@ void CTFHudWeaponAmmo::OnThink()
 {
 	// Get the player and active weapon.
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pPlayer)
+	if ( !pPlayer )
 		return;
-	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
-	if (!pWeapon)
-		return;
-	
-	if (tf2c_ammobucket.GetBool())
-	{
-		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-		if (pPlayer)
-		{
-			if (pPlayer->GetTeamNumber() == TF_TEAM_BLUE)
-			{
-				pTexture = pWeapon->GetSpriteActive();
-			}
-		}
 
-		if (pTexture)
-		{
-			char szImage[64];
-			Q_snprintf(szImage, sizeof(szImage), "../%s", pTexture->szTextureFile);
-			m_pWeaponBucket->SetImage(szImage);
-		}
-	}
+	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 
 	if ( m_flNextThink < gpGlobals->curtime )
 	{
+		bool bShowIcon = false;
+
+		if ( tf2c_ammobucket.GetBool() && pWeapon )
+		{
+			// FIXME: need to add GRN and YLW icons to CTFWeaponInfo.
+			const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+			if ( pPlayer )
+			{
+				if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+				{
+					pTexture = pWeapon->GetSpriteActive();
+				}
+			}
+
+			if ( pTexture )
+			{
+				char szImage[64];
+				Q_snprintf( szImage, sizeof( szImage ), "../%s", pTexture->szTextureFile );
+				m_pWeaponBucket->SetImage( szImage );
+				bShowIcon = true;
+			}
+		}
+
+		m_pWeaponBucket->SetVisible( bShowIcon );
+
 		hudlcd->SetGlobalStat( "(weapon_print_name)", pWeapon ? pWeapon->GetPrintName() : " " );
 		hudlcd->SetGlobalStat( "(weapon_name)", pWeapon ? pWeapon->GetName() : " " );
 

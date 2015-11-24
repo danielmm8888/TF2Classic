@@ -32,14 +32,14 @@
 	
 	"LogoCircle"
 	{
-		"ControlName"	"CTFRotationPanel"
+		"ControlName"	"CTFRotatingImagePanel"
 		"fieldName"		"LogoCircle"
 		"xpos"			"87"
 		"ypos"			"44"
 		"zpos"			"5"
 		"wide"			"30"
 		"tall"			"30"
-		"imagerot"		"vgui/main_menu/TF2_Classic_Logo_Circle"
+		"image"			"vgui/main_menu/TF2_Classic_Logo_Circle"
 		"visible"		"1"
 		"enabled"		"1"
 	}
@@ -57,6 +57,20 @@
 		"enabled"			"1"
 		"border"			"MainMenuAdvButtonDepressed"
 		"font"				"MenuMainTitle"
+	}
+	
+	"BlogPanel"
+	{
+		"ControlName"		"CTFBlogPanel"
+		"fieldName"			"BlogPanel"
+		"xpos"				"r470"
+		"ypos"				"90"
+		"zpos"				"3"
+		"wide"				"440"
+		"tall"				"325"
+		"visible"			"1"
+		"enabled"			"1"
+		"border"			"MainMenuAdvButtonDepressed"	
 	}
 	
 	"AvatarBG"
@@ -113,6 +127,26 @@
 		"fieldName"			"WelcomeLabel"
 		"xpos"				"90"
 		"ypos"				"200"
+		"zpos"				"6"
+		"wide"				"170"
+		"tall"				"20"
+		"autoResize"		"0"
+		"pinCorner"			"0"
+		"visible"			"1"
+		"enabled"			"1"
+		"alpha"				"255"
+		"labelText"			"Welcome back,"
+		"textAlignment"		"west"
+		"font"				"HudFontMediumSmallBold"
+		"fgcolor"			"AdvTextDefault"
+	}
+	
+	"WelcomeLabel1"
+	{
+		"ControlName"		"CExLabel"
+		"fieldName"			"WelcomeLabel1"
+		"xpos"				"90"
+		"ypos"				"200"
 		"zpos"				"5"
 		"wide"				"170"
 		"tall"				"20"
@@ -120,11 +154,12 @@
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
+		"alpha"				"0"
 		"labelText"			"Welcome back,"
 		"textAlignment"		"west"
-		"font"				"HudFontMediumSmallBold"
+		"font"				"HudFontMediumSmallBold_Shadow"
 		"fgcolor"			"AdvTextDefault"
-	}
+	}	
 	
 	"NicknameLabel"
 	{
@@ -453,6 +488,44 @@
 		}
 	}	
 	
+
+	"BlogToggleCheck"
+	{
+		"ControlName"		"CTFAdvCheckButton"
+		"fieldName"			"BlogToggleCheck"
+		"xpos"				"112"		//+19
+		"ypos"				"390"
+		"zpos"				"6"
+		"wide"				"20"
+		"tall"				"20"
+		"visible"			"1"
+		"enabled"			"1"
+		"bordervisible"		"1"
+		"labelText" 		""
+		"command"			"tf2c_mainmenu_showblog"	
+		"valuetrue"			"0"
+		"valuefalse"		"1"		
+		
+		"SubButton"
+		{
+			"labelText" 		""
+			"bordervisible"		"0"
+			"tooltip" 			"Blog panel Toggle"
+			"textAlignment"		"center"
+			"font"				"MenuSmallFont"
+			"border_default"	"AdvRoundedButtonDefault"
+			"border_armed"		"AdvRoundedButtonArmed"
+			"border_depressed"	"AdvRoundedButtonDepressed"	
+		}
+		
+		"SubImage"
+		{
+			"image" 			"../vgui/glyph_tv"
+			"imagecheck" 		"../vgui/main_menu/glyph_disabled"	
+			"imagewidth"		"16"
+		}
+	}	
+	
 	"NotificationButton"
 	{
 		"ControlName"		"CTFAdvButton"
@@ -490,17 +563,17 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"			"VersionLabel"
-		"xpos"				"r95"
+		"xpos"				"r125"
 		"ypos"				"0"
 		"zpos"				"5"
-		"wide"				"100"
+		"wide"				"120"
 		"tall"				"20"
 		"autoResize"		"0"
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
 		"labelText"			"VersionLabel"
-		"textAlignment"		"west"
+		"textAlignment"		"east"
 		"fgcolor"			"HudOffWhite"
 		"font"				"MenuSmallFont"
 	}	

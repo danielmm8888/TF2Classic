@@ -30,16 +30,15 @@ public:
 	bool	MyTouch( CBasePlayer *pPlayer );
 	void	EndTouch( CBaseEntity *pOther );
 	float	GetRespawnDelay( void );
-	void	GlowThink( void );
 
-	int		m_iWeaponNumber;
+	int		m_nWeaponID;
 	int		m_iRespawnTime;
 
-	CUtlVector< EHANDLE > m_hNearbyPlayers;
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
 
 private:
-	CTFWeaponInfo *pWeaponInfo;
-	CNetworkVar( bool, m_bInactive );
+	CTFWeaponInfo *m_pWeaponInfo;
 };
 
 #endif // ENTITY_HEALTHKIT_H

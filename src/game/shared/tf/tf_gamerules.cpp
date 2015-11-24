@@ -95,6 +95,8 @@ ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICAT
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
 ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
+ConVar tf_ctf_bonus_time( "tf_ctf_bonus_time", "10", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
+
 ConVar tf_tournament_classlimit_scout( "tf_tournament_classlimit_scout", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Scouts.\n" );
 ConVar tf_tournament_classlimit_sniper( "tf_tournament_classlimit_sniper", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Snipers.\n" );
 ConVar tf_tournament_classlimit_soldier( "tf_tournament_classlimit_soldier", "-1", FCVAR_NOTIFY, "Tournament mode per-team class limit for Soldiers.\n" );
@@ -107,7 +109,6 @@ ConVar tf_tournament_classlimit_engineer( "tf_tournament_classlimit_engineer", "
 ConVar tf_tournament_classchange_allowed( "tf_tournament_classchange_allowed", "1", FCVAR_NOTIFY, "Allow players to change class while the game is active?.\n" );
 ConVar tf_tournament_classchange_ready_allowed( "tf_tournament_classchange_ready_allowed", "1", FCVAR_NOTIFY, "Allow players to change class after they are READY?.\n" );
 ConVar tf_classlimit( "tf_classlimit", "0", FCVAR_NOTIFY, "Limit on how many players can be any class (i.e. tf_class_limit 2 would limit 2 players per class).\n" );
-
 #endif
 
 #ifdef GAME_DLL
@@ -2067,33 +2068,19 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	void CTFGameRules::GoToIntermission( void )
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 		{
-			float flWaitTime = mp_chattime.GetFloat();
-			m_flIntermissionEndTime = gpGlobals->curtime + flWaitTime;
-
-			// set all players to FL_FROZEN
-			for (int i = 1; i <= MAX_PLAYERS; i++)
-			{
-				CBasePlayer *pPlayer = UTIL_PlayerByIndex(i);
-
-				if (pPlayer)
-				{
-					pPlayer->ShowViewPortPanel(PANEL_SCOREBOARD);
-					pPlayer->AddFlag(FL_FROZEN);
-				}
-			}
-			State_Enter(GR_STATE_TEAM_WIN);
-			g_fGameOver = true;
-			return;
+			// Deathmatch results panel needs this.
+			SendWinPanelInfo();
 		}
+
 		BaseClass::GoToIntermission();
 	}
 
 	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
 		// Friendly fire is ALWAYS on in DM.
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 			return true;
 		
 		// guard against NULL pointers if players disconnect
@@ -2122,7 +2109,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	int CTFGameRules::PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget)
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( IsDeathmatch() )
 			return GR_NOTTEAMMATE;
 
 		return BaseClass::PlayerRelationship(pPlayer, pTarget);
@@ -2282,7 +2269,7 @@ CBaseEntity *CTFGameRules::GetPlayerSpawnSpot( CBasePlayer *pPlayer )
 bool CTFGameRules::IsSpawnPointValid( CBaseEntity *pSpot, CBasePlayer *pPlayer, bool bIgnorePlayers )
 {
 	// Check the team.
-	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() && !TFGameRules()->IsDeathmatch() )
+	if ( pSpot->GetTeamNumber() != pPlayer->GetTeamNumber() && !IsDeathmatch() )
 		return false;
 
 	if ( !pSpot->IsTriggered( pPlayer ) )
@@ -2494,6 +2481,14 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 
 	// keep track of their cl_autoreload value
 	pTFPlayer->SetAutoReload( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autoreload" ) ) > 0 );
+
+	// Keep track of their DM colors.
+	float flRed = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
+	float flGreen = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
+	float flBlue = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+	pTFPlayer->m_vecPlayerColor.Set( Vector( flRed, flGreen, flBlue ) );
+
+	pTFPlayer->m_Shared.SetRespawnParticleID( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmercparticle" ) ) );
 
 	const char *pszFov = engine->GetClientConVarValue( pPlayer->entindex(), "fov_desired" );
 	int iFov = atoi(pszFov);
@@ -3377,6 +3372,29 @@ bool CTFGameRules::TimerMayExpire( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::HandleCTFCaptureBonus( int iTeam )
+{
+	float flBoostTime = tf_ctf_bonus_time.GetFloat();
+	if ( flBoostTime > 0.0 )
+	{
+		for ( int i = 1; i < gpGlobals->maxClients; i++ )
+		{
+			CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+			
+			if ( !pPlayer )
+				continue;
+
+			if ( pPlayer->GetTeamNumber() == iTeam && pPlayer->IsAlive() )
+			{
+				pPlayer->m_Shared.AddCond( TF_COND_CRITBOOSTED_CTF_CAPTURE, flBoostTime );
+			}
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -3908,12 +3926,14 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 {
 	// DM uses a different scoring system
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() )
 	{
-		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS] * 2) +
-					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS]) +
+		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS]) +
+					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
 					 (pRoundStats->m_iStat[TFSTAT_DOMINATIONS]) +
-					 (pRoundStats->m_iStat[TFSTAT_REVENGE]);
+					 (pRoundStats->m_iStat[TFSTAT_REVENGE]) -
+					 (pRoundStats->m_iStat[TFSTAT_SUICIDES]) -
+					 (pRoundStats->m_iStat[TFSTAT_ENV_DEATHS]);
 		return iScore;
 	}
 	else
@@ -4533,24 +4553,10 @@ const char *CTFGameRules::GetGameDescription(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFGameRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
-{
-	// No team balancing in DM since everybody should be on RED.
-	if ( IsDeathmatch() )
-	{
-		return;
-	}
-
-	BaseClass::BalanceTeams( bRequireSwitcheesToBeDead );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 {
 	BaseClass::PlayerSpawn(pPlayer);
-	if (TFGameRules()->IsDeathmatch())
+	if ( IsDeathmatch() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
 		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();

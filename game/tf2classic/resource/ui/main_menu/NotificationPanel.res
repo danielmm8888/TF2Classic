@@ -4,13 +4,13 @@
 	{
 		"ControlName"		"EditablePanel"
 		"fieldName"			"CTFNotificationPanel"
-		"xpos"				"r220"
+		"xpos"				"r270"
 		"ypos"				"20"
-		"wide"				"200"
-		"tall"				"150"
+		"wide"				"250"
+		"tall"				"180"
 		"autoResize"		"0"
 		"pinCorner"			"0"
-		"visible"			"1"
+		"visible"			"0"
 		"enabled"			"1"
 		"border"			"MainMenuHighlightBorder"
 	}	
@@ -19,11 +19,11 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"CloseButton"
-		"xpos"				"175"
+		"xpos"				"220"
 		"ypos"				"5"
 		"zpos"				"1"
-		"wide"				"16"
-		"tall"				"16"
+		"wide"				"24"
+		"tall"				"24"
 		"visible"			"1"
 		"enabled"			"1"
 		"bordervisible"		"0"	
@@ -47,7 +47,7 @@
 		"SubImage"
 		{
 			"image" 			"../vgui/glyph_close_x"
-			"imagewidth"		"16"
+			"imagewidth"		"24"
 		}
 	}	
 	
@@ -55,11 +55,11 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"PrevButton"
-		"xpos"				"150"
-		"ypos"				"130"
+		"xpos"				"180"
+		"ypos"				"155"
 		"zpos"				"1"
-		"wide"				"16"
-		"tall"				"16"
+		"wide"				"24"
+		"tall"				"24"
 		"visible"			"1"
 		"enabled"			"1"
 		"bordervisible"		"0"	
@@ -83,7 +83,7 @@
 		"SubImage"
 		{
 			"image" 			"../vgui/blog_back_solid"
-			"imagewidth"		"16"
+			"imagewidth"		"24"
 		}
 	}	
 	
@@ -91,11 +91,11 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"NextButton"
-		"xpos"				"175"
-		"ypos"				"130"
+		"xpos"				"215"
+		"ypos"				"155"
 		"zpos"				"1"
-		"wide"				"16"
-		"tall"				"16"
+		"wide"				"24"
+		"tall"				"24"
 		"visible"			"1"
 		"enabled"			"1"
 		"bordervisible"		"0"	
@@ -119,7 +119,7 @@
 		"SubImage"
 		{
 			"image" 			"../vgui/blog_forward_solid"
-			"imagewidth"		"16"
+			"imagewidth"		"24"
 		}
 	}	
 	
@@ -127,11 +127,11 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"RemoveButton"
-		"xpos"				"175"
-		"ypos"				"25"
+		"xpos"				"220"
+		"ypos"				"30"
 		"zpos"				"1"
-		"wide"				"16"
-		"tall"				"16"
+		"wide"				"24"
+		"tall"				"24"
 		"visible"			"1"
 		"enabled"			"1"
 		"bordervisible"		"0"	
@@ -155,7 +155,7 @@
 		"SubImage"
 		{
 			"image" 			"../vgui/icon_trash_on"
-			"imagewidth"		"16"
+			"imagewidth"		"24"
 		}
 	}	
 	
@@ -167,14 +167,14 @@
 		"ypos"				"5"
 		"zpos"				"-1"
 		"wide"				"200"
-		"tall"				"25"
+		"tall"				"30"
 		"autoResize"		"0"
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText"			"SHET"
+		"labelText"			"%title%"
 		"textAlignment"		"west"
-		"font"				"HudFontBiggerBold"
+		"font"				"HudFontGiantBold"
 		"fgcolor"			"MainMenuTextDefault"
 	}			
 	
@@ -182,8 +182,8 @@
 	{
 		"ControlName"		"CExLabel"
 		"fieldName"			"CountLabel"
-		"xpos"				"155"
-		"ypos"				"8"
+		"xpos"				"195"
+		"ypos"				"5"
 		"zpos"				"-1"
 		"wide"				"200"
 		"tall"				"100"
@@ -191,10 +191,10 @@
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText"			""
+		"labelText"			"%count%"
 		"textAlignment"		"north-east"
 		"wrap"				"1"
-		"font"				"FontStorePromotion"
+		"font"				"GameUIButtonText"
 		"fgcolor"			"MainMenuTextDefault"
 	}	
 	
@@ -203,7 +203,7 @@
 		"ControlName"		"CExLabel"
 		"fieldName"			"MessageLabel"
 		"xpos"				"10"
-		"ypos"				"35"
+		"ypos"				"40"
 		"zpos"				"-1"
 		"wide"				"200"
 		"tall"				"100"
@@ -211,10 +211,10 @@
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
-		"labelText"			"blah-blah"
+		"labelText"			"%message%"
 		"textAlignment"		"north-west"
 		"wrap"				"1"
-		"font"				"FontStorePromotion"
+		"font"				"ControllerHintText"
 		"fgcolor"			"MainMenuTextDefault"
 	}		
 }		

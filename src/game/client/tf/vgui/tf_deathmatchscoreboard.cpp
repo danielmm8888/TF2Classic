@@ -772,6 +772,7 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 		if (!TFGameRules() || !TFGameRules()->IsDeathmatch())
 			return;
 
+		m_fNextUpdateTime = gpGlobals->curtime + 0.1;
 		m_flTimeUpdateTeamScore = gpGlobals->curtime + 4.5f;
 		bLockInput = true;
 		bool bPlayerFirst = false;

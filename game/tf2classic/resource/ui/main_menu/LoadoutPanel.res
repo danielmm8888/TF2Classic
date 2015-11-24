@@ -28,6 +28,7 @@
 		"scaleimage"		"1"
 		"border"			"AdvRoundedButtonArmed"
 		"visible"			"1"
+		"fillcolor"			"46 43 42 255"
 		"enabled"			"1"
 	}
 	
@@ -266,7 +267,7 @@
 		"xpos"				"c-280"
 		"ypos"				"115"
 		"zpos"				"5"
-		"wide"				"300"
+		"wide"				"500"
 		"tall"				"30"
 		"autoResize"		"0"
 		"pinCorner"			"0"
@@ -285,7 +286,7 @@
 		"xpos"				"c-278"
 		"ypos"				"115"
 		"zpos"				"4"
-		"wide"				"300"
+		"wide"				"500"
 		"tall"				"30"
 		"autoResize"		"0"
 		"pinCorner"			"0"

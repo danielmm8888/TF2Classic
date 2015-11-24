@@ -7,103 +7,47 @@
 		"xpos"			"cs-0.5"
 		"xpos_lodef"	"34"
 		"xpos_hidef"	"4"
-		"ypos"			"31"
+		"ypos"			"c-150"
 		"wide"			"480"
 		"wide_lodef"	"560"
 		"wide_hidef"	"620"
-		"tall"			"348"
+		"tall"			"300"
 		"autoResize"		"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"		"0"
-		"avatar_width"		"57"
-		"name_width"		"200"
+		"avatar_width"		"58"
+		"name_width"		"180"
 		"status_width"		"15"	//15
 		"nemesis_width"		"15"	//15
 		"class_width"		"34"	//15
 		"score_width"		"30"	//25
 		"ping_width"		"35"
 		"kills_width"		"30"
-		"deaths_width"		"70"
-	}
-	"LeadScoreBG"
-	{
-		"ControlName"		"ImagePanel"
-		"fieldName"		"LeadScoreBG"
-		"xpos"			"29"	//10
-		"xpos_hidef"		"30"
-		"ypos"			"75"
-		"zpos"			"0"
-		"wide"			"418"	//580
-		"wide_lodef"		"539"	//539
-		"wide_hidef"		"559"	//559
-		"tall"			"20"
-		"autoResize"		"0"
-		"pinCorner"		"0"
-		"visible"		"0"
-		"enabled"		"1"
-		"tabPosition"		"0"	
-		"fillcolor"		"255 255 100 10"
-		"PaintBackgroundType"	"0"
-	}
-	"MainBG"
-	{
-		"ControlName"		"EditablePanel"
-		"fieldName"		"MainBG"
-		"xpos"			"0"
-		"xpos_hidef"	"14"
-		"ypos"			"0"
-		"zpos"			"-1"
-		"wide"			"480"
-		"wide_lodef"	"570"
-		"wide_hidef"	"590"
-		"tall"			"348"
-		"autoResize"	"0"
-		"pinCorner"		"0"
-		"visible"		"1"
-		"enabled"		"1"
+		"deaths_width"		"40"
+		"killstreak_width"	"40"
 		"border"		"TFThinLineBorder"
-	}		
-	"ListColumn02"
-	{
-		"ControlName"		"ImagePanel"
-		"fieldName"		"ListColumn01"
-		"xpos"			"0"	//-6
-		"xpos_hidef"		"14"
-		"ypos"			"50"	//63
-		"zpos"			"0"
-		"wide"			"289"	//600
-		"wide_lodef"		"710"	//560
-		"wide_hidef"		"770"	//620
-		"tall"			"570"
-		"autoResize"		"0"
-		"pinCorner"		"0"
-		"visible"		"0"
-		"enabled"		"1"
-		"tabPosition"		"0"	
-		"fillcolor"		"0 0 0 200"
-		"PaintBackgroundType"	"0"
-	}							
+	}					
 	"ShadedTitleBar"
 	{
 		"ControlName"		"ImagePanel"
 		"fieldName"		"ShadedTitleBar"
-		"xpos"			"2"	//10
+		"xpos"			"0"	//10
 		"xpos_hidef"		"30"
-		"ypos"			"2"
+		"ypos"			"0"
 		"zpos"			"0"
-		"wide"			"477"	//580
+		"wide"			"480"	//580
 		"wide_lodef"		"539"	//539
 		"wide_hidef"		"559"	//559
-		"tall"			"62"
+		"tall"			"54"
 		"autoResize"		"0"
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"		"0"	
 		"drawcolor"		"255 250 255 255"
-		"border"		"MainMenuBGBorderAlpha"
+		"border"		"TFThinLineBorder"
 	}								
 	"RedTeamPlayerCount"
 	{
@@ -115,7 +59,7 @@
 		"xpos"			"30"	//420
 		"xpos_lodef"		"376"	//376
 		"xpos_hidef"		"418"	//418
-		"ypos"			"5"
+		"ypos"			"2"
 		"wide"			"100"
 		"tall"			"29"
 		"autoResize"		"1"
@@ -128,10 +72,10 @@
 		"ControlName"		"CExLabel"
 		"fieldName"		"GamemodeLabel"
 		"font"			"ScoreboardMedium"
-		"labelText"		"DEATHMATCH"
+		"labelText"		"#Gametype_Deathmatch"
 		"textAlignment"		"west"
 		"xpos"			"30"
-		"ypos"			"35"
+		"ypos"			"28"	
 		"zpos"			"3"
 		"wide"			"165"
 		"tall"			"20"
@@ -150,7 +94,7 @@
 		"textAlignment"		"east"
 		"xpos"			"140"	//11
 		"xpos_hidef"		"31"	//31
-		"ypos"			"10"	//60
+		"ypos"			"5"	//60
 		"ypos_lodef"		"62"	//62
 		"zpos"			"4"
 		"wide"			"300"
@@ -168,7 +112,7 @@
 		"labelText"		"%mapname%"
 		"textAlignment"		"east"
 		"xpos"			"280"
-		"ypos"			"35"
+		"ypos"			"28"
 		"zpos"			"3"
 		"wide"			"165"
 		"tall"			"20"
@@ -183,17 +127,17 @@
 		"ControlName"		"SectionedListPanel"
 		"fieldName"		"RedPlayerList"
 		"xpos"			"25"	//305
-		"ypos"			"65"	//72
+		"ypos"			"53"		 //72
 		"zpos"			"20"	//20
-		"wide"			"425"	//290
-		"tall"			"270"	//250
+		"wide"			"435"	//290
+		"tall"			"237"	//250
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
 		"tabPosition"		"0"
-		"autoresize"		"3"
+		"autoresize"		"0"
 		"linespacing"		"20"
-		"textcolor"		"red"
+		"textcolor"		"white"
 	}
 	"Spectators"
 	{
@@ -260,7 +204,7 @@
 			"ypos"			"20"
 			"zpos"			"1"		
 			"wide"			"400"
-			"tall"			"230"
+			"tall"			"260"
 			"autoResize"	"0"
 			"pinCorner"		"0"
 			"visible"		"1"

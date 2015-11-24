@@ -6,6 +6,7 @@
 #include "cbase.h"
 #include "glow_outline_effect.h"
 #include "c_tf_player.h"
+#include "collisionutils.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -16,61 +17,54 @@ public:
 	DECLARE_CLASS( C_WeaponSpawner, C_BaseAnimating );
 	DECLARE_CLIENTCLASS();
 
+	C_WeaponSpawner();
+
+	virtual void OnDataChanged( DataUpdateType_t type );
+
 	void	Spawn();
 	void	ClientThink();
-	void	HandleGlowEffect();
-
-	virtual int	InternalDrawModel( int flags );
-	virtual void OnPreDataChanged( DataUpdateType_t updateType );
-	virtual void OnDataChanged( DataUpdateType_t updateType );
-
-	CUtlVector< EHANDLE > m_hNearbyPlayers;
+	void	UpdateGlowEffect();
 
 private:
-	CMaterialReference	m_InactiveMaterial;
 	QAngle				m_qAngle;
 	CGlowObject		   *m_pGlowEffect;
-	bool				m_bInactive;
+	bool				m_bDisabled;
+	bool				m_bRespawning;
+	bool				m_bShouldGlow;
+	bool				m_bTouchingPlayer;
 };
-
-//-----------------------------------------------------------------------------
-// Purpose: RecvProxy that converts the UtlVector to entindexes
-//-----------------------------------------------------------------------------
-void RecvProxy_NearbyPlayerList( const CRecvProxyData *pData, void *pStruct, void *pOut )
-{
-	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
-
-	CBaseHandle *pHandle = (CBaseHandle*)(&(pSpawner->m_hNearbyPlayers[pData->m_iElement])); 
-	RecvProxy_IntToEHandle( pData, pStruct, pHandle );
-}
-
-void RecvProxyArrayLength_NearbyPlayerList( void *pStruct, int objectID, int currentArrayLength )
-{
-	C_WeaponSpawner *pSpawner = (C_WeaponSpawner*)pStruct;
-
-	if ( pSpawner->m_hNearbyPlayers.Size() != currentArrayLength )
-		pSpawner->m_hNearbyPlayers.SetSize( currentArrayLength );
-}
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, C_WeaponSpawner);
 
-IMPLEMENT_CLIENTCLASS_DT(C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner)
-	RecvPropBool( RECVINFO( m_bInactive ) ),
-	RecvPropArray2( 
-	RecvProxyArrayLength_NearbyPlayerList,
-	RecvPropInt( "nearby_player_list_element", 0, SIZEOF_IGNORE, 0, RecvProxy_NearbyPlayerList ), 
-	MAX_PLAYERS, 
-	0, 
-	"nearby_player_list"
-	)
+IMPLEMENT_CLIENTCLASS_DT( C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner )
+	RecvPropBool( RECVINFO( m_bDisabled ) ),
+	RecvPropBool( RECVINFO( m_bRespawning ) ),
 END_RECV_TABLE()
+
+C_WeaponSpawner::C_WeaponSpawner()
+{
+	m_pGlowEffect = NULL;
+	m_bShouldGlow = false;
+	m_bTouchingPlayer = false;
+}
 
 void C_WeaponSpawner::Spawn( void )
 {
 	BaseClass::Spawn();
 	m_qAngle = GetAbsAngles();
-	ClientThink();
-	m_InactiveMaterial.Init( "models/weapons/weapon_spawner.vmt", TEXTURE_GROUP_CLIENT_EFFECTS );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Start thinking
+//-----------------------------------------------------------------------------
+void C_WeaponSpawner::OnDataChanged( DataUpdateType_t type )
+{
+	BaseClass::OnDataChanged( type );
+
+	if ( type == DATA_UPDATE_CREATED )
+	{
+		SetNextClientThink( CLIENT_THINK_ALWAYS );
+	}
 }
 
 void C_WeaponSpawner::ClientThink()
@@ -81,76 +75,71 @@ void C_WeaponSpawner::ClientThink()
 
 	SetAbsAngles( m_qAngle );
 
-	HandleGlowEffect();
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+
+	bool bShouldGlow = false;
+	bool bTouchingPlayer = false;
+
+	if ( pPlayer )
+	{
+		Vector vecPlayerOrigin = pPlayer->GetAbsOrigin();
+		Vector vecPlayerMins = vecPlayerOrigin + pPlayer->GetPlayerMins();
+		Vector vecPlayerMaxs = vecPlayerOrigin + pPlayer->GetPlayerMaxs();
+
+		bTouchingPlayer = IsBoxIntersectingBox( GetAbsOrigin() + WorldAlignMins(), GetAbsOrigin() + WorldAlignMaxs(), vecPlayerMins, vecPlayerMaxs );
+
+		// Disable the outline if the weapon has been picked up.
+		if ( !m_bRespawning && !m_bDisabled )
+		{
+			// Temp crutch for Occluded\Unoccluded glow parameters not working.
+			trace_t tr;
+			UTIL_TraceLine( GetAbsOrigin(), pPlayer->EyePosition(), MASK_OPAQUE, this, COLLISION_GROUP_NONE, &tr );
+			if ( tr.fraction == 1.0f )
+			{
+				bShouldGlow = true;
+			}
+		}
+	}
+
+	if ( m_bShouldGlow != bShouldGlow || m_bTouchingPlayer != bTouchingPlayer )
+	{
+		m_bShouldGlow = bShouldGlow;
+		m_bTouchingPlayer = bTouchingPlayer;
+		UpdateGlowEffect();
+	}
 
 	SetNextClientThink( CLIENT_THINK_ALWAYS );
 }
 
-int C_WeaponSpawner::InternalDrawModel( int flags )
-{
-	/*if ( m_bInactive )
-	{
-		modelrender->ForcedMaterialOverride( m_InactiveMaterial );
-		int iRet = BaseClass::InternalDrawModel( flags );
-		modelrender->ForcedMaterialOverride( NULL );
-		return iRet;
-	}
-	else
-	{
-		return BaseClass::InternalDrawModel( flags );
-	}*/
-
-	return BaseClass::InternalDrawModel( flags );
-}
-
-void C_WeaponSpawner::OnPreDataChanged( DataUpdateType_t updateType )
-{
-	BaseClass::OnPreDataChanged( updateType );
-}
-
-void C_WeaponSpawner::OnDataChanged( DataUpdateType_t updateType )
-{
-	BaseClass::OnDataChanged( updateType );
-
-	/*if ( updateType == DATA_UPDATE_DATATABLE_CHANGED )
-	{
-		HandleGlowEffect();
-	}*/
-}
-
-void C_WeaponSpawner::HandleGlowEffect()
+void C_WeaponSpawner::UpdateGlowEffect()
 {
 	if ( !m_pGlowEffect )
 	{
-		m_pGlowEffect = new CGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ), 1.0, true, true, 0 );
+		m_pGlowEffect = new CGlowObject( this, Vector( 0.6f, 0.6f, 1.0f ), 1.0f, true, true );
 	}
 
-	// DIsable the outline if the weapon has been picked up
-	if ( m_bInactive )
+	if ( !m_bShouldGlow )
 	{
 		m_pGlowEffect->SetAlpha( 0.0f );
-		return;
 	}
-
-	// Only enable the glow if the local player is nearby
-	for ( int i = 0; i < m_hNearbyPlayers.Size(); i++ )
+	else
 	{
-		if ( ToBasePlayer( m_hNearbyPlayers.Element(i) ) && ToBasePlayer( m_hNearbyPlayers.Element(i) ) == C_BasePlayer::GetLocalPlayer() )
+		Vector vecColor;
+
+		if ( m_bTouchingPlayer )
 		{
- 			m_pGlowEffect->SetAlpha( 1.0f );
-			return;
+			// White glow.
+			vecColor.Init( 0.76f, 0.76f, 0.76f );
 		}
 		else
 		{
- 			m_pGlowEffect->SetAlpha( 0.0f );
+			// Blue glow.
+			vecColor.Init( 0.6f, 0.6f, 1.0f );
 		}
-	}
 
-	// DIsable the outline if the weapon has been picked up
-	/*if ( !m_bInactive )
+		m_pGlowEffect->SetColor( vecColor );
 		m_pGlowEffect->SetAlpha( 1.0f );
-	else*/
-		m_pGlowEffect->SetAlpha( 0.0f );
+	}
 }
 
 

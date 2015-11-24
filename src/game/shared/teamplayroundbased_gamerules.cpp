@@ -3079,6 +3079,14 @@ void CTeamplayRoundBasedRules::CheckRespawnWaves( void )
 //-----------------------------------------------------------------------------
 void CTeamplayRoundBasedRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 {
+#ifdef TF_CLASSIC
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return;
+	}
+#endif
+
 	if ( mp_autoteambalance.GetBool() == false || ( IsInArenaMode() == true && tf_arena_use_queue.GetBool() == true ) )
 	{
 		return;

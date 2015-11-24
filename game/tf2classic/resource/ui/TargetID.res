@@ -2,7 +2,7 @@
 {
 	"TargetIDBG"
 	{
-		"ControlName"		"CTFImagePanel"
+		"ControlName"	"CTFImagePanel"
 		"fieldName"		"TargetIDBG"
 		"xpos"			"0"
 		"ypos"			"0"
@@ -13,17 +13,19 @@
 		"pinCorner"		"0"
 		"visible"		"1"
 		"enabled"		"1"
-		"image"			"../hud/score_panel_blue_bg"
+		"image"			"../hud/color_panel_brown"
 		"scaleImage"		"1"
-		"teambg_1"		"../hud/freezecam_black_bg"
-		"teambg_2"		"../hud/freezecam_red_bg"
-		"teambg_2_lodef"	"../hud/freezecam_red_bg_lodef"
-		"teambg_3"		"../hud/freezecam_blue_bg"
-		"teambg_3_lodef"	"../hud/freezecam_blue_bg_lodef"
-		"teambg_4"		"../hud/freezecam_green_bg"
-		"teambg_4_lodef"	"../hud/freezecam_green_bg_lodef"
-		"teambg_5"		"../hud/freezecam_yellow_bg"
-		"teambg_5_lodef"	"../hud/freezecam_yellow_bg_lodef"
+		"teambg_1"		"../hud/color_panel_brown"
+		"teambg_2"		"../hud/color_panel_red"
+		"teambg_2_lodef"	"../hud/color_panel_red"
+		"teambg_3"		"../hud/color_panel_blu"
+		"teambg_3_lodef"	"../hud/color_panel_blu"
+		
+		"src_corner_height"		"23"				// pixels inside the image
+		"src_corner_width"		"23"
+			
+		"draw_corner_width"		"6"				// screen size of the corners ( and sides ), proportional
+		"draw_corner_height" 	"6"	
 	}
 	"TargetNameLabel"
 	{	

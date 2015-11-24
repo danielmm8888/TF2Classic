@@ -76,7 +76,7 @@ TFStatType_t g_statPriority[] = { TFSTAT_HEADSHOTS, TFSTAT_BACKSTABS, TFSTAT_MAX
 	TFSTAT_DAMAGE, TFSTAT_DOMINATIONS, TFSTAT_INVULNS, TFSTAT_BUILDINGSDESTROYED, TFSTAT_CAPTURES, TFSTAT_DEFENSES, TFSTAT_REVENGE, TFSTAT_TELEPORTS, TFSTAT_BUILDINGSBUILT, 
 	TFSTAT_HEALTHLEACHED, TFSTAT_POINTSSCORED, TFSTAT_PLAYTIME };
 // stat types that we don't display records for, kept in this list just so we can assert all stats appear in one list or the other
-TFStatType_t g_statUnused[] = { TFSTAT_DEATHS, TFSTAT_UNDEFINED, TFSTAT_SHOTS_FIRED, TFSTAT_SHOTS_HIT };
+TFStatType_t g_statUnused[] = { TFSTAT_DEATHS, TFSTAT_UNDEFINED, TFSTAT_SHOTS_FIRED, TFSTAT_SHOTS_HIT, TFSTAT_SUICIDES, TFSTAT_ENV_DEATHS };
 
 // localization keys for stat panel text, must be in same order as TFStatType_t
 const char *g_szLocalizedRecordText[] =
@@ -370,7 +370,7 @@ void CTFStatPanel::WriteStats( void )
 		const ClassStats_t &stat = m_aClassStats[ i ];
 
 		// strip out any garbage class data
-		if ( ( stat.iPlayerClass > TF_LAST_NORMAL_CLASS ) || ( stat.iPlayerClass < TF_FIRST_NORMAL_CLASS ) )
+		if ( ( stat.iPlayerClass > TF_CLASS_COUNT ) || ( stat.iPlayerClass < TF_FIRST_NORMAL_CLASS ) )
 			continue;
 
 		CDmxElement *pClass = CreateDmxElement( "ClassStats_t" );
@@ -585,7 +585,7 @@ void CTFStatPanel::ShowStatPanel( int iClass, int iTeam, int iCurStatValue, TFSt
 	pLabel->GetText( szOriginalSummary, sizeof( szOriginalSummary ) );
 	const wchar_t *pszPlayerClass = L"undefined";
 
-	if ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) )
+	if ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_CLASS_COUNT ) )
 	{
 		pszPlayerClass = g_pVGuiLocalize->Find( g_aPlayerClassNames[ iClass ] );
 	}
@@ -738,7 +738,7 @@ ClassStats_t &CTFStatPanel::GetClassStats( int iClass )
 {
 	Assert( statPanel );
 	Assert( iClass >= TF_FIRST_NORMAL_CLASS );
-	Assert( iClass <= TF_LAST_NORMAL_CLASS );
+	Assert( iClass <= TF_CLASS_COUNT );
 	int i;
 	for( i = 0; i < statPanel->m_aClassStats.Count(); i++ )
 	{
@@ -814,8 +814,8 @@ void CTFStatPanel::MsgFunc_PlayerStatsUpdate( bf_read &msg )
 		Assert( false );
 	}
 
-	Assert( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS );
-	if ( iClass < TF_FIRST_NORMAL_CLASS || iClass > TF_LAST_NORMAL_CLASS )
+	Assert( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_CLASS_COUNT );
+	if ( iClass < TF_FIRST_NORMAL_CLASS || iClass > TF_CLASS_COUNT )
 		return;
 	
 	m_iClassCurrentLife = iClass;

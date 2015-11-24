@@ -786,6 +786,12 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 			}
 		}
 
+		// Give temp crit boost to capper's team.
+		if ( TFGameRules() )
+		{
+			TFGameRules()->HandleCTFCaptureBonus( pPlayer->GetTeamNumber() );
+		}
+
 		// Reward the player
 		CTF_GameStats.Event_PlayerCapturedPoint( pPlayer );
 

@@ -8,11 +8,15 @@ Criterion "PyroNotKillSpeech" "PyroKillSpeech" "!=1" "required" weight 0
 Criterion "PyroNotKillSpeechMelee" "PyroKillSpeechMelee" "!=1" "required" weight 0
 Criterion "PyroNotSaidHealThanks" "PyroSaidHealThanks" "!=1" "required"
 Criterion "IsHelpCapPyro" "PyroHelpCap" "1" "required" weight 0
+// Custom stuff
+Criterion "PyroNotAssistSpeech" "PyroAssistSpeech" "!=1" "required" weight 0
+Criterion "PyroNotInvulnerableSpeech" "PyroInvulnerableSpeech" "!=1" "required" weight 0
+Criterion "PyroNotKillSpeechSapper" "PyroKillSpeechSapper" "!=1" "required" weight 0
 
 
 Response PlayerCloakedSpyDemomanPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1440.vcd" 
 }
 Rule PlayerCloakedSpyDemomanPyro
 {
@@ -22,7 +26,7 @@ Rule PlayerCloakedSpyDemomanPyro
 
 Response PlayerCloakedSpyEngineerPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1446.vcd" 
 }
 Rule PlayerCloakedSpyEngineerPyro
 {
@@ -32,7 +36,7 @@ Rule PlayerCloakedSpyEngineerPyro
 
 Response PlayerCloakedSpyHeavyPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1436.vcd" 
 }
 Rule PlayerCloakedSpyHeavyPyro
 {
@@ -42,7 +46,7 @@ Rule PlayerCloakedSpyHeavyPyro
 
 Response PlayerCloakedSpyMedicPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1444.vcd" 
 }
 Rule PlayerCloakedSpyMedicPyro
 {
@@ -52,7 +56,7 @@ Rule PlayerCloakedSpyMedicPyro
 
 Response PlayerCloakedSpyPyroPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1438.vcd" 
 }
 Rule PlayerCloakedSpyPyroPyro
 {
@@ -60,9 +64,19 @@ Rule PlayerCloakedSpyPyroPyro
 	Response PlayerCloakedSpyPyroPyro
 }
 
+Response PlayerCloakedSpyScoutPyro
+{
+	scene "scenes/Player/Pyro/low/1432.vcd" 
+}
+Rule PlayerCloakedSpyScoutPyro
+{
+	criteria ConceptPlayerCloakedSpy IsPyro IsOnScout
+	Response PlayerCloakedSpyScoutPyro
+}
+
 Response PlayerCloakedSpySniperPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1448.vcd" 
 }
 Rule PlayerCloakedSpySniperPyro
 {
@@ -72,7 +86,7 @@ Rule PlayerCloakedSpySniperPyro
 
 Response PlayerCloakedSpySpyPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpyIdentify01.vcd" 
+	scene "scenes/Player/Pyro/low/1442.vcd" 
 }
 Rule PlayerCloakedSpySpyPyro
 {
@@ -86,7 +100,7 @@ Rule PlayerCloakedSpySpyPyro
 //--------------------------------------------------------------------------------------------------------------
 Response HealThanksPyro
 {
-	scene "scenes/Player/Pyro/low/ThanksForTheHeal01.vcd" 
+	scene "scenes/Player/Pyro/low/1552.vcd" 
 }
 Rule HealThanksPyro
 {
@@ -97,8 +111,8 @@ Rule HealThanksPyro
 
 Response PlayerRoundStartPyro
 {
-	scene "scenes/Player/Pyro/low/BattleCry01.vcd" predelay "1.0, 5.0"
-	scene "scenes/Player/Pyro/low/BattleCry02.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Pyro/low/1418.vcd" predelay "1.0, 5.0"
+	scene "scenes/Player/Pyro/low/1419.vcd" predelay "1.0, 5.0"
 }
 Rule PlayerRoundStartPyro
 {
@@ -108,7 +122,7 @@ Rule PlayerRoundStartPyro
 
 Response PlayerCappedIntelligencePyro
 {
-	scene "scenes/Player/Pyro/low/AutoCappedIntelligence01.vcd" 
+	scene "scenes/Player/Pyro/low/1409.vcd" 
 }
 Rule PlayerCappedIntelligencePyro
 {
@@ -118,7 +132,7 @@ Rule PlayerCappedIntelligencePyro
 
 Response PlayerCapturedPointPyro
 {
-	scene "scenes/Player/Pyro/low/AutoCappedControlPoint01.vcd" 
+	scene "scenes/Player/Pyro/low/1406.vcd" 
 }
 Rule PlayerCapturedPointPyro
 {
@@ -128,8 +142,8 @@ Rule PlayerCapturedPointPyro
 
 Response PlayerSuddenDeathPyro
 {
-	scene "scenes/Player/Pyro/low/Jeers01.vcd" 
-	scene "scenes/Player/Pyro/low/Jeers02.vcd" 
+	scene "scenes/Player/Pyro/low/1476.vcd" 
+	scene "scenes/Player/Pyro/low/1477.vcd" 
 }
 Rule PlayerSuddenDeathPyro
 {
@@ -139,7 +153,7 @@ Rule PlayerSuddenDeathPyro
 
 Response PlayerStalematePyro
 {
-	scene "scenes/Player/Pyro/low/AutoDejectedTie01.vcd" 
+	scene "scenes/Player/Pyro/low/1412.vcd" 
 }
 Rule PlayerStalematePyro
 {
@@ -149,7 +163,7 @@ Rule PlayerStalematePyro
 
 Response PlayerTeleporterThanksPyro
 {
-	scene "scenes/Player/Pyro/low/ThanksForTheTeleporter01.vcd" 
+	scene "scenes/Player/Pyro/low/1555.vcd" 
 }
 Rule PlayerTeleporterThanksPyro
 {
@@ -161,34 +175,82 @@ Rule PlayerTeleporterThanksPyro
 //--------------------------------------------------------------------------------------------------------------
 // Auto Speech Combat
 //--------------------------------------------------------------------------------------------------------------
+Response DefendOnThePointPyro
+{
+	scene "scenes/Player/Pyro/low/1531.vcd" 
+}
+Rule DefendOnThePointPyro
+{
+	criteria ConceptFireWeapon IsPyro IsOnFriendlyControlPoint NotDefendOnThePointSpeech
+	ApplyContext "DefendOnThePointSpeech:1:30"
+	applycontexttoworld
+	Response DefendOnThePointPyro
+}
+
 Response KilledPlayerManyPyro
 {
-	scene "scenes/Player/Pyro/low/Taunts04.vcd" 
+	scene "scenes/Player/Pyro/low/1534.vcd" 
 }
 Rule KilledPlayerManyPyro
 {
 	criteria ConceptKilledPlayer IsManyRecentKills 30PercentChance IsWeaponPrimary KilledPlayerDelay PyroNotKillSpeech IsPyro
 	ApplyContext "PyroKillSpeech:1:10"
-	applycontexttoworld
 	Response KilledPlayerManyPyro
 }
 
+// Added back unused melee kill lines
 Response KilledPlayerMeleePyro
 {
-	scene "scenes/Player/Pyro/low/Taunts03.vcd" 
+	scene "scenes/Player/Pyro/low/1594.vcd" 
+	scene "scenes/Player/Pyro/low/1532.vcd" 
+	scene "scenes/Player/Pyro/low/1533.vcd" 
 }
 Rule KilledPlayerMeleePyro
 {
 	criteria ConceptKilledPlayer KilledPlayerDelay 30PercentChance  IsWeaponMelee PyroNotKillSpeechMelee IsPyro
 	ApplyContext "PyroKillSpeechMelee:1:10"
-	applycontexttoworld
 	Response KilledPlayerMeleePyro
 }
 
+// Custom stuff
+Response KilledPlayerAssistAutoPyro
+{
+	scene "scenes/Player/Pyro/low/1529.vcd" predelay "2.5"
+}
+Rule KilledPlayerAssistAutoPyro
+{
+	criteria ConceptKilledPlayer IsPyro IsBeingHealed IsManyRecentKills KilledPlayerDelay 20PercentChance PyroNotAssistSpeech
+	ApplyContext "PyroAssistSpeech:1:20"
+	Response KilledPlayerAssistAutoPyro
+}
+
+Response PyroJarateHit
+{
+	scene "scenes/Player/Pyro/low/1412.vcd"
+	scene "scenes/Player/Pyro/low/1416.vcd"
+}
+Rule PyroJarateHit
+{
+	criteria ConceptJarateHit IsPyro 50PercentChance
+	Response PyroJarateHit
+}
+
+Response InvulnerableSpeechPyro
+{
+	scene "scenes/Player/Pyro/low/1517.vcd" 
+	scene "scenes/Player/Pyro/low/1485.vcd" 
+}
+Rule InvulnerableSpeechPyro
+{
+	criteria ConceptFireWeapon IsPyro IsInvulnerable PyroNotInvulnerableSpeech
+	ApplyContext "PyroInvulnerableSpeech:1:30"
+	Response InvulnerableSpeechPyro
+}
+// End custom
+
 Response PlayerKilledCapperPyro
 {
-	scene "scenes/Player/Pyro/low/BattleCry02.vcd" 
-	scene "scenes/Player/Pyro/low/Cheers01.vcd" 
+	scene "scenes/Player/Pyro/low/1421.vcd" 
 }
 Rule PlayerKilledCapperPyro
 {
@@ -199,26 +261,29 @@ Rule PlayerKilledCapperPyro
 
 Response PlayerKilledDominatingPyro
 {
-	scene "scenes/Player/Pyro/low/LaughEvil01.vcd" predelay "2.5"
-	scene "scenes/Player/Pyro/low/LaughEvil02.vcd" predelay "2.5"
-	scene "scenes/Player/Pyro/low/LaughHappy01.vcd" predelay "2.5"
-	scene "scenes/Player/Pyro/low/LaughLong01.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1450.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1482.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1483.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1485.vcd" predelay "2.5"
 }
 Rule PlayerKilledDominatingPyro
 {
 	criteria ConceptKilledPlayer IsPyro IsDominated
 	ApplyContext "PyroKillSpeech:1:10"
+	ApplyContext "IsDominating:1:10"
 	Response PlayerKilledDominatingPyro
 }
 
 Response PlayerKilledForRevengePyro
 {
-	scene "scenes/Player/Pyro/low/ActivateCharge01.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1403.vcd" predelay "2.5"
+	scene "scenes/Player/Pyro/low/1418.vcd" predelay "2.5"
 }
 Rule PlayerKilledForRevengePyro
 {
 	criteria ConceptKilledPlayer IsPyro IsRevenge
 	ApplyContext "PyroKillSpeech:1:10"
+	ApplyContext "IsDominating:1:10"
 	Response PlayerKilledForRevengePyro
 }
 
@@ -228,56 +293,100 @@ Rule PlayerKilledForRevengePyro
 //--------------------------------------------------------------------------------------------------------------
 Response PlayerAttackerPainPyro
 {
-	scene "scenes/Player/Pyro/low/PainSevere01.vcd" 
-	scene "scenes/Player/Pyro/low/PainSevere02.vcd" 
-	scene "scenes/Player/Pyro/low/PainSevere03.vcd" 
-	scene "scenes/Player/Pyro/low/PainSevere04.vcd" 
-	scene "scenes/Player/Pyro/low/PainSevere05.vcd" 
-	scene "scenes/Player/Pyro/low/PainSevere06.vcd" 
+	scene "scenes/Player/Pyro/low/1581.vcd" 
+	scene "scenes/Player/Pyro/low/1582.vcd" 
+	scene "scenes/Player/Pyro/low/1583.vcd" 
+	scene "scenes/Player/Pyro/low/1591.vcd" 
+	scene "scenes/Player/Pyro/low/1592.vcd" 
+	scene "scenes/Player/Pyro/low/1593.vcd" 
 }
 Rule PlayerAttackerPainPyro
 {
-	criteria ConceptAttackerPain IsPyro
+	criteria ConceptAttackerPain IsPyro IsNotDominating
 	Response PlayerAttackerPainPyro
 }
 
 Response PlayerOnFirePyro
 {
-	scene "scenes/Player/Pyro/low/AutoOnFire01.vcd" 
-	scene "scenes/Player/Pyro/low/AutoOnFire02.vcd" 
+	scene "scenes/Player/Pyro/low/1415.vcd" 
+	scene "scenes/Player/Pyro/low/1416.vcd" 
 }
 Rule PlayerOnFirePyro
 {
-	criteria ConceptFire IsPyro PyroIsNotStillonFire
+	criteria ConceptFire IsPyro PyroIsNotStillonFire IsNotDominating
 	ApplyContext "PyroOnFire:1:7"
 	Response PlayerOnFirePyro
 }
 
 Response PlayerPainPyro
 {
-	scene "scenes/Player/Pyro/low/PainSharp01.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp02.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp03.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp04.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp05.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp06.vcd" 
-	scene "scenes/Player/Pyro/low/PainSharp07.vcd" 
+	scene "scenes/Player/Pyro/low/1584.vcd" 
+	scene "scenes/Player/Pyro/low/1585.vcd" 
+	scene "scenes/Player/Pyro/low/1586.vcd" 
+	scene "scenes/Player/Pyro/low/1587.vcd" 
+	scene "scenes/Player/Pyro/low/1588.vcd" 
+	scene "scenes/Player/Pyro/low/1589.vcd" 
+	scene "scenes/Player/Pyro/low/1590.vcd" 
 }
 Rule PlayerPainPyro
 {
-	criteria ConceptPain IsPyro
+	criteria ConceptPain IsPyro IsNotDominating
 	Response PlayerPainPyro
 }
 
 Response PlayerStillOnFirePyro
 {
-	scene "scenes/Player/Pyro/low/autoonfiresecondary01.vcd" 
+	scene "scenes/Player/Pyro/low/1930.vcd" 
 }
 Rule PlayerStillOnFirePyro
 {
-	criteria ConceptFire IsPyro  PyroIsStillonFire
+	criteria ConceptFire IsPyro  PyroIsStillonFire IsNotDominating
 	ApplyContext "PyroOnFire:1:7"
 	Response PlayerStillOnFirePyro
+}
+
+
+//--------------------------------------------------------------------------------------------------------------
+// Duel Speech
+//--------------------------------------------------------------------------------------------------------------
+Response AcceptedDuelPyro
+{
+	scene "scenes/Player/Pyro/low/1415.vcd" 
+	scene "scenes/Player/Pyro/low/1534.vcd" 
+	scene "scenes/Player/Pyro/low/1550.vcd" 
+}
+Rule AcceptedDuelPyro
+{
+	criteria ConceptIAcceptDuel IsPyro
+	Response AcceptedDuelPyro
+}
+
+Response MeleeDarePyro
+{
+	scene "scenes/Player/Pyro/low/1409.vcd" 
+	scene "scenes/Player/Pyro/low/1499.vcd" 
+	scene "scenes/Player/Pyro/low/1529.vcd" 
+	scene "scenes/Player/Pyro/low/1552.vcd" 
+	scene "scenes/Player/Pyro/low/1555.vcd" 
+}
+Rule MeleeDarePyro
+{
+	criteria ConceptRequestDuel IsPyro
+	Response MeleeDarePyro
+}
+
+Response RejectedDuelPyro
+{
+	scene "scenes/Player/Pyro/low/1412.vcd" 
+	scene "scenes/Player/Pyro/low/1419.vcd" 
+	scene "scenes/Player/Pyro/low/1432.vcd" 
+	scene "scenes/Player/Pyro/low/1466.vcd" 
+	scene "scenes/Player/Pyro/low/1469.vcd" 
+}
+Rule RejectedDuelPyro
+{
+	criteria ConceptDuelRejected IsPyro
+	Response RejectedDuelPyro
 }
 
 
@@ -286,7 +395,7 @@ Rule PlayerStillOnFirePyro
 //--------------------------------------------------------------------------------------------------------------
 Response PlayerGoPyro
 {
-	scene "scenes/Player/Pyro/low/Go01.vcd" 
+	scene "scenes/Player/Pyro/low/1451.vcd" 
 }
 Rule PlayerGoPyro
 {
@@ -296,7 +405,7 @@ Rule PlayerGoPyro
 
 Response PlayerHeadLeftPyro
 {
-	scene "scenes/Player/Pyro/low/HeadLeft01.vcd" 
+	scene "scenes/Player/Pyro/low/1457.vcd" 
 }
 Rule PlayerHeadLeftPyro
 {
@@ -306,7 +415,7 @@ Rule PlayerHeadLeftPyro
 
 Response PlayerHeadRightPyro
 {
-	scene "scenes/Player/Pyro/low/HeadRight01.vcd" 
+	scene "scenes/Player/Pyro/low/1460.vcd" 
 }
 Rule PlayerHeadRightPyro
 {
@@ -316,7 +425,7 @@ Rule PlayerHeadRightPyro
 
 Response PlayerHelpPyro
 {
-	scene "scenes/Player/Pyro/low/HelpMe01.vcd" 
+	scene "scenes/Player/Pyro/low/1463.vcd" 
 }
 Rule PlayerHelpPyro
 {
@@ -326,7 +435,7 @@ Rule PlayerHelpPyro
 
 Response PlayerHelpCapturePyro
 {
-	scene "scenes/Player/Pyro/low/HelpMeCapture01.vcd" 
+	scene "scenes/Player/Pyro/low/1466.vcd" 
 }
 Rule PlayerHelpCapturePyro
 {
@@ -337,7 +446,7 @@ Rule PlayerHelpCapturePyro
 
 Response PlayerHelpCapture2Pyro
 {
-	scene "scenes/Player/Pyro/low/StandOnThePoint01.vcd" 
+	scene "scenes/Player/Pyro/low/1531.vcd" 
 }
 Rule PlayerHelpCapture2Pyro
 {
@@ -347,7 +456,7 @@ Rule PlayerHelpCapture2Pyro
 
 Response PlayerHelpDefendPyro
 {
-	scene "scenes/Player/Pyro/low/HelpMeDefend01.vcd" 
+	scene "scenes/Player/Pyro/low/1469.vcd" 
 }
 Rule PlayerHelpDefendPyro
 {
@@ -357,7 +466,7 @@ Rule PlayerHelpDefendPyro
 
 Response PlayerMedicPyro
 {
-	scene "scenes/Player/Pyro/low/Medic01.vcd" 
+	scene "scenes/Player/Pyro/low/1489.vcd" 
 }
 Rule PlayerMedicPyro
 {
@@ -365,9 +474,19 @@ Rule PlayerMedicPyro
 	Response PlayerMedicPyro
 }
 
+Response PlayerAskForBallPyro
+{
+	scene "scenes/Player/Pyro/low/1489.vcd" 
+}
+Rule PlayerAskForBallPyro
+{
+	criteria ConceptPlayerAskForBall IsPyro
+	Response PlayerAskForBallPyro
+}
+
 Response PlayerMoveUpPyro
 {
-	scene "scenes/Player/Pyro/low/MoveUp01.vcd" 
+	scene "scenes/Player/Pyro/low/1492.vcd" 
 }
 Rule PlayerMoveUpPyro
 {
@@ -377,7 +496,7 @@ Rule PlayerMoveUpPyro
 
 Response PlayerNoPyro
 {
-	scene "scenes/Player/Pyro/low/No01.vcd" 
+	scene "scenes/Player/Pyro/low/1507.vcd" 
 }
 Rule PlayerNoPyro
 {
@@ -387,7 +506,7 @@ Rule PlayerNoPyro
 
 Response PlayerThanksPyro
 {
-	scene "scenes/Player/Pyro/low/Thanks01.vcd" 
+	scene "scenes/Player/Pyro/low/1550.vcd" 
 }
 Rule PlayerThanksPyro
 {
@@ -395,9 +514,25 @@ Rule PlayerThanksPyro
 	Response PlayerThanksPyro
 }
 
+// Custom Assist kill response
+// As there is no actual concept for assist kills, this is the second best method.
+// Say thanks after you kill more than one person.
+
+Response KilledPlayerAssistPyro
+{
+	scene "scenes/Player/Pyro/low/1529.vcd"
+}
+Rule KilledPlayerAssistPyro
+{
+	criteria ConceptPlayerThanks IsPyro IsARecentKill KilledPlayerDelay PyroNotAssistSpeech
+	ApplyContext "PyroAssistSpeech:1:20"
+	Response KilledPlayerAssistPyro
+}
+// End custom
+
 Response PlayerYesPyro
 {
-	scene "scenes/Player/Pyro/low/Yes01.vcd" 
+	scene "scenes/Player/Pyro/low/1558.vcd" 
 }
 Rule PlayerYesPyro
 {
@@ -411,7 +546,7 @@ Rule PlayerYesPyro
 //--------------------------------------------------------------------------------------------------------------
 Response PlayerActivateChargePyro
 {
-	scene "scenes/Player/Pyro/low/ActivateCharge01.vcd" 
+	scene "scenes/Player/Pyro/low/1403.vcd" 
 }
 Rule PlayerActivateChargePyro
 {
@@ -421,7 +556,7 @@ Rule PlayerActivateChargePyro
 
 Response PlayerCloakedSpyPyro
 {
-	scene "scenes/Player/Pyro/low/CloakedSpy01.vcd" 
+	scene "scenes/Player/Pyro/low/1429.vcd" 
 }
 Rule PlayerCloakedSpyPyro
 {
@@ -431,7 +566,7 @@ Rule PlayerCloakedSpyPyro
 
 Response PlayerDispenserHerePyro
 {
-	scene "scenes/Player/Pyro/low/NeedDispenser01.vcd" 
+	scene "scenes/Player/Pyro/low/1493.vcd" 
 }
 Rule PlayerDispenserHerePyro
 {
@@ -441,7 +576,7 @@ Rule PlayerDispenserHerePyro
 
 Response PlayerIncomingPyro
 {
-	scene "scenes/Player/Pyro/low/Incoming01.vcd" 
+	scene "scenes/Player/Pyro/low/1472.vcd" 
 }
 Rule PlayerIncomingPyro
 {
@@ -451,7 +586,7 @@ Rule PlayerIncomingPyro
 
 Response PlayerSentryAheadPyro
 {
-	scene "scenes/Player/Pyro/low/SentryAhead01.vcd" 
+	scene "scenes/Player/Pyro/low/1515.vcd" 
 }
 Rule PlayerSentryAheadPyro
 {
@@ -461,7 +596,7 @@ Rule PlayerSentryAheadPyro
 
 Response PlayerSentryHerePyro
 {
-	scene "scenes/Player/Pyro/low/NeedSentry01.vcd" 
+	scene "scenes/Player/Pyro/low/1495.vcd" 
 }
 Rule PlayerSentryHerePyro
 {
@@ -471,7 +606,7 @@ Rule PlayerSentryHerePyro
 
 Response PlayerTeleporterHerePyro
 {
-	scene "scenes/Player/Pyro/low/NeedTeleporter01.vcd" 
+	scene "scenes/Player/Pyro/low/1497.vcd" 
 }
 Rule PlayerTeleporterHerePyro
 {
@@ -485,8 +620,8 @@ Rule PlayerTeleporterHerePyro
 //--------------------------------------------------------------------------------------------------------------
 Response PlayerBattleCryPyro
 {
-	scene "scenes/Player/Pyro/low/BattleCry01.vcd" 
-	scene "scenes/Player/Pyro/low/BattleCry02.vcd" 
+	scene "scenes/Player/Pyro/low/1418.vcd" 
+	scene "scenes/Player/Pyro/low/1419.vcd" 
 }
 Rule PlayerBattleCryPyro
 {
@@ -494,9 +629,24 @@ Rule PlayerBattleCryPyro
 	Response PlayerBattleCryPyro
 }
 
+// Custom stuff - melee dare
+// Look at enemy, then do battle cry voice command while holding a melee weapon.
+Response MeleeDareCombatPyro
+{
+	scene "scenes/Player/Pyro/low/1409.vcd"
+	scene "scenes/Player/Pyro/low/1517.vcd"
+	scene "scenes/Player/Pyro/low/1482.vcd"
+}
+Rule MeleeDareCombatPyro
+{
+	criteria ConceptPlayerBattleCry IsWeaponMelee IsPyro IsCrosshairEnemy
+	Response MeleeDareCombatPyro
+}
+//End custom
+
 Response PlayerCheersPyro
 {
-	scene "scenes/Player/Pyro/low/Cheers01.vcd" 
+	scene "scenes/Player/Pyro/low/1421.vcd" 
 }
 Rule PlayerCheersPyro
 {
@@ -506,7 +656,7 @@ Rule PlayerCheersPyro
 
 Response PlayerGoodJobPyro
 {
-	scene "scenes/Player/Pyro/low/GoodJob01.vcd" 
+	scene "scenes/Player/Pyro/low/1454.vcd" 
 }
 Rule PlayerGoodJobPyro
 {
@@ -516,8 +666,8 @@ Rule PlayerGoodJobPyro
 
 Response PlayerJeersPyro
 {
-	scene "scenes/Player/Pyro/low/Jeers01.vcd" 
-	scene "scenes/Player/Pyro/low/Jeers02.vcd" 
+	scene "scenes/Player/Pyro/low/1476.vcd" 
+	scene "scenes/Player/Pyro/low/1477.vcd" 
 }
 Rule PlayerJeersPyro
 {
@@ -527,7 +677,7 @@ Rule PlayerJeersPyro
 
 Response PlayerLostPointPyro
 {
-	scene "scenes/Player/Pyro/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Pyro/low/1499.vcd" 
 }
 Rule PlayerLostPointPyro
 {
@@ -537,7 +687,7 @@ Rule PlayerLostPointPyro
 
 Response PlayerNegativePyro
 {
-	scene "scenes/Player/Pyro/low/NegativeVocalization01.vcd" 
+	scene "scenes/Player/Pyro/low/1499.vcd" 
 }
 Rule PlayerNegativePyro
 {
@@ -547,7 +697,7 @@ Rule PlayerNegativePyro
 
 Response PlayerNiceShotPyro
 {
-	scene "scenes/Player/Pyro/low/NiceShot01.vcd" 
+	scene "scenes/Player/Pyro/low/1504.vcd" 
 }
 Rule PlayerNiceShotPyro
 {
@@ -557,23 +707,18 @@ Rule PlayerNiceShotPyro
 
 Response PlayerPositivePyro
 {
-	scene "scenes/Player/Pyro/low/PositiveVocalization01.vcd" 
+	scene "scenes/Player/Pyro/low/1510.vcd" 
+}
+
+Response PlayerTauntsPyro
+{
+	scene "scenes/Player/Pyro/low/1563.vcd" 
+	scene "scenes/Player/Pyro/low/1595.vcd" 
+	scene "scenes/Player/Pyro/low/1487.vcd" 
 }
 Rule PlayerPositivePyro
 {
 	criteria ConceptPlayerPositive IsPyro
 	Response PlayerPositivePyro
-}
-
-Response PlayerTauntsPyro
-{
-	scene "scenes/Player/Pyro/low/LaughEvil03.vcd" 
-	scene "scenes/Player/Pyro/low/LaughEvil04.vcd" 
-	scene "scenes/Player/Pyro/low/LaughShort01.vcd" 
-}
-Rule PlayerTauntsPyro
-{
-	criteria ConceptPlayerTaunts IsPyro
 	Response PlayerTauntsPyro
 }
-

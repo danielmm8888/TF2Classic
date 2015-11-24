@@ -255,7 +255,7 @@
 		"fieldName"		"BuildHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"330"			// align me to the left edge of the first selection
-		"ypos"			"150"
+		"ypos"			"152"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"38"
@@ -273,9 +273,9 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"BuildHintLabel_Bright"
-		"font"			"GameUIButtonText"
-		"xpos"			"355"
-		"ypos"			"152"
+		"font"			"ControllerHintText"
+		"xpos"			"350"
+		"ypos"			"151"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"39"
@@ -293,10 +293,10 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"BuildHintLabel_Dim"
-		"font"			"GameUIButtonText"
+		"font"			"ControllerHintText"
 		"fgcolor"		"TanDark"
-		"xpos"			"355"
-		"ypos"			"152"
+		"xpos"			"350"
+		"ypos"			"151"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"39"
@@ -316,7 +316,7 @@
 		"fieldName"		"DestroyHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"200"			// align me to the left edge of the first selection
-		"ypos"			"150"
+		"ypos"			"152"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"38"
@@ -334,9 +334,9 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"DestroyHintLabel_Bright"
-		"font"			"GameUIButtonText"
-		"xpos"			"225"			// align me to the left edge of the first selection
-		"ypos"			"152"
+		"font"			"ControllerHintText"
+		"xpos"			"220"			// align me to the left edge of the first selection
+		"ypos"			"151"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"39"
@@ -354,10 +354,10 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"DestroyHintLabel_Dim"
-		"font"			"GameUIButtonText"
+		"font"			"ControllerHintText"
 		"fgcolor"		"TanDark"
-		"xpos"			"225"			// align me to the left edge of the first selection
-		"ypos"			"152"
+		"xpos"			"220"			// align me to the left edge of the first selection
+		"ypos"			"151"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"39"
@@ -377,7 +377,7 @@
 		"fieldName"		"CancelHintIcon"
 		"font"			"GameUIButtons"
 		"xpos"			"20"			// align me to the left edge of the first selection
-		"ypos"			"150"
+		"ypos"			"152"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"38"
@@ -395,9 +395,9 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"CancelHintLabel"
-		"font"			"GameUIButtonText"
-		"xpos"			"45"
-		"ypos"			"152"
+		"font"			"ControllerHintText"
+		"xpos"			"40"
+		"ypos"			"151"
 		"zpos"			"1"
 		"wide"			"300"
 		"tall"			"39"

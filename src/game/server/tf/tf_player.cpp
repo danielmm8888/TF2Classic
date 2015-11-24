@@ -773,6 +773,11 @@ void CTFPlayer::PrecachePlayerModels( void )
 		PrecacheModel( "models/effects/bday_hat.mdl" );
 	}
 
+	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
+	{
+		PrecacheModel( "models/items/ammopack_medium.mdl" );
+	}
+
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
 	{
@@ -1690,8 +1695,8 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
 	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
 	{
-		ChangeTeam(TF_TEAM_RED);
-		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		ChangeTeam( TF_TEAM_RED );
+		SetDesiredPlayerClassIndex( TF_CLASS_MERCENARY );
 		return;
 	}
 
@@ -1718,7 +1723,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
-		Warning("Four player teams have been disabled!\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
 	}
 
@@ -1856,7 +1861,7 @@ void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
 
 	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
 	{
-		Warning("Four player teams have been disabled!\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
 	}
 
@@ -2014,7 +2019,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
 		return;
 
-	if (TFGameRules()->IsDeathmatch())
+	if ( TFGameRules()->IsDeathmatch() )
 		return;
 
 	// In case we don't get the class menu message before the spawn timer
@@ -2043,7 +2048,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	{
 		int i = 0;
 
-		for ( i = TF_CLASS_SCOUT; i <= TF_CLASS_ENGINEER; i++ )
+		for ( i = TF_CLASS_SCOUT; i < TF_CLASS_COUNT_ALL; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -2051,18 +2056,20 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 				break;
 			}
 		}
-		if ( i > TF_LAST_NORMAL_CLASS )
+
+		if ( iClass > TF_LAST_NORMAL_CLASS )
 		{
-			Warning( "HandleCommand_JoinClass( %s ) - invalid class name.\n", pClassName );
+			ClientPrint( this, HUD_PRINTCONSOLE, UTIL_VarArgs( "Invalid class name \"%s\".\n", pClassName ) );
 			return;
 		}
 	}
 	else
 	{
 		// The player has selected Random class...so let's pick one for them.
-		do{
+		do
+		{
 			// Don't let them be the same class twice in a row
-			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER );
+			iClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
 		} while( iClass == GetPlayerClass()->GetClassIndex() );
 	}
 
@@ -2236,7 +2243,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	{
 		if ( sv_cheats->GetBool() )
 		{
-			m_Shared.Burn( this, NULL );
+			m_Shared.Burn( this );
 			return true;
 		}
 		return false;
@@ -2389,7 +2396,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 				// they haven't disguised yet, pick a nice one for them.
 				// exclude some undesirable classes 
 
-				// PistonMiner: Added Mercenary and Civilan to undesired, also made it so it doesnt pick your own team
+				// PistonMiner: Made it so it doesnt pick your own team.
 				do
 				{
 					nClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
@@ -2400,7 +2407,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 					else
 						GetTeamNumber() == TF_TEAM_BLUE ? nTeam = TF_TEAM_RED : nTeam = TF_TEAM_BLUE;
 
-				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nClass == TF_CLASS_CIVILIAN || nClass == TF_CLASS_MERCENARY || nTeam == GetTeamNumber() );
+				} while( nClass == TF_CLASS_SCOUT || nClass == TF_CLASS_SPY || nTeam == GetTeamNumber() );
 			}
 
 			m_Shared.Disguise( nTeam, nClass );
@@ -2472,30 +2479,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	else if ( FStrEq( pcmd, "taunt" ) )
 	{
 		Taunt();
-		return true;
-	}
-	else if ( FStrEq(pcmd, "tf2c_setmerccolor") )
-	{
-		if (args.ArgC() < 4)
-		{
-			Warning("Format: tf2c_setmerccolor r g b\n");
-			return true;
-		}
-		m_vecPlayerColor.Set(Vector(
-			min(atoi(args[1]), 255) / 255.0f,
-			min(atoi(args[2]), 255) / 255.0f,
-			min(atoi(args[3]), 255) / 255.0f
-			));
-		return true;
-	}
-	else if (FStrEq(pcmd, "tf2c_setmercparticle"))
-	{
-		if (args.ArgC() < 1)
-		{
-			Warning("Format: tf2c_setmercparticle num\n");
-			return true;
-		}
-		m_Shared.SetRespawnParticleID(atoi(args[1]));
 		return true;
 	}
 	else if ( FStrEq( pcmd, "build" ) )
@@ -3782,14 +3765,7 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info )
 {
-	if (pVictim != this)
-	{
-		gamestats->Event_PlayerKilledOther(this, pVictim, info);
-	}
-	else
-	{
-		gamestats->Event_PlayerSuicide(this);
-	}
+	BaseClass::Event_KilledOther( pVictim, info );
 
 	if ( pVictim->IsPlayer() )
 	{
@@ -3832,7 +3808,7 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		CFmtStrN<128> modifiers( "%s,%s,victimclass:%s", pszCustomDeath, pszDomination, g_aPlayerClassNames_NonLocalized[ pTFVictim->GetPlayerClass()->GetClassIndex() ] );
 		SpeakConceptIfAllowed( MP_CONCEPT_KILLED_PLAYER, modifiers );
 
-		if (IsAlive())
+		if ( IsAlive() )
 		{
 			m_Shared.IncKillstreak();
 		}
@@ -3886,7 +3862,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Also drop our weapon in DM
 	if ( TFGameRules()->IsDeathmatch() )
 	{
-		DropWeapon( GetActiveTFWeapon() );
+		DropWeapon( GetActiveTFWeapon(), true );
 	}
 
 	// If the player has a capture flag and was killed by another player, award that player a defense
@@ -3905,6 +3881,16 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			}
 			CTF_GameStats.Event_PlayerDefendedPoint( pPlayerAttacker );
 		}
+	}
+
+	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
+	{
+		// Blow it up at our position.
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
+		pObject->DropCarriedObject( this );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
+		pObject->Killed( newInfo );
 	}
 
 	// Remove all items...
@@ -4019,16 +4005,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	// Don't overflow the value for this.
 	m_iHealth = 0;
-
-	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
-	{
-		// Blow it up at our position.
-		CBaseObject *pObject = m_Shared.GetCarriedObject();
-		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
-		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
-		pObject->Killed( newInfo );
-	}
 
 	// If we died in sudden death and we're an engineer, explode our buildings
 	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && TFGameRules()->InStalemate() )
@@ -4433,7 +4409,7 @@ void CTFPlayer::DropFakeWeapon( CTFWeaponBase *pWeapon )
 //-----------------------------------------------------------------------------
 // Purpose: Creates tf_dropped_weapon based on selected weapon
 //-----------------------------------------------------------------------------
-void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
+void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel /*= false*/ )
 {
 	if ( !pWeapon ||
 		pWeapon->GetTFWpnData().m_bDontDrop ||
@@ -4463,8 +4439,8 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 	Assert( pDroppedWeapon );
 	if ( pDroppedWeapon )
 	{
-		// Don't randomize velocity if we dropped our weapon at will.
-		if ( StateGet() != TF_STATE_ACTIVE )
+		// Randomize velocity if we dropped weapon upon being killed.
+		if ( bRandomVel )
 		{
 			Vector vecRight, vecUp;
 			AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
@@ -4486,8 +4462,6 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 
 			if ( pDroppedWeapon->VPhysicsGetObject() )
 			{
-				// We can probably remove this when the mass on the weapons is correct!
-				//pDroppedWeapon->VPhysicsGetObject()->SetMass( 25.0f );
 				AngularImpulse angImpulse( 0, random->RandomFloat( 0, 100 ), 0 );
 				pDroppedWeapon->VPhysicsGetObject()->SetVelocityInstantaneous( &vecImpulse, &angImpulse );
 			}
@@ -4510,7 +4484,6 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon )
 		}
 
 		// Give the ammo pack some health, so that trains can destroy it.
-		//pDroppedWeapon->SetCollisionGroup( COLLISION_GROUP_DEBRIS );
 		//pDroppedWeapon->m_takedamage = DAMAGE_YES;
 		//pDroppedWeapon->SetHealth( 900 );
 
@@ -4925,7 +4898,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		{
 			mode = OBS_MODE_CHASE;
 		}
-		else if ( mode == OBS_MODE_ROAMING || ( mode > OBS_MODE_FIXED && mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+		else if ( mode == OBS_MODE_ROAMING )
 		{
 			mode = OBS_MODE_IN_EYE;
 		}
@@ -5993,9 +5966,6 @@ public:
 		if ( m_bDisabled )
 			return false;
 
-		if ( ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM ) && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
-			return false;
-
 		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
 		{
 			// If we don't own the associated team entity, we can't use this point
@@ -6655,7 +6625,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 				bool bSameTeam = InSameTeam( pTFPlayer );
 				criteriaSet.AppendCriteria( "crosshair_enemy", bSameTeam ? "No" : "Yes" );
 
-				if ( iClass > TF_CLASS_UNDEFINED && iClass <= TF_LAST_NORMAL_CLASS )
+				if ( iClass > TF_CLASS_UNDEFINED && iClass <= TF_CLASS_COUNT )
 				{
 					criteriaSet.AppendCriteria( "crosshair_on", g_aPlayerClassNames_NonLocalized[iClass] );
 				}
@@ -6769,7 +6739,7 @@ IResponseSystem *CTFPlayer::GetResponseSystem()
 		iClass = m_Shared.GetDisguiseClass();
 	}
 
-	bool bValidClass = ( iClass >= TF_CLASS_SCOUT && iClass <= TF_LAST_NORMAL_CLASS );
+	bool bValidClass = ( iClass >= TF_CLASS_SCOUT && iClass <= TF_CLASS_COUNT );
 	bool bValidConcept = ( m_iCurrentConcept >= 0 && m_iCurrentConcept < MP_TF_CONCEPT_COUNT );
 	Assert( bValidClass );
 	Assert( bValidConcept );
@@ -7106,7 +7076,7 @@ static ConCommand sv_debug_stuck_particles( "sv_debug_stuck_particles", DebugPar
 void IgnitePlayer()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( ToTFPlayer( UTIL_PlayerByIndex( 1 ) ) );
-	pPlayer->m_Shared.Burn( pPlayer, NULL );
+	pPlayer->m_Shared.Burn( pPlayer );
 }
 static ConCommand cc_IgnitePlayer( "tf_ignite_player", IgnitePlayer, "Sets you on fire", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
@@ -7208,7 +7178,7 @@ bool CTFPlayer::SetPowerplayEnabled( bool bOn )
 	{
 		m_flPowerPlayTime = gpGlobals->curtime + 99999;
 		m_Shared.RecalculateChargeEffects();
-		m_Shared.Burn( this, NULL );
+		m_Shared.Burn( this );
 
 		PowerplayThink();
 	}

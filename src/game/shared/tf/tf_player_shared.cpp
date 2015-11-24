@@ -169,7 +169,6 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iDesiredWeaponID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iRespawnParticleID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_iDisguiseWeaponID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // Server specific.
@@ -1323,7 +1322,7 @@ void CTFPlayerShared::OnRemoveRagemode(void)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon )
+void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon /*= NULL*/ )
 {
 #ifdef CLIENT_DLL
 
@@ -3449,7 +3448,7 @@ const Vector& CTFPlayer::GetClassEyeHeight( void )
 
 	int iClassIndex = pClass->GetClassIndex();
 
-	if ( iClassIndex < TF_FIRST_NORMAL_CLASS || iClassIndex > TF_LAST_NORMAL_CLASS )
+	if ( iClassIndex < TF_FIRST_NORMAL_CLASS || iClassIndex > TF_CLASS_COUNT )
 		return VEC_VIEW;
 
 	return g_TFClassViewVectors[pClass->GetClassIndex()];

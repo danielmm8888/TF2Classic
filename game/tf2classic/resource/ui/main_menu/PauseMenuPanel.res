@@ -340,7 +340,7 @@
 	{
 		"ControlName"		"CTFAdvButton"
 		"fieldName"			"NotificationButton"
-		"xpos"				"243"
+		"xpos"				"278"
 		"ypos"				"390"
 		"zpos"				"6"
 		"wide"				"20"

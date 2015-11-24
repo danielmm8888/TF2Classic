@@ -34,6 +34,9 @@ fWeaponData
 	"bucket"			"1"
 	"bucket_position"		"0"
 
+	"bucket_DM"		"3"
+	"bucket_position_DM"	"0"
+
 	// Animation.
 	"viewmodel"     	"models/weapons/v_models/v_shotgun_soldier.mdl"
 	//"viewmodel_dm"     	"models/weapons/v_models/v_shotgun_engineer.mdl" // Redundant until we add unique animations.

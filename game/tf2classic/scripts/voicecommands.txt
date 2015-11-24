@@ -26,7 +26,7 @@
 			"menu_label"				"#Voice_Menu_Medic"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"MEDIC!"
+			"subtitle"				"#Voice_Menu_Medic"
 			"activity"				"ACT_MP_GESTURE_VC_HANDMOUTH"
 		}
 		
@@ -36,7 +36,7 @@
 			"menu_label"				"#Voice_Menu_Thanks"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Thanks!"
+			"subtitle"				"#Voice_Menu_Thanks"
 			"activity"				"ACT_MP_GESTURE_VC_THUMBSUP"
 		}
 		
@@ -46,7 +46,7 @@
 			"menu_label"				"#Voice_Menu_Go"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Go! Go! Go!"
+			"subtitle"				"#Voice_Menu_Go"
 			"activity"				"ACT_MP_GESTURE_VC_FINGERPOINT"
 		}
 		
@@ -56,7 +56,7 @@
 			"menu_label"				"#Voice_Menu_MoveUp"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Move up!"
+			"subtitle"				"#Voice_Menu_MoveUp"
 			"activity"				"ACT_MP_GESTURE_VC_FINGERPOINT"
 		}
 		
@@ -66,7 +66,7 @@
 			"menu_label"				"#Voice_Menu_Left"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Go Left"
+			"subtitle"				"#Voice_Menu_Left"
 			"activity"				"ACT_MP_GESTURE_VC_FINGERPOINT"
 		}
 		
@@ -76,7 +76,7 @@
 			"menu_label"				"#Voice_Menu_Right"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Go Right"
+			"subtitle"				"#Voice_Menu_Right"
 			"activity"				"ACT_MP_GESTURE_VC_FINGERPOINT"
 		}
 		
@@ -85,7 +85,7 @@
 			"concept"				"TLK_PLAYER_YES"		
 			"menu_label"				"#Voice_Menu_Yes"
 			"show_subtitle"				"1"
-			"subtitle"				"Yes"
+			"subtitle"				"#Voice_Menu_Yes"
 		}
 		
 		"item_8"
@@ -93,10 +93,8 @@
 			"concept"				"TLK_PLAYER_NO"	
 			"menu_label"				"#Voice_Menu_No"	
 			"show_subtitle"				"1"
-			"subtitle"				"No"
+			"subtitle"				"#Voice_Menu_No"
 		}
-		
-
 	}
 
 
@@ -108,7 +106,7 @@
 			"menu_label"				"#Voice_Menu_Incoming"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Incoming"
+			"subtitle"				"#Voice_Menu_Incoming"
 			"activity"				"ACT_MP_GESTURE_VC_HANDMOUTH"
 		}
 		
@@ -118,7 +116,7 @@
 			"menu_label"				"#Voice_Menu_CloakedSpy"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Spy!"
+			"subtitle"				"#Voice_Menu_CloakedSpy"
 		}
 		
 		"item_3"
@@ -127,7 +125,7 @@
 			"menu_label"				"#Voice_Menu_SentryAhead"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Sentry Ahead!"
+			"subtitle"				"#Voice_Menu_SentryAhead"
 			"activity"				"ACT_MP_GESTURE_VC_FINGERPOINT"
 		}
 		
@@ -158,7 +156,7 @@
 			"menu_label"				"#Voice_Menu_ActivateCharge"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Activate Charge!"
+			"subtitle"				"#Voice_Menu_ActivateCharge"
 		}
 		
 		"item_8"
@@ -167,7 +165,7 @@
 			"distance_check_subtitle"		"1"
 			"menu_label"				"#Voice_Menu_ChargeReady"
 			"activity"				"ACT_MP_GESTURE_VC_THUMBSUP"	
-		}	
+		}
 	}
 
 
@@ -179,7 +177,7 @@
 			"menu_label"				"#Voice_Menu_Help"
 			"show_subtitle"				"1"
 			"distance_check_subtitle"		"1"
-			"subtitle"				"Help!"
+			"subtitle"				"#Voice_Menu_Help"
 			"activity"				"ACT_MP_GESTURE_VC_HANDMOUTH"
 		}
 
@@ -229,7 +227,5 @@
 			"menu_label"				"#Voice_Menu_GoodJob"
 			"activity"				"ACT_MP_GESTURE_VC_THUMBSUP"
 		}
-		
-
 	}
 }

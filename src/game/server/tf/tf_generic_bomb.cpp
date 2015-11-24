@@ -70,7 +70,7 @@ int CTFGenericBomb::OnTakeDamage( const CTakeDamageInfo &info )
 
 void CTFGenericBomb::Event_Killed( const CTakeDamageInfo &info )
 {
-	Vector absOrigin = GetAbsOrigin();
+	Vector absOrigin = WorldSpaceCenter();
 	QAngle absAngles = GetAbsAngles();
 
 	trace_t	tr;
