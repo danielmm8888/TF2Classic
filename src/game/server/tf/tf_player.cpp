@@ -6570,7 +6570,7 @@ void CTFPlayer::DoTauntAttack( void )
 				AngleVectors( angForce, &vecForce );
 				vecForce *= 25000.0f;
 
-				vecForceOrigin = WorldSpaceCenter();
+				vecForceOrigin = tr.endpos;
 
 				CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecForceOrigin, 500, DMG_BULLET, TF_DMG_TAUNT_HEAVY );
 				pEntity->TakeDamage( info );
