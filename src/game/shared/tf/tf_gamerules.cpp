@@ -2760,13 +2760,21 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 	}
 
-	// Taunt kills use DamageCustom as well.
 	switch ( info.GetDamageCustom() )
 	{
-	case TF_DMG_CUSTOM_TELEFRAG:
+	case TF_DMG_TAUNT_PYRO:
+		killer_weapon_name = "tf_weapon_taunt_pyro";
+		break;
+	case TF_DMG_TAUNT_HEAVY:
+		killer_weapon_name = "tf_weapon_taunt_heavy";
+		break;
+	case TF_DMG_TAUNT_SPY:
+		killer_weapon_name = "tf_weapon_taunt_spy";
+		break;
+	case TF_DMG_TELEFRAG:
 		killer_weapon_name = "telefrag";
 		break;
-	case TF_DMG_CUSTOM_BUILDING_CARRIED:
+	case TF_DMG_BUILDING_CARRIED:
 		killer_weapon_name = "tf_weapon_building_carried_destroyed";
 		break;
 	}

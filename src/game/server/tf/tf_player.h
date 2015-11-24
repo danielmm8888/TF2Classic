@@ -387,6 +387,8 @@ public:
 	// Taunts.
 	void				Taunt( void );
 	bool				IsTaunting( void ) { return m_Shared.InCond( TF_COND_TAUNTING ); }
+	void				DoTauntAttack( void );
+	void				ClearTauntAttack( void );
 	QAngle				m_angTauntCamera;
 
 	virtual float		PlayScene( const char *pszScene, float flDelay = 0.0f, AI_Response *response = NULL, IRecipientFilter *filter = NULL );
@@ -545,8 +547,6 @@ private:
 	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this player
 	CUtlVector<float>	m_aBurnOtherTimes;					// vector of times this player has burned others
 
-	bool m_bHudClassAutoKill;
-
 	// Background expressions
 	string_t			m_iszExpressionScene;
 	EHANDLE				m_hExpressionSceneEnt;
@@ -555,9 +555,13 @@ private:
 
 	bool				m_bSpeakingConceptAsDisguisedSpy;
 
+	bool				m_bHudClassAutoKill;
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 	bool				m_bAutoReload;
+
+	float				m_flTauntAttackTime;
+	int					m_iTauntAttack;
 
 	COutputEvent		m_OnDeath;
 
