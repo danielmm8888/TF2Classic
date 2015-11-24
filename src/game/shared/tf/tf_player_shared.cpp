@@ -608,19 +608,12 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		OnAddDisguised();
 		break;
 
-	case TF_COND_SLOWED:
-		OnAddSlowed();
+	case TF_COND_TAUNTING:
+		OnAddTaunting();
 		break;
 
-	case TF_COND_TAUNTING:
-		{
-			CTFWeaponBase *pWpn = m_pOuter->GetActiveTFWeapon();
-			if ( pWpn )
-			{
-				// cancel any reload in progress.
-				pWpn->AbortReload();
-			}
-		}
+	case TF_COND_SLOWED:
+		OnAddSlowed();
 		break;
 
 	case TF_COND_POWERUP_CRITDAMAGE:
@@ -1009,14 +1002,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		}
 	}
 
-	if ( InCond( TF_COND_SLOWED ) )
-	{
-		if ( gpGlobals->curtime > m_flSlowedRemoveTime )
-		{
-			RemoveCond( TF_COND_SLOWED );
-		}
-	}
-
 #endif
 }
 
@@ -1237,16 +1222,56 @@ void CTFPlayerShared::OnRemoveTeleported( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddTaunting( void )
+{
+	CTFWeaponBase *pWpn = m_pOuter->GetActiveTFWeapon();
+	if ( pWpn )
+	{
+		// cancel any reload in progress.
+		pWpn->AbortReload();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveTaunting( void )
+{
+#ifdef GAME_DLL
+	m_pOuter->ClearTauntAttack();
+#endif
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddSlowed(void)
 {
 	m_pOuter->TeamFortress_SetSpeed();
-	m_flSlowedRemoveTime = gpGlobals->curtime + 4.0f;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove slowdown effect
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveSlowed( void )
+{
+	// Set speed back to normal
+	m_pOuter->TeamFortress_SetSpeed();
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddCritboosted(void)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveCritboosted( void )
 {
 
 }
@@ -1275,23 +1300,6 @@ void CTFPlayerShared::OnAddRagemode( void )
 		}
 	}
 #endif
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Remove slowdown effect
-//-----------------------------------------------------------------------------
-void CTFPlayerShared::OnRemoveSlowed(void)
-{
-	// Set speed back to normal
-	m_pOuter->TeamFortress_SetSpeed();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerShared::OnRemoveCritboosted(void)
-{
-
 }
 
 //-----------------------------------------------------------------------------

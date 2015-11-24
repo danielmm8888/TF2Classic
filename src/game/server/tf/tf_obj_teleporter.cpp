@@ -485,10 +485,10 @@ bool CObjectTeleporter::IsSendingPlayer( CTFPlayer *pSender )
 	return bResult;
 }
 
-CObjectTeleporter *CObjectTeleporter::CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom )
+void CObjectTeleporter::CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom )
 {
 	if ( !pMatch )
-		return NULL;
+		return;
 
 	CObjectTeleporter *pObjToCopyFrom = bCopyFrom ? pMatch : this;
 	CObjectTeleporter *pObjToCopyTo = bCopyFrom ? this : pMatch;
@@ -505,9 +505,6 @@ CObjectTeleporter *CObjectTeleporter::CopyUpgradeStateToMatch( CObjectTeleporter
 	*(pObjToCopyTo + 631) = *(this + 631);
 	*(pObjToCopyTo + 633) = *(this + 633);
 	*(pObjToCopyTo + 634) = *(this + 634);*/
-
-	// ???
-	return pObjToCopyTo;
 }
 
 bool CObjectTeleporter::CheckUpgradeOnHit( CTFPlayer *pPlayer )
@@ -814,7 +811,7 @@ void CObjectTeleporter::TeleporterThink( void )
 					// Telefrag all enemy players we've found
 					for ( int player = 0; player < hPlayersToKill.Count(); player++ )
 					{
-						CTakeDamageInfo info( this, pTeleportingPlayer, 1000, DMG_CRUSH, TF_DMG_CUSTOM_TELEFRAG );
+						CTakeDamageInfo info( this, pTeleportingPlayer, 1000, DMG_CRUSH, TF_DMG_TELEFRAG );
 						hPlayersToKill[player]->TakeDamage( info );
 					}
 

@@ -50,7 +50,7 @@ public:
 	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 	virtual void TeleporterSend( CTFPlayer *pPlayer );
 
-	CObjectTeleporter *CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom );
+	void CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom );
 
 	CObjectTeleporter *GetMatchingTeleporter( void );
 	CObjectTeleporter *FindMatch( void );	// Find the teleport partner to this object

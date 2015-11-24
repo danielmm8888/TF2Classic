@@ -721,6 +721,10 @@ int ConditionExpiresFast( int nCond )
 		nCond == TF_COND_MAD_MILK )
 		return true;
 
+	// Tranq
+	if ( nCond == TF_COND_SLOWED )
+		return true;
+
 	return false;
 }
 

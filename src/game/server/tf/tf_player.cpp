@@ -400,6 +400,8 @@ CTFPlayer::CTFPlayer()
 
 	m_bSpeakingConceptAsDisguisedSpy = false;
 
+	ClearTauntAttack();
+
 	m_WeaponPresetPrimary.RemoveAll();
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
@@ -662,6 +664,12 @@ void CTFPlayer::PostThink()
 	m_angEyeAngles = EyeAngles();
 
     m_PlayerAnimState->Update( m_angEyeAngles[YAW], m_angEyeAngles[PITCH] );
+
+	if ( m_flTauntAttackTime > 0.0f && m_flTauntAttackTime < gpGlobals->curtime )
+	{
+		m_flTauntAttackTime = 0.0f;
+		DoTauntAttack();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1571,7 +1579,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 						// if ent is a client, telefrag 'em (unless they are ourselves)
 						if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
 						{
-							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_CUSTOM_TELEFRAG );
+							CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_TELEFRAG );
 							ent->TakeDamage( info );
 						}
 					}
@@ -3163,7 +3171,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 
 		// Ubercharge does not save from telefrags.
-		if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
+		if ( info.GetDamageCustom() == TF_DMG_TELEFRAG )
 		{
 			bAllowDamage = true;
 		}
@@ -3555,9 +3563,9 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	m_bitsDamageType |= info.GetDamageType();
 
 	// Hit by tranq
-	if (info.GetDamageType() & DMG_PARALYZE)
+	if ( info.GetDamageType() & DMG_PARALYZE )
 	{
-		m_Shared.AddCond(TF_COND_SLOWED);
+		m_Shared.AddCond( TF_COND_SLOWED, 4.0f );
 	}
 
 	bool bIgniting = false;
@@ -3748,7 +3756,7 @@ bool CTFPlayer::ShouldGib( const CTakeDamageInfo &info )
 	if ( info.GetDamageType() & DMG_ALWAYSGIB )
 		return true;
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_TELEFRAG )
+	if ( info.GetDamageCustom() == TF_DMG_TELEFRAG )
 		return true;
 
 	if ( ( info.GetDamageType() & DMG_BLAST ) || ( info.GetDamageType() & DMG_HALF_FALLOFF ) )
@@ -3889,7 +3897,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
 		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
 		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_CUSTOM_BUILDING_CARRIED );
+		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_BUILDING_CARRIED );
 		pObject->Killed( newInfo );
 	}
 
@@ -6476,9 +6484,110 @@ void CTFPlayer::Taunt( void )
 
 		// Slam velocity to zero.
 		SetAbsVelocity( vec3_origin );
+
+		// Setup a taunt attack if necessary.
+		if ( Q_strcmp( szResponse, "scenes/player/heavy/low/taunt03_v1.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 1.8;
+			m_iTauntAttack = TF_TAUNT_HEAVY;
+		}
+		else if ( Q_strcmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 2.0;
+			m_iTauntAttack = TF_TAUNT_PYRO;
+		}
 	}
 
 	pExpresser->DisallowMultipleScenes();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::DoTauntAttack( void )
+{
+	int iTauntType = m_iTauntAttack;
+
+	if ( !iTauntType )
+		return;
+
+	m_iTauntAttack = TF_TAUNT_NONE;
+
+	switch ( iTauntType )
+	{
+	case TF_TAUNT_PYRO:
+	{
+		Vector vecFireDir = BodyDirection2D();
+		Vector vecFireOrigin = WorldSpaceCenter() + vecFireDir * 64;
+		Vector mins = vecFireOrigin - Vector( 24, 24, 24 );
+		Vector maxs = vecFireOrigin + Vector( 24, 24, 24 );
+
+		QAngle angForce( -45.0f, EyeAngles()[YAW], 0 );
+		Vector vecForce;
+		AngleVectors( angForce, &vecForce );
+		vecForce *= 25000.0f;
+
+		CBaseEntity *pList[256];
+
+		int count = UTIL_EntitiesInBox( pList, 256, mins, maxs, FL_CLIENT|FL_OBJECT );
+
+		for ( int i = 0; i < count; i++ )
+		{
+			CBaseEntity *pEntity = pList[i];
+
+			if ( !pEntity || pEntity == this || !pEntity->IsAlive() || InSameTeam( pEntity ) )
+				continue;
+
+			Vector vecForceOrigin;
+			vecForceOrigin = WorldSpaceCenter();
+			vecForceOrigin += ( pEntity->WorldSpaceCenter() - vecForceOrigin ) * 0.75f;
+
+			CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecForceOrigin, 500, DMG_IGNITE, TF_DMG_TAUNT_PYRO );
+			pEntity->TakeDamage( info );
+		}
+
+		break;
+	}
+	case TF_TAUNT_HEAVY:
+	{
+		Vector vecShotOrigin, vecForward, vecShotDir;
+		QAngle angShot = EyeAngles();
+		vecShotOrigin = Weapon_ShootPosition();
+		AngleVectors( angShot, &vecForward );
+		vecShotDir = vecShotOrigin + vecForward * 500;
+
+		trace_t tr;
+		UTIL_TraceLine( vecShotOrigin, vecShotDir, MASK_SHOT, this, COLLISION_GROUP_PLAYER, &tr );
+
+		if ( tr.fraction < 1.0f && tr.m_pEnt )
+		{
+			CBaseEntity *pEntity = tr.m_pEnt;
+
+			if ( pEntity->IsPlayer() && !InSameTeam( pEntity ) )
+			{
+				Vector vecForce, vecForceOrigin;
+				QAngle angForce( -45.0, angShot[YAW], 0.0 );
+				AngleVectors( angForce, &vecForce );
+				vecForce *= 25000.0f;
+
+				vecForceOrigin = WorldSpaceCenter();
+
+				CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecForceOrigin, 500, DMG_BULLET, TF_DMG_TAUNT_HEAVY );
+				pEntity->TakeDamage( info );
+			}
+		}
+		break;
+	}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ClearTauntAttack( void )
+{
+	m_flTauntAttackTime = 0.0f;
+	m_iTauntAttack = TF_TAUNT_NONE;
 }
 
 //-----------------------------------------------------------------------------
