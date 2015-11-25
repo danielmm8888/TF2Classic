@@ -13,13 +13,16 @@
 #include "tier0/memdbgon.h"
 
 IMPLEMENT_SERVERCLASS_ST( CTFDroppedWeapon, DT_TFDroppedWeapon )
+	SendPropInt( SENDINFO( m_iAmmo ), 10, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iMaxAmmo ), 10, SPROP_UNSIGNED ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_dropped_weapon, CTFDroppedWeapon );
 
 CTFDroppedWeapon::CTFDroppedWeapon()
 {
-
+	m_pWeaponInfo = NULL;
+	m_iMaxAmmo = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -27,6 +30,10 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 //-----------------------------------------------------------------------------
 void CTFDroppedWeapon::Spawn( void )
 {
+	m_pWeaponInfo = GetTFWeaponInfo( m_nWeaponID );
+
+	m_iMaxAmmo = m_pWeaponInfo->m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
+
 	SetModel( STRING( GetModelName() ) );
 	AddSpawnFlags( SF_NORESPAWN );
 
@@ -149,16 +156,19 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 		if ( !pWeapon )
 		{
 			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
-			pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
-			if ( pPlayer == GetOwnerEntity() )
+			if ( pNewWeapon )
 			{
-				// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
-				// weapons for faster reload.
-				pNewWeapon->m_iClip1 = m_iClip;
+				pNewWeapon->DefaultTouch( pPlayer );
+				pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
+				if ( pPlayer == GetOwnerEntity() )
+				{
+					// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
+					// weapons for faster reload.
+					pNewWeapon->m_iClip1 = m_iClip;
+				}
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+				bSuccess = true;
 			}
-
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
-			bSuccess = true;
 		}
 
 		if ( bSuccess )

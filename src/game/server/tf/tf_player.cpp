@@ -4440,6 +4440,12 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 		( pWeapon->IsWeapon( TF_WEAPON_PISTOL ) || pWeapon->IsWeapon( TF_WEAPON_CROWBAR ) ) )
 		return;
 
+	int iClip = pWeapon->UsesClipsForAmmo1() ? pWeapon->Clip1() : -1;
+	int iAmmo = GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
+
+	if ( iAmmo == 0 )
+		return;
+
 	// We need to find bones on the world model, so switch the weapon to it.
 	const char *pszWorldModel = pWeapon->GetWorldModel();
 	pWeapon->SetModel( pszWorldModel );
@@ -4456,9 +4462,6 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 	if ( pDroppedWeapon )
 	{
 		// Give the dropped weapon entity our ammo.
-		int iClip = pWeapon->UsesClipsForAmmo1() ? pWeapon->Clip1() : -1;
-		int iAmmo = GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
-
 		pDroppedWeapon->SetClip( iClip );
 		pDroppedWeapon->SetAmmo( iAmmo );
 

@@ -12,6 +12,7 @@
 #include "cbase.h"
 #include "tf_item.h"
 #include "items.h"
+#include "tf_weaponbase.h"
 
 class CTFDroppedWeapon : public CItem
 {
@@ -39,9 +40,11 @@ private:
 	float m_flCreationTime;
 	float m_flRemoveTime;
 	int m_nWeaponID;
+	CTFWeaponInfo *m_pWeaponInfo;
 	
 	int m_iClip;
-	int m_iAmmo;
+	CNetworkVar( int, m_iAmmo );
+	CNetworkVar( int, m_iMaxAmmo );
 };
 
 #endif

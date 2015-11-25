@@ -198,10 +198,14 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( pszWeaponName );
-			pTFPlayer->SetAmmoCount( iMaxAmmo, iAmmoType );
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
-			bSuccess = true;
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
+			if ( pNewWeapon )
+			{
+				pNewWeapon->DefaultTouch( pPlayer );
+				pPlayer->SetAmmoCount( ceil( iMaxAmmo * 0.5f ), iAmmoType );
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+				bSuccess = true;
+			}
 		}
 
 		if ( bSuccess )

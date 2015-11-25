@@ -231,8 +231,6 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		SetPickupTouch();
 }
 
 //-----------------------------------------------------------------------------
@@ -802,7 +800,7 @@ void CTFWeaponBase::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 {
-	BaseClass::OnPickedUp(pNewOwner);
+	BaseClass::OnPickedUp( pNewOwner );
 }
 
 
