@@ -23,10 +23,12 @@ class CAmmoPack : public CTFPowerup
 {
 public:
 	DECLARE_CLASS( CAmmoPack, CTFPowerup );
+	DECLARE_DATADESC();
 
 	void	Spawn( void );
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
+	void	InputRoundSpawn( inputdata_t &inputdata );
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 

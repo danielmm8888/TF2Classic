@@ -13,13 +13,16 @@
 #include "tier0/memdbgon.h"
 
 IMPLEMENT_SERVERCLASS_ST( CTFDroppedWeapon, DT_TFDroppedWeapon )
+	SendPropInt( SENDINFO( m_iAmmo ), 10, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iMaxAmmo ), 10, SPROP_UNSIGNED ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_dropped_weapon, CTFDroppedWeapon );
 
 CTFDroppedWeapon::CTFDroppedWeapon()
 {
-
+	m_pWeaponInfo = NULL;
+	m_iMaxAmmo = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -27,6 +30,10 @@ CTFDroppedWeapon::CTFDroppedWeapon()
 //-----------------------------------------------------------------------------
 void CTFDroppedWeapon::Spawn( void )
 {
+	m_pWeaponInfo = GetTFWeaponInfo( m_nWeaponID );
+
+	m_iMaxAmmo = m_pWeaponInfo->m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
+
 	SetModel( STRING( GetModelName() ) );
 	AddSpawnFlags( SF_NORESPAWN );
 
@@ -108,12 +115,14 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
 		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
+		int iAmmoType = GetTFWeaponInfo( m_nWeaponID )->iAmmoType;
 
 		if ( pWeapon )
 		{
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
-				if ( pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
+				// Give however many ammo we have
+				if ( pTFPlayer->GiveAmmo( m_iAmmo, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) )
@@ -146,9 +155,20 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( pszWeaponName );
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
-			bSuccess = true;
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
+			if ( pNewWeapon )
+			{
+				pNewWeapon->DefaultTouch( pPlayer );
+				pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
+				if ( pPlayer == GetOwnerEntity() )
+				{
+					// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
+					// weapons for faster reload.
+					pNewWeapon->m_iClip1 = m_iClip;
+				}
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+				bSuccess = true;
+			}
 		}
 
 		if ( bSuccess )

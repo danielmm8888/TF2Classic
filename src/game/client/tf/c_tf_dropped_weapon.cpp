@@ -29,9 +29,14 @@ public:
 private:
 	CGlowObject *m_pGlowEffect;
 	bool m_bShouldGlow;
+
+	int m_iAmmo;
+	int m_iMaxAmmo;
 };
 
 IMPLEMENT_CLIENTCLASS_DT( C_TFDroppedWeapon, DT_TFDroppedWeapon, CTFDroppedWeapon )
+	RecvPropInt( RECVINFO( m_iAmmo ) ),
+	RecvPropInt( RECVINFO( m_iMaxAmmo ) ),
 END_RECV_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_dropped_weapon, C_TFDroppedWeapon );
@@ -100,7 +105,13 @@ void C_TFDroppedWeapon::UpdateGlowEffect()
 {
 	if ( !m_pGlowEffect )
 	{
-		m_pGlowEffect = new CGlowObject( this, Vector( 0.75f, 0.75f, 0.15f ), 1.0f, true, true );
+		float flRed = RemapValClamped( m_iAmmo, m_iMaxAmmo / 2, m_iMaxAmmo, 0.75f, 0.15f );
+		float flGreen = RemapValClamped( m_iAmmo, 0, m_iMaxAmmo / 2, 0.15f, 0.75f );
+		float flBlue = 0.15f;
+		Vector vecColor = Vector( flRed, flGreen, flBlue );
+		float flAlpha = RemapValClamped( m_iAmmo, 0, m_iMaxAmmo, 0.25f, 1.0f );
+
+		m_pGlowEffect = new CGlowObject( this, vecColor, flAlpha, true, true );
 	}
 
 	if ( m_bShouldGlow )

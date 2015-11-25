@@ -1158,6 +1158,12 @@ void CTFPlayer::GiveDefaultItems()
 		pWeaponEntity->Touch( this );
 	}
 
+	// Now that we've got weapons update our ammo counts since weapons may override max ammo.
+	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
+	{
+		SetAmmoCount( GetMaxAmmo( iAmmo ), iAmmo );
+	}
+
 	if ( m_bRegenerating == false )
 	{
 		SetActiveWeapon( NULL );
@@ -3864,13 +3870,15 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Stop being invisible
 	m_Shared.RemoveCond( TF_COND_STEALTHED );
 
-	// Drop a pack with their leftover ammo
-	DropAmmoPack();
-
-	// Also drop our weapon in DM
 	if ( TFGameRules()->IsDeathmatch() )
 	{
+		// Drop our weapon in DM
 		DropWeapon( GetActiveTFWeapon(), true );
+	}
+	else
+	{
+		// Drop a pack with their leftover ammo
+		DropAmmoPack();
 	}
 
 	// If the player has a capture flag and was killed by another player, award that player a defense
@@ -4417,7 +4425,7 @@ void CTFPlayer::DropFakeWeapon( CTFWeaponBase *pWeapon )
 //-----------------------------------------------------------------------------
 // Purpose: Creates tf_dropped_weapon based on selected weapon
 //-----------------------------------------------------------------------------
-void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel /*= false*/ )
+void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 {
 	if ( !pWeapon ||
 		pWeapon->GetTFWpnData().m_bDontDrop ||
@@ -4430,6 +4438,12 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel /*= false*/ 
 	// Don't drop pistol and crowbar in DM since those are default weapons.
 	if ( TFGameRules()->IsDeathmatch() && 
 		( pWeapon->IsWeapon( TF_WEAPON_PISTOL ) || pWeapon->IsWeapon( TF_WEAPON_CROWBAR ) ) )
+		return;
+
+	int iClip = pWeapon->UsesClipsForAmmo1() ? pWeapon->Clip1() : -1;
+	int iAmmo = GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
+
+	if ( iAmmo == 0 )
 		return;
 
 	// We need to find bones on the world model, so switch the weapon to it.
@@ -4447,9 +4461,16 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bRandomVel /*= false*/ 
 	Assert( pDroppedWeapon );
 	if ( pDroppedWeapon )
 	{
+		// Give the dropped weapon entity our ammo.
+		pDroppedWeapon->SetClip( iClip );
+		pDroppedWeapon->SetAmmo( iAmmo );
+
 		// Randomize velocity if we dropped weapon upon being killed.
-		if ( bRandomVel )
+		if ( bKilled )
 		{
+			// Remove all of the player's ammo.
+			RemoveAllAmmo();
+
 			Vector vecRight, vecUp;
 			AngleVectors( EyeAngles(), NULL, &vecRight, &vecUp );
 
@@ -6538,11 +6559,11 @@ void CTFPlayer::DoTauntAttack( void )
 			if ( !pEntity || pEntity == this || !pEntity->IsAlive() || InSameTeam( pEntity ) )
 				continue;
 
-			Vector vecForceOrigin;
-			vecForceOrigin = WorldSpaceCenter();
-			vecForceOrigin += ( pEntity->WorldSpaceCenter() - vecForceOrigin ) * 0.75f;
+			Vector vecDamagePos;
+			vecDamagePos = WorldSpaceCenter();
+			vecDamagePos += ( pEntity->WorldSpaceCenter() - vecDamagePos ) * 0.75f;
 
-			CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecForceOrigin, 500, DMG_IGNITE, TF_DMG_TAUNT_PYRO );
+			CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecDamagePos, 500, DMG_IGNITE, TF_DMG_TAUNT_PYRO );
 			pEntity->TakeDamage( info );
 		}
 
@@ -6550,32 +6571,32 @@ void CTFPlayer::DoTauntAttack( void )
 	}
 	case TF_TAUNT_HEAVY:
 	{
-		Vector vecShotOrigin, vecForward, vecShotDir;
+		Vector vecSrc, vecShotDir, vecEnd;
 		QAngle angShot = EyeAngles();
-		vecShotOrigin = Weapon_ShootPosition();
-		AngleVectors( angShot, &vecForward );
-		vecShotDir = vecShotOrigin + vecForward * 500;
+		AngleVectors( angShot, &vecShotDir );
+		vecSrc = Weapon_ShootPosition();
+		vecEnd = vecSrc + vecShotDir * 500;
 
 		trace_t tr;
-		UTIL_TraceLine( vecShotOrigin, vecShotDir, MASK_SHOT, this, COLLISION_GROUP_PLAYER, &tr );
+		UTIL_TraceLine( vecSrc, vecEnd, MASK_SHOT, this, COLLISION_GROUP_PLAYER, &tr );
 
-		if ( tr.fraction < 1.0f && tr.m_pEnt )
+		if ( tr.fraction < 1.0f )
 		{
 			CBaseEntity *pEntity = tr.m_pEnt;
-
-			if ( pEntity->IsPlayer() && !InSameTeam( pEntity ) )
+			if ( pEntity && pEntity->IsPlayer() && !InSameTeam( pEntity ) )
 			{
-				Vector vecForce, vecForceOrigin;
+				Vector vecForce, vecDamagePos;
 				QAngle angForce( -45.0, angShot[YAW], 0.0 );
 				AngleVectors( angForce, &vecForce );
 				vecForce *= 25000.0f;
 
-				vecForceOrigin = tr.endpos;
+				vecDamagePos = tr.endpos;
 
-				CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecForceOrigin, 500, DMG_BULLET, TF_DMG_TAUNT_HEAVY );
+				CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecDamagePos, 500, DMG_BULLET, TF_DMG_TAUNT_HEAVY );
 				pEntity->TakeDamage( info );
 			}
 		}
+
 		break;
 	}
 	}

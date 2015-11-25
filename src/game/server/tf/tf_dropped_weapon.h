@@ -12,6 +12,7 @@
 #include "cbase.h"
 #include "tf_item.h"
 #include "items.h"
+#include "tf_weaponbase.h"
 
 class CTFDroppedWeapon : public CItem
 {
@@ -29,6 +30,8 @@ public:
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
 	float	GetCreationTime( void ) { return m_flCreationTime; }
+	void	SetClip( int iClip ) { m_iClip = iClip; }
+	void	SetAmmo( int iAmmo ) { m_iAmmo = iAmmo; }
 
 	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID );
 
@@ -37,6 +40,11 @@ private:
 	float m_flCreationTime;
 	float m_flRemoveTime;
 	int m_nWeaponID;
+	CTFWeaponInfo *m_pWeaponInfo;
+	
+	int m_iClip;
+	CNetworkVar( int, m_iAmmo );
+	CNetworkVar( int, m_iMaxAmmo );
 };
 
 #endif

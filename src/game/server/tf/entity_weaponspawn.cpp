@@ -151,12 +151,15 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( m_pWeaponInfo->iSlot );
 		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
+		int iAmmoType = m_pWeaponInfo->iAmmoType;
+		int iMaxAmmo = m_pWeaponInfo->m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
 
 		if ( pWeapon )
 		{
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
-				if ( pPlayer->GiveAmmo(999, m_pWeaponInfo->iAmmoType) )
+				// Weapon spawners give 50% ammo.
+				if ( pPlayer->GiveAmmo( ceil( iMaxAmmo * 0.5 ), iAmmoType ) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
@@ -195,9 +198,14 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( pszWeaponName );
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
-			bSuccess = true;
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
+			if ( pNewWeapon )
+			{
+				pNewWeapon->DefaultTouch( pPlayer );
+				pPlayer->SetAmmoCount( ceil( iMaxAmmo * 0.5f ), iAmmoType );
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+				bSuccess = true;
+			}
 		}
 
 		if ( bSuccess )
