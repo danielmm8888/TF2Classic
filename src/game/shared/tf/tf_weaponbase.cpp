@@ -802,17 +802,6 @@ void CTFWeaponBase::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 {
-#ifdef GAME_DLL
-	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
-	int iAmmoType = m_pWeaponInfo->iAmmoType;
-
-	if ( iAmmoType != -1 )
-	{
-		pPlayer->SetAmmoCount(1,iAmmoType);
-		pPlayer->GiveAmmo(pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType);
-	}
-#endif
-
 	BaseClass::OnPickedUp(pNewOwner);
 }
 

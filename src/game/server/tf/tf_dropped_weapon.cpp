@@ -108,12 +108,14 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
 		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
+		int iAmmoType = GetTFWeaponInfo( m_nWeaponID )->iAmmoType;
 
 		if ( pWeapon )
 		{
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
-				if ( pTFPlayer->GiveAmmo( 999, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
+				// Give however many ammo we have
+				if ( pTFPlayer->GiveAmmo( m_iAmmo, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) )
@@ -146,7 +148,15 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 
 		if ( !pWeapon )
 		{
-			pTFPlayer->GiveNamedItem( pszWeaponName );
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
+			pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
+			if ( pPlayer == GetOwnerEntity() )
+			{
+				// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
+				// weapons for faster reload.
+				pNewWeapon->m_iClip1 = m_iClip;
+			}
+
 			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
 			bSuccess = true;
 		}

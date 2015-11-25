@@ -29,6 +29,8 @@ public:
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
 	float	GetCreationTime( void ) { return m_flCreationTime; }
+	void	SetClip( int iClip ) { m_iClip = iClip; }
+	void	SetAmmo( int iAmmo ) { m_iAmmo = iAmmo; }
 
 	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID );
 
@@ -37,6 +39,9 @@ private:
 	float m_flCreationTime;
 	float m_flRemoveTime;
 	int m_nWeaponID;
+	
+	int m_iClip;
+	int m_iAmmo;
 };
 
 #endif
