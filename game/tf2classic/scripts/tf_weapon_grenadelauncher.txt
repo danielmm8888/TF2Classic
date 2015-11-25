@@ -21,6 +21,7 @@ WeaponData
 	"HasTeamSkins_Worldmodel"	"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"		"16"
+	"SpawnAmmo"		"8"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_PRIMARY"

@@ -19,6 +19,7 @@ WeaponData
 	"UseRapidFireCrits"	"1"
 	"TracerEffect"		"bullet_tracer01"
 	"MaxAmmo"		"100"
+	"SpawnAmmo"		"100"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_PRIMARY"

@@ -24,6 +24,7 @@ WeaponData
 	"ProjectileType"	"projectile_rocket"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"		"20"
+	"SpawnAmmo"		"8"
 
 	// Secondary Attributes.
 	"secondary_ammo"	"None"
