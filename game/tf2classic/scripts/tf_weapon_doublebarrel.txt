@@ -25,6 +25,7 @@ WeaponData
 	"AmmoPerShot"			"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"			"12"
+	"SpawnAmmo"			"6"
 	
 	"TracerEffect"		"bullet_shotgun_tracer01"
 

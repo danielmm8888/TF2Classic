@@ -22,6 +22,7 @@ WeaponData
 	"TracerEffect"		"bullet_pistol_tracer01"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"		"200"
+	"SpawnAmmo"		"200"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"

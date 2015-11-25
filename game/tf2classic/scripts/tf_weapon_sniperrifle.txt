@@ -17,6 +17,7 @@ WeaponData
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
 	"MaxAmmo"		"25"
+	"SpawnAmmo"		"10"
 	
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"		"models/weapons/shells/shell_sniperrifle.mdl"
