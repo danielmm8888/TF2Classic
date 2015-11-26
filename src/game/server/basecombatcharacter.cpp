@@ -2762,39 +2762,26 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 			(IsNPC() && (pTarget->IsPlayer() || pTarget->IsBaseObject())) ) &&
 			(GetTeamNumber() && pTarget->GetTeamNumber()) );
 
-		// We always like teammates.
-		if ( bTeamOverride && InSameTeam( pTarget ) )
+		if ( bTeamOverride )
 		{
-			return D_LI;
-		}
-
-		// Hate characters from enemy teams but check custom relatioships first.
-		if ( bTeamOverride && !InSameTeam( pTarget ) )
-		{
-			// First check for specific relationship with this edict
-			int i;
-			for (i=0;i<m_Relationship.Count();i++) 
+			if ( InSameTeam( pTarget ) )
 			{
-				if (pTarget == (CBaseEntity *)m_Relationship[i].entity) 
-				{
-					return m_Relationship[i].disposition;
-				}
+				// We always like teammates.
+				return D_LI;
 			}
-
-			if (pTarget->Classify() != CLASS_NONE)
+			else
 			{
-				// Then check for relationship with this edict's class
-				for (i=0;i<m_Relationship.Count();i++) 
-				{
-					if (pTarget->Classify() == m_Relationship[i].classType) 
-					{
-						return m_Relationship[i].disposition;
-					}
-				}
-			}
+				// Hate characters from enemy teams but check custom relatioships first.
+				Disposition_t disp = FindEntityRelationship( pTarget )->disposition;
 
-			// If none found hate them.
-			return D_HT;
+				if ( disp != GetDefaultRelationshipDisposition( pTarget->Classify() ) )
+				{
+					return disp;
+				}
+
+				// If none found hate them.
+				return D_HT;
+			}
 		}
 #endif
 

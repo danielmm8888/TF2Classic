@@ -180,36 +180,33 @@ void CTFHudWeaponAmmo::OnThink()
 
 	C_BaseCombatWeapon *pWeapon = pPlayer->GetActiveWeapon();
 
-	if ( tf2c_ammobucket.GetBool() && m_pWeaponBucket && pWeapon )
+	if ( m_flNextThink < gpGlobals->curtime )
 	{
-		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-		if ( pPlayer )
+		bool bShowIcon = false;
+
+		if ( tf2c_ammobucket.GetBool() && pWeapon )
 		{
-			if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+			const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+			if ( pPlayer )
 			{
-				pTexture = pWeapon->GetSpriteActive();
+				if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
+				{
+					pTexture = pWeapon->GetSpriteActive();
+				}
+			}
+
+			if ( pTexture )
+			{
+				char szImage[64];
+				Q_snprintf( szImage, sizeof( szImage ), "../%s", pTexture->szTextureFile );
+				m_pWeaponBucket->SetImage( szImage );
+				bShowIcon = true;
 			}
 		}
 
-		if ( pTexture )
-		{
-			char szImage[64];
-			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
-			m_pWeaponBucket->SetImage( szImage );
-			m_pWeaponBucket->SetVisible( true );
-		}
-		else
-		{
-			m_pWeaponBucket->SetVisible( false );
-		}
-	}
-	else
-	{
-		m_pWeaponBucket->SetVisible( false );
-	}
+		if ( m_pWeaponBucket )
+			m_pWeaponBucket->SetVisible( bShowIcon );
 
-	if ( m_flNextThink < gpGlobals->curtime )
-	{
 		hudlcd->SetGlobalStat( "(weapon_print_name)", pWeapon ? pWeapon->GetPrintName() : " " );
 		hudlcd->SetGlobalStat( "(weapon_name)", pWeapon ? pWeapon->GetName() : " " );
 

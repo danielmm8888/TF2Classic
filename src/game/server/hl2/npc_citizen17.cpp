@@ -34,6 +34,10 @@
 #include "sceneentity.h"
 #include "tier0/icommandline.h"
 
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -3731,12 +3735,21 @@ void CNPC_Citizen::Heal()
 		float timeFullHeal;
 		float timeRecharge;
 		float maximumHealAmount;
+
+#ifdef TF_CLASSIC
+		CTFPlayer *pTFPlayer = ToTFPlayer( pTarget );
+#endif
+
 		if ( pTarget->IsPlayer() )
 		{
 			timeFullHeal 		= m_flPlayerHealTime;
 			timeRecharge 		= sk_citizen_heal_player_delay.GetFloat();
 			maximumHealAmount 	= sk_citizen_heal_player.GetFloat();
 			m_flPlayerHealTime 	= gpGlobals->curtime + timeRecharge;
+
+#ifdef TF_CLASSIC
+			maximumHealAmount = ceil( pTFPlayer->GetMaxHealth() * ( sk_citizen_heal_ally.GetFloat() / 100 ) );
+#endif
 		}
 		else
 		{
@@ -3763,6 +3776,13 @@ void CNPC_Citizen::Heal()
 
 			pTarget->TakeHealth( healAmt, DMG_GENERIC );
 			pTarget->RemoveAllDecals();
+
+#ifdef TF_CLASSIC
+			if ( pTFPlayer && pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+			{
+				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
+			}
+#endif
 		}
 	}
 

@@ -95,10 +95,6 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 		{
 			pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
 		}
-
-		// Healthkits respawn by default in multiplayer.
-		// We don't want this for HL2 healthkits so remove it here.
-		UTIL_Remove(this);
 	}
 
 	return bSuccess;
