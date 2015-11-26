@@ -4294,6 +4294,12 @@ bool CTFPlayer::SetObserverMode(int mode)
 	if ( mode < OBS_MODE_NONE || mode >= NUM_OBSERVER_MODES )
 		return false;
 
+	// Skip OBS_MODE_POI as we're not using that.
+	if ( mode == OBS_MODE_POI )
+	{
+		mode++;
+	}
+
 	// Skip over OBS_MODE_ROAMING for dead players
 	if( GetTeamNumber() > TEAM_SPECTATOR )
 	{
