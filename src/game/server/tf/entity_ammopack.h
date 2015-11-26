@@ -12,6 +12,8 @@
 
 #include "tf_powerup.h"
 
+#define TF_AMMOPACK_PICKUP_SOUND	"AmmoPack.Touch"
+
 //=============================================================================
 //
 // CTF AmmoPack class.

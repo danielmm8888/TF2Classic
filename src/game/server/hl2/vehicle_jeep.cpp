@@ -30,6 +30,11 @@
 #include "rumble_shared.h"
 // NVNT haptic utils
 #include "haptics/haptic_utils.h"
+
+#ifdef TF_CLASSIC
+#include "entity_ammopack.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -1131,6 +1136,10 @@ void CPropJeep::GetCannonAim( Vector *resultDir )
 	AngleVectors( muzzleAngles, resultDir );
 }
 
+#ifdef TF_CLASSIC
+extern bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound = true );
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: If the player uses the jeep while at the back, he gets ammo from the crate instead
 //-----------------------------------------------------------------------------
@@ -1151,9 +1160,13 @@ void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 	
 	if ( tr.m_pEnt == this && tr.hitgroup == JEEP_AMMOCRATE_HITGROUP )
 	{
+#ifdef TF_CLASSIC
+		ITEM_GiveTFAmmo( pPlayer, 1.0f, false );
+#else
 		// Player's using the crate.
 		// Fill up his SMG ammo.
 		pPlayer->GiveAmmo( 300, "SMG1");
+#endif
 		
 		if ( ( GetSequence() != LookupSequence( "ammo_open" ) ) && ( GetSequence() != LookupSequence( "ammo_close" ) ) )
 		{

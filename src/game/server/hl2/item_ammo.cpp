@@ -13,7 +13,7 @@
 #include "npcevent.h"
 
 #ifdef TF_CLASSIC
-#include "tf_powerup.h"
+#include "entity_ammopack.h"
 #include "tf_player.h"
 
 #define TF_AMMOPACK_PICKUP_SOUND	"AmmoPack.Touch"
@@ -21,6 +21,111 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#ifdef TF_CLASSIC
+bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound = true)
+{
+	bool bSuccess = false;
+
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+	if ( !pTFPlayer )
+		return false;
+
+	for ( int i = TF_AMMO_PRIMARY; i < TF_AMMO_GRENADES1; i++ )
+	{
+		int iMaxAmmo = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[i];
+
+		if ( pPlayer->GiveAmmo( ceil( iMaxAmmo * flCount ), i, true ) )
+		{
+			bSuccess = true;
+		}
+	}
+
+	return bSuccess;
+}
+
+class CLFItem : public CItem
+{
+public:
+	DECLARE_CLASS( CLFItem, CItem );
+
+	virtual powerupsize_t GetPowerupSize( void ) { return POWERUP_FULL; }
+	virtual const char *GetPowerupModel( void ) { return "models/items/boxsrounds.mdl"; }
+
+	void Spawn( void )
+	{
+		Precache();
+		SetModel( GetPowerupModel() );
+		BaseClass::Spawn();
+	}
+
+	void Precache( void )
+	{
+		BaseClass::Precache();
+		PrecacheModel( GetPowerupModel() );
+		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+	}
+
+	bool MyTouch( CBasePlayer *pPlayer )
+	{
+		if ( ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()] ) )
+		{
+			CSingleUserRecipientFilter filter( pPlayer );
+			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
+			return true;
+		}
+
+		return false;
+	}
+};
+LINK_ENTITY_TO_CLASS( lf_item, CLFItem );
+
+#define LF_ITEM_CLASS( entityName, className, powerupSize, powerupModel )	\
+	class C##className : public CLFItem										\
+	{																		\
+	public:																	\
+		DECLARE_CLASS( C##className, CLFItem );								\
+		powerupsize_t GetPowerupSize( void ) { return powerupSize; }		\
+		virtual const char *GetPowerupModel( void ) { return powerupModel; }	\
+	};																		\
+	LINK_ENTITY_TO_CLASS( ##entityName, C##className );	
+
+
+LF_ITEM_CLASS( item_ammo_pistol, Item_BoxSRounds, POWERUP_SMALL, "models/items/boxsrounds.mdl" );
+LINK_ENTITY_TO_CLASS( item_box_srounds, CItem_BoxSRounds );
+
+LF_ITEM_CLASS( item_ammo_pistol_large, Item_LargeBoxSRounds, POWERUP_MEDIUM, "models/items/boxsrounds.mdl" );
+LINK_ENTITY_TO_CLASS( item_large_box_srounds, CItem_LargeBoxSRounds );
+
+LF_ITEM_CLASS( item_ammo_smg1, Item_BoxMRounds, POWERUP_SMALL, "models/items/boxmrounds.mdl" );
+LINK_ENTITY_TO_CLASS( item_box_mrounds, CItem_BoxMRounds );
+
+LF_ITEM_CLASS( item_ammo_smg1_large, Item_LargeBoxMRounds, POWERUP_MEDIUM, "models/items/boxmrounds.mdl" );
+LINK_ENTITY_TO_CLASS( item_large_box_mrounds, CItem_LargeBoxMRounds );
+
+LF_ITEM_CLASS( item_ammo_ar2, Item_BoxLRounds, POWERUP_MEDIUM, "models/items/combine_rifle_cartridge01.mdl" );
+LINK_ENTITY_TO_CLASS( item_box_lrounds, CItem_BoxLRounds );
+
+LF_ITEM_CLASS( item_ammo_ar2_large, Item_LargeBoxLRounds, POWERUP_FULL, "models/items/combine_rifle_cartridge01.mdl" );
+LINK_ENTITY_TO_CLASS( item_large_box_lrounds, CItem_LargeBoxLRounds );
+
+LF_ITEM_CLASS( item_ammo_357, Item_Box357Rounds, POWERUP_MEDIUM, "models/items/357ammo.mdl" );
+
+LF_ITEM_CLASS( item_ammo_357_large, Item_LargeBox357Rounds, POWERUP_MEDIUM, "models/items/357ammobox.mdl" );
+
+LF_ITEM_CLASS( item_ammo_crossbow, Item_BoxXbowRounds, POWERUP_MEDIUM, "models/items/crossbowrounds.mdl" );
+
+LF_ITEM_CLASS( item_rpg_round, Item_RPG_Round, POWERUP_SMALL, "models/weapons/w_missile_closed.mdl" );
+LINK_ENTITY_TO_CLASS( item_ml_grenade, CItem_RPG_Round );
+
+LF_ITEM_CLASS( item_ammo_smg1_grenade, Item_AR2_Grenade, POWERUP_SMALL, "models/items/ar2_grenade.mdl" );
+LINK_ENTITY_TO_CLASS( item_ar2_grenade, CItem_AR2_Grenade );
+
+LF_ITEM_CLASS( item_box_buckshot, Item_BoxBuckshot, POWERUP_MEDIUM, "models/items/boxbuckshot.mdl" );
+
+LF_ITEM_CLASS( item_ammo_ar2_altfire, Item_AR2AltFireRound, POWERUP_SMALL, "models/items/combine_rifle_ammo01.mdl" );
+
+#else
 
 //---------------------------------------------------------
 // Applies ammo quantity scale.
@@ -42,37 +147,6 @@ int ITEM_GiveAmmo( CBasePlayer *pPlayer, float flCount, const char *pszAmmoName,
 	return pPlayer->GiveAmmo( flCount, iAmmoType, bSuppressSound );
 }
 
-#ifdef TF_CLASSIC
-bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound = true)
-{
-	bool bSuccess = false;
-
-	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-	if ( !pTFPlayer )
-		return false;
-
-	int iMaxPrimary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_PRIMARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * flCount), TF_AMMO_PRIMARY, bSuppressSound ) )
-	{
-		bSuccess = true;
-	}
-
-	int iMaxSecondary = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_SECONDARY];
-	if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * flCount), TF_AMMO_SECONDARY, bSuppressSound ) )
-	{
-		bSuccess = true;
-	}
-
-	int iMaxMetal = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[TF_AMMO_METAL];
-	if ( pPlayer->GiveAmmo( ceil(iMaxMetal * flCount), TF_AMMO_METAL, bSuppressSound ) )
-	{
-		bSuccess = true;
-	}
-
-	return bSuccess;
-}
-#endif
-
 // ========================================================================
 //	>> BoxSRounds
 // ========================================================================
@@ -80,10 +154,6 @@ class CItem_BoxSRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxSRounds, CItem );
-
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -94,20 +164,11 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxsrounds.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL, "Pistol"))
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
 		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
@@ -115,7 +176,6 @@ public:
 
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -129,10 +189,6 @@ class CItem_LargeBoxSRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxSRounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -143,28 +199,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxsrounds.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_PISTOL_LARGE, "Pistol"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -179,10 +224,6 @@ class CItem_BoxMRounds : public CItem
 public:
 	DECLARE_CLASS( CItem_BoxMRounds, CItem );
 
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
-#endif
-
 	void Spawn( void )
 	{ 
 		Precache( );
@@ -192,28 +233,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxmrounds.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1, "SMG1"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -227,10 +257,6 @@ class CItem_LargeBoxMRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxMRounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -241,28 +267,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxmrounds.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_LARGE, "SMG1"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -276,10 +291,6 @@ class CItem_BoxLRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxLRounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -290,28 +301,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/combine_rifle_cartridge01.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2, "AR2"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -325,10 +325,6 @@ class CItem_LargeBoxLRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBoxLRounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -339,28 +335,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/combine_rifle_cartridge01.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_LARGE, "AR2"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -375,17 +360,10 @@ class CItem_Box357Rounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_Box357Rounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/357ammo.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	void Spawn( void )
 	{ 
@@ -396,22 +374,14 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357, "357"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -425,17 +395,10 @@ class CItem_LargeBox357Rounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_LargeBox357Rounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/357ammobox.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	void Spawn( void )
 	{ 
@@ -446,22 +409,14 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_357_LARGE, "357"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -475,17 +430,10 @@ class CItem_BoxXBowRounds : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxXBowRounds, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/crossbowrounds.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 
 	void Spawn( void )
@@ -497,22 +445,14 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_CROSSBOW, "XBowBolt" ))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -595,10 +535,6 @@ class CItem_RPG_Round : public CItem
 public:
 	DECLARE_CLASS( CItem_RPG_Round, CItem );
 
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
-#endif
-
 	void Spawn( void )
 	{ 
 		Precache( );
@@ -608,28 +544,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/weapons/w_missile_closed.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_RPG_ROUND, "RPG_Round"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -643,10 +568,6 @@ class CItem_AR2_Grenade : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_AR2_Grenade, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -657,28 +578,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/ar2_grenade.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_SMG1_GRENADE, "SMG1_Grenade"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}	
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -728,10 +638,6 @@ class CItem_BoxBuckshot : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_BoxBuckshot, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_MEDIUM; }
-#endif
 
 	void Spawn( void )
 	{ 
@@ -742,28 +648,17 @@ public:
 	void Precache( void )
 	{
 		PrecacheModel ("models/items/boxbuckshot.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_BUCKSHOT, "Buckshot"))
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
@@ -776,18 +671,11 @@ class CItem_AR2AltFireRound : public CItem
 {
 public:
 	DECLARE_CLASS( CItem_AR2AltFireRound, CItem );
-	
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_SMALL; }
-#endif
 
 	void Precache( void )
 	{
 		PrecacheParticleSystem( "combineball" );
 		PrecacheModel ("models/items/combine_rifle_ammo01.mdl");
-#ifdef TF_CLASSIC
-		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
-#endif
 	}
 
 	void Spawn( void )
@@ -799,27 +687,21 @@ public:
 
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
-#ifndef TF_CLASSIC
 		if (ITEM_GiveAmmo( pPlayer, SIZE_AMMO_AR2_ALTFIRE, "AR2AltFire" ) )
 		{
-#else
-		if (ITEM_GiveTFAmmo( pPlayer, PackRatios[GetPowerupSize()]))
-		{
-			CSingleUserRecipientFilter filter( pPlayer );
-			EmitSound( filter, entindex(), TF_AMMOPACK_PICKUP_SOUND );
-#endif
 			if ( g_pGameRules->ItemShouldRespawn( this ) == GR_ITEM_RESPAWN_NO )
 			{
 				UTIL_Remove(this);	
 			}
 			return true;
 		}
-
 		return false;
 	}
 };
 
 LINK_ENTITY_TO_CLASS( item_ammo_ar2_altfire, CItem_AR2AltFireRound );
+
+#endif
 
 // ==================================================================
 // Ammo crate which will supply infinite ammo of the specified type
@@ -847,10 +729,6 @@ class CItem_AmmoCrate : public CBaseAnimating
 {
 public:
 	DECLARE_CLASS( CItem_AmmoCrate, CBaseAnimating );
-
-#ifdef TF_CLASSIC
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
-#endif
 
 	void	Spawn( void );
 	void	Precache( void );
@@ -1165,7 +1043,7 @@ void CItem_AmmoCrate::HandleAnimEvent( animevent_t *pEvent )
 				SetBodygroup( 1, false );
 			}
 #else
-			if ( ITEM_GiveTFAmmo( m_hActivator, PackRatios[GetPowerupSize()]) ) 
+			if ( ITEM_GiveTFAmmo( m_hActivator, PackRatios[POWERUP_FULL] ) )
 			{
 				SetBodygroup( 1, false );
 				CSingleUserRecipientFilter filter( m_hActivator );

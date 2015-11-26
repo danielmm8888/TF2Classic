@@ -805,6 +805,9 @@ void CTFPlayer::InitialSpawn( void )
 	m_iMaxSentryKills = 0;
 	CTF_GameStats.Event_MaxSentryKills( this, 0 );
 
+	// Set initial lives count.
+	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
+
 	StateEnter( TF_STATE_WELCOME );
 }
 
@@ -1464,16 +1467,13 @@ void CTFPlayer::SearchCoopSpawnSpot( void )
 
 	if ( vecSpawnOrigin != vec3_origin )
 	{
-		CTFTeamSpawn *pSpot = dynamic_cast<CTFTeamSpawn *>( CreateEntityByName( "info_player_teamspawn" ) );
+		CTFTeamSpawn *pSpot = dynamic_cast<CTFTeamSpawn *>( CBaseEntity::Create( "info_player_teamspawn", vecSpawnOrigin, vecSpawnAngles ) );
 
 		if ( pSpot )
 		{
-			pSpot->SetAbsOrigin( vecSpawnOrigin );
-			pSpot->SetAbsAngles( vecSpawnAngles );
 			pSpot->ChangeTeam( GetTeamNumber() );
 			// Disable it so other players don't accidently snatch it.
 			pSpot->SetDisabled( true );
-			pSpot->Spawn();
 
 			m_hTempSpawnSpot = pSpot;
 
@@ -4208,9 +4208,6 @@ void CTFPlayer::StateEnterWELCOME( void )
 	AddEffects( EF_NODRAW | EF_NOSHADOW );		
 
 	PhysObjectSleep();
-
-	// Set initial lives count.
-	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
 
 	if ( gpGlobals->eLoadType == MapLoad_Background )
 	{
