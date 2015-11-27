@@ -161,6 +161,7 @@ void CTFFlameThrower::Precache( void )
 	PrecacheParticleSystem( "pyro_blast" );
 	PrecacheScriptSound( "Weapon_FlameThrower.AirBurstAttack" );
 	PrecacheScriptSound( "TFPlayer.AirBlastImpact" );
+	PrecacheScriptSound( "TFPlayer.FlameOut" );
 	PrecacheScriptSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
 	PrecacheParticleSystem( "deflect_fx" );
 }
@@ -576,6 +577,7 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
 		}
 	}
+	EmitSound( "TFPlayer.FlameOut" );
 }
 #endif
 

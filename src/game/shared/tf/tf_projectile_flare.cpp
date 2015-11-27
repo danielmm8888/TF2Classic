@@ -67,7 +67,7 @@ void CTFProjectile_Flare::Precache()
 	PrecacheParticleSystem( "flaregun_trail_crit_green" );
 	PrecacheParticleSystem( "flaregun_trail_yellow" );
 	PrecacheParticleSystem( "flaregun_trail_crit_yellow" );
-
+	PrecacheScriptSound( "TFPlayer.FlareImpact" );
 	BaseClass::Precache();
 }
 
@@ -170,6 +170,9 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );
+		
+		CPASAttenuationFilter filter( pPlayer );
+		EmitSound( filter, pPlayer->entindex(), "TFPlayer.FlareImpact" );
 	}
 
 	// Remove.
