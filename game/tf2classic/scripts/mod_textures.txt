@@ -762,6 +762,15 @@
 				"width"		"64"
 				"height"	"34"
 		}
+		"taunt_spy"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"263"
+				"y"		"129"
+				"width"		"92"
+				"height"	"32"
+		}
 		"building_carried_destroyed"
 		{
 				"dfile"	"HUD/d_images_v2"
