@@ -113,9 +113,9 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 		SetThink( NULL );
 
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( GetTFWeaponInfo( m_nWeaponID )->iSlot );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( m_pWeaponInfo->iSlot );
 		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
-		int iAmmoType = GetTFWeaponInfo( m_nWeaponID )->iAmmoType;
+		int iAmmoType = m_pWeaponInfo->iAmmoType;
 
 		if ( pWeapon )
 		{
@@ -158,8 +158,8 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
 			if ( pNewWeapon )
 			{
-				pNewWeapon->DefaultTouch( pPlayer );
 				pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
+				pNewWeapon->DefaultTouch( pPlayer );
 				if ( pPlayer == GetOwnerEntity() )
 				{
 					// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
