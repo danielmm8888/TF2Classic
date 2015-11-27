@@ -155,6 +155,19 @@ void CTFFlameThrower::WeaponReset( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFFlameThrower::Precache( void )
+{
+	BaseClass::Precache();
+	PrecacheParticleSystem( "pyro_blast" );
+	PrecacheScriptSound( "Weapon_FlameThrower.AirBurstAttack" );
+	PrecacheScriptSound( "TFPlayer.AirBlastImpact" );
+	PrecacheScriptSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
+	PrecacheParticleSystem( "deflect_fx" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFFlameThrower::Spawn( void )
 {
 	m_iAltFireHint = HINT_ALTFIRE_FLAMETHROWER;
@@ -457,6 +470,8 @@ void CTFFlameThrower::SecondaryAttack()
 #endif
 	// TODO: Make airblast particles and sounds.
 
+	EmitSound( "Weapon_FlameThrower.AirBurstAttack" );
+
 #if !defined (CLIENT_DLL)
 	Vector vecDir;
 	pOwner->EyeVectors( &vecDir );
@@ -526,6 +541,7 @@ void CTFFlameThrower::DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker,
 		return;
 
 	pEntity->Deflected( pAttacker, vecDir );
+	EmitSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
 }
 
 void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir )

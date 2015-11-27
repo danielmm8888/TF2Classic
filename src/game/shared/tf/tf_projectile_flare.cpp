@@ -14,7 +14,7 @@
 #include "tf_player.h"
 #endif
 
-#define TF_WEAPON_FLARE_MODEL		"models/weapons/w_models/w_grenade_grenadelauncher.mdl"
+#define TF_WEAPON_FLARE_MODEL		"models/weapons/w_models/w_flaregun_shell.mdl"
 
 BEGIN_DATADESC( CTFProjectile_Flare )
 END_DATADESC()
@@ -58,6 +58,16 @@ CTFProjectile_Flare::~CTFProjectile_Flare()
 void CTFProjectile_Flare::Precache()
 {
 	PrecacheModel( TF_WEAPON_FLARE_MODEL );
+
+	PrecacheParticleSystem( "flaregun_trail_red" );
+	PrecacheParticleSystem( "flaregun_trail_crit_red" );
+	PrecacheParticleSystem( "flaregun_trail_blue" );
+	PrecacheParticleSystem( "flaregun_trail_crit_blue" );
+	PrecacheParticleSystem( "flaregun_trail_green" );
+	PrecacheParticleSystem( "flaregun_trail_crit_green" );
+	PrecacheParticleSystem( "flaregun_trail_yellow" );
+	PrecacheParticleSystem( "flaregun_trail_crit_yellow" );
+
 	BaseClass::Precache();
 }
 
@@ -227,32 +237,45 @@ void CTFProjectile_Flare::CreateTrails( void )
 	if ( IsDormant() )
 		return;
 
-	if ( enginetrace->GetPointContents( GetAbsOrigin() ) & MASK_WATER )
-	{
-		ParticleProp()->Create( "rockettrail_underwater", PATTACH_ABSORIGIN_FOLLOW );
-	}
-	else
-	{
-		ParticleProp()->Create( "rockettrail", PATTACH_ABSORIGIN_FOLLOW );
-	}
-
 	if ( m_bCritical )
 	{
 		switch( GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
-			ParticleProp()->Create("critical_rocket_red", PATTACH_ABSORIGIN_FOLLOW);
+			ParticleProp()->Create( "flaregun_trail_crit_red", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		case TF_TEAM_BLUE:
-			ParticleProp()->Create("critical_rocket_blue", PATTACH_ABSORIGIN_FOLLOW );
+			ParticleProp()->Create( "flaregun_trail_crit_blue", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		case TF_TEAM_GREEN:
-			ParticleProp()->Create("critical_rocket_green", PATTACH_ABSORIGIN_FOLLOW);
+			ParticleProp()->Create( "flaregun_trail_crit_green", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		case TF_TEAM_YELLOW:
-			ParticleProp()->Create("critical_rocket_yellow", PATTACH_ABSORIGIN_FOLLOW);
+			ParticleProp()->Create( "flaregun_trail_crit_yellow", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		default:
+			ParticleProp()->Create( "flaregun_trail_crit_red", PATTACH_ABSORIGIN_FOLLOW );
+			break;
+		}
+	}
+	else
+	{
+		switch( GetTeamNumber() )
+		{
+		case TF_TEAM_RED:
+			ParticleProp()->Create( "flaregun_trail_red", PATTACH_ABSORIGIN_FOLLOW );
+			break;
+		case TF_TEAM_BLUE:
+			ParticleProp()->Create( "flaregun_trail_blue", PATTACH_ABSORIGIN_FOLLOW );
+			break;
+		case TF_TEAM_GREEN:
+			ParticleProp()->Create( "flaregun_trail_green", PATTACH_ABSORIGIN_FOLLOW );
+			break;
+		case TF_TEAM_YELLOW:
+			ParticleProp()->Create( "flaregun_trail_yellow", PATTACH_ABSORIGIN_FOLLOW );
+			break;
+		default:
+			ParticleProp()->Create( "flaregun_trail_red", PATTACH_ABSORIGIN_FOLLOW );
 			break;
 		}
 	}

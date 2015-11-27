@@ -49,6 +49,7 @@ public:
 	~CTFFlameThrower();
 
 	virtual void	Spawn( void );
+	virtual void	Precache( void );
 
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_FLAMETHROWER; }
 
