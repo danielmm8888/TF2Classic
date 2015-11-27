@@ -87,6 +87,7 @@ public:
 	virtual bool		IsReadyToSpawn( void );
 	virtual bool		ShouldGainInstantSpawn( void );
 	virtual void		ResetScores( void );
+	virtual void		PlayerUse( void );
 
 	void				CreateViewModel( int iViewModel = 0 );
 	CBaseViewModel		*GetOffHandViewModel();
@@ -313,7 +314,7 @@ public:
 
 	virtual bool CanHearAndReadChatFrom( CBasePlayer *pPlayer );
 
-	const Vector& 	GetClassEyeHeight( void );
+	Vector 	GetClassEyeHeight( void );
 
 	void	UpdateExpression( void );
 	void	ClearExpression( void );

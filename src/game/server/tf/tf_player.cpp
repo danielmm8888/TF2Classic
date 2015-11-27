@@ -89,6 +89,8 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
+ConVar tf_allow_player_use( "tf_allow_player_use", "0", FCVAR_PROTECTED, "Allow players to execute + use while playing" );
+
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
@@ -97,8 +99,10 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons("tf2c_random_weapons", "0", FCVAR_NOTIFY);
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY );
 
+
+ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables the Civilian and Mercenary in normal gameplay" );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -1005,7 +1009,6 @@ void CTFPlayer::Spawn()
 		event->SetInt( "class", GetPlayerClass()->GetClassIndex() );
 		gameeventmanager->FireEvent( event );
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -2060,9 +2063,10 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 
 	if ( stricmp( pClassName, "random" ) != 0 )
 	{
-		int i = 0;
+		// Allow players to join the mercenary and civilian class if the cvar is enabled
+		int iLastClass = tf2c_allow_special_classes.GetBool() ? TF_CLASS_COUNT : TF_LAST_NORMAL_CLASS;
 
-		for ( i = TF_CLASS_SCOUT; i < TF_CLASS_COUNT_ALL; i++ )
+		for ( int i = TF_FIRST_NORMAL_CLASS; i <= iLastClass; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -2070,8 +2074,8 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 				break;
 			}
 		}
-
-		if ( iClass > TF_LAST_NORMAL_CLASS )
+		
+		if ( iClass > iLastClass )
 		{
 			ClientPrint( this, HUD_PRINTCONSOLE, UTIL_VarArgs( "Invalid class name \"%s\".\n", pClassName ) );
 			return;
@@ -5818,6 +5822,15 @@ void CTFPlayer::RemoveTeleportEffect( void )
 {
 	m_Shared.RemoveCond( TF_COND_TELEPORTED );
 	m_Shared.SetTeleporterEffectColor( TEAM_UNASSIGNED );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::PlayerUse( void )
+{
+	if ( tf_allow_player_use.GetBool() || TFGameRules()->IsDeathmatch() || IsInCommentaryMode() )
+		BaseClass::PlayerUse();
 }
 
 //-----------------------------------------------------------------------------
