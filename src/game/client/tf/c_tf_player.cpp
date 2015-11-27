@@ -2442,7 +2442,11 @@ void C_TFPlayer::HandleTaunting( void )
 	// Clear the taunt slot.
 	if ( !m_bWasTaunting && (
 		m_Shared.InCond( TF_COND_TAUNTING ) ||
-		m_Shared.IsLoser() ) )
+		m_Shared.IsLoser() ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_GIANT ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
 		m_bWasTaunting = true;
 
@@ -2455,7 +2459,13 @@ void C_TFPlayer::HandleTaunting( void )
 
 	if ( m_bWasTaunting && (
 		!m_Shared.InCond( TF_COND_TAUNTING ) &&
-		!m_Shared.IsLoser() ) )
+		!m_Shared.IsLoser() && 
+		!m_Shared.InCond( TF_COND_PHASE ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_GIANT ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
 		m_bWasTaunting = false;
 
@@ -2468,6 +2478,25 @@ void C_TFPlayer::HandleTaunting( void )
 			TurnOffTauntCam();
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::CanLightCigarette( void )
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	// Start smoke if we're not invisible or disguised
+	if ( IsPlayerClass( TF_CLASS_SPY ) && IsAlive() &&									// only on spy model
+		( !m_Shared.InCond( TF_COND_DISGUISED ) || !IsEnemyPlayer() ) &&	// disguise doesn't show for teammates
+		GetPercentInvisible() <= 0 &&										// don't start if invis
+		( pLocalPlayer != this ) && 										// don't show to local player
+		!m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) &&				// don't show if we're a dispenser
+		!( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == this ) )	// not if we're spectating this player first person
+		return true;
+
+	return false;
 }
 
 void C_TFPlayer::ClientThink()
@@ -2487,16 +2516,8 @@ void C_TFPlayer::ClientThink()
 	// Clear our healer, it'll be reset by the medigun client think if we're being healed
 	m_hHealer = NULL;
 
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	// Ugh, this check is getting ugly
-
-	// Start smoke if we're not invisible or disguised
-	if ( IsPlayerClass( TF_CLASS_SPY ) && IsAlive() &&									// only on spy model
-		( !m_Shared.InCond( TF_COND_DISGUISED ) || !IsEnemyPlayer() ) &&	// disguise doesn't show for teammates
-		GetPercentInvisible() <= 0 &&										// don't start if invis
-		( pLocalPlayer != this ) && 										// don't show to local player
-		!( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == this ) )	// not if we're spectating this player first person
+	if ( CanLightCigarette() )
 	{
 		if ( !m_bCigaretteSmokeActive )
 		{
@@ -3888,7 +3909,14 @@ Vector C_TFPlayer::GetChaseCamViewOffset( CBaseEntity *target )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ValidateModelIndex( void )
 {
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+	if ( m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) && IsEnemyPlayer() && GetGroundEntity() )
+	{
+		m_nModelIndex = modelinfo->GetModelIndex( "models/buildables/dispenser_light.mdl" );
+
+		if ( GetLocalPlayer() != this )
+			SetAbsAngles( vec3_angle );
+	}
+	else if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
 	{
 		TFPlayerClassData_t *pData = GetPlayerClassData( m_Shared.GetDisguiseClass() );
 		m_nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );

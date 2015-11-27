@@ -177,7 +177,7 @@ public:
 
 	CUtlVector<EHANDLE>		*GetSpawnedGibs( void ) { return &m_hSpawnedGibs; }
 
-	const Vector& 	GetClassEyeHeight( void );
+	Vector 			GetClassEyeHeight( void );
 
 	void			ForceUpdateObjectHudState( void );
 
@@ -253,6 +253,8 @@ private:
 
 	void OnPlayerClassChange( void );
 	void UpdatePartyHat( void );
+
+	bool CanLightCigarette( void );
 
 	void InitInvulnerableMaterial( void );
 
