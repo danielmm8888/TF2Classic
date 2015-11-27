@@ -246,6 +246,8 @@ private:
 	void OnAddTaunting( void );
 	void OnAddSlowed( void );
 	void OnAddCritboosted( void );
+	void OnAddHalloweenGiant( void );
+	void OnAddHalloweenTiny( void );
 	void OnAddRagemode( void );
 
 	void OnRemoveZoomed( void );
@@ -258,6 +260,8 @@ private:
 	void OnRemoveTaunting( void );
 	void OnRemoveSlowed( void );
 	void OnRemoveCritboosted( void );
+	void OnRemoveHalloweenGiant( void );
+	void OnRemoveHalloweenTiny( void );
 	void OnRemoveRagemode( void );
 
 	float GetCritMult( void );

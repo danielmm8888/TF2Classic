@@ -616,6 +616,18 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		OnAddSlowed();
 		break;
 
+	case TF_COND_DISGUISED_AS_DISPENSER:
+		m_pOuter->TeamFortress_SetSpeed();
+		break;
+
+	case TF_COND_HALLOWEEN_GIANT:
+		OnAddHalloweenGiant();
+		break;
+
+	case TF_COND_HALLOWEEN_TINY:
+		OnAddHalloweenTiny();
+		break;
+
 	case TF_COND_POWERUP_CRITDAMAGE:
 	case TF_COND_CRITBOOSTED:
 		OnAddCritboosted();
@@ -674,6 +686,14 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 
 	case TF_COND_SLOWED:
 		OnRemoveSlowed();
+		break;
+
+	case TF_COND_HALLOWEEN_GIANT:
+		OnRemoveHalloweenGiant();
+		break;
+
+	case TF_COND_HALLOWEEN_TINY:
+		OnRemoveHalloweenTiny();
 		break;
 
 	case TF_COND_POWERUP_CRITDAMAGE:
@@ -1263,9 +1283,55 @@ void CTFPlayerShared::OnRemoveSlowed( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::OnAddCritboosted(void)
+void CTFPlayerShared::OnAddCritboosted( void )
 {
 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddHalloweenGiant( void )
+{
+#ifdef GAME_DLL
+	m_pOuter->SetModelScale( 2.0, 0.0 );
+
+	m_pOuter->SetMaxHealth( m_pOuter->GetPlayerClass()->GetMaxHealth() * 10 );
+	m_pOuter->SetHealth( m_pOuter->GetMaxHealth() );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveHalloweenGiant( void )
+{
+#ifdef GAME_DLL
+	m_pOuter->SetModelScale( 1.0, 0.0 );
+
+	m_pOuter->SetMaxHealth( m_pOuter->GetPlayerClass()->GetMaxHealth() );
+	m_pOuter->SetHealth( m_pOuter->GetMaxHealth() );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddHalloweenTiny( void )
+{
+#ifdef GAME_DLL
+	m_pOuter->SetModelScale( 0.5, 0.0 );
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveHalloweenTiny( void )
+{
+#ifdef GAME_DLL
+	m_pOuter->SetModelScale( 1.0, 0.0 );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2946,6 +3012,11 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		maxfbspeed *= 1.3f;
 	}
 
+	if ( m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) )
+	{
+		maxfbspeed *= 2.0f;
+	}
+
 	// Reduce our speed if we were tranquilized
 	if ( m_Shared.InCond( TF_COND_SLOWED ) )
 	{
@@ -3435,31 +3506,31 @@ bool CTFPlayer::CanGoInvisible( void )
 	return true;
 }
 
-//ConVar testclassviewheight( "testclassviewheight", "0", FCVAR_DEVELOPMENTONLY );
+//ConVar testclassviewheight( "testclassviewheight", "0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED );
 //Vector vecTestViewHeight(0,0,0);
 
 //-----------------------------------------------------------------------------
 // Purpose: Return class-specific standing eye height
 //-----------------------------------------------------------------------------
-const Vector& CTFPlayer::GetClassEyeHeight( void )
+Vector CTFPlayer::GetClassEyeHeight( void )
 {
 	CTFPlayerClass *pClass = GetPlayerClass();
 
 	if ( !pClass )
-		return VEC_VIEW;
+		return VEC_VIEW_SCALED( this );
 
-	//if ( testclassviewheight.GetFloat() > 0 )
-	//{
-	//	vecTestViewHeight.z = test.GetFloat();
-	//	return vecTestViewHeight;
-	//}
+	/*if ( testclassviewheight.GetFloat() > 0 )
+	{
+		vecTestViewHeight.z = testclassviewheight.GetFloat();
+		return vecTestViewHeight;
+	}*/
 
 	int iClassIndex = pClass->GetClassIndex();
 
 	if ( iClassIndex < TF_FIRST_NORMAL_CLASS || iClassIndex > TF_CLASS_COUNT )
-		return VEC_VIEW;
+		return VEC_VIEW_SCALED( this );
 
-	return g_TFClassViewVectors[pClass->GetClassIndex()];
+	return ( g_TFClassViewVectors[ pClass->GetClassIndex() ] * GetModelScale() );
 }
 
 //-----------------------------------------------------------------------------
