@@ -28,6 +28,7 @@
 #else
 	#include "tf_player.h"
 	#include "team.h"
+	#include "env_player_surface_trigger.h"
 #endif
 
 ConVar	tf_maxspeed( "tf_maxspeed", "400", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT  | FCVAR_DEVELOPMENTONLY);
@@ -1175,6 +1176,30 @@ void CTFGameMovement::CategorizePosition( void )
 		}
 		SetGroundEntity( &trace );
 	}
+
+#ifndef CLIENT_DLL
+
+	//Adrian: vehicle code handles for us.
+	if ( player->IsInAVehicle() == false && player->GetTeamNumber() == TF_STORY_TEAM )
+	{
+		// If our gamematerial has changed, tell any player surface triggers that are watching
+		IPhysicsSurfaceProps *physprops = MoveHelper()->GetSurfaceProps();
+		surfacedata_t *pSurfaceProp = physprops->GetSurfaceData( trace.surface.surfaceProps );
+		char cCurrGameMaterial = pSurfaceProp->game.material;
+		if ( !player->GetGroundEntity() )
+		{
+			cCurrGameMaterial = 0;
+		}
+
+		// Changed?
+		if ( player->m_chPreviousTextureType != cCurrGameMaterial )
+		{
+			CEnvPlayerSurfaceTrigger::SetPlayerSurface( player, cCurrGameMaterial );
+		}
+
+		player->m_chPreviousTextureType = cCurrGameMaterial;
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

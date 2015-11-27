@@ -8,6 +8,10 @@
 #include "decals.h"
 #include "env_player_surface_trigger.h"
 
+#ifdef TF_CLASSIC
+#include "tf_player.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -88,6 +92,24 @@ void CEnvPlayerSurfaceTrigger::PlayerSurfaceChanged( CBasePlayer *pPlayer, char 
 {
 	if ( m_bDisabled )
 		return;
+
+#ifdef TF_CLASSIC
+	// Don't fire FromTarget output until all players actualy get off from target material.
+	if ( m_iCurrentGameMaterial == m_iTargetGameMaterial && gameMaterial != (char)m_iCurrentGameMaterial )
+	{
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CTFPlayer *pTFPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+
+			// Only check players on story team.
+			if ( !pTFPlayer || pTFPlayer == pPlayer || !pTFPlayer->IsOnStoryTeam() )
+				continue;
+
+			if ( pTFPlayer->GetPrevTextureType() == (char)m_iTargetGameMaterial )
+				return;
+		}
+	}
+#endif
 
 	// Fire the output if we've changed, but only if it involves the target material
 	if ( gameMaterial != (char)m_iCurrentGameMaterial &&

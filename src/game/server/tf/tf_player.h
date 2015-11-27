@@ -325,6 +325,8 @@ public:
 
 	bool IsOnStoryTeam( void ) { return ( GetTeamNumber() == TF_STORY_TEAM ); }
 
+	char GetPrevTextureType( void ) { return m_chPreviousTextureType; }
+
 	// HL2 ladder related methods
 	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
 	virtual void		ExitLadder();
