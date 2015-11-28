@@ -1544,6 +1544,15 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 		// Sometimes the first spot can be NULL????
 		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 	}
+
+	// Sometimes some DM maps are missing the info_player_deathmatch spawn points.
+	// falback onto the regular info_player_teamspawn entities
+	if ( !pSpot && TFGameRules()->IsDeathmatch() )
+	{
+		pEntClassName = "info_player_teamspawn";
+		pSpot = gEntList.FindEntityByClassname (pSpot, pEntClassName );
+	}
+
 	if ( !pSpot )
 	{
 		// Still NULL? That means there're no spawn points at all, bail.
