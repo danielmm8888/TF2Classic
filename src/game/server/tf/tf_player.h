@@ -381,6 +381,7 @@ public:
 	virtual void Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget , const Vector *pVelocity );
 
 	void				ManageRegularWeapons( TFPlayerClassData_t *pData );
+	void				ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData );
 	void				ManageRandomWeapons( TFPlayerClassData_t *pData );
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
 	void				ManageGrenades(TFPlayerClassData_t *pData);
