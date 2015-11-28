@@ -16,7 +16,7 @@ WeaponData
 	"UseRapidFireCrits"	"1"
 	"HasTeamSkins_Viewmodel"			"1"
 	"MaxAmmo"		"200"
-	"SpawnAmmo"		"100"
+	"SpawnAmmo"		"200"
 
 
 	// Ammo & Clip.
