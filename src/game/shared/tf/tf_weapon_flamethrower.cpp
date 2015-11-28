@@ -471,7 +471,7 @@ void CTFFlameThrower::SecondaryAttack()
 	}
 
 #ifdef CLIENT_DLL
-	//StopFlame();
+	StopFlame();
 #endif
 
 	m_iWeaponState = FT_STATE_AIRBLASTING;

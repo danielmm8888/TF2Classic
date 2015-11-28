@@ -171,7 +171,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );
 		
-		CPASAttenuationFilter filter( pPlayer );
+		CPASAttenuationFilter filter( pPlayer, "TFPlayer.FlareImpact" );
 		EmitSound( filter, pPlayer->entindex(), "TFPlayer.FlareImpact" );
 	}
 
