@@ -240,6 +240,10 @@ bool CHudWeaponSelection::ShouldDraw()
 		m_pActiveWeaponBG->SetVisible( false );
 	}
 
+	// Don't draw the weapon selection HUD while the ragemode powerup is active.
+	if ( CTFPlayer::GetLocalTFPlayer() && CTFPlayer::GetLocalTFPlayer()->m_Shared.InCond( TF_COND_POWERUP_RAGEMODE ) )
+		return false;
+
 	return bShouldDraw;
 }
 

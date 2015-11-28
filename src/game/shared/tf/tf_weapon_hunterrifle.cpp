@@ -100,7 +100,7 @@ void CTFHunterRifle::ResetTimers( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFHunterRifle::CanHolster( void )
+bool CTFHunterRifle::CanHolster( void ) const
 {
  	CTFPlayer *pPlayer = GetTFPlayerOwner();
  	if ( pPlayer )

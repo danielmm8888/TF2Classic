@@ -20,6 +20,12 @@
 
 #define CLEAR_ALL_TARGETS			-1
 
+#ifdef CLIENT_DLL
+void RecvProxy_HealingTarget( const CRecvProxyData *pData, void *pStruct, void *pOut );
+#endif
+
+static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
+
 //=========================================================
 // Beam healing gun
 //=========================================================
@@ -79,12 +85,15 @@ public:
 
 private:
 	bool					FindAndHealTargets( void );
-	void					MaintainTargetInSlot();
-	void					FindNewTargetForSlot();
-	void					RemoveHealingTarget( bool bStopHealingSelf = false );
-	bool					HealingTarget( CBaseEntity *pTarget );
+	virtual bool			HealingTarget( CBaseEntity *pTarget );
 	bool					CouldHealTarget( CBaseEntity *pTarget );
 	bool					AllowedToHealTarget( CBaseEntity *pTarget );
+
+protected:
+	virtual void			RemoveHealingTarget( bool bStopHealingSelf = false );
+	virtual void			MaintainTargetInSlot();
+	virtual void			FindNewTargetForSlot();
+
 
 public:
 

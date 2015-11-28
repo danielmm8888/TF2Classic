@@ -274,7 +274,7 @@ CTFPlayerClassShared::CTFPlayerClassShared()
 //-----------------------------------------------------------------------------
 bool CTFPlayerClassShared::Init( int iClass )
 {
-	Assert ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) );
+	Assert ( ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_CLASS_COUNT ) );
 	m_iClass = iClass;
 	return true;
 }
@@ -287,7 +287,7 @@ bool CTFPlayerClassShared::CanBuildObject( int iObjectType )
 	TFPlayerClassData_t  *pData = GetData();
 
 	int i;
-	for ( i=0;i<TF_PLAYER_BUILDABLE_COUNT;i++ )
+	for ( i = 0; i < TF_PLAYER_BUILDABLE_COUNT; i++ )
 	{
 		if ( iObjectType == pData->m_aBuildable[i] )
 		{

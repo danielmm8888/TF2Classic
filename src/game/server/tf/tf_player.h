@@ -13,6 +13,7 @@
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
+#include "tf_weapon_medigun.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -86,6 +87,7 @@ public:
 	virtual bool		IsReadyToSpawn( void );
 	virtual bool		ShouldGainInstantSpawn( void );
 	virtual void		ResetScores( void );
+	virtual void		PlayerUse( void );
 
 	void				CreateViewModel( int iViewModel = 0 );
 	CBaseViewModel		*GetOffHandViewModel();
@@ -94,6 +96,8 @@ public:
 	virtual void		CheatImpulseCommands( int iImpulse );
 
 	virtual void		CommitSuicide( bool bExplode = false, bool bForce = false );
+
+	virtual void		LeaveVehicle( const Vector &vecExitPoint, const QAngle &vecExitAngles );
 
 	// Combats
 	virtual void		TraceAttack(const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator);
@@ -190,6 +194,7 @@ public:
 	void				ClientHearVox( const char *pSentence );
 	void				DisplayLocalItemStatus( CTFGoal *pGoal );
 
+	bool				CanPickupBuilding( CBaseObject *pObject );
 	bool				TryToPickupBuilding( void );
 
 	int					BuildObservableEntityList( void );
@@ -273,6 +278,7 @@ public:
 
 	// Dropping Ammo
 	void DropAmmoPack( void );
+	void DropWeapon( CTFWeaponBase *pWeapon, bool bKilled = false );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
 
 	bool CanDisguise( void );
@@ -308,7 +314,7 @@ public:
 
 	virtual bool CanHearAndReadChatFrom( CBasePlayer *pPlayer );
 
-	const Vector& 	GetClassEyeHeight( void );
+	Vector 	GetClassEyeHeight( void );
 
 	void	UpdateExpression( void );
 	void	ClearExpression( void );
@@ -375,6 +381,7 @@ public:
 	virtual void Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget , const Vector *pVelocity );
 
 	void				ManageRegularWeapons( TFPlayerClassData_t *pData );
+	void				ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData );
 	void				ManageRandomWeapons( TFPlayerClassData_t *pData );
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
 	void				ManageGrenades(TFPlayerClassData_t *pData);
@@ -382,6 +389,8 @@ public:
 	// Taunts.
 	void				Taunt( void );
 	bool				IsTaunting( void ) { return m_Shared.InCond( TF_COND_TAUNTING ); }
+	void				DoTauntAttack( void );
+	void				ClearTauntAttack( void );
 	QAngle				m_angTauntCamera;
 
 	virtual float		PlayScene( const char *pszScene, float flDelay = 0.0f, AI_Response *response = NULL, IRecipientFilter *filter = NULL );
@@ -403,11 +412,15 @@ public:
 
 	float				MedicGetChargeLevel( void );
 
+	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
-	CTFWeaponBase		*Weapon_GetWeaponByBucket (int iSlot );
 
 	float	m_flSpawnProtectTime;
+
+	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
+
+	virtual bool		IsDeflectable( void ) { return true; }
 
 private:
 
@@ -443,8 +456,8 @@ private:
 	void				PhysObjectWake();
 
 	// Ammo pack.
-	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 	void AmmoPackCleanUp( void );
+	void DroppedWeaponCleanUp( void );
 
 	// State.
 	CPlayerStateInfo	*StateLookupInfo( int nState );
@@ -536,8 +549,6 @@ private:
 	DamagerHistory_t m_DamagerHistory[MAX_DAMAGER_HISTORY];	// history of who has damaged this player
 	CUtlVector<float>	m_aBurnOtherTimes;					// vector of times this player has burned others
 
-	bool m_bHudClassAutoKill;
-
 	// Background expressions
 	string_t			m_iszExpressionScene;
 	EHANDLE				m_hExpressionSceneEnt;
@@ -546,9 +557,13 @@ private:
 
 	bool				m_bSpeakingConceptAsDisguisedSpy;
 
+	bool				m_bHudClassAutoKill;
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 	bool				m_bAutoReload;
+
+	float				m_flTauntAttackTime;
+	int					m_iTauntAttack;
 
 	COutputEvent		m_OnDeath;
 

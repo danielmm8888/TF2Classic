@@ -69,6 +69,7 @@ public:
 	virtual void CategorizePosition( void );
 	virtual void CheckFalling( void );
 	virtual void Duck( void );
+	virtual void HandleDuckingSpeedCrop();
 	virtual Vector GetPlayerViewOffset( bool ducked ) const;
 
 	virtual void	TracePlayerBBox( const Vector& start, const Vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
@@ -160,7 +161,7 @@ void CTFGameMovement::PlayerMove()
 
 Vector CTFGameMovement::GetPlayerViewOffset( bool ducked ) const
 {
-	return ducked ? VEC_DUCK_VIEW : ( m_pTFPlayer->GetClassEyeHeight() );
+	return ducked ? VEC_DUCK_VIEW_SCALED( m_pTFPlayer ) : ( m_pTFPlayer->GetClassEyeHeight() );
 }
 
 //-----------------------------------------------------------------------------
@@ -372,7 +373,7 @@ bool CTFGameMovement::CheckJumpButton()
 	bool bAirDash = false;
 	bool bOnGround = ( player->GetGroundEntity() != NULL );
 
-	// Cannot jump will ducked.
+	// Cannot jump while ducked.
 	if ( player->GetFlags() & FL_DUCKING )
 	{
 		// Let a scout do it.
@@ -387,7 +388,8 @@ bool CTFGameMovement::CheckJumpButton()
 		return false;
 
 	// Cannot jump again until the jump button has been released.
-	if ( mv->m_nOldButtons & IN_JUMP && !(tf2c_autojump.GetBool() || TFGameRules()->IsDeathmatch()) )
+	// Unless we're in deathmatch or we have tf2c_autojump enabled
+	if ( ( mv->m_nOldButtons & IN_JUMP ) && !( ( tf2c_autojump.GetBool() && bOnGround ) || TFGameRules()->IsDeathmatch() ) )
 		return false;
 
 	// In air, so ignore jumps (unless you are a scout).
@@ -1199,6 +1201,20 @@ void CTFGameMovement::Duck( void )
 
 	BaseClass::Duck();
 }
+
+void CTFGameMovement::HandleDuckingSpeedCrop( void )
+{
+	BaseClass::HandleDuckingSpeedCrop();
+
+	// Prevent moving while crouched in loser state.
+	if ( m_pTFPlayer->m_Shared.IsLoser() && m_iSpeedCropped & SPEED_CROPPED_DUCK )
+	{
+		mv->m_flForwardMove = 0.0f;
+		mv->m_flSideMove = 0.0f;
+		mv->m_flUpMove = 0.0f;
+	}
+}
+
 void CTFGameMovement::FullWalkMoveUnderwater()
 {
 	if ( player->GetWaterLevel() == WL_Waist )

@@ -31,19 +31,17 @@ public:
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual bool IsVisible( void );
 	virtual void Reset();
-	void OnTick();
+	void OnThink();
 
 public: // IGameEventListener:
 	virtual void FireGameEvent( IGameEvent *event );
 
 private:
-	
 	void UpdateStatus( void );
 	void SetPlayingToLabelVisible( bool bVisible );
-	bool bUpdate;
 
 private:
-
+	float m_flNextThink;
 };
 
 #endif	// TF_HUD_DEATHMATCHSTATUS_H

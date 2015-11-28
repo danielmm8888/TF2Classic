@@ -37,6 +37,7 @@ struct WeaponData_t
 	float	m_flSmackDelay;					// how long after swing should damage happen for melee weapons
 	bool	m_bUseRapidFireCrits;
 	int		m_iMaxAmmo;
+	int		m_iSpawnAmmo;
 
 	void Init( void )
 	{
@@ -56,6 +57,7 @@ struct WeaponData_t
 		m_flSmackDelay = 0.0f;
 		m_bUseRapidFireCrits = false;
 		m_iMaxAmmo = 0;
+		m_iSpawnAmmo = 0;
 	};
 };
 
@@ -71,6 +73,8 @@ public:
 	virtual void Parse( ::KeyValues *pKeyValuesData, const char *szWeaponName );
 
 	WeaponData_t const &GetWeaponData( int iWeapon ) const	{ return m_WeaponData[iWeapon]; }
+
+	Activity GetActivityOverride( Activity actOriginalActivity ) const;
 
 public:
 
@@ -108,10 +112,22 @@ public:
 	char	m_szExplosionPlayerEffect[128];
 	char	m_szExplosionWaterEffect[128];
 
+	bool	m_bDontDrop;
+
+	// DM specific things
+
 	// DM Viewmodel
 	char	m_szViewModelDM[MAX_WEAPON_STRING];
+#ifdef DM_WEAPON_BUCKET
+	// DM Weapon menu slot overrides
+	int		m_iSlotDM;
+	int		m_iPositionDM;
+#endif
 
-	bool	m_bDontDrop;
+protected:
+	CUtlDict< const char*, unsigned short > m_AnimationReplacement;
+	CUtlDict< const char*, unsigned short > m_AnimationReplacementDM;
+
 };
 
 #endif // TF_WEAPON_PARSE_H

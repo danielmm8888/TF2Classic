@@ -99,6 +99,8 @@ CON_COMMAND( showmapinfo, "Show map info panel" )
 			gViewPortInterface->ShowPanel( PANEL_CLASS_YELLOW, false );
 			gViewPortInterface->ShowPanel( PANEL_INTRO, false );
 			gViewPortInterface->ShowPanel( PANEL_ROUNDINFO, false );
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSELECT, false );
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHTEAMSELECT, false );
 
 			gViewPortInterface->ShowPanel( PANEL_MAPINFO, true );
 		}

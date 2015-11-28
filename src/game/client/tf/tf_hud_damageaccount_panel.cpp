@@ -1,172 +1,317 @@
-//========= Copyright � 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright © 1996-2002, Valve LLC, All rights reserved. ============
 //
-// Purpose: Damage numers upon hitting an enemy
+// Purpose: 
 //
 // $NoKeywords: $
-//=============================================================================//
+//=============================================================================
 
 #include "cbase.h"
-#include "iclientmode.h"
 #include "hud.h"
 #include "hudelement.h"
 #include "c_tf_player.h"
-#include "view.h"
-#include "vgui/ISurface.h"
-#include <vgui/IScheme.h>
+#include "iclientmode.h"
+#include "ienginevgui.h"
+#include <vgui/ILocalize.h>
+#include <vgui/ISurface.h>
+#include <vgui/IVGui.h>
 #include <vgui_controls/EditablePanel.h>
-#include <vgui_controls/Label.h>
+#include <vgui_controls/ProgressBar.h>
+#include "engine/IEngineSound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 using namespace vgui;
 
-class CTFDamageAccountPanel : public EditablePanel, public CHudElement
+// Floating delta text items, float off the top of the head to 
+// show damage done
+typedef struct
 {
-private:
-	DECLARE_CLASS_SIMPLE( CTFDamageAccountPanel, EditablePanel );
+	// amount of delta
+	int m_iAmount;
+
+	// die time
+	float m_flDieTime;
+
+	EHANDLE m_hEntity;
+
+	// position of damaged player
+	Vector m_vDamagePos;
+
+	bool bCrit;
+} dmg_account_delta_t;
+
+#define NUM_ACCOUNT_DELTA_ITEMS 10
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+class CDamageAccountPanel : public CHudElement, public EditablePanel
+{
+	DECLARE_CLASS_SIMPLE( CDamageAccountPanel, EditablePanel );
 
 public:
-	CTFDamageAccountPanel( const char *pElementName );
+	CDamageAccountPanel( const char *pElementName );
 
-	virtual void LevelInit();
-	virtual void Init();
-	virtual void FireGameEvent(IGameEvent *event);
-	virtual void ApplySchemeSettings( IScheme *pScheme );
+	virtual void	ApplySchemeSettings( IScheme *scheme );
+	virtual void	LevelInit( void );
+	virtual bool	ShouldDraw( void );
+	virtual void	Paint( void );
 
-	virtual bool ShouldDraw( void );
-	virtual void Think( void );
+	virtual void	FireGameEvent( IGameEvent *event );
+	void			OnDamaged( IGameEvent *event );
 
 private:
-	Label	*m_pDamageAccountLabel;
-	float	m_flRemoveAt; // Time to remove from view
-	Vector m_vDamagePos;
+
+	float m_flLastHitSound;
+
+	int iAccountDeltaHead;
+	dmg_account_delta_t m_AccountDeltaItems[NUM_ACCOUNT_DELTA_ITEMS];
+
+	//CPanelAnimationVarAliasType( float, m_flDeltaItemStartPos, "delta_item_start_y", "100", "proportional_float" );
+	CPanelAnimationVarAliasType( float, m_flDeltaItemEndPos, "delta_item_end_y", "0", "proportional_float" );
+
+	//CPanelAnimationVarAliasType( float, m_flDeltaItemX, "delta_item_x", "0", "proportional_float" );
+
+	CPanelAnimationVar( Color, m_DeltaPositiveColor, "PositiveColor", "0 255 0 255" );
+	CPanelAnimationVar( Color, m_DeltaNegativeColor, "NegativeColor", "255 0 0 255" );
+
+	CPanelAnimationVar( float, m_flDeltaLifetime, "delta_lifetime", "2.0" );
+
+	CPanelAnimationVar( vgui::HFont, m_hDeltaItemFont, "delta_item_font", "Default" );
+	CPanelAnimationVar( vgui::HFont, m_hDeltaItemFontBig, "delta_item_font_big", "Default" );
 };
 
-// Register and set depth
-DECLARE_HUDELEMENT_DEPTH(CTFDamageAccountPanel, 1);
-// Create console var, to choose whether to show this or not
-ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "");
-// Create console var for hit sound
-ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "" );
+DECLARE_HUDELEMENT( CDamageAccountPanel );
+
+ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "" );
+ConVar hud_combattext_batching( "hud_combattext_batching", "0", FCVAR_ARCHIVE, "If set to 1, numbers that are too close together are merged." );
+ConVar hud_combattext_batching_window( "hud_combattext_batching_window", "0.2", FCVAR_ARCHIVE, "Maximum delay between damage events in order to batch numbers." );
+
+ConVar tf_dingalingaling( "tf_dingalingaling", "0", FCVAR_ARCHIVE, "If set to 1, play a sound everytime you injure an enemy. The sound can be customized by replacing the 'tf/sound/ui/hitsound.wav' file." );
+ConVar tf_dingaling_volume( "tf_dingaling_volume", "0.75", FCVAR_ARCHIVE, "Desired volume of the hit sound.", true, 0.0, true, 1.0 );
+ConVar tf_dingaling_pitchmindmg( "tf_dingaling_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
+ConVar tf_dingaling_pitchmaxdmg( "tf_dingaling_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
+ConVar tf_dingalingaling_repeat_delay( "tf_dingalingaling_repeat_delay", "0", FCVAR_ARCHIVE, "Desired repeat delay of the hit sound. Set to 0 to play a sound for every instance of damage dealt." );
 
 //-----------------------------------------------------------------------------
-// Purpose: Constructor
+// Purpose: 
 //-----------------------------------------------------------------------------
-CTFDamageAccountPanel::CTFDamageAccountPanel( const char *pElementName )
-	: EditablePanel( NULL, "HudDamageAccount" ), CHudElement ( pElementName )
+CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "CDamageAccountPanel" )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
-	SetScheme( "ClientScheme" );
-}
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::LevelInit()
-{
-	SetVisible( false );
-}
+	SetHiddenBits( HIDEHUD_MISCSTATUS );
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::Init()
-{
-	// listen for events
-	ListenForGameEvent( "player_damaged" );
+	m_flLastHitSound = 0.0f;
 
-	SetVisible( false );
-	CHudElement::Init( );
-}
+	iAccountDeltaHead = 0;
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
-{
-	BaseClass::ApplySchemeSettings( pScheme );
-
-	LoadControlSettings( "resource/UI/HudDamageAccount.res" );
-
-	m_pDamageAccountLabel = dynamic_cast< Label * >( FindChildByName( "CDamageAccountPanel" ) );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::FireGameEvent(IGameEvent * event)
-{
-	const char *pEventName = event->GetName();
-
-	if (Q_strcmp("player_damaged", pEventName) == 0)
+	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
-		if ( m_pDamageAccountLabel
-			&& C_TFPlayer::GetLocalTFPlayer() && C_TFPlayer::GetLocalTFPlayer()->GetUserID() == event->GetInt("userid_from")) // Did we shoot the guy?
-		{
-			if ( event->GetInt( "userid_from" ) == event->GetInt( "userid_to" ) )
-			{
-				// No self-damage notifications.
-				return;
-			}
-
-			// Play hit sound, if appliable
-			if( tf_dingalingaling.GetBool() == true )
-			{
-				vgui::surface()->PlaySound( "ui/hitsound.wav" ); // Ding!
-			}
-			// Stop here if we chose not to show hit numbers
-			if( hud_combattext.GetBool() == false )
-			{
-				return;
-			}
-
-			SetVisible( true );
-			// Set remove time
-			m_flRemoveAt = gpGlobals->curtime + 1.0f;
-			// Set text to amount of damage
-			char buffer[5]; // Up to four digits
-#if defined( OSX ) || defined( LINUX ) 
-			snprintf( buffer, sizeof(buffer), "%d",  event->GetInt( "amount" ) * -1 );
-#elif WIN32
-			itoa(event->GetInt("amount") * -1, buffer, 10);
-#endif
-			m_pDamageAccountLabel->SetText( buffer );
-			m_pDamageAccountLabel->SetVisible( true );
-
-			// Respoition based on location of player hit
-			m_vDamagePos = Vector( event->GetFloat( "from_x" ), event->GetFloat( "from_y" ), event->GetFloat( "from_z" ) );
-		}
+		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
 	}
+
+	ListenForGameEvent( "player_hurt" );
+	ListenForGameEvent( "player_healed" );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFDamageAccountPanel::ShouldDraw( void )
+void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 {
-	return ( IsVisible( ) );
-}
+	// For future reference, live TF2 apparently uses player_healed for green medic numbers.
+	const char * type = event->GetName();
 
-//-----------------------------------------------------------------------------
-// Purpose: Update position on screen every frame
-//-----------------------------------------------------------------------------
-void CTFDamageAccountPanel::Think( void )
-{
-	m_pDamageAccountLabel->SetFgColor( Color( 255, 0, 0, 255 ) );
-	// Hide it?
-	if( gpGlobals->curtime >= m_flRemoveAt )
+	if ( Q_strcmp( type, "player_hurt" ) == 0 )
 	{
-		SetAlpha( 0 ); // Using alphas for future fade-out effect
+		OnDamaged( event );
 	}
 	else
 	{
-		SetAlpha( 255 );
-		int iX, iY;
-		bool bOnscreen = GetVectorInScreenSpace( m_vDamagePos, iX, iY );
-		int halfWidth = ( GetWide() / 2 ) - 20; // A bit hacky
-		if( bOnscreen )
-			SetPos( iX - halfWidth, iY - ( GetTall() / 2 ) );
+		CHudElement::FireGameEvent( event );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
+{
+	// load control settings...
+	LoadControlSettings( "resource/UI/HudDamageAccount.res" );
+
+	BaseClass::ApplySchemeSettings( pScheme );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: called whenever a new level's starting
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::LevelInit( void )
+{
+	iAccountDeltaHead = 0;
+
+	CHudElement::LevelInit();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CDamageAccountPanel::ShouldDraw( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer || !pPlayer->IsAlive() )
+	{
+		return false;
+	}
+
+	return CHudElement::ShouldDraw();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::OnDamaged( IGameEvent *event )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pPlayer && pPlayer->IsAlive() && pPlayer->GetUserID() == event->GetInt( "attacker" ) ) // Did we shoot the guy?
+	{
+		int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
+		int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		int iDmgAmount = event->GetInt( "damageamount" );
+
+		// No self-damage notifications.
+		if ( iAttacker == iVictim )
+			return;
+
+		// Currently only supporting players.
+		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim ) );
+
+		if ( !pVictim )
+			return;
+
+		// Don't show damage notifications for spies disguised as our team.
+		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
+			return;
+
+		// Play hit sound, if appliable.
+		if ( tf_dingalingaling.GetBool() )
+		{
+			float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
+			if ( flRepeatDelay <= 0 || gpGlobals->curtime - m_flLastHitSound > flRepeatDelay )
+			{
+				EmitSound_t params;
+
+				params.m_pSoundName = "ui/hitsound.wav";
+
+				params.m_flVolume = tf_dingaling_volume.GetFloat();
+
+				float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
+				float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
+				params.m_nPitch = RemapValClamped( (float)iDmgAmount, 10, 150, flPitchMin, flPitchMax );
+
+				CLocalPlayerFilter filter;
+
+				CBaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
+
+				m_flLastHitSound = gpGlobals->curtime;
+			}
+		}
+
+		// Stop here if we chose not to show hit numbers.
+		if ( !hud_combattext.GetBool() )
+			return;
+
+		// Don't show the numbers if we can't see the victim.
+		trace_t tr;
+		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), CONTENTS_SOLID|CONTENTS_MOVEABLE, NULL, COLLISION_GROUP_NONE, &tr );
+		if ( tr.fraction != 1.0f )
+			return;
+
+
+		if ( hud_combattext_batching.GetBool() )
+		{
+			// Cycle through deltas and search for one that belongs to this player.
+			for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+			{
+				if ( m_AccountDeltaItems[i].m_hEntity.Get() == pVictim )
+				{
+					// See if it's lifetime is inside batching window.
+					float flCreateTime = m_AccountDeltaItems[i].m_flDieTime - m_flDeltaLifetime;
+					if ( gpGlobals->curtime - flCreateTime < hud_combattext_batching_window.GetFloat() )
+					{
+						// Update it's die time and damage.
+						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+						m_AccountDeltaItems[i].m_iAmount += iDmgAmount;
+						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
+						return;
+					}
+				}
+			}
+		}
+
+		// create a delta item that floats off the top
+		dmg_account_delta_t *pNewDeltaItem = &m_AccountDeltaItems[iAccountDeltaHead];
+
+		iAccountDeltaHead++;
+		iAccountDeltaHead %= NUM_ACCOUNT_DELTA_ITEMS;
+
+		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+		pNewDeltaItem->m_iAmount = iDmgAmount;
+		pNewDeltaItem->m_hEntity = pVictim;
+		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+		pNewDeltaItem->bCrit = event->GetInt( "crit" );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Paint the deltas
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::Paint( void )
+{
+	BaseClass::Paint();
+
+	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	{
+		// update all the valid delta items
+		if ( m_AccountDeltaItems[i].m_flDieTime > gpGlobals->curtime )
+		{
+			// position and alpha are determined from the lifetime
+			// color is determined by the delta - green for positive, red for negative
+
+			Color c = m_DeltaNegativeColor;
+
+			float flLifetimePercent = ( m_AccountDeltaItems[i].m_flDieTime - gpGlobals->curtime ) / m_flDeltaLifetime;
+
+			// fade out after half our lifetime
+			if ( flLifetimePercent < 0.5 )
+			{
+				c[3] = (int)( 255.0f * ( flLifetimePercent / 0.5 ) );
+			}
+
+			int iX, iY;
+			bool bOnscreen = GetVectorInScreenSpace( m_AccountDeltaItems[i].m_vDamagePos, iX, iY );
+
+			if ( !bOnscreen )
+				continue;
+
+			float flHeight = 50.0f;
+			float flYPos = (float)iY - ( 1.0 - flLifetimePercent ) * flHeight;
+
+			// Use BIGGER font for crits.
+			vgui::surface()->DrawSetTextFont( m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont );
+			vgui::surface()->DrawSetTextColor( c );
+			vgui::surface()->DrawSetTextPos( iX, (int)flYPos );
+
+			wchar_t wBuf[20];
+
+			_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+
+			vgui::surface()->DrawPrintText( wBuf, wcslen( wBuf ), FONT_DRAW_NONADDITIVE );
+		}
 	}
 }

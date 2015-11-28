@@ -101,6 +101,22 @@ bool C_TFWeaponBuilder::Deploy( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool C_TFWeaponBuilder::CanHolster( void ) const
+{
+	// If player is hauling a building he can't switch away without dropping it.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		return false;
+	}
+
+	return BaseClass::CanHolster();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void C_TFWeaponBuilder::SecondaryAttack( void )

@@ -183,10 +183,7 @@ void CTFPipebombLauncher::WeaponIdle( void )
 {
 	if ( m_flChargeBeginTime > 0 && m_iClip1 > 0 )
 	{
-		if ( m_iClip1 > 0 )
-		{
-			LaunchGrenade();
-		}
+		LaunchGrenade();
 	}
 	else
 	{
@@ -279,7 +276,6 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 		}
 
 		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
-		pPipebomb->SetLauncher( this );
 
 		PipebombHandle hHandle;
 		hHandle = pPipebomb;
@@ -290,6 +286,24 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 	}
 
 	return pProjectile;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPipebombLauncher::ItemPostFrame( void )
+{
+	BaseClass::ItemPostFrame();
+
+	// Allow player to fire and detonate at the same time.
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	if ( pOwner && !( pOwner->m_nButtons & IN_ATTACK ) )
+	{
+		if ( m_flChargeBeginTime > 0 && m_iClip1 > 0 )
+		{
+			LaunchGrenade();
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

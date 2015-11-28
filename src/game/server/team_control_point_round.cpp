@@ -122,7 +122,7 @@ int CTeamControlPointRound::CheckWinConditions( void )
 	{
 		bool bWinner = true;
 
-#if defined( TF_DLL)
+#if defined( TF_DLL) || defined ( TF_CLASSIC )
 		if ( TFGameRules() && TFGameRules()->IsInKothMode() )
 		{
 			CTeamRoundTimer *pTimer = NULL;

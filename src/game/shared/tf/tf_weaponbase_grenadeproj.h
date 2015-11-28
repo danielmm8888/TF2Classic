@@ -49,6 +49,10 @@ public:
 	void				SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 	virtual int			GetDamageType();
 
+	CNetworkVar( int, m_iDeflected );
+	CNetworkHandle( CBaseEntity, m_hLauncher );
+	CNetworkHandle( CBaseEntity, m_hDeflectOwner );
+
 private:
 
 	CTFWeaponBaseGrenadeProj( const CTFWeaponBaseGrenadeProj & );
@@ -58,10 +62,12 @@ private:
 
 public:
 
+	virtual void			OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void			OnDataChanged( DataUpdateType_t type );
 
 	float					m_flSpawnTime;
 	bool					m_bCritical;
+	int						m_iOldTeamNum;
 
 	// Server specific.
 #else
@@ -95,6 +101,12 @@ public:
 
 	bool					UseImpactNormal()							{ return m_bUseImpactNormal; }
 	const Vector			&GetImpactNormal( void ) const				{ return m_vecImpactNormal; }
+
+	virtual void			SetLauncher( CBaseEntity *pLauncher ) { m_hLauncher = pLauncher; }
+
+	virtual bool			IsDeflectable() { return true; }
+	virtual void			Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+	virtual void			IncremenentDeflected( void );
 
 protected:
 

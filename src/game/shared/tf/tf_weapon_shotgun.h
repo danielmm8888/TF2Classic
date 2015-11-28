@@ -17,7 +17,6 @@
 #define CTFShotgun_Soldier C_TFShotgun_Soldier
 #define CTFShotgun_HWG C_TFShotgun_HWG
 #define CTFShotgun_Pyro C_TFShotgun_Pyro
-#define CTFShotgun_Medic C_TFShotgun_Medic
 #define CTFScatterGun C_TFScatterGun
 #define CTFDoubleBarrel C_TFDoubleBarrel
 #endif
@@ -98,16 +97,6 @@ public:
 	DECLARE_PREDICTABLE();
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_SHOTGUN_PYRO; }
-};
-
-class CTFShotgun_Medic : public CTFShotgun
-{
-public:
-	DECLARE_CLASS( CTFShotgun_Medic, CTFShotgun );
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SHOTGUN_MEDIC; }
 };
 
 class CTFDoubleBarrel : public CTFShotgun

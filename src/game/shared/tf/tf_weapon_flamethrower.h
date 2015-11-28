@@ -10,6 +10,7 @@
 
 #include "tf_weaponbase_gun.h"
 #include "tf_weaponbase_rocket.h"
+#include "tf_weapon_grenade_pipebomb.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -30,7 +31,8 @@ enum FlameThrowerState_t
 	// Firing states.
 	FT_STATE_IDLE = 0,
 	FT_STATE_STARTFIRING,
-	FT_STATE_FIRING
+	FT_STATE_FIRING,
+	FT_STATE_AIRBLASTING
 };
 
 //=========================================================
@@ -48,6 +50,7 @@ public:
 	~CTFFlameThrower();
 
 	virtual void	Spawn( void );
+	virtual void	Precache( void );
 
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_FLAMETHROWER; }
 
@@ -55,6 +58,12 @@ public:
 	virtual void	ItemPostFrame( void );
 	virtual void	PrimaryAttack();
 	virtual void	SecondaryAttack();
+
+#ifdef GAME_DLL
+	virtual void	DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker, Vector &vecDir );
+	virtual void	DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir );
+#endif
+
 	virtual bool	Lower( void );
 	virtual void	WeaponReset( void );
 

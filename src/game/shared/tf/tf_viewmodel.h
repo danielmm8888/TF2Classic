@@ -66,6 +66,8 @@ public:
 
 	void UpdateViewModel();
 
+	virtual bool ShouldReceiveProjectedTextures( int flags ) { return true; }
+
 	virtual int GetSkin();
 	BobState_t	&GetBobState() { return m_BobState; }
 

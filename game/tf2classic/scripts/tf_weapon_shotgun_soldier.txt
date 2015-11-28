@@ -25,6 +25,7 @@ fWeaponData
 	"AmmoPerShot"			"1"
 	"HasTeamSkins_Viewmodel"			"1"
 	"MaxAmmo"			"32"
+	"SpawnAmmo"			"12"
 	
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"			"models/weapons/shells/shell_shotgun.mdl"	
@@ -33,6 +34,9 @@ fWeaponData
 	// Buckets.
 	"bucket"			"1"
 	"bucket_position"		"0"
+
+	"bucket_DM"		"3"
+	"bucket_position_DM"	"0"
 
 	// Animation.
 	"viewmodel"     	"models/weapons/v_models/v_shotgun_soldier.mdl"

@@ -62,7 +62,6 @@ RecvPropEHandle( RECVINFO( m_hLauncher ) ),
 SendPropBool( SENDINFO( m_bTouched ) ),
 SendPropInt( SENDINFO( m_iType ), 2 ),
 SendPropEHandle( SENDINFO( m_hLauncher ) ),
-
 #endif
 END_NETWORK_TABLE()
 
@@ -147,10 +146,10 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
 	if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( TFGameRules()->IsDeathmatch() )
 			return "stickybombtrail_dm";
 
-		switch (GetTeamNumber())
+		switch ( GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
 			return "stickybombtrail_red";
@@ -171,10 +170,10 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 	}
 	else
 	{
-		if (TFGameRules()->IsDeathmatch())
+		if ( TFGameRules()->IsDeathmatch() )
 			return "pipebombtrail_dm";
 
-		switch (GetTeamNumber())
+		switch ( GetTeamNumber() )
 		{
 		case TF_TEAM_RED:
 			return "pipebombtrail_red";
@@ -201,7 +200,95 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 // STICKY = GRENADE
 // GRENADE = PIPEBOMB
 //-----------------------------------------------------------------------------
-void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
+void CTFGrenadePipebombProjectile::CreateTrails( void )
+{
+	CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
+
+	C_TFPlayer *pPlayer = ToTFPlayer( GetThrower() );
+
+	if ( pPlayer && TFGameRules()->IsDeathmatch() )
+	{
+		pPlayer->m_Shared.SetParticleToMercColor( pParticle );
+	}
+
+	if ( m_bCritical )
+	{
+		if ( TFGameRules()->IsDeathmatch() )
+		{
+			if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
+			{
+				pParticle = ParticleProp()->Create( "critical_grenade_dm", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			else
+			{
+				pParticle = ParticleProp()->Create( "critical_pipe_dm", PATTACH_ABSORIGIN_FOLLOW );
+			}
+
+			if ( pPlayer && pParticle )
+			{
+				pPlayer->m_Shared.SetParticleToMercColor( pParticle );
+			}
+			return;
+		}
+		switch ( GetTeamNumber() )
+		{
+		case TF_TEAM_BLUE:
+
+			if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
+			{
+				ParticleProp()->Create( "critical_grenade_blue", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			else
+			{
+				ParticleProp()->Create( "critical_pipe_blue", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			break;
+		case TF_TEAM_RED:
+
+			if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
+			{
+				ParticleProp()->Create( "critical_grenade_red", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			else
+			{
+				ParticleProp()->Create( "critical_pipe_red", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			break;
+		case TF_TEAM_GREEN:
+
+			if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
+			{
+				ParticleProp()->Create( "critical_grenade_green", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			else
+			{
+				ParticleProp()->Create( "critical_pipe_green", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			break;
+		case TF_TEAM_YELLOW:
+
+			if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
+			{
+				ParticleProp()->Create( "critical_grenade_yellow", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			else
+			{
+				ParticleProp()->Create( "critical_pipe_yellow", PATTACH_ABSORIGIN_FOLLOW );
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : updateType - 
+// STICKY = GRENADE
+// GRENADE = PIPEBOMB
+//-----------------------------------------------------------------------------
+void CTFGrenadePipebombProjectile::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged( updateType );
 
@@ -209,100 +296,29 @@ void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 	{
 		m_flCreationTime = gpGlobals->curtime;
 
-
-		CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
 		m_bPulsed = false;
 
-		C_TFPlayer *pPlayer = ToTFPlayer(GetThrower());
+		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>( m_hLauncher.Get() );
 
-		if (pPlayer && TFGameRules()->IsDeathmatch())
-		{
-			pPlayer->m_Shared.SetParticleToMercColor(pParticle);
-		}
-
-		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>(m_hLauncher.Get());
-
-		if (pLauncher)
+		if ( pLauncher )
 		{
 			pLauncher->AddPipeBomb( this );
 		}
 
-		if ( m_bCritical )
-		{
-			if (TFGameRules()->IsDeathmatch())
-			{
-				if (m_iType == TF_GL_MODE_REMOTE_DETONATE)
-				{
-					pParticle = ParticleProp()->Create("critical_grenade_dm", PATTACH_ABSORIGIN_FOLLOW);
-				}
-				else
-				{
-					pParticle = ParticleProp()->Create("critical_pipe_dm", PATTACH_ABSORIGIN_FOLLOW);
-				}
-
-				if (pPlayer && pParticle)
-				{
-					pPlayer->m_Shared.SetParticleToMercColor(pParticle);
-				}
-				return;
-			}
-			switch( GetTeamNumber() )
-			{
-			case TF_TEAM_BLUE:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_blue", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_blue", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_RED:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_red", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_red", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_GREEN:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_YELLOW:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			default:
-				break;
-			}
-		}
-
+		CreateTrails();
 	}
 	else if ( m_bTouched )
 	{
 		//ParticleProp()->StopEmission();
 	}
+
+	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	{
+		ParticleProp()->StopEmission();
+		CreateTrails();
+	}
 }
+
 extern ConVar tf_grenadelauncher_livetime;
 
 void CTFGrenadePipebombProjectile::Simulate( void )
@@ -701,6 +717,28 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGrenadePipebombProjectile::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	Vector vecPushSrc = pDeflectedBy->WorldSpaceCenter();
+	Vector vecPushDir = GetAbsOrigin() - vecPushSrc;
+	VectorNormalize( vecPushDir );
+
+	if ( GetType() == TF_GL_MODE_REMOTE_DETONATE )
+	{
+		// This is kind of lame.
+		CTakeDamageInfo info( pDeflectedBy, pDeflectedBy, 100, DMG_BLAST );
+		CalculateExplosiveDamageForce( &info, vecPushDir, vecPushSrc );
+		TakeDamage( info );
+	}
+	else
+	{
+		BaseClass::Deflected( pDeflectedBy, vecDir );
+	}
+	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
+}
 
 
 #endif

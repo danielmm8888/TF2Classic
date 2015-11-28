@@ -67,6 +67,7 @@ public:
 	void Event_PlayerFiredWeapon( CTFPlayer *pPlayer, bool bCritical );
 	void Event_PlayerDamage( CBasePlayer *pPlayer, const CTakeDamageInfo &info, int iDamageTaken );
 	void Event_PlayerKilledOther( CBasePlayer *pAttacker, CBaseEntity *pVictim, const CTakeDamageInfo &info );
+	void Event_PlayerSuicide( CBasePlayer *pPlayer );
 	void Event_PlayerCapturedPoint( CTFPlayer *pPlayer );
 	void Event_PlayerDefendedPoint( CTFPlayer *pPlayer );
 	void Event_PlayerDominatedOther( CTFPlayer *pAttacker );

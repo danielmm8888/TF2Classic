@@ -5,6 +5,7 @@
 
 class CCvarSlider;
 class CCvarComboBox;
+class CTFAdvModelPanel;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -29,6 +30,7 @@ private:
 	CCvarSlider	*m_pBluScrollBar;
 	vgui::ImagePanel *m_pColorBG;
 	CCvarComboBox *m_pCombo;
+	CTFAdvModelPanel *m_pParticlesPanel;
 	MESSAGE_FUNC(OnDataChanged, "ControlModified");
 };
 

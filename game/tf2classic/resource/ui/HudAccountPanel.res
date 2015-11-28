@@ -1,6 +1,6 @@
 "Resource/UI/HudAccountPanel.res"
 {
-	"HudAccount"
+	"CHudAccountPanel"
 	{
 		"delta_item_x"			"28"
 		"delta_item_start_y"	"90"

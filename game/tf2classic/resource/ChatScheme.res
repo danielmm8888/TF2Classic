@@ -33,18 +33,17 @@ Scheme
 	BaseSettings
 	{
 		// vgui_controls color specifications
-		Border.Bright					"200 200 200 196"	// the lit side of a control
-		Border.Dark						"40 40 40 196"		// the dark/unlit side of a control
+		Border.Bright					"80 80 80 196"		// the lit side of a control
+		Border.Dark						"80 80 80 196"		// the dark/unlit side of a control
 		Border.Selection				"0 0 0 196"			// the additional border color for displaying the default/selected button
 
 		Button.TextColor				"White"
-		Button.BgColor					"Blank"
+		Button.BgColor					"150 150 150 150"
 		Button.ArmedTextColor			"White"
-		Button.ArmedBgColor				"Blank"				[$WIN32]
-		Button.ArmedBgColor				"190 115 0 255"		[$X360]
+		Button.ArmedBgColor				"180 180 180 150"
 		Button.DepressedTextColor		"White"
 		Button.DepressedBgColor			"Blank"
-		Button.FocusBorderColor			"Black"
+		Button.FocusBorderColor			"120 120 120 150"
 		
 		CheckButton.TextColor			"OffWhite"
 		CheckButton.SelectedTextColor	"White"
@@ -63,10 +62,8 @@ Scheme
 		Frame.TitleTextInsetX			16
 		Frame.ClientInsetX				8
 		Frame.ClientInsetY				6
-		Frame.BgColor					"160 160 160 128"	[$WIN32]
-		Frame.BgColor					"80 80 80 192"		[$X360]
-		Frame.OutOfFocusBgColor			"160 160 160 32"	[$WIN32]
-		Frame.OutOfFocusBgColor			"80 80 80 192"		[$X360]
+		Frame.BgColor					"160 160 160 128"
+		Frame.OutOfFocusBgColor			"160 160 160 32"
 		Frame.FocusTransitionEffectTime	"0.3"	// time it takes for a window to fade in/out on focus/out of focus
 		Frame.TransitionEffectTime		"0.3"	// time it takes for a window to fade in/out on open/close
 		Frame.AutoSnapRange				"0"
@@ -127,20 +124,20 @@ Scheme
 
 		RichText.TextColor				"OffWhite"
 		RichText.BgColor				"TransparentBlack"
-		RichText.SelectedTextColor		"Black"
+		RichText.SelectedTextColor		"White"
 		RichText.SelectedBgColor		"Orange"
 
-		ScrollBar.Wide					17
+		ScrollBar.Wide					10
 
 		ScrollBarButton.FgColor				"White"
-		ScrollBarButton.BgColor				"Blank"
+		ScrollBarButton.BgColor				"150 150 150 150"
 		ScrollBarButton.ArmedFgColor		"White"
-		ScrollBarButton.ArmedBgColor		"Blank"
+		ScrollBarButton.ArmedBgColor		"180 180 180 150"
 		ScrollBarButton.DepressedFgColor	"White"
-		ScrollBarButton.DepressedBgColor	"Blank"
+		ScrollBarButton.DepressedBgColor	"120 120 120 150"
 
-		ScrollBarSlider.FgColor				"Blank"			// nob color
-		ScrollBarSlider.BgColor				"255 255 255 64"	// slider background color
+		ScrollBarSlider.FgColor				"131 131 131 150"	// nob color
+		ScrollBarSlider.BgColor				"60 60 60 180"		// slider background color
 
 		SectionedListPanel.HeaderTextColor	"White"
 		SectionedListPanel.HeaderBgColor	"Blank"
@@ -160,11 +157,11 @@ Scheme
 		Slider.DisabledTextColor2	"30 30 30 255"
 
 		TextEntry.TextColor			"OffWhite"
-		TextEntry.BgColor			"TransparentBlack"
+		TextEntry.BgColor			"0 0 0 150"
 		TextEntry.CursorColor		"OffWhite"
 		TextEntry.DisabledTextColor	"DullWhite"
 		TextEntry.DisabledBgColor	"Blank"
-		TextEntry.SelectedTextColor	"Black"
+		TextEntry.SelectedTextColor	"White"
 		TextEntry.SelectedBgColor	"Orange"
 		TextEntry.OutOfFocusSelectedBgColor	"255 155 0 128"
 		TextEntry.FocusEdgeColor	"0 0 0 196"
@@ -201,8 +198,6 @@ Scheme
 		TFColors.ChatTextYellow		"251 235 202 255"
 		TFColors.ChatTextTeamBlue	"153 204 255 255"
 		TFColors.ChatTextTeamRed	"255 63 53 255"
-		TFColors.ChatTextTeamGreen	"8 174 0 255"
-		TFColors.ChatTextTeamYellow	"237 213 0 255"
 	}
 
 	//////////////////////// BITMAP FONT FILES /////////////////////////////
@@ -361,7 +356,6 @@ Scheme
 				"dropshadow"	"1"
 			}
 		}
-
 
 	}
 

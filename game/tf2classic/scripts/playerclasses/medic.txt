@@ -20,9 +20,9 @@ PlayerClass
 	"grenade2"		"TF_WEAPON_GRENADE_HEAL"
 
 	// Weapons.
-	"weapon1"		"TF_WEAPON_SYRINGEGUN_MEDIC"
+	"weapon1"		"TF_WEAPON_BONESAW"
 	"weapon2"		"TF_WEAPON_MEDIGUN"
-	"weapon3"		"TF_WEAPON_BONESAW"
+	"weapon3"		"TF_WEAPON_SYRINGEGUN_MEDIC"
 	
 	//"DontDoAirwalk"	"1"
 	//"DontDoNewJump"	"1"

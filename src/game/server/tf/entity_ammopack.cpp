@@ -21,6 +21,10 @@ LINK_ENTITY_TO_CLASS( item_ammopack_full, CAmmoPack );
 LINK_ENTITY_TO_CLASS( item_ammopack_small, CAmmoPackSmall );
 LINK_ENTITY_TO_CLASS( item_ammopack_medium, CAmmoPackMedium );
 
+BEGIN_DATADESC( CAmmoPack )
+	DEFINE_INPUTFUNC( FIELD_VOID, "RoundSpawn", InputRoundSpawn ),
+END_DATADESC()
+
 //=============================================================================
 //
 // CTF AmmoPack functions.
@@ -35,6 +39,18 @@ void CAmmoPack::Spawn( void )
 	SetModel( GetPowerupModel() );
 
 	BaseClass::Spawn();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CAmmoPack::InputRoundSpawn( inputdata_t &inputdata )
+{
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		Warning( "Ammo packs are not allowed in Deathmatch.\n" );
+		UTIL_Remove( this );
+	}
 }
 
 //-----------------------------------------------------------------------------

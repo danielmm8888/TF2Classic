@@ -133,8 +133,8 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"Primary",
 	"Secondary",
 	"Melee",
-	"PDA",
-	"PDA"
+	"PDA1",
+	"PDA2"
 };
 
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
@@ -188,7 +188,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 	},
 	{
 		{
-			TF_WEAPON_SYRINGEGUN_MEDIC, TF_WEAPON_SHOTGUN_MEDIC
+			TF_WEAPON_SYRINGEGUN_MEDIC
 		},
 		{
 			TF_WEAPON_MEDIGUN, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG

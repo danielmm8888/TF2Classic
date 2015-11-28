@@ -30,7 +30,8 @@ public:
 	CTFProgressBar( vgui::Panel *parent, const char *name );
 
 	virtual void Paint();
-	void SetPercentage( float flPercentage ){ m_flPercent = flPercentage; }
+	void SetPercentage( float flPercentage ){ m_flPercent = flPercentage; }	
+	void SetIcon( const char* szIcon );
 
 private:
 
@@ -78,15 +79,21 @@ public:
 	
 	virtual void FireGameEvent( IGameEvent *event );
 
+	void SetExtraTimePanels();
+
 protected:
 
 	virtual void OnThink();
 
 private:
 
-	void SetExtraTimePanels();
 	void SetTimeAdded( int iIndex, int nSeconds );
 	void CheckClockLabelLength( CExLabel *pLabel, CTFImagePanel *pBG );
+	void SetTeamBackground();
+
+public:
+
+	int					m_iTeamIndex;
 
 private:
 
@@ -111,6 +118,8 @@ private:
 	CExLabel			*m_pSuddenDeathLabel;
 	CTFImagePanel		*m_pSuddenDeathBG;
 
+	ScalableImagePanel  *m_pTimePanelBG;
+
 	// delta stuff
 	int m_iTimerDeltaHead;
 	timer_delta_t m_TimerDeltaItems[NUM_TIMER_DELTA_ITEMS];
@@ -125,6 +134,34 @@ private:
 	CPanelAnimationVar( float, m_flDeltaLifetime, "delta_lifetime", "2.0" );
 
 	CPanelAnimationVar( vgui::HFont, m_hDeltaItemFont, "delta_item_font", "Default" );
+};
+
+//-----------------------------------------------------------------------------
+// Purpose:  Parent panel for the various objective displays
+//-----------------------------------------------------------------------------
+class CTFHudKothTimeStatus : public CHudElement, public vgui::EditablePanel
+{
+	DECLARE_CLASS_SIMPLE( CTFHudKothTimeStatus, vgui::EditablePanel );
+
+public:
+	CTFHudKothTimeStatus( const char *pElementName );
+	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
+	virtual bool ShouldDraw( void );
+	virtual void Reset( void );
+	virtual void Think( void );
+	virtual void UpdateActiveTeam( void );
+
+	virtual int GetRenderGroupPriority( void ) { return 60; }	// higher than build menus
+
+private:
+
+	CPanelAnimationVarAliasType( int, m_nBlueActiveXPos, "blue_active_xpos", "0", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_nRedActiveXPos, "red_active_xpos", "0", "proportional_int" );
+
+	CTFHudTimeStatus		*m_pBlueKothTimer;
+	CTFHudTimeStatus		*m_pRedKothTimer;
+	vgui::ImagePanel		*m_pActiveTimerBG;
+	CTFHudTimeStatus		*m_pActiveKothTimerPanel;
 };
 
 //-----------------------------------------------------------------------------
@@ -157,6 +194,7 @@ private:
 
 	CTFHudFlagObjectives	*m_pFlagPanel;
 	CTFHudTimeStatus		*m_pTimePanel;
+//	CTFHudKothTimeStatus	*m_pKothTimePanel;
 	CTFHudDeathMatchObjectives *m_pDMPanel;
 	CHudControlPointIcons	*m_pControlPointIconsPanel;
 	CControlPointProgressBar *m_pControlPointProgressBar;

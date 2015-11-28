@@ -58,6 +58,20 @@
 // *****************
 // SURFACE MATERIALS
 
+"Default.FlareImpact"
+{
+	"soundlevel"		"SNDLVL_75dB"
+	"volume"		"0.7"
+	"pitch"			"PITCH_NORM"
+	"rndwave"
+	{
+		"wave"		"physics/concrete/concrete_impact_flare1.wav"
+		"wave"		"physics/concrete/concrete_impact_flare2.wav"
+		"wave"		"physics/concrete/concrete_impact_flare3.wav"
+		"wave"		"physics/concrete/concrete_impact_flare4.wav"
+	}
+}
+
 "Player.Swim"
 {
 	"channel"	"CHAN_STATIC"

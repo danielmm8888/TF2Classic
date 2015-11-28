@@ -25,12 +25,16 @@ WeaponData
 	"AmmoPerShot"			"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"			"12"
+	"SpawnAmmo"			"6"
 	
 	"TracerEffect"		"bullet_shotgun_tracer01"
 
 	// Buckets.
 	"bucket"			"0"
 	"bucket_position"		"0"
+
+	"bucket_DM"		"3"
+	"bucket_position_DM"	"1"
 
 	// Animation.
 	"viewmodel"     "models/weapons/v_models/v_supershotgun_mercenary.mdl"

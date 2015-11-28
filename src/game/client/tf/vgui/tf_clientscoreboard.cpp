@@ -169,13 +169,13 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 
 	if ( bShow )
 	{		
-		if (TFGameRules()->IsFourTeamGame())
+		if ( TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, true);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, true );
 		}
-		else if (TFGameRules()->IsDeathmatch())
+		else if ( TFGameRules() && TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, true);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, true );
 		}
 		else
 		{
@@ -196,11 +196,11 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	{
 		if (TFGameRules() && TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSCOREBOARD, false);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, false );
 		}
 		else if (TFGameRules() && TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHSCOREBOARD, false);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, false );
 		}
 		else
 		{
@@ -268,7 +268,7 @@ void CTFClientScoreBoardDialog::Update()
 	MoveToCenterOfScreen();
 
 	// Not really sure where to put this
-	if (TFGameRules())
+	if ( TFGameRules() )
 	{
 		if (mp_timelimit.GetInt() > 0)
 		{
@@ -488,7 +488,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList()
 						iClass = tf_PR->GetPlayerClass( playerIndex );
 					}
 
-					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
+					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass < TF_CLASS_MERCENARY )
 					{
 						//pKeyValues->SetString( "class", g_aPlayerClassNames[iClass] );
 						pKeyValues->SetInt( "class", tf_PR->IsAlive(playerIndex) ? m_iClassEmblem[iClass] : m_iClassEmblemDead[iClass]);
@@ -662,7 +662,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails()
 
 	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
 	int iTeam = pLocalPlayer->GetTeamNumber();
-	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) )
+	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_MERCENARY ) )
 	{
 		m_pClassImage->SetClass( iTeam, iClass, 0 );
 		m_pClassImage->SetVisible( true );

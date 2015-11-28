@@ -35,8 +35,6 @@
 // Buff ranges
 ConVar weapon_overhealer_damage_modifier( "weapon_overhealer_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
 
-static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
-
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -159,7 +157,7 @@ bool CWeaponOverhealer::Deploy(void)
 		CTFPlayer *pOwner = ToTFPlayer(GetOwnerEntity());
 		if (pOwner)
 		{
-			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateChargeEffects();
 			pOwner->m_Shared.RecalculateCrits();
 		}
 #endif
@@ -191,7 +189,7 @@ bool CWeaponOverhealer::Holster(CBaseCombatWeapon *pSwitchingTo)
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( pOwner )
 	{
-		pOwner->m_Shared.RecalculateInvuln( true );
+		pOwner->m_Shared.RecalculateChargeEffects( true );
 		pOwner->m_Shared.RecalculateCrits(true);
 	}
 #endif
@@ -475,7 +473,7 @@ bool CWeaponOverhealer::FindAndHealTargets(void)
 				pTFPlayer->m_Shared.Heal( pOwner, GetHealRate() );
 			}
 
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
 #endif
@@ -590,7 +588,7 @@ void CWeaponOverhealer::RemoveHealingTarget(bool bStopHealingSelf)
 			CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 			pTFPlayer->m_Shared.RecalculateCrits(false);
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );

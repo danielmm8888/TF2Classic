@@ -1,11 +1,7 @@
 ﻿//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose:			The Medic's Medikit weapon
+// Purpose:		
 //					
-//
-// $Workfile:     $
-// $Date:         $
-// $NoKeywords: $
 //=============================================================================//
 #include "cbase.h"
 #include "in_buttons.h"
@@ -36,16 +32,6 @@ ConVar weapon_kritzkrieg_damage_modifier( "weapon_kritzkrieg_damage_modifier", "
 ConVar weapon_kritzkrieg_construction_rate( "weapon_kritzkrieg_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the kritzkrieg." );
 ConVar weapon_kritzkrieg_charge_rate( "weapon_kritzkrieg_charge_rate", "30", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time healing it takes to fully charge the kritzkrieg." );
 ConVar weapon_kritzkrieg_chargerelease_rate( "weapon_kritzkrieg_chargerelease_rate", "8", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time it takes the a full charge of the kritzkrieg to be released." );
-
-#if defined (CLIENT_DLL)
-ConVar tf_kritzkrieg_autoheal( "tf_kritzkrieg_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE | FCVAR_USERINFO, "Setting this to 1 will cause the Kritzkrieg's primary attack to be a toggle instead of needing to be held down." );
-#endif
-
-#if !defined (CLIENT_DLL)
-ConVar tf_kritzkrieg_lagcomp(  "tf_kritzkrieg_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
-#endif
-
-static const char *s_pszKritzkriegHealTargetThink = "KritzkriegHealTargetThink";
 
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
@@ -204,7 +190,7 @@ bool CWeaponKritzkrieg::Deploy( void )
 		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 		if ( pOwner )
 		{
-			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateChargeEffects();
 			if ( m_bChargeRelease )
 				pOwner->m_Shared.RecalculateCrits();
 		}
@@ -237,7 +223,7 @@ bool CWeaponKritzkrieg::Holster( CBaseCombatWeapon *pSwitchingTo )
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( pOwner )
 	{
-		pOwner->m_Shared.RecalculateInvuln( true );
+		pOwner->m_Shared.RecalculateChargeEffects(true);
 		pOwner->m_Shared.RecalculateCrits(true);
 	}
 #endif
@@ -380,7 +366,7 @@ void CWeaponKritzkrieg::MaintainTargetInSlot()
 		m_flNextTargetCheckTime = gpGlobals->curtime + 1.0f;
 
 		trace_t tr;
-		CKritzkriegFilter drainFilter( pOwner );
+		CMedigunFilter drainFilter( pOwner );
 
 		Vector vecAiming;
 		pOwner->EyeVectors( &vecAiming );
@@ -448,7 +434,7 @@ void CWeaponKritzkrieg::FindNewTargetForSlot()
 			}
 
 			// Start the heal target thinking.
-			SetContextThink( &CWeaponKritzkrieg::HealTargetThink, gpGlobals->curtime, s_pszKritzkriegHealTargetThink );
+			SetContextThink( &CWeaponKritzkrieg::HealTargetThink, gpGlobals->curtime, s_pszMedigunHealTargetThink );
 #endif
 
 			m_hHealingTarget.Set( tr.m_pEnt );
@@ -467,7 +453,7 @@ void CWeaponKritzkrieg::HealTargetThink( void )
 	CBaseEntity *pTarget = m_hHealingTarget;
 	if ( !pTarget || !pTarget->IsAlive() )
 	{
-		SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
+		SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
 		return;
 	}
 
@@ -481,7 +467,7 @@ void CWeaponKritzkrieg::HealTargetThink( void )
 		RemoveHealingTarget( true );
 	}
 
-	SetNextThink( gpGlobals->curtime + 0.2f, s_pszKritzkriegHealTargetThink );
+	SetNextThink( gpGlobals->curtime + 0.2f, s_pszMedigunHealTargetThink );
 }
 #endif
 
@@ -521,7 +507,7 @@ bool CWeaponKritzkrieg::FindAndHealTargets( void )
 				pTFPlayer->m_Shared.Heal( pOwner, GetHealRate() );
 			}
 
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects(false);
 			pTFPlayer->m_Shared.RecalculateCrits(false);
 		}
 
@@ -626,7 +612,7 @@ void CWeaponKritzkrieg::DrainCharge( void )
 			}
 			*/
 
-			pOwner->m_Shared.RecalculateInvuln();
+			pOwner->m_Shared.RecalculateChargeEffects();
 			pOwner->m_Shared.RecalculateCrits();
 #endif
 		}
@@ -743,7 +729,7 @@ void CWeaponKritzkrieg::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects(false);
 			pTFPlayer->m_Shared.RecalculateCrits(false);
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
@@ -752,7 +738,7 @@ void CWeaponKritzkrieg::RemoveHealingTarget( bool bStopHealingSelf )
 	}
 
 	// Stop thinking - we no longer have a heal target.
-	SetContextThink( NULL, 0, s_pszKritzkriegHealTargetThink );
+	SetContextThink( NULL, 0, s_pszMedigunHealTargetThink );
 #endif
 
 	m_hHealingTarget.Set( NULL );
@@ -797,7 +783,7 @@ void CWeaponKritzkrieg::PrimaryAttack( void )
 #endif
 
 #if !defined (CLIENT_DLL)
-	if ( tf_kritzkrieg_lagcomp.GetBool() )
+	if ( tf_medigun_lagcomp.GetBool() )
 		lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
 #endif
 
@@ -822,7 +808,7 @@ void CWeaponKritzkrieg::PrimaryAttack( void )
 	}
 	
 #if !defined (CLIENT_DLL)
-	if ( tf_kritzkrieg_lagcomp.GetBool() )
+	if ( tf_medigun_lagcomp.GetBool() )
 		lagcompensation->FinishLagCompensation( pOwner );
 #endif
 }
@@ -869,7 +855,7 @@ void CWeaponKritzkrieg::SecondaryAttack( void )
 
 #ifdef GAME_DLL
 	CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-	pOwner->m_Shared.RecalculateInvuln();
+	pOwner->m_Shared.RecalculateChargeEffects();
 	pOwner->m_Shared.RecalculateCrits();
 
 	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
@@ -877,7 +863,7 @@ void CWeaponKritzkrieg::SecondaryAttack( void )
 	if ( m_hHealingTarget && m_hHealingTarget->IsPlayer() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
-		pTFPlayer->m_Shared.RecalculateInvuln();
+		pTFPlayer->m_Shared.RecalculateChargeEffects();
 		pTFPlayer->m_Shared.RecalculateCrits();
 		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
 	}

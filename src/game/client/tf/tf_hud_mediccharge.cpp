@@ -96,7 +96,10 @@ bool CHudMedicChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	if (pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN || pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG || pWpn->GetWeaponID() == TF_WEAPON_UBERSAW)
+	if ( pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN 
+		|| pWpn->GetWeaponID() == TF_WEAPON_OVERHEALER
+		|| pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG 
+		|| pWpn->GetWeaponID() == TF_WEAPON_UBERSAW )
 	{
 		return CHudElement::ShouldDraw();
 	}
@@ -114,77 +117,41 @@ void CHudMedicChargeMeter::OnTick( void )
 	if ( !pPlayer )
 		return;
 
-	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
+	CWeaponMedigun *pMedigun = ( CWeaponMedigun* ) pPlayer->GetMedigun();
 
-	if (!pWpn)
+	if ( !pMedigun )
 		return;
-	if (pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG)
+
+	CTFWeaponBase *pActiveWpn = pPlayer->GetActiveTFWeapon();
+
+	if ( !pActiveWpn )
+		return;
+
+	if ( pPlayer->GetActiveTFWeapon() == pMedigun || pActiveWpn->GetWeaponID() == TF_WEAPON_UBERSAW  )
 	{
-		CWeaponKritzkrieg *pKritzkrieg = static_cast<CWeaponKritzkrieg *>(pWpn);
-
-		if (!pKritzkrieg)
-			return;
-
-		float flCharge = pKritzkrieg->GetChargeLevel();
-
-		if (flCharge != m_flLastChargeValue)
-		{
-			if (m_pChargeMeter)
-			{
-				m_pChargeMeter->SetProgress(flCharge);
-			}
-
-			if (!m_bCharged)
-			{
-				if (flCharge >= 1.0)
-				{
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "HudMedicCharged");
-					m_bCharged = true;
-				}
-			}
-			else
-			{
-				// we've got invuln charge or we're using our invuln
-				if (!pKritzkrieg->IsReleasingCharge())
-				{
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "HudMedicChargedStop");
-					m_bCharged = false;
-				}
-			}
-		}
-
-		m_flLastChargeValue = flCharge;
-	}
-	if (pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN)
-	{
-		CWeaponMedigun *pMedigun = static_cast<CWeaponMedigun *>(pWpn);
-
-		if (!pMedigun)
-			return;
-
 		float flCharge = pMedigun->GetChargeLevel();
 
-		if (flCharge != m_flLastChargeValue)
+		if ( flCharge != m_flLastChargeValue )
 		{
-			if (m_pChargeMeter)
+			if ( m_pChargeMeter )
 			{
-				m_pChargeMeter->SetProgress(flCharge);
+				m_pChargeMeter->SetProgress( flCharge );
 			}
 
-			if (!m_bCharged)
+			if ( !m_bCharged )
 			{
-				if (flCharge >= 1.0)
+				if ( flCharge >= 1.0 )
 				{
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "HudMedicCharged");
+					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMedicCharged" );
 					m_bCharged = true;
 				}
 			}
 			else
 			{
 				// we've got invuln charge or we're using our invuln
-				if (!pMedigun->IsReleasingCharge())
+				if ( !pMedigun->IsReleasingCharge() )
 				{
-					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "HudMedicChargedStop");
+					g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "HudMedicChargedStop" );
 					m_bCharged = false;
 				}
 			}

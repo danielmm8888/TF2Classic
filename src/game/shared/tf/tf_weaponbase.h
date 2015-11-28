@@ -129,13 +129,16 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual const char *DetermineViewModelType(const char *vModel) const;
 
 #ifdef CLIENT_DLL
-	virtual void UpdateViewModel();
+	virtual void UpdateViewModel( void );
 #endif
 
+#ifdef DM_WEAPON_BUCKET
+	virtual int	 GetSlot( void ) const;
+	virtual int	 GetPosition( void ) const;
+#endif
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
-	virtual bool HolsterOnDetach() { return true; }
 
 	// Attacks.
 	virtual void PrimaryAttack();
@@ -210,6 +213,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual bool CanFireCriticalShot( bool bIsHeadshot = false ){ return true; }
 
+	float				GetLastFireTime( void ) { return m_flLastFireTime; }
+
 // Server specific.
 #if !defined( CLIENT_DLL )
 
@@ -231,6 +236,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void	ProcessMuzzleFlashEvent( void );
 	virtual int		InternalDrawModel( int flags );
+	virtual bool	ShouldDraw( void );
 
 	virtual bool	ShouldPredict();
 	virtual void	OnDataChanged( DataUpdateType_t type );
@@ -241,6 +247,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void	AddViewmodelBob( CBaseViewModel *viewmodel, Vector &origin, QAngle &angles );
 	virtual	float	CalcViewmodelBob( void );
+	virtual ShadowType_t	ShadowCastType( void );
 	virtual int		GetSkin();
 	BobState_t		*GetBobState();
 
@@ -281,6 +288,8 @@ protected:
 	float			m_flLastCritCheckTime;
 	int				m_iLastCritCheckFrame;
 	int				m_iCurrentSeed;
+
+	CNetworkVar(	float,	m_flLastFireTime );
 
 	char			m_szTracerName[MAX_TRACER_NAME];
 

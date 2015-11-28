@@ -20,7 +20,7 @@
 
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
-	#include "tf_weapon_grenade_flare.h"
+	#include "tf_projectile_flare.h"
 	#include "te.h"
 
 #else	// Client specific.
@@ -107,6 +107,8 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 
 	FireProjectile( pPlayer );
+
+	m_flLastFireTime  = gpGlobals->curtime;
 
 	// Set next attack times.
 	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
@@ -293,6 +295,48 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// Purpose: Return angles for a projectile reflected by airblast
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, Vector vecPos, QAngle *angForward, bool bHitTeammates /* = true */ )
+{
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
+
+	Vector vecShootPos = pPlayer->Weapon_ShootPosition();
+
+	// Estimate end point
+	Vector endPos = vecShootPos + vecForward * 2000;
+
+	// Trace forward and find what's in front of us, and aim at that
+	trace_t tr;
+
+	if ( bHitTeammates )
+	{
+		CTraceFilterSimple filter( pPlayer, COLLISION_GROUP_NONE );
+		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+	}
+	else
+	{
+		CTraceFilterIgnoreTeammates filter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
+		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+	}
+
+	// VecPos is projectile's current position. Use that to find angles.
+
+	// Find angles that will get us to our desired end point
+	// Only use the trace end if it wasn't too close, which results
+	// in visually bizarre forward angles
+	if ( tr.fraction > 0.1 )
+	{
+		VectorAngles( tr.endpos - vecPos, *angForward );
+	}
+	else
+	{
+		VectorAngles( endPos - vecPos, *angForward );
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return the origin & angles for a projectile fired from the player's gun
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates /* = true */ )
@@ -393,6 +437,7 @@ CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 
@@ -479,6 +524,7 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 
@@ -495,28 +541,23 @@ CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
 	PlayWeaponShootSound();
 
 #ifdef GAME_DLL
-
-	Vector vecForward, vecRight, vecUp;
-	AngleVectors(pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp);
-
-	// Create grenades here!!
-	Vector vecSrc = pPlayer->Weapon_ShootPosition();
-	vecSrc += vecForward * 16.0f + vecRight * 8.0f + vecUp * -6.0f;
-
-	Vector vecVelocity = (vecForward * GetProjectileSpeed()) + (vecUp * 200.0f) + (random->RandomFloat(-10.0f, 10.0f) * vecRight) +
-		(random->RandomFloat(-10.0f, 10.0f) * vecUp);
-
-	CTFGrenadeFlareProjectile *pProjectile = CTFGrenadeFlareProjectile::Create(vecSrc, pPlayer->EyeAngles(), vecVelocity,
-		AngularImpulse(600, random->RandomInt(-1200, 1200), 0),
-		pPlayer, GetTFWpnData());
-
-
-	if (pProjectile)
+	Vector vecSrc;
+	QAngle angForward;
+	Vector vecOffset( 23.5f, 12.0f, -3.0f );
+	if ( pPlayer->GetFlags() & FL_DUCKING )
 	{
-		pProjectile->SetCritical(IsCurrentAttackACrit());
+		vecOffset.z = 8.0f;
+	}
+	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
+
+	CTFProjectile_Flare *pProjectile = CTFProjectile_Flare::Create( vecSrc, angForward, pPlayer, pPlayer );
+	if ( pProjectile )
+	{
+		pProjectile->SetCritical( IsCurrentAttackACrit() );
+		pProjectile->SetDamage( GetProjectileDamage() );
+		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
-
 #endif
 
 	return NULL;

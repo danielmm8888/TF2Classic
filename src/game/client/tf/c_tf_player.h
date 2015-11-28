@@ -21,6 +21,7 @@
 #include "hintsystem.h"
 #include "c_playerattachedmodel.h"
 #include "iinput.h"
+#include "tf_weapon_medigun.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -28,6 +29,10 @@ class C_BaseObject;
 extern ConVar tf_medigun_autoheal;
 extern ConVar cl_autorezoom;
 extern ConVar cl_autoreload;
+
+extern ConVar tf2c_setmerccolor_r;
+extern ConVar tf2c_setmerccolor_g;
+extern ConVar tf2c_setmerccolor_b;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -160,8 +165,7 @@ public:
 
 	void			StartBurningSound( void );
 	void			StopBurningSound( void );
-	void			OnAddTeleported( void );
-	void			OnRemoveTeleported( void );
+	void			UpdateRecentlyTeleportedEffect( void );
 
 	bool			CanShowClassMenu( void );
 
@@ -173,7 +177,7 @@ public:
 
 	CUtlVector<EHANDLE>		*GetSpawnedGibs( void ) { return &m_hSpawnedGibs; }
 
-	const Vector& 	GetClassEyeHeight( void );
+	Vector 			GetClassEyeHeight( void );
 
 	void			ForceUpdateObjectHudState( void );
 
@@ -200,9 +204,11 @@ public:
 	virtual bool		Weapon_ShouldSetLast( CBaseCombatWeapon *pOldWeapon, CBaseCombatWeapon *pNewWeapon );
 	virtual	bool		Weapon_Switch( C_BaseCombatWeapon *pWeapon, int viewmodelindex = 0 );
 
+	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
-	CTFWeaponBase		*Weapon_GetWeaponByBucket( int iSlot );
+	virtual bool		Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon );
+	virtual CBaseCombatWeapon *Weapon_GetSlot( int slot ) const;
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );
@@ -247,6 +253,8 @@ private:
 
 	void OnPlayerClassChange( void );
 	void UpdatePartyHat( void );
+
+	bool CanLightCigarette( void );
 
 	void InitInvulnerableMaterial( void );
 

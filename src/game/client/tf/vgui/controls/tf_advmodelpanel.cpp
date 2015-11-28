@@ -7,6 +7,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
 
+DECLARE_BUILD_FACTORY( CTFAdvModelPanel );
+
 CTFAdvModelPanel::CTFAdvModelPanel(vgui::Panel *parent, const char *name) : CBaseModelPanel(parent, name)
 {
 	SetParent(parent);
@@ -17,6 +19,7 @@ CTFAdvModelPanel::CTFAdvModelPanel(vgui::Panel *parent, const char *name) : CBas
 	m_bAutoRotate = false;
 	m_iAnimationIndex = 0;
 	m_pStudioHdr = NULL;
+	m_pData = NULL;
 }
 
 CTFAdvModelPanel::~CTFAdvModelPanel()
@@ -40,9 +43,43 @@ void CTFAdvModelPanel::PerformLayout()
 	BaseClass::PerformLayout();
 }
 
+
+void CTFAdvModelPanel::SetModelName(const char* name, int skin)
+{
+	m_BMPResData.m_pszModelName = name;
+	m_BMPResData.m_nSkin = skin;
+}
+
+void CTFAdvModelPanel::SetParticleName(const char* name)
+{
+	m_bUseParticle = true;
+
+	if (m_pData)
+	{
+		SafeDeleteParticleData(&m_pData);
+	}
+	m_pData = CreateParticleData(name);
+
+	// We failed at creating that particle for whatever reason, bail (!)
+	if (!m_pData) return;
+
+	studiohdr_t *pStudioHdr = m_RootMDL.m_MDL.GetStudioHdr();
+	if (!pStudioHdr)
+		return;
+
+	CStudioHdr studioHdr(pStudioHdr, g_pMDLCache);
+	CUtlVector<int> vecAttachments;
+
+	m_pData->UpdateControlPoints(&studioHdr, &m_RootMDL.m_MDLToWorld, vecAttachments);
+	m_pData->m_bIsUpdateToDate = true;
+}
+
+
 void CTFAdvModelPanel::Update()
 {
-	SetMDL(m_BMPResData.m_pszModelName);
+	MDLHandle_t hSelectedMDL = g_pMDLCache->FindMDL(m_BMPResData.m_pszModelName);
+	g_pMDLCache->PreloadModel(hSelectedMDL);
+	SetMDL(hSelectedMDL);
 	//SetMergeMDL(m_BMPResData.m_aAttachModels[0].m_pszModelName);
 	if (m_iAnimationIndex < m_BMPResData.m_aAnimations.Size())
 	{
@@ -128,6 +165,33 @@ int CTFAdvModelPanel::GetNumBodyGroups( void )
 	return ::GetNumBodyGroups( &studioHdr );
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFAdvModelPanel::PostPaint3D(IMatRenderContext *pRenderContext)
+{
+	if (!m_bUseParticle)
+		return;
+
+	// This needs calling to reset various counters.
+	g_pParticleSystemMgr->SetLastSimulationTime(gpGlobals->curtime);
+
+	// Render Particles
+	pRenderContext->MatrixMode(MATERIAL_MODEL);
+	pRenderContext->PushMatrix();
+	pRenderContext->LoadIdentity();
+
+	FOR_EACH_VEC(m_particleList, i)
+	{
+		m_particleList[i]->m_pParticleSystem->Simulate(gpGlobals->frametime, false);
+		m_particleList[i]->m_pParticleSystem->Render(pRenderContext);
+		m_particleList[i]->m_bIsUpdateToDate = false;
+	}
+
+	pRenderContext->MatrixMode(MATERIAL_MODEL);
+	pRenderContext->PopMatrix();
+}
 
 /*
 void SetBodygroup(CStudioHdr *pstudiohdr, int& body, int iGroup, int iValue)

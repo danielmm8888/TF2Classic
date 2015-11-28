@@ -107,8 +107,12 @@ const char *g_aGameTypeNames[] =
 	"#Gametype_CP",
 	"#Gametype_Escort",
 	"#Gametype_Arena",
+	"#Gametype_RobotDestruction",
+	"#GameType_Passtime",
+	"#GameType_PlayerDestruction",
 	"#Gametype_MVM",
-	"#Gametype_DM"
+	"#Gametype_DM",
+	"#Gametype_VIP",
 };
 
 //-----------------------------------------------------------------------------
@@ -200,6 +204,8 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_DOUBLEBARREL",
 	"TF_WEAPON_SIXSHOOTER",
 	"TF_WEAPON_CHAINSAW",
+	"TF_WEAPON_HEAVYARTILLERY",
+	"TF_WEAPON_HAMMERFISTS",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -277,6 +283,8 @@ int g_aWeaponDamageTypes[] =
 	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_DOUBLEBARREL,
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SIXSHOOTER,
 	DMG_SLASH,		// TF_WEAPON_CHAINSAW,
+	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_HEAVYARTILLERY,
+	DMG_CLUB,		// TF_WEAPON_HAMMERFISTS,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
@@ -396,6 +404,24 @@ const char *WeaponIdToAlias( int iWeapon )
 		return NULL;
 
 	return g_aWeaponNames[iWeapon];
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Entity classnames need to be in lower case. Use this whenever
+// you're spawning a weapon.
+//-----------------------------------------------------------------------------
+const char *WeaponIdToClassname( int iWeapon )
+{
+	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
+
+	if ( pszWeaponAlias == NULL )
+		return NULL;
+
+	static char szEntName[256];
+	Q_strcpy( szEntName, pszWeaponAlias );
+	Q_strlower( szEntName );
+
+	return szEntName;
 }
 
 #ifdef GAME_DLL
@@ -558,7 +584,7 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 			(pInfo->m_Cost = pSub->GetInt( "Cost", -999 )) == -999 ||
 			(pInfo->m_CostMultiplierPerInstance = pSub->GetFloat( "CostMultiplier", -999 )) == -999 ||
 			(pInfo->m_UpgradeCost = pSub->GetInt( "UpgradeCost", -999 )) == -999 ||
-			(pInfo->m_flUpgradeDuration = pSub->GetInt( "UpgradeDuration", -999)) == -999 ||
+			(pInfo->m_flUpgradeDuration = pSub->GetFloat( "UpgradeDuration", -999)) == -999 ||
 			(pInfo->m_MaxUpgradeLevel = pSub->GetInt( "MaxUpgradeLevel", -999 )) == -999 ||
 			(pInfo->m_SelectionSlot = pSub->GetInt( "SelectionSlot", -999 )) == -999 ||
 			(pInfo->m_BuildCount = pSub->GetInt( "BuildCount", -999 )) == -999 ||
@@ -683,11 +709,30 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	return ( iClass == TF_CLASS_ENGINEER );
 }
 
-int g_iTeleporterRechargeTimes[] =
+int ConditionExpiresFast( int nCond )
 {
-	10,
-	5,
-	3
+	// Damaging conds
+	if ( nCond == TF_COND_BURNING ||
+		nCond == TF_COND_BLEEDING )
+		return true;
+
+	// Liquids
+	if ( nCond == TF_COND_URINE ||
+		nCond == TF_COND_MAD_MILK )
+		return true;
+
+	// Tranq
+	if ( nCond == TF_COND_SLOWED )
+		return true;
+
+	return false;
+}
+
+float g_flTeleporterRechargeTimes[] =
+{
+	10.0,
+	5.0,
+	3.0
 };
 
 float g_flDispenserAmmoRates[] = {

@@ -23,6 +23,9 @@ public:
 	virtual void Paint();
 	virtual void SetupLights() { }
 
+	void SetModelName(const char* name, int skin = 0);
+	void SetParticleName(const char* name);
+
 	void SetAutoRotate(bool bState) { m_bAutoRotate = bState; };
 	bool GetAutoRotate() { return m_bAutoRotate; };
 
@@ -43,8 +46,12 @@ public:
 
 private:
 	CStudioHdr* m_pStudioHdr;
+	particle_data_t *m_pData;
 	bool	m_bAutoRotate;
 	int		m_iAnimationIndex;
+
+protected:
+	virtual void PostPaint3D(IMatRenderContext *pRenderContext) OVERRIDE;
 };
 
 

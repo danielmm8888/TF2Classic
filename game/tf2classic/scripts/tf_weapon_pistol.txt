@@ -21,7 +21,8 @@ WeaponData
 	"UseRapidFireCrits"	"1"
 	"TracerEffect"		"bullet_pistol_tracer01"
 	"HasTeamSkins_Viewmodel"	"1"
-	"MaxAmmo"		"36"
+	"MaxAmmo"		"200"
+	"SpawnAmmo"		"200"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"
@@ -33,6 +34,9 @@ WeaponData
 	"bucket"		"1"
 	"bucket_position"	"0"
 
+	"bucket_DM"		"1"
+	"bucket_position_DM"	"0"
+
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_pistol_engineer.mdl"
 	//"viewmodel_dm"		"models/weapons/v_models/v_pistol_engineer.mdl" // Redundant until we add unique animations.
@@ -43,6 +47,21 @@ WeaponData
 	"MuzzleFlashModel"	"models/effects/muzzleflash/minigunmuzzle.mdl"
 	"MuzzleFlashParticleEffect" "muzzle_pistol"
 	"MuzzleflashModelScale"	".3"
+
+	"animation_replacement_DM"
+	{
+		"ACT_MP_STAND_IDLE"			"ACT_MP_STAND_SECONDARY2"
+		"ACT_MP_CROUCH_IDLE"			"ACT_MP_CROUCH_SECONDARY2"
+		"ACT_MP_RUN"				"ACT_MP_RUN_SECONDARY2"
+		"ACT_MP_AIRWALK"			"ACT_MP_AIRWALK_SECONDARY2"
+		"ACT_MP_CROUCHWALK"			"ACT_MP_CROUCHWALK_SECONDARY2"
+		"ACT_MP_JUMP_START"			"ACT_MP_JUMP_START_SECONDARY2"
+		"ACT_MP_JUMP_FLOAT"			"ACT_MP_JUMP_FLOAT_SECONDARY2"
+		"ACT_MP_JUMP_LAND"			"ACT_MP_JUMP_LAND_SECONDARY2"
+		"ACT_MP_SWIM"				"ACT_MP_SWIM_SECONDARY2"
+		"ACT_MP_ATTACK_STAND_PRIMARYFIRE"	"ACT_MP_ATTACK_STAND_SECONDARY2"
+		"ACT_MP_ATTACK_CROUCH_PRIMARYFIRE"	"ACT_MP_ATTACK_CROUCH_SECONDARY2"
+	}
 
 	// Sounds.
 	// Max of 16 per category (ie. max 16 "single_shot" sounds).

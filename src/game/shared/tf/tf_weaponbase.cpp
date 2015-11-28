@@ -29,6 +29,7 @@
 #include "effect_dispatch_data.h"
 #include "c_te_effect_dispatch.h"
 #include "toolframework_client.h"
+#include "c_env_projectedtexture.h"
 
 // for spy material proxy
 #include "proxyentity.h"
@@ -116,12 +117,14 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	RecvPropInt( RECVINFO( m_iReloadMode ) ),
 	RecvPropBool( RECVINFO( m_bResetParity ) ), 
 	RecvPropBool( RECVINFO( m_bReloadedThroughAnimEvent ) ),
+	RecvPropTime( RECVINFO( m_flLastFireTime ) ),
 // Server specific.
 #else
 	SendPropBool( SENDINFO( m_bLowered ) ),
 	SendPropBool( SENDINFO( m_bResetParity ) ),
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
+	SendPropTime( SENDINFO( m_flLastFireTime ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -130,6 +133,7 @@ BEGIN_PREDICTION_DATA( CTFWeaponBase )
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flLastFireTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 #endif
 END_PREDICTION_DATA()
 
@@ -186,6 +190,7 @@ CTFWeaponBase::CTFWeaponBase()
 	m_iLastCritCheckFrame = 0;
 	m_bCurrentAttackIsCrit = false;
 	m_iCurrentSeed = -1;
+	m_flLastFireTime = 0.0f;
 }
 
 // -----------------------------------------------------------------------------
@@ -226,8 +231,6 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		SetPickupTouch();
 }
 
 //-----------------------------------------------------------------------------
@@ -465,8 +468,15 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
-	if (pTFPlayer == NULL)
+	Activity actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
+	if ( actActivityOverride != iActivity )
+	{
+		iActivity = actActivityOverride;
+		return iActivity;
+	}
+	
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
+	if ( pTFPlayer == NULL )
 	{
 		Assert(false); // This shouldn't be possible
 		return iActivity;
@@ -489,60 +499,67 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 			for (int i = 0; i < 13; i++)
 			{
 				if (PrimaryArmActTable[i][0] == iActivity)
-					return PrimaryArmActTable[i][1];
+					iActivity = PrimaryArmActTable[i][1];
 			}
-			return iActivity;
+			break;
+
 		case TF_WPN_TYPE_SECONDARY:
 			for (int i = 0; i < 13; i++)
 			{
 				if (SecondaryArmActTable[i][0] == iActivity)
-					return SecondaryArmActTable[i][1];
+					iActivity = SecondaryArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_MELEE:
 			for (int i = 0; i < 13; i++)
 			{
 				if (MeleeArmActTable[i][0] == iActivity)
-					return MeleeArmActTable[i][1];
+					iActivity = MeleeArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_BUILDING:
 			for (int i = 0; i < 2; i++)
 			{
 				if (BuildingArmActTable[i][0] == iActivity)
-					return BuildingArmActTable[i][1];
+					iActivity = BuildingArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_PDA:
 			for (int i = 0; i < 13; i++)
 			{
 				if (PdaArmActTable[i][0] == iActivity)
-					return PdaArmActTable[i][1];
+					iActivity = PdaArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_ITEM1:
 			for (int i = 0; i < 13; i++)
 			{
 				if (Item1ArmActTable[i][0] == iActivity)
-					return Item1ArmActTable[i][1];
+					iActivity = Item1ArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		case TF_WPN_TYPE_ITEM2:
 			for (int i = 0; i < 13; i++)
 			{
 				if (Item2ArmActTable[i][0] == iActivity)
-					return Item2ArmActTable[i][1];
+					iActivity = Item2ArmActTable[i][1];
 			}
-			return iActivity;
+			break;
 
 		default:
 			return iActivity;
 	};
+
+	actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
+	if ( actActivityOverride != iActivity )
+		iActivity = actActivityOverride;
+	
+	return iActivity;
 }
 
 //-----------------------------------------------------------------------------
@@ -604,7 +621,7 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
 
-	pTemp->SetModel(vModel);
+	pTemp->SetModel( vModel );
 
 	if ( pTemp->LookupAttachment("l4d") > 0 )
 	{
@@ -653,6 +670,30 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 		return BaseClass::GetViewModel();
 	}
 }
+
+#ifdef DM_WEAPON_BUCKET
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetSlot( void ) const
+{
+	if ( TFGameRules()->IsDeathmatch() )
+		return GetTFWpnData().m_iSlotDM;
+
+	return GetWpnData().iSlot;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetPosition( void ) const
+{
+	if ( TFGameRules()->IsDeathmatch() )
+		return GetTFWpnData().m_iPositionDM;
+
+	return GetWpnData().iPosition;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -730,8 +771,6 @@ bool CTFWeaponBase::Deploy( void )
 		if (!pPlayer)
 			return false;
 
-		GetViewModel( m_nViewModelIndex );
-
 		pPlayer->SetNextAttack( m_flNextPrimaryAttack );
 	}
 
@@ -761,18 +800,7 @@ void CTFWeaponBase::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 {
-#ifdef GAME_DLL
-	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
-	int iAmmoType = m_pWeaponInfo->iAmmoType;
-
-	if ( iAmmoType != -1 )
-	{
-		pPlayer->SetAmmoCount(1,iAmmoType);
-		pPlayer->GiveAmmo(pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType);
-	}
-#endif
-
-	BaseClass::OnPickedUp(pNewOwner);
+	BaseClass::OnPickedUp( pNewOwner );
 }
 
 
@@ -810,15 +838,8 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		m_iCurrentSeed = iSeed;
 		RandomSeed( m_iCurrentSeed );
 	}
-	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber() ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if  (pPlayer->m_Shared.InCond( TF_COND_POWERUP_CRITDAMAGE ) )
+
+	if ( pPlayer->m_Shared.IsCritBoosted() )
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
@@ -836,6 +857,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
+		return false;
+
+	// Random crits are disabled in DM due to balancing reasons
+	if ( TFGameRules()->IsDeathmatch() )
 		return false;
 
 	// Don't bother checking if random crits are off.
@@ -1248,7 +1273,7 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	{
 		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( ( !m_bReloadsSingly || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
+			if ( ( ( !m_bReloadsSingly && m_bInReload ) || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
 			{
 				m_iReloadMode.Set( TF_RELOAD_START );
 				m_bInReload = false;
@@ -1718,10 +1743,10 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 		pAttachEnt->GetAttachment( iMuzzleFlashAttachment, vecOrigin, angAngles );
 
 		// Muzzleflash light
-		if (tf2c_muzzlelight.GetBool())
+		if ( tf2c_muzzlelight.GetBool() )
 		{
 			CLocalPlayerFilter filter;
-			TE_DynamicLight(filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH);
+			TE_DynamicLight( filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH );
 		}
 		
 		if ( pszMuzzleFlashEffect )
@@ -1790,6 +1815,21 @@ int	CTFWeaponBase::InternalDrawModel( int flags )
 	}
 
 	return ret;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
+bool CTFWeaponBase::ShouldDraw( void )
+{
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		if ( pOwner->m_Shared.IsLoser() )
+			return false;
+	}
+
+	return BaseClass::ShouldDraw();
 }
 
 void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
@@ -1894,7 +1934,8 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 	if ( pOwner && pOwner->IsAlive() == true )
 	{
 		//And he is NOT taunting
-		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false )
+		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false &&
+			pOwner->m_Shared.IsLoser() == false )
 		{
 			//Then why the hell am I NODRAW?
 			if ( pOwner->GetActiveWeapon() == this && IsEffectActive( EF_NODRAW ) )
@@ -1971,6 +2012,7 @@ acttable_t CTFWeaponBase::m_acttablePrimary[] =
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_PRIMARY,				false },
 	{ ACT_MP_DEPLOYED,			ACT_MP_DEPLOYED_PRIMARY,			false },
 	{ ACT_MP_SWIM_DEPLOYED,		ACT_MP_SWIM_DEPLOYED_PRIMARY,		false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_PRIMARY,   false },
 	//{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_PRIMARY, false },
 	//{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_PRIMARY, false },
 
@@ -2029,6 +2071,7 @@ acttable_t CTFWeaponBase::m_acttableSecondary[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_SECONDARY,		false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_SECONDARY,			false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_SECONDARY,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_SECONDARY, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_SECONDARY,		false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_SECONDARY,		false },
@@ -2083,6 +2126,7 @@ acttable_t CTFWeaponBase::m_acttableMelee[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_MELEE,		false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_MELEE,			false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_MELEE,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_MELEE, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_MELEE,		false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_MELEE,		false },
@@ -2111,37 +2155,38 @@ acttable_t CTFWeaponBase::m_acttableMelee[] =
 	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_MELEE,	false },
 };
 
-acttable_t CTFWeaponBase::m_acttableBuilding[] = 
+acttable_t CTFWeaponBase::m_acttableBuilding[] =
 {
-	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_BUILDING,			false },
-	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_BUILDING,			false },
-	{ ACT_MP_RUN,				ACT_MP_RUN_BUILDING,			false },
-	{ ACT_MP_WALK,				ACT_MP_WALK_BUILDING,			false },
-	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_BUILDING,		false },
-	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_BUILDING,		false },
-	{ ACT_MP_JUMP,				ACT_MP_JUMP_BUILDING,			false },
-	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_BUILDING,		false },
-	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_BUILDING,		false },
-	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_BUILDING,		false },
-	{ ACT_MP_SWIM,				ACT_MP_SWIM_BUILDING,			false },
+	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_BUILDING, false },
+	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_BUILDING, false },
+	{ ACT_MP_RUN, ACT_MP_RUN_BUILDING, false },
+	{ ACT_MP_WALK, ACT_MP_WALK_BUILDING, false },
+	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_BUILDING, false },
+	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_BUILDING, false },
+	{ ACT_MP_JUMP, ACT_MP_JUMP_BUILDING, false },
+	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_BUILDING, false },
+	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_BUILDING, false },
+	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_BUILDING, false },
+	{ ACT_MP_SWIM, ACT_MP_SWIM_BUILDING, false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_BUILDING,		false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_BUILDING,		false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_BUILDING,		false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_BUILDING,	false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_BUILDING, false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_BUILDING, false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_BUILDING, false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE, ACT_MP_ATTACK_AIRWALK_BUILDING, false },
 
-	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
+	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_BUILDING,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH, ACT_MP_GESTURE_VC_HANDMOUTH_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT, ACT_MP_GESTURE_VC_FINGERPOINT_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP, ACT_MP_GESTURE_VC_FISTPUMP_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP, ACT_MP_GESTURE_VC_THUMBSUP_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_NODYES, ACT_MP_GESTURE_VC_NODYES_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_NODNO, ACT_MP_GESTURE_VC_NODNO_BUILDING, false },
 };
+
 
 acttable_t CTFWeaponBase::m_acttablePDA[] = 
 {
@@ -2181,6 +2226,7 @@ acttable_t CTFWeaponBase::m_acttableItem1[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_ITEM1,	false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_ITEM1,		false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_ITEM1,			false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_ITEM1, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_ITEM1, false },
 	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE, ACT_MP_ATTACK_STAND_ITEM1_SECONDARY, false },
@@ -2220,17 +2266,18 @@ acttable_t CTFWeaponBase::m_acttableItem1[] =
 
 acttable_t CTFWeaponBase::m_acttableItem2[] =
 {
-	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_ITEM2, false },
-	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_ITEM2, false },
-	{ ACT_MP_RUN, ACT_MP_RUN_ITEM2, false },
-	{ ACT_MP_WALK, ACT_MP_WALK_ITEM2, false },
-	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_ITEM2, false },
-	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_ITEM2, false },
-	{ ACT_MP_JUMP,	ACT_MP_JUMP_ITEM2, false },
-	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_ITEM2, false },
-	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_ITEM2, false },
-	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_ITEM2, false },
-	{ ACT_MP_SWIM, ACT_MP_SWIM_ITEM2, false },
+	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_ITEM2,				false },
+	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_ITEM2,			false },
+	{ ACT_MP_RUN,				ACT_MP_RUN_ITEM2,				false },
+	{ ACT_MP_WALK,				ACT_MP_WALK_ITEM2,				false },
+	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_ITEM2,			false },
+	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_ITEM2,		false },
+	{ ACT_MP_JUMP,				ACT_MP_JUMP_ITEM2,				false },
+	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_ITEM2,		false },
+	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_ITEM2,		false },
+	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_ITEM2,			false },
+	{ ACT_MP_SWIM,				ACT_MP_SWIM_ITEM2,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_ITEM2, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_ITEM2, false },
 	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE, ACT_MP_ATTACK_STAND_ITEM2_SECONDARY, false },
@@ -2384,7 +2431,7 @@ C_BaseEntity *CTFWeaponBase::GetWeaponForEffect()
 	}
 #endif
 
-	if ( pLocalPlayer == GetTFPlayerOwner() )
+	if ( pLocalPlayer == GetTFPlayerOwner() && !C_BasePlayer::ShouldDrawLocalPlayer() )
 		return pLocalPlayer->GetViewModel();
 
 	return this;
@@ -2627,6 +2674,17 @@ int CTFWeaponBase::GetSkin()
 	}
 
 	return nSkin;
+}
+
+//-----------------------------------------------------------------------------
+// Should this object cast shadows?
+//-----------------------------------------------------------------------------
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) || m_iState != WEAPON_IS_ACTIVE )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
 }
 
 bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options )

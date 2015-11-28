@@ -251,7 +251,9 @@ bool ClientModeTFNormal::ShouldDrawViewModel()
 //-----------------------------------------------------------------------------
 bool ClientModeTFNormal::DoPostScreenSpaceEffects( const CViewSetup *pSetup )
 {
-	g_GlowObjectManager.RenderGlowEffects( pSetup, 0 );
+	if ( !IsInFreezeCam() )
+		g_GlowObjectManager.RenderGlowEffects( pSetup, 0 );
+
 	return BaseClass::DoPostScreenSpaceEffects( pSetup );
 }
 

@@ -180,16 +180,19 @@ public:
 //-----------------------------------------------------------------------------
 CBaseObject::CBaseObject()
 {
-	m_iHealth = m_iMaxHealth = m_flHealth = 0;
+	m_iHealth = m_iMaxHealth = m_flHealth = m_iGoalHealth = 0;
 	m_flPercentageConstructed = 0;
 	m_bPlacing = false;
 	m_bBuilding = false;
+	m_bCarried = false;
+	m_bCarryDeploy = false;
 	m_Activity = ACT_INVALID;
 	m_bDisabled = false;
 	m_SolidToPlayers = SOLID_TO_PLAYER_USE_DEFAULT;
 	m_bPlacementOK = false;
 	m_aGibs.Purge();
 	m_iObjectMode = 0;
+	m_iDefaultUpgrade = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -271,12 +274,22 @@ bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 		return false;
 	}
 
+	if ( IsPlacing() )
+	{
+		return false;
+	}
+
 	if ( IsBuilding() )
 	{
 		return false;
 	}
 
 	if ( IsUpgrading() )
+	{
+		return false;
+	}
+
+	if ( IsRedeploying() )
 	{
 		return false;
 	}
@@ -355,6 +368,7 @@ void CBaseObject::Spawn( void )
 	m_iKills = 0;
 
 	m_iUpgradeLevel = 1;
+	m_iGoalUpgradeLevel = 1;
 	m_iUpgradeMetal = 0;
 
 	m_iUpgradeMetalRequired = GetObjectInfo( ObjectType() )->m_UpgradeCost;
@@ -383,6 +397,52 @@ void CBaseObject::Spawn( void )
 
 	// assume valid placement
 	m_bServerOverridePlacement = true;
+}
+
+void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	if ( pPlayer )
+	{
+		m_bCarried = true;
+		m_bCarryDeploy = false;
+		DestroyScreens();
+		//FollowEntity( pPlayer, true );
+
+		// Save health amount building had before getting picked up. It will only heal back up to it.
+		m_iGoalHealth = GetHealth();
+
+		// Reset upgrade level. Building will automatically upgrade back once re-deployed.
+		m_iUpgradeLevel = 1;
+
+		SetModel( GetPlacementModel() );
+
+		pPlayer->m_Shared.SetCarriedObject( this );
+
+		//AddEffects( EF_NODRAW );
+		// StartPlacement already does this but better safe than sorry.
+		AddSolidFlags( FSOLID_NOT_SOLID );
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
+		if ( event )
+		{
+			event->SetInt( "userid", pPlayer->GetUserID() );
+			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
+			gameeventmanager->FireEvent( event, true );	// don't send to clients
+		}
+	}
+
+}
+
+void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	m_bCarried = false;
+	m_bCarryDeploy = true;
+
+	if ( pPlayer )
+		pPlayer->m_Shared.SetCarriedObject( NULL );
+
+	//StopFollowingEntity();
 }
 
 //-----------------------------------------------------------------------------
@@ -556,6 +616,20 @@ void CBaseObject::BaseObjectThink( void )
 		UpgradeThink();
 		return;
 	}
+
+	if ( m_bCarryDeploy )
+	{
+		if ( m_iUpgradeLevel < m_iGoalUpgradeLevel )
+		{
+			// Keep upgrading until we hit our previous upgrade level.
+			StartUpgrading();
+		}
+		else
+		{
+			// Finished.
+			m_bCarryDeploy = false;
+		}
+	}
 }
 
 bool CBaseObject::UpdateAttachmentPlacement( void )
@@ -691,106 +765,32 @@ void CBaseObject::StartUpgrading(void)
 {
 	// Increase level
 	m_iUpgradeLevel++;
+	m_iGoalUpgradeLevel = max( m_iUpgradeLevel, m_iGoalUpgradeLevel );
 
 	// more health
-	int iMaxHealth = GetMaxHealth();
-	SetMaxHealth( iMaxHealth * 1.2 );
-	SetHealth( iMaxHealth * 1.2 );
-
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
-
-	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType())->m_flUpgradeDuration;
-
-	RemoveAllGestures();
-}
-
-void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
+	if ( !IsRedeploying() )
 	{
-		m_bCarried = true;
-		DestroyScreens();
-		FollowEntity( pPlayer, true );
-
-		SetModel( GetPlacementModel() );
-
-		pPlayer->m_Shared.SetCarriedObject( this );
-
-		AddEffects( EF_NODRAW );
-		AddEFlags( FSOLID_NOT_SOLID );
-
-		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
-		if (event)
-		{
-			event->SetInt( "userid", pPlayer->GetUserID() );
-			event->SetInt( "object", ObjectType() );
-			event->SetInt( "index", entindex() );	// object entity index
-			gameeventmanager->FireEvent(event, true);	// don't send to clients
-		}
+		int iMaxHealth = GetMaxHealth();
+		SetMaxHealth( iMaxHealth * 1.2 );
+		SetHealth( iMaxHealth * 1.2 );
 	}
 
-}
-
-void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
-		pPlayer->m_Shared.SetCarriedObject( NULL );
-
-	StopFollowingEntity();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Start building the object
-//-----------------------------------------------------------------------------
-bool CBaseObject::RedeployBuilding( CTFPlayer *pBuilder )
-{
-	DropCarriedObject( pBuilder );
-	((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
-	
-	m_bCarryDeploy = true;
-	m_bCarried = false;
-	m_flPercentageConstructed = 0;
-
-	m_nRenderMode = kRenderNormal; 
-	RemoveSolidFlags( FSOLID_NOT_SOLID );
-	RemoveEffects( EF_NODRAW );
-
-	// NOTE: We must spawn the control panels now, instead of during
-	// Spawn, because until placement is started, we don't actually know
-	// the position of the control panel because we don't know what it's
-	// been attached to (could be a vehicle which supplies a different
-	// place for the control panel)
-	// NOTE: We must also spawn it before FinishedBuilding can be called
-	SpawnControlPanels();
-
-	// Tell the object we've been built on that we exist
-	if ( IsBuiltOnAttachment() )
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
 	{
-		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>((CBaseEntity*)m_hBuiltOnEntity.Get());
-		Assert( pBPInterface );
-		pBPInterface->SetObjectOnBuildPoint( m_iBuiltOnPoint, this );
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
 	}
 
-	// Start the build animations
-	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
-
-	m_vecBuildOrigin = GetAbsOrigin();
-
-	int contents = UTIL_PointContents( m_vecBuildOrigin );
-	if ( contents & MASK_WATER )
-	{
-		SetWaterLevel( 3 );
-	}
-
-	// instantly play the build anim
-	DetermineAnimation();
-
-	return true;
+	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType() )->m_flUpgradeDuration;
 }
 
 void CBaseObject::FinishUpgrading( void )
 {
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
+	{
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -897,7 +897,7 @@ float CBaseObject::GetTotalTime( void )
 {
 	float flBuildTime = GetObjectInfo( ObjectType() )->m_flBuildTime;
 
-	if (tf_fastbuild.GetInt())
+	if ( tf_fastbuild.GetInt() )
 		return ( min( 2.f, flBuildTime ) );
 
 	return flBuildTime;
@@ -1322,7 +1322,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	CTFTeam *pTFTeam = ( CTFTeam * )GetGlobalTeam( GetTeamNumber() );
 
 	// Deduct the cost from the player
-	if ( pBuilder && pBuilder->IsPlayer() )
+	if ( !IsRedeploying() && pBuilder && pBuilder->IsPlayer() )
 	{
 		/*
 		if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
@@ -1342,17 +1342,26 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 
 		((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
 	}
+
+	if ( IsRedeploying() )
+	{
+		( (CTFPlayer*)pBuilder )->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
+	}
 	
 	// Add this object to the team's list (because we couldn't add it during
 	// placement mode)
-	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
+	if ( !IsRedeploying() && pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
 	{
 		pTFTeam->AddObject( this );
 	}
 
 	m_bPlacing = false;
 	m_bBuilding = true;
-	SetHealth( OBJECT_CONSTRUCTION_STARTINGHEALTH );
+
+	if ( !IsRedeploying() )
+	{
+		SetHealth( OBJECT_CONSTRUCTION_STARTINGHEALTH );
+	}
 	m_flPercentageConstructed = 0;
 
 	m_nRenderMode = kRenderNormal; 
@@ -1377,7 +1386,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	// Start the build animations
 	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
 
-	if ( pBuilder && pBuilder->IsPlayer() )
+	if ( !IsRedeploying() && pBuilder && pBuilder->IsPlayer() )
 	{
 		CTFPlayer *pTFBuilder = ToTFPlayer( pBuilder );
 		pTFBuilder->FinishedObject( this );
@@ -1841,7 +1850,9 @@ bool CBaseObject::Repair( float flHealth )
 		m_flPercentageConstructed = clamp( m_flPercentageConstructed, 0.0f, 1.0f );
 
 		// Increase health.
-		SetHealth( min( GetMaxHealth(), m_flHealth + flHealth ) );
+		// Only regenerate up to previous health while re-deploying.
+		int iMaxHealth = IsRedeploying() ? m_iGoalHealth : GetMaxHealth();
+		SetHealth( min( iMaxHealth, m_flHealth + flHealth ) );
 
 		// Return true if we're constructed now
 		if ( m_flConstructionTimeLeft <= 0.0f )
@@ -1895,7 +1906,11 @@ void CBaseObject::OnConstructionHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vec
 
 float CBaseObject::GetConstructionMultiplier( void )
 {
-	float flMultiplier = 1.5;
+	float flMultiplier = 1.0f;
+
+	// Re-deploy twice as fast.
+	if ( IsRedeploying() )
+		flMultiplier *= 2.0f;
 
 	// expire all the old 
 	int i = m_RepairerList.LastInorder();
@@ -1910,7 +1925,7 @@ float CBaseObject::GetConstructionMultiplier( void )
 		else
 		{
 			// Each player hitting it builds twice as fast
-			flMultiplier += 2.5;
+			flMultiplier *= 2.0;
 		}
 	}
 
@@ -2302,10 +2317,6 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector
 				}
 			}
 		}
-	}
-	else if ( IsUpgrading() )
-	{
-		bDidWork = false;
 	}
 	else if ( IsBuilding() )
 	{

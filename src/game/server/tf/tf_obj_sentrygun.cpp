@@ -178,8 +178,31 @@ void CObjectSentrygun::Spawn()
 	SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime + SENTRY_THINK_DELAY, SENTRYGUN_CONTEXT );
 }
 
+void CObjectSentrygun::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	// Stop thinking.
+	m_iState.Set( SENTRY_STATE_INACTIVE );
+
+	// Clear enemy.
+	m_hEnemy = NULL;
+
+	// Reset upgrade values.
+	m_iMaxAmmoShells = SENTRYGUN_MAX_SHELLS_1;
+	m_flHeavyBulletResist = SENTRYGUN_MINIGUN_RESIST_LVL_1;
+	SetViewOffset( SENTRYGUN_EYE_OFFSET_LEVEL_1 );
+
+	BaseClass::MakeCarriedObject( pPlayer );
+}
+
 void CObjectSentrygun::SentryThink( void )
 {
+	// Don't think while re-deploying so we don't target anything inbetween upgrades.
+	if ( IsRedeploying() )
+	{
+		SetContextThink( &CObjectSentrygun::SentryThink, gpGlobals->curtime + SENTRY_THINK_DELAY, SENTRYGUN_CONTEXT );
+		return;
+	}
+
 	switch( m_iState )
 	{
 	case SENTRY_STATE_INACTIVE:
@@ -380,6 +403,11 @@ void CObjectSentrygun::StartUpgrading( void )
 	m_iAmmoShells = m_iMaxAmmoShells;
 
 	m_iState.Set( SENTRY_STATE_UPGRADING );
+
+	// Start upgrade anim instantly
+	DetermineAnimation();
+
+	RemoveAllGestures();
 }
 
 void CObjectSentrygun::FinishUpgrading( void )

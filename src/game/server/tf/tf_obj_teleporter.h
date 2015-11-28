@@ -50,7 +50,7 @@ public:
 	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 	virtual void TeleporterSend( CTFPlayer *pPlayer );
 
-	CObjectTeleporter *CopyUpgradeStateToMatch( CObjectTeleporter *pObjToCopyTo, bool bCopyTo );
+	void CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom );
 
 	CObjectTeleporter *GetMatchingTeleporter( void );
 	CObjectTeleporter *FindMatch( void );	// Find the teleport partner to this object
@@ -77,6 +77,8 @@ public:
 	virtual int GetBaseHealth( void );
 	virtual int	GetMaxUpgradeLevel( void );
 	virtual char *GetPlacementModel( void );
+
+	virtual void	MakeCarriedObject( CTFPlayer *pPlayer );
 
 protected:
 	CNetworkVar( int, m_iState );

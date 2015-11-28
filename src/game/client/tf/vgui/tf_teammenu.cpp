@@ -308,6 +308,7 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 
 	if ( !C_TFPlayer::GetLocalTFPlayer() )
 		return;
+
 	if ( !gameuifuncs || !gViewPortInterface || !engine )
 		return;
 
@@ -315,11 +316,11 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 	{
 		if (TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSELECT, true);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSELECT, true );
 		}
 		else if (TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHTEAMSELECT, true);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHTEAMSELECT, true );
 		}
 		else
 		{
@@ -955,8 +956,8 @@ void CTFFourTeamMenu::OnKeyCodePressed(KeyCode code)
 	}
 	else if (m_iScoreBoardKey != BUTTON_CODE_INVALID && m_iScoreBoardKey == code)
 	{
-		gViewPortInterface->ShowPanel(PANEL_SCOREBOARD, true);
-		gViewPortInterface->PostMessageToPanel(PANEL_SCOREBOARD, new KeyValues("PollHideCode", "code", code));
+		gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, true );
+		gViewPortInterface->PostMessageToPanel( PANEL_FOURTEAMSCOREBOARD, new KeyValues( "PollHideCode", "code", code ) );
 	}
 	else
 	{
@@ -1163,12 +1164,13 @@ void CTFDeathmatchTeamMenu::ApplySchemeSettings(IScheme *pScheme)
 //-----------------------------------------------------------------------------
 void CTFDeathmatchTeamMenu::ShowPanel(bool bShow)
 {
-	if (BaseClass::IsVisible() == bShow)
+	if ( BaseClass::IsVisible() == bShow )
 		return;
 
-	if (!C_TFPlayer::GetLocalTFPlayer())
+	if ( !C_TFPlayer::GetLocalTFPlayer() )
 		return;
-	if (!gameuifuncs || !gViewPortInterface || !engine)
+
+	if ( !gameuifuncs || !gViewPortInterface || !engine )
 		return;
 
 	if (bShow)
@@ -1332,8 +1334,8 @@ void CTFDeathmatchTeamMenu::OnKeyCodePressed(KeyCode code)
 	}
 	else if (m_iScoreBoardKey != BUTTON_CODE_INVALID && m_iScoreBoardKey == code)
 	{
-		gViewPortInterface->ShowPanel(PANEL_SCOREBOARD, true);
-		gViewPortInterface->PostMessageToPanel(PANEL_SCOREBOARD, new KeyValues("PollHideCode", "code", code));
+		gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, true );
+		gViewPortInterface->PostMessageToPanel( PANEL_DEATHMATCHSCOREBOARD, new KeyValues("PollHideCode", "code", code) );
 	}
 	else
 	{

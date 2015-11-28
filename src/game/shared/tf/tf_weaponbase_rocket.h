@@ -48,6 +48,9 @@ public:
 	void	Precache( void );
 	void	Spawn( void );
 
+	CNetworkVar( int, m_iDeflected );
+	CNetworkHandle( CBaseEntity, m_hLauncher );
+
 protected:
 
 	// Networked.
@@ -81,7 +84,7 @@ public:
 	static CTFBaseRocket *Create( const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
 
 	virtual void	RocketTouch( CBaseEntity *pOther );
-	void			Explode( trace_t *pTrace, CBaseEntity *pOther );
+	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
 
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual int		GetDamageType() { return g_aWeaponDamageTypes[ GetWeaponID() ]; }
@@ -99,6 +102,9 @@ public:
 
 	void			SetHomingTarget( CBaseEntity *pHomingTarget );
 
+	virtual void	IncremenentDeflected( void );
+	virtual void	SetLauncher( CBaseEntity *pLauncher );
+
 protected:
 
 	void			FlyThink( void );
@@ -110,7 +116,6 @@ protected:
 
 	float					m_flCollideWithTeammatesTime;
 	bool					m_bCollideWithTeammates;
-
 
 	CHandle<CBaseEntity>	m_hEnemy;
 

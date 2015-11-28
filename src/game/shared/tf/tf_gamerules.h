@@ -79,7 +79,10 @@ public:
 	void	InputAddRedTeamScore(inputdata_t &inputdata);
 	void	InputAddBlueTeamScore(inputdata_t &inputdata);
 	void	InputAddGreenTeamScore(inputdata_t &inputdata);
-	void	InputAddYellowTeamScore(inputdata_t &inputdata);	
+	void	InputAddYellowTeamScore(inputdata_t &inputdata);
+
+	void	InputSetRedKothClockActive(inputdata_t &inputdata);
+	void	InputSetBlueKothClockActive(inputdata_t &inputdata);
 
 	virtual void Activate();
 
@@ -134,11 +137,10 @@ public:
 
 	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
 
-#ifdef GAME_DLL
-	virtual void BalanceTeams( bool bRequireSwitcheesToBeDead );
-#endif
+	virtual bool	ShouldBalanceTeams( void );
 
-	virtual bool ShouldBalanceTeams( void );
+	CTeamRoundTimer* GetBlueKothRoundTimer( void ) { return m_hBlueKothTimer.Get(); }
+	CTeamRoundTimer* GetRedKothRoundTimer( void ) { return m_hRedKothTimer.Get(); }
 
 #ifdef GAME_DLL
 public:
@@ -182,9 +184,16 @@ public:
 
 	virtual bool	TimerMayExpire( void );
 
+	void			HandleCTFCaptureBonus( int iTeam );
+
+	virtual void	Arena_NotifyTeamSizeChange( void );
+	virtual int		Arena_PlayersNeededForMatch( void );
+	virtual void	Arena_ResetLosersScore( bool bUnknown );
+	virtual void	Arena_RunTeamLogic( void );
+
 	virtual void	Activate();
 
-	virtual void	SetHudType(int iHudType){ m_iHudType = iHudType; };
+	virtual void	SetHudType(int iHudType){ m_nHudType = iHudType; };
 
 	virtual bool	AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
@@ -203,6 +212,9 @@ public:
 
 	virtual int		PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget);
 
+	void			SetBlueKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hBlueKothTimer.Set( pTimer ); }
+	void			SetRedKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hRedKothTimer.Set( pTimer ); }
+
 protected:
 	virtual void	InitTeams( void );
 
@@ -212,10 +224,10 @@ protected:
 	
 	static int		PlayerRoundScoreSortFunc( const PlayerRoundScore_t *pRoundScore1, const PlayerRoundScore_t *pRoundScore2 );
 
-	virtual void FillOutTeamplayRoundWinEvent( IGameEvent *event );
+	virtual void	FillOutTeamplayRoundWinEvent( IGameEvent *event );
 
-	virtual bool CanChangelevelBecauseOfTimeLimit( void );
-	virtual bool CanGoToStalemate( void );
+	virtual bool	CanChangelevelBecauseOfTimeLimit( void );
+	virtual bool	CanGoToStalemate( void );
 #endif // GAME_DLL
 
 public:
@@ -241,9 +253,9 @@ public:
 
 	const char *GetTeamGoalString( int iTeam );
 
-	virtual int		GetHudType(void){ return m_iHudType; };
+	virtual int		GetHudType( void ){ return m_nHudType; };
 
-	virtual bool	IsMultiplayer(void){ return true; };
+	virtual bool	IsMultiplayer( void ){ return true; };
 
 	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
 
@@ -251,9 +263,10 @@ public:
 	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
 	virtual bool    IsMannVsMachineMode( void ) { return false; };
 	virtual bool	IsInArenaMode( void ) { return m_nGameType == TF_GAMETYPE_ARENA; }
-	virtual bool    IsHalloweenScenario(int iEventType) { return false; };
+	virtual bool	IsInKothMode( void ) { return m_bPlayingKoth; }
+	virtual bool    IsHalloweenScenario( int iEventType ) { return false; };
 	virtual bool	IsPVEModeActive( void ) { return false; };
-	virtual bool	IsCompetitiveMode( void ){ return false; };
+	virtual bool	IsCompetitiveMode( void ){ return m_bCompetitiveMode; };
 
 #ifdef CLIENT_DLL
 
@@ -360,6 +373,8 @@ private:
 	int m_iCurrentRoundState;
 	int m_iCurrentMiniRoundMask;
 
+	bool m_bFirstBlood;
+	int	m_iArenaTeamCount;
 #endif
 
 	CNetworkVar( int, m_nGameType ); // Type of game this map is (CTF, CP)
@@ -367,6 +382,18 @@ private:
 	CNetworkString( m_pszTeamGoalStringBlue, MAX_TEAMGOAL_STRING );
 	CNetworkString( m_pszTeamGoalStringGreen, MAX_TEAMGOAL_STRING );
 	CNetworkString( m_pszTeamGoalStringYellow, MAX_TEAMGOAL_STRING );
+	CNetworkVar( float, m_flCapturePointEnableTime );
+	CNetworkVar( int, m_nHudType );
+	CNetworkVar( bool, m_bPlayingKoth );
+	CNetworkVar( bool, m_bPlayingMedieval );
+	CNetworkVar( bool, m_bPlayingHybrid_CTF_CP );
+	CNetworkVar( bool, m_bPlayingSpecialDeliveryMode );
+	CNetworkVar( bool, m_bPlayingRobotDestructionMode );
+	CNetworkVar( bool, m_bPlayingMannVsMachine );
+	CNetworkVar( bool, m_bCompetitiveMode );
+	CNetworkVar( bool, m_bPowerupMode );
+	CNetworkVar( CHandle<CTeamRoundTimer>, m_hBlueKothTimer );
+	CNetworkVar( CHandle<CTeamRoundTimer>, m_hRedKothTimer );
 
 public:
 
@@ -374,7 +401,6 @@ public:
 	int	 m_iPreviousRoundWinners;
 
 	int		m_iBirthdayMode;
-	int		m_iHudType;
 
 	CNetworkVar( bool, m_bFourTeamMode );
 };

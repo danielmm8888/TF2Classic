@@ -45,13 +45,13 @@ using namespace vgui;
 //-----------------------------------------------------------------------------
 CTFHudDeathMatchObjectives::CTFHudDeathMatchObjectives( Panel *parent, const char *name ) : EditablePanel( parent, name )
 {
+	m_flNextThink = 0.0f;
+
 	vgui::ivgui()->AddTickSignal( GetVPanel(), 500 );
 
 	ListenForGameEvent( "player_death" );
-	ListenForGameEvent("teamplay_setup_finished");
-	ListenForGameEvent("teamplay_update_timer");
-
-	bUpdate = false;
+	ListenForGameEvent( "teamplay_setup_finished" );
+	ListenForGameEvent( "teamplay_update_timer" );
 }
 
 //-----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void CTFHudDeathMatchObjectives::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CTFHudDeathMatchObjectives::Reset()
 {
-	
+	m_flNextThink = gpGlobals->curtime + 0.05;
 }
 
 //-----------------------------------------------------------------------------
@@ -98,12 +98,12 @@ void CTFHudDeathMatchObjectives::SetPlayingToLabelVisible( bool bVisible )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFHudDeathMatchObjectives::OnTick()
+void CTFHudDeathMatchObjectives::OnThink( void )
 {
-	if (bUpdate)
+	if ( IsVisible() && m_flNextThink < gpGlobals->curtime )
 	{
 		UpdateStatus();
-		bUpdate = false;
+		m_flNextThink = gpGlobals->curtime + 0.5;
 	}
 }
 
@@ -181,8 +181,8 @@ void CTFHudDeathMatchObjectives::UpdateStatus( void )
 //-----------------------------------------------------------------------------
 void CTFHudDeathMatchObjectives::FireGameEvent(IGameEvent *event)
 {
-	if (IsVisible())
+	if ( IsVisible() )
 	{
-		bUpdate = true;
+		m_flNextThink = gpGlobals->curtime;
 	}
 }

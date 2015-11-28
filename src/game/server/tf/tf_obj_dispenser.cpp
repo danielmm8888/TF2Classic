@@ -184,6 +184,42 @@ void CObjectDispenser::Spawn()
 	BaseClass::Spawn();
 }
 
+void CObjectDispenser::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	StopSound( "Building_Dispenser.Idle" );
+
+	// Remove our healing trigger.
+	if ( m_hTouchTrigger.Get() )
+	{
+		UTIL_Remove( m_hTouchTrigger );
+		m_hTouchTrigger = NULL;
+	}
+
+	// Stop healing everyone.
+	for ( int i = m_hTouchingEntities.Count() - 1; i >= 0; i-- )
+	{
+		EHANDLE hEnt = m_hTouchingEntities[i];
+
+		CBaseEntity *pOther = hEnt.Get();
+
+		if ( pOther )
+		{
+			EndTouch( pOther );
+		}
+	}
+
+	// Stop all thinking, we'll resume it once we get re-deployed.
+	SetContextThink( NULL, 0, DISPENSE_CONTEXT );
+	SetContextThink( NULL, 0, REFILL_CONTEXT );
+
+	BaseClass::MakeCarriedObject( pPlayer );
+}
+
+void CObjectDispenser::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	BaseClass::DropCarriedObject( pPlayer );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Start building the object
 //-----------------------------------------------------------------------------
@@ -217,8 +253,11 @@ void CObjectDispenser::OnGoActive( void )
 	*/
 	SetModel( DISPENSER_MODEL_LEVEL_1 );
 
-	// Put some ammo in the Dispenser
-	m_iAmmoMetal = 25;
+	if ( !m_bCarryDeploy )
+	{
+		// Put some ammo in the Dispenser
+		m_iAmmoMetal = 25;
+	}
 
 	// Begin thinking
 	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 3, REFILL_CONTEXT );
@@ -416,7 +455,7 @@ void CObjectDispenser::StartUpgrading( void )
 
 	BaseClass::StartUpgrading();
 
-	switch( GetUpgradeLevel() + 1 )
+	switch( GetUpgradeLevel() )
 	{
 	case 1:
 		SetModel( DISPENSER_MODEL_LEVEL_1_UPGRADE );
@@ -433,6 +472,9 @@ void CObjectDispenser::StartUpgrading( void )
 	}
 
 	m_bIsUpgrading = true;
+
+	// Start upgrade anim instantly
+	DetermineAnimation();
 }
 
 void CObjectDispenser::FinishUpgrading( void )
@@ -455,9 +497,9 @@ void CObjectDispenser::FinishUpgrading( void )
 
 	m_bIsUpgrading = false;
 
-	BaseClass::FinishUpgrading();
-
 	SetActivity( ACT_RESET );
+
+	BaseClass::FinishUpgrading();
 }
 
 bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
@@ -506,19 +548,21 @@ float CObjectDispenser::GetHealRate( void )
 
 void CObjectDispenser::RefillThink( void )
 {
-	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
-
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
+		// Hit a refill time while disabled, so do the next refill ASAP.
+		SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 0.1, REFILL_CONTEXT );
 		return;
 	}
 
 	// Auto-refill half the amount as tfc, but twice as often
 	if ( m_iAmmoMetal < DISPENSER_MAX_METAL_AMMO )
 	{
-		m_iAmmoMetal = min( m_iAmmoMetal + DISPENSER_MAX_METAL_AMMO * 0.1, DISPENSER_MAX_METAL_AMMO );
+		m_iAmmoMetal = min( m_iAmmoMetal + DISPENSER_MAX_METAL_AMMO * ( 0.1 + 0.025 * ( GetUpgradeLevel() - 1 ) ), DISPENSER_MAX_METAL_AMMO );
 		EmitSound( "Building_Dispenser.GenerateMetal" );
 	}
+
+	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
@@ -526,7 +570,7 @@ void CObjectDispenser::RefillThink( void )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::DispenseThink( void )
 {
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
 		// Don't heal or dispense ammo
 		SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
