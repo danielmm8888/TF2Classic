@@ -2111,7 +2111,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 {
-	if (GetNextChangeClassTime() > gpGlobals->curtime)
+	if ( GetNextChangeClassTime() > gpGlobals->curtime )
 		return;
 
 	// can only join a class after you join a valid team
@@ -2148,7 +2148,9 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 		// Allow players to join the mercenary and civilian class if the cvar is enabled
 		int iLastClass = tf2c_allow_special_classes.GetBool() ? TF_CLASS_COUNT : TF_LAST_NORMAL_CLASS;
 
-		for ( int i = TF_FIRST_NORMAL_CLASS; i <= iLastClass; i++ )
+		int i = 0;
+
+		for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; i++ )
 		{
 			if ( stricmp( pClassName, GetPlayerClassData( i )->m_szClassName ) == 0 )
 			{
@@ -2157,7 +2159,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 			}
 		}
 		
-		if ( iClass > iLastClass )
+		if ( i > iLastClass )
 		{
 			ClientPrint( this, HUD_PRINTCONSOLE, UTIL_VarArgs( "Invalid class name \"%s\".\n", pClassName ) );
 			return;

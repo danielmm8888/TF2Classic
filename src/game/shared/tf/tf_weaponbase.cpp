@@ -2431,7 +2431,7 @@ C_BaseEntity *CTFWeaponBase::GetWeaponForEffect()
 	}
 #endif
 
-	if ( pLocalPlayer == GetTFPlayerOwner() )
+	if ( pLocalPlayer == GetTFPlayerOwner() && !C_BasePlayer::ShouldDrawLocalPlayer() )
 		return pLocalPlayer->GetViewModel();
 
 	return this;

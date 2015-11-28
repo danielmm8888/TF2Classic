@@ -12,6 +12,7 @@
 #include "particles_new.h"
 #else
 #include "tf_player.h"
+#include "tf_fx.h"
 #endif
 
 #define TF_WEAPON_FLARE_MODEL		"models/weapons/w_models/w_flaregun_shell.mdl"
@@ -153,9 +154,6 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		SetAbsOrigin( pTrace->endpos + ( pTrace->plane.normal * 1.0f ) );
 	}
 
-	// Play explosion sound and effect.
-	Vector vecOrigin = GetAbsOrigin();
-
 	// Damage.
 	CBaseEntity *pAttacker = GetOwnerEntity();
 	IScorer *pScorerInterface = dynamic_cast<IScorer*>( pAttacker );
@@ -163,16 +161,26 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	{
 		pAttacker = pScorerInterface->GetScorer();
 	}
-	
-	CTFPlayer *pPlayer = dynamic_cast <CTFPlayer*>(pOther);
+
+	// Play explosion sound and effect.
+	Vector vecOrigin = GetAbsOrigin();
+	CTFPlayer *pPlayer = ToTFPlayer( pOther );
+
 	if ( pPlayer )
 	{
+		// Hit player, do damage.
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, 10, DMG_IGNITE, TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );
 		
-		CPASAttenuationFilter filter( pPlayer );
+		CPVSFilter filter( vecOrigin );
 		EmitSound( filter, pPlayer->entindex(), "TFPlayer.FlareImpact" );
+	}
+	else
+	{
+		// Hit world, do the explosion effect.
+		CPVSFilter filter( vecOrigin );
+		TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex() );
 	}
 
 	// Remove.

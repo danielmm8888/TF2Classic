@@ -31,7 +31,8 @@ enum FlameThrowerState_t
 	// Firing states.
 	FT_STATE_IDLE = 0,
 	FT_STATE_STARTFIRING,
-	FT_STATE_FIRING
+	FT_STATE_FIRING,
+	FT_STATE_AIRBLASTING
 };
 
 //=========================================================

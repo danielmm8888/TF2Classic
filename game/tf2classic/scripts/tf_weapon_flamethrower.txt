@@ -45,7 +45,7 @@ WeaponData
 	{
 		"single_shot"		"Weapon_FlameThrower.Fire"			// Starting fire, 3.5 seconds long
 		"special1"		"Weapon_FlameThrower.FireLoop"			// Looping fire sound, ramps up 3.5 seconds after start
-		"double_shot"		"Weapon_FlameThrower.FireRocket"		// Secondary fire
+		"double_shot"		"Weapon_FlameThrower.AirBurstAttack"		// Secondary fire
 		"special2"		"Weapon_FlameThrower.PilotLoop"			// Looping pilot light sound, always on while weapon is deployed
 		"special3"		"Weapon_FlameThrower.WindDown"			// End of fire sound
 		"burst"			"Weapon_FlameThrower.FireLoopCrit"		// Looping crit fire sound
