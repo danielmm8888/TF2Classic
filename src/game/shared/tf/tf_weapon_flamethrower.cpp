@@ -206,24 +206,33 @@ void CTFFlameThrower::ItemPostFrame()
 
 	int iAmmo = pOwner->GetAmmoCount( m_iPrimaryAmmoType );
 
-	if ( pOwner->IsAlive() && ( pOwner->m_nButtons & IN_ATTACK ) && iAmmo > 0 )
-	{
-		PrimaryAttack();
-	}
-	else if ( m_iWeaponState > FT_STATE_IDLE )
-	{
-		SendWeaponAnim( ACT_MP_ATTACK_STAND_POSTFIRE );
-		pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_POST );
-		m_iWeaponState = FT_STATE_IDLE;
-		m_bCritFire = false;
-	}
-
-	if ( pOwner->IsAlive() && ( pOwner->m_nButtons & IN_ATTACK2 ) && iAmmo > TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK )
+	if ( ( pOwner->m_nButtons & IN_ATTACK2 ) &&
+		iAmmo >= TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK &&
+		m_flNextSecondaryAttack <= gpGlobals->curtime )
 	{
 		SecondaryAttack();
 	}
+	else if ( ( pOwner->m_nButtons & IN_ATTACK ) && iAmmo > 0 && m_iWeaponState != FT_STATE_AIRBLASTING )
+	{
+		PrimaryAttack();
+	}
+	else
+	{
+		if ( m_iWeaponState > FT_STATE_IDLE )
+		{
+			SendWeaponAnim( ACT_MP_ATTACK_STAND_POSTFIRE );
+			pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_POST );
+			m_iWeaponState = FT_STATE_IDLE;
+			m_bCritFire = false;
+		}
 
-	BaseClass::ItemPostFrame();
+		if ( !ReloadOrSwitchWeapons() )
+		{
+			WeaponIdle();
+		}
+	}
+
+	//BaseClass::ItemPostFrame();
 }
 
 class CTraceFilterIgnoreObjects : public CTraceFilterSimple
@@ -296,6 +305,7 @@ void CTFFlameThrower::PrimaryAttack()
 	switch ( m_iWeaponState )
 	{
 	case FT_STATE_IDLE:
+	case FT_STATE_AIRBLASTING:
 		{
 			// Just started, play PRE and start looping view model anim
 
@@ -443,9 +453,7 @@ void CTFFlameThrower::PrimaryAttack()
 void CTFFlameThrower::SecondaryAttack()
 {
 	if ( !tf2c_airblast.GetBool() )
-	{
 		return;
-	}
 
 	// Are we capable of firing again?
 	if ( m_flNextSecondaryAttack > gpGlobals->curtime )
@@ -457,9 +465,22 @@ void CTFFlameThrower::SecondaryAttack()
 		return;
 
 	if ( !CanAttack() )
+	{
+		m_iWeaponState = FT_STATE_IDLE;
 		return;
+	}
 
-#if !defined (CLIENT_DLL)
+#ifdef CLIENT_DLL
+	//StopFlame();
+#endif
+
+	m_iWeaponState = FT_STATE_AIRBLASTING;
+	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
+	WeaponSound( WPN_DOUBLE );
+
+#ifdef CLIENT_DLL
+	StartFlame();
+#else
 	// Let the player remember the usercmd he fired a weapon on. Assists in making decisions about lag compensation.
 	pOwner->NoteWeaponFired();
 
@@ -468,25 +489,22 @@ void CTFFlameThrower::SecondaryAttack()
 
 	// Move other players back to history positions based on local player's lag
 	lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
-#endif
-	// TODO: Make airblast particles and sounds.
 
-	EmitSound( "Weapon_FlameThrower.AirBurstAttack" );
-
-#if !defined (CLIENT_DLL)
 	Vector vecDir;
 	pOwner->EyeVectors( &vecDir );
 
+	const Vector vecBlastArea = Vector( 128, 128, 64 );
+
 	// Not sure if I did this one correctly, I'm not too good with vectors. (Nicknine)
-	Vector vecOrigin = pOwner->Weapon_ShootPosition() + 80 * 1.5f * vecDir;
+	Vector vecOrigin = pOwner->Weapon_ShootPosition() + vecDir * 128 * 1.5f;
 
-	CBaseEntity *pList[128];
+	CBaseEntity *pList[64];
 
-	int count = UTIL_EntitiesInBox( pList, 128, vecOrigin - Vector( 80, 80, 80 ), vecOrigin + Vector( 80, 80, 80 ), 0 );
+	int count = UTIL_EntitiesInBox( pList, 64, vecOrigin - vecBlastArea, vecOrigin + vecBlastArea, 0 );
 
 	if ( tf2c_debug_airblast.GetBool() )
 	{
-		NDebugOverlay::Box( vecOrigin, -Vector( 80, 80, 80 ), Vector( 80, 80, 80 ), 0, 0, 255, 100, 2.0 );
+		NDebugOverlay::Box( vecOrigin, -vecBlastArea, vecBlastArea, 0, 0, 255, 100, 2.0 );
 	}
 
 	for ( int i = 0; i < count; i++ )
@@ -525,14 +543,14 @@ void CTFFlameThrower::SecondaryAttack()
 			DeflectEntity( pList[i], pOwner, vecPushDir );
 		}
 	}
-#endif
-	pOwner->RemoveAmmo( TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType );
 
-	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
-
-#if !defined (CLIENT_DLL)
 	lagcompensation->FinishLagCompensation( pOwner );
 #endif
+
+	pOwner->RemoveAmmo( TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType );
+
+	// Don't allow firing immediately after airblasting.
+	m_flNextPrimaryAttack = m_flNextSecondaryAttack = gpGlobals->curtime + 0.75f;
 }
 
 #ifdef GAME_DLL
@@ -542,7 +560,7 @@ void CTFFlameThrower::DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker,
 		return;
 
 	pEntity->Deflected( pAttacker, vecDir );
-	EmitSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
+	pEntity->EmitSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
 }
 
 void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, Vector &vecDir )
@@ -568,6 +586,7 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 		pVictim->SetGroundEntity( NULL );
 		pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
 		//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );
+		pVictim->EmitSound( "TFPlayer.AirBlastImpact" );
 	}
 	else if ( pVictim->InSameTeam( pAttacker ) )
 	{
@@ -575,9 +594,9 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 		{
 			// Extinguish teammates.
 			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
+			pVictim->EmitSound( "TFPlayer.FlameOut" );
 		}
 	}
-	EmitSound( "TFPlayer.FlameOut" );
 }
 #endif
 
@@ -659,7 +678,10 @@ void CTFFlameThrower::OnDataChanged(DataUpdateType_t updateType)
 	{
 		if ( m_iWeaponState > FT_STATE_IDLE )
 		{
-			StartFlame();
+			if ( m_iWeaponState != FT_STATE_AIRBLASTING || !GetPlayerOwner()->IsLocalPlayer() )
+			{
+				StartFlame();
+			}
 		}
 		else
 		{
@@ -708,58 +730,73 @@ void CTFFlameThrower::SetDormant( bool bDormant )
 //-----------------------------------------------------------------------------
 void CTFFlameThrower::StartFlame()
 {
-	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
-
-	// normally, crossfade between start sound & firing loop in 3.5 sec
-	float flCrossfadeTime = 3.5;
-
-	if ( m_pFiringLoop && ( m_bCritFire != m_bFiringLoopCritical ) )
+	if ( m_iWeaponState == FT_STATE_AIRBLASTING )
 	{
-		// If we're firing and changing between critical & noncritical, just need to change the firing loop.
-		// Set crossfade time to zero so we skip the start sound and go to the loop immediately.
+		C_BaseEntity *pModel = GetWeaponForEffect();
 
-		flCrossfadeTime = 0;
-		StopFlame( true );
+		if ( pModel )
+		{
+			pModel->ParticleProp()->Create( "pyro_blast", PATTACH_POINT_FOLLOW, "muzzle" );
+		}
+
+		//CLocalPlayerFilter filter;
+		//EmitSound( filter, entindex(), "Weapon_FlameThrower.AirBurstAttack" );
 	}
-
-	StopPilotLight();
-
-	if ( !m_pFiringStartSound && !m_pFiringLoop )
+	else
 	{
-		RestartParticleEffect();
-		CLocalPlayerFilter filter;
+		CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 
-		// Play the fire start sound
-		const char *shootsound = GetShootSound( SINGLE );
-		if ( flCrossfadeTime > 0.0 )
+		// normally, crossfade between start sound & firing loop in 3.5 sec
+		float flCrossfadeTime = 3.5;
+
+		if ( m_pFiringLoop && ( m_bCritFire != m_bFiringLoopCritical ) )
 		{
-			// play the firing start sound and fade it out
-			m_pFiringStartSound = controller.SoundCreate( filter, entindex(), shootsound );		
-			controller.Play( m_pFiringStartSound, 1.0, 100 );
-			controller.SoundChangeVolume( m_pFiringStartSound, 0.0, flCrossfadeTime );
+			// If we're firing and changing between critical & noncritical, just need to change the firing loop.
+			// Set crossfade time to zero so we skip the start sound and go to the loop immediately.
+
+			flCrossfadeTime = 0;
+			StopFlame( true );
 		}
 
-		// Start the fire sound loop and fade it in
-		if ( m_bCritFire )
-		{
-			shootsound = GetShootSound( BURST );
-		}
-		else
-		{
-			shootsound = GetShootSound( SPECIAL1 );
-		}
-		m_pFiringLoop = controller.SoundCreate( filter, entindex(), shootsound );
-		m_bFiringLoopCritical = m_bCritFire;
+		StopPilotLight();
 
-		// play the firing loop sound and fade it in
-		if ( flCrossfadeTime > 0.0 )
+		if ( !m_pFiringStartSound && !m_pFiringLoop )
 		{
-			controller.Play( m_pFiringLoop, 0.0, 100 );
-			controller.SoundChangeVolume( m_pFiringLoop, 1.0, flCrossfadeTime );
-		}
-		else
-		{
-			controller.Play( m_pFiringLoop, 1.0, 100 );
+			RestartParticleEffect();
+			CLocalPlayerFilter filter;
+
+			// Play the fire start sound
+			const char *shootsound = GetShootSound( SINGLE );
+			if ( flCrossfadeTime > 0.0 )
+			{
+				// play the firing start sound and fade it out
+				m_pFiringStartSound = controller.SoundCreate( filter, entindex(), shootsound );
+				controller.Play( m_pFiringStartSound, 1.0, 100 );
+				controller.SoundChangeVolume( m_pFiringStartSound, 0.0, flCrossfadeTime );
+			}
+
+			// Start the fire sound loop and fade it in
+			if ( m_bCritFire )
+			{
+				shootsound = GetShootSound( BURST );
+			}
+			else
+			{
+				shootsound = GetShootSound( SPECIAL1 );
+			}
+			m_pFiringLoop = controller.SoundCreate( filter, entindex(), shootsound );
+			m_bFiringLoopCritical = m_bCritFire;
+
+			// play the firing loop sound and fade it in
+			if ( flCrossfadeTime > 0.0 )
+			{
+				controller.Play( m_pFiringLoop, 0.0, 100 );
+				controller.SoundChangeVolume( m_pFiringLoop, 1.0, flCrossfadeTime );
+			}
+			else
+			{
+				controller.Play( m_pFiringLoop, 1.0, 100 );
+			}
 		}
 	}
 }
