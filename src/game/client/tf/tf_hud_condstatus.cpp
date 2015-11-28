@@ -158,7 +158,7 @@ void CTFHudCondStatus::UpdateStatus( void )
 
 		m_pPowerupPanel->SetVisible( true );
 
-		int ID = powerups[i].ID;
+		int ID = powerups[i].ID - POWERUP_FIRST;
 		float fDuration = powerups[i].fDuration;
 		float fInitDuration = powerups[i].fInitDuration;
 
