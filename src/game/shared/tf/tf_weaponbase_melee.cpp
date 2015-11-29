@@ -111,6 +111,10 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 	{
 		GetPlayerOwner()->m_flNextAttack = gpGlobals->curtime + 0.5;
 	}
+
+	if ( GetTFPlayerOwner()->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
+		return false;
+		
 	return BaseClass::Holster( pSwitchingTo );
 }
 
