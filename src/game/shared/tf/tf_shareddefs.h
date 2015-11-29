@@ -331,19 +331,19 @@ enum
 	TF_WEAPON_KRITZKRIEG,
 	TF_WEAPON_UBERSAW,
 	TF_WEAPON_FLAREGUN,
-	TF_WEAPON_GRENADE_FLARE,
+	TF_WEAPON_HAMMERFISTS,
 	TF_WEAPON_STENGUN,
 	TF_WEAPON_DOUBLEBARREL,
 	TF_WEAPON_SIXSHOOTER,
 	TF_WEAPON_CHAINSAW,
 	TF_WEAPON_HEAVYARTILLERY,
-	TF_WEAPON_HAMMERFISTS,
 
 	TF_WEAPON_COUNT
 };
 
 extern const char *g_aWeaponNames[];
 extern int g_aWeaponDamageTypes[];
+extern const Vector g_vecFixedWpnSpreadPellets[];
 
 int GetWeaponId( const char *pszWeaponName );
 #ifdef GAME_DLL

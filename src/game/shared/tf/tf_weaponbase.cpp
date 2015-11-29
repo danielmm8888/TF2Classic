@@ -1928,7 +1928,7 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 
 	//Here we go...
 	//Since we can't get a repro for the invisible weapon thing, I'll fix it right up here:
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
 
 	//Our owner is alive
 	if ( pOwner && pOwner->IsAlive() == true )
@@ -2713,6 +2713,25 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	}
 
 	return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateClientSideAnimation( void )
+{
+	// Weapon model for other players is different on server and client which
+	// messes with client side animation causing error spam.
+	// This fix is not completely reliable, you're still going to get asserts
+	// but at least this stops error spam.
+	C_BasePlayer *pOwner = GetPlayerOwner();
+
+	if ( pOwner && ( !pOwner->IsLocalPlayer() || C_BasePlayer::ShouldDrawLocalPlayer() ) )
+	{
+		SetSequence( 0 );
+	}
+
+	BaseClass::UpdateClientSideAnimation();
 }
 
 //-----------------------------------------------------------------------------

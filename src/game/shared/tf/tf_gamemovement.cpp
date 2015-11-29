@@ -389,8 +389,14 @@ bool CTFGameMovement::CheckJumpButton()
 
 	// Cannot jump again until the jump button has been released.
 	// Unless we're in deathmatch or we have tf2c_autojump enabled
-	if ( ( mv->m_nOldButtons & IN_JUMP ) && !( ( tf2c_autojump.GetBool() && bOnGround ) || TFGameRules()->IsDeathmatch() ) )
-		return false;
+	if ( mv->m_nOldButtons & IN_JUMP )
+	{
+		if ( !bOnGround )
+			return false;
+
+		if ( !tf2c_autojump.GetBool() && !TFGameRules()->IsDeathmatch() )
+			return false;
+	}
 
 	// In air, so ignore jumps (unless you are a scout).
 	if ( !bOnGround )
