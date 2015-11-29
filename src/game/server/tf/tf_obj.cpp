@@ -704,7 +704,7 @@ bool CBaseObject::EstimateValidBuildPos( void )
 	//NDebugOverlay::Cross3D( vecBuildOrigin, 10, 255, 0, 0, false, 0.1 );
 
 	// Cannot build inside a nobuild brush
-	if ( PointInNoBuild( vecBuildOrigin ) )
+	if ( PointInNoBuild( vecBuildOrigin, this ) )
 		return false;
 
 	if ( PointInRespawnRoom( NULL, vecBuildOrigin ) )
