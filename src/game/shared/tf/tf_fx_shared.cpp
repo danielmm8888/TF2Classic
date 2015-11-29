@@ -17,6 +17,8 @@
 #include "ilagcompensationmanager.h"
 #endif
 
+ConVar tf_use_fixed_weaponspreads( "tf_use_fixed_weaponspreads", "0", FCVAR_NOTIFY|FCVAR_REPLICATED, "If set to 1, weapons that fire multiple pellets per shot will use a non-random pellet distribution." );
+
 // Client specific.
 #ifdef CLIENT_DLL
 
@@ -206,6 +208,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	// Setup the bullet damage type & roll for crit.
 	int	nDamageType	= DMG_GENERIC;
 	int nCustomDamageType = TF_DMG_CUSTOM_NONE;
+	bool bBuckshot = false;
 	CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 	if ( pWeapon )
 	{
@@ -216,6 +219,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 		}
 
 		nCustomDamageType = pWeapon->GetCustomDamageType();
+		bBuckshot = ( nDamageType & DMG_BUCKSHOT ) != 0;
 	}
 
 	if ( iWeapon != TF_WEAPON_MINIGUN )
@@ -227,10 +231,22 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	ClearMultiDamage();
 
 	int nBulletsPerShot = pWeaponInfo->GetWeaponData( iMode ).m_nBulletsPerShot;
+
+	// Only shotguns should get fixed spread pattern.
+	bool bFixedSpread = false;
+
+	if ( bBuckshot && nBulletsPerShot > 1 )
+	{
+		bFixedSpread = tf_use_fixed_weaponspreads.GetBool();
+	}
+
 	for ( int iBullet = 0; iBullet < nBulletsPerShot; ++iBullet )
 	{
 		// Initialize random system with this seed.
 		RandomSeed( iSeed );	
+
+		float x = 0.0f;
+		float y = 0.0f;
 
 		// Determine if the first bullet should be perfectly accurate.
 		bool bPerfectAccuracy = false;
@@ -244,11 +260,21 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 				bPerfectAccuracy = flFireInterval > 0.25f;
 		}
 
-		float x = 0.0f;
-		float y = 0.0f;
+		// See if we're using pre-determined spread pattern.
+		if ( bFixedSpread )
+		{
+			int iIndex = iBullet;
+			if ( iIndex > 9 )
+			{
+				iIndex -= 10;
+			}
 
-		// tf_use_fixed_weapon_spread calculations go here.
-		if ( !bPerfectAccuracy )
+			x = 0.5f * g_vecFixedWpnSpreadPellets[iIndex].x;
+			y = 0.5f * g_vecFixedWpnSpreadPellets[iIndex].y;
+		}
+
+		// Apply random spread if none of the above conditions are true.
+		if ( !bPerfectAccuracy && !bFixedSpread )
 		{
 			// Get circular gaussian spread.
 			x = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );

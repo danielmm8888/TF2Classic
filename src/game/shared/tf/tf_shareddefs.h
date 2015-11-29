@@ -343,6 +343,7 @@ enum
 
 extern const char *g_aWeaponNames[];
 extern int g_aWeaponDamageTypes[];
+extern const Vector g_vecFixedWpnSpreadPellets[];
 
 int GetWeaponId( const char *pszWeaponName );
 #ifdef GAME_DLL

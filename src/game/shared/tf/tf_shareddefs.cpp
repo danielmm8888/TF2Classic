@@ -289,6 +289,21 @@ int g_aWeaponDamageTypes[] =
 	TF_DMG_SENTINEL_VALUE
 };
 
+// Spread pattern for tf_use_fixed_weaponspreads.
+const Vector g_vecFixedWpnSpreadPellets[]
+{
+	Vector( 0, 0, 0 ),
+	Vector( 1, 0, 0 ),
+	Vector( -1, 0, 0 ),
+	Vector( 0, -1, 0 ),
+	Vector( 0, 1, 0 ),
+	Vector( 0.85, -0.85, 0 ),
+	Vector( 0.85, 0.85, 0 ),
+	Vector( -0.85, -0.85, 0 ),
+	Vector( -0.85, 0.85, 0 ),
+	Vector( 0, 0, 0 ),
+};
+
 const char *g_szProjectileNames[] =
 {
 	"",
