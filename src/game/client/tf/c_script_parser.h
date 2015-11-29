@@ -25,7 +25,7 @@ public:
  
 	//Parser Methods to initially open and setup the KeyValues
 	void InitParser(const char *pszPath, bool bAllowNonEncryptedSearch = true,
-		 bool bAllowEncryptedSearch = true);
+		 bool bAllowEncryptedSearch = true, bool bCustomExtension = false);
  
 	//You will need to set this up in your own class.
 	virtual void Parse( KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT ) = 0;

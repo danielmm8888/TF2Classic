@@ -253,6 +253,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	bool OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options );
 
+	virtual void	UpdateClientSideAnimation();
+
 	// Model muzzleflashes
 	CHandle<C_MuzzleFlashModel>		m_hMuzzleFlashModel[2];
 

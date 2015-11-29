@@ -46,7 +46,8 @@ C_ScriptParser::C_ScriptParser()
 //
 void C_ScriptParser::InitParser(const char *pszPath,
 							   bool bAllowNonEncryptedSearch,
-							   bool bAllowEncryptedSearch)
+							   bool bAllowEncryptedSearch,
+							   bool bCustomExtension)
 {
 	//If you hit this assert, check to see where your instancing 
 	//C_ScriptParser, make sure it isn't before the filesystem inits
@@ -116,6 +117,15 @@ void C_ScriptParser::InitParser(const char *pszPath,
 	else //Only one file needs to be parsed (not a wildcard).
 	{
 		Q_strcpy(g_szSwap,pszPath);
+		if (bCustomExtension)
+		{
+			if (!FileParser(g_szSwap, false, ExtCMP(g_szSwap, GetEncryptedEXT())))
+			{
+				DevMsg("[script_parser.cpp] ERROR: Unable to Parse Passed Script File!");
+			}
+			m_bParsed = true;
+			return;
+		}
 		SetExtension(g_szSwap,FILE_PATH_MAX_LENGTH,GetNonEncryptedEXT());
 		if(!filesystem->FileExists(g_szSwap, GetFSSearchPath())
 			&& bAllowEncryptedSearch)

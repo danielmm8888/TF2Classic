@@ -19,6 +19,7 @@
 	#include "soundenvelope.h"
 	#include "dlight.h"
 	#include "iefx.h"
+	#include "prediction.h"
 
 #else
 
@@ -471,7 +472,6 @@ void CTFFlameThrower::SecondaryAttack()
 	}
 
 #ifdef CLIENT_DLL
-	StopFlame();
 #endif
 
 	m_iWeaponState = FT_STATE_AIRBLASTING;
@@ -479,7 +479,10 @@ void CTFFlameThrower::SecondaryAttack()
 	WeaponSound( WPN_DOUBLE );
 
 #ifdef CLIENT_DLL
-	StartFlame();
+	if ( prediction->IsFirstTimePredicted() )
+	{
+		StartFlame();
+	}
 #else
 	// Let the player remember the usercmd he fired a weapon on. Assists in making decisions about lag compensation.
 	pOwner->NoteWeaponFired();

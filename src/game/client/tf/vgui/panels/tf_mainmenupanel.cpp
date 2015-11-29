@@ -6,6 +6,7 @@
 #include "steam/steam_api.h"
 #include "steam/isteamhttp.h"
 #include "vgui_avatarimage.h"
+#include "c_sdkversionchecker.h"
 #include "soundenvelope.h"
 #include <convar.h>
 
@@ -250,8 +251,8 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 {
 	if (m_pVersionLabel)
 	{
-		char verString[30];
-		Q_snprintf(verString, sizeof(verString), "Version: %s", MAINMENU_ROOT->GetVersionString());
+		char verString[64];
+		Q_snprintf(verString, sizeof(verString), "Version: %s\nSDK branch: %s", MAINMENU_ROOT->GetVersionString(), GetSDKVersionChecker()->GetKey());
 		m_pVersionLabel->SetText(verString);
 	}
 };

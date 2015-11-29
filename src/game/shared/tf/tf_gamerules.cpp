@@ -3578,7 +3578,7 @@ void CTFGameRules::InternalHandleTeamWin( int iWinningTeam )
 						pPlayer->DropFlag();
 					}
 				}
-				else
+				else if ( pPlayer->IsAlive() )
 				{
 					pPlayer->m_Shared.AddCond( TF_COND_CRITBOOSTED_BONUS_TIME );
 				}
