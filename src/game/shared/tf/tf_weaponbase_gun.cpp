@@ -297,7 +297,7 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: Return angles for a projectile reflected by airblast
 //-----------------------------------------------------------------------------
-void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, Vector vecPos, QAngle *angForward, bool bHitTeammates /* = true */ )
+void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vector &vecPos, Vector *vecDeflect, bool bHitTeammates /* = true */ )
 {
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
@@ -321,19 +321,21 @@ void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, Vector vec
 		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
 	}
 
-	// VecPos is projectile's current position. Use that to find angles.
+	// vecPos is projectile's current position. Use that to find angles.
 
 	// Find angles that will get us to our desired end point
 	// Only use the trace end if it wasn't too close, which results
 	// in visually bizarre forward angles
 	if ( tr.fraction > 0.1 )
 	{
-		VectorAngles( tr.endpos - vecPos, *angForward );
+		*vecDeflect = tr.endpos - vecPos;
 	}
 	else
 	{
-		VectorAngles( endPos - vecPos, *angForward );
+		*vecDeflect = endPos - vecPos;
 	}
+
+	VectorNormalize( *vecDeflect );
 }
 
 //-----------------------------------------------------------------------------
@@ -371,7 +373,7 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 	if ( pPlayer )
 	{
 		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-		if ( pLocalPlayer != pPlayer || ::input->CAM_IsThirdPerson() )
+		if ( pLocalPlayer != pPlayer || C_BasePlayer::ShouldDrawLocalPlayer() )
 		{
 			if ( pPlayer->GetActiveWeapon() )
 			{

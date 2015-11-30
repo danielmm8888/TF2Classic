@@ -495,7 +495,8 @@ void CTFFlameThrower::SecondaryAttack()
 	lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
 
 	Vector vecDir;
-	pOwner->EyeVectors( &vecDir );
+	QAngle angDir = pOwner->EyeAngles();
+	AngleVectors( angDir, &vecDir );
 
 	const Vector vecBlastArea = Vector( 128, 128, 64 );
 
@@ -533,18 +534,26 @@ void CTFFlameThrower::SecondaryAttack()
 		{
 			CTFPlayer *pTFPlayer = ToTFPlayer( pList[i] );
 
-			DeflectPlayer( pTFPlayer, pOwner, vecDir );
+			Vector vecPushDir;
+			QAngle angPushDir = angDir;
+
+			// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
+			if ( pTFPlayer->GetGroundEntity() != NULL )
+			{
+				angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
+			}
+
+			AngleVectors( angPushDir, &vecPushDir );
+
+			DeflectPlayer( pTFPlayer, pOwner, vecPushDir );
 		}
 		else
 		{
 			Vector vecPos = pList[i]->GetAbsOrigin();
-			Vector vecPushDir;
-			QAngle angForward;
-			GetProjectileReflectSetup( GetTFPlayerOwner(), vecPos, &angForward, false );
+			Vector vecDeflect;
+			GetProjectileReflectSetup( GetTFPlayerOwner(), vecPos, &vecDeflect, false );
 
-			AngleVectors( angForward, &vecPushDir );
-
-			DeflectEntity( pList[i], pOwner, vecPushDir );
+			DeflectEntity( pList[i], pOwner, vecDeflect );
 		}
 	}
 
@@ -575,18 +584,6 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
 	{
 		// Push enemy players.
-		QAngle angPushDir;
-		VectorAngles( vecDir, angPushDir );
-
-		// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
-		if ( pVictim->GetGroundEntity() != NULL )
-		{
-			angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
-		}
-
-		AngleVectors( angPushDir, &vecDir );
-		VectorNormalize( vecDir );
-
 		pVictim->SetGroundEntity( NULL );
 		pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
 		//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );

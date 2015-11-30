@@ -104,6 +104,17 @@ void CTFWeaponBaseMelee::Spawn()
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+bool CTFWeaponBaseMelee::CanHolster( void ) const
+{
+	if ( GetTFPlayerOwner()->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
+		return false;
+
+	return BaseClass::CanHolster();
+}
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
 bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	m_flSmackTime = -1.0f;
@@ -111,9 +122,6 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 	{
 		GetPlayerOwner()->m_flNextAttack = gpGlobals->curtime + 0.5;
 	}
-
-	if ( GetTFPlayerOwner()->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
-		return false;
 		
 	return BaseClass::Holster( pSwitchingTo );
 }
