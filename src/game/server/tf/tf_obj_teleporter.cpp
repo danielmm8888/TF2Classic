@@ -547,14 +547,15 @@ bool CObjectTeleporter::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, 
 {
 	if ( HasSapper() && GetMatchingTeleporter() )
 	{
+		CObjectTeleporter *pMatch = GetMatchingTeleporter();
 		// do damage to any attached buildings
 		CTakeDamageInfo info( pPlayer, pPlayer, 65, DMG_CLUB, TF_DMG_WRENCH_FIX );
 
-		IHasBuildPoints *pBPInterface = dynamic_cast< IHasBuildPoints * >( GetMatchingTeleporter() );
+		IHasBuildPoints *pBPInterface = dynamic_cast< IHasBuildPoints * >( pMatch );
 		int iNumObjects = pBPInterface->GetNumObjectsOnMe();
 		for ( int iPoint=0; iPoint < iNumObjects; iPoint++ )
 		{
-			CBaseObject *pObject = GetBuildPointObject( iPoint );
+			CBaseObject *pObject = pMatch->GetBuildPointObject( iPoint );
 
 			if ( pObject && pObject->IsHostileUpgrade() )
 				pObject->TakeDamage( info );

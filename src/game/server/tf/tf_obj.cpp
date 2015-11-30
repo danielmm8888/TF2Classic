@@ -636,11 +636,11 @@ void CBaseObject::BaseObjectThink( void )
 	}
 }
 
-bool CBaseObject::UpdateAttachmentPlacement( void )
+bool CBaseObject::UpdateAttachmentPlacement( CBaseObject *pObject /*= NULL*/ )
 {
 	// See if we should snap to a build position
 	// finding one implies it is a valid position
-	if ( FindSnapToBuildPos() )
+	if ( FindSnapToBuildPos( pObject ) )
 	{
 		m_bPlacementOK = true;
 
@@ -976,7 +976,7 @@ void CBaseObject::StopPlacement( void )
 //-----------------------------------------------------------------------------
 // Purpose: Find the nearest buildpoint on the specified entity
 //-----------------------------------------------------------------------------
-bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint )
+bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint, bool bIgnoreLOS /*= false*/ )
 {
 	bool bFoundPoint = false;
 
@@ -994,21 +994,25 @@ bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBui
 			QAngle vecBPAngles;
 			if ( pBPInterface->GetBuildPoint(i, vecBPOrigin, vecBPAngles) )
 			{
-				// ignore build points outside our view
-				if ( !pBuilder->FInViewCone( vecBPOrigin ) )
-					continue;
+				// If set to ignore LOS, distance, etc, just pick the first point available.
+				if ( !bIgnoreLOS )
+				{
+					// ignore build points outside our view
+					if ( !pBuilder->FInViewCone( vecBPOrigin ) )
+						continue;
 
-				// Do a trace to make sure we don't place attachments through things (players, world, etc...)
-				Vector vecStart = pBuilder->EyePosition();
-				trace_t trace;
-				UTIL_TraceLine( vecStart, vecBPOrigin, MASK_SOLID, pBuilder, COLLISION_GROUP_NONE, &trace );
-				if ( trace.m_pEnt != pEntity && trace.fraction != 1.0 )
-					continue;
+					// Do a trace to make sure we don't place attachments through things (players, world, etc...)
+					Vector vecStart = pBuilder->EyePosition();
+					trace_t trace;
+					UTIL_TraceLine( vecStart, vecBPOrigin, MASK_SOLID, pBuilder, COLLISION_GROUP_NONE, &trace );
+					if ( trace.m_pEnt != pEntity && trace.fraction != 1.0 )
+						continue;
+				}
 
 				float flDist = (vecBPOrigin - pBuilder->GetAbsOrigin()).Length();
 
 				// if this is closer, or is the first one in our view, check it out
-				if ( flDist < min(flNearestPoint, pBPInterface->GetMaxSnapDistance( i )) )
+				if ( bIgnoreLOS || flDist < min(flNearestPoint, pBPInterface->GetMaxSnapDistance( i )) )
 				{
 					flNearestPoint = flDist;
 					vecNearestBuildPoint = vecBPOrigin;
@@ -1019,6 +1023,9 @@ bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBui
 					SetAbsAngles( vecBPAngles );
 
 					bFoundPoint = true;
+
+					if ( bIgnoreLOS )
+						break;
 				}
 			}
 		}
@@ -1188,7 +1195,7 @@ bool CBaseObject::UpdatePlacement( void )
 //-----------------------------------------------------------------------------
 // Purpose: See if we should be snapping to a build position
 //-----------------------------------------------------------------------------
-bool CBaseObject::FindSnapToBuildPos( void )
+bool CBaseObject::FindSnapToBuildPos( CBaseObject *pObject /*= NULL*/ )
 {
 	if ( !MustBeBuiltOnAttachmentPoint() )
 		return false;
@@ -1212,42 +1219,57 @@ bool CBaseObject::FindSnapToBuildPos( void )
 	bool bHostileAttachment = IsHostileUpgrade();
 	int iMyTeam = GetTeamNumber();
 
-	int nTeamCount = TFTeamMgr()->GetTeamCount();
-	for ( int iTeam = FIRST_GAME_TEAM; iTeam < nTeamCount; ++iTeam )
+	// If we have an object specified then use that, don't search.
+	if ( pObject )
 	{
-		// Hostile attachments look for enemy objects only
-		if ( bHostileAttachment ) 
+		if ( !pObject->IsPlacing() )
 		{
-			if ( iTeam == iMyTeam )
+			if ( FindNearestBuildPoint( pObject, pPlayer, flNearestPoint, vecNearestBuildPoint, true ) )
+			{
+				bSnappedToPoint = true;
+				bShouldAttachToParent = true;
+			}
+		}
+	}
+	else
+	{
+		int nTeamCount = TFTeamMgr()->GetTeamCount();
+		for ( int iTeam = FIRST_GAME_TEAM; iTeam < nTeamCount; ++iTeam )
+		{
+			// Hostile attachments look for enemy objects only
+			if ( bHostileAttachment )
+			{
+				if ( iTeam == iMyTeam )
+				{
+					continue;
+				}
+			}
+			// Friendly attachments look for friendly objects only
+			else if ( iTeam != iMyTeam )
 			{
 				continue;
 			}
-		}
-		// Friendly attachments look for friendly objects only
-		else if ( iTeam != iMyTeam )
-		{
-			continue;
-		}
 
-		CTFTeam *pTeam = ( CTFTeam * )GetGlobalTeam( iTeam );
-		if ( !pTeam )
-			continue;
+			CTFTeam *pTeam = (CTFTeam *)GetGlobalTeam( iTeam );
+			if ( !pTeam )
+				continue;
 
-		// look for nearby buildpoints on other objects
-		for ( i = 0; i < pTeam->GetNumObjects(); i++ )
-		{
-			CBaseObject *pObject = pTeam->GetObject(i);
-			Assert( pObject );
-			if ( pObject && !pObject->IsPlacing() )
+			// look for nearby buildpoints on other objects
+			for ( i = 0; i < pTeam->GetNumObjects(); i++ )
 			{
-				if ( FindNearestBuildPoint( pObject, pPlayer, flNearestPoint, vecNearestBuildPoint ) )
+				CBaseObject *pTempObject = pTeam->GetObject( i );
+				Assert( pTempObject );
+				if ( pTempObject && !pTempObject->IsPlacing() )
 				{
-					bSnappedToPoint = true;
-					bShouldAttachToParent = true;
+					if ( FindNearestBuildPoint( pTempObject, pPlayer, flNearestPoint, vecNearestBuildPoint ) )
+					{
+						bSnappedToPoint = true;
+						bShouldAttachToParent = true;
+					}
 				}
 			}
 		}
-	}	
+	}
 
 	if ( !bSnappedToPoint )
 	{
