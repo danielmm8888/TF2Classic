@@ -64,6 +64,7 @@ ConVar tf_useparticletracers( "tf_useparticletracers", "1", FCVAR_DEVELOPMENTONL
 ConVar tf_spy_cloak_consume_rate( "tf_spy_cloak_consume_rate", "10.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "cloak to use per second while cloaked, from 100 max )" );	// 10 seconds of invis
 ConVar tf_spy_cloak_regen_rate( "tf_spy_cloak_regen_rate", "3.3", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "cloak to regen per second, up to 100 max" );		// 30 seconds to full charge
 ConVar tf_spy_cloak_no_attack_time( "tf_spy_cloak_no_attack_time", "2.0", FCVAR_DEVELOPMENTONLY | FCVAR_REPLICATED, "time after uncloaking that the spy is prohibited from attacking" );
+ConVar tf_tournament_hide_domination_icons( "tf_tournament_hide_domination_icons", "0", FCVAR_REPLICATED, "Tournament mode server convar that forces clients to not display the domination icons above players dominating them." );
 
 ConVar tf_damage_disablespread("tf_damage_disablespread", "1", FCVAR_NOTIFY | FCVAR_REPLICATED,"Toggles the random damage spread applied to all player damage.");
 
@@ -74,6 +75,7 @@ ConVar sv_showimpacts("sv_showimpacts", "0", FCVAR_REPLICATED, "Shows client (re
 ConVar sv_showplayerhitboxes("sv_showplayerhitboxes", "0", FCVAR_REPLICATED, "Show lag compensated hitboxes for the specified player index whenever a player fires.");
 
 ConVar tf2c_building_hauling( "tf2c_building_hauling", "1", FCVAR_REPLICATED, "Toggle Engineer's building hauling ability." );
+ConVar tf2c_disable_player_shadows( "tf2c_disable_player_shadows", "0", FCVAR_REPLICATED, "Disables rendering of player shadows regardless of client's graphical settings." );
 
 #define TF_SPY_STEALTH_BLINKTIME   0.3f
 #define TF_SPY_STEALTH_BLINKSCALE  0.85f
@@ -137,8 +139,9 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_nPlayerCondEx3 ) ),
 	RecvPropInt( RECVINFO( m_bJumping) ),
 	RecvPropInt( RECVINFO( m_nNumHealers ) ),
-	RecvPropInt( RECVINFO( m_iCritMult) ),
-	RecvPropInt( RECVINFO( m_bAirDash) ),
+	RecvPropInt( RECVINFO( m_iCritMult ) ),
+	RecvPropInt( RECVINFO( m_bAirDash ) ),
+	RecvPropInt( RECVINFO( m_nAirDucked ) ),
 	RecvPropInt( RECVINFO( m_nPlayerState ) ),
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
 	RecvPropEHandle( RECVINFO( m_hCarriedObject ) ),
@@ -166,6 +169,7 @@ BEGIN_PREDICTION_DATA_NO_BASE( CTFPlayerShared )
 	DEFINE_PRED_FIELD( m_flCloakMeter, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bJumping, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bAirDash, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD( m_nAirDucked, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_flInvisChangeCompleteTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iDesiredWeaponID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iRespawnParticleID, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
@@ -197,6 +201,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_iCritMult ), 8, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_bAirDash ), 1, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
+	SendPropInt( SENDINFO( m_nAirDucked ), 2, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nPlayerState ), Q_log2( TF_STATE_COUNT )+1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
@@ -231,6 +236,7 @@ CTFPlayerShared::CTFPlayerShared()
 	m_nPlayerState.Set( TF_STATE_WELCOME );
 	m_bJumping = false;
 	m_bAirDash = false;
+	m_nAirDucked = 0;
 	m_flStealthNoAttackExpire = 0.0f;
 	m_flStealthNextChangeTime = 0.0f;
 	m_iCritMult = 0;
@@ -2521,6 +2527,22 @@ void CTFPlayerShared::SetJumping( bool bJumping )
 void CTFPlayerShared::SetAirDash( bool bAirDash )
 {
 	m_bAirDash = bAirDash;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::IncrementAirDucks( void )
+{
+	m_nAirDucked++;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::ResetAirDucks( void )
+{
+	m_nAirDucked = 0;
 }
 
 //-----------------------------------------------------------------------------

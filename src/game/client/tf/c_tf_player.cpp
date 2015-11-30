@@ -2683,7 +2683,7 @@ extern ConVar cl_sidespeed;
 void C_TFPlayer::AvoidPlayers( CUserCmd *pCmd )
 {
 	// Turn off the avoid player code.
-	if ( !tf_avoidteammates.GetBool() )
+	if ( !tf_avoidteammates.GetBool() || !tf_avoidteammates_pushaway.GetBool() )
 		return;
 
 	// Don't test if the player doesn't exist or is dead.
@@ -4046,8 +4046,12 @@ void C_TFPlayer::FireEvent( const Vector& origin, const QAngle& angles, int even
 // Shadows
 
 ConVar cl_blobbyshadows( "cl_blobbyshadows", "0", FCVAR_CLIENTDLL );
+extern ConVar tf2c_disable_player_shadows;
 ShadowType_t C_TFPlayer::ShadowCastType( void ) 
 {
+	if ( tf2c_disable_player_shadows.GetBool() )
+		return SHADOWS_NONE;
+
 	// Removed the GetPercentInvisible - should be taken care off in BindProxy now.
 	if ( !IsVisible() /*|| GetPercentInvisible() > 0.0f*/ )
 		return SHADOWS_NONE;
@@ -4139,6 +4143,7 @@ bool C_TFPlayer::IsNemesisOfLocalPlayer()
 	return false;
 }
 
+extern ConVar tf_tournament_hide_domination_icons;
 //-----------------------------------------------------------------------------
 // Purpose: Returns whether we should show the nemesis icon for this player
 //-----------------------------------------------------------------------------
@@ -4150,7 +4155,8 @@ bool C_TFPlayer::ShouldShowNemesisIcon()
 	{
 		bool bStealthed = m_Shared.InCond( TF_COND_STEALTHED );
 		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
-		if ( IsAlive() && !bStealthed && !bDisguised )
+		bool bTournamentHide = TFGameRules()->IsInTournamentMode() && tf_tournament_hide_domination_icons.GetBool();
+		if ( IsAlive() && !bStealthed && !bDisguised && !bTournamentHide )
 			return true;
 	}
 	return false;

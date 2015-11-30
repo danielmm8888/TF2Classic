@@ -32,9 +32,11 @@
 ConVar	tf_maxspeed( "tf_maxspeed", "400", FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT  | FCVAR_DEVELOPMENTONLY);
 ConVar	tf_showspeed( "tf_showspeed", "0", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar	tf_avoidteammates( "tf_avoidteammates", "1", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar	tf_avoidteammates_pushaway( "tf_avoidteammates_pushaway", "1", FCVAR_REPLICATED, "Whether or not teammates push each other away when occupying the same space" );
 ConVar  tf_solidobjects( "tf_solidobjects", "1", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar	tf_clamp_back_speed( "tf_clamp_back_speed", "0.9", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar  tf_clamp_back_speed_min( "tf_clamp_back_speed_min", "100", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar	tf_clamp_airducks( "tf_clamp_airducks", "1", FCVAR_REPLICATED );
 
 ConVar	tf2c_bunnyjump_max_speed_factor("tf2c_bunnyjump_max_speed_factor", "1.2", FCVAR_REPLICATED);
 ConVar  tf2c_autojump("tf2c_autojump", "0", FCVAR_REPLICATED, "Automatically jump while holding the jump button down");
@@ -47,6 +49,8 @@ ConVar  tf2c_groundspeed_cap("tf2c_groundspeed_cap", "1", FCVAR_REPLICATED, "Tog
 #define TF_WATERJUMP_UP       300
 //ConVar	tf_waterjump_up( "tf_waterjump_up", "300", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 //ConVar	tf_waterjump_forward( "tf_waterjump_forward", "30", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+
+#define TF_MAX_AIR_DUCKS 2
 
 class CTFGameMovement : public CGameMovement
 {
@@ -1205,7 +1209,160 @@ void CTFGameMovement::Duck( void )
 		mv->m_nButtons &= ~IN_DUCK;
 	}
 
-	BaseClass::Duck();
+	int buttonsChanged = ( mv->m_nOldButtons ^ mv->m_nButtons );	// These buttons have changed this frame
+	int buttonsPressed = buttonsChanged & mv->m_nButtons;			// The changed ones still down are "pressed"
+	int buttonsReleased = buttonsChanged & mv->m_nOldButtons;		// The changed ones which were previously down are "released"
+
+	// Check to see if we are in the air.
+	bool bInAir = ( player->GetGroundEntity() == NULL );
+	bool bInDuck = ( player->GetFlags() & FL_DUCKING ) ? true : false;
+
+	// If player is over air ducks limit he can't air duck again until he lands.
+	bool bCanAirDuck = !tf_clamp_airducks.GetBool() || m_pTFPlayer->m_Shared.GetAirDucks() < TF_MAX_AIR_DUCKS;
+
+	if ( mv->m_nButtons & IN_DUCK )
+	{
+		mv->m_nOldButtons |= IN_DUCK;
+	}
+	else
+	{
+		mv->m_nOldButtons &= ~IN_DUCK;
+	}
+
+	// Handle death.
+	if ( IsDead() )
+		return;
+
+	// Slow down ducked players.
+	HandleDuckingSpeedCrop();
+
+	// If the player is holding down the duck button, the player is in duck transition, ducking, or duck-jumping.
+	if ( ( mv->m_nButtons & IN_DUCK ) || player->m_Local.m_bDucking || bInDuck )
+	{
+		// DUCK
+		if ( ( mv->m_nButtons & IN_DUCK ) )
+		{
+			// Have the duck button pressed, but the player currently isn't in the duck position.
+			if ( ( buttonsPressed & IN_DUCK ) && !bInDuck && ( !bInAir || bCanAirDuck ) )
+			{
+				player->m_Local.m_flDucktime = GAMEMOVEMENT_DUCK_TIME;
+				player->m_Local.m_bDucking = true;
+			}
+
+			// The player is in duck transition and not duck-jumping.
+			if ( player->m_Local.m_bDucking )
+			{
+				float flDuckMilliseconds = MAX( 0.0f, GAMEMOVEMENT_DUCK_TIME - (float)player->m_Local.m_flDucktime );
+				float flDuckSeconds = flDuckMilliseconds * 0.001f;
+
+				// Finish in duck transition when transition time is over, in "duck", in air.
+				if ( ( flDuckSeconds > TIME_TO_DUCK ) || bInDuck || bInAir )
+				{
+					FinishDuck();
+
+					if ( bInAir && m_pTFPlayer->m_Shared.GetAirDucks() < TF_MAX_AIR_DUCKS )
+					{
+						// Ducked in mid-air, increment air ducks count.
+						m_pTFPlayer->m_Shared.IncrementAirDucks();
+					}
+				}
+				else
+				{
+					// Calc parametric time
+					float flDuckFraction = SimpleSpline( flDuckSeconds / TIME_TO_DUCK );
+					SetDuckedEyeOffset( flDuckFraction );
+				}
+			}
+		}
+		// UNDUCK (or attempt to...)
+		else
+		{
+			// Try to unduck unless automovement is not allowed
+			// NOTE: When not onground, you can always unduck
+			if ( player->m_Local.m_bAllowAutoMovement || bInAir || player->m_Local.m_bDucking )
+			{
+				// We released the duck button, we aren't in "duck" and we are not in the air - start unduck transition.
+				if ( ( buttonsReleased & IN_DUCK ) )
+				{
+					if ( bInDuck )
+					{
+						player->m_Local.m_flDucktime = GAMEMOVEMENT_DUCK_TIME;
+					}
+					else if ( player->m_Local.m_bDucking && !player->m_Local.m_bDucked )
+					{
+						// Invert time if release before fully ducked!!!
+						float unduckMilliseconds = 1000.0f * TIME_TO_UNDUCK;
+						float duckMilliseconds = 1000.0f * TIME_TO_DUCK;
+						float elapsedMilliseconds = GAMEMOVEMENT_DUCK_TIME - player->m_Local.m_flDucktime;
+
+						float fracDucked = elapsedMilliseconds / duckMilliseconds;
+						float remainingUnduckMilliseconds = fracDucked * unduckMilliseconds;
+
+						player->m_Local.m_flDucktime = GAMEMOVEMENT_DUCK_TIME - unduckMilliseconds + remainingUnduckMilliseconds;
+					}
+				}
+
+
+				// Check to see if we are capable of unducking.
+				if ( CanUnduck() )
+				{
+					// or unducking
+					if ( ( player->m_Local.m_bDucking || player->m_Local.m_bDucked ) )
+					{
+						float flDuckMilliseconds = MAX( 0.0f, GAMEMOVEMENT_DUCK_TIME - (float)player->m_Local.m_flDucktime );
+						float flDuckSeconds = flDuckMilliseconds * 0.001f;
+
+						// Finish ducking immediately if duck time is over or not on ground
+						if ( flDuckSeconds > TIME_TO_UNDUCK || bInAir )
+						{
+							FinishUnDuck();
+						}
+						else
+						{
+							// Calc parametric time
+							float flDuckFraction = SimpleSpline( 1.0f - ( flDuckSeconds / TIME_TO_UNDUCK ) );
+							SetDuckedEyeOffset( flDuckFraction );
+							player->m_Local.m_bDucking = true;
+						}
+					}
+				}
+				else
+				{
+					// Still under something where we can't unduck, so make sure we reset this timer so
+					//  that we'll unduck once we exit the tunnel, etc.
+					if ( player->m_Local.m_flDucktime != GAMEMOVEMENT_DUCK_TIME )
+					{
+						SetDuckedEyeOffset( 1.0f );
+						player->m_Local.m_flDucktime = GAMEMOVEMENT_DUCK_TIME;
+						player->m_Local.m_bDucked = true;
+						player->m_Local.m_bDucking = false;
+						player->AddFlag( FL_DUCKING );
+					}
+				}
+			}
+		}
+	}
+	// HACK: (jimd 5/25/2006) we have a reoccuring bug (#50063 in Tracker) where the player's
+	// view height gets left at the ducked height while the player is standing, but we haven't
+	// been  able to repro it to find the cause.  It may be fixed now due to a change I'm
+	// also making in UpdateDuckJumpEyeOffset but just in case, this code will sense the 
+	// problem and restore the eye to the proper position.  It doesn't smooth the transition,
+	// but it is preferable to leaving the player's view too low.
+	//
+	// If the player is still alive and not an observer, check to make sure that
+	// his view height is at the standing height.
+	else if ( !IsDead() && !player->IsObserver() && !player->IsInAVehicle() )
+	{
+		if ( ( player->m_Local.m_flDuckJumpTime == 0.0f ) && ( fabs( player->GetViewOffset().z - GetPlayerViewOffset( false ).z ) > 0.1 ) )
+		{
+			// we should rarely ever get here, so assert so a coder knows when it happens
+			Assert( 0 );
+			DevMsg( 1, "Restoring player view height\n" );
+
+			// set the eye height to the non-ducked height
+			SetDuckedEyeOffset( 0.0f );
+		}
+	}
 }
 
 void CTFGameMovement::HandleDuckingSpeedCrop( void )
@@ -1544,6 +1701,7 @@ void CTFGameMovement::SetGroundEntity( trace_t *pm )
 	if ( pm && pm->m_pEnt )
 	{
 		m_pTFPlayer->m_Shared.SetAirDash( false );
+		m_pTFPlayer->m_Shared.ResetAirDucks();
 	}
 }
 

@@ -47,6 +47,7 @@
 #endif
 
 extern ConVar	tf_avoidteammates;
+extern ConVar	tf_avoidteammates_pushaway;
 
 extern ConVar	fraglimit;
 
