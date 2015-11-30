@@ -497,7 +497,6 @@ void CObjectTeleporter::CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool
 	pObjToCopyTo->m_iMaxHealth = pObjToCopyFrom->m_iMaxHealth;
 	pObjToCopyTo->m_iUpgradeMetalRequired = pObjToCopyFrom->m_iUpgradeMetalRequired;
 	pObjToCopyTo->m_iUpgradeLevel = pObjToCopyFrom->m_iUpgradeLevel;
-	pObjToCopyTo->m_iGoalUpgradeLevel = pObjToCopyFrom->m_iGoalUpgradeLevel;
 
 	/**(pObjToCopyTo + 632) = *(this + 632);
 	*(pObjToCopyTo + 629) = *(this + 629);

@@ -411,8 +411,12 @@ void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
 		// Save health amount building had before getting picked up. It will only heal back up to it.
 		m_iGoalHealth = GetHealth();
 
-		// Reset upgrade level. Building will automatically upgrade back once re-deployed.
+		// Save current upgrade level and reset it. Building will automatically upgrade back once re-deployed.
+		m_iGoalUpgradeLevel = GetUpgradeLevel();
 		m_iUpgradeLevel = 1;
+
+		// Reset placement rotation.
+		m_iDesiredBuildRotations = 0;
 
 		SetModel( GetPlacementModel() );
 
@@ -765,7 +769,6 @@ void CBaseObject::StartUpgrading(void)
 {
 	// Increase level
 	m_iUpgradeLevel++;
-	m_iGoalUpgradeLevel = max( m_iUpgradeLevel, m_iGoalUpgradeLevel );
 
 	// more health
 	if ( !IsRedeploying() )
