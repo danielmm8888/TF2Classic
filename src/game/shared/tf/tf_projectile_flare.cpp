@@ -81,6 +81,8 @@ void CTFProjectile_Flare::Spawn()
 {
 	SetModel( TF_WEAPON_FLARE_MODEL );
 	BaseClass::Spawn();
+	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
+	SetGravity( 0.3f );
 }
 
 //-----------------------------------------------------------------------------

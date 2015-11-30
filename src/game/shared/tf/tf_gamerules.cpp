@@ -88,6 +88,8 @@ extern ConVar tf_arena_max_streak;
 ConVar tf_caplinear( "tf_caplinear", "1", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "If set to 1, teams must capture control points linearly." );
 ConVar tf_stalematechangeclasstime( "tf_stalematechangeclasstime", "20", FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Amount of time that players are allowed to change class in stalemates." );
 ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
+
+// TF2C specific cvars.
 ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
 ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "Time (in seconds) that the DM spawn protection lasts" );
 

@@ -472,6 +472,7 @@ void CTFFlameThrower::SecondaryAttack()
 	}
 
 #ifdef CLIENT_DLL
+	StopFlame();
 #endif
 
 	m_iWeaponState = FT_STATE_AIRBLASTING;
@@ -494,56 +495,70 @@ void CTFFlameThrower::SecondaryAttack()
 	lagcompensation->StartLagCompensation( pOwner, pOwner->GetCurrentCommand() );
 
 	Vector vecDir;
-	pOwner->EyeVectors( &vecDir );
+	QAngle angDir = pOwner->EyeAngles();
+	AngleVectors( angDir, &vecDir );
 
-	const Vector vecBlastArea = Vector( 128, 128, 64 );
+	const Vector vecBlastSize = Vector( 128, 128, 64 );
 
-	// Not sure if I did this one correctly, I'm not too good with vectors. (Nicknine)
-	Vector vecOrigin = pOwner->Weapon_ShootPosition() + vecDir * 128 * 1.5f;
+	// Picking max out of length, width, height for airblast distance.
+	float flBlastDist = max( max( vecBlastSize.x, vecBlastSize.y ), vecBlastSize.z );
+
+	Vector vecOrigin = pOwner->Weapon_ShootPosition() + vecDir * flBlastDist;
 
 	CBaseEntity *pList[64];
 
-	int count = UTIL_EntitiesInBox( pList, 64, vecOrigin - vecBlastArea, vecOrigin + vecBlastArea, 0 );
+	int count = UTIL_EntitiesInBox( pList, 64, vecOrigin - vecBlastSize, vecOrigin + vecBlastSize, 0 );
 
 	if ( tf2c_debug_airblast.GetBool() )
 	{
-		NDebugOverlay::Box( vecOrigin, -vecBlastArea, vecBlastArea, 0, 0, 255, 100, 2.0 );
+		NDebugOverlay::Box( vecOrigin, -vecBlastSize, vecBlastSize, 0, 0, 255, 100, 2.0 );
 	}
 
 	for ( int i = 0; i < count; i++ )
 	{
-		if ( !pList[i] )
+		CBaseEntity *pEntity = pList[i];
+
+		if ( !pEntity )
 			continue;
 
-		if ( pList[i] == pOwner )
+		if ( pEntity == pOwner )
 			continue;
 
-		if ( !pList[i]->IsDeflectable() )
+		if ( !pEntity->IsDeflectable() )
 			continue;
 
 		// Make sure we can actually see this entity so we don't hit anything through walls.
 		trace_t tr;
-		UTIL_TraceLine( pOwner->Weapon_ShootPosition(), pList[i]->WorldSpaceCenter(), MASK_SOLID, this, COLLISION_GROUP_DEBRIS, &tr );
+		UTIL_TraceLine( pOwner->Weapon_ShootPosition(), pEntity->WorldSpaceCenter(), MASK_SOLID, this, COLLISION_GROUP_DEBRIS, &tr );
 		if ( tr.fraction != 1.0f )
 			continue;
 
 
-		if ( pList[i]->IsPlayer() && pList[i]->IsAlive() )
+		if ( pEntity->IsPlayer() && pEntity->IsAlive() )
 		{
-			CTFPlayer *pTFPlayer = ToTFPlayer( pList[i] );
+			CTFPlayer *pTFPlayer = ToTFPlayer( pEntity );
 
-			DeflectPlayer( pTFPlayer, pOwner, vecDir );
+			Vector vecPushDir;
+			QAngle angPushDir = angDir;
+
+			// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
+			if ( pTFPlayer->GetGroundEntity() != NULL )
+			{
+				angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
+			}
+
+			AngleVectors( angPushDir, &vecPushDir );
+
+			DeflectPlayer( pTFPlayer, pOwner, vecPushDir );
 		}
 		else
 		{
-			Vector vecPos = pList[i]->GetAbsOrigin();
-			Vector vecPushDir;
-			QAngle angForward;
-			GetProjectileReflectSetup( GetTFPlayerOwner(), vecPos, &angForward, false );
+			// Deflect projectile to the point that we're aiming at, similar to rockets.
+			Vector vecPos = pEntity->GetAbsOrigin();
+			Vector vecDeflect;
+			GetProjectileReflectSetup( GetTFPlayerOwner(), vecPos, &vecDeflect, false );
 
-			AngleVectors( angForward, &vecPushDir );
-
-			DeflectEntity( pList[i], pOwner, vecPushDir );
+			DeflectEntity( pEntity, pOwner, vecDeflect );
 		}
 	}
 
@@ -574,18 +589,6 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
 	{
 		// Push enemy players.
-		QAngle angPushDir;
-		VectorAngles( vecDir, angPushDir );
-
-		// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
-		if ( pVictim->GetGroundEntity() != NULL )
-		{
-			angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
-		}
-
-		AngleVectors( angPushDir, &vecDir );
-		VectorNormalize( vecDir );
-
 		pVictim->SetGroundEntity( NULL );
 		pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
 		//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );

@@ -497,7 +497,6 @@ void CObjectTeleporter::CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool
 	pObjToCopyTo->m_iMaxHealth = pObjToCopyFrom->m_iMaxHealth;
 	pObjToCopyTo->m_iUpgradeMetalRequired = pObjToCopyFrom->m_iUpgradeMetalRequired;
 	pObjToCopyTo->m_iUpgradeLevel = pObjToCopyFrom->m_iUpgradeLevel;
-	pObjToCopyTo->m_iGoalUpgradeLevel = pObjToCopyFrom->m_iGoalUpgradeLevel;
 
 	/**(pObjToCopyTo + 632) = *(this + 632);
 	*(pObjToCopyTo + 629) = *(this + 629);
@@ -548,14 +547,15 @@ bool CObjectTeleporter::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, 
 {
 	if ( HasSapper() && GetMatchingTeleporter() )
 	{
+		CObjectTeleporter *pMatch = GetMatchingTeleporter();
 		// do damage to any attached buildings
 		CTakeDamageInfo info( pPlayer, pPlayer, 65, DMG_CLUB, TF_DMG_WRENCH_FIX );
 
-		IHasBuildPoints *pBPInterface = dynamic_cast< IHasBuildPoints * >( GetMatchingTeleporter() );
+		IHasBuildPoints *pBPInterface = dynamic_cast< IHasBuildPoints * >( pMatch );
 		int iNumObjects = pBPInterface->GetNumObjectsOnMe();
 		for ( int iPoint=0; iPoint < iNumObjects; iPoint++ )
 		{
-			CBaseObject *pObject = GetBuildPointObject( iPoint );
+			CBaseObject *pObject = pMatch->GetBuildPointObject( iPoint );
 
 			if ( pObject && pObject->IsHostileUpgrade() )
 				pObject->TakeDamage( info );

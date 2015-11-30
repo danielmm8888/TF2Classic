@@ -16,6 +16,7 @@
 #include "tf_weapon_builder.h"
 #include "vguiscreen.h"
 #include "tf_gamerules.h"
+#include "tf_obj_teleporter.h"
 
 extern ConVar tf2_object_hard_limits;
 extern ConVar tf_fastbuild;
@@ -296,7 +297,33 @@ void CTFWeaponBuilder::PrimaryAttack( void )
 					pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_GRENADE );
 				}
 
+				// Need to save this for later since StartBuilding will clear m_hObjectBeingBuilt.
+				CBaseObject *pParentObject = m_hObjectBeingBuilt->GetParentObject();
+
 				StartBuilding();
+
+				// Attaching a sapper to a teleporter automatically saps another end.
+				if ( GetType() == OBJ_ATTACHMENT_SAPPER )
+				{
+					CObjectTeleporter *pTeleporter = dynamic_cast<CObjectTeleporter *>( pParentObject );
+
+					if ( pTeleporter )
+					{
+						CObjectTeleporter *pMatch = pTeleporter->GetMatchingTeleporter();
+
+						// If the other end is not already sapped then place a sapper on it.
+						if ( pMatch && !pMatch->IsPlacing() && !pMatch->HasSapper() )
+						{
+							SetCurrentState( BS_PLACING );
+							StartPlacement();
+							if ( m_hObjectBeingBuilt.Get() )
+							{
+								m_hObjectBeingBuilt->UpdateAttachmentPlacement( pMatch );
+								StartBuilding();
+							}
+						}
+					}
+				}
 
 				// Should we switch away?
 				if ( iFlags & OF_ALLOW_REPEAT_PLACEMENT )

@@ -98,17 +98,17 @@ public:
 	virtual int		GetMaxHealthForCurrentLevel( void );
 	virtual void	StartPlacement( CTFPlayer *pPlayer );
 	void			StopPlacement( void );
-	bool			FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint );
+	bool			FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint, bool bIgnoreLOS = false );
 	bool			VerifyCorner( const Vector &vBottomCenter, float xOffset, float yOffset );
 	virtual float	GetNearbyObjectCheckRadius( void ) { return 30.0; }
 	bool			UpdatePlacement( void );
-	bool			UpdateAttachmentPlacement( void );
+	bool			UpdateAttachmentPlacement( CBaseObject *pObject = NULL );
 	bool			IsValidPlacement( void ) const;
 	bool			EstimateValidBuildPos( void );
 
 	bool			CalculatePlacementPos( void );
 	virtual bool	IsPlacementPosValid( void );
-	bool			FindSnapToBuildPos( void );
+	bool			FindSnapToBuildPos( CBaseObject *pObject = NULL );
 
 	void			ReattachChildren( void );
 	
