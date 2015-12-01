@@ -39,6 +39,8 @@ public:
 
 	virtual bool		CalcIsAttackCriticalHelper( void );
 
+	virtual void		DoViewModelAnimation( void );
+
 private:
 	EHANDLE				m_hBackstabVictim;
 

@@ -2158,7 +2158,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	int iClass = TF_CLASS_UNDEFINED;
 	bool bShouldNotRespawn = false;
 
-	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() != GetTeamNumber() ) )
+	if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN )
 	{
 		m_bAllowInstantSpawn = false;
 		bShouldNotRespawn = true;
