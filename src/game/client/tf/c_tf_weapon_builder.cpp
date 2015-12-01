@@ -350,9 +350,10 @@ const char *C_TFWeaponBuilder::GetWorldModel( void ) const
 
 Activity C_TFWeaponBuilder::GetDrawActivity( void )
 {
-	// sapper used to call different draw animations , one when invis and one when not.
-	// now you can go invis *while* deploying, so let's always use the one-handed deploy.
-	if ( GetSubType() == OBJ_ATTACHMENT_SAPPER )
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+
+	// Use the one handed sapper deploy if we're invisible.
+	if ( pOwner && GetObjectType() == OBJ_ATTACHMENT_SAPPER && pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		return ACT_VM_DRAW_DEPLOYED;
 	}

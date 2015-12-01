@@ -160,9 +160,10 @@ bool CTFWeaponBuilder::Deploy( void )
 
 Activity CTFWeaponBuilder::GetDrawActivity( void )
 {
-	// sapper used to call different draw animations , one when invis and one when not.
-	// now you can go invis *while* deploying, so let's always use the one-handed deploy.
-	if ( GetType() == OBJ_ATTACHMENT_SAPPER )
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+
+	// Use the one handed sapper deploy if we're invisible.
+	if ( pOwner && GetType() == OBJ_ATTACHMENT_SAPPER && pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		return ACT_VM_DRAW_DEPLOYED;
 	}
