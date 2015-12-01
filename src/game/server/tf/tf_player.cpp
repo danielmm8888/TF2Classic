@@ -382,6 +382,8 @@ CTFPlayer::CTFPlayer()
 	m_flNextTimeCheck = gpGlobals->curtime;
 	m_flSpawnTime = 0;
 
+	m_flNextCarryTalkTime = 0.0f;
+
 	SetViewOffset( TF_PLAYER_VIEW_OFFSET );
 
 	m_Shared.Init( this );
@@ -453,6 +455,23 @@ void CTFPlayer::TFPlayerThink()
 			StopScriptedScene( this, m_hTauntScene );
 			m_Shared.m_flTauntRemoveTime = 0.0f;
 			m_hTauntScene = NULL;
+		}
+	}
+
+	// If players is hauling a building have him talk about it from time to time.
+	if ( m_flNextCarryTalkTime != 0.0f && m_flNextCarryTalkTime < gpGlobals->curtime )
+	{
+		CBaseObject *pObject = m_Shared.GetCarriedObject();
+		if ( pObject )
+		{
+			const char *pszModifier = pObject->GetResponseRulesModifier();
+			SpeakConceptIfAllowed( MP_CONCEPT_CARRYING_BUILDING, pszModifier );
+			m_flNextCarryTalkTime = gpGlobals->curtime + RandomFloat( 6.0f, 12.0f );
+		}
+		else
+		{
+			// No longer hauling, shut up.
+			m_flNextCarryTalkTime = 0.0f;
 		}
 	}
 

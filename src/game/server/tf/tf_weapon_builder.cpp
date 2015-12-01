@@ -518,6 +518,12 @@ void CTFWeaponBuilder::StopPlacement( void )
 {
 	if ( m_hObjectBeingBuilt )
 	{
+		// Make sure we clear out carrying status on player.
+		if ( m_hObjectBeingBuilt->IsBeingCarried() )
+		{
+			m_hObjectBeingBuilt->DropCarriedObject( GetTFPlayerOwner() );
+		}
+
 		m_hObjectBeingBuilt->StopPlacement();
 		m_hObjectBeingBuilt = NULL;
 	}

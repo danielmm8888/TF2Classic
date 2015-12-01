@@ -444,7 +444,9 @@ void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
 	m_bCarryDeploy = true;
 
 	if ( pPlayer )
+	{
 		pPlayer->m_Shared.SetCarriedObject( NULL );
+	}
 
 	//StopFollowingEntity();
 }
@@ -1347,32 +1349,36 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	CTFTeam *pTFTeam = ( CTFTeam * )GetGlobalTeam( GetTeamNumber() );
 
 	// Deduct the cost from the player
-	if ( !IsRedeploying() && pBuilder && pBuilder->IsPlayer() )
+	if ( pBuilder && pBuilder->IsPlayer() )
 	{
-		/*
-		if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
+		CTFPlayer *pTFBuilder = ToTFPlayer( pBuilder );
+
+		if ( IsRedeploying() )
 		{
+			pTFBuilder->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
+		}
+		else
+		{
+			/*
+			if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
+			{
 			((CTFPlayer*)pBuilder)->HintMessage( HINT_ENGINEER_USE_WRENCH_ONOWN );
-		}
-		*/
+			}
+			*/
 
-		int iAmountPlayerPaidForMe = ((CTFPlayer*)pBuilder)->StartedBuildingObject( m_iObjectType );
-		if ( !iAmountPlayerPaidForMe )
-		{
-			// Player couldn't afford to pay for me, so abort
-			ClientPrint( (CBasePlayer*)pBuilder, HUD_PRINTCENTER, "Not enough resources.\n" );
-			StopPlacement();
-			return false;
-		}
+			int iAmountPlayerPaidForMe = ( pTFBuilder )->StartedBuildingObject( m_iObjectType );
+			if ( !iAmountPlayerPaidForMe )
+			{
+				// Player couldn't afford to pay for me, so abort
+				ClientPrint( pTFBuilder, HUD_PRINTCENTER, "Not enough resources.\n" );
+				StopPlacement();
+				return false;
+			}
 
-		((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
+			pTFBuilder->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
+		}
 	}
 
-	if ( IsRedeploying() )
-	{
-		( (CTFPlayer*)pBuilder )->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
-	}
-	
 	// Add this object to the team's list (because we couldn't add it during
 	// placement mode)
 	if ( !IsRedeploying() && pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )

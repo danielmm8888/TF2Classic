@@ -3412,6 +3412,8 @@ bool CTFPlayer::TryToPickupBuilding( void )
 					// try to switch to this weapon
 					Weapon_Switch( pBuilder );
 
+					m_flNextCarryTalkTime = gpGlobals->curtime + RandomFloat( 6.0f, 12.0f );
+
 					return true;
 				}
 			}

@@ -368,6 +368,8 @@ public:
 
 	float	m_flNextNameChangeTime;
 
+	float	m_flNextCarryTalkTime;
+
 	bool	m_bIsPlayerADev;
 
 	int					StateGet( void ) const;
