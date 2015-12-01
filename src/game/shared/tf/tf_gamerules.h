@@ -75,20 +75,31 @@ public:
 	void	InputSetYellowTeamGoalString(inputdata_t &inputdata);
 	void	InputSetRedTeamRole( inputdata_t &inputdata );
 	void	InputSetBlueTeamRole( inputdata_t &inputdata );
-	void	InputSetGreenTeamRole(inputdata_t &inputdata);
-	void	InputSetYellowTeamRole(inputdata_t &inputdata);
-	void	InputAddRedTeamScore(inputdata_t &inputdata);
-	void	InputAddBlueTeamScore(inputdata_t &inputdata);
-	void	InputAddGreenTeamScore(inputdata_t &inputdata);
-	void	InputAddYellowTeamScore(inputdata_t &inputdata);
+	void	InputSetGreenTeamRole( inputdata_t &inputdata );
+	void	InputSetYellowTeamRole( inputdata_t &inputdata );
+	void	InputAddRedTeamScore( inputdata_t &inputdata );
+	void	InputAddBlueTeamScore( inputdata_t &inputdata );
+	void	InputAddGreenTeamScore( inputdata_t &inputdata );
+	void	InputAddYellowTeamScore( inputdata_t &inputdata );
 
-	void	InputSetRedKothClockActive(inputdata_t &inputdata);
-	void	InputSetBlueKothClockActive(inputdata_t &inputdata);
+	void	InputSetRedKothClockActive( inputdata_t &inputdata );
+	void	InputSetBlueKothClockActive( inputdata_t &inputdata );
+	void	InputSetGreenKothClockActive( inputdata_t &inputdata );
+	void	InputSetYellowKothClockActive( inputdata_t &inputdata );
+
+	void	InputSetCTFCaptureBonusTime( inputdata_t &inputdata );
+
+	void	InputPlayVO( inputdata_t &inputdata );
+	void	InputPlayVORed( inputdata_t &inputdata );
+	void	InputPlayVOBlue( inputdata_t &inputdata );
+	void	InputPlayVOGreen( inputdata_t &inputdata );
+	void	InputPlayVOYellow( inputdata_t &inputdata );
 
 	virtual void Activate();
 
 	int		m_iHud_Type;
 	bool	m_bFourTeamMode;
+	bool	m_bCTF_Overtime;
 
 #endif
 };
@@ -142,6 +153,9 @@ public:
 
 	CTeamRoundTimer* GetBlueKothRoundTimer( void ) { return m_hBlueKothTimer.Get(); }
 	CTeamRoundTimer* GetRedKothRoundTimer( void ) { return m_hRedKothTimer.Get(); }
+	CTeamRoundTimer* GetGreenKothRoundTimer( void ) { return m_hGreenKothTimer.Get(); }
+	CTeamRoundTimer* GetYellowKothRoundTimer( void ) { return m_hYellowKothTimer.Get(); }
+
 
 #ifdef GAME_DLL
 public:
@@ -215,6 +229,8 @@ public:
 
 	void			SetBlueKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hBlueKothTimer.Set( pTimer ); }
 	void			SetRedKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hRedKothTimer.Set( pTimer ); }
+	void			SetGreenKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hGreenKothTimer.Set( pTimer ); }
+	void			SetYellowKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hYellowKothTimer.Set( pTimer ); }
 
 protected:
 	virtual void	InitTeams( void );
@@ -395,6 +411,8 @@ private:
 	CNetworkVar( bool, m_bPowerupMode );
 	CNetworkVar( CHandle<CTeamRoundTimer>, m_hBlueKothTimer );
 	CNetworkVar( CHandle<CTeamRoundTimer>, m_hRedKothTimer );
+	CNetworkVar( CHandle<CTeamRoundTimer>, m_hGreenKothTimer );
+	CNetworkVar( CHandle<CTeamRoundTimer>, m_hYellowKothTimer );
 
 public:
 
@@ -404,6 +422,11 @@ public:
 	int		m_iBirthdayMode;
 
 	CNetworkVar( bool, m_bFourTeamMode );
+
+#ifdef GAME_DLL
+	float	m_flCTFBonusTime;
+#endif
+
 };
 
 //-----------------------------------------------------------------------------
