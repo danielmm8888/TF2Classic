@@ -864,14 +864,13 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 				}
 			}
 		}
-#if 0
+		
 		if ( InCond( TF_COND_BURNING ) )
 		{
 			// Reduce the duration of this burn 
 			float flReduction = 2;	 // ( flReduction + 1 ) x faster reduction
 			m_flFlameRemoveTime -= flReduction * gpGlobals->frametime;
 		}
-#endif
 	}
 
 	if ( bDecayHealth )
