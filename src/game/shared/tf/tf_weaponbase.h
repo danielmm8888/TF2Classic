@@ -139,7 +139,9 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
-	virtual bool HolsterOnDetach() { return true; }
+
+	virtual void OnActiveStateChanged( int iOldState );
+	virtual void UpdateOnRemove( void );
 
 	// Attacks.
 	virtual void PrimaryAttack();
