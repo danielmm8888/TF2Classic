@@ -61,7 +61,7 @@ int CEconWearable::GetSkin( void )
 
 void CEconWearable::UpdateWearableBodyGroups( CBasePlayer *pPlayer )
 {
-	EconItemVisuals *visual = &GetItemSchema()->GetItemDefinition(GetItemDefIndex())->visual;
+	EconItemVisuals *visual = &m_Item.GetStaticData()->visual;
  	for ( unsigned int i = 0; i < visual->player_bodygroups.Count(); i++ )
 	{
 		const char *szBodyGroupName = visual->player_bodygroups.GetElementName(i);
@@ -92,6 +92,13 @@ void CEconWearable::Equip( CBasePlayer *pPlayer )
 	{
 		FollowEntity( pPlayer, true );
 		ChangeTeam( pPlayer->GetTeamNumber() );
+
+		IHasAttributes *pAttrib = pPlayer->GetHasAttributesInterfacePtr();
+
+		if ( pAttrib )
+		{
+			pAttrib->GetAttributeManager()->AddProvider( this );
+		}
 	}
 }
 
@@ -100,6 +107,13 @@ void CEconWearable::UnEquip( CBasePlayer *pPlayer )
 	if ( pPlayer )
 	{
 		StopFollowingEntity();
+
+		IHasAttributes *pAttrib = pPlayer->GetHasAttributesInterfacePtr();
+
+		if ( pAttrib )
+		{
+			pAttrib->GetAttributeManager()->RemoveProvider( this );
+		}
 	}
 }
 #else

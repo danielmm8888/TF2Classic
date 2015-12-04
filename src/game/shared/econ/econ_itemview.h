@@ -10,14 +10,7 @@
 #include "GameEventListener.h"
 #include "networkvar.h"
 
-#include "econ_entity.h"
-
-//#if defined( CLIENT_DLL )
-//class C_EconEntity;
-//#define CEconEntity C_EconEntity
-//#else
-//class CEconEntity;
-//#endif
+#include "econ_itemschema.h"
 
 class CEconItemHandle
 {
@@ -31,52 +24,49 @@ public:
 
 class CEconItemView
 {
-	DECLARE_CLASS_NOBASE(CEconItemView);
-	DECLARE_EMBEDDED_NETWORKVAR();
 public:
+	DECLARE_CLASS_NOBASE( CEconItemView );
+	DECLARE_EMBEDDED_NETWORKVAR();
 	CEconItemView() {}
 	CEconItemView( int m_ItemID ){ SetItemDefIndex(m_ItemID); }
-	static const char* GetWorldDisplayModel( CEconEntity *pEntity, int iClass = 0 );
-	static const char* GetWorldDisplayModel( int ID, int iClass = 0 );
-	static const char* GetPlayerDisplayModel( CEconEntity *pEntity );
-	static const char* GetPlayerDisplayModel( int ID );
-	static const char* GetEntityName( int ID );
-	static bool IsCosmetic( CEconEntity *pEntity );
-	static bool IsCosmetic( int ID );
-	static int GetAnimationSlot( CEconEntity *pEntity );
-	static int GetAnimationSlot( int ID );
-	static Activity GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, Activity actOriginalActivity );
-	static Activity GetActivityOverride( int ID, int iTeamNumber, Activity actOriginalActivity );
-	static const char* GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, const char* name );
-	static const char* GetActivityOverride( int ID, int iTeamNumber, const char* name );
-	static const char* GetSoundOverride(CEconEntity *pEntity, const char* name);
-	static const char* GetSoundOverride(int ID, const char* name);
-	static bool HasCapability( CEconEntity *pEntity, const char* name );
-	static bool HasCapability( int ID, const char* name );
-	static bool HasTag( CEconEntity *pEntity, const char* name );
-	static bool HasTag( int ID, const char* name );
 
-	void SetItemDefIndex(int iItemID) { m_iItemDefinitionIndex = iItemID; }
-	int GetItemDefIndex(void) const { return m_iItemDefinitionIndex; }
+	EconItemDefinition *GetStaticData( void ) const;
+
+	const char* GetWorldDisplayModel( int iClass = 0 ) const;
+	const char* GetPlayerDisplayModel( void ) const;
+	const char* GetEntityName( void );
+	bool IsCosmetic( void );
+	int GetAnimationSlot( void );
+	Activity GetActivityOverride( int iTeamNumber, Activity actOriginalActivity );
+	const char* GetActivityOverride( int iTeamNumber, const char *name );
+	const char* GetSoundOverride( const char* name );
+	bool HasCapability( const char* name );
+	bool HasTag( const char* name );
+
+	CEconItemAttribute *IterateAttributes( string_t strClass );
+
+	void SetItemDefIndex( int iItemID ) { m_iItemDefinitionIndex = iItemID; }
+	int GetItemDefIndex( void ) const { return m_iItemDefinitionIndex; }
 
 protected:
+	CNetworkVar( short, m_iItemDefinitionIndex );
 
-	CNetworkVar(short, m_iItemDefinitionIndex);
+	CNetworkVar( int, m_iEntityQuality ); // maybe an enum?
+	CNetworkVar( int, m_iEntityLevel );
 
-	CNetworkVar(int, m_iEntityQuality); // maybe an enum?
-	CNetworkVar(int, m_iEntityLevel);
-
-	CNetworkVar(uint64, m_iItemID);
-	CNetworkVar(uint64, m_iAccountID);
-	CNetworkVar(int, m_iInventoryPosition);
+	CNetworkVar( int, m_iItemID );
+	CNetworkVar( uint64, m_iAccountID );
+	CNetworkVar( int, m_iInventoryPosition );
 
 	CEconItemHandle m_ItemHandle; // The handle to the CEconItem on the GC
 
-	CNetworkVar(int, m_iTeamNumber);
+	CNetworkVar( int, m_iTeamNumber );
 	//bool m_bInitialized; // ?
 
-	// CAttributeList m_AttributeList; TODO: Add dynamic attribs
-	CNetworkVar(bool, m_bOnlyIterateItemViewAttributes);
+	//CUtlDict< EconItemAttribute, unsigned short > m_AttributeList;
+	CNetworkVar( bool, m_bOnlyIterateItemViewAttributes );
+
+	CUtlVector<CEconItemAttribute> m_AttributeList;
 };
 
 #endif // TF_ECON_ITEMVIEW_H

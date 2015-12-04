@@ -2,39 +2,46 @@
 #include "econ_itemview.h"
 #include "activitylist.h"
 
+#ifdef CLIENT_DLL
+#include "dt_utlvector_recv.h"
+#else
+#include "dt_utlvector_send.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define MAX_ATTRIBUTES_SENT 20
 
 #ifdef CLIENT_DLL
 BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 	RecvPropInt(RECVINFO(m_iItemDefinitionIndex)),
 	RecvPropInt(RECVINFO(m_iEntityQuality)),
 	RecvPropInt(RECVINFO(m_iEntityLevel)),
-	//RecvPropInt(RECVINFO(m_iItemID)),
+	RecvPropInt(RECVINFO(m_iItemID)),
 	RecvPropInt(RECVINFO(m_iInventoryPosition)),
 	RecvPropInt(RECVINFO(m_iTeamNumber)),
-	RecvPropInt(RECVINFO(m_bOnlyIterateItemViewAttributes)),
+	RecvPropBool(RECVINFO(m_bOnlyIterateItemViewAttributes)),
+	RecvPropUtlVector( 
+	RECVINFO_UTLVECTOR( m_AttributeList ),
+	MAX_ATTRIBUTES_SENT,
+	RecvPropDataTable( NULL, 0, 0, &REFERENCE_RECV_TABLE( DT_EconItemAttribute ) ) )
 END_RECV_TABLE()
 #else
 BEGIN_SEND_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 	SendPropInt(SENDINFO(m_iItemDefinitionIndex)),
 	SendPropInt(SENDINFO(m_iEntityQuality)),
 	SendPropInt(SENDINFO(m_iEntityLevel)),
-	//SendPropInt(SENDINFO(m_iItemID)),
+	SendPropInt(SENDINFO(m_iItemID)),
 	SendPropInt(SENDINFO(m_iInventoryPosition)),
 	SendPropInt(SENDINFO(m_iTeamNumber)),
 	SendPropBool(SENDINFO(m_bOnlyIterateItemViewAttributes)),
+	SendPropUtlVector( 
+	SENDINFO_UTLVECTOR( m_AttributeList ),
+	MAX_ATTRIBUTES_SENT,
+	SendPropDataTable( NULL, 0, &REFERENCE_SEND_TABLE( DT_EconItemAttribute ) ) )
 END_SEND_TABLE()
 #endif
-
-BEGIN_NETWORK_TABLE(CEconEntity, DT_EconEntity)
-#ifdef CLIENT_DLL
-	RecvPropDataTable( RECVINFO_DT( m_Item ), 0, &REFERENCE_RECV_TABLE( DT_ScriptCreatedItem ) ),
-#else
-	SendPropDataTable( SENDINFO_DT( m_Item ), &REFERENCE_SEND_TABLE( DT_ScriptCreatedItem ) ),
-#endif
-END_NETWORK_TABLE()
 
 #define FIND_ELEMENT(dict, str, val)					\
 		unsigned int index = dict.Find(str);			\
@@ -46,111 +53,168 @@ END_NETWORK_TABLE()
 		if (index < dict.Count())						\
 			Q_snprintf(val, sizeof(val), dict.Element(index))
 
-const char* CEconItemView::GetWorldDisplayModel(CEconEntity *pEntity, int iClass/* = 0*/)
+
+EconItemDefinition* CEconItemView::GetStaticData( void ) const
 {
-	return GetWorldDisplayModel( pEntity->GetItemDefIndex() );
+	return GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
 }
 
-const char* CEconItemView::GetWorldDisplayModel(int ID, int iClass/* = 0*/)
+const char* CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 {
-	return GetItemSchema()->GetItemDefinition(ID)->model_world;
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		return pStatic->model_world;
+	}
+
+	return NULL;
 }
 
-const char* CEconItemView::GetPlayerDisplayModel(CEconEntity *pEntity)
+const char* CEconItemView::GetPlayerDisplayModel() const
 {
-	return GetPlayerDisplayModel(pEntity->GetItemDefIndex());
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		return pStatic->model_player;
+	}
+
+	return NULL;
 }
 
-const char* CEconItemView::GetPlayerDisplayModel(int ID)
+const char* CEconItemView::GetEntityName()
 {
-	return GetItemSchema()->GetItemDefinition(ID)->model_player;
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		return pStatic->item_class;
+	}
+
+	return NULL;
 }
 
-const char* CEconItemView::GetEntityName( int ID )
-{
-	return GetItemSchema()->GetItemDefinition(ID)->item_class;
-}
-
-bool CEconItemView::IsCosmetic(CEconEntity *pEntity)
-{
-	return IsCosmetic(pEntity->GetItemDefIndex());
-}
-
-bool CEconItemView::IsCosmetic(int ID)
+bool CEconItemView::IsCosmetic()
 {
 	bool result = false;
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, "is_cosmetic", result);
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		FIND_ELEMENT( pStatic->tags, "is_cosmetic", result );
+	}
+
 	return result;
 }
 
-Activity CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, Activity actOriginalActivity )
+Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOriginalActivity )
 {
-	return GetActivityOverride( pEntity->GetItemDefIndex(), iTeamNumber, actOriginalActivity );
-}
-
-Activity CEconItemView::GetActivityOverride( int ID, int iTeamNumber, Activity actOriginalActivity )
-{
-	EconItemVisuals *visual = &GetItemSchema()->GetItemDefinition(ID)->visual;
 	Activity actOverridenActivity = ACT_INVALID;
-	for ( unsigned int i = 0; i < visual->animation_replacement.Count(); i++ )
-	{
-		const char *szActivityString = visual->animation_replacement.GetElementName( i );
-		actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+	EconItemDefinition *pStatic = GetStaticData();
 
-		if ( actOverridenActivity == actOriginalActivity )
+	if ( pStatic )
+	{
+		EconItemVisuals *visual = &pStatic->visual;
+		for ( unsigned int i = 0; i < visual->animation_replacement.Count(); i++ )
 		{
-			szActivityString = visual->animation_replacement.Element( i );
+			const char *szActivityString = visual->animation_replacement.GetElementName( i );
 			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
-			return actOverridenActivity;
+
+			if ( actOverridenActivity == actOriginalActivity )
+			{
+				szActivityString = visual->animation_replacement.Element( i );
+				actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
+				return actOverridenActivity;
+			}
 		}
 	}
+
 	return actOverridenActivity;
 }
 
-const char* CEconItemView::GetActivityOverride( CEconEntity *pEntity, int iTeamNumber, const char *name )
-{
-	return GetActivityOverride( pEntity->GetItemDefIndex(), iTeamNumber, name );
-}
-
-const char* CEconItemView::GetActivityOverride( int ID, int iTeamNumber, const char *name )
+const char* CEconItemView::GetActivityOverride( int iTeamNumber, const char *name )
 {
 	const char* str = "";
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.animation_replacement, name, str);
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		FIND_ELEMENT( pStatic->visual.animation_replacement, name, str );
+	}
+
 	return str;
 }
 
-const char* CEconItemView::GetSoundOverride(CEconEntity *pEntity, const char* name)
-{
-	return GetSoundOverride(pEntity->GetItemDefIndex(), name);
-}
-
-const char* CEconItemView::GetSoundOverride(int ID, const char* name)
+const char* CEconItemView::GetSoundOverride( const char* name )
 {
 	const char* str = "";
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->visual.misc_info, name, str);
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		FIND_ELEMENT( pStatic->visual.misc_info, name, str );
+	}
+
 	return str;
 }
 
-bool CEconItemView::HasCapability(CEconEntity *pEntity, const char* name)
-{
-	return HasCapability(pEntity->GetItemDefIndex(), name);
-}
-
-bool CEconItemView::HasCapability(int ID, const char* name)
+bool CEconItemView::HasCapability( const char* name )
 {
 	bool result = false;
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->capabilities, name, result);
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		FIND_ELEMENT( pStatic->capabilities, name, result );
+	}
+
 	return result;
 }
 
-bool CEconItemView::HasTag(CEconEntity *pEntity, const char* name)
-{
-	return HasTag(pEntity->GetItemDefIndex(), name);
-}
-
-bool CEconItemView::HasTag(int ID, const char* name)
+bool CEconItemView::HasTag( const char* name )
 {
 	bool result = false;
-	FIND_ELEMENT(GetItemSchema()->GetItemDefinition(ID)->tags, name, result);
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic )
+	{
+		FIND_ELEMENT( pStatic->tags, name, result );
+	}
+
 	return result;
+}
+
+CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
+{
+	// Returning the first attribute found.
+	// This is not how live TF2 does this but this will do for now.
+	for ( int i = 0; i < m_AttributeList.Count(); i++ )
+	{
+		CEconItemAttribute *pAttribute = &m_AttributeList[i];
+
+#ifndef CLIENT_DLL
+		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
+#else
+		EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
+		if ( !pStatic )
+			continue;
+
+		string_t strMyClass = AllocPooledString( pStatic->attribute_class );
+#endif
+
+		if ( strMyClass == strClass )
+		{
+			return &m_AttributeList[i];
+		}
+	}
+
+	EconItemDefinition *pStatic = GetStaticData();
+
+	if ( pStatic && !m_bOnlyIterateItemViewAttributes )
+	{
+		return pStatic->IterateAttributes( strClass );
+	}
+
+	return NULL;
 }

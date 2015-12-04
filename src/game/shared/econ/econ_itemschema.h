@@ -8,22 +8,29 @@
 #include "igamesystem.h"
 #include "GameEventListener.h"
 
-class CEconEntity;
-
 class CEconSchemaParser;
+
+enum
+{
+	ATTRIB_FORMAT_INVALID = -1,
+	ATTRIB_FORMAT_PERCENTAGE,
+	ATTRIB_FORMAT_INVERTED_PERCENTAGE,
+	ATTRIB_FORMAT_ADDITIVE,
+	ATTRIB_FORMAT_ADDITIVE_PERCENTAGE,
+};
 	
 
 #define CALL_ATTRIB_HOOK_INT(value, name)			\
-		value = CAttributeManager::AttribHookValue<int>(value, #name, (CEconEntity*)this)
+		value = CAttributeManager::AttribHookValue<int>(value, #name, this)
 
 #define CALL_ATTRIB_HOOK_FLOAT(value, name)			\
-		value = CAttributeManager::AttribHookValue<float>(value, #name, (CEconEntity*)this)
+		value = CAttributeManager::AttribHookValue<float>(value, #name, this)
 
 #define CALL_ATTRIB_HOOK_INT_ON_OTHER(ent, value, name)			\
-		value = CAttributeManager::AttribHookValue<int>(value, #name, (CEconEntity*)ent)
+		value = CAttributeManager::AttribHookValue<int>(value, #name, ent)
 
 #define CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(ent, value, name)			\
-		value = CAttributeManager::AttribHookValue<float>(value, #name, (CEconEntity*)ent)
+		value = CAttributeManager::AttribHookValue<float>(value, #name, ent)
 
 #define CLEAR_STR(name)	\
 		Q_snprintf(name, sizeof(name), "")
@@ -56,6 +63,7 @@ struct EconAttributeDefinition
 		CLEAR_STR(attribute_class);
 		CLEAR_STR(description_string);
 		CLEAR_STR(description_format);
+		attribute_format = -1;
 		hidden = false;
 		CLEAR_STR(effect_type);
 		stored_as_integer = false;
@@ -65,21 +73,39 @@ struct EconAttributeDefinition
 	char attribute_class[128];
 	char description_string[128];
 	char description_format[128];
+	int attribute_format;
 	bool hidden;
 	char effect_type[128];
 	bool stored_as_integer;
 };
 
-struct EconItemAttribute
+// Client specific.
+#ifdef CLIENT_DLL
+EXTERN_RECV_TABLE( DT_EconItemAttribute );
+// Server specific.
+#else
+EXTERN_SEND_TABLE( DT_EconItemAttribute );
+#endif
+
+class CEconItemAttribute
 {
-	EconItemAttribute()
+public:
+	DECLARE_EMBEDDED_NETWORKVAR();
+	DECLARE_CLASS_NOBASE( CEconItemAttribute );
+
+	EconAttributeDefinition *GetStaticData( void );
+
+	CEconItemAttribute()
 	{
-		CLEAR_STR(attribute_class);
-		value = 0.0f;
+		m_iAttributeDefinitionIndex = -1;
+		CLEAR_STR( attribute_class );
+		value = 0;
 	}
 
+public:
+	CNetworkVar( int, m_iAttributeDefinitionIndex );
+	CNetworkVar( float, value ); // m_iRawValue32
 	char attribute_class[128];
-	float value;
 };
 
 struct EconItemStyle
@@ -118,6 +144,9 @@ struct EconItemVisuals
 
 class EconItemDefinition
 {
+public:
+	CEconItemAttribute *IterateAttributes( string_t strClass );
+
 public:
 	EconItemDefinition()
 	{
@@ -165,7 +194,7 @@ public:
 	char model_world[128];
 	CUtlDict< const char*, unsigned short > model_player_per_class;
 	bool attach_to_hands;
-	CUtlDict< EconItemAttribute, unsigned short > attributes;
+	CUtlVector<CEconItemAttribute> attributes;
 	EconItemVisuals visual;
 };
 
@@ -189,60 +218,20 @@ public:
 	virtual void FireGameEvent(IGameEvent *event);
 
 	EconItemDefinition* GetItemDefinition(int id);
-	EconAttributeDefinition *GetAttributeDefinition(const char* name);
-	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);	
+	EconAttributeDefinition *GetAttributeDefinition( int id );
+	EconAttributeDefinition *GetAttributeDefinitionByName(const char* name);
+	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);
+	int GetAttributeIndex( const char *classname );
 
 private:
-	CUtlDict< int, unsigned short >							m_GameInfo;
-	CUtlDict< EconQuality, unsigned short >					m_Qualities;
-	CUtlDict< EconColor, unsigned short >					m_Colors;
-	CUtlDict< KeyValues*, unsigned short >					m_PrefabsValues;
-	CUtlDict< EconItemDefinition*, unsigned short >			m_Items;
-	CUtlDict< EconAttributeDefinition, unsigned short >		m_Attributes;
+	CUtlDict< int, unsigned short >					m_GameInfo;
+	CUtlDict< EconQuality, unsigned short >			m_Qualities;
+	CUtlDict< EconColor, unsigned short >			m_Colors;
+	CUtlDict< KeyValues *, unsigned short >			m_PrefabsValues;
+	CUtlMap< int, EconItemDefinition * >			m_Items;
+	CUtlMap< int, EconAttributeDefinition * >		m_Attributes;
 
 	bool m_bInited;
-};
-
-class CAttributeManager
-{
-public:
-	CAttributeManager(){};
-
-	template <class type>	
-	static type AttribHookValue(type iValue, const char* text, CEconEntity *pEntity)
-	{
-		CBaseCombatWeapon* pWeapon = dynamic_cast<CBaseCombatWeapon*>( pEntity );
-		float iResult = iValue;
-
-		if ( pWeapon == NULL )
-		{
-			CBasePlayer *pPlayer = dynamic_cast<CBasePlayer*>(pEntity);
-			if ( pPlayer )
-				pWeapon = pPlayer->GetActiveWeapon();
-		}
-
-		if ( pWeapon )
-		{
-			if (pEntity->HasItemDefinition())
-			{
-				int ID = pEntity->GetItemDefIndex();
-				EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition(ID);
-				EconAttributeDefinition *pAttribDef = GetItemSchema()->GetAttributeDefinitionByClass(text);
-
-				if (pItemDef && pAttribDef)
-				{
-					unsigned int index = pItemDef->attributes.Find(pAttribDef->name);
-					if (index < pItemDef->attributes.Count())
-					{
-						EconItemAttribute *attribute = &pItemDef->attributes[index];
-						iResult = attribute->value;
-					}
-				}
-			}
-		}
-
-		return iResult;
-	}
 };
 
 CEconItemSchema *GetItemSchema();

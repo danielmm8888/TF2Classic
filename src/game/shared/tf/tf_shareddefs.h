@@ -1020,5 +1020,4 @@ typedef enum
 #define TF_DEATH_PURGATORY		(1<<2) 
 #define HUD_ALERT_SCRAMBLE_TEAMS 0
 
-
 #endif // TF_SHAREDDEFS_H

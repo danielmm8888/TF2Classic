@@ -5,6 +5,30 @@
 #include "soundenvelope.h"
 #include "script_parser.h"
 
+const char *g_AttributeDescriptionFormats[] =
+{
+	"value_is_percentage",
+	"value_is_inverted_percentage",
+	"value_is_additive",
+	"value_is_additive_percentage",
+	"value_is_or",
+	"value_is_date",
+	"value_is_account_id",
+	"value_is_particle_index",
+	"value_is_killstreakeffect_index",
+	"value_is_killstreak_idleeffect_index",
+	"value_is_item_def",
+	"value_is_from_lookup_table"
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: for the UtlMap
+//-----------------------------------------------------------------------------
+static bool schemalessFunc( const int &lhs, const int &rhs )
+{
+	return lhs < rhs;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -44,19 +68,19 @@ public:
 			copyto->name = val;															\
 		}
 
-#define FIND_ELEMENT(dict, str, val)					\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())						\
-			val = dict.Element(index)				
+#define FIND_ELEMENT(map, key, val)						\
+		unsigned int index = map.Find(key);				\
+		if (index < map.Count())						\
+			val = map.Element(index)				
 
-#define FIND_ELEMENT_STRING(dict, str, val)				\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())						\
-			Q_snprintf(val, sizeof(val), dict.Element(index))
+#define FIND_ELEMENT_STRING(map, key, val)						\
+		unsigned int index = map.Find(key);						\
+		if (index < map.Count())								\
+			Q_snprintf(val, sizeof(val), map.Element(index))
 
-#define IF_ELEMENT_FOUND(dict, str)						\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())			
+#define IF_ELEMENT_FOUND(map, key)						\
+		unsigned int index = map.Find(key);				\
+		if (index < map.Count())			
 
 #define GET_VALUES_FAST_BOOL(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
@@ -86,37 +110,40 @@ public:
 
 	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
 	{
-		for (KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
+		KeyValues *pPrefabs = pKeyValuesData->FindKey( "prefabs" );
+		if ( pPrefabs )
 		{
-			if (!Q_stricmp(pData->GetName(), "game_info"))
-			{
-				ParseGameInfo(pData);
-			}
+			ParsePrefabs( pPrefabs );
+		}
 
-			if (!Q_stricmp(pData->GetName(), "qualities"))
-			{
-				ParseQualities(pData);
-			}
+		KeyValues *pGameInfo = pKeyValuesData->FindKey( "game_info" );
+		if ( pGameInfo )
+		{
+			ParseGameInfo( pGameInfo );
+		}
 
-			if (!Q_stricmp(pData->GetName(), "colors"))
-			{
-				ParseColors(pData);
-			}
+		KeyValues *pQualities = pKeyValuesData->FindKey( "qualities" );
+		if ( pQualities )
+		{
+			ParseQualities( pQualities );
+		}
 
-			if (!Q_stricmp(pData->GetName(), "prefabs"))
-			{
-				ParsePrefabs(pData);
-			}
+		KeyValues *pColors = pKeyValuesData->FindKey( "colors" );
+		if ( pColors )
+		{
+			ParseColors( pColors );
+		}
 
-			if (!Q_stricmp(pData->GetName(), "items"))
-			{
-				ParseItems(pData);
-			}
+		KeyValues *pAttributes = pKeyValuesData->FindKey( "attributes" );
+		if ( pAttributes )
+		{
+			ParseAttributes( pAttributes );
+		}
 
-			if (!Q_stricmp(pData->GetName(), "attributes"))
-			{
-				ParseAttributes(pData);
-			}
+		KeyValues *pItems = pKeyValuesData->FindKey( "items" );
+		if ( pItems )
+		{
+			ParseItems( pItems );
 		}
 	};
 
@@ -162,9 +189,15 @@ public:
 	{
 		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
 		{
-			EconItemDefinition *Item = new EconItemDefinition();
+			// Skip over default item, not sure why it's there.
+			if ( !Q_stricmp( pSubData->GetName(), "default" ) )
+				continue;
+
+			EconItemDefinition *Item = new EconItemDefinition;
+			int index = atoi( pSubData->GetName() );
+
 			ParseItemRec(pSubData, Item);
-			GetItemSchema()->m_Items.Insert(pSubData->GetName(), Item);
+			GetItemSchema()->m_Items.Insert( index, Item );
 		}
 		for (unsigned int i = 0; i < GetItemSchema()->m_PrefabsValues.Count(); i++)
 		{
@@ -177,15 +210,21 @@ public:
 	{
 		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
 		{
-			EconAttributeDefinition Attribute;
-			GET_STRING((&Attribute), pSubData, name);
-			GET_STRING((&Attribute), pSubData, attribute_class);
-			GET_STRING((&Attribute), pSubData, description_string);
-			GET_STRING((&Attribute), pSubData, description_format);
-			GET_BOOL((&Attribute), pSubData, hidden);
-			GET_STRING((&Attribute), pSubData, effect_type);
-			GET_BOOL((&Attribute), pSubData, stored_as_integer);
-			GetItemSchema()->m_Attributes.Insert(pSubData->GetName(), Attribute);
+			EconAttributeDefinition *pAttribute = new EconAttributeDefinition;
+			int index = atoi( pSubData->GetName() );
+
+			GET_STRING( pAttribute, pSubData, name );
+			GET_STRING( pAttribute, pSubData, attribute_class );
+			GET_STRING( pAttribute, pSubData, description_string );
+
+			const char *szFormat = pSubData->GetString( "description_format", "pootis" );
+			pAttribute->attribute_format = UTIL_StringFieldToInt( szFormat, g_AttributeDescriptionFormats, 12 );
+
+			GET_BOOL( pAttribute, pSubData, hidden );
+			GET_STRING( pAttribute, pSubData, effect_type );
+			GET_BOOL( pAttribute, pSubData, stored_as_integer );
+
+			GetItemSchema()->m_Attributes.Insert( index, pAttribute );
 		}
 	};
 
@@ -274,19 +313,13 @@ public:
 			{
 				for (KeyValues *pAttribData = pSubData->GetFirstSubKey(); pAttribData != NULL; pAttribData = pAttribData->GetNextKey())
 				{
-					IF_ELEMENT_FOUND(pItem->attributes, pAttribData->GetName())
-					{
-						EconItemAttribute *attribute = &pItem->attributes.Element(index);
-						GET_STRING(attribute, pAttribData, attribute_class);
-						GET_FLOAT(attribute, pAttribData, value);
-					}
-					else
-					{
-						EconItemAttribute attribute;
-						GET_STRING((&attribute), pAttribData, attribute_class);
-						GET_FLOAT((&attribute), pAttribData, value);
-						pItem->attributes.Insert(pAttribData->GetName(), attribute);
-					}
+					int iAttributeID = GetItemSchema()->GetAttributeIndex( pAttribData->GetName() );
+					
+					CEconItemAttribute attribute;
+					attribute.m_iAttributeDefinitionIndex = iAttributeID;
+					GET_STRING( ( &attribute ), pAttribData, attribute_class );
+					GET_FLOAT( ( &attribute ), pAttribData, value );
+					pItem->attributes.AddToTail( attribute );
 				}
 			}
 			if (!Q_stricmp(pSubData->GetName(), "visuals"))
@@ -362,6 +395,9 @@ CEconSchemaParser g_EconSchemaParser;
 //-----------------------------------------------------------------------------
 CEconItemSchema::CEconItemSchema() : CAutoGameSystemPerFrame("CEconItemSchema")
 {
+	m_Items.SetLessFunc( schemalessFunc );
+	m_Attributes.SetLessFunc( schemalessFunc );
+
 	if (!filesystem)
 		return;
 
@@ -405,13 +441,14 @@ void ShowItemDef(const CCommand &args)
 			args[1], itemdef->name, itemdef->item_class, itemdef->item_type_name);
 
 		Msg("Attributes:\n");		
-		for (unsigned int i = 0; i < itemdef->attributes.Count(); i++)
+		for ( int i = 0; i < itemdef->attributes.Count(); i++ )
 		{
-			EconAttributeDefinition *attribute = GetItemSchema()->GetAttributeDefinition(itemdef->attributes.GetElementName(i));
-			if (attribute)
+			CEconItemAttribute *pAttribute = &itemdef->attributes[i];
+			EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
+			if ( pStatic )
 			{
-				float value = itemdef->attributes[i].value;
-				if (!Q_stricmp(attribute->description_format, "value_is_percentage") || !Q_stricmp(attribute->description_format, "value_is_inverted_percentage"))
+				float value = pAttribute->value;
+				if ( pStatic->attribute_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->attribute_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE )
 				{
 					value *= 100;
 				}
@@ -419,7 +456,7 @@ void ShowItemDef(const CCommand &args)
 				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
 
 				wchar_t attrib[32];
-				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(attribute->description_string), 1, floatstr);
+				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(pStatic->description_string), 1, floatstr);
 
 				char attributename[32];
 				g_pVGuiLocalize->ConvertUnicodeToANSI(attrib, attributename, sizeof(attributename));
@@ -433,47 +470,70 @@ void ShowItemDef(const CCommand &args)
 ConCommand itemdef("itemdef", ShowItemDef);
 #endif
 
-EconItemDefinition* CEconItemSchema::GetItemDefinition(int id)
+EconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 {
 	EconItemDefinition *itemdef = NULL;
-	char buffer[33];
-	itoa(id, buffer, 10);
-	FIND_ELEMENT(m_Items, buffer, itemdef);
+	FIND_ELEMENT( m_Items, id, itemdef );
 	return itemdef;
 }
 
-EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition(const char* name)
+EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition( int id )
+{
+	EconAttributeDefinition *attribdef = NULL;
+	FIND_ELEMENT( m_Attributes, id, attribdef );
+	return attribdef;
+}
+
+EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByName( const char *name )
 {
 	//unsigned int index = m_Attributes.Find(name);
 	//if (index < m_Attributes.Count())
 	//{
 	//	return &m_Attributes[index];
 	//}
-	for (unsigned int i = 0; i < m_Attributes.Count(); i++)
+	FOR_EACH_MAP_FAST( m_Attributes, i )
 	{
-		if (!Q_stricmp(m_Attributes[i].name, name))
+		if ( !Q_stricmp( m_Attributes[i]->name, name ) )
 		{
-			return &m_Attributes[i];
+			return m_Attributes[i];
 		}
 	}
+
 	return NULL;
 }
 
-EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass(const char* name)
+EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass(const char *classname)
 {
 	//unsigned int index = m_Attributes.Find(name);
 	//if (index < m_Attributes.Count())
 	//{
 	//	return &m_Attributes[index];
 	//}
-	for (unsigned int i = 0; i < m_Attributes.Count(); i++)
+	FOR_EACH_MAP_FAST( m_Attributes, i )
 	{
-		if (!Q_stricmp(m_Attributes[i].attribute_class, name))
+		if ( !Q_stricmp( m_Attributes[i]->attribute_class, classname ) )
 		{
-			return &m_Attributes[i];
+			return m_Attributes[i];
 		}
 	}
+
 	return NULL;
+}
+
+int CEconItemSchema::GetAttributeIndex( const char *name )
+{
+	if ( !name )
+		return -1;
+
+	FOR_EACH_MAP_FAST( m_Attributes, i )
+	{
+		if ( !Q_stricmp( m_Attributes[i]->name, name ) )
+		{
+			return m_Attributes.Key( i );
+		}
+	}
+
+	return -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -485,4 +545,38 @@ void CEconItemSchema::FireGameEvent(IGameEvent *event)
 
 	//if (!TFGameRules())
 	//	return;
+}
+
+
+BEGIN_NETWORK_TABLE_NOBASE( CEconItemAttribute, DT_EconItemAttribute )
+#ifdef CLIENT_DLL
+	RecvPropInt( RECVINFO( m_iAttributeDefinitionIndex ) ),
+	RecvPropFloat( RECVINFO( value ) ),
+#else
+	SendPropInt( SENDINFO( m_iAttributeDefinitionIndex ) ),
+	SendPropFloat( SENDINFO( value ) ),
+#endif
+END_NETWORK_TABLE()
+
+EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
+{
+	return GetItemSchema()->GetAttributeDefinition( m_iAttributeDefinitionIndex );
+}
+
+
+CEconItemAttribute *EconItemDefinition::IterateAttributes( string_t strClass )
+{
+	// Returning the first attribute found.
+	for ( int i = 0; i < attributes.Count(); i++ )
+	{
+		CEconItemAttribute *pAttribute = &attributes[i];
+		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
+
+		if ( strMyClass == strClass )
+		{
+			return &attributes[i];
+		}
+	}
+
+	return NULL;
 }

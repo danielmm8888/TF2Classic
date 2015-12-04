@@ -13,6 +13,7 @@
 #include "tf_playerclass.h"
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
+#include "ihasattributes.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -63,7 +64,7 @@ struct DamagerHistory_t
 //
 // TF Player
 //
-class CTFPlayer : public CBaseMultiplayerPlayer
+class CTFPlayer : public CBaseMultiplayerPlayer, public IHasAttributes
 {
 public:
 	DECLARE_CLASS( CTFPlayer, CBaseMultiplayerPlayer );
@@ -338,6 +339,10 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+
 public:
 
 	CNetworkVar(Vector, m_vecPlayerColor);
@@ -559,6 +564,8 @@ private:
 	bool				m_bAutoReload;
 
 	COutputEvent		m_OnDeath;
+
+	CAttributeManager	m_AttributeManager;
 
 public:
 	bool				SetPowerplayEnabled( bool bOn );

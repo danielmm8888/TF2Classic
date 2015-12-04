@@ -315,6 +315,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropDataTable( SENDINFO_DT( m_PlayerClass ), &REFERENCE_SEND_TABLE( DT_TFPlayerClassShared ) ),
 	SendPropDataTable( SENDINFO_DT( m_Shared ), &REFERENCE_SEND_TABLE( DT_TFPlayerShared ) ),
+	SendPropDataTable( SENDINFO_DT( m_AttributeManager ), &REFERENCE_SEND_TABLE( DT_AttributeManager ) ),
 
 	// Data that only gets sent to the local player
 	SendPropDataTable( "tflocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFLocalPlayerExclusive), SendProxy_SendLocalDataTable ),
@@ -357,6 +358,8 @@ bool HintCallbackNeedsResources_Teleporter( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 CTFPlayer::CTFPlayer()
 {
+	m_pAttributes = this;
+
 	m_PlayerAnimState = CreateTFPlayerAnimState( this );
 	item_list = 0;
 
@@ -820,6 +823,8 @@ void CTFPlayer::InitialSpawn( void )
 {
 	BaseClass::InitialSpawn();
 
+	m_AttributeManager.InitializeAttributes( this );
+
 	SetWeaponBuilder( NULL );
 
 	m_iMaxSentryKills = 0;
@@ -1211,13 +1216,15 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if (iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT)		//hack: Bat ID is zero so we need to check if current class is scout
 		{
 			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
-			CEconItemView pItem( iItemID );
-			if (!pItemInfo)
+
+			if ( !pItemInfo )
 				continue;
 
-			const char *pszWeaponName = CEconItemView::GetEntityName( iItemID ) ;
+			CEconItemView econItem( iItemID );
+
+			const char *pszWeaponName = econItem.GetEntityName();
 			
-			int iWeaponID = GetWeaponId(pszWeaponName);
+			int iWeaponID = GetWeaponId( pszWeaponName );
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
@@ -1230,7 +1237,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemDefIndex( iItemID );
+				pWeapon->SetItem( econItem );
 				pWeapon->ChangeTeam( GetTeamNumber() );
 				pWeapon->GiveDefaultAmmo();
 
@@ -1241,12 +1248,11 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &pItem );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &econItem );
 			}
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemDefIndex(iItemID);
 				pWeapon->DefaultTouch( this );
 			}
 		}
@@ -1474,13 +1480,12 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 {
 	int iItemID = ID;
 	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
-	if (!pItemInfo)
+	if ( !pItemInfo )
 		return;
 
-	CEconItemView pItem( iItemID );
+	CEconItemView econItem( iItemID );
 
-
-	bool bCosmetic = CEconItemView::IsCosmetic(ID);
+	bool bCosmetic = econItem.IsCosmetic();
 	if (bCosmetic)
 	{
 		for (int i = 0; i < m_hMyWearables.Count(); i++)
@@ -1492,9 +1497,9 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 			}
 		}
 
-		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName("econ_wearable");
+		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
 
-		pWearable->SetItemDefIndex(iItemID);
+		pWearable->SetItem( econItem );
 		PrecacheModel(pItemInfo->model_player);
 		pWearable->SetModel(pItemInfo->model_player);
 
@@ -1502,8 +1507,7 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 	}
 	else
 	{
-		CEconItemView pItem( iItemID );
-		const char *pszWeaponName = CEconItemView::GetEntityName( iItemID );
+		const char *pszWeaponName = econItem.GetEntityName();
 		int iWeaponID = GetWeaponId(pszWeaponName);
 
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon(pItemInfo->item_slot);
@@ -1518,8 +1522,8 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 
 		if (pWeapon)
 		{
-			pWeapon->SetItemDefIndex(iItemID);
-			pWeapon->ChangeTeam(GetTeamNumber());
+			pWeapon->SetItem( econItem );
+			pWeapon->ChangeTeam( GetTeamNumber() );
 			pWeapon->GiveDefaultAmmo();
 
 			if (m_bRegenerating == false)
@@ -1529,11 +1533,10 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 		}
 		else
 		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &pItem );
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, NULL, &econItem );
 
 			if ( pWeapon )
 			{
-				pWeapon->SetItemDefIndex(iItemID);
 				pWeapon->DefaultTouch(this);
 			}
 		}
@@ -1570,7 +1573,7 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconI
 	{
 		pWeapon->SetSubType( iSubType );
 		if ( pItem )
-			pWeapon->SetItemDefIndex( pItem->GetItemDefIndex() );
+			pWeapon->SetItem( *pItem );
 	}
 
 	DispatchSpawn( pent );
@@ -2475,22 +2478,23 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 
 			if (pWeapon && pWeapon->HasItemDefinition())
 			{
-				int ID = pWeapon->GetItemDefIndex();
-				EconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
+				int ID = pWeapon->GetItem()->GetItemDefIndex();
+				EconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition( ID );
 
-				if (itemdef)
+				if ( itemdef )
 				{
 					Msg("ItemID %i:\nname %s\nitem_class %s\nitem_type_name %s\n",
 						ID, itemdef->name, itemdef->item_class, itemdef->item_type_name);
 
 					Msg("Attributes:\n");
-					for (unsigned int i = 0; i < itemdef->attributes.Count(); i++)
+					for ( int i = 0; i < itemdef->attributes.Count(); i++ )
 					{
-						EconAttributeDefinition *attribute = GetItemSchema()->GetAttributeDefinition(itemdef->attributes.GetElementName(i));
-						if (attribute)
+						CEconItemAttribute *pAttribute = &itemdef->attributes[i];
+						EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
+						if ( pStatic )
 						{
-							float value = itemdef->attributes.Element(i).value;
-							if (!Q_stricmp(attribute->description_format, "value_is_percentage") || !Q_stricmp(attribute->description_format, "value_is_inverted_percentage"))
+							float value = pAttribute->value;
+							if ( pStatic->attribute_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->attribute_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE )
 							{
 								value *= 100;
 							}
@@ -2498,7 +2502,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 							wchar_t floatstr[32];
 							_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
 
-							Msg("%s %s\n", attribute->description_string, floatstr);
+							Msg("%s %s\n", pStatic->description_string, floatstr);
 						}
 					}
 					Msg("\n");

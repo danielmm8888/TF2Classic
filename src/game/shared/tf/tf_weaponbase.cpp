@@ -140,7 +140,7 @@ LINK_ENTITY_TO_CLASS( tf_weapon_base, CTFWeaponBase );
 #if !defined( CLIENT_DLL )
 
 BEGIN_DATADESC( CTFWeaponBase )
-DEFINE_FUNCTION( FallThink )
+//DEFINE_FUNCTION( FallThink )
 END_DATADESC()
 
 // Client specific
@@ -350,10 +350,10 @@ const char *CTFWeaponBase::GetWorldModel(void) const
 	const char* szModelName = NULL;
 	if ( HasItemDefinition() )
 	{
-		const char* szModelName = (char*)CEconItemView::GetWorldDisplayModel( (CEconEntity*)this );
+		const char* szModelName = m_Item.GetWorldDisplayModel();
 		if ( !Q_stricmp( szModelName, "" ) )
 		{
-			szModelName = (char*)CEconItemView::GetPlayerDisplayModel( (CEconEntity*)this );
+			szModelName = m_Item.GetWorldDisplayModel();
 		}
 	}
 
@@ -372,7 +372,7 @@ int CTFWeaponBase::GetMaxClip1(void) const
 {
 	int iMaxClip = CBaseCombatWeapon::GetMaxClip1();
 
-	float fMaxClipMult = 0;
+	float fMaxClipMult = 1.0f;
 	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
 	fMaxClipMult *= iMaxClip;
 	if (fMaxClipMult != 0)
@@ -389,7 +389,7 @@ int CTFWeaponBase::GetDefaultClip1(void) const
 {
 	int iDefaultClip = CBaseCombatWeapon::GetDefaultClip1();
 
-	float fDefaultClipMult = 0;
+	float fDefaultClipMult = 1.0f;
 	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
 	fDefaultClipMult *= iDefaultClip;
 	if ( fDefaultClipMult != 0 )
@@ -523,12 +523,12 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
-	if ( HasItemDefinition() && GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot > -1 )
-		iWeaponRole = GetItemSchema()->GetItemDefinition(GetItemDefIndex())->anim_slot;
+	if ( HasItemDefinition() && m_Item.GetStaticData()->anim_slot > -1 )
+		iWeaponRole = m_Item.GetStaticData()->anim_slot;
 
 	if ( HasItemDefinition() )
 	{
-		Activity actActivityOverride = CEconItemView::GetActivityOverride( (CEconEntity*)this, GetTeamNumber(), (Activity)iActivity );
+		Activity actActivityOverride = m_Item.GetActivityOverride( GetTeamNumber(), (Activity)iActivity );
 		if ( actActivityOverride != ACT_INVALID )
 		{
 			iActivity = actActivityOverride;
@@ -659,7 +659,7 @@ void CTFWeaponBase::UpdateViewModel(void)
 	{
 		if ( HasItemDefinition() )
 		{
-			const char* pModel = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
+			const char* pModel = m_Item.GetPlayerDisplayModel();
 			if ( pModel )
 			{
 				vm->UpdateViewmodelAddon( pModel );
@@ -721,7 +721,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
 	if ( HasItemDefinition() )
 	{
-		const char* szModelName = (char*)CEconItemView::GetPlayerDisplayModel((CEconEntity*)this);
+		const char* szModelName = m_Item.GetPlayerDisplayModel();
 		if ( szModelName[0] != '\0' )
 		{ 
 			return DetermineViewModelType( szModelName );
@@ -826,6 +826,55 @@ bool CTFWeaponBase::Deploy( void )
 	}
 
 	return bDeploy;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnActiveStateChanged( int iOldState )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner )
+	{
+		int iProvideOnActive = 0;
+		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
+
+		// Just got equip add us to attribute providers list.
+		if ( iOldState == WEAPON_NOT_CARRIED && !iProvideOnActive )
+		{
+			pOwner->GetAttributeManager()->AddProvider( this );
+		}
+
+		// If set to only provide attributes while active, handle it here.
+		if ( iProvideOnActive )
+		{
+			if ( m_iState == WEAPON_IS_ACTIVE )
+			{
+				pOwner->GetAttributeManager()->AddProvider( this );
+			}
+			else
+			{
+				pOwner->GetAttributeManager()->RemoveProvider( this );
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateOnRemove( void )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	// Remove ourselves from attribute providers list.
+	if ( pOwner )
+	{
+		pOwner->GetAttributeManager()->RemoveProvider( this );
+	}
+
+	BaseClass::UpdateOnRemove();
 }
 
 //-----------------------------------------------------------------------------
