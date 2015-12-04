@@ -210,7 +210,7 @@ void CTFWeaponBaseMelee::DoViewModelAnimation( void )
 {
 	Activity act = ( m_iWeaponMode == TF_WEAPON_PRIMARY_MODE ) ? ACT_VM_HITCENTER : ACT_VM_SWINGHARD;
 
-	if (IsCurrentAttackACritical())
+	if ( IsCurrentAttackACritical() )
 		act = ACT_VM_SWINGHARD;
 
 	SendWeaponAnim( act );

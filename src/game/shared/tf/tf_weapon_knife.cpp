@@ -87,6 +87,10 @@ void CTFKnife::PrimaryAttack( void )
 
 	// Swing the weapon.
 	Swing( pPlayer );
+	
+	// And hit instantly.
+	Smack();
+	m_flSmackTime = 0.0f;
 
 #if !defined( CLIENT_DLL ) 
 	pPlayer->SpeakWeaponFire();
@@ -101,7 +105,9 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 {
 	float flBaseDamage = BaseClass::GetMeleeDamage( pTarget, iCustomDamage );
 
-	if ( pTarget->IsPlayer() )
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && pTarget->IsPlayer() )
 	{
 		// This counts as a backstab if:
 		// a ) we are behind the target player
@@ -118,7 +124,7 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 		}
 		else
 		{
-			m_bCurrentAttackIsCrit = false;	// don't do a crit if we failed the above checks.
+			m_bCurrentAttackIsCrit = pOwner->m_Shared.IsCritBoosted();
 		}
 	}
 
@@ -173,4 +179,15 @@ void CTFKnife::SendPlayerAnimEvent( CTFPlayer *pPlayer )
 	{
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFKnife::DoViewModelAnimation( void )
+{
+	// Overriding so it doesn't do backstab animation on crit.
+	Activity act = ( m_iWeaponMode == TF_WEAPON_PRIMARY_MODE ) ? ACT_VM_HITCENTER : ACT_VM_SWINGHARD;
+
+	SendWeaponAnim( act );
 }

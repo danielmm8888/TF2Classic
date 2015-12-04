@@ -864,14 +864,13 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 				}
 			}
 		}
-#if 0
+		
 		if ( InCond( TF_COND_BURNING ) )
 		{
 			// Reduce the duration of this burn 
 			float flReduction = 2;	 // ( flReduction + 1 ) x faster reduction
 			m_flFlameRemoveTime -= flReduction * gpGlobals->frametime;
 		}
-#endif
 	}
 
 	if ( bDecayHealth )
@@ -3004,8 +3003,10 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	// if they're aiming or spun up, reduce their speed
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
 		// Heavy moves slightly faster spun-up
-		if ( playerclass == TF_CLASS_HEAVYWEAPONS )
+
+		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_MINIGUN ) )
 		{
 			if (maxfbspeed > 110)
 				maxfbspeed = 110;
@@ -3412,6 +3413,8 @@ bool CTFPlayer::TryToPickupBuilding( void )
 
 					// try to switch to this weapon
 					Weapon_Switch( pBuilder );
+
+					m_flNextCarryTalkTime = gpGlobals->curtime + RandomFloat( 6.0f, 12.0f );
 
 					return true;
 				}
