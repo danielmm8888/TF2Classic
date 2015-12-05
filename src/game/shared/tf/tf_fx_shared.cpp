@@ -264,7 +264,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 		if ( bFixedSpread )
 		{
 			int iIndex = iBullet;
-			if ( iIndex > 9 )
+			while ( iIndex > 9 )
 			{
 				iIndex -= 10;
 			}

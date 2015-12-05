@@ -3004,8 +3004,8 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
 		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
-		// Heavy moves slightly faster spun-up
 
+		// Heavy moves slightly faster spun-up
 		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_MINIGUN ) )
 		{
 			if (maxfbspeed > 110)
