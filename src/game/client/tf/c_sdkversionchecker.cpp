@@ -1,6 +1,6 @@
 #include "cbase.h"
 #include "c_sdkversionchecker.h"
-#include "c_script_parser.h"
+#include "script_parser.h"
 #include "tier3/tier3.h"
 #include "cdll_util.h"
 

@@ -20,7 +20,7 @@
 #include <tier0/mem.h>
 #include "gamerules.h"
  
-#include "c_script_parser.h"
+#include "script_parser.h"
  
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -32,7 +32,7 @@ extern IFileSystem *filesystem;
 char g_szSwap[FILE_PATH_MAX_LENGTH];
  
  
-C_ScriptParser::C_ScriptParser()
+CScriptParser::CScriptParser()
 {
 	m_bParsed = false;
 }
@@ -44,13 +44,13 @@ C_ScriptParser::C_ScriptParser()
 // Input: pszFilePath - FS path to KeyValue file(s) for parsing.
 //						extensions are defined using .X
 //
-void C_ScriptParser::InitParser(const char *pszPath,
+void CScriptParser::InitParser(const char *pszPath,
 							   bool bAllowNonEncryptedSearch,
 							   bool bAllowEncryptedSearch,
 							   bool bCustomExtension)
 {
 	//If you hit this assert, check to see where your instancing 
-	//C_ScriptParser, make sure it isn't before the filesystem inits
+	//CScriptParser, make sure it isn't before the filesystem inits
 	Assert(filesystem);
  
 	Assert(pszPath);
@@ -156,7 +156,7 @@ void C_ScriptParser::InitParser(const char *pszPath,
 // Input: pszFilePath - FS path to a KeyValue file for parsing.
 //		  bWildcard - Is this file the only one to be parsed? or will more come...
 //
-bool C_ScriptParser::FileParser(const char *pszFilePath, bool bWildcard, bool bEncrypted)
+bool CScriptParser::FileParser(const char *pszFilePath, bool bWildcard, bool bEncrypted)
 {
 	const unsigned char *pICEKey = (bEncrypted ? g_pGameRules->GetEncryptionKey() : NULL); //
 	KeyValues *pKV = new KeyValues( "KVDataFile" );
@@ -200,7 +200,7 @@ bool C_ScriptParser::FileParser(const char *pszFilePath, bool bWildcard, bool bE
 //  i.e: pszPath = "/test/me.SI" pszNewEXT = "txt"
 //		 pszPath would end up as "/test/me.txt"
 //
-void C_ScriptParser::SetExtension(char *pszPath,int iPathSize, const char *pszNewEXT)
+void CScriptParser::SetExtension(char *pszPath,int iPathSize, const char *pszNewEXT)
 {
 	int mover = Q_strlen(pszPath);
 	while(mover > 0)
@@ -223,7 +223,7 @@ void C_ScriptParser::SetExtension(char *pszPath,int iPathSize, const char *pszNe
 // Removes anything past the last /
 //  if passed "/test/this/stuff" would end up with "/test/this/"
 //
-void C_ScriptParser::RemoveFileFromPath(char *pszPath)
+void CScriptParser::RemoveFileFromPath(char *pszPath)
 {
 	int mover = Q_strlen(pszPath);
 	while(mover > 0)
@@ -239,7 +239,7 @@ void C_ScriptParser::RemoveFileFromPath(char *pszPath)
 // Takes a path, and returns just the filename
 //  if noEXT = true, it removes the extension from the end.
 //
-char *C_ScriptParser::ExtractFileFromPath(const char *pszPath,bool noEXT)
+char *CScriptParser::ExtractFileFromPath(const char *pszPath,bool noEXT)
 {
 	//Q_strncpy(g_szSwap,pszPath,FILE_PATH_MAX_LENGTH);
 	int mover = Q_strlen(pszPath);
@@ -268,7 +268,7 @@ char *C_ScriptParser::ExtractFileFromPath(const char *pszPath,bool noEXT)
 // Takes in pszPath, and compares the extension on it to pszExt
 //  if they match, returns true, otherwise false.
 //
-bool C_ScriptParser::ExtCMP(const char *pszPath, const char *pszExt)
+bool CScriptParser::ExtCMP(const char *pszPath, const char *pszExt)
 {
 	int mover = Q_strlen(pszPath);
 	while(mover > 0)

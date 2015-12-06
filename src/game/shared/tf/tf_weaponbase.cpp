@@ -11,6 +11,7 @@
 #include "tf_gamerules.h"
 #include "eventlist.h"
 #include "tf_viewmodel.h"
+#include "econ_itemschema.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )
@@ -143,7 +144,7 @@ LINK_ENTITY_TO_CLASS( tf_weapon_base, CTFWeaponBase );
 #if !defined( CLIENT_DLL )
 
 BEGIN_DATADESC( CTFWeaponBase )
-DEFINE_FUNCTION( FallThink )
+//DEFINE_FUNCTION( FallThink )
 END_DATADESC()
 
 // Client specific
@@ -389,7 +390,7 @@ int MeleeArmActTable[13][2] = {
 	{ ACT_VM_IDLE_LOWERED, ACT_MELEE_VM_IDLE_LOWERED },
 	{ ACT_VM_LOWERED_TO_IDLE, ACT_MELEE_VM_LOWERED_TO_IDLE },
 	{ ACT_VM_HITCENTER, ACT_MELEE_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
+	{ ACT_VM_SWINGHARD, ACT_MELEE_VM_SWINGHARD },
 };
 
 int BuildingArmActTable[2][2] = {
@@ -468,6 +469,22 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
+	if ( HasItemDefinition() )
+	{
+		int iSchemaRole = m_Item.GetAnimationSlot();
+		if ( iSchemaRole >= 0 )
+		{
+			iWeaponRole = iSchemaRole;
+		}
+
+		Activity actActivityOverride = m_Item.GetActivityOverride( GetTeamNumber(), (Activity)iActivity );
+		if ( actActivityOverride != ACT_INVALID )
+		{
+			iActivity = actActivityOverride;
+			return iActivity;
+		}
+	}
+
 	Activity actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
 	if ( actActivityOverride != iActivity )
 	{
@@ -490,8 +507,6 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 
 	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
 		return iActivity;
-
-	// Oh jesus no
 
 	switch ( iWeaponRole )
 	{
@@ -600,12 +615,32 @@ void CTFWeaponBase::UpdateViewModel(void)
 	GetViewModel( m_nViewModelIndex );
 
 	int vmType = vm->GetViewModelType();
+	const char *pszModel = NULL;
+
 	if ( vmType == vm->VMTYPE_L4D )
-		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
+	{
+		pszModel = pTFPlayer->GetPlayerClass()->GetHandModelName();
+	}
 	else if (vmType == vm->VMTYPE_TF2)
-		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+	{
+		if ( HasItemDefinition() )
+		{
+			pszModel = m_Item.GetPlayerDisplayModel();
+		}
+		else
+		{
+			pszModel = GetTFWpnData().szViewModel;
+		}
+	}
+
+	if ( pszModel && pszModel[0] != '\0' )
+	{
+		vm->UpdateViewmodelAddon( pszModel );
+	}
 	else
+	{
 		vm->RemoveViewmodelAddon();
+	}
 }
 #endif
 
@@ -655,20 +690,51 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
+	const char *pszModelName = NULL;
+
+	// DM can use its own VMs.
+	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 	{
-		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
-			return DetermineViewModelType( GetTFWpnData().m_szViewModelDM );
+		pszModelName = GetTFWpnData().m_szViewModelDM;
+	}
+	else if ( HasItemDefinition() )
+	{
+		pszModelName = m_Item.GetPlayerDisplayModel();
 	}
 
-	if ( GetPlayerOwner() )
+	if ( !pszModelName || !pszModelName[0] )
 	{
-		return DetermineViewModelType( GetTFWpnData().szViewModel );
+		pszModelName = GetTFWpnData().szViewModel;
 	}
-	else
+
+	return DetermineViewModelType( pszModelName );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetWorldModel( void ) const
+{
+	const char *pszModelName = NULL;
+
+	// Use model from item schema we have an item ID.
+	if ( HasItemDefinition() )
 	{
-		return BaseClass::GetViewModel();
+		pszModelName = m_Item.GetWorldDisplayModel();
+
+		// Assuming it's same c_model for both 1st person and 3rd person view.
+		if ( !pszModelName || !pszModelName[0] )
+		{
+			pszModelName = m_Item.GetPlayerDisplayModel();
+		}
 	}
+
+	if ( !pszModelName || !pszModelName[0] )
+	{
+		return BaseClass::GetWorldModel();
+	}
+
+	return pszModelName;
 }
 
 #ifdef DM_WEAPON_BUCKET
@@ -778,6 +844,56 @@ bool CTFWeaponBase::Deploy( void )
 
 	return bDeploy;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnActiveStateChanged( int iOldState )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner )
+	{
+		int iProvideOnActive = 0;
+		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
+
+		// Just got equipped, add us to attribute providers list.
+		if ( iOldState == WEAPON_NOT_CARRIED && !iProvideOnActive )
+		{
+			pOwner->GetAttributeManager()->AddProvider( this );
+		}
+
+		// If set to only provide attributes while active, handle it here.
+		if ( iProvideOnActive )
+		{
+			if ( m_iState == WEAPON_IS_ACTIVE )
+			{
+				pOwner->GetAttributeManager()->AddProvider( this );
+			}
+			else
+			{
+				pOwner->GetAttributeManager()->RemoveProvider( this );
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateOnRemove( void )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	// Remove ourselves from attribute providers list.
+	if ( pOwner )
+	{
+		pOwner->GetAttributeManager()->RemoveProvider( this );
+	}
+
+	BaseClass::UpdateOnRemove();
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -911,6 +1027,38 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 
 //-----------------------------------------------------------------------------
 // Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetMaxClip1( void ) const
+{
+	int iMaxClip = CBaseCombatWeapon::GetMaxClip1();
+
+	float fMaxClipMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
+	fMaxClipMult *= iMaxClip;
+	if ( fMaxClipMult != 0 )
+		return fMaxClipMult;
+
+	return iMaxClip;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetDefaultClip1( void ) const
+{
+	int iDefaultClip = CBaseCombatWeapon::GetDefaultClip1();
+
+	float fDefaultClipMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
+	fDefaultClipMult *= iDefaultClip;
+	if ( fDefaultClipMult != 0 )
+		return fDefaultClipMult;
+
+	return iDefaultClip;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CTFWeaponBase::Reload( void )
@@ -931,7 +1079,7 @@ bool CTFWeaponBase::Reload( void )
 	}
 
 	// Reload one object at a time.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 		return ReloadSingly();
 
 	// Normal reload.
@@ -1228,6 +1376,26 @@ bool CTFWeaponBase::PlayEmptySound()
 }
 
 // -----------------------------------------------------------------------------
+// Purpose: Returns override from item schema if there is one.
+// -----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetShootSound( int iIndex ) const
+{
+	const char *pszSoundName = NULL;
+
+	if ( HasItemDefinition() )
+	{
+		pszSoundName = m_Item.GetSoundOverride( iIndex );
+	}
+
+	if ( !pszSoundName || pszSoundName[0] == '\0' )
+	{
+		pszSoundName = BaseClass::GetShootSound( iIndex );
+	}
+
+	return pszSoundName;
+}
+
+// -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::SendReloadEvents()
@@ -1275,10 +1443,9 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	{
 		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( ( ( !m_bReloadsSingly && m_bInReload ) || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
+			if ( ( ( ReloadsSingly() && m_iReloadMode != TF_RELOAD_START ) || m_bInReload ) && Clip1() > 0 )
 			{
-				m_iReloadMode.Set( TF_RELOAD_START );
-				m_bInReload = false;
+				AbortReload();
 
 				pPlayer->m_flNextAttack = gpGlobals->curtime;
 				m_flNextPrimaryAttack = gpGlobals->curtime;

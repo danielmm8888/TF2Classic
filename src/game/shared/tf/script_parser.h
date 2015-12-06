@@ -17,11 +17,15 @@
 #ifdef _WIN32
 #pragma once
 #endif
+
+#if defined( CLIENT_DLL )
+#define CScriptParser C_ScriptParser
+#endif
  
-class C_ScriptParser
+class CScriptParser
 {
 public:
-	C_ScriptParser();
+	CScriptParser();
  
 	//Parser Methods to initially open and setup the KeyValues
 	void InitParser(const char *pszPath, bool bAllowNonEncryptedSearch = true,

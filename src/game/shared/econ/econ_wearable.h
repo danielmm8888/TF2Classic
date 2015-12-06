@@ -1,8 +1,8 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: A class that has the ability to magically make money out of thin air
+// Purpose: 
 //
-//===========================================================================//
+//========================================================================//
 
 #ifndef ECON_WEARABLE_H
 #define ECON_WEARABLE_H
@@ -15,34 +15,13 @@
 #include "particles_new.h"
 #endif
 
-#define MAX_WEARABLES_SENT_FROM_SERVER 5
+#define MAX_WEARABLES_SENT_FROM_SERVER	5
+#define PARTICLE_MODIFY_STRING_SIZE		128
 
 #if defined( CLIENT_DLL )
 #define CEconWearable C_EconWearable
 #endif
 
-enum
-{
-	UEFF_NONE = 0,
-	UEFF_SUPERRARE_BURNING1,
-	UEFF_SUPERRARE_CIRCLING_HEART,
-	UEFF_SUPERRARE_CIRCLING_PEACESIGN,
-	UEFF_SUPERRARE_CIRCLING_TF,
-	UEFF_SUPERRARE_CONFETTI_GREEN,
-	UEFF_SUPERRARE_GREENENERGY,
-	UEFF_SUPERRARE_GHOSTS,
-	UEFF_SUPERRARE_FLIES,
-	UEFF_SUPERRARE_CONFETTI_PURPLE,
-	UEFF_SUPERRARE_PURPLEENERGY,
-	UEFF_SUPERRARE_BURNING2,
-	UEFF_SUPERRARE_PLASMA1,
-	UEFF_SUPERRARE_PLASMA2,
-	UEFF_SUPERRARE_BEAMS1,
-
-	UEFF_UNUSUAL_ORBIT_CARDS,
-
-	UEFF_UTAUNT_FIREWORK,
-};
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -55,22 +34,22 @@ class CEconWearable : public CEconEntity
 public:
 
 	virtual void	Spawn( void );
-	virtual int		GetSkin( void );
+	virtual int		GetSkin(void);
+	virtual void	SetParticle(const char* name);
+	virtual void	UpdateWearableBodyGroups( CBasePlayer *pPlayer );
 #ifdef GAME_DLL
-	virtual void	SetSpecialParticleEffect( int iParticleType ) { m_nParticleType = iParticleType; }
 	virtual void	Equip( CBasePlayer *pPlayer );
 	virtual void	UnEquip( CBasePlayer *pPlayer );
 #else
-	virtual void	OnDataChanged( DataUpdateType_t type );
-	virtual char*	GetParticleNameFromEnum( void );
+	virtual void	OnDataChanged(DataUpdateType_t type);
 #endif
 
 private:
 
 #ifdef GAME_DLL
-	CNetworkVar( int, m_nParticleType );
+	CNetworkString(m_ParticleName, PARTICLE_MODIFY_STRING_SIZE);
 #else
-	int m_nParticleType;
+	char m_ParticleName[PARTICLE_MODIFY_STRING_SIZE];
 	CNewParticleEffect *m_pUnusualParticle;
 #endif
 

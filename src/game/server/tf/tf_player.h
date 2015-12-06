@@ -14,6 +14,7 @@
 #include "entity_tfstart.h"
 #include "tf_inventory.h"
 #include "tf_weapon_medigun.h"
+#include "ihasattributes.h"
 
 class CTFPlayer;
 class CTFTeam;
@@ -64,7 +65,7 @@ struct DamagerHistory_t
 //
 // TF Player
 //
-class CTFPlayer : public CBaseMultiplayerPlayer
+class CTFPlayer : public CBaseMultiplayerPlayer, public IHasAttributes
 {
 public:
 	DECLARE_CLASS( CTFPlayer, CBaseMultiplayerPlayer );
@@ -123,6 +124,11 @@ public:
 	int GetWeaponPreset(int iClass, int iSlotNum);
 	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
 	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
+
+	void HandleCommand_GiveEconItem( int ID );
+	void HandleCommand_GiveParticle( const char* name );
+
+	CBaseEntity *GiveNamedItem( const char *pszName, int iSubType = NULL, CEconItemView* pItem = NULL );
 
 	void				SaveMe( void );
 
@@ -183,7 +189,8 @@ public:
 	void				UpdateSkin( int iTeam );
 
 	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound = false );
-	int					GetMaxAmmo( int iAmmoIndex );
+	virtual int			GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoSource ammosource );
+	int					GetMaxAmmo( int iAmmoIndex, int iClassNumber = -1 );
 
 	bool				CanAttack( void );
 
@@ -338,6 +345,10 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+
 public:
 
 	CNetworkVar(Vector, m_vecPlayerColor);
@@ -387,6 +398,8 @@ public:
 	void				ManageRandomWeapons( TFPlayerClassData_t *pData );
 	void				ManageBuilderWeapons( TFPlayerClassData_t *pData );
 	void				ManageGrenades(TFPlayerClassData_t *pData);
+
+	void				PostInventoryApplication( void );
 
 	// Taunts.
 	void				Taunt( void );
@@ -566,6 +579,8 @@ private:
 
 	float				m_flTauntAttackTime;
 	int					m_iTauntAttack;
+
+	CAttributeManager	m_AttributeManager;
 
 	COutputEvent		m_OnDeath;
 

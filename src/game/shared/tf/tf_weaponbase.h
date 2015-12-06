@@ -128,6 +128,9 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual const char *GetViewModel( int iViewModel = 0 ) const;
 	virtual const char *DetermineViewModelType(const char *vModel) const;
 
+	// World model.
+	virtual const char *GetWorldModel( void ) const;
+
 #ifdef CLIENT_DLL
 	virtual void UpdateViewModel( void );
 #endif
@@ -140,12 +143,19 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
 
+	virtual void OnActiveStateChanged( int iOldState );
+	virtual void UpdateOnRemove( void );
+
 	// Attacks.
 	virtual void PrimaryAttack();
 	virtual void SecondaryAttack();
 	void CalcIsAttackCritical( void );
 	virtual bool CalcIsAttackCriticalHelper();
 	bool IsCurrentAttackACrit() { return m_bCurrentAttackIsCrit; }
+
+	// Clip.
+	virtual int	GetMaxClip1( void ) const;
+	virtual int	GetDefaultClip1( void ) const;
 
 	// Reloads.
 	virtual bool Reload( void );
@@ -159,6 +169,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	// Sound.
 	bool PlayEmptySound();
+	virtual const char *GetShootSound( int iIndex ) const;
 
 	// Activities.
 	virtual void ItemBusyFrame( void );

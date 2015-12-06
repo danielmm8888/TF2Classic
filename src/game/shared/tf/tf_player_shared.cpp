@@ -1397,6 +1397,14 @@ void CTFPlayerShared::OnRemoveRagemode(void)
 #endif
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::RecalculatePlayerBodygroups( void )
+{
+	//CTFWeaponBase::UpdateWeaponBodyGroups((CTFWeaponBase *)v4, 0);
+	//CEconWearable::UpdateWearableBodyGroups(*((CEconWearable **)this + 521));
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -2466,6 +2474,55 @@ EHANDLE CTFPlayerShared::GetFirstHealer()
 
 	return NULL;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::HealthKitPickupEffects( int iAmount )
+{
+	/*int v4; // eax@2
+	int v5; // edi@8
+	int v6; // edx@9
+	int v7; // eax@9
+
+	if (CTFPlayerShared::InCond((int)this, 22))
+	CTFPlayerShared::RemoveCond((int)this, 22, a1, a2);
+	LOBYTE(v4) = CTFPlayerShared::InCond((int)this, 25);
+	if ((_BYTE)v4)
+	LOBYTE(v4) = CTFPlayerShared::RemoveCond((int)this, 25, a1, a2);
+	if ( iAmount )
+	{
+	LOBYTE(v4) = CTFPlayerShared::IsStealthed(this);
+	if (!(_BYTE)v4)
+	{
+	v4 = *((_DWORD *)this + 521);
+	if (v4)
+	{
+	IGameEvent *event = gameeventmanager->CreateEvent("player_healonhit");
+	v5 = v4;
+	if ( event )
+	{
+	event->SetInt( "amount", iAmount );
+	event->SetInt( "entindex", m_pOuter->entindex() );
+	gameeventmanager->FireEvent(event);
+
+
+	(*(void(__cdecl **)(int, _DWORD, int))(*(_DWORD *)v4 + 44))(v4, "amount", iAmount);
+	v6 = *(_DWORD *)(*((_DWORD *)this + 521) + 32);
+	v7 = 0;
+	if (v6)
+	v7 = *(_WORD *)(v6 + 6);
+	(*(void(__cdecl **)(int, _DWORD, int))(*(_DWORD *)v5 + 44))(v5, "entindex", v7);
+	LOBYTE(v4) = (*(int(__cdecl **)(CGameRulesProxy *, int, _DWORD))(*(_DWORD *)gameeventmanager + 32))(
+	gameeventmanager,
+	v5,
+	0);
+	}
+	}
+	}
+	}
+	return v4;*/
+}
 #endif
 
 //-----------------------------------------------------------------------------
@@ -3004,8 +3061,8 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	if ( m_Shared.InCond( TF_COND_AIMING ) )
 	{
 		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
-		// Heavy moves slightly faster spun-up
 
+		// Heavy moves slightly faster spun-up
 		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_MINIGUN ) )
 		{
 			if (maxfbspeed > 110)
