@@ -4,7 +4,7 @@
 #include "cdll_util.h"
 #include "engine/IEngineSound.h"
 #include "soundenvelope.h"
-#include "c_script_parser.h"
+#include "script_parser.h"
 #include "c_tf_player.h"
 #include "tf_gamerules.h"
 #include "c_playerresource.h"

@@ -209,6 +209,14 @@ enum
 	TF_AMMO_COUNT
 };
 
+enum EAmmoSource
+{
+	TF_AMMO_SOURCE_AMMOPACK = 0, // Default, used for ammopacks
+	TF_AMMO_SOURCE_RESUPPLY, // Maybe?
+	TF_AMMO_SOURCE_DISPENSER,
+	TF_AMMO_SOURCE_COUNT
+};
+
 //-----------------------------------------------------------------------------
 // Grenade Launcher mode (for pipebombs).
 //-----------------------------------------------------------------------------
@@ -231,6 +239,22 @@ enum
 	TF_WPN_TYPE_PDA,
 	TF_WPN_TYPE_ITEM1,
 	TF_WPN_TYPE_ITEM2,
+};
+
+//-----------------------------------------------------------------------------
+// Loadout slots
+//-----------------------------------------------------------------------------
+enum
+{
+	TF_LOADOUT_SLOT_PRIMARY = 0,
+	TF_LOADOUT_SLOT_SECONDARY,
+	TF_LOADOUT_SLOT_MELEE,
+	TF_LOADOUT_SLOT_PDA1,
+	TF_LOADOUT_SLOT_PDA2,
+	TF_LOADOUT_SLOT_BUILDING,
+	TF_LOADOUT_SLOT_HAT,
+	TF_LOADOUT_SLOT_MISC,
+	TF_LOADOUT_SLOT_ACTION,
 };
 
 extern const char *g_aAmmoNames[];
@@ -350,8 +374,10 @@ int GetWeaponId( const char *pszWeaponName );
 int GetWeaponFromDamage( const CTakeDamageInfo &info );
 #endif
 int GetBuildableId( const char *pszBuildableName );
+
 const char *WeaponIdToAlias( int iWeapon );
 const char *WeaponIdToClassname( int iWeapon );
+const char *TranslateWeaponEntForClass( const char *pszName, int iClass );
 
 enum
 {

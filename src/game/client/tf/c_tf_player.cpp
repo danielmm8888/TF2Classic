@@ -1515,7 +1515,9 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),
 	RecvPropDataTable( RECVINFO_DT( m_PlayerClass ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerClassShared ) ),
 	RecvPropDataTable( RECVINFO_DT( m_Shared ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerShared ) ),
-	RecvPropEHandle( RECVINFO(m_hItem ) ),
+	RecvPropDataTable( RECVINFO_DT( m_AttributeManager ), 0, &REFERENCE_RECV_TABLE( DT_AttributeManager ) ),
+
+	RecvPropEHandle( RECVINFO( m_hItem ) ),
 
 	RecvPropVector(RECVINFO(m_vecPlayerColor)),
 

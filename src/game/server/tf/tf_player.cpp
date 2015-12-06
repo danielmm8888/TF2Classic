@@ -51,6 +51,7 @@
 #include "tf_weaponbase.h"
 #include "econ_wearable.h"
 #include "tf_dropped_weapon.h"
+#include "econ_itemschema.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -315,13 +316,14 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropEHandle( SENDINFO( m_hItem ) ),
 
-	SendPropVector(SENDINFO(m_vecPlayerColor)),
+	SendPropVector( SENDINFO( m_vecPlayerColor) ),
 
 	// Ragdoll.
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 
 	SendPropDataTable( SENDINFO_DT( m_PlayerClass ), &REFERENCE_SEND_TABLE( DT_TFPlayerClassShared ) ),
 	SendPropDataTable( SENDINFO_DT( m_Shared ), &REFERENCE_SEND_TABLE( DT_TFPlayerShared ) ),
+	SendPropDataTable( SENDINFO_DT( m_AttributeManager ), &REFERENCE_SEND_TABLE( DT_AttributeManager ) ),
 
 	// Data that only gets sent to the local player
 	SendPropDataTable( "tflocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFLocalPlayerExclusive), SendProxy_SendLocalDataTable ),
@@ -879,6 +881,8 @@ void CTFPlayer::InitialSpawn( void )
 {
 	BaseClass::InitialSpawn();
 
+	m_AttributeManager.InitializeAttributes( this );
+
 	SetWeaponBuilder( NULL );
 
 	m_iMaxSentryKills = 0;
@@ -1271,24 +1275,32 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		// Give us a custom weapon from the inventory.
-		int iWeaponID = GetTFInventory()->GetWeapon(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+		int iItemID = GetTFInventory()->GetItem(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
 
-		// Skip builder since it's handled separately.
-		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
+		// HACK: Bat ID is zero so we need to check if current class is scout
+		if ( iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT )
 		{
-			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
+			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
+
+			if ( !pItemInfo )
+			{
+				AssertMsg( "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
+				continue;
+			}
+
+			const char *pszWeaponName = pItemInfo->item_class;
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
+			if ( pWeapon && pWeapon->GetItemID() != iItemID )
 			{
 				Weapon_Detach( pWeapon );
 				UTIL_Remove( pWeapon );
+				pWeapon = NULL;
 			}
 
-			pWeapon = Weapon_OwnsThisID( iWeaponID );
-
+			// Otherwise give it ammo.
 			if ( pWeapon )
 			{
 				pWeapon->ChangeTeam( GetTeamNumber() );
@@ -1301,7 +1313,8 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			}
 			else
 			{
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName );
+				CEconItemView econItem( iItemID );
+				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, 0, &econItem );
 
 				if ( pWeapon )
 				{
@@ -1330,6 +1343,16 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		Weapon_Switch( Weapon_GetSlot( 0 ) );
 		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
+
+	PostInventoryApplication();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::PostInventoryApplication( void )
+{
+	m_Shared.RecalculatePlayerBodygroups();
 }
 
 //-----------------------------------------------------------------------------
@@ -1576,6 +1599,124 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPrese
 	{
 		m_WeaponPresetMelee[iClass] = iPresetNum;
 	}
+}
+
+void CTFPlayer::HandleCommand_GiveParticle( const char* name )
+{
+	for ( int i = 0; i < m_hMyWearables.Count(); i++ )
+	{
+		CEconWearable *pWearable = m_hMyWearables.Element( i );
+		if ( pWearable )
+		{
+			pWearable->SetParticle( name );
+		}
+	}
+}
+
+void CTFPlayer::HandleCommand_GiveEconItem( int ID )
+{
+	int iItemID = ID;
+	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
+	if ( !pItemInfo )
+		return;
+
+	CEconItemView econItem( iItemID );
+
+	bool bCosmetic = econItem.IsCosmetic();
+	if ( bCosmetic )
+	{
+		for ( int i = 0; i < m_hMyWearables.Count(); i++ )
+		{
+			CEconWearable *pWearable = m_hMyWearables.Element( i );
+			if ( pWearable )
+			{
+				RemoveWearable( pWearable );
+			}
+		}
+
+		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
+
+		pWearable->SetItem( econItem );
+		PrecacheModel( pItemInfo->model_player );
+		pWearable->SetModel( pItemInfo->model_player );
+
+		EquipWearable( pWearable );
+	}
+	else
+	{
+		const char *pszWeaponName = econItem.GetEntityName();
+
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( pItemInfo->item_slot );
+		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
+		if ( pWeapon && pWeapon->GetItemID() != ID )
+		{
+			Weapon_Detach( pWeapon );
+			UTIL_Remove( pWeapon );
+			pWeapon = NULL;
+		}
+
+		if ( pWeapon )
+		{
+			pWeapon->ChangeTeam( GetTeamNumber() );
+			pWeapon->GiveDefaultAmmo();
+
+			if ( m_bRegenerating == false )
+			{
+				pWeapon->WeaponReset();
+			}
+		}
+		else
+		{
+			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, 0, &econItem );
+
+			if ( pWeapon )
+			{
+				pWeapon->DefaultTouch( this );
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Create and give the named item to the player, setting the item ID. Then return it.
+//-----------------------------------------------------------------------------
+CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconItemView* pItem )
+{
+	const char *pszEntName = TranslateWeaponEntForClass( pszName, GetPlayerClass()->GetClassIndex() );
+
+	// If I already own this type don't create one
+	if ( Weapon_OwnsThisType( pszEntName ) )
+		return NULL;
+
+	EHANDLE pent;
+
+	pent = CreateEntityByName( pszEntName );
+	if ( pent == NULL )
+	{
+		Msg( "NULL Ent in GiveNamedItem!\n" );
+		return NULL;
+	}
+
+	pent->SetLocalOrigin( GetLocalOrigin() );
+	pent->AddSpawnFlags( SF_NORESPAWN );
+
+	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( (CBaseEntity*)pent );
+	if ( pWeapon )
+	{
+		pWeapon->SetSubType( iSubType );
+		if ( pItem )
+			pWeapon->SetItem( *pItem );
+	}
+
+	DispatchSpawn( pent );
+	pent->Activate();
+
+	if ( pent != NULL && !( pent->IsMarkedForDeletion() ) )
+	{
+		pent->Touch( this );
+	}
+
+	return pent;
 }
 
 
@@ -2456,6 +2597,62 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		if (args.ArgC() >= 4)
 		{
 			HandleCommand_WeaponPreset(abs(atoi(args[1])), abs(atoi(args[2])), abs(atoi(args[3])));
+		}
+		return true;
+	}
+	else if ( FStrEq( pcmd, "giveeconitem" ) )
+	{
+		if ( args.ArgC() >= 2 )
+		{
+			HandleCommand_GiveEconItem( abs( atoi( args[1] ) ) );
+		}
+		return true;
+	}
+	else if ( FStrEq( pcmd, "giveparticle" ) )
+	{
+		if ( args.ArgC() >= 2 )
+		{
+			HandleCommand_GiveParticle( args[1] );
+		}
+		return true;
+	}
+	else if ( FStrEq( pcmd, "getweaponinfos" ) )
+	{
+		for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
+		{
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
+
+			if ( pWeapon && pWeapon->HasItemDefinition() )
+			{
+				CEconItemView *econItem = pWeapon->GetItem();
+				EconItemDefinition *itemdef = econItem->GetStaticData();
+
+				if ( itemdef )
+				{
+					Msg( "ItemID %i:\nname %s\nitem_class %s\nitem_type_name %s\n",
+						pWeapon->GetItemID(), itemdef->name, itemdef->item_class, itemdef->item_type_name );
+
+					Msg( "Attributes:\n" );
+					for ( int i = 0; i < itemdef->attributes.Count(); i++ )
+					{
+						CEconItemAttribute *pAttribute = &itemdef->attributes[i];
+						EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
+
+						if ( pStatic )
+						{
+							float value = pAttribute->value;
+							if ( pStatic->description_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->description_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE )
+							{
+								value *= 100.0f;
+							}
+
+							Msg( "%s %g\n", pStatic->description_string, value );
+						}
+					}
+					Msg( "\n" );
+				}
+			}
+
 		}
 		return true;
 	}
@@ -5281,19 +5478,41 @@ END_DATADESC()
 
 LINK_ENTITY_TO_CLASS( game_intro_viewpoint, CIntroViewpoint );
 
-//-----------------------------------------------------------------------------
-// Purpose: Give the player some ammo.
-// Input  : iCount - Amount of ammo to give.
-//			iAmmoIndex - Index of the ammo into the AmmoInfoArray
-//			iMax - Max carrying capability of the player
-// Output : Amount of ammo actually given
-//-----------------------------------------------------------------------------
-int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoSource ammosource )
 {
 	if ( iCount <= 0 )
 	{
-        return 0;
+		return 0;
 	}
+
+	if ( iAmmoIndex == TF_AMMO_METAL )
+	{
+		if ( ammosource != 1 )
+		{
+			float flMultiplier = 0.0f;
+			CALL_ATTRIB_HOOK_FLOAT( flMultiplier, mult_metal_pickup );
+			iCount = floorf( iCount * flMultiplier );
+		}
+	}
+	/*else if ( CALL_ATTRIB_HOOK_INT( bBool, ammo_becomes_health ) == 1 )
+	{
+	if ( !ammosource )
+	{
+	v7 = (*(int (__cdecl **)(CBaseEntity *, float, _DWORD))(*(_DWORD *)a3 + 260))(a3, (float)iCount, 0);
+	if ( v7 > 0 )
+	{
+	if ( !bSuppressSound )
+	EmitSound( "BaseCombatCharacter.AmmoPickup" );
+
+	*(float *)&a2.m128i_i32[0] = (float)iCount;
+	HealthKitPickupEffects( iCount );
+	}
+	return v7;
+	}
+
+	if ( ammosource == TF_AMMO_SOURCE_DISPENSER )
+	return v7;
+	}*/
 
 	if ( !g_pGameRules->CanHaveAmmo( this, iAmmoIndex ) )
 	{
@@ -5301,13 +5520,10 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 		return 0;
 	}
 
-	if ( iAmmoIndex < 0 || iAmmoIndex >= MAX_AMMO_SLOTS )
-	{
-		return 0;
-	}
+	int iMaxAmmo = GetMaxAmmo( iAmmoIndex );
+	int iAmmoCount = GetAmmoCount( iAmmoIndex );
+	int iAdd = min( iCount, iMaxAmmo - iAmmoCount );
 
-	int iMax = GetMaxAmmo( iAmmoIndex );
-	int iAdd = min( iCount, iMax - GetAmmoCount(iAmmoIndex) );
 	if ( iAdd < 1 )
 	{
 		return 0;
@@ -5323,29 +5539,80 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 	return iAdd;
 }
 
-int CTFPlayer::GetMaxAmmo( int iAmmoIndex )
+//-----------------------------------------------------------------------------
+// Purpose: Give the player some ammo.
+// Input  : iCount - Amount of ammo to give.
+//			iAmmoIndex - Index of the ammo into the AmmoInfoArray
+//			iMax - Max carrying capability of the player
+// Output : Amount of ammo actually given
+//-----------------------------------------------------------------------------
+int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
+{
+	return GiveAmmo( iCount, iAmmoIndex, bSuppressSound, TF_AMMO_SOURCE_AMMOPACK );
+}
+
+int CTFPlayer::GetMaxAmmo( int iAmmoIndex, int iClassNumber /*= -1*/ )
 {
 	if ( !GetPlayerClass()->GetData() )
 		return 0;
 
-	int iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
+	int iMaxAmmo = 0;
 
-	// If we have a weapon that overrides max ammo, use its value.
-	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
-	for ( int i = 0; i < WeaponCount(); i++ )
+	if ( iClassNumber != -1 )
 	{
-		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon(i);
+		iMaxAmmo = GetPlayerClassData( iClassNumber )->m_aAmmoMax[iAmmoIndex];
+	}
+	else
+	{
+		iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
+	}
 
-		if ( !pWpn )
-			continue;
-
-		if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
-			continue;
-
-		int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
-		if ( iCustomMaxAmmo )
+	// Using old system in DM since DM weapons don't use attributes.
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		// If we have a weapon that overrides max ammo, use its value.
+		// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
+		for ( int i = 0; i < WeaponCount(); i++ )
 		{
-			iMaxAmmo = iCustomMaxAmmo;
+			CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon( i );
+
+			if ( !pWpn )
+				continue;
+
+			if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
+				continue;
+
+			int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
+			if ( iCustomMaxAmmo )
+			{
+				iMaxAmmo = iCustomMaxAmmo;
+				break;
+			}
+		}
+	}
+	else
+	{
+		switch ( iAmmoIndex )
+		{
+		case TF_AMMO_PRIMARY:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_primary );
+			break;
+
+		case TF_AMMO_SECONDARY:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_secondary );
+			break;
+
+		case TF_AMMO_METAL:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_metal );
+			break;
+
+		case TF_AMMO_GRENADES1:
+			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_grenades1 );
+			break;
+
+		case 6:
+		default:
+			iMaxAmmo = 1;
 			break;
 		}
 	}

@@ -33,6 +33,7 @@ public:
 	CTFInventory();
 
 	int GetWeapon(int iClass, int iSlot, int iNum);
+	int GetItem( int iClass, int iSlot, int iNum );
 	bool CheckValidSlot(int iClass, int iSlot);
 	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon);
 	bool CheckValidSlot(int iClass, int iSlot, bool HudCheck);
@@ -51,6 +52,7 @@ public:
 
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
+	static const int Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
 };
 

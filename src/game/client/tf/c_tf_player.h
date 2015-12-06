@@ -22,6 +22,7 @@
 #include "c_playerattachedmodel.h"
 #include "iinput.h"
 #include "tf_weapon_medigun.h"
+#include "ihasattributes.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -37,7 +38,7 @@ extern ConVar tf2c_setmerccolor_b;
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class C_TFPlayer : public C_BasePlayer
+class C_TFPlayer : public C_BasePlayer, public IHasAttributes
 {
 public:
 
@@ -216,6 +217,10 @@ public:
 	bool	DoClassSpecialSkill( void );
 	bool	CanGoInvisible( void );
 
+	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+
 public:
 	// Ragdolls.
 	virtual C_BaseAnimating *BecomeRagdollOnClient();
@@ -372,6 +377,8 @@ public:
 
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
+
+	CAttributeManager m_AttributeManager;
 
 private:
 

@@ -129,7 +129,7 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 	}
 
 	// Check the reload mode and behave appropriately.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 	{
 		m_iReloadMode.Set( TF_RELOAD_START );
 	}
