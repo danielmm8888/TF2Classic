@@ -117,16 +117,10 @@ void CScriptParser::InitParser(const char *pszPath,
 	else //Only one file needs to be parsed (not a wildcard).
 	{
 		Q_strcpy(g_szSwap,pszPath);
-		if (bCustomExtension)
+		if (!bCustomExtension)
 		{
-			if (!FileParser(g_szSwap, false, ExtCMP(g_szSwap, GetEncryptedEXT())))
-			{
-				DevMsg("[script_parser.cpp] ERROR: Unable to Parse Passed Script File!");
-			}
-			m_bParsed = true;
-			return;
+			SetExtension(g_szSwap, FILE_PATH_MAX_LENGTH, GetNonEncryptedEXT());
 		}
-		SetExtension(g_szSwap,FILE_PATH_MAX_LENGTH,GetNonEncryptedEXT());
 		if(!filesystem->FileExists(g_szSwap, GetFSSearchPath())
 			&& bAllowEncryptedSearch)
 		{
@@ -137,11 +131,7 @@ void CScriptParser::InitParser(const char *pszPath,
 				Assert(!"[script_parser.cpp] File not found for parsing!");
 				return;
 			}
-		} else {
-			DevMsg("[script_parser.cpp] Unable to find '%s' for parsing!",pszPath);
-			Assert(!"[script_parser.cpp] File not found for parsing!");
-			return;
-		}
+		} 
 		if(!FileParser(g_szSwap, false,ExtCMP(g_szSwap,GetEncryptedEXT())))
 		{
 			DevMsg("[script_parser.cpp] ERROR: Unable to Parse Passed Script File!");

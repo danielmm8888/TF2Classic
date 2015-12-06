@@ -299,6 +299,8 @@ public:
 		GET_BOOL(pItem, pData, show_in_armory);
 
 		GET_STRING(pItem, pData, item_class);
+		GET_STRING(pItem, pData, item_name);
+		GET_STRING(pItem, pData, item_description);
 		GET_STRING(pItem, pData, item_type_name);
 		GET_STRING(pItem, pData, item_quality);
 		GET_STRING(pItem, pData, item_logname);
@@ -479,7 +481,7 @@ bool CEconItemSchema::Init()
 {
 	if (!m_bInited)
 	{
-		g_EconSchemaParser.InitParser("scripts/items/items_game*.txt", true, false);
+		g_EconSchemaParser.InitParser("scripts/items/items_game.txt", true, false);
 
 		m_bInited = true;
 	}

@@ -163,6 +163,7 @@ public:
 		CLEAR_STR(item_class);
 		CLEAR_STR(item_type_name);
 		CLEAR_STR(item_name);
+		CLEAR_STR(item_description);
 		item_slot = -1;
 		anim_slot = -1;
 		CLEAR_STR(item_quality);
@@ -187,6 +188,7 @@ public:
 	char item_class[128];
 	char item_type_name[128];
 	char item_name[128];
+	char item_description[128];
 	int  item_slot;
 	int  anim_slot;
 	char item_quality[128];
