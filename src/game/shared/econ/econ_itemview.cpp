@@ -148,17 +148,16 @@ const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *nam
 	return ActivityList_NameForIndex( iOverridenAct );
 }
 
-const char *CEconItemView::GetSoundOverride( const char* name )
+const char *CEconItemView::GetSoundOverride( int iIndex ) const
 {
-	const char *str = NULL;
 	EconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
-		FIND_ELEMENT( pStatic->visual.misc_info, name, str );
+		return pStatic->visual.aWeaponSounds[iIndex];
 	}
 
-	return str;
+	return NULL;
 }
 
 bool CEconItemView::HasCapability( const char* name )

@@ -39,7 +39,7 @@ public:
 	int GetAnimationSlot( void );
 	Activity GetActivityOverride( int iTeamNumber, Activity actOriginalActivity );
 	const char* GetActivityOverride( int iTeamNumber, const char *name );
-	const char* GetSoundOverride( const char* name );
+	const char* GetSoundOverride( int iIndex ) const;
 	bool HasCapability( const char* name );
 	bool HasTag( const char* name );
 

@@ -133,22 +133,6 @@ public:
 		}
 
 
-#define GET_VALUES_FAST_INT(map, keys)\
-		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
-		{													\
-			int key = atoi(pKeyData->GetName());			\
-			int value = pKeyData->GetInt();					\
-			IF_ELEMENT_FOUND(map, key)						\
-			{												\
-				map.Element(index) = value;					\
-			}												\
-			else											\
-			{												\
-				map.Insert(key, value);						\
-			}												\
-		}
-
-
 #define GET_VALUES_FAST_STRING(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())	\
 		{													\
@@ -387,20 +371,39 @@ public:
 
 				for (KeyValues *pVisualData = pSubData->GetFirstSubKey(); pVisualData != NULL; pVisualData = pVisualData->GetNextKey())
 				{
-					if (!Q_stricmp(pVisualData->GetName(), "player_bodygroups"))
+					if ( !Q_stricmp( pVisualData->GetName(), "player_bodygroups" ) )
 					{
-						GET_VALUES_FAST_BOOL(visual->player_bodygroups, pVisualData);
+						GET_VALUES_FAST_BOOL( visual->player_bodygroups, pVisualData );
 					}
-					else if (!Q_stricmp(pVisualData->GetName(), "attached_models"))
+					else if ( !Q_stricmp( pVisualData->GetName(), "attached_models" ) )
 					{
+						// TODO
 					}
-					else if (!Q_stricmp(pVisualData->GetName(), "animation_replacement"))
+					else if ( !Q_stricmp( pVisualData->GetName(), "animation_replacement" ) )
 					{
-						GET_VALUES_FAST_INT(visual->animation_replacement, pVisualData);
+						for ( KeyValues *pKeyData = pVisualData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )
+						{
+							int key = atoi( pKeyData->GetName() );
+							int value = pKeyData->GetInt();
+							visual->animation_replacement.InsertOrReplace( key, value );
+						}
 					}
-					else if (!Q_stricmp(pVisualData->GetName(), "playback_activity"))
+					else if ( !Q_stricmp( pVisualData->GetName(), "playback_activity" ) )
 					{
-						GET_VALUES_FAST_STRING(visual->playback_activity, pVisualData);
+						GET_VALUES_FAST_STRING( visual->playback_activity, pVisualData );
+					}
+					else if ( !Q_strnicmp( pVisualData->GetName(), "sound_", 6 ) )
+					{
+						// Fetching this similar to weapon script file parsing.
+						const char *szSoundName = pVisualData->GetString();
+
+						// Advancing pointer past sound_ prefix... why couldn't they just make a subsection for sounds?
+						int iSound = GetWeaponSoundFromString( pVisualData->GetName() + 6 );
+
+						if ( iSound != -1 )
+						{
+							Q_strncpy( visual->aWeaponSounds[iSound], szSoundName, MAX_WEAPON_STRING );
+						}
 					}
 					else if (!Q_stricmp(pVisualData->GetName(), "styles"))
 					{
@@ -636,6 +639,7 @@ EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
 EconItemVisuals::EconItemVisuals()
 {
 	animation_replacement.SetLessFunc( schemaLessFunc );
+	memset( aWeaponSounds, 0, sizeof( aWeaponSounds ) );
 }
 
 

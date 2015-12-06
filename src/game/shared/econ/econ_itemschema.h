@@ -146,6 +146,7 @@ public:
 	CUtlMap< int, int > animation_replacement;
 	CUtlDict< const char*, unsigned short > playback_activity;
 	CUtlDict< const char*, unsigned short > misc_info;
+	char aWeaponSounds[NUM_SHOOT_SOUND_TYPES][MAX_WEAPON_STRING];
 	//CUtlDict< EconItemStyle*, unsigned short > styles;
 };
 

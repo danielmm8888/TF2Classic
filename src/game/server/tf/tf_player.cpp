@@ -1648,24 +1648,14 @@ void CTFPlayer::HandleCommand_GiveEconItem( int ID )
 
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( pItemInfo->item_slot );
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if ( pWeapon && pWeapon->GetItemID() != ID )
+		if ( pWeapon && pWeapon->GetItemID() != iItemID )
 		{
 			Weapon_Detach( pWeapon );
 			UTIL_Remove( pWeapon );
 			pWeapon = NULL;
 		}
 
-		if ( pWeapon )
-		{
-			pWeapon->ChangeTeam( GetTeamNumber() );
-			pWeapon->GiveDefaultAmmo();
-
-			if ( m_bRegenerating == false )
-			{
-				pWeapon->WeaponReset();
-			}
-		}
-		else
+		if ( !pWeapon )
 		{
 			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, 0, &econItem );
 

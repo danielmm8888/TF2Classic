@@ -1376,6 +1376,26 @@ bool CTFWeaponBase::PlayEmptySound()
 }
 
 // -----------------------------------------------------------------------------
+// Purpose: Returns override from item schema if there is one.
+// -----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetShootSound( int iIndex ) const
+{
+	const char *pszSoundName = NULL;
+
+	if ( HasItemDefinition() )
+	{
+		pszSoundName = m_Item.GetSoundOverride( iIndex );
+	}
+
+	if ( !pszSoundName || pszSoundName[0] == '\0' )
+	{
+		pszSoundName = BaseClass::GetShootSound( iIndex );
+	}
+
+	return pszSoundName;
+}
+
+// -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::SendReloadEvents()
