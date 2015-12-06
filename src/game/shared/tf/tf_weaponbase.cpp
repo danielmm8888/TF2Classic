@@ -731,7 +731,7 @@ const char *CTFWeaponBase::GetWorldModel( void ) const
 
 	if ( !pszModelName || !pszModelName[0] )
 	{
-		pszModelName = BaseClass::GetWorldModel();
+		return BaseClass::GetWorldModel();
 	}
 
 	return pszModelName;

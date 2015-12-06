@@ -43,15 +43,15 @@ BEGIN_SEND_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 END_SEND_TABLE()
 #endif
 
-#define FIND_ELEMENT(dict, str, val)					\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())						\
-			val = dict.Element(index)	
+#define FIND_ELEMENT(map, key, val)						\
+		unsigned int index = map.Find(key);				\
+		if (index != map.InvalidIndex())						\
+			val = map.Element(index)				
 
-#define FIND_ELEMENT_STRING(dict, str, val)				\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())						\
-			Q_snprintf(val, sizeof(val), dict.Element(index))
+#define FIND_ELEMENT_STRING(map, key, val)						\
+		unsigned int index = map.Find(key);						\
+		if (index != map.InvalidIndex())								\
+			Q_snprintf(val, sizeof(val), map.Element(index))
 
 
 EconItemDefinition *CEconItemView::GetStaticData( void ) const
@@ -122,40 +122,30 @@ int CEconItemView::GetAnimationSlot( void )
 
 Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOriginalActivity )
 {
-	Activity actOverridenActivity = ACT_INVALID;
 	EconItemDefinition *pStatic = GetStaticData();
+
+	int iOverridenActivity = ACT_INVALID;
 
 	if ( pStatic )
 	{
-		EconItemVisuals *visual = &pStatic->visual;
-		for ( unsigned int i = 0; i < visual->animation_replacement.Count(); i++ )
-		{
-			const char *szActivityString = visual->animation_replacement.GetElementName( i );
-			actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
-
-			if ( actOverridenActivity == actOriginalActivity )
-			{
-				szActivityString = visual->animation_replacement.Element( i );
-				actOverridenActivity = (Activity)ActivityList_IndexForName( szActivityString );
-				return actOverridenActivity;
-			}
-		}
+		FIND_ELEMENT( pStatic->visual.animation_replacement, actOriginalActivity, iOverridenActivity );
 	}
 
-	return actOverridenActivity;
+	return (Activity)iOverridenActivity;
 }
 
 const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *name )
 {
-	const char *str = NULL;
 	EconItemDefinition *pStatic = GetStaticData();
+	int iOriginalAct = ActivityList_IndexForName( name );
+	int iOverridenAct = ACT_INVALID;
 
 	if ( pStatic )
 	{
-		FIND_ELEMENT( pStatic->visual.animation_replacement, name, str );
+		FIND_ELEMENT( pStatic->visual.animation_replacement, iOriginalAct, iOverridenAct );
 	}
 
-	return str;
+	return ActivityList_NameForIndex( iOverridenAct );
 }
 
 const char *CEconItemView::GetSoundOverride( const char* name )

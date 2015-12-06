@@ -136,14 +136,14 @@ struct EconItemStyle
 	CUtlDict< const char*, unsigned short > model_player_per_class;
 };
 
-struct EconItemVisuals
+class EconItemVisuals
 {
-	EconItemVisuals()
-	{
-	}
+public:
+	EconItemVisuals();
 
+public:
 	CUtlDict< bool, unsigned short > player_bodygroups;
-	CUtlDict< const char*, unsigned short > animation_replacement;
+	CUtlMap< int, int > animation_replacement;
 	CUtlDict< const char*, unsigned short > playback_activity;
 	CUtlDict< const char*, unsigned short > misc_info;
 	//CUtlDict< EconItemStyle*, unsigned short > styles;

@@ -5,22 +5,6 @@
 #include "soundenvelope.h"
 #include "script_parser.h"
 
-const char *g_AttributeDescriptionFormats[] =
-{
-	"value_is_percentage",
-	"value_is_inverted_percentage",
-	"value_is_additive",
-	"value_is_additive_percentage",
-	"value_is_or",
-	"value_is_date",
-	"value_is_account_id",
-	"value_is_particle_index",
-	"value_is_killstreakeffect_index",
-	"value_is_killstreak_idleeffect_index",
-	"value_is_item_def",
-	"value_is_from_lookup_table"
-};
-
 const char *g_AnimsSlots[] =
 {
 	"primary",
@@ -44,6 +28,31 @@ const char *g_LoadoutSlots[] =
 	"head",
 	"misc",
 	"action",
+};
+
+const char *g_TeamVisualSections[] =
+{
+	"visuals",
+	NULL, // nullptr
+	"visuals_red",
+	"visuals_blu",
+	"visuals_mvm_boss"
+};
+
+const char *g_AttributeDescriptionFormats[] =
+{
+	"value_is_percentage",
+	"value_is_inverted_percentage",
+	"value_is_additive",
+	"value_is_additive_percentage",
+	"value_is_or",
+	"value_is_date",
+	"value_is_account_id",
+	"value_is_particle_index",
+	"value_is_killstreakeffect_index",
+	"value_is_killstreak_idleeffect_index",
+	"value_is_item_def",
+	"value_is_from_lookup_table"
 };
 
 const char *g_EffectTypes[] =
@@ -98,17 +107,17 @@ public:
 
 #define FIND_ELEMENT(map, key, val)						\
 		unsigned int index = map.Find(key);				\
-		if (index < map.Count())						\
+		if (index != map.InvalidIndex())						\
 			val = map.Element(index)				
 
 #define FIND_ELEMENT_STRING(map, key, val)						\
 		unsigned int index = map.Find(key);						\
-		if (index < map.Count())								\
+		if (index != map.InvalidIndex())								\
 			Q_snprintf(val, sizeof(val), map.Element(index))
 
 #define IF_ELEMENT_FOUND(map, key)						\
 		unsigned int index = map.Find(key);				\
-		if (index < map.Count())			
+		if (index != map.InvalidIndex())			
 
 #define GET_VALUES_FAST_BOOL(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
@@ -122,6 +131,23 @@ public:
 				dict.Insert(pKeyData->GetName(), pKeyData->GetBool());\
 			}												\
 		}
+
+
+#define GET_VALUES_FAST_INT(map, keys)\
+		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
+		{													\
+			int key = atoi(pKeyData->GetName());			\
+			int value = pKeyData->GetInt();					\
+			IF_ELEMENT_FOUND(map, key)						\
+			{												\
+				map.Element(index) = value;					\
+			}												\
+			else											\
+			{												\
+				map.Insert(key, value);						\
+			}												\
+		}
+
 
 #define GET_VALUES_FAST_STRING(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())	\
@@ -370,7 +396,7 @@ public:
 					}
 					else if (!Q_stricmp(pVisualData->GetName(), "animation_replacement"))
 					{
-						GET_VALUES_FAST_STRING(visual->animation_replacement, pVisualData);
+						GET_VALUES_FAST_INT(visual->animation_replacement, pVisualData);
 					}
 					else if (!Q_stricmp(pVisualData->GetName(), "playback_activity"))
 					{
@@ -601,6 +627,17 @@ EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
 {
 	return GetItemSchema()->GetAttributeDefinition( m_iAttributeDefinitionIndex );
 }
+
+
+//-----------------------------------------------------------------------------
+// EconItemVisuals
+//-----------------------------------------------------------------------------
+
+EconItemVisuals::EconItemVisuals()
+{
+	animation_replacement.SetLessFunc( schemaLessFunc );
+}
+
 
 
 //-----------------------------------------------------------------------------

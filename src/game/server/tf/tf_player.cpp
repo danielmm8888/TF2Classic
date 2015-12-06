@@ -1284,7 +1284,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( !pItemInfo )
 			{
-				AssertMsg( "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
+				AssertMsg( false, "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
 				continue;
 			}
 
