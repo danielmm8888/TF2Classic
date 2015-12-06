@@ -449,8 +449,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_minigun"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
+			"model_world"	"models/weapons/w_models/w_minigun.mdl"
 			"model_player"	"models/weapons/v_models/v_minigun_heavy.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/w_models/w_minigun.mdl"
 			"used_by_classes"
 			{
 				"heavy"	"1"
@@ -495,8 +495,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands" "1"
-			"model_player"	"models/weapons/w_models/w_rocketlauncher.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_rocketlauncher_soldier.mdl"
+			"model_world"	"models/weapons/w_models/w_rocketlauncher.mdl"
+			"model_player"	"models/weapons/v_models/v_rocketlauncher_soldier.mdl"
 			"used_by_classes"
 			{
 				"soldier"	"1"
@@ -538,8 +538,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_stickybomb_launcher"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player" "models/weapons/w_models/w_stickybomb_launcher.mdl"
-			"model_player_viewmodeloverride" "models/weapons/v_models/v_stickybomb_launcher_demo.mdl"
+			"model_world" "models/weapons/w_models/w_stickybomb_launcher.mdl"
+			"model_player" "models/weapons/v_models/v_stickybomb_launcher_demo.mdl"
 			"attach_to_hands"	"0"
 			"used_by_classes"
 			{
@@ -576,8 +576,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_grenadelauncher"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_grenadelauncher.mdl"
-			"model_player_viewmodeloverride" "models/weapons/v_models/v_grenadelauncher_demo.mdl"
+			"model_world"	"models/weapons/w_models/w_grenadelauncher.mdl"
+			"model_player" "models/weapons/v_models/v_grenadelauncher_demo.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -614,8 +614,8 @@
 			"image_inventory"	"backpack/weapons/c_models/c_flamethrower/c_flamethrower"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_flamethrower.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_flamethrower_pyro.mdl"
+			"model_world"	"models/weapons/w_models/w_flamethrower.mdl"
+			"model_player"	"models/weapons/v_models/v_flamethrower_pyro.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -649,8 +649,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_medigun.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_medigun_medic.mdl"
+			"model_world"	"models/weapons/w_models/w_medigun.mdl"
+			"model_player"	"models/weapons/v_models/v_medigun_medic.mdl"
 			"used_by_classes"
 			{
 				"medic"	"1"
@@ -695,8 +695,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_knife"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_knife.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_knife_spy.mdl"
+			"model_world"	"models/weapons/w_models/w_knife.mdl"
+			"model_player"	"models/weapons/v_models/v_knife_spy.mdl"
 			"used_by_classes"
 			{
 				"spy"	"1"
@@ -729,8 +729,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_wrench"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_wrench.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_wrench_engineer.mdl"
+			"model_world"	"models/weapons/w_models/w_wrench.mdl"
+			"model_player"	"models/weapons/v_models/v_wrench_engineer.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -779,8 +779,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_scattergun.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_scattergun_scout.mdl"
+			"model_world"	"models/weapons/w_models/w_scattergun.mdl"
+			"model_player"	"models/weapons/v_models/v_scattergun_scout.mdl"
 			"used_by_classes"
 			{
 				"scout"	"1"
@@ -815,8 +815,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands" "1"
+			"model_world"	"models/weapons/w_models/w_sniperrifle.mdl"
 			"model_player"	"models/weapons/v_models/v_sniperrifle_sniper.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/w_models/w_sniperrifle.mdl"
 			"used_by_classes"
 			{
 				"sniper"	"1"
@@ -849,8 +849,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_bat.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_bat_scout.mdl"
+			"model_world"	"models/weapons/w_models/w_bat.mdl"
+			"model_player"	"models/weapons/v_models/v_bat_scout.mdl"
 			"used_by_classes"
 			{
 				"scout"	"1"
@@ -883,7 +883,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_shotgun"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/c_models/c_shotgun/c_shotgun.mdl"
+			"model_world"	"models/weapons/w_models/w_shotgun.mdl"
+			//"model_player"	"models/weapons/c_models/c_shotgun/c_shotgun.mdl"
 			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
 			"drop_sound"		"ui/item_heavy_gun_drop.wav"	
 		}
@@ -936,8 +937,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_bottle"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_bottle.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_bottle_demoman.mdl"	
+			"model_world"	"models/weapons/w_models/w_bottle.mdl"
+			"model_player"	"models/weapons/v_models/v_bottle_demoman.mdl"	
 			"attach_to_hands" "1"
 			"used_by_classes"
 			{
@@ -972,8 +973,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"		"models/weapons/w_models/w_fireaxe.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_fireaxe_pyro.mdl"
+			"model_world"		"models/weapons/w_models/w_fireaxe.mdl"
+			"model_player"	"models/weapons/v_models/v_fireaxe_pyro.mdl"
 			"used_by_classes"
 			{
 				"pyro"	"1"
@@ -1006,8 +1007,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_machete"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_machete.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_machete_sniper.mdl"
+			"model_world"	"models/weapons/w_models/w_machete.mdl"
+			"model_player"	"models/weapons/v_models/v_machete_sniper.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -1057,11 +1058,11 @@
 			{
 				"animation_replacement"
 				{
-					"ACT_VM_IDLE"	"ACT_FISTS_VM_IDLE"
-					"ACT_VM_HITLEFT"	"ACT_FISTS_VM_HITLEFT"
-					"ACT_VM_HITRIGHT"	"ACT_FISTS_VM_HITRIGHT"
-					"ACT_VM_SWINGHARD"	"ACT_FISTS_VM_SWINGHARD"
-					"ACT_VM_DRAW"	"ACT_FISTS_VM_DRAW"
+					//"ACT_VM_IDLE"	"ACT_FISTS_VM_IDLE"
+					//"ACT_VM_HITLEFT"	"ACT_FISTS_VM_HITLEFT"
+					//"ACT_VM_HITRIGHT"	"ACT_FISTS_VM_HITRIGHT"
+					//"ACT_VM_SWINGHARD"	"ACT_FISTS_VM_SWINGHARD"
+					//"ACT_VM_DRAW"	"ACT_FISTS_VM_DRAW"
 				}
 				"styles"
 				{
@@ -1101,8 +1102,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_shovel"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_shovel.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_shovel_soldier.mdl"
+			"model_world"	"models/weapons/w_models/w_shovel.mdl"
+			"model_player"	"models/weapons/v_models/v_shovel_soldier.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -1143,8 +1144,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_bonesaw.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_bonesaw_medic.mdl"
+			"model_world"	"models/weapons/w_models/w_bonesaw.mdl"
+			"model_player"	"models/weapons/v_models/v_bonesaw_medic.mdl"
 			"used_by_classes"
 			{
 				"medic"	"1"
@@ -1158,6 +1159,7 @@
 			"first_sale_date"	"2010/09/29"
 			"prefab"	"weapon_shotgun"
 			"item_slot"	"primary"
+			"player_model"	"models/weapons/v_models/v_shotgun_engineer.mdl"
 			"used_by_classes"
 			{
 				"engineer"	"1"
@@ -1170,6 +1172,7 @@
 			"prefab"	"weapon_shotgun"
 			"hidden"	"1"
 			"item_slot"	"secondary"
+			"player_model"	"models/weapons/v_models/v_shotgun_soldier.mdl"
 			"used_by_classes"
 			{
 				"soldier"	"1"
@@ -1182,6 +1185,7 @@
 			"prefab"	"weapon_shotgun"
 			"hidden"	"1"
 			"item_slot"	"secondary"
+			"player_model"	"models/weapons/v_models/v_shotgun_heavy.mdl"
 			"used_by_classes"
 			{
 				"heavy"	"1"
@@ -1194,6 +1198,7 @@
 			"prefab"	"weapon_shotgun"
 			"hidden"	"1"
 			"item_slot"	"secondary"
+			"player_model"	"models/weapons/v_models/v_shotgun_pyro.mdl"
 			"used_by_classes"
 			{
 				"pyro"	"1"
@@ -1244,8 +1249,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_smg"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_smg.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_smg_sniper.mdl"
+			"model_world"	"models/weapons/w_models/w_smg.mdl"
+			"model_player"	"models/weapons/v_models/v_smg_sniper.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -1281,8 +1286,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_syringegun"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_syringegun.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_syringegun_medic.mdl"
+			"model_world"	"models/weapons/w_models/w_syringegun.mdl"
+			"model_player"	"models/weapons/v_models/v_syringegun_medic.mdl"
 			"attach_to_hands"	"1"
 			"used_by_classes"
 			{
@@ -1343,7 +1348,9 @@
 			"image_inventory"	"backpack/weapons/c_models/c_pistol"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/c_models/c_pistol/c_pistol.mdl"
+			//"model_player"	"models/weapons/c_models/c_pistol/c_pistol.mdl"
+			"model_world"	"models/weapons/w_models/w_pistol.mdl"
+			"model_player"	"models/weapons/v_models/v_pistol_engineer.mdl"
 			"used_by_classes"
 			{
 				"engineer"	"1"
@@ -1380,7 +1387,9 @@
 			"image_inventory"	"backpack/weapons/c_models/c_pistol"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/c_models/c_pistol/c_pistol.mdl"
+			//"model_player"	"models/weapons/c_models/c_pistol/c_pistol.mdl"
+			"model_world"	"models/weapons/w_models/w_pistol.mdl"
+			"model_player"	"models/weapons/v_models/v_pistol_scout.mdl"
 			"used_by_classes"
 			{
 				"scout"	"1"
@@ -1415,8 +1424,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_revolver"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_revolver.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_revolver_spy.mdl"
+			"model_world"	"models/weapons/w_models/w_revolver.mdl"
+			"model_player"	"models/weapons/v_models/v_revolver_spy.mdl"
 			"used_by_classes"
 			{
 				"spy"	"1"
@@ -1446,8 +1455,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_builder"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_builder.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_builder_engineer.mdl"
+			"model_world"	"models/weapons/w_models/w_builder.mdl"
+			"model_player"	"models/weapons/v_models/v_builder_engineer.mdl"
 			"used_by_classes"
 			{
 				"engineer"	"1"
@@ -1476,8 +1485,8 @@
 			{
 				"animation_replacement"
 				{
-					"ACT_VM_IDLE"	"ACT_ENGINEER_PDA2_VM_IDLE"
-					"ACT_VM_DRAW"	"ACT_ENGINEER_PDA2_VM_DRAW"
+					//"ACT_VM_IDLE"	"ACT_ENGINEER_PDA2_VM_IDLE"
+					//"ACT_VM_DRAW"	"ACT_ENGINEER_PDA2_VM_DRAW"
 				}
 			}
 		}
@@ -1499,8 +1508,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_pda_engineer"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_pda_engineer.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_pda_engineer.mdl"
+			"model_world"	"models/weapons/w_models/w_pda_engineer.mdl"
+			"model_player"	"models/weapons/v_models/v_pda_engineer.mdl"
 			"used_by_classes"
 			{
 				"engineer"	"1"
@@ -1511,8 +1520,8 @@
 			{
 				"animation_replacement"
 				{
-					"ACT_VM_IDLE"	"ACT_ENGINEER_PDA1_VM_IDLE"
-					"ACT_VM_DRAW"	"ACT_ENGINEER_PDA1_VM_DRAW"
+					//"ACT_VM_IDLE"	"ACT_ENGINEER_PDA1_VM_IDLE"
+					//"ACT_VM_DRAW"	"ACT_ENGINEER_PDA1_VM_DRAW"
 				}
 			}
 		}
@@ -1533,8 +1542,8 @@
 			"image_inventory"	"backpack/weapons/w_models/w_cigarette_case"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_cigarette_case.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_pda_spy.mdl"
+			"model_world"	"models/weapons/w_models/w_cigarette_case.mdl"
+			"model_player"	"models/weapons/v_models/v_pda_spy.mdl"
 			"used_by_classes"
 			{
 				"spy"	"1"
@@ -1559,8 +1568,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_toolbox.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_wrench_engineer.mdl"
+			"model_world"	"models/weapons/w_models/w_toolbox.mdl"
+			"model_player"	"models/weapons/v_models/v_wrench_engineer.mdl"
 			"used_by_classes"
 			{
 				"engineer"	"1"
@@ -1571,8 +1580,8 @@
 			{
 				"animation_replacement"
 				{
-					"ACT_VM_IDLE"	"ACT_ENGINEER_BLD_VM_IDLE"
-					"ACT_VM_DRAW"	"ACT_ENGINEER_BLD_VM_DRAW"
+					//"ACT_VM_IDLE"	"ACT_ENGINEER_BLD_VM_IDLE"
+					//"ACT_VM_DRAW"	"ACT_ENGINEER_BLD_VM_DRAW"
 				}
 			}
 		}
@@ -1604,8 +1613,8 @@
 			"image_inventory"	"backpack/weapons/c_models/c_spy_watch/parts/c_spy_watch"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_cigarette_case.mdl"
-			"model_player_viewmodeloverride" "models/weapons/v_models/v_watch_spy.mdl"	
+			"model_world"	"models/weapons/w_models/w_cigarette_case.mdl"
+			"model_player" "models/weapons/v_models/v_watch_spy.mdl"	
 			"used_by_classes"
 			{
 				"spy"	"1"
@@ -1645,8 +1654,8 @@
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
 			"attach_to_hands"	"1"
-			"model_player"	"models/weapons/w_models/w_sapper.mdl"			
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_sapper_spy.mdl"
+			"model_world"	"models/weapons/w_models/w_sapper.mdl"			
+			"model_player"	"models/weapons/v_models/v_sapper_spy.mdl"
 			"used_by_classes"
 			{
 				"spy"	"1"
@@ -1680,8 +1689,8 @@
 			"image_inventory"	"backpack/weapons/c_models/c_overhealer/c_overhealer"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
-			"model_player"	"models/weapons/w_models/w_kritzkrieg.mdl"
-			"model_player_viewmodeloverride"	"models/weapons/v_models/v_kritzkrieg_medic.mdl"
+			"model_world"	"models/weapons/w_models/w_kritzkrieg.mdl"
+			"model_player"	"models/weapons/v_models/v_kritzkrieg_medic.mdl"
 			"attach_to_hands"	"1"
 			"item_quality"	"unique"
 			"propername"	"1"
@@ -1790,6 +1799,8 @@
 			"mouse_pressed_sound" 	"ui/item_helmet_pickup.wav"
 			"drop_sound" 		"ui/item_helmet_pickup.wav"
 		}
+		
+		
 		"751"
 		{
 			"name" "The Cleaner's Carbine"
