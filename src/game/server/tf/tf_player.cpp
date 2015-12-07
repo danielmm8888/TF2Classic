@@ -1562,7 +1562,7 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 {
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum, true ) )
 		return;
 
 	if ( iSlotNum == 0 )
@@ -1584,7 +1584,7 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPresetNum )
 {
-	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum, true ) )
 		return;
 
 	if ( iSlotNum == 0 )

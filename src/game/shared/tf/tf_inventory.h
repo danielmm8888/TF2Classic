@@ -34,10 +34,8 @@ public:
 
 	int GetWeapon(int iClass, int iSlot, int iNum);
 	int GetItem( int iClass, int iSlot, int iNum );
-	bool CheckValidSlot(int iClass, int iSlot);
-	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon);
-	bool CheckValidSlot(int iClass, int iSlot, bool HudCheck);
-	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck);
+	bool CheckValidSlot(int iClass, int iSlot, bool bEcon = 0, bool HudCheck = 0);
+	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEcon = 0, bool HudCheck = 0);
 
 #if defined( CLIENT_DLL )
 	KeyValues* GetInventory(IBaseFileSystem *pFileSystem);

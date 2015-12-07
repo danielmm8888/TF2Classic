@@ -30,23 +30,12 @@ int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 	return Weapons[iClass][iSlot][iNum];
 };
 
-int CTFInventory::GetItem( int iClass, int iSlot, int iNum )
+int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
 {
 	return Items[iClass][iSlot][iNum];
 };
 
-
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot)
-{
-	return CheckValidSlot(iClass, iSlot, 0);
-}
-
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon)
-{
-	return CheckValidWeapon(iClass, iSlot, iWeapon, 0);
-}
-
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool HudCheck)
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bEcon, bool HudCheck)
 {
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
@@ -56,24 +45,43 @@ bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool HudCheck)
 	bool bWeapon = false;
 	for (int i = 0; i < iCount; i++) //if there's at least one weapon in slot
 	{
-		if (Weapons[iClass][iSlot][i])
+		if (!bEcon)
 		{
-			bWeapon = true;
-			break;
+			if (Weapons[iClass][iSlot][i])
+			{
+				bWeapon = true;
+				break;
+			}
+		}
+		else
+		{
+			if (Items[iClass][iSlot][i])
+			{
+				bWeapon = true;
+				break;
+			}
 		}
 	}
 	return bWeapon;
 };
 
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck)
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEcon, bool HudCheck)
 {
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
 	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
 	if (iWeapon >= iCount || iWeapon < 0)
 		return false;
-	if (!Weapons[iClass][iSlot][iWeapon])
-		return false;
+	if (!bEcon)
+	{
+		if (!Weapons[iClass][iSlot][iWeapon])
+			return false;
+	}
+	else
+	{
+		if (!Items[iClass][iSlot][iWeapon])
+			return false;
+	}
 	return true;
 };
 
@@ -303,7 +311,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			14//, TF_WEAPON_HUNTERRIFLE
 		},
 		{
-			16
+			16, 751
 		},
 		{
 			3//, TF_WEAPON_FISHWHACKER
@@ -336,7 +344,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			17//, TF_WEAPON_SHOTGUN_MEDIC
 		},
 		{
-			29//, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
+			29, 35//, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
 		},
 		{
 			8//, TF_WEAPON_UBERSAW
