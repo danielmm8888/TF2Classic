@@ -1872,6 +1872,49 @@
 			"mouse_pressed_sound"	"ui/item_light_gun_pickup.wav"
 			"drop_sound"		"ui/item_light_gun_drop.wav"
 		}
+		"9001"
+		{
+			"prefab" "weapon_rocketlauncher"
+			"name" "Valve Rocket Launcher"
+			"attributes"
+			{
+				"damage bonus"
+				{
+					"attribute_class" "mult_dmg"
+					"value" "1010000.0"
+				}
+				"clip size bonus"
+				{
+					"attribute_class" "mult_clipsize"
+					"value" "1010000.0"
+				}
+				"fire rate bonus"
+				{
+					"attribute_class" "mult_postfiredelay"
+					"value" "0.25"
+				}
+				"heal on hit for slowfire"
+				{
+					"attribute_class" "add_onhit_addhealth"
+					"value" "250.0"
+				}
+				"Projectile speed increased"
+				{
+					"atribute_class" "mult_projectile_speed"
+					"value" "1.5"
+				}
+				"move speed bonus"
+				{
+					"attribute_class" "mult_player_movespeed"
+					"value" "2.0"
+				}
+				"critboost on kill"
+				{
+					"attribute_class" "add_onkill_critboost_time"
+					"value" "10.0"
+				}
+			}
+		}
 	}
 	"attributes"
 	{
