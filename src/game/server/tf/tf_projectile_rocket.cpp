@@ -43,15 +43,16 @@ CTFProjectile_Rocket *CTFProjectile_Rocket::Create( CBaseEntity *pWeapon, const 
 //-----------------------------------------------------------------------------
 void CTFProjectile_Rocket::Spawn()
 {
-	CTFPlayer *pPlayer = dynamic_cast< CTFPlayer* >(GetOwnerEntity());
-	if (pPlayer)
+	const char *pszRocketModel = ROCKET_MODEL;
+
+	CTFPlayer *pPlayer = dynamic_cast<CTFPlayer*>( GetOwnerEntity() );
+	if ( pPlayer )
 	{
-		if (pPlayer->IsActiveTFWeapon(TF_WEAPON_ROCKETLAUNCHER))
-			SetModel(ROCKET_MODEL);
-		else if (pPlayer->IsActiveTFWeapon(TF_WEAPON_ROCKETLAUNCHERBETA))
-			SetModel("models/weapons/w_models/w_rocketbeta.mdl");
+		if ( pPlayer->IsActiveTFWeapon( TF_WEAPON_ROCKETLAUNCHERBETA ) )
+			pszRocketModel = "models/weapons/w_models/w_rocketbeta.mdl";
 	}
-	//SetModel( ROCKET_MODEL );
+
+	SetModel( pszRocketModel );
 	BaseClass::Spawn();
 }
 

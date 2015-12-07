@@ -12,7 +12,7 @@ WeaponData
 	"Range"			"4096"
 	"BulletsPerShot"	"1"
 	"Spread"		"0.04"
-	"TimeFireDelay"		"0.17"
+	"TimeFireDelay"		"0.15"
 	"TimeIdle"		"5.0"
 	"TimeIdleEmpty"		"0.25"
 	"TimeReload"		"0.5"

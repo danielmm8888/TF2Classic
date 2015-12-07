@@ -2956,11 +2956,14 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 				{
 					*iWeaponID = pRocket->GetWeaponID();
 					// Fire weapon deflects go here.
-					switch ( pRocket->GetWeaponID() )
+					if ( pRocket->m_iDeflected )
 					{
-					case TF_WEAPON_FLAREGUN:
-						killer_weapon_name = "deflect_flare";
-						break;
+						switch ( pRocket->GetWeaponID() )
+						{
+						case TF_WEAPON_FLAREGUN:
+							killer_weapon_name = "deflect_flare";
+							break;
+						}
 					}
 				}
 			}

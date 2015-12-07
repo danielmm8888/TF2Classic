@@ -848,6 +848,29 @@ bool CTFWeaponBase::Deploy( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
+{
+	BaseClass::Equip( pOwner );
+	
+	// Add it to attribute providers list.
+	IHasAttributes *pAttrib = pOwner->GetHasAttributesInterfacePtr();
+	
+	if ( pAttrib )
+	{
+		int iProvideOnActive = 0;
+		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
+
+		// "Provide on active weapons are handled separately.
+		if ( !iProvideOnActive )
+		{
+			pAttrib->GetAttributeManager()->AddProvider( this );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFWeaponBase::OnActiveStateChanged( int iOldState )
 {
 	CTFPlayer *pOwner = GetTFPlayerOwner();
@@ -869,18 +892,20 @@ void CTFWeaponBase::OnActiveStateChanged( int iOldState )
 				pOwner->GetAttributeManager()->RemoveProvider( this );
 			}
 		}
+#ifdef CLIENT_DLL
 		else if ( iOldState == WEAPON_NOT_CARRIED )
 		{
-			// Just got equipped, add us to attribute providers list.
+			// Just got equipped, add it to attribute providers list.
 			pOwner->GetAttributeManager()->AddProvider( this );
 		}
+#endif
 		else if ( m_iState == WEAPON_NOT_CARRIED )
 		{
-			// Dropped, remove ourselves from providers list.
+			// Dropped, remove it from providers list.
 			pOwner->GetAttributeManager()->RemoveProvider( this );
 		}
 
-		// Weapon might be giving us speed boost when active.
+		// Weapon might be giving us speed boost.
 		pOwner->TeamFortress_SetSpeed();
 	}
 

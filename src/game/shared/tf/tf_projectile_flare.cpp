@@ -173,12 +173,6 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		// Hit player, do damage.
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
-		
-		// Crit on burning players.
-		// TODO: Once we implement attributes, change it to use them and move this to CTFPlayer::OnTakeDamage.
-		if ( pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
-			info.AddDamageType( DMG_CRITICAL );
-
 		pPlayer->TakeDamage( info );
 		
 		CPVSFilter filter( vecOrigin );
