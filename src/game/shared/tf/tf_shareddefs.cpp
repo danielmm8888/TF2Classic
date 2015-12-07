@@ -578,7 +578,7 @@ int GetWeaponFromDamage( const CTakeDamageInfo &info )
 	int iWeapon = TF_WEAPON_NONE;
 
 	// Work out what killed the player, and send a message to all clients about it
-	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
+	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL, &iWeapon );
 
 	if ( !Q_strnicmp( killer_weapon_name, "tf_projectile", 13 ) )
 	{

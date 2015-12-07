@@ -111,7 +111,10 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 	m_flLastFireTime  = gpGlobals->curtime;
 
 	// Set next attack times.
-	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	float flFireDelay = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	CALL_ATTRIB_HOOK_FLOAT( flFireDelay, mult_postfiredelay );
+
+	m_flNextPrimaryAttack = gpGlobals->curtime + flFireDelay;
 
 	// Don't push out secondary attack, because our secondary fire
 	// systems are all separate from primary fire (sniper zooming, demoman pipebomb detonating, etc)
@@ -158,7 +161,12 @@ void CTFWeaponBaseGun::SecondaryAttack( void )
 
 CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 {
-	int iProjectile = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_iProjectile;
+	int iProjectile = TF_PROJECTILE_NONE;
+
+	CALL_ATTRIB_HOOK_INT( iProjectile, override_projectile_type );
+
+	if ( !iProjectile )
+		iProjectile = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_iProjectile;
 
 	CBaseEntity *pProjectile = NULL;
 
@@ -434,12 +442,11 @@ CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
 	}
 	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
 
-	CTFProjectile_Rocket *pProjectile = CTFProjectile_Rocket::Create( vecSrc, angForward, pPlayer, pPlayer );
+	CTFProjectile_Rocket *pProjectile = CTFProjectile_Rocket::Create( this, vecSrc, angForward, pPlayer, pPlayer );
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
-		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 
@@ -552,12 +559,11 @@ CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
 	}
 	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
 
-	CTFProjectile_Flare *pProjectile = CTFProjectile_Flare::Create( vecSrc, angForward, pPlayer, pPlayer );
+	CTFProjectile_Flare *pProjectile = CTFProjectile_Flare::Create( this, vecSrc, angForward, pPlayer, pPlayer );
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
-		pProjectile->SetLauncher( this );
 	}
 	return pProjectile;
 #endif
@@ -604,7 +610,11 @@ float CTFWeaponBaseGun::GetWeaponSpread( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponBaseGun::GetProjectileDamage( void )
 {
-	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+	float flDamage = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+
+	CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+
+	return flDamage;
 }
 
 //-----------------------------------------------------------------------------

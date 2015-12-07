@@ -33,16 +33,6 @@ C_TFProjectile_Rocket::~C_TFProjectile_Rocket( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFProjectile_Rocket::OnPreDataChanged( DataUpdateType_t updateType )
-{
-	BaseClass::OnPreDataChanged( updateType );
-
-	m_iOldTeamNum = m_iTeamNum;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 void C_TFProjectile_Rocket::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged(updateType);
@@ -52,6 +42,7 @@ void C_TFProjectile_Rocket::OnDataChanged( DataUpdateType_t updateType )
 		CreateRocketTrails();		
 	}
 
+	// Watch team changes and change trail accordingly.
 	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
 	{
 		ParticleProp()->StopEmission();

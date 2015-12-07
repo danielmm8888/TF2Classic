@@ -125,9 +125,6 @@ public:
 	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
 	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
 
-	void HandleCommand_GiveEconItem( int ID );
-	void HandleCommand_GiveParticle( const char* name );
-
 	CBaseEntity *GiveNamedItem( const char *pszName, int iSubType = NULL, CEconItemView* pItem = NULL );
 
 	void				SaveMe( void );

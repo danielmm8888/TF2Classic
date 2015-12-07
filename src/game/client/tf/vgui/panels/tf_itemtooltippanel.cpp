@@ -102,12 +102,21 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 			if (pStatic)
 			{
 				float value = pAttribute->value;
-				if (pStatic->description_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->description_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE)
+			
+				switch ( pStatic->description_format )
 				{
-					value *= 100;
+				case ATTRIB_FORMAT_PERCENTAGE:
+					value = value - 1.0f;
+					value *= 100.0f;
+					break;
+				case ATTRIB_FORMAT_INVERTED_PERCENTAGE:
+					value = 1.0f - value;
+					value *= 100.0f;
+					break;
 				}
+
 				wchar_t floatstr[32];
-				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
+				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%g", value);
 
 				wchar_t attrib[128];
 				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(pStatic->description_string), 1, floatstr);

@@ -65,7 +65,11 @@ protected:
 public:
 
 	virtual int		DrawModel( int flags );
+	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	PostDataUpdate( DataUpdateType_t type );
+
+protected:
+	int		m_iOldTeamNum;
 
 private:
 
@@ -81,7 +85,7 @@ public:
 
 	DECLARE_DATADESC();
 
-	static CTFBaseRocket *Create( const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
+	static CTFBaseRocket *Create( CBaseEntity *pWeapon, const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
 
 	virtual void	RocketTouch( CBaseEntity *pOther );
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
@@ -89,7 +93,7 @@ public:
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual int		GetDamageType() { return g_aWeaponDamageTypes[ GetWeaponID() ]; }
 	virtual void	SetDamage(float flDamage) { m_flDamage = flDamage; }
-	virtual float	GetRadius() { return TF_ROCKET_RADIUS; }	
+	virtual float	GetRadius();	
 	void			DrawRadius( float flRadius );
 
 	unsigned int	PhysicsSolidMaskForEntity( void ) const;
