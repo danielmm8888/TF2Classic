@@ -209,12 +209,14 @@ int CTFBaseRocket::DrawModel( int flags )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &vecOrigin, 
+CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin, 
 									  const QAngle &vecAngles, CBaseEntity *pOwner )
 {
 	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::Create( pszClassname, vecOrigin, vecAngles, pOwner ) );
 	if ( !pRocket )
 		return NULL;
+
+	pRocket->SetLauncher( pWeapon );
 
 	// Initialize the owner.
 	pRocket->SetOwnerEntity( pOwner );
@@ -226,7 +228,10 @@ CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &ve
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-	Vector vecVelocity = vecForward * 1100.0f;
+	float flVelocity = 1100.0f;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+
+	Vector vecVelocity = vecForward * flVelocity;
 	pRocket->SetAbsVelocity( vecVelocity );	
 	pRocket->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 

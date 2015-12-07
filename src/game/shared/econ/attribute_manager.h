@@ -27,28 +27,28 @@ public:
 
 	CAttributeManager();
 
-	template <class type>
-	static type AttribHookValue( type &iValue, const char* text, const CBaseEntity *pEntity )
+	template <typename type>
+	static type AttribHookValue( type iValue, const char* text, const CBaseEntity *pEntity )
 	{
-		float flResult = iValue;
-
-		Assert( pEntity );
+		if ( !pEntity )
+			return iValue;
 
 		IHasAttributes *pAttribInteface = pEntity->GetHasAttributesInterfacePtr();
 
 		if ( pAttribInteface )
 		{
 			string_t strAttributeClass = AllocPooledString_StaticConstantStringPointer( text );
-			flResult = pAttribInteface->GetAttributeManager()->ApplyAttributeFloat( flResult, const_cast<CBaseEntity *>( pEntity ), strAttributeClass );
+			float flResult = pAttribInteface->GetAttributeManager()->ApplyAttributeFloat( iValue, pEntity, strAttributeClass );
+			iValue = (type)flResult;
 		}
 
-		return flResult;
+		return iValue;
 	}
 
 	void			AddProvider( CBaseEntity *pEntity );
 	void			RemoveProvider( CBaseEntity *pEntity );
 	virtual void	InitializeAttributes( CBaseEntity *pEntity );
-	virtual float	ApplyAttributeFloat( float flValue, CBaseEntity *pEntity, string_t strAttributeClass );
+	virtual float	ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass );
 
 protected:
 	CNetworkHandle( CBaseEntity, m_hOuter );
@@ -67,7 +67,7 @@ public:
 
 	CAttributeContainer();
 
-	float ApplyAttributeFloat( float flValue, CBaseEntity *pEntity, string_t strAttributeClass );
+	float ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass );
 
 public:
 	CEconItemView m_Item;

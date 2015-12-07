@@ -1444,7 +1444,7 @@ END_NETWORK_TABLE()
 //-----------------------------------------------------------------------------
 CTFProjectile_SentryRocket *CTFProjectile_SentryRocket::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
 {
-	CTFProjectile_SentryRocket *pRocket = static_cast<CTFProjectile_SentryRocket*>( CTFBaseRocket::Create( "tf_projectile_sentryrocket", vecOrigin, vecAngles, pOwner ) );
+	CTFProjectile_SentryRocket *pRocket = static_cast<CTFProjectile_SentryRocket*>( CTFBaseRocket::Create( NULL, "tf_projectile_sentryrocket", vecOrigin, vecAngles, pOwner ) );
 
 	if ( pRocket )
 	{

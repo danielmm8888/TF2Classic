@@ -366,6 +366,8 @@ bool HintCallbackNeedsResources_Teleporter( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 CTFPlayer::CTFPlayer()
 {
+	m_pAttributes = this;
+
 	m_PlayerAnimState = CreateTFPlayerAnimState( this );
 	item_list = 0;
 
@@ -3495,6 +3497,12 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 
+	// Notify the damaging weapon
+	if ( pWeapon )
+	{
+		pWeapon->ApplyOnHitAttributes( this, info );
+	}
+
 	// If we're not damaging ourselves, apply randomness
 	if ( info.GetAttacker() != this && !(bitsDamage & (DMG_DROWN | DMG_FALL)) ) 
 	{
@@ -4129,6 +4137,19 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		{
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
 			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
+		}
+	}
+
+	// Apply on-kill effects.
+	if ( IsAlive() )
+	{
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+
+		float flCritOnKill = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flCritOnKill, add_onkill_critboost_time );
+		if ( flCritOnKill )
+		{
+			m_Shared.AddCond( TF_COND_CRITBOOSTED_ON_KILL, flCritOnKill );
 		}
 	}
 }

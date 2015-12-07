@@ -63,20 +63,3 @@ CEconEntity::~CEconEntity()
 {
 
 }
-
-void CEconEntity::UpdateOnRemove( void )
-{
-	CBaseEntity *pOwner = GetOwnerEntity();
-
-	if ( pOwner )
-	{
-		IHasAttributes *pAttrib = pOwner->GetHasAttributesInterfacePtr();
-
-		if ( pAttrib )
-		{
-			pAttrib->GetAttributeManager()->RemoveProvider( this );
-		}
-	}
-
-	BaseClass::UpdateOnRemove();
-}

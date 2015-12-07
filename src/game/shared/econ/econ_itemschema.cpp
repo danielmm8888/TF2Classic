@@ -4,6 +4,7 @@
 #include "engine/IEngineSound.h"
 #include "soundenvelope.h"
 #include "script_parser.h"
+#include "activitylist.h"
 
 const char *g_AnimsSlots[] =
 {
@@ -385,9 +386,13 @@ public:
 					{
 						for ( KeyValues *pKeyData = pVisualData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )
 						{
-							int key = atoi( pKeyData->GetName() );
-							int value = pKeyData->GetInt();
-							visual->animation_replacement.InsertOrReplace( key, value );
+							int key = ActivityList_IndexForName( pVisualData->GetName() );
+							int value = ActivityList_IndexForName( pVisualData->GetString() );
+
+							if ( key != kActivityLookup_Missing && value != kActivityLookup_Missing )
+							{
+								visual->animation_replacement.InsertOrReplace( key, value );
+							}
 						}
 					}
 					else if ( !Q_stricmp( pVisualData->GetName(), "playback_activity" ) )

@@ -3035,6 +3035,8 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	// First, get their max class speed
 	maxfbspeed = GetPlayerClassData( playerclass )->m_flMaxSpeed;
 
+	CALL_ATTRIB_HOOK_FLOAT( maxfbspeed, mult_player_movespeed );
+
 	// Slow us down if we're disguised as a slower class
 	// unless we're cloaked..
 	if ( m_Shared.InCond( TF_COND_DISGUISED ) && !m_Shared.InCond( TF_COND_STEALTHED ) )

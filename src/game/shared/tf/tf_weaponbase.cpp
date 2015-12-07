@@ -857,12 +857,6 @@ void CTFWeaponBase::OnActiveStateChanged( int iOldState )
 		int iProvideOnActive = 0;
 		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
 
-		// Just got equipped, add us to attribute providers list.
-		if ( iOldState == WEAPON_NOT_CARRIED && !iProvideOnActive )
-		{
-			pOwner->GetAttributeManager()->AddProvider( this );
-		}
-
 		// If set to only provide attributes while active, handle it here.
 		if ( iProvideOnActive )
 		{
@@ -875,7 +869,22 @@ void CTFWeaponBase::OnActiveStateChanged( int iOldState )
 				pOwner->GetAttributeManager()->RemoveProvider( this );
 			}
 		}
+		else if ( iOldState == WEAPON_NOT_CARRIED )
+		{
+			// Just got equipped, add us to attribute providers list.
+			pOwner->GetAttributeManager()->AddProvider( this );
+		}
+		else if ( m_iState == WEAPON_NOT_CARRIED )
+		{
+			// Dropped, remove ourselves from providers list.
+			pOwner->GetAttributeManager()->RemoveProvider( this );
+		}
+
+		// Weapon might be giving us speed boost when active.
+		pOwner->TeamFortress_SetSpeed();
 	}
+
+	BaseClass::OnActiveStateChanged( iOldState );
 }
 
 //-----------------------------------------------------------------------------
@@ -1036,7 +1045,7 @@ int CTFWeaponBase::GetMaxClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
 	fMaxClipMult *= iMaxClip;
 	if ( fMaxClipMult != 0 )
-		return fMaxClipMult;
+		return floor( fMaxClipMult );
 
 	return iMaxClip;
 }
@@ -1052,7 +1061,7 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
 	fDefaultClipMult *= iDefaultClip;
 	if ( fDefaultClipMult != 0 )
-		return fDefaultClipMult;
+		return floor( fDefaultClipMult );
 
 	return iDefaultClip;
 }
@@ -1872,6 +1881,28 @@ const Vector &CTFWeaponBase::GetBulletSpread( void )
 {
 	static Vector cone = VECTOR_CONE_15DEGREES;
 	return cone;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
+void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageInfo &info )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( !pOwner || !pOwner->IsAlive() )
+		return;
+
+	// Afterburn shouldn't trigger on-hit effects.
+	if ( !( info.GetDamageType() & DMG_BURN ) )
+	{
+		float flAddHealth = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
+
+		if ( flAddHealth )
+		{
+			pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+		}
+	}
 }
 
 #else

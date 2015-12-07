@@ -1551,6 +1551,8 @@ END_PREDICTION_DATA()
 C_TFPlayer::C_TFPlayer() : 
 	m_iv_angEyeAngles( "C_TFPlayer::m_iv_angEyeAngles" )
 {
+	m_pAttributes = this;
+
 	m_PlayerAnimState = CreateTFPlayerAnimState( this );
 	m_Shared.Init( this );
 

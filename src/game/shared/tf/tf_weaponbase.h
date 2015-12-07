@@ -242,6 +242,9 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	// Ammo.
 	virtual const Vector& GetBulletSpread();
 
+	// On hit effects.
+	void ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageInfo &info );
+
 // Client specific.
 #else
 

@@ -54,8 +54,6 @@ public:
 	virtual CAttributeContainer *GetAttributeContainer() { return &m_AttributeManager; }
 	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
 
-	virtual void UpdateOnRemove( void );
-
 protected:
 	CEconItemView m_Item;
 	CAttributeContainer m_AttributeManager;

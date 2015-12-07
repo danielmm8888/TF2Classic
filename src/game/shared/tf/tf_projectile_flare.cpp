@@ -198,7 +198,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
+CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
 {
 	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare*>( CBaseEntity::CreateNoSpawn( "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
 
@@ -210,6 +210,9 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const
 		// Set scorer.
 		pFlare->SetScorer( pScorer );
 
+		// Set firing weapon.
+		pFlare->SetLauncher( pWeapon );
+
 		// Initialize the owner.
 		pFlare->SetOwnerEntity( pOwner );
 
@@ -220,7 +223,10 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const
 		Vector vecForward, vecRight, vecUp;
 		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-		Vector vecVelocity = vecForward * pFlare->GetProjectileSpeed();
+		float flVelocity = 1100.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+
+		Vector vecVelocity = vecForward * flVelocity;
 		pFlare->SetAbsVelocity( vecVelocity );
 		pFlare->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 

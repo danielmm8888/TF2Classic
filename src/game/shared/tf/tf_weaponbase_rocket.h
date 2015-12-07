@@ -81,7 +81,7 @@ public:
 
 	DECLARE_DATADESC();
 
-	static CTFBaseRocket *Create( const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
+	static CTFBaseRocket *Create( CBaseEntity *pWeapon, const char *szClassname, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL );	
 
 	virtual void	RocketTouch( CBaseEntity *pOther );
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );

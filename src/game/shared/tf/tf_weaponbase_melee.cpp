@@ -187,7 +187,10 @@ void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 	DoViewModelAnimation();
 
 	// Set next attack times.
-	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	float flFireDelay = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	CALL_ATTRIB_HOOK_FLOAT( flFireDelay, mult_postfiredelay );
+
+	m_flNextPrimaryAttack = gpGlobals->curtime + flFireDelay;
 
 	SetWeaponIdleTime( m_flNextPrimaryAttack + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeIdleEmpty );
 	
@@ -363,7 +366,11 @@ void CTFWeaponBaseMelee::Smack( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponBaseMelee::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 {
-	return static_cast<float>( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage );
+	float flDamage = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+
+	CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+
+	return flDamage;
 }
 
 void CTFWeaponBaseMelee::OnEntityHit( CBaseEntity *pEntity )
