@@ -9,6 +9,7 @@ class CTFWeaponSetPanel;
 class CModelPanel;
 class CTFAdvButton;
 class CTFRGBPanel;
+class CTFAdvItemButton;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -42,7 +43,7 @@ private:
 	CModelPanel		*m_pGameModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CTFRGBPanel		*m_pRGBPanel;
-	CUtlVector<CTFAdvButton*>	m_pWeaponIcons;
+	CUtlVector<CTFAdvItemButton*> m_pWeaponIcons;
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	iCurrentClass;
 	int	iCurrentSlot;

@@ -48,9 +48,10 @@ void CTFToolTipPanel::PerformLayout()
 	BaseClass::PerformLayout();
 };
 
-
 void CTFToolTipPanel::ShowToolTip(char *sText)
 {
+	Show();
+
 	Q_snprintf(m_sText, sizeof(m_sText), sText);
 
 	if (m_pText)
@@ -82,8 +83,6 @@ void CTFToolTipPanel::ShowToolTip(char *sText)
 		m_pText->SetPos(0, 0);
 		m_pText->SetSize(iFontWide, iTall);
 	}
-
-	Show();
 }
 
 void CTFToolTipPanel::HideToolTip()
@@ -101,27 +100,6 @@ void CTFToolTipPanel::Hide()
 {
 	BaseClass::Hide();
 }
-
-void CTFToolTipPanel::OnCommand(const char* command)
-{
-	if (!Q_strcmp(command, "vguicancel"))
-	{
-		Hide();
-	}
-	else if (!stricmp(command, "Ok"))
-	{
-		Hide();
-	}
-	else
-	{
-		BaseClass::OnCommand(command);
-	}
-}
-
-void CTFToolTipPanel::OnTick()
-{
-	BaseClass::OnTick();
-};
 
 void CTFToolTipPanel::OnThink()
 {
@@ -169,14 +147,4 @@ void CTFToolTipPanel::OnThink()
 			SetPos(cursorX - iTipW, cursorY - iTipH - toProportionalTall(20));
 		}
 	}
-};
-
-void CTFToolTipPanel::DefaultLayout()
-{
-	BaseClass::DefaultLayout();
-};
-
-void CTFToolTipPanel::GameLayout()
-{
-	BaseClass::GameLayout();
 };

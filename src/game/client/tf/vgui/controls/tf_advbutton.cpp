@@ -96,16 +96,11 @@ void CTFAdvButton::PerformLayout()
 		pButtonImage->SetWide(fWidth);
 		pButtonImage->SetTall(fHeight);
 	}
-	else
-	{
-		pButtonImage->SetWide(GetWide());
-		pButtonImage->SetTall(GetTall());
-	}
 
 	pButtonImage->SetImage(pDefaultButtonImage);
 	pButtonImage->SetDrawColor(GETSCHEME()->GetColor(pImageColorDefault, Color(255, 255, 255, 255)));
 	pButtonImage->SetZPos(2);
-	pButtonImage->SetShouldScaleImage(true);
+	pButtonImage->SetShouldScaleImage(m_bScaleImage);
 
 
 	CTFDialogPanelBase *pParent = dynamic_cast<CTFDialogPanelBase*>(GetParent());

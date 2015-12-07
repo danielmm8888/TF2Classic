@@ -1,12 +1,13 @@
 #include "cbase.h"
 #include "tf_loadoutpanel.h"
 #include "tf_mainmenu.h"
-#include "controls/tf_advbutton.h"
+#include "controls/tf_advitembutton.h"
 #include "controls/tf_advmodelpanel.h"
 #include "tf_rgbpanel.h"
 #include "basemodelpanel.h"
 #include <vgui/ILocalize.h>
 #include "script_parser.h"
+#include "econ_itemview.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -149,7 +150,7 @@ bool CTFLoadoutPanel::Init()
 	g_TFWeaponScriptParser.InitParser("scripts/tf_weapon_*.txt", true, false);
 
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
-		m_pWeaponIcons.AddToTail(new CTFAdvButton(m_pWeaponSetPanel, "WeaponIcons", "DUK"));
+		m_pWeaponIcons.AddToTail(new CTFAdvItemButton(m_pWeaponSetPanel, "WeaponIcons", "DUK"));
 	}
 
 	return true;
@@ -169,9 +170,12 @@ void CTFLoadoutPanel::PerformLayout()
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
 		m_pWeaponIcons[i]->SetBounds(0, 0, toProportionalWide(PANEL_WIDE), toProportionalTall(PANEL_TALL));
 		m_pWeaponIcons[i]->SetBorderVisible(false);
-		m_pWeaponIcons[i]->SetImageInset(25, -5);
 		m_pWeaponIcons[i]->GetButton()->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
 		m_pWeaponIcons[i]->GetButton()->SetTextInset(0, -10);
+		int inset = toProportionalTall(45);
+		int wide = m_pWeaponIcons[i]->GetWide() - inset;
+		m_pWeaponIcons[i]->SetImageSize(wide, wide);
+		m_pWeaponIcons[i]->SetImageInset(inset / 2, -1 * wide / 5);
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
 	//DefaultLayout();
@@ -281,22 +285,18 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
-	int iWeapon = GetTFInventory()->GetWeapon(iClass, iSlot, iPreset);
-	if (iWeapon)
+	int iWeapon = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
+	EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+	if (pItemData)
 	{
-		_WeaponData pData;
-		if (iWeapon == TF_WEAPON_BUILDER && iClass == TF_CLASS_SPY)
-		{
-			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
-		}
-		else
-		{
-			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
-		}
-		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
+		char pModel[64];
+		Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
+		if (!Q_strcmp(pModel, ""))
+			Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+		m_pClassModelPanel->SetAnimationIndex(pItemData->item_slot);
 		m_pClassModelPanel->ClearMergeMDLs();
-		if (pData.szWorldModel[0] != '\0')
-			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel, NULL, iCurrentSkin);
+		if (pModel != '\0')
+			m_pClassModelPanel->SetMergeMDL(pModel, NULL, iCurrentSkin);
 	}
 	else
 	{
@@ -414,35 +414,17 @@ void CTFLoadoutPanel::DefaultLayout()
 			int iCols = 0;
 			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 			{
-				int iWeapon = GetTFInventory()->GetWeapon(iClassIndex, iSlot, iPreset);
-				CTFAdvButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
-				if (iWeapon > 0)
+				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+				CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_WPN_TYPE_MELEE && iPreset == 0)))
 				{
 					iCols++;
 					if (iCols > iColCount) iColCount = iCols;
 					m_pWeaponButton->SetVisible(true);
 					m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
-
-					int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
-
-					_WeaponData pData;
-					if (iWeapon == TF_WEAPON_BUILDER && iCurrentClass == TF_CLASS_SPY)
-					{
-						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
-					}
-					else
-					{
-						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
-					}
-
-					char szIcon[64];
-					Q_snprintf(szIcon, sizeof(szIcon), "../%s", (iCurrentSkin == 1 ? pData.iconActive : pData.iconInactive));
-					m_pWeaponButton->SetImage(szIcon);
-
-					char szWeaponName[32];
-					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pData.szPrintName);
-					m_pWeaponButton->SetText(szWeaponName);
-
+					m_pWeaponButton->SetItemDefinition(pItemData);
+					
 					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
 					m_pWeaponButton->SetBorderVisible((iPreset == iWeaponPreset));
 					m_pWeaponButton->GetButton()->SetSelected((iPreset == iWeaponPreset));

@@ -1,5 +1,5 @@
-#ifndef TFMAINMENUTOOLTIPPANEL_H
-#define TFMAINMENUTOOLTIPPANEL_H
+#ifndef TF_MAINMENUTOOLTIPPANEL_H
+#define TF_MAINMENUTOOLTIPPANEL_H
 
 #include "tf_dialogpanelbase.h"
 
@@ -17,18 +17,14 @@ public:
 	void PerformLayout();
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void OnThink();
-	void OnTick();
 	void Show();
 	void Hide();
-	void OnCommand(const char* command);
-	void DefaultLayout();
-	void GameLayout();
 	void ShowToolTip(char *sText);
 	void HideToolTip();
 
-private:
+protected:
 	char		m_sText[256];
 	CExLabel	*m_pText;
 };
 
-#endif // TFMAINMENUTOOLTIPPANEL_H
+#endif // TF_MAINMENUTOOLTIPPANEL_H

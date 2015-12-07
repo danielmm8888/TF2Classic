@@ -20,6 +20,7 @@ enum MenuPanel //position in this enum = zpos on the screen
 	OPTIONSDIALOG_MENU,
 	QUIT_MENU,
 	TOOLTIP_MENU,
+	ITEMTOOLTIP_MENU,
 	COUNT_MENU,
 
 	FIRST_MENU = NONE_MENU + 1
@@ -81,6 +82,8 @@ public:
 	virtual void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
 	virtual void ShowToolTip(char* sText);
 	virtual void HideToolTip();
+	virtual void ShowItemToolTip(EconItemDefinition *pItemData);
+	virtual void HideItemToolTip();
 	virtual char*GetVersionString();
 	virtual void CheckMessage(bool Version = false);
 	virtual bool IsOutdated() { return bOutdated; };
