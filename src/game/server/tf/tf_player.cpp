@@ -4141,7 +4141,7 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 	}
 
 	// Apply on-kill effects.
-	if ( IsAlive() )
+	if ( IsAlive() && pVictim->IsPlayer() )
 	{
 		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
 
