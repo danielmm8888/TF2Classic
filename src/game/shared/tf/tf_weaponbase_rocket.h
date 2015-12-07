@@ -89,7 +89,7 @@ public:
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual int		GetDamageType() { return g_aWeaponDamageTypes[ GetWeaponID() ]; }
 	virtual void	SetDamage(float flDamage) { m_flDamage = flDamage; }
-	virtual float	GetRadius() { return TF_ROCKET_RADIUS; }	
+	virtual float	GetRadius();	
 	void			DrawRadius( float flRadius );
 
 	unsigned int	PhysicsSolidMaskForEntity( void ) const;

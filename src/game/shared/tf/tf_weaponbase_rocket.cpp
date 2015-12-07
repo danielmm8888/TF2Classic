@@ -364,6 +364,16 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
+float CTFBaseRocket::GetRadius( void )
+{
+	float flRadius = TF_ROCKET_RADIUS;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_hLauncher.Get(), flRadius, mult_explosion_radius );
+	return flRadius;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFBaseRocket::DrawRadius( float flRadius )
 {
 	Vector pos = GetAbsOrigin();

@@ -3409,6 +3409,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 	else if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
 	{
+		// Assume that player used his currently active weapon.
 		pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
 	}
 
@@ -3442,10 +3443,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket and we're in mid-air, scale down the damage
-	if ((IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY)) && info.GetAttacker() == this && GetGroundEntity() == NULL)
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
-		float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
-		info.SetDamage( flDamage );
+		if ( ( info.GetDamageType() & DMG_BLAST ) && info.GetAttacker() == this && GetGroundEntity() == NULL )
+		{
+			float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
+			info.SetDamage( flDamage );
+		}
 	}
 
 	// Save damage force for ragdolls.

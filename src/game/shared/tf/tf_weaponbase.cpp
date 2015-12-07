@@ -1888,6 +1888,13 @@ const Vector &CTFWeaponBase::GetBulletSpread( void )
 // ----------------------------------------------------------------------------
 void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageInfo &info )
 {
+	float flStunTime = 0.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flStunTime, mult_onhit_enemyspeed_major );
+	if ( flStunTime )
+	{
+		pVictim->m_Shared.AddCond( TF_COND_SLOWED, flStunTime );
+	}
+
 	CTFPlayer *pOwner = GetTFPlayerOwner();
 	if ( !pOwner || !pOwner->IsAlive() )
 		return;
@@ -1897,7 +1904,6 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 	{
 		float flAddHealth = 0.0f;
 		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
-
 		if ( flAddHealth )
 		{
 			pOwner->TakeHealth( flAddHealth, DMG_GENERIC );

@@ -113,6 +113,16 @@ int	CTFWeaponBaseGrenadeProj::GetDamageType()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+float CTFWeaponBaseGrenadeProj::GetDamageRadius( void )
+{
+	float flRadius = BaseClass::GetDamageRadius();
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_hLauncher.Get(), flRadius, mult_explosion_radius );
+	return flRadius;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::Precache( void )
 {
 	BaseClass::Precache();
