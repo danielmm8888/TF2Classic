@@ -3,6 +3,7 @@
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenu.h"
 #include "controls/tf_advbuttonbase.h"
+#include "controls/tf_advmodelpanel.h"
 #include <vgui/ILocalize.h>
 
 using namespace vgui;
@@ -30,6 +31,7 @@ bool CTFItemToolTipPanel::Init(void)
 {
 	BaseClass::Init();
 
+	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
 	m_pTitle = new CExLabel(this, "TitleLabel", "Title");
 	m_pClassName = new CExLabel(this, "ClassNameLabel", "ClassName");
 	m_pAttributeText = new CExLabel(this, "AttributeLabel", "Attribute");
@@ -67,6 +69,17 @@ void CTFItemToolTipPanel::PerformLayout()
 void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 {
 	Show();
+
+	char pModel[64];
+	Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
+	if (!Q_strcmp(pModel, ""))
+		Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+	m_pClassModelPanel->SetModelName(strdup(pModel), 0);
+	if (Q_strcmp(pModel, ""))
+	{
+		m_pClassModelPanel->SetVisible(true);
+		m_pClassModelPanel->Update();
+	}
 
 	if (m_pTitle)
 	{
@@ -127,7 +140,9 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 			}
 		}
 	}
-	SetSize(GetWide(), toProportionalTall(50) + index * toProportionalTall(10));
+	int xpos, ypos;
+	m_pAttributeText->GetPos(xpos, ypos);
+	SetSize(GetWide(), toProportionalTall(10) + ypos + index * toProportionalTall(10));
 }
 
 void CTFItemToolTipPanel::HideToolTip()

@@ -293,7 +293,10 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 		Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
 		if (!Q_strcmp(pModel, ""))
 			Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
-		m_pClassModelPanel->SetAnimationIndex(pItemData->item_slot);
+		int iSlot = pItemData->anim_slot;
+		if (iSlot == -1)
+			iSlot = pItemData->item_slot;
+		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
 		if (pModel != '\0')
 			m_pClassModelPanel->SetMergeMDL(pModel, NULL, iCurrentSkin);
