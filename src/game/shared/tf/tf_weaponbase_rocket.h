@@ -65,7 +65,11 @@ protected:
 public:
 
 	virtual int		DrawModel( int flags );
+	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	PostDataUpdate( DataUpdateType_t type );
+
+protected:
+	int		m_iOldTeamNum;
 
 private:
 

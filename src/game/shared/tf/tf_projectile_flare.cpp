@@ -207,9 +207,6 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Ve
 		// Set firing weapon.
 		pFlare->SetLauncher( pWeapon );
 
-		// Initialize the owner.
-		pFlare->SetOwnerEntity( pOwner );
-
 		// Spawn.
 		DispatchSpawn( pFlare );
 
@@ -217,7 +214,7 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Ve
 		Vector vecForward, vecRight, vecUp;
 		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-		float flVelocity = 1100.0f;
+		float flVelocity = 2000.0f;
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
 
 		Vector vecVelocity = vecForward * flVelocity;
@@ -245,6 +242,13 @@ void CTFProjectile_Flare::OnDataChanged( DataUpdateType_t updateType )
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
 		CreateTrails();		
+	}
+
+	// Watch team changes and change trail accordingly.
+	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	{
+		ParticleProp()->StopEmission();
+		CreateTrails();
 	}
 }
 

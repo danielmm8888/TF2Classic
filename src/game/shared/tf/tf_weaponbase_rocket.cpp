@@ -78,6 +78,7 @@ CTFBaseRocket::CTFBaseRocket()
 #ifdef CLIENT_DLL
 
 	m_flSpawnTime = 0.0f;
+	m_iOldTeamNum = TEAM_UNASSIGNED;
 		
 // Server specific.
 #else
@@ -156,6 +157,16 @@ void CTFBaseRocket::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFBaseRocket::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+	m_iOldTeamNum = m_iTeamNum;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFBaseRocket::PostDataUpdate( DataUpdateType_t type )
 {
 	// Pass through to the base class.
@@ -212,14 +223,12 @@ int CTFBaseRocket::DrawModel( int flags )
 CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin, 
 									  const QAngle &vecAngles, CBaseEntity *pOwner )
 {
-	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::Create( pszClassname, vecOrigin, vecAngles, pOwner ) );
+	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::CreateNoSpawn( pszClassname, vecOrigin, vecAngles, pOwner ) );
 	if ( !pRocket )
 		return NULL;
 
+	// Set firing weapon.
 	pRocket->SetLauncher( pWeapon );
-
-	// Initialize the owner.
-	pRocket->SetOwnerEntity( pOwner );
 
 	// Spawn.
 	pRocket->Spawn();
