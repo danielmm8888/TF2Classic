@@ -184,7 +184,7 @@ void CTFHudWeaponAmmo::OnThink()
 	{
 		bool bShowIcon = false;
 
-		if ( tf2c_ammobucket.GetBool() && pWeapon )
+		if ( tf2c_ammobucket.GetBool() && pWeapon && m_pWeaponBucket )
 		{
 			// FIXME: need to add GRN and YLW icons to CTFWeaponInfo.
 			const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
@@ -204,8 +204,8 @@ void CTFHudWeaponAmmo::OnThink()
 				bShowIcon = true;
 			}
 		}
-
-		m_pWeaponBucket->SetVisible( bShowIcon );
+		if ( m_pWeaponBucket )
+			m_pWeaponBucket->SetVisible( bShowIcon );
 
 		hudlcd->SetGlobalStat( "(weapon_print_name)", pWeapon ? pWeapon->GetPrintName() : " " );
 		hudlcd->SetGlobalStat( "(weapon_name)", pWeapon ? pWeapon->GetName() : " " );
