@@ -316,7 +316,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	SendPropEHandle( SENDINFO( m_hItem ) ),
 
-	SendPropVector( SENDINFO( m_vecPlayerColor) ),
+	SendPropVector( SENDINFO( m_vecPlayerColor ) ),
 
 	// Ragdoll.
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
@@ -331,7 +331,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	// Data that gets sent to all other players
 	SendPropDataTable( "tfnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
 
-	SendPropBool( SENDINFO( m_iSpawnCounter ) ),
+	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
 
 END_SEND_TABLE()
 
@@ -992,7 +992,7 @@ void CTFPlayer::Spawn()
 
 	CTF_GameStats.Event_PlayerSpawned( this );
 
-	m_iSpawnCounter = !m_iSpawnCounter;
+	m_iSpawnCounter++;
 	m_bAllowInstantSpawn = false;
 
 	m_Shared.SetSpyCloakMeter( 100.0f );
@@ -1297,6 +1297,9 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetItemID() != iItemID )
 			{
+				if ( pWeapon == GetActiveWeapon() )
+					pWeapon->Holster();
+
 				Weapon_Detach( pWeapon );
 				UTIL_Remove( pWeapon );
 				pWeapon = NULL;
@@ -1366,8 +1369,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 	{
 		int iWeaponID = GetTFInventory()->GetWeapon( GetPlayerClass()->GetClassIndex(), iWeapon, 0 );
 
-		// Skip builder since it's handled separately.
-		if ( iWeaponID != TF_WEAPON_NONE && iWeaponID != TF_WEAPON_BUILDER )
+		if ( iWeaponID != TF_WEAPON_NONE )
 		{
 			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
@@ -3121,15 +3123,6 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		TraceBleed( info_modified.GetDamage(), vecDir, ptr, info_modified.GetDamageType() );
 	}
 
-	if ( pAttacker && pAttacker->GetActiveTFWeapon() && pAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_UBERSAW )
-	{
-		CWeaponMedigun *pMedigun = pAttacker->GetMedigun();
-		if ( pMedigun )
-		{
-			pMedigun->AddCharge();
-		}
-	}
-
 	if ( pAttacker && pAttacker->GetActiveTFWeapon() && pAttacker->GetActiveTFWeapon()->GetWeaponID() == TF_WEAPON_HAMMERFISTS )
 	{
 		m_Shared.Burn( pAttacker, pAttacker->GetActiveTFWeapon() );
@@ -3419,9 +3412,28 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		}
 	}
 
-	// Notify the damaging weapon
-	if ( pWeapon )
+	// Handle on-hit effects.
+	if ( pWeapon && info.GetAttacker() != this )
 	{
+		int nCritOnCond = 0;
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nCritOnCond, or_crit_vs_playercond );
+
+		if ( nCritOnCond )
+		{
+			for ( int i = 0; condition_to_attribute_translation[i] != TF_COND_LAST; i++ )
+			{
+				int nCond = condition_to_attribute_translation[i];
+				int nFlag = ( 1 << i );
+				if ( ( nCritOnCond & nFlag ) && m_Shared.InCond( nCond ) )
+				{
+					bitsDamage |= DMG_CRITICAL;
+					info.AddDamageType( DMG_CRITICAL );
+					break;
+				}
+			}
+		}
+
+		// Notify the damaging weapon.
 		pWeapon->ApplyOnHitAttributes( this, info );
 	}
 
@@ -6907,6 +6919,7 @@ void CTFPlayer::DoTauntAttack( void )
 			break;
 		}
 
+		// Spy taunt has 3 hits, set up the next one.
 		if ( iTauntType == TF_TAUNT_SPY1 )
 		{
 			m_flTauntAttackTime = gpGlobals->curtime + 0.47;
@@ -6940,6 +6953,7 @@ void CTFPlayer::DoTauntAttack( void )
 	}
 	case TF_TAUNT_HEAVY:
 	{
+		// Fire a bullet in the direction player was looking at.
 		Vector vecSrc, vecShotDir, vecEnd;
 		QAngle angShot = EyeAngles();
 		AngleVectors( angShot, &vecShotDir );
@@ -7686,6 +7700,9 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	//If we already have a weapon in this slot but is not the same type then nuke it
 	if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 	{
+		if ( pWeapon == pPlayer->GetActiveWeapon() )
+			pWeapon->Holster();
+
 		pPlayer->Weapon_Detach( pWeapon );
 		UTIL_Remove( pWeapon );
 		pWeapon = NULL;
@@ -7743,6 +7760,9 @@ CON_COMMAND_F( give_econ, "Give ECON with specified ID from item schema.", FCVAR
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 		if ( pWeapon && pWeapon->GetItemID() != iItemID )
 		{
+			if ( pWeapon == pPlayer->GetActiveWeapon() )
+				pWeapon->Holster();
+
 			pPlayer->Weapon_Detach( pWeapon );
 			UTIL_Remove( pWeapon );
 			pWeapon = NULL;

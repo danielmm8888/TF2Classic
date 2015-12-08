@@ -546,6 +546,8 @@ enum
 	TF_COND_LAST
 };
 
+extern int condition_to_attribute_translation[];
+
 int ConditionExpiresFast( int nCond );
 
 //-----------------------------------------------------------------------------

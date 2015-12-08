@@ -617,6 +617,54 @@ int GetWeaponFromDamage( const CTakeDamageInfo &info )
 
 #endif
 
+//-----------------------------------------------------------------------------
+// Conditions stuff.
+//-----------------------------------------------------------------------------
+int condition_to_attribute_translation[] =
+{
+	TF_COND_BURNING,
+	TF_COND_AIMING,
+	TF_COND_ZOOMED,
+	TF_COND_DISGUISING,
+	TF_COND_DISGUISED,
+	TF_COND_STEALTHED,
+	TF_COND_INVULNERABLE,
+	TF_COND_TELEPORTED,
+	TF_COND_TAUNTING,
+	TF_COND_INVULNERABLE_WEARINGOFF,
+	TF_COND_STEALTHED_BLINK,
+	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
+	TF_COND_TMPDAMAGEBONUS,
+	TF_COND_FEIGN_DEATH,
+	TF_COND_PHASE,
+	TF_COND_STUNNED,
+	TF_COND_HEALTH_BUFF,
+	TF_COND_HEALTH_OVERHEALED,
+	TF_COND_URINE,
+	TF_COND_ENERGY_BUFF,
+	TF_COND_LAST,
+};
+
+int ConditionExpiresFast( int nCond )
+{
+	// Damaging conds
+	if ( nCond == TF_COND_BURNING ||
+		nCond == TF_COND_BLEEDING )
+		return true;
+
+	// Liquids
+	if ( nCond == TF_COND_URINE ||
+		nCond == TF_COND_MAD_MILK )
+		return true;
+
+	// Tranq
+	if ( nCond == TF_COND_SLOWED )
+		return true;
+
+	return false;
+}
+
 // ------------------------------------------------------------------------------------------------ //
 // CObjectInfo tables.
 // ------------------------------------------------------------------------------------------------ //
@@ -851,25 +899,6 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	*/
 
 	return ( iClass == TF_CLASS_ENGINEER );
-}
-
-int ConditionExpiresFast( int nCond )
-{
-	// Damaging conds
-	if ( nCond == TF_COND_BURNING ||
-		nCond == TF_COND_BLEEDING )
-		return true;
-
-	// Liquids
-	if ( nCond == TF_COND_URINE ||
-		nCond == TF_COND_MAD_MILK )
-		return true;
-
-	// Tranq
-	if ( nCond == TF_COND_SLOWED )
-		return true;
-
-	return false;
 }
 
 float g_flTeleporterRechargeTimes[] =
