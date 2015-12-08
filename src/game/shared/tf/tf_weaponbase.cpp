@@ -1070,7 +1070,7 @@ int CTFWeaponBase::GetMaxClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
 	fMaxClipMult *= iMaxClip;
 	if ( fMaxClipMult != 0 )
-		return floor( fMaxClipMult );
+		return fMaxClipMult;
 
 	return iMaxClip;
 }
@@ -1086,7 +1086,7 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
 	fDefaultClipMult *= iDefaultClip;
 	if ( fDefaultClipMult != 0 )
-		return floor( fDefaultClipMult );
+		return fDefaultClipMult;
 
 	return iDefaultClip;
 }
@@ -1927,6 +1927,18 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 	// Afterburn shouldn't trigger on-hit effects.
 	if ( !( info.GetDamageType() & DMG_BURN ) )
 	{
+		float flAddCharge = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT( flAddCharge, add_onhit_ubercharge );
+		if ( flAddCharge )
+		{
+			CWeaponMedigun *pMedigun = pOwner->GetMedigun();;
+
+			if ( pMedigun )
+			{
+				pMedigun->AddCharge( flAddCharge );
+			}
+		}
+
 		float flAddHealth = 0.0f;
 		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
 		if ( flAddHealth )

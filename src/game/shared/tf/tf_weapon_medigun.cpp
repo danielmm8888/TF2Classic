@@ -576,14 +576,14 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::AddCharge( void )
+void CWeaponMedigun::AddCharge( float flAmount )
 {
 #ifdef GAME_DLL
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	CTFPlayer *pHealingTarget = ToTFPlayer( m_hHealingTarget );
 #endif
 
-	float flNewLevel = min( m_flChargeLevel + 0.25, 1.0 );
+	float flNewLevel = min( m_flChargeLevel + flAmount, 1.0 );
 
 	if ( flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
 	{

@@ -51,7 +51,7 @@ public:
 	virtual void	SecondaryAttack( void );
 	virtual void	WeaponIdle( void );
 	void			DrainCharge( void );
-	void			AddCharge(void);
+	void			AddCharge( float flAmount );
 	virtual void	WeaponReset( void );
 
 	virtual float	GetTargetRange( void );
