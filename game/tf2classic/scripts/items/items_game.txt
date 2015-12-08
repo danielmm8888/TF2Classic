@@ -938,9 +938,9 @@
 					"attribute_class"	"special_taunt"
 					"value" "1"
 				}
-				"crit vs burning players"
+				"crit_vs_burning_FLARES_DISPLAY_ONLY"
 				{
-					"attribute_class"	"or_crit_vs_playercond"
+					"attribute_class"	"crit_vs_burning_FLARES_DISPLAY_ONLY"
 					"value"	"1"
 				}
 			}
@@ -1944,12 +1944,12 @@
 				"damage bonus"
 				{
 					"attribute_class" "mult_dmg"
-					"value" "1010000.0"
+					"value" "10100.0"
 				}
 				"clip size bonus"
 				{
 					"attribute_class" "mult_clipsize"
-					"value" "1010000.0"
+					"value" "1100.0"
 				}
 				"fire rate bonus"
 				{
@@ -1961,6 +1961,11 @@
 					"attribute_class" "add_onhit_addhealth"
 					"value" "250.0"
 				}
+				"critboost on kill"
+				{
+					"attribute_class" "add_onkill_critboost_time"
+					"value" "10.0"
+				}
 				"Projectile speed increased"
 				{
 					"atribute_class" "mult_projectile_speed"
@@ -1970,11 +1975,6 @@
 				{
 					"attribute_class" "mult_player_movespeed"
 					"value" "2.0"
-				}
-				"critboost on kill"
-				{
-					"attribute_class" "add_onkill_critboost_time"
-					"value" "10.0"
 				}
 			}
 		}
