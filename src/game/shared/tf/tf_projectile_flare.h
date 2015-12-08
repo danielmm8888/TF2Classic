@@ -35,7 +35,7 @@ public:
 
 #ifdef GAME_DLL
 
-	static CTFProjectile_Flare *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL );	
+	static CTFProjectile_Flare *Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL );
 	virtual void	Spawn();
 	virtual void	Precache();
 
@@ -54,7 +54,6 @@ public:
 	virtual void Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
 
 	// Overrides.
-	float	GetProjectileSpeed( void ) { return 2000.0f; }
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
 #else
 

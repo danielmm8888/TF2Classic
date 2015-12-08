@@ -26,7 +26,6 @@ public:
 	C_TFProjectile_Rocket();
 	~C_TFProjectile_Rocket();
 
-	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged(DataUpdateType_t updateType);
 
 	virtual void	CreateRocketTrails( void );
@@ -34,7 +33,6 @@ public:
 
 private:
 	bool	m_bCritical;
-	int		m_iOldTeamNum;
 };
 
 #endif // C_TF_PROJECTILE_ROCKET_H

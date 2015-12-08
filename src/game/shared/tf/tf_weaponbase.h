@@ -142,6 +142,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual void Drop( const Vector &vecVelocity );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
+	virtual void Equip( CBaseCombatCharacter *pOwner );
 
 	virtual void OnActiveStateChanged( int iOldState );
 	virtual void UpdateOnRemove( void );
@@ -241,6 +242,9 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	// Ammo.
 	virtual const Vector& GetBulletSpread();
+
+	// On hit effects.
+	void ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageInfo &info );
 
 // Client specific.
 #else

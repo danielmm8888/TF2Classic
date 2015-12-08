@@ -78,6 +78,7 @@ CTFBaseRocket::CTFBaseRocket()
 #ifdef CLIENT_DLL
 
 	m_flSpawnTime = 0.0f;
+	m_iOldTeamNum = TEAM_UNASSIGNED;
 		
 // Server specific.
 #else
@@ -156,6 +157,16 @@ void CTFBaseRocket::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFBaseRocket::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+	m_iOldTeamNum = m_iTeamNum;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFBaseRocket::PostDataUpdate( DataUpdateType_t type )
 {
 	// Pass through to the base class.
@@ -209,15 +220,15 @@ int CTFBaseRocket::DrawModel( int flags )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &vecOrigin, 
+CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin, 
 									  const QAngle &vecAngles, CBaseEntity *pOwner )
 {
-	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::Create( pszClassname, vecOrigin, vecAngles, pOwner ) );
+	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::CreateNoSpawn( pszClassname, vecOrigin, vecAngles, pOwner ) );
 	if ( !pRocket )
 		return NULL;
 
-	// Initialize the owner.
-	pRocket->SetOwnerEntity( pOwner );
+	// Set firing weapon.
+	pRocket->SetLauncher( pWeapon );
 
 	// Spawn.
 	pRocket->Spawn();
@@ -226,7 +237,10 @@ CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &ve
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-	Vector vecVelocity = vecForward * 1100.0f;
+	float flVelocity = 1100.0f;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+
+	Vector vecVelocity = vecForward * flVelocity;
 	pRocket->SetAbsVelocity( vecVelocity );	
 	pRocket->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
@@ -354,6 +368,16 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 
 	// Remove the rocket.
 	UTIL_Remove( this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+float CTFBaseRocket::GetRadius( void )
+{
+	float flRadius = TF_ROCKET_RADIUS;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_hLauncher.Get(), flRadius, mult_explosion_radius );
+	return flRadius;
 }
 
 //-----------------------------------------------------------------------------

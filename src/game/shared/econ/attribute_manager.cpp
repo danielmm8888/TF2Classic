@@ -33,7 +33,7 @@ void CAttributeManager::InitializeAttributes( CBaseEntity *pEntity )
 	m_bParsingMyself = false;
 }
 
-float CAttributeManager::ApplyAttributeFloat( float flValue, CBaseEntity *pEntity, string_t strAttributeClass )
+float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )
 {
 	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
 	{
@@ -90,7 +90,7 @@ CAttributeContainer::CAttributeContainer()
 
 }
 
-float CAttributeContainer::ApplyAttributeFloat( float flValue, CBaseEntity *pEntity, string_t strAttributeClass )
+float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )
 {
 	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
 		return flValue;

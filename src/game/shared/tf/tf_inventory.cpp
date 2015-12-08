@@ -366,7 +366,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			21
 		},
 		{
-			12//, TF_WEAPON_FLAREGUN
+			12, 39
 		},
 		{
 			2

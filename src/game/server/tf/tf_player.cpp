@@ -366,6 +366,8 @@ bool HintCallbackNeedsResources_Teleporter( CBasePlayer *pPlayer )
 //-----------------------------------------------------------------------------
 CTFPlayer::CTFPlayer()
 {
+	m_pAttributes = this;
+
 	m_PlayerAnimState = CreateTFPlayerAnimState( this );
 	item_list = 0;
 
@@ -1601,72 +1603,6 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPrese
 	}
 }
 
-void CTFPlayer::HandleCommand_GiveParticle( const char* name )
-{
-	for ( int i = 0; i < m_hMyWearables.Count(); i++ )
-	{
-		CEconWearable *pWearable = m_hMyWearables.Element( i );
-		if ( pWearable )
-		{
-			pWearable->SetParticle( name );
-		}
-	}
-}
-
-void CTFPlayer::HandleCommand_GiveEconItem( int ID )
-{
-	int iItemID = ID;
-	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
-	if ( !pItemInfo )
-		return;
-
-	CEconItemView econItem( iItemID );
-
-	bool bCosmetic = econItem.IsCosmetic();
-	if ( bCosmetic )
-	{
-		for ( int i = 0; i < m_hMyWearables.Count(); i++ )
-		{
-			CEconWearable *pWearable = m_hMyWearables.Element( i );
-			if ( pWearable )
-			{
-				RemoveWearable( pWearable );
-			}
-		}
-
-		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
-
-		pWearable->SetItem( econItem );
-		PrecacheModel( pItemInfo->model_player );
-		pWearable->SetModel( pItemInfo->model_player );
-
-		EquipWearable( pWearable );
-	}
-	else
-	{
-		const char *pszWeaponName = econItem.GetEntityName();
-
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( pItemInfo->item_slot );
-		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if ( pWeapon && pWeapon->GetItemID() != iItemID )
-		{
-			Weapon_Detach( pWeapon );
-			UTIL_Remove( pWeapon );
-			pWeapon = NULL;
-		}
-
-		if ( !pWeapon )
-		{
-			pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, 0, &econItem );
-
-			if ( pWeapon )
-			{
-				pWeapon->DefaultTouch( this );
-			}
-		}
-	}
-}
-
 //-----------------------------------------------------------------------------
 // Purpose: Create and give the named item to the player, setting the item ID. Then return it.
 //-----------------------------------------------------------------------------
@@ -2590,22 +2526,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 		}
 		return true;
 	}
-	else if ( FStrEq( pcmd, "giveeconitem" ) )
-	{
-		if ( args.ArgC() >= 2 )
-		{
-			HandleCommand_GiveEconItem( abs( atoi( args[1] ) ) );
-		}
-		return true;
-	}
-	else if ( FStrEq( pcmd, "giveparticle" ) )
-	{
-		if ( args.ArgC() >= 2 )
-		{
-			HandleCommand_GiveParticle( args[1] );
-		}
-		return true;
-	}
 	else if ( FStrEq( pcmd, "getweaponinfos" ) )
 	{
 		for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
@@ -3407,6 +3327,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 	else if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
 	{
+		// Assume that player used his currently active weapon.
 		pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
 	}
 
@@ -3440,10 +3361,13 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket and we're in mid-air, scale down the damage
-	if ((IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY)) && info.GetAttacker() == this && GetGroundEntity() == NULL)
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
-		float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
-		info.SetDamage( flDamage );
+		if ( ( info.GetDamageType() & DMG_BLAST ) && info.GetAttacker() == this && GetGroundEntity() == NULL )
+		{
+			float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
+			info.SetDamage( flDamage );
+		}
 	}
 
 	// Save damage force for ragdolls.
@@ -3493,6 +3417,12 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 			return 0;
 		}
+	}
+
+	// Notify the damaging weapon
+	if ( pWeapon )
+	{
+		pWeapon->ApplyOnHitAttributes( this, info );
 	}
 
 	// If we're not damaging ourselves, apply randomness
@@ -4129,6 +4059,19 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		{
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
 			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
+		}
+	}
+
+	// Apply on-kill effects.
+	if ( IsAlive() && pVictim->IsPlayer() )
+	{
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+
+		float flCritOnKill = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flCritOnKill, add_onkill_critboost_time );
+		if ( flCritOnKill )
+		{
+			m_Shared.AddCond( TF_COND_CRITBOOSTED_ON_KILL, flCritOnKill );
 		}
 	}
 }
@@ -7721,6 +7664,116 @@ CON_COMMAND_F( tf_crashclients, "testing only, crashes about 50 percent of the c
 			{
 				engine->ClientCommand( pl->edict(), "crash\n" );
 			}
+		}
+	}
+}
+
+CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
+	if ( args.ArgC() < 2 )
+		return;
+
+	const char *pszWeaponName = args[2];
+
+	int iWeaponID = GetWeaponId( pszWeaponName );
+
+	CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( iWeaponID );
+	if ( !pWeaponInfo )
+		return;
+
+	CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->Weapon_GetSlot( pWeaponInfo->iSlot );
+	//If we already have a weapon in this slot but is not the same type then nuke it
+	if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
+	{
+		pPlayer->Weapon_Detach( pWeapon );
+		UTIL_Remove( pWeapon );
+		pWeapon = NULL;
+	}
+
+	if ( !pWeapon )
+	{
+		pWeapon = (CTFWeaponBase *)pPlayer->GiveNamedItem( pszWeaponName );
+
+		if ( pWeapon )
+		{
+			pWeapon->DefaultTouch( pPlayer );
+		}
+	}
+}
+
+CON_COMMAND_F( give_econ, "Give ECON with specified ID from item schema.", FCVAR_CHEAT )
+{
+	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
+	if ( args.ArgC() < 2 )
+		return;
+
+	int iItemID = atoi( args[1] );
+	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
+	if ( !pItemInfo )
+		return;
+
+	CEconItemView econItem( iItemID );
+
+	bool bCosmetic = econItem.IsCosmetic();
+	if ( bCosmetic )
+	{
+		for ( int i = 0; i < pPlayer->GetNumWearables(); i++ )
+		{
+			CEconWearable *pWearable = pPlayer->GetWearable( i );
+			if ( pWearable )
+			{
+				pPlayer->RemoveWearable( pWearable );
+			}
+		}
+
+		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
+
+		pWearable->SetItem( econItem );
+		CBaseEntity::PrecacheModel( pItemInfo->model_player );
+		pWearable->SetModel( pItemInfo->model_player );
+
+		pPlayer->EquipWearable( pWearable );
+	}
+	else
+	{
+		const char *pszWeaponName = econItem.GetEntityName();
+
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->Weapon_GetSlot( pItemInfo->item_slot );
+		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
+		if ( pWeapon && pWeapon->GetItemID() != iItemID )
+		{
+			pPlayer->Weapon_Detach( pWeapon );
+			UTIL_Remove( pWeapon );
+			pWeapon = NULL;
+		}
+
+		if ( !pWeapon )
+		{
+			pWeapon = (CTFWeaponBase *)pPlayer->GiveNamedItem( pszWeaponName, 0, &econItem );
+
+			if ( pWeapon )
+			{
+				pWeapon->DefaultTouch( pPlayer );
+			}
+		}
+	}
+}
+
+CON_COMMAND_F( give_particle, NULL, FCVAR_CHEAT )
+{
+	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
+	if ( args.ArgC() < 2 )
+		return;
+
+	const char *pszParticleName = args[1];
+
+	for ( int i = 0; i < pPlayer->GetNumWearables(); i++ )
+	{
+		CEconWearable *pWearable = pPlayer->GetWearable( i );
+		if ( pWearable )
+		{
+			pWearable->SetParticle( pszParticleName );
 		}
 	}
 }

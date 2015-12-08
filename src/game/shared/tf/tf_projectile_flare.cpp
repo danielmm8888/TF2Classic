@@ -173,12 +173,6 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		// Hit player, do damage.
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
-		
-		// Crit on burning players.
-		// TODO: Once we implement attributes, change it to use them and move this to CTFPlayer::OnTakeDamage.
-		if ( pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
-			info.AddDamageType( DMG_CRITICAL );
-
 		pPlayer->TakeDamage( info );
 		
 		CPVSFilter filter( vecOrigin );
@@ -198,7 +192,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
+CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
 {
 	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare*>( CBaseEntity::CreateNoSpawn( "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
 
@@ -210,8 +204,8 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const
 		// Set scorer.
 		pFlare->SetScorer( pScorer );
 
-		// Initialize the owner.
-		pFlare->SetOwnerEntity( pOwner );
+		// Set firing weapon.
+		pFlare->SetLauncher( pWeapon );
 
 		// Spawn.
 		DispatchSpawn( pFlare );
@@ -220,7 +214,10 @@ CTFProjectile_Flare *CTFProjectile_Flare::Create( const Vector &vecOrigin, const
 		Vector vecForward, vecRight, vecUp;
 		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-		Vector vecVelocity = vecForward * pFlare->GetProjectileSpeed();
+		float flVelocity = 2000.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+
+		Vector vecVelocity = vecForward * flVelocity;
 		pFlare->SetAbsVelocity( vecVelocity );
 		pFlare->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
@@ -245,6 +242,13 @@ void CTFProjectile_Flare::OnDataChanged( DataUpdateType_t updateType )
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
 		CreateTrails();		
+	}
+
+	// Watch team changes and change trail accordingly.
+	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	{
+		ParticleProp()->StopEmission();
+		CreateTrails();
 	}
 }
 

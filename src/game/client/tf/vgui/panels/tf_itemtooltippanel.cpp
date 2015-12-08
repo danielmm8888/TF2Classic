@@ -3,6 +3,7 @@
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenu.h"
 #include "controls/tf_advbuttonbase.h"
+#include "controls/tf_advmodelpanel.h"
 #include <vgui/ILocalize.h>
 
 using namespace vgui;
@@ -30,6 +31,7 @@ bool CTFItemToolTipPanel::Init(void)
 {
 	BaseClass::Init();
 
+	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
 	m_pTitle = new CExLabel(this, "TitleLabel", "Title");
 	m_pClassName = new CExLabel(this, "ClassNameLabel", "ClassName");
 	m_pAttributeText = new CExLabel(this, "AttributeLabel", "Attribute");
@@ -68,6 +70,17 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 {
 	Show();
 
+	char pModel[64];
+	Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
+	if (!Q_strcmp(pModel, ""))
+		Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+	m_pClassModelPanel->SetModelName(strdup(pModel), 0);
+	if (Q_strcmp(pModel, ""))
+	{
+		m_pClassModelPanel->SetVisible(true);
+		m_pClassModelPanel->Update();
+	}
+
 	if (m_pTitle)
 	{
 		m_pTitle->SetText(pItemData->item_name);
@@ -89,12 +102,21 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 			if (pStatic)
 			{
 				float value = pAttribute->value;
-				if (pStatic->description_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->description_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE)
+			
+				switch ( pStatic->description_format )
 				{
-					value *= 100;
+				case ATTRIB_FORMAT_PERCENTAGE:
+					value = value - 1.0f;
+					value *= 100.0f;
+					break;
+				case ATTRIB_FORMAT_INVERTED_PERCENTAGE:
+					value = 1.0f - value;
+					value *= 100.0f;
+					break;
 				}
+
 				wchar_t floatstr[32];
-				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
+				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%g", value);
 
 				wchar_t attrib[128];
 				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(pStatic->description_string), 1, floatstr);
@@ -127,7 +149,9 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 			}
 		}
 	}
-	SetSize(GetWide(), toProportionalTall(50) + index * toProportionalTall(10));
+	int xpos, ypos;
+	m_pAttributeText->GetPos(xpos, ypos);
+	SetSize(GetWide(), toProportionalTall(10) + ypos + index * toProportionalTall(10));
 }
 
 void CTFItemToolTipPanel::HideToolTip()

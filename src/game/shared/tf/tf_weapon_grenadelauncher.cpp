@@ -211,7 +211,11 @@ void CTFGrenadeLauncher::LaunchGrenade( void )
 
 float CTFGrenadeLauncher::GetProjectileSpeed( void )
 {
-	return TF_GRENADE_LAUNCER_MIN_VEL;
+	float flVelocity = TF_GRENADE_LAUNCER_MIN_VEL;
+
+	CALL_ATTRIB_HOOK_FLOAT( flVelocity, mult_projectile_speed );
+
+	return flVelocity;
 }
 
 //-----------------------------------------------------------------------------

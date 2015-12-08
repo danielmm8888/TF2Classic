@@ -107,7 +107,7 @@ void CTFAdvModelPanel::OnThink()
 		vecPos *= (float)iMaxBounds / 64.0f;
 
 		SetCameraPositionAndAngles(vecPos, angRot);
-		SetModelAnglesAndPosition(QAngle(0.0f, gpGlobals->curtime * 45.0f, 0.0f), vec3_origin);
+		SetModelAnglesAndPosition(m_BMPResData.m_angModelPoseRot + QAngle(0.0f, gpGlobals->curtime * 45.0f, 0.0f), m_BMPResData.m_vecOriginOffset);
 	}
 }
 

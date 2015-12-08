@@ -4,6 +4,8 @@
 #include "tf_dialogpanelbase.h"
 #include "tf_tooltippanel.h"
 
+class CTFAdvModelPanel;
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -27,6 +29,7 @@ private:
 	CExLabel	*m_pTitle;
 	CExLabel	*m_pClassName;
 	CExLabel	*m_pAttributeText;
+	CTFAdvModelPanel *m_pClassModelPanel;
 	CUtlVector<CExLabel*> m_pAttributes;
 };
 

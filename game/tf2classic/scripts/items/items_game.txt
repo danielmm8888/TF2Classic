@@ -888,8 +888,66 @@
 			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
 			"drop_sound"		"ui/item_heavy_gun_drop.wav"	
 		}
-
-
+		"weapon_flaregun"
+		{
+			"item_class"	"tf_weapon_flaregun"
+			"craft_class"	"weapon"
+			"craft_material_type"	"weapon"
+			"capabilities"
+			{
+				"nameable"		"1"
+				"can_gift_wrap" 	"1"
+			}
+			"tags"
+			{
+				"can_deal_damage"			"1"
+				"can_deal_posthumous_damage"	"1"
+				"can_deal_critical_damage"	"1"
+				"can_deal_long_distance_damage"	"1"
+				"can_deal_taunt_damage"		"1"
+			}
+			"show_in_armory"	"1"
+			"item_type_name"	"#TF_Weapon_Flaregun"
+			"item_name"	"#TF_Unique_Achievement_Flaregun"
+			"item_description"	"#TF_Unique_Achievement_Flaregun_desc"
+			"item_slot"	"secondary"
+			"anim_slot"	"ITEM1"
+			"image_inventory"	"backpack/weapons/c_models/c_flaregun_pyro/c_flaregun_pyro"
+			"image_inventory_size_w"		"128"
+			"image_inventory_size_h"		"82"
+			"model_world"	"models/weapons/w_models/w_flaregun.mdl"
+			"model_player"	"models/weapons/v_models/v_flaregun_pyro.mdl"
+			"attach_to_hands"	"1"
+			"item_quality"	"unique"
+			"propername"	"1"
+			"min_ilevel"	"10"
+			"max_ilevel"	"10"
+			"used_by_classes"
+			{
+				"pyro"	"1"
+			}
+			"attributes"
+			{
+				"hidden secondary max ammo penalty"
+				{
+					"attribute_class"	"mult_maxammo_secondary"
+					"value"	"0.5"
+				}
+				"special taunt"
+				{
+					"attribute_class"	"special_taunt"
+					"value" "1"
+				}
+				"crit vs burning players"
+				{
+					"attribute_class"	"or_crit_vs_playercond"
+					"value"	"1"
+				}
+			}
+			"mouse_pressed_sound"	"ui/item_light_gun_pickup.wav"
+			"drop_sound"		"ui/item_light_gun_drop.wav"
+			"xifier_class_remap"	"flaregun"
+		}
 	}
 	"items"
 	{
@@ -1759,7 +1817,12 @@
 			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
 			"drop_sound"		"ui/item_heavy_gun_drop.wav"
 		}
-
+		"39"
+		{
+			"name"	"The Flare Gun"
+			"prefab"	"valve weapon_flaregun"
+			"first_sale_date"	"2011/04/14"
+		}
 		"52"	
 		{
 			"name"	"Batter's Helmet"
@@ -1871,6 +1934,49 @@
 			}
 			"mouse_pressed_sound"	"ui/item_light_gun_pickup.wav"
 			"drop_sound"		"ui/item_light_gun_drop.wav"
+		}
+		"9001"
+		{
+			"prefab" "weapon_rocketlauncher"
+			"name" "Valve Rocket Launcher"
+			"attributes"
+			{
+				"damage bonus"
+				{
+					"attribute_class" "mult_dmg"
+					"value" "1010000.0"
+				}
+				"clip size bonus"
+				{
+					"attribute_class" "mult_clipsize"
+					"value" "1010000.0"
+				}
+				"fire rate bonus"
+				{
+					"attribute_class" "mult_postfiredelay"
+					"value" "0.25"
+				}
+				"heal on hit for slowfire"
+				{
+					"attribute_class" "add_onhit_addhealth"
+					"value" "250.0"
+				}
+				"Projectile speed increased"
+				{
+					"atribute_class" "mult_projectile_speed"
+					"value" "1.5"
+				}
+				"move speed bonus"
+				{
+					"attribute_class" "mult_player_movespeed"
+					"value" "2.0"
+				}
+				"critboost on kill"
+				{
+					"attribute_class" "add_onkill_critboost_time"
+					"value" "10.0"
+				}
+			}
 		}
 	}
 	"attributes"
