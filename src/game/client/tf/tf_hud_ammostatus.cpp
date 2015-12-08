@@ -186,20 +186,12 @@ void CTFHudWeaponAmmo::OnThink()
 
 		if ( tf2c_ammobucket.GetBool() && pWeapon )
 		{
-			// FIXME: need to add GRN and YLW icons to CTFWeaponInfo.
-			const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-			if ( pPlayer )
+			int iItemID = pWeapon->GetItemID();
+			EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition( iItemID );
+			if ( pItemDefinition )
 			{
-				if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
-				{
-					pTexture = pWeapon->GetSpriteActive();
-				}
-			}
-
-			if ( pTexture )
-			{
-				char szImage[64];
-				Q_snprintf( szImage, sizeof( szImage ), "../%s", pTexture->szTextureFile );
+				char szImage[128];
+				Q_snprintf (szImage, sizeof( szImage ), "../%s_large", pItemDefinition->image_inventory );
 				m_pWeaponBucket->SetImage( szImage );
 				bShowIcon = true;
 			}
