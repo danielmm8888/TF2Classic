@@ -170,12 +170,6 @@ void CTFLoadoutPanel::PerformLayout()
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
 		m_pWeaponIcons[i]->SetBounds(0, 0, toProportionalWide(PANEL_WIDE), toProportionalTall(PANEL_TALL));
 		m_pWeaponIcons[i]->SetBorderVisible(false);
-		m_pWeaponIcons[i]->GetButton()->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
-		m_pWeaponIcons[i]->GetButton()->SetTextInset(0, -10);
-		int inset = toProportionalTall(45);
-		int wide = m_pWeaponIcons[i]->GetWide() - inset;
-		m_pWeaponIcons[i]->SetImageSize(wide, wide);
-		m_pWeaponIcons[i]->SetImageInset(inset / 2, -1 * wide / 5);
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
 	//DefaultLayout();

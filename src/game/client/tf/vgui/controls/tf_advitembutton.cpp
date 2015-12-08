@@ -42,7 +42,19 @@ void CTFAdvItemButton::Init()
 {
 	BaseClass::Init();
 	pItemDefinition = NULL;
+	pButton->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
+	pButton->SetTextInset(0, -10);
 }
+
+void CTFAdvItemButton::PerformLayout()
+{
+	BaseClass::PerformLayout();
+
+	int inset = toProportionalTall(45);
+	int wide = GetWide() - inset;
+	SetImageSize(wide, wide);
+	SetImageInset(inset / 2, -1 * wide / 5);
+};
 
 //-----------------------------------------------------------------------------
 // Purpose: 

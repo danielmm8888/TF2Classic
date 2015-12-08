@@ -25,6 +25,7 @@ public:
 	CTFAdvItemButton(vgui::Panel *parent, const char *panelName, const char *text);
 	~CTFAdvItemButton();
 	void Init();
+	void PerformLayout();
 	void SendAnimation(MouseState flag);
 	void SetItemDefinition(EconItemDefinition *pItemData);
 
