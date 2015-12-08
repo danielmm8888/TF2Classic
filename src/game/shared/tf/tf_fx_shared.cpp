@@ -114,21 +114,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 					 int iWeapon, int iMode, int iSeed, float flSpread, float flDamage /* = -1.0f */, bool bCritical /* = false*/ )
 {
 	// Get the weapon information.
-	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
-	if ( !pszWeaponAlias )
-	{
-		DevMsg( 1, "FX_FireBullets: weapon alias for ID %i not found\n", iWeapon );
-		return;
-	}
-
-	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszWeaponAlias );
-	if ( hWpnInfo == GetInvalidWeaponInfoHandle() )
-	{
-		DevMsg( 1, "FX_FireBullets: LookupWeaponInfoSlot failed for weapon %s\n", pszWeaponAlias );
-		return;
-	}
-
-	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+	CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( iWeapon );
 	if( !pWeaponInfo )
 		return;
 

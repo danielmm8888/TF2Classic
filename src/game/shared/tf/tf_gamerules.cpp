@@ -2942,8 +2942,27 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
-	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
+	// Handle special kill types first.
+	switch ( info.GetDamageCustom() )
 	{
+	case TF_DMG_TAUNT_PYRO:
+		killer_weapon_name = "tf_weapon_taunt_pyro";
+		break;
+	case TF_DMG_TAUNT_HEAVY:
+		killer_weapon_name = "tf_weapon_taunt_heavy";
+		break;
+	case TF_DMG_TAUNT_SPY:
+		killer_weapon_name = "tf_weapon_taunt_spy";
+		break;
+	case TF_DMG_TELEFRAG:
+		killer_weapon_name = "telefrag";
+		break;
+	case TF_DMG_BUILDING_CARRIED:
+		killer_weapon_name = "tf_weapon_building_carried_destroyed";
+		break;
+	case TF_DMG_CUSTOM_BURNING:
+	{
+		// Player stores last weapon that burned him so if he burns to death we know what killed him.
 		if ( pWeapon )
 		{
 			killer_weapon_name = pWeapon->GetClassname();
@@ -2955,6 +2974,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 				if ( pRocket )
 				{
 					*iWeaponID = pRocket->GetWeaponID();
+
 					// Fire weapon deflects go here.
 					if ( pRocket->m_iDeflected )
 					{
@@ -2973,73 +2993,60 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			// Default to flamethrower if no burn weapon is specified.
 			killer_weapon_name = "tf_weapon_flamethrower";
 		}
+
+		break;
 	}
-	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+	default:
 	{
-		// If the inflictor is the killer,  then it must be their current weapon doing the damage
-		CTFWeaponBase *pWeapon = pScorer->GetActiveTFWeapon();
-
-		if ( pWeapon )
+		if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 		{
-			*iWeaponID = pWeapon->GetWeaponID();
-			killer_weapon_name = pScorer->GetActiveWeapon()->GetClassname(); 
-		}
-	}
-	else if ( pInflictor )
-	{
-		killer_weapon_name = STRING( pInflictor->m_iClassname );
+			// If the inflictor is the killer, then it must be their current weapon doing the damage
+			CTFWeaponBase *pActiveWpn = pScorer->GetActiveTFWeapon();
 
-		// See if this was a deflect kill.
-		if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
-		{
-			*iWeaponID = pRocket->GetWeaponID();
-
-			if ( pRocket->m_iDeflected )
+			if ( pActiveWpn )
 			{
-				switch ( pRocket->GetWeaponID() )
+				*iWeaponID = pActiveWpn->GetWeaponID();
+				killer_weapon_name = pActiveWpn->GetClassname();
+			}
+		}
+		else if ( pInflictor )
+		{
+			killer_weapon_name = pInflictor->GetClassname();
+
+			// See if this was a deflect kill.
+			if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
+			{
+				*iWeaponID = pRocket->GetWeaponID();
+
+				if ( pRocket->m_iDeflected )
 				{
-				case TF_WEAPON_ROCKETLAUNCHER:
-					killer_weapon_name = "deflect_rocket";
-					break;
+					switch ( pRocket->GetWeaponID() )
+					{
+					case TF_WEAPON_ROCKETLAUNCHER:
+						killer_weapon_name = "deflect_rocket";
+						break;
+					}
+				}
+			}
+			else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
+			{
+				if ( pGrenade->m_iDeflected )
+				{
+					*iWeaponID = pGrenade->GetWeaponID();
+
+					switch ( pGrenade->GetWeaponID() )
+					{
+					case TF_WEAPON_GRENADE_PIPEBOMB:
+						killer_weapon_name = "deflect_sticky";
+						break;
+					case TF_WEAPON_GRENADE_DEMOMAN:
+						killer_weapon_name = "deflect_promode";
+						break;
+					}
 				}
 			}
 		}
-		else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
-		{
-			if ( pGrenade->m_iDeflected )
-			{
-				*iWeaponID = pGrenade->GetWeaponID();
-
-				switch ( pGrenade->GetWeaponID() )
-				{
-				case TF_WEAPON_GRENADE_PIPEBOMB:
-					killer_weapon_name = "deflect_sticky";
-					break;
-				case TF_WEAPON_GRENADE_DEMOMAN:
-					killer_weapon_name = "deflect_promode";
-					break;
-				}
-			}
-		}
 	}
-
-	switch ( info.GetDamageCustom() )
-	{
-	case TF_DMG_TAUNT_PYRO:
-		killer_weapon_name = "tf_weapon_taunt_pyro";
-		break;
-	case TF_DMG_TAUNT_HEAVY:
-		killer_weapon_name = "tf_weapon_taunt_heavy";
-		break;
-	case TF_DMG_TAUNT_SPY:
-		killer_weapon_name = "tf_weapon_taunt_spy";
-		break;
-	case TF_DMG_TELEFRAG:
-		killer_weapon_name = "telefrag";
-		break;
-	case TF_DMG_BUILDING_CARRIED:
-		killer_weapon_name = "tf_weapon_building_carried_destroyed";
-		break;
 	}
 
 	// strip certain prefixes from inflictor's classname

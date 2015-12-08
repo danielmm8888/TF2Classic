@@ -412,7 +412,7 @@ public:
 	void				SetMaxSentryKills( int iMaxSentryKills ) { m_iMaxSentryKills = iMaxSentryKills; }
 	int					GetMaxSentryKills() { return m_iMaxSentryKills; }
 
-	CNetworkVar( bool, m_iSpawnCounter );
+	CNetworkVar( int, m_iSpawnCounter );
 	
 	void				CheckForIdle( void );
 	void				PickWelcomeObserverPoint();
