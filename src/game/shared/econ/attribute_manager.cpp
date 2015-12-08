@@ -117,6 +117,15 @@ float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity
 		case ATTRIB_FORMAT_INVERTED_PERCENTAGE:
 			flValue *= pAttribute->value;
 			break;
+		case ATTRIB_FORMAT_OR:
+		{
+			// Oh, man...
+			int iValue = (int)flValue;
+			int iAttrib = (int)pAttribute->value;
+			iValue |= iAttrib;
+			flValue = (float)iValue;
+			break;
+		}
 		}
 	}
 
