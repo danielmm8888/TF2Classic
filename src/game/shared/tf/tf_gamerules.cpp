@@ -100,7 +100,6 @@ ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"3
 ConVar tf_gamemode_arena( "tf_gamemode_arena", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_cp( "tf_gamemode_cp", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_ctf( "tf_gamemode_ctf", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
-ConVar tf_gamemode_dm( "tf_gamemode_dm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_sd( "tf_gamemode_sd", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_rd( "tf_gamemode_rd", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_payload( "tf_gamemode_payload", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
