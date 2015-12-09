@@ -260,8 +260,6 @@ private:
 	CPanelAnimationVar( int, m_iMaxSlots, "MaxSlots", "6" );
 	CPanelAnimationVar( bool, m_bPlaySelectionSounds, "PlaySelectSounds", "1" );
 
-	CTFImagePanel *m_pActiveWeaponBG;
-
 	float m_flDemoStartTime;
 	float m_flDemoModeChangeTime;
 	int m_iDemoModeSlot;
@@ -272,12 +270,6 @@ private:
 	CPanelAnimationVar( float, m_flHorizWeaponSelectOffsetPoint, "WeaponBoxOffset", "0" );
 
 	CUtlVector<CItemModelPanel*>pModelPanels;
-
-	int m_iBGImage_Inactive;
-	int m_iBGImage_Blue;
-	int m_iBGImage_Red;
-	int m_iBGImage_Green;
-	int m_iBGImage_Yellow;
 };
 
 DECLARE_HUDELEMENT( CHudWeaponSelection );
@@ -292,10 +284,7 @@ CHudWeaponSelection::CHudWeaponSelection( const char *pElementName ) : CBaseHudW
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
-	m_pActiveWeaponBG = new CTFImagePanel( this, "ActiveWeapon" );
-	m_pActiveWeaponBG->SetVisible( false );
-
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < MAX_WEAPON_SLOTS; i++)
 	{
 		char name[32];
 		Q_snprintf(name, sizeof(name), "modelpanel%i", i);
@@ -355,11 +344,6 @@ bool CHudWeaponSelection::ShouldDraw()
 {
 	bool bShouldDraw = ShouldDrawInternal();
 
-	if ( !bShouldDraw && m_pActiveWeaponBG->IsVisible() )
-	{
-		m_pActiveWeaponBG->SetVisible( false );
-	}
-
 	// Don't draw the weapon selection HUD while the ragemode powerup is active.
 	if ( CTFPlayer::GetLocalTFPlayer() && CTFPlayer::GetLocalTFPlayer()->m_Shared.InCond( TF_COND_POWERUP_RAGEMODE ) )
 		return false;
@@ -409,21 +393,6 @@ bool CHudWeaponSelection::ShouldDrawInternal()
 void CHudWeaponSelection::Init()
 {
 	CHudElement::Init();
-
-	m_iBGImage_Inactive = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Inactive, "hud/weapon_selection_unselected", true, false);
-
-	m_iBGImage_Blue = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Blue, "hud/weapon_selection_blue", true, false);
-
-	m_iBGImage_Red = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_red", true, false);
-
-	m_iBGImage_Green = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_green", true, false);
-
-	m_iBGImage_Yellow = vgui::surface()->CreateNewTextureID();
-	vgui::surface()->DrawSetTextureFile(m_iBGImage_Red, "hud/weapon_selection_yellow", true, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -522,8 +491,6 @@ void CHudWeaponSelection::PostChildPaint()
 		}
 	}
 
-	m_pActiveWeaponBG->SetVisible( hud_fastswitch.GetInt() != HUDTYPE_PLUS && pSelectedWeapon != NULL );
-
 	int nNumSlots = GetNumVisibleSlots();
 	if ( nNumSlots <= 0 )
 		return;
@@ -531,26 +498,17 @@ void CHudWeaponSelection::PostChildPaint()
 	switch ( hud_fastswitch.GetInt() )
 	{
 	case HUDTYPE_PLUS:
-		{
-			// bucket style
-			int screenCenterX = GetWide() / 2;
-			int screenCenterY = GetTall() / 2; // Height isn't quite screen height, so adjust for center alignement
-
-			// Modifiers for the four directions. Used to change the x and y offsets
-			// of each box based on which bucket we're drawing. Bucket directions are
-			// 0 = UP, 1 = RIGHT, 2 = DOWN, 3 = LEFT
-			int xModifiers[] = { 0, 1, 0, -1 };
-			int yModifiers[] = { -1, 0, 1, 0 };
-
-			int boxWide = m_flPlusStyleBoxWide;
-			int boxTall = m_flPlusStyleBoxTall;
+	{
+			// calculate where to start drawing
+			int nTotalHeight = (nNumSlots - 1) * (m_flSmallBoxTall + m_flBoxGap) + m_flLargeBoxTall;
+			int xStartPos = GetWide() - m_flBoxGap - m_flRightMargin;
+			int xpos = xStartPos;
+			int ypos = (GetTall() - nTotalHeight) / 2;
 
 			// Draw the four buckets
 			for ( int i = 0; i < MAX_WEAPON_SLOTS; ++i )
 			{
-				// Set the top left corner so the first box would be centered in the screen.
-				int xPos = screenCenterX -( boxWide / 2 );
-				int yPos = screenCenterY -( boxTall / 2 );
+				pModelPanels[i]->SetVisible(false);
 
 				// Find out how many positions to draw - an empty position should still
 				// be drawn if there is an active weapon in any slots past it.
@@ -568,55 +526,32 @@ void CHudWeaponSelection::PostChildPaint()
 				// Draw the weapons in this bucket
 				for ( int slotPos = 0; slotPos <= lastSlotPos; ++slotPos )
 				{
-					// Offset the box position
-					xPos += ( boxWide + 5 ) * xModifiers[ i ];
-					yPos += ( boxTall + 5 ) * yModifiers[ i ];
-
-					int x = xPos;
-					int y = yPos;
-
 					C_BaseCombatWeapon *pWeapon = GetWeaponInSlot( i, slotPos );
 
 					bool bSelectedWeapon = ( i == m_iSelectedSlot && slotPos == m_iSelectedBoxPosition );
 
 					if ( pWeapon && pWeapon->VisibleInWeaponSelection() )
 					{
-						DrawPlusStyleBox( x, y, boxWide, boxTall, bSelectedWeapon, m_flAlphaOverride, i+1, !pWeapon->CanBeSelected() );
 
-						const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-						if ( pPlayer )
+						// draw selected weapon
+						pModelPanels[i]->SetWeapon(pWeapon, i);
+						pModelPanels[i]->SetSelected(bSelectedWeapon);
+						pModelPanels[i]->SetVisible(true);
+						if (bSelectedWeapon)
 						{
-							if ( pPlayer->GetTeamNumber() == TF_TEAM_BLUE )
-							{
-								pTexture = pWeapon->GetSpriteActive();
-							}
+							xpos = xStartPos - m_flLargeBoxWide;
+							pModelPanels[i]->SetBounds(xpos, ypos, m_flLargeBoxWide, m_flLargeBoxTall);
+							ypos += (m_flLargeBoxTall + m_flBoxGap);
 						}
-
-						if ( pTexture )
+						else
 						{
-							Color col(255,255,255,255);
-
-							if ( bSelectedWeapon )
-							{
-								float flExpandWide = m_flPlusStyleBoxWide * m_flPlusStyleExpandPercent * 0.5;
-								float flExpandTall = m_flPlusStyleBoxTall * m_flPlusStyleExpandPercent * 0.5;
-								pTexture->DrawSelf( x-flExpandWide, y-flExpandTall, boxWide+flExpandWide, boxTall+flExpandTall, col );
-							}
-							else
-							{
-								pTexture->DrawSelf( x, y, boxWide, boxTall, col  );
-							}
+							xpos = xStartPos - m_flSmallBoxWide;
+							pModelPanels[i]->SetBounds(xpos, ypos, m_flSmallBoxWide, m_flSmallBoxTall);
+							ypos += (m_flSmallBoxTall + m_flBoxGap);
 						}
+						pModelPanels[i]->PerformLayout();
 
-						if ( !pWeapon->CanBeSelected() )
-						{
-							int msgX = x + boxWide * 0.5;
-							int msgY = y + boxTall * 0.5 -YRES(3);
-							Color ammoColor = Color(240,40,40,255);
-							wchar_t *pText = g_pVGuiLocalize->Find( "#TF_OUT_OF_AMMO" );
-							DrawString( pText, msgX, msgY, ammoColor, true );
-						}
-					}					
+					}
 				}
 			}
 		}
@@ -790,6 +725,7 @@ void CHudWeaponSelection::DrawPlusStyleBox(int x, int y, int wide, int tall, boo
 	if ( !pLocalPlayer )
 		return;
 
+	/*
 	int iMaterial;
 
 	if ( bSelected && !bOutOfAmmo )
@@ -836,6 +772,7 @@ void CHudWeaponSelection::DrawPlusStyleBox(int x, int y, int wide, int tall, boo
 	{
 		vgui::surface()->DrawTexturedRect( x, y, x+wide, y+tall );
 	}
+	*/
 }
 
 //-----------------------------------------------------------------------------
