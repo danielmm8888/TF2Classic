@@ -860,7 +860,7 @@ void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
 		int iProvideOnActive = 0;
 		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
 
-		// "Provide on active weapons are handled separately.
+		// Provide on active weapons are handled separately.
 		if ( !iProvideOnActive )
 		{
 			pAttrib->GetAttributeManager()->AddProvider( this );

@@ -17,7 +17,6 @@
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 #include "tf_viewmodel.h"
-#include "tf_weapon_wrench.h"
 
 // Client specific.
 #ifdef CLIENT_DLL

@@ -1852,9 +1852,10 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			continue;
 		}
 
-		// Check that the explosion can 'see' this entity.
+		// Check that the explosion can 'see' this entity, trace through players.
 		vecSpot = pEntity->BodyTarget( vecSrc, false );
-		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, info.GetInflictor(), COLLISION_GROUP_PROJECTILE, &tr );
+		CTraceFilterIgnorePlayers filter( info.GetInflictor(), COLLISION_GROUP_PROJECTILE );
+		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filter, &tr );
 
 		if ( tr.fraction != 1.0 && tr.m_pEnt != pEntity )
 			continue;

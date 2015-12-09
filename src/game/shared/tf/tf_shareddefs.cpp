@@ -908,13 +908,15 @@ float g_flTeleporterRechargeTimes[] =
 	3.0
 };
 
-float g_flDispenserAmmoRates[] = {
+float g_flDispenserAmmoRates[] =
+{
 	0.2,
 	0.3,
 	0.4
 };
 
-float g_flDispenserHealRates[] = {
+float g_flDispenserHealRates[] =
+{
 	10.0,
 	15.0,
 	20.0
