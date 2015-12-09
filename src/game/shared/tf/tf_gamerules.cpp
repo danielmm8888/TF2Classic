@@ -96,6 +96,18 @@ ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICAT
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
+
+ConVar tf_gamemode_arena( "tf_gamemode_arena", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_cp( "tf_gamemode_cp", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_ctf( "tf_gamemode_ctf", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_dm( "tf_gamemode_dm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_sd( "tf_gamemode_sd", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_rd( "tf_gamemode_rd", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_payload( "tf_gamemode_payload", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_mvm( "tf_gamemode_mvm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_passtime( "tf_gamemode_passtime", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_dm( "tf_gamemode_dm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+
 ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
 ConVar tf_ctf_bonus_time( "tf_ctf_bonus_time", "10", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
 
@@ -1291,9 +1303,20 @@ void CTFGameRules::Activate()
 
 	m_nGameType.Set( TF_GAMETYPE_UNDEFINED );
 
+	tf_gamemode_arena.SetValue( 0 );
+	tf_gamemode_cp.SetValue( 0 );
+	tf_gamemode_ctf.SetValue( 0 );
+	tf_gamemode_sd.SetValue( 0 );
+	tf_gamemode_payload.SetValue( 0 );
+	tf_gamemode_mvm.SetValue( 0 );
+	tf_gamemode_rd.SetValue( 0 );
+	tf_gamemode_passtime.SetValue( 0 );
+	tf_gamemode_dm.SetValue( 0 );
+
 	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_deathmatch" ) || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
 	{
 		m_nGameType.Set( TF_GAMETYPE_DM );
+		tf_gamemode_dm.SetValue( 1 );
 		return;
 	}
 
@@ -1301,6 +1324,7 @@ void CTFGameRules::Activate()
 	if ( pArena )
 	{
 		m_nGameType.Set( TF_GAMETYPE_ARENA );
+		tf_gamemode_arena.SetValue( 0 );
 		Msg( "Executing server arena config file\n", 1 );
 		engine->ServerCommand( "exec config_arena.cfg \n" );
 		engine->ServerExecute();
@@ -1326,6 +1350,7 @@ void CTFGameRules::Activate()
 	if ( pFlag )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CTF );
+		tf_gamemode_ctf.SetValue( 0 );
 		return;
 	}
 
@@ -1333,12 +1358,14 @@ void CTFGameRules::Activate()
 	if ( pTrain )
 	{
 		m_nGameType.Set( TF_GAMETYPE_ESCORT );
+		tf_gamemode_payload.SetValue( 0 );
 		return;
 	}
 
 	if ( g_hControlPointMasters.Count() )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CP );
+		tf_gamemode_cp.SetValue( 0 );
 		return;
 	}
 }
@@ -2743,8 +2770,8 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	pTFPlayer->m_Shared.SetRespawnParticleID( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmercparticle" ) ) );
 
 	const char *pszFov = engine->GetClientConVarValue( pPlayer->entindex(), "fov_desired" );
-	int iFov = atoi(pszFov);
-	iFov = clamp( iFov, 75, 90 );
+	int iFov = atoi( pszFov );
+	iFov = clamp( iFov, 75, 100 );
 	pTFPlayer->SetDefaultFOV( iFov );
 }
 
