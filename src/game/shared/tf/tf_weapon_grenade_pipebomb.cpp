@@ -500,6 +500,10 @@ void CTFGrenadePipebombProjectile::BounceSound( void )
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Detonate()
 {
+	// If we're detonating stickies then we're currently inside prediction
+	// so we gotta make sure all effects show up.
+	CDisablePredictionFiltering disabler;
+
 	if ( ShouldNotDetonate() )
 	{
 		RemoveGrenade();
