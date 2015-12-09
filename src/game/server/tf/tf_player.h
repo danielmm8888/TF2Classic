@@ -345,6 +345,7 @@ public:
 	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
 	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
 	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 public:
 

@@ -16,6 +16,7 @@ public:
 	virtual CAttributeManager *GetAttributeManager( void ) = 0;
 	virtual CAttributeContainer *GetAttributeContainer( void ) = 0;
 	virtual CBaseEntity *GetAttributeOwner( void ) = 0;
+	virtual void ReapplyProvision( void ) = 0;
 };
 
 #endif // IHASATTRIBUTES_H

@@ -37,9 +37,18 @@ class CEconEntity : public CBaseAnimating, public IHasAttributes
 	DECLARE_CLASS( CEconEntity, CBaseAnimating );
 	DECLARE_NETWORKCLASS();
 
+#ifdef CLIENT_DLL
+	DECLARE_PREDICTABLE();
+#endif
+
 public:
 	CEconEntity();
 	~CEconEntity();
+
+#ifdef CLIENT_DLL
+	virtual void OnPreDataChanged( DataUpdateType_t );
+	virtual void OnDataChanged( DataUpdateType_t );
+#endif
 
 	virtual int TranslateViewmodelHandActivity( int iActivity ) { return iActivity; }
 
@@ -53,10 +62,14 @@ public:
 	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
 	virtual CAttributeContainer *GetAttributeContainer() { return &m_AttributeManager; }
 	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual void ReapplyProvision( void );
+
+	virtual void UpdateOnRemove( void );
 
 protected:
 	CEconItemView m_Item;
 	CAttributeContainer m_AttributeManager;
+	EHANDLE m_hOldOwner;
 };
 
 #endif

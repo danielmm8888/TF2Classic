@@ -360,6 +360,9 @@ public:
 				for (KeyValues *pAttribData = pSubData->GetFirstSubKey(); pAttribData != NULL; pAttribData = pAttribData->GetNextKey())
 				{
 					int iAttributeID = GetItemSchema()->GetAttributeIndex( pAttribData->GetName() );
+
+					if ( iAttributeID == -1 )
+						continue;
 					
 					CEconItemAttribute attribute;
 					attribute.m_iAttributeDefinitionIndex = iAttributeID;
