@@ -38,6 +38,7 @@
 #include "materialsystem/imaterialvar.h"
 #endif
 
+extern ConVar r_drawviewmodel;
 extern ConVar tf_useparticletracers;
 
 #ifdef CLIENT_DLL
@@ -1958,9 +1959,13 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 
 	// Pick the right muzzleflash (3rd / 1st person)
 	CTFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pLocalPlayer && (GetOwnerEntity() == pLocalPlayer || 
-		(pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == GetOwnerEntity())) )
+	if ( pLocalPlayer && ( GetOwnerEntity() == pLocalPlayer || 
+		( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == GetOwnerEntity() ) ) )
 	{
+		// Don't draw muzzleflashes if the viewmodels are disabled
+		if ( !r_drawviewmodel.GetBool() )
+			return;
+
 		pszMuzzleFlashEffect = GetMuzzleFlashEffectName_1st();
 	}
 	else
@@ -2073,6 +2078,10 @@ void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 
 	bool bDrawMuzzleFlashOnViewModel = ( pOwner->IsLocalPlayer() && !C_BasePlayer::ShouldDrawLocalPlayer() ) ||
 		( IsLocalPlayerSpectator() && GetSpectatorMode() == OBS_MODE_IN_EYE && GetSpectatorTarget() == pOwner->entindex() );
+
+	// Don't draw muzzleflashes if the viewmodels are disabled
+	if ( !r_drawviewmodel.GetBool() )
+		bDrawMuzzleFlashOnViewModel = false;
 
 	if ( bDrawMuzzleFlashOnViewModel )
 	{
