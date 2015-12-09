@@ -29,11 +29,33 @@ BEGIN_NETWORK_TABLE( CEconEntity, DT_EconEntity )
 #endif
 END_NETWORK_TABLE()
 
+#ifdef CLIENT_DLL
+BEGIN_PREDICTION_DATA( C_EconEntity )
+	DEFINE_PRED_TYPEDESCRIPTION( m_AttributeManager, CAttributeContainer ),
+END_PREDICTION_DATA()
+#endif
+
 CEconEntity::CEconEntity()
 {
 	m_pAttributes = this;
 	m_Item.SetItemDefIndex( -1 );
 }
+
+#ifdef CLIENT_DLL
+void CEconEntity::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+	m_AttributeManager.OnPreDataChanged( updateType );
+}
+
+void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnDataChanged( updateType );
+
+	m_AttributeManager.OnDataChanged( updateType );
+}
+#endif
 
 void CEconEntity::SetItem( CEconItemView &newItem )
 {
@@ -57,6 +79,43 @@ bool CEconEntity::HasItemDefinition( void ) const
 int CEconEntity::GetItemID( void )
 {
 	return m_Item.GetItemDefIndex();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Add or remove this from owner's attribute providers list.
+//-----------------------------------------------------------------------------
+void CEconEntity::ReapplyProvision( void )
+{
+	CBaseEntity *pOwner = GetOwnerEntity();
+	CBaseEntity *pOldOwner = m_hOldOwner.Get();
+
+	if ( pOwner != pOldOwner )
+	{
+		if ( pOldOwner )
+		{
+			m_AttributeManager.StopProvidingTo( pOldOwner );
+		}
+
+		if ( pOwner )
+		{
+			m_AttributeManager.ProviteTo( pOwner );
+			m_hOldOwner = pOwner;
+		}
+		else
+		{
+			m_hOldOwner = NULL;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CEconEntity::UpdateOnRemove( void )
+{
+	SetOwnerEntity( NULL );
+	ReapplyProvision();
+	BaseClass::UpdateOnRemove();
 }
 
 CEconEntity::~CEconEntity()

@@ -116,7 +116,7 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 				}
 
 				wchar_t floatstr[32];
-				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%g", value);
+				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%.0f", value);
 
 				wchar_t attrib[128];
 				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(pStatic->description_string), 1, floatstr);

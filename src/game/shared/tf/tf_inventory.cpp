@@ -69,9 +69,14 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEc
 {
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
+
 	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+
+	// Array bounds check.
 	if (iWeapon >= iCount || iWeapon < 0)
 		return false;
+
+	// Don't allow switching if this class has no weapon at this position.
 	if (!bEcon)
 	{
 		if (!Weapons[iClass][iSlot][iWeapon])
@@ -82,6 +87,7 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEc
 		if (!Items[iClass][iSlot][iWeapon])
 			return false;
 	}
+
 	return true;
 };
 
@@ -150,6 +156,7 @@ const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 	"PDA2"
 };
 
+// Legacy array, used when we're forced to use old method of giving out weapons.
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
 {
 	{
@@ -237,7 +244,7 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 			TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
 		},
 		{
-			TF_WEAPON_BUILDER					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
+
 		},
 		{
 			TF_WEAPON_KNIFE
@@ -292,10 +299,10 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_W
 
 const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
 {
-	{
+	{ // Unassigned
 
 	},
-	{
+	{ // Scout
 		{
 			13//, TF_WEAPON_NAILGUN
 		},
@@ -306,7 +313,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			0
 		}
 	},
-	{
+	{ // Sniper
 		{
 			14//, TF_WEAPON_HUNTERRIFLE
 		},
@@ -317,9 +324,9 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			3//, TF_WEAPON_FISHWHACKER
 		}
 	},
-	{
+	{ // Soldier
 		{
-			18//, TF_WEAPON_ROCKETLAUNCHERBETA
+			18, 9001//, TF_WEAPON_ROCKETLAUNCHERBETA
 		},
 		{
 			10
@@ -328,7 +335,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			6
 		}
 	},
-	{
+	{ // Demoman
 		{
 			19//, TF_WEAPON_CYCLOPS
 		},
@@ -339,9 +346,9 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			1
 		}
 	},
-	{
+	{ // Medic
 		{
-			17//, TF_WEAPON_SHOTGUN_MEDIC
+			17
 		},
 		{
 			29, 35//, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
@@ -350,7 +357,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			8//, TF_WEAPON_UBERSAW
 		}
 	},
-	{
+	{ // Heavy
 		{
 			15
 		},
@@ -361,7 +368,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			5
 		}
 	},
-	{
+	{ // Pyro
 		{
 			21
 		},
@@ -372,7 +379,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			2
 		}
 	},
-	{
+	{ // Spy
 		{
 			24//, TF_WEAPON_TRANQ
 		},
@@ -389,7 +396,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			30
 		}
 	},
-	{
+	{ // Engineer
 		{
 			9
 		},
@@ -406,7 +413,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			26
 		}
 	},
-	{
+	{ // Civilian
 		{
 
 		},
@@ -417,7 +424,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			//TF_WEAPON_UMBRELLA
 		}
 	},
-	{
+	{ // Mercenary
 		{
 
 		},

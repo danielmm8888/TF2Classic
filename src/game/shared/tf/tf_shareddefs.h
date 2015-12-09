@@ -546,6 +546,8 @@ enum
 	TF_COND_LAST
 };
 
+extern int condition_to_attribute_translation[];
+
 int ConditionExpiresFast( int nCond );
 
 //-----------------------------------------------------------------------------
@@ -1146,6 +1148,24 @@ typedef enum
 
 	NUM_STOCK_NOTIFICATIONS
 } HudNotification_t;
+
+class CTraceFilterIgnorePlayers : public CTraceFilterSimple
+{
+public:
+	// It does have a base, but we'll never network anything below here..
+	DECLARE_CLASS( CTraceFilterIgnorePlayers, CTraceFilterSimple );
+
+	CTraceFilterIgnorePlayers( const IHandleEntity *passentity, int collisionGroup )
+		: CTraceFilterSimple( passentity, collisionGroup )
+	{
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
+	{
+		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+		return pEntity && !pEntity->IsPlayer();
+	}
+};
 
 // Unused
 #define TF_DEATH_FIRST_BLOOD	0x0010

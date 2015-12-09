@@ -1,21 +1,52 @@
 #include "cbase.h"
 #include "attribute_manager.h"
 
+#ifdef CLIENT_DLL
+#include "prediction.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+#define ATTRIB_REAPPLY_PARITY_BITS 3
 
 BEGIN_NETWORK_TABLE_NOBASE( CAttributeManager, DT_AttributeManager )
 #ifdef CLIENT_DLL
 	RecvPropEHandle( RECVINFO( m_hOuter ) ),
+	RecvPropInt( RECVINFO( m_iReapplyProvisionParity ) ),
 #else
 	SendPropEHandle( SENDINFO( m_hOuter ) ),
+	SendPropInt( SENDINFO( m_iReapplyProvisionParity ), ATTRIB_REAPPLY_PARITY_BITS, SPROP_UNSIGNED ),
 #endif
 END_NETWORK_TABLE()
 
 CAttributeManager::CAttributeManager()
 {
 	m_bParsingMyself = false;
+	m_iReapplyProvisionParity = 0;
 }
+
+#ifdef CLIENT_DLL
+void CAttributeManager::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	m_iOldReapplyProvisionParity = m_iReapplyProvisionParity;
+}
+
+void CAttributeManager::OnDataChanged( DataUpdateType_t updateType )
+{
+	// If parity ever falls out of sync we can catch up here.
+	if ( m_iReapplyProvisionParity != m_iOldReapplyProvisionParity )
+	{
+		if ( m_hOuter )
+		{
+			IHasAttributes *pAttributes = m_hOuter->GetHasAttributesInterfacePtr();
+			pAttributes->ReapplyProvision();
+			m_iOldReapplyProvisionParity = m_iReapplyProvisionParity;
+		}
+	}
+}
+
+#endif
 
 void CAttributeManager::AddProvider( CBaseEntity *pEntity )
 {
@@ -27,10 +58,53 @@ void CAttributeManager::RemoveProvider( CBaseEntity *pEntity )
 	m_AttributeProviders.FindAndRemove( pEntity );
 }
 
+void CAttributeManager::ProviteTo( CBaseEntity *pEntity )
+{
+	if ( !pEntity || !m_hOuter.Get() )
+		return;
+
+	IHasAttributes *pAttributes = pEntity->GetHasAttributesInterfacePtr();
+
+	if ( pAttributes )
+	{
+		pAttributes->GetAttributeManager()->AddProvider( m_hOuter.Get() );
+	}
+
+#ifdef CLIENT_DLL
+	if ( prediction->InPrediction() )
+#endif
+	m_iReapplyProvisionParity = ( m_iReapplyProvisionParity + 1 ) & ( ( 1 << ATTRIB_REAPPLY_PARITY_BITS ) - 1 );
+}
+
+void CAttributeManager::StopProvidingTo( CBaseEntity *pEntity )
+{
+	if ( !pEntity || !m_hOuter.Get() )
+		return;
+
+	IHasAttributes *pAttributes = pEntity->GetHasAttributesInterfacePtr();
+
+	if ( pAttributes )
+	{
+		pAttributes->GetAttributeManager()->RemoveProvider( m_hOuter.Get() );
+	}
+
+#ifdef CLIENT_DLL
+	if ( prediction->InPrediction() )
+#endif
+	m_iReapplyProvisionParity = ( m_iReapplyProvisionParity + 1 ) & ( ( 1 << ATTRIB_REAPPLY_PARITY_BITS ) - 1 );
+}
+
 void CAttributeManager::InitializeAttributes( CBaseEntity *pEntity )
 {
-	m_hOuter.Set( pEntity );
-	m_bParsingMyself = false;
+	IHasAttributes *pAttributes = pEntity->GetHasAttributesInterfacePtr();
+
+	Assert( pAttributes );
+
+	if ( pAttributes )
+	{
+		m_hOuter.Set( pEntity );
+		m_bParsingMyself = false;
+	}
 }
 
 float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )
@@ -50,21 +124,20 @@ float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *
 		if ( !pProvider || pProvider == pEntity )
 			continue;
 
-		IHasAttributes *pAttribInterface = pProvider->GetHasAttributesInterfacePtr();
+		IHasAttributes *pAttributes = pProvider->GetHasAttributesInterfacePtr();
 
-		if ( pAttribInterface )
+		if ( pAttributes )
 		{
-			flValue = pAttribInterface->GetAttributeManager()->ApplyAttributeFloat( flValue, pEntity, strAttributeClass );
+			flValue = pAttributes->GetAttributeManager()->ApplyAttributeFloat( flValue, pEntity, strAttributeClass );
 		}
 	}
 
-	IHasAttributes *pAttribInterface = m_hOuter->GetHasAttributesInterfacePtr();
+	IHasAttributes *pAttributes = m_hOuter->GetHasAttributesInterfacePtr();
+	CBaseEntity *pOwner = pAttributes->GetAttributeOwner();
 
-	if ( pAttribInterface && pAttribInterface->GetAttributeOwner() )
+	if ( pOwner )
 	{
-		CBaseEntity *pOwner = pAttribInterface->GetAttributeOwner();
 		IHasAttributes *pOwnerAttrib = pOwner->GetHasAttributesInterfacePtr();
-
 		if ( pOwnerAttrib )
 		{
 			flValue = pOwnerAttrib->GetAttributeManager()->ApplyAttributeFloat( flValue, pEntity, strAttributeClass );
@@ -80,10 +153,18 @@ float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *
 BEGIN_NETWORK_TABLE_NOBASE( CAttributeContainer, DT_AttributeContainer )
 #ifdef CLIENT_DLL
 	RecvPropEHandle( RECVINFO( m_hOuter ) ),
+	RecvPropInt( RECVINFO( m_iReapplyProvisionParity ) ),
 #else
 	SendPropEHandle( SENDINFO( m_hOuter ) ),
+	SendPropInt( SENDINFO( m_iReapplyProvisionParity ), ATTRIB_REAPPLY_PARITY_BITS, SPROP_UNSIGNED ),
 #endif
 END_NETWORK_TABLE()
+
+#ifdef CLIENT_DLL
+BEGIN_PREDICTION_DATA_NO_BASE( CAttributeContainer )
+	DEFINE_PRED_FIELD( m_iReapplyProvisionParity, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+END_PREDICTION_DATA()
+#endif
 
 CAttributeContainer::CAttributeContainer()
 {
@@ -117,6 +198,15 @@ float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity
 		case ATTRIB_FORMAT_INVERTED_PERCENTAGE:
 			flValue *= pAttribute->value;
 			break;
+		case ATTRIB_FORMAT_OR:
+		{
+			// Oh, man...
+			int iValue = (int)flValue;
+			int iAttrib = (int)pAttribute->value;
+			iValue |= iAttrib;
+			flValue = (float)iValue;
+			break;
+		}
 		}
 	}
 

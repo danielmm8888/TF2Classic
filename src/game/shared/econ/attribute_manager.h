@@ -45,14 +45,25 @@ public:
 		return iValue;
 	}
 
+#ifdef CLIENT_DLL
+	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
+	virtual void	OnDataChanged( DataUpdateType_t updatetype );
+#endif
 	void			AddProvider( CBaseEntity *pEntity );
 	void			RemoveProvider( CBaseEntity *pEntity );
+	void			ProviteTo( CBaseEntity *pEntity );
+	void			StopProvidingTo( CBaseEntity *pEntity );
 	virtual void	InitializeAttributes( CBaseEntity *pEntity );
 	virtual float	ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass );
 
 protected:
 	CNetworkHandle( CBaseEntity, m_hOuter );
 	bool m_bParsingMyself;
+
+	CNetworkVar( int, m_iReapplyProvisionParity );
+#ifdef CLIENT_DLL
+	int m_iOldReapplyProvisionParity;
+#endif
 
 private:
 	CUtlVector<EHANDLE> m_AttributeProviders;
@@ -64,6 +75,9 @@ class CAttributeContainer : public CAttributeManager
 public:
 	DECLARE_EMBEDDED_NETWORKVAR();
 	DECLARE_CLASS( CAttributeContainer, CAttributeManager );
+#ifdef CLIENT_DLL
+	DECLARE_PREDICTABLE();
+#endif
 
 	CAttributeContainer();
 

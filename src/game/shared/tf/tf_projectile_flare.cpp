@@ -171,6 +171,12 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	if ( pPlayer )
 	{
 		// Hit player, do damage.
+		if ( pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+		{
+			// Jeez, hardcoding this doesn't seem like a good idea.
+			m_bCritical = true;
+		}
+
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
 		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
 		pPlayer->TakeDamage( info );

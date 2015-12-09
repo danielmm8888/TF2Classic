@@ -91,14 +91,10 @@ void CEconWearable::Equip( CBasePlayer *pPlayer )
 	if ( pPlayer )
 	{
 		FollowEntity( pPlayer, true );
+		SetOwnerEntity( pPlayer );
 		ChangeTeam( pPlayer->GetTeamNumber() );
 
-		IHasAttributes *pAttrib = pPlayer->GetHasAttributesInterfacePtr();
-
-		if ( pAttrib )
-		{
-			pAttrib->GetAttributeManager()->AddProvider( this );
-		}
+		ReapplyProvision();
 	}
 }
 
@@ -108,12 +104,8 @@ void CEconWearable::UnEquip( CBasePlayer *pPlayer )
 	{
 		StopFollowingEntity();
 
-		IHasAttributes *pAttrib = pPlayer->GetHasAttributesInterfacePtr();
-
-		if ( pAttrib )
-		{
-			pAttrib->GetAttributeManager()->RemoveProvider( this );
-		}
+		SetOwnerEntity( NULL );
+		ReapplyProvision();
 	}
 }
 #else

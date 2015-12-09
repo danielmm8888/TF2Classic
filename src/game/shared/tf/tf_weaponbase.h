@@ -144,6 +144,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool Deploy( void );
 	virtual void Equip( CBaseCombatCharacter *pOwner );
 
+	virtual void ReapplyProvision( void );
 	virtual void OnActiveStateChanged( int iOldState );
 	virtual void UpdateOnRemove( void );
 

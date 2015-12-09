@@ -17,7 +17,6 @@
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 #include "tf_viewmodel.h"
-#include "tf_weapon_wrench.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -3624,15 +3623,12 @@ float CTFPlayer::MedicGetChargeLevel( void )
 {
 	if ( IsPlayerClass( TF_CLASS_MEDIC ) )
 	{
-		CTFWeaponBase *pWpn = GetMedigun();
+		CWeaponMedigun *pMedigun = GetMedigun();
 
-		if ( pWpn == NULL )
-			return 0;
+		if ( pMedigun )
+			return pMedigun->GetChargeLevel();
 
-		CWeaponMedigun *pWeapon = dynamic_cast <CWeaponMedigun*>( pWpn );
-
-		if ( pWeapon )
-			return pWeapon->GetChargeLevel();
+		return 0.0f;
 	}
 
 	// Spy has a fake uber level.
@@ -3641,7 +3637,7 @@ float CTFPlayer::MedicGetChargeLevel( void )
 		return m_Shared.m_flDisguiseChargeLevel;
 	}
 
-	return 0;
+	return 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -3652,14 +3648,9 @@ CWeaponMedigun *CTFPlayer::GetMedigun( void )
 	// This is a temporary workaround until we get conditions working and we can 
 	// just base everything off of the same entity
 
-	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) )
-		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
-
-	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_OVERHEALER ) )
-		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_OVERHEALER );
-
-	if ( (CTFWeaponBase *)Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG ) )
-		return (CWeaponMedigun *)Weapon_OwnsThisID( TF_WEAPON_KRITZKRIEG );
+	CTFWeaponBase *pWeapon = Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
+	if ( Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) )
+		return static_cast<CWeaponMedigun *>( pWeapon );
 
 	return NULL;
 }
