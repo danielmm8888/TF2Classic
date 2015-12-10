@@ -1,14 +1,10 @@
 #include "cbase.h"
 #include "tf_mainmenupanel.h"
-#include "tf_mainmenu.h"
 #include "controls/tf_advbutton.h"
-#include "engine/IEngineSound.h"
-#include "steam/steam_api.h"
-#include "steam/isteamhttp.h"
-#include "vgui_avatarimage.h"
+#include "tf_notificationmanager.h"
 #include "c_sdkversionchecker.h"
-#include "soundenvelope.h"
-#include <convar.h>
+#include "engine/IEngineSound.h"
+#include "vgui_avatarimage.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -140,9 +136,9 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	else if (!Q_strcmp(command, "testnotification"))
 	{
 		char resultString[128];
-		Q_snprintf(resultString, sizeof(resultString), "test %d", MAINMENU_ROOT->GetNotificationsCount());
-		MainMenuNotification Notification("Yoyo", resultString);
-		MAINMENU_ROOT->SendNotification(Notification);
+		Q_snprintf(resultString, sizeof(resultString), "test %d", GetNotificationManager()->GetNotificationsCount());
+		MessageNotification Notification("Yoyo", resultString);
+		GetNotificationManager()->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
 	{
@@ -220,7 +216,7 @@ void CTFMainMenuPanel::OnNotificationUpdate()
 {
 	if (m_pNotificationButton)
 	{
-		if (MAINMENU_ROOT->GetNotificationsCount() > 0)
+		if (GetNotificationManager()->GetNotificationsCount() > 0)
 		{
 			m_pNotificationButton->SetVisible(true);
 		}
@@ -229,7 +225,7 @@ void CTFMainMenuPanel::OnNotificationUpdate()
 			m_pNotificationButton->SetVisible(false);
 		}
 
-		if (MAINMENU_ROOT->GetUnreadNotificationsCount() > 0)
+		if (GetNotificationManager()->GetUnreadNotificationsCount() > 0)
 		{
 			m_pNotificationButton->SetGlowing(true);
 		}
@@ -238,7 +234,7 @@ void CTFMainMenuPanel::OnNotificationUpdate()
 			m_pNotificationButton->SetGlowing(false);
 		}
 	}
-	if (MAINMENU_ROOT->IsOutdated())
+	if (GetNotificationManager()->IsOutdated())
 	{
 		if (m_pVersionLabel)
 		{
@@ -252,7 +248,7 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	if (m_pVersionLabel)
 	{
 		char verString[64];
-		Q_snprintf(verString, sizeof(verString), "Version: %s\nSDK branch: %s", MAINMENU_ROOT->GetVersionString(), GetSDKVersionChecker()->GetKey());
+		Q_snprintf(verString, sizeof(verString), "Version: %s\nSDK branch: %s", GetNotificationManager()->GetVersionString(), GetSDKVersionChecker()->GetKey());
 		m_pVersionLabel->SetText(verString);
 	}
 };
