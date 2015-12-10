@@ -64,9 +64,9 @@ void CTFToolTipPanel::ShowToolTip(char *sText)
 	int iSpacing = UTIL_ComputeStringWidth(pFont, L" ");
 	int iFontWide = iWidth + iSpacing * 2;
 
-	int iWide = toProportionalWide(200);
-	int iTall = toProportionalTall(25);
-	int iOffsetX = toProportionalWide(10);
+	int iWide = XRES(200);
+	int iTall = YRES(25);
+	int iOffsetX = XRES(10);
 	int iOffsetY = (iFontWide / iWide) + 1;
 
 	if (iFontWide > iWide)
@@ -116,8 +116,8 @@ void CTFToolTipPanel::OnThink()
 
 	if (wide - iTipW > cursorX)
 	{
-		cursorY += toProportionalTall(10);
-		cursorX += toProportionalWide(8);
+		cursorY += YRES(10);
+		cursorX += XRES(8);
 
 		// menu hanging right
 		if (tall - iTipH > cursorY)
@@ -128,13 +128,13 @@ void CTFToolTipPanel::OnThink()
 		else
 		{
 			// menu hanging up
-			SetPos(cursorX, cursorY - iTipH - toProportionalTall(20));
+			SetPos(cursorX, cursorY - iTipH - YRES(20));
 		}
 	}
 	else
 	{
-		cursorY += toProportionalTall(10);
-		cursorX += toProportionalWide(8);
+		cursorY += YRES(10);
+		cursorX += XRES(8);
 		// menu hanging left
 		if (tall - iTipH > cursorY)
 		{
@@ -144,7 +144,7 @@ void CTFToolTipPanel::OnThink()
 		else
 		{
 			// menu hanging up
-			SetPos(cursorX - iTipW, cursorY - iTipH - toProportionalTall(20));
+			SetPos(cursorX - iTipW, cursorY - iTipH - YRES(20));
 		}
 	}
 };

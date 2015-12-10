@@ -306,7 +306,7 @@ void CTFScrollButton::PerformLayout()
 
 	SetText(EMPTY_STRING);
 	SetZPos(3);
-	SetWide(toProportionalWide(8));  //scroll wide
+	SetWide(XRES(8));  //scroll wide
 	SetTall(m_pParent->GetTall());
 	SetArmedSound("ui/buttonrollover.wav");
 	SetDepressedSound("ui/buttonclick.wav");
