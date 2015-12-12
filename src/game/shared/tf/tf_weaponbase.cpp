@@ -1688,6 +1688,41 @@ void CTFWeaponBase::WeaponIdle( void )
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+int CTFWeaponBase::GetActivityWeaponRole( void )
+{
+	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+
+	if ( HasItemDefinition() )
+	{
+		int iSchemaRole = m_Item.GetAnimationSlot();
+		if ( iSchemaRole >= 0 )
+			iWeaponRole = iSchemaRole;
+	}
+
+	if ( mp_forceactivityset.GetInt() >= 0 )
+	{
+		iWeaponRole = mp_forceactivityset.GetInt();
+	}
+
+#ifdef CLIENT_DLL
+	// If we're disguised, we show a different weapon from what we're actually carrying.
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
+	{
+		CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
+		if ( pWeaponInfo )
+		{
+			iWeaponRole = pWeaponInfo->m_iWeaponType;
+		}
+	}
+#endif
+
+	return iWeaponRole;
+}
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetMuzzleFlashModel( void )
 { 
 	const char *pszModel = GetTFWpnData().m_szMuzzleFlashModel;
@@ -2577,25 +2612,7 @@ ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLI
 
 acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
-	int iWeaponRole = GetTFWpnData().m_iWeaponType;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-#ifdef CLIENT_DLL
-	// If we're disguised, we show a different weapon from what we're actually carrying.
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
-	{
-		CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
-		if ( pWeaponInfo )
-		{
-			iWeaponRole = pWeaponInfo->m_iWeaponType;
-		}
-	}
-#endif
+	int iWeaponRole = GetActivityWeaponRole();
 
 	acttable_t *pTable;
 

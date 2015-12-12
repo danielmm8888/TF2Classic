@@ -179,6 +179,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
+	virtual int GetActivityWeaponRole( void );
+
 	virtual acttable_t *ActivityList( int &iActivityCount );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
