@@ -17,6 +17,8 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
 #include "engine/IEngineSound.h"
+#include <vgui_controls/AnimationController.h>
+#include "iclientmode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -215,11 +217,14 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 
 				CLocalPlayerFilter filter;
 
-				CBaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
+				C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
 
 				m_flLastHitSound = gpGlobals->curtime;
 			}
 		}
+
+		// Leftover from old code?
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "DamagedPlayer" );
 
 		// Stop here if we chose not to show hit numbers.
 		if ( !hud_combattext.GetBool() )
@@ -230,7 +235,6 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), CONTENTS_SOLID|CONTENTS_MOVEABLE, NULL, COLLISION_GROUP_NONE, &tr );
 		if ( tr.fraction != 1.0f )
 			return;
-
 
 		if ( hud_combattext_batching.GetBool() )
 		{
