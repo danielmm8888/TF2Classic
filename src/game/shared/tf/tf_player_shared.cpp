@@ -1858,7 +1858,12 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 	AddCond( TF_COND_DISGUISING );
 
 	// Start the think to complete our disguise
-	m_flDisguiseCompleteTime = gpGlobals->curtime + TF_TIME_TO_DISGUISE;
+
+	// Switching disguises is faster if we're already disguised
+	if ( InCond( TF_COND_DISGUISED ) )
+		m_flDisguiseCompleteTime = gpGlobals->curtime + 0.5;
+	else
+		m_flDisguiseCompleteTime = gpGlobals->curtime + TF_TIME_TO_DISGUISE;
 #endif
 }
 
