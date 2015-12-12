@@ -304,7 +304,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Scout
 		{
-			13//, TF_WEAPON_NAILGUN
+			13, 752
 		},
 		{
 			23//, TF_WEAPON_SMG_SCOUT

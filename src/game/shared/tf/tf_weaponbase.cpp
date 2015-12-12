@@ -1685,6 +1685,8 @@ void CTFWeaponBase::WeaponIdle( void )
 	}
 }
 
+ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
+
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
@@ -1698,7 +1700,7 @@ int CTFWeaponBase::GetActivityWeaponRole( void )
 		if ( iSchemaRole >= 0 )
 			iWeaponRole = iSchemaRole;
 	}
-
+	
 	if ( mp_forceactivityset.GetInt() >= 0 )
 	{
 		iWeaponRole = mp_forceactivityset.GetInt();
@@ -2607,8 +2609,6 @@ acttable_t CTFWeaponBase::m_acttableItem2[] =
 	{ ACT_MP_GESTURE_VC_NODYES, ACT_MP_GESTURE_VC_NODYES_ITEM2, false },
 	{ ACT_MP_GESTURE_VC_NODNO, ACT_MP_GESTURE_VC_NODNO_ITEM2, false },
 };
-
-ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
 acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
