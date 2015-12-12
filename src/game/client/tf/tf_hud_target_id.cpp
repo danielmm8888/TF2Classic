@@ -196,7 +196,12 @@ void CTargetID::PerformLayout( void )
 {
 	int iXIndent = XRES(5);
 	int iXPostdent = XRES(10);
-	int iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
+	int iWidth = 0;
+
+	if ( m_pAvatar )
+		iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
+	else
+		iWidth = m_pTargetHealth->GetWide() + iXIndent + iXPostdent;
 
 	int iTextW, iTextH;
 	int iDataW, iDataH;
