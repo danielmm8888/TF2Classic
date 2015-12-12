@@ -3029,7 +3029,6 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		{
 			// If the inflictor is the killer, then it must be their current weapon doing the damage
 			CTFWeaponBase *pActiveWpn = pScorer->GetActiveTFWeapon();
-
 			if ( pActiveWpn )
 			{
 				*iWeaponID = pActiveWpn->GetWeaponID();
@@ -3041,7 +3040,11 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = pInflictor->GetClassname();
 
 			// See if this was a deflect kill.
-			if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
+			if ( CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pInflictor ) )
+			{
+				*iWeaponID = pTFWeapon->GetWeaponID();
+			}
+			else if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
 			{
 				*iWeaponID = pRocket->GetWeaponID();
 
@@ -3050,6 +3053,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 					switch ( pRocket->GetWeaponID() )
 					{
 					case TF_WEAPON_ROCKETLAUNCHER:
+					case TF_WEAPON_SENTRY_ROCKET:
 						killer_weapon_name = "deflect_rocket";
 						break;
 					}
@@ -3057,16 +3061,16 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 			else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
 			{
+				*iWeaponID = pGrenade->GetWeaponID();
+
 				if ( pGrenade->m_iDeflected )
 				{
-					*iWeaponID = pGrenade->GetWeaponID();
-
 					switch ( pGrenade->GetWeaponID() )
 					{
-					case TF_WEAPON_GRENADE_PIPEBOMB:
+					case TF_WEAPON_PIPEBOMBLAUNCHER:
 						killer_weapon_name = "deflect_sticky";
 						break;
-					case TF_WEAPON_GRENADE_DEMOMAN:
+					case TF_WEAPON_GRENADELAUNCHER:
 						killer_weapon_name = "deflect_promode";
 						break;
 					}

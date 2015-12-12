@@ -153,6 +153,7 @@ public:
 	// Creation.
 	static CTFProjectile_SentryRocket *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL );	
 
+	virtual int GetWeaponID() { return TF_WEAPON_SENTRY_ROCKET; }
 	virtual void Spawn();
 };
 

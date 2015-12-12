@@ -1167,7 +1167,7 @@ void CTFPlayer::GiveDefaultItems()
 	// Give ammo. Must be done before weapons, so weapons know the player has ammo for them.
 	for ( int iAmmo = 0; iAmmo < TF_AMMO_COUNT; ++iAmmo )
 	{
-		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo );
+		GiveAmmo( GetMaxAmmo( iAmmo ), iAmmo, false, TF_AMMO_SOURCE_RESUPPLY );
 	}
 
 	// Give weapons.
@@ -5432,11 +5432,11 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoS
 
 	if ( iAmmoIndex == TF_AMMO_METAL )
 	{
-		if ( ammosource != 1 )
+		if ( ammosource != TF_AMMO_SOURCE_RESUPPLY )
 		{
-			float flMultiplier = 0.0f;
+			float flMultiplier = 1.0f;
 			CALL_ATTRIB_HOOK_FLOAT( flMultiplier, mult_metal_pickup );
-			iCount = floorf( iCount * flMultiplier );
+			iCount *= flMultiplier;
 		}
 	}
 	/*else if ( CALL_ATTRIB_HOOK_INT( bBool, ammo_becomes_health ) == 1 )
@@ -5472,12 +5472,6 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoS
 	if ( iAdd < 1 )
 	{
 		return 0;
-	}
-
-	// Ammo pickup sound
-	if ( !bSuppressSound )
-	{
-		EmitSound( "BaseCombatCharacter.AmmoPickup" );
 	}
 
 	CBaseCombatCharacter::GiveAmmo( iAdd, iAmmoIndex, bSuppressSound );

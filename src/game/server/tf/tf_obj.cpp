@@ -1366,7 +1366,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 			}
 			*/
 
-			int iAmountPlayerPaidForMe = ( pTFBuilder )->StartedBuildingObject( m_iObjectType );
+			int iAmountPlayerPaidForMe = pTFBuilder->StartedBuildingObject( m_iObjectType );
 			if ( !iAmountPlayerPaidForMe )
 			{
 				// Player couldn't afford to pay for me, so abort

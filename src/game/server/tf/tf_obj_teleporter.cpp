@@ -681,6 +681,7 @@ void CObjectTeleporter::TeleporterThink( void )
 	if ( IsDisabled() || IsRedeploying() || IsMatchingTeleporterReady() == false )
 	{
 		ShowDirectionArrow( false );
+
 		if ( GetState() != TELEPORTER_STATE_IDLE && !IsUpgrading() )
 		{
 			SetState( TELEPORTER_STATE_IDLE );
@@ -690,7 +691,7 @@ void CObjectTeleporter::TeleporterThink( void )
 			{
 				// The other end has been destroyed. Revert back to L1.
 				m_iUpgradeLevel = 1;
-				m_iGoalUpgradeLevel = 1;
+
 				// We need to adjust for any damage received if we downgraded
 				float iHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
 				SetMaxHealth( GetMaxHealthForCurrentLevel() );
