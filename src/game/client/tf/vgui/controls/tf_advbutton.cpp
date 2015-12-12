@@ -87,7 +87,7 @@ void CTFAdvButton::PerformLayout()
 
 	if (m_fImageWidth)
 	{
-		float fWidth = toProportionalTall(m_fImageWidth);
+		float fWidth = YRES(m_fImageWidth);
 		float fHeight = fWidth;
 		int iShift = (GetTall() - fWidth) / 2.0;
 		float fXOrigin = iShift * 2 + fWidth;

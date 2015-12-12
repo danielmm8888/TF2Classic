@@ -14,8 +14,8 @@
 #include "panels/tf_tooltippanel.h"
 #include "panels/tf_itemtooltippanel.h"
 #include "engine/IEngineSound.h"
+#include "tf_notificationmanager.h"
 #include "tier0/icommandline.h"
-#include "tf_hud_notification_panel.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -26,9 +26,6 @@ using namespace vgui;
 static CDllDemandLoader g_GameUIDLL("GameUI");
 
 CTFMainMenu *guiroot = NULL;
-
-#define VERSION_URL			"http://services.0x13.io/tf2c/version/?latest=1"
-#define MESSAGE_URL			"http://services.0x13.io/tf2c/motd/"
 
 void OverrideMainMenu()
 {
@@ -57,13 +54,6 @@ CON_COMMAND(showloadout, "Show loadout screen (new)")
 	MAINMENU_ROOT->ShowPanel(LOADOUT_MENU, true);
 }
 
-CON_COMMAND_F(tf2c_checkmessages, "Check for the messages", FCVAR_DEVELOPMENTONLY)
-{
-	MAINMENU_ROOT->CheckMessage();
-}
-
-ConVar tf2c_checkfrequency("tf2c_checkfrequency", "900", FCVAR_DEVELOPMENTONLY, "Messages check frequency (seconds)");
-
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -85,8 +75,6 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	surface()->GetScreenSize(width, height);
 	SetSize(width, height);
 	SetPos(0, 0);
-
-	pNotifications.RemoveAll();
 
 	m_pPanels.SetSize(COUNT_MENU);
 	AddMenuPanel(new CTFMainMenuPanel(this, "CTFMainMenuPanel"), MAIN_MENU);
@@ -117,11 +105,6 @@ CTFMainMenu::CTFMainMenu(VPANEL parent) : vgui::EditablePanel(NULL, "MainMenu")
 	m_iStopGameStartupSound = 2;
 	m_iUpdateLayout = 1;
 
-	bOutdated = false;
-	fLastCheck = tf2c_checkfrequency.GetFloat() * -1;
-	bCompleted = false;
-	m_SteamHTTP = steamapicontext->SteamHTTP();
-
 	vgui::ivgui()->AddTickSignal(GetVPanel());
 }
 
@@ -151,7 +134,7 @@ CTFMenuPanelBase* CTFMainMenu::GetMenuPanel(const char *name)
 	for (int i = FIRST_MENU; i < COUNT_MENU; i++)
 	{
 		CTFMenuPanelBase* pMenu = GetMenuPanel(i);
-		if (pMenu && (V_stricmp(pMenu->GetName(), name) == 0))
+		if (pMenu && (Q_strcmp(pMenu->GetName(), name) == 0))
 		{
 			return pMenu;
 		}
@@ -278,19 +261,6 @@ void CTFMainMenu::OnTick()
 			InvalidatePanelsLayout(true, true);
 		}
 	}
-
-	if (!bCompleted)
-	{
-		SteamAPI_RunCallbacks();
-		//m_SteamHTTP->GetHTTPDownloadProgressPct(m_httpRequest, &fPercent);
-	}
-
-	if (gpGlobals->curtime - fLastCheck > tf2c_checkfrequency.GetFloat())
-	{
-		fLastCheck = gpGlobals->curtime;
-		CheckMessage();
-	}
-
 };
 
 void CTFMainMenu::OnThink()
@@ -317,44 +287,6 @@ void CTFMainMenu::GameLayout()
 		if (GetMenuPanel(i))
 			GetMenuPanel(i)->GameLayout();
 	}
-};
-
-
-void CTFMainMenu::SendNotification(MainMenuNotification pMessage)
-{
-	pNotifications.AddToTail(pMessage);
-	dynamic_cast<CTFNotificationPanel*>(GetMenuPanel(NOTIFICATION_MENU))->OnNotificationUpdate();
-	dynamic_cast<CTFMainMenuPanel*>(GetMenuPanel(MAIN_MENU))->OnNotificationUpdate();
-	dynamic_cast<CTFPauseMenuPanel*>(GetMenuPanel(PAUSE_MENU))->OnNotificationUpdate();
-
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-
-	if (pLocalPlayer && !pVersionCheck)
-	{
-		CHudNotificationPanel *pNotifyPanel = GET_HUDELEMENT(CHudNotificationPanel);
-		if (pNotifyPanel)
-		{
-			pNotifyPanel->SetupNotifyCustom(pMessage.sMessage, "ico_notify_flag_moving", C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber());
-		}
-	}
-}
-
-void CTFMainMenu::RemoveNotification(int iIndex) 
-{
-	pNotifications.Remove(iIndex);
-	dynamic_cast<CTFMainMenuPanel*>(GetMenuPanel(MAIN_MENU))->OnNotificationUpdate();
-	dynamic_cast<CTFPauseMenuPanel*>(GetMenuPanel(PAUSE_MENU))->OnNotificationUpdate();
-};
-
-int CTFMainMenu::GetUnreadNotificationsCount() 
-{ 
-	int iCount = 0;
-	for (int i = 0; i < pNotifications.Count(); i++)
-	{
-		if (pNotifications[i].bUnread)
-			iCount++;
-	}
-	return iCount;
 };
 
 void CTFMainMenu::PaintBackground()
@@ -403,146 +335,10 @@ void CTFMainMenu::HideItemToolTip()
 	dynamic_cast<CTFItemToolTipPanel*>(GetMenuPanel(ITEMTOOLTIP_MENU))->HideToolTip();
 }
 
-void CTFMainMenu::CheckMessage(bool Version/* = false*/)
+
+void CTFMainMenu::OnNotificationUpdate()
 {
-	if (!m_SteamHTTP)
-		return;
-
-	char httpString[64];
-	Q_snprintf(httpString, sizeof(httpString), (!Version ? MESSAGE_URL : VERSION_URL));
-		
-	m_httpRequest = m_SteamHTTP->CreateHTTPRequest(k_EHTTPMethodGET, httpString);
-	m_SteamHTTP->SetHTTPRequestNetworkActivityTimeout(m_httpRequest, 5);
-
-	SteamAPICall_t hSteamAPICall;
-	m_SteamHTTP->SendHTTPRequest(m_httpRequest, &hSteamAPICall);
-	m_CallResult.Set(hSteamAPICall, this, (&CTFMainMenu::OnHTTPRequestCompleted));
-
-	pVersionCheck = Version;
-	bCompleted = false;
-}
-
-void CTFMainMenu::OnHTTPRequestCompleted(HTTPRequestCompleted_t *m_CallResult, bool iofailure)
-{
-	DevMsg("HTTP Request completed: %i\n", m_CallResult->m_eStatusCode);
-	bCompleted = true;
-
-	if (m_CallResult->m_eStatusCode == 200)
-	{
-		bCompleted = true;
-		uint32 iBodysize;
-		m_SteamHTTP->GetHTTPResponseBodySize(m_httpRequest, &iBodysize);
-		uint8 iBodybuffer[128];
-		m_SteamHTTP->GetHTTPResponseBodyData(m_httpRequest, iBodybuffer, iBodysize);
-		char result[128];
-		Q_strncpy(result, (char*)iBodybuffer, iBodysize + 1);
-
-		if (!pVersionCheck)
-		{
-			OnMessageCheckCompleted(result);
-		}
-		else
-		{
-			OnVersionCheckCompleted(result);
-		}
-	}
-	else
-	{
-		bCompleted = false;
-	}
-
-	m_SteamHTTP->ReleaseHTTPRequest(m_httpRequest);
-	
-	if (!pVersionCheck)
-	{
-		CheckMessage(true);
-	}
-}
-
-
-char* CTFMainMenu::GetVersionString()
-{
-	char verString[30];
-	if (g_pFullFileSystem->FileExists("version.txt"))
-	{
-		FileHandle_t fh = filesystem->Open("version.txt", "r", "MOD");
-		int file_len = filesystem->Size(fh);
-		char* GameInfo = new char[file_len + 1];
-
-		filesystem->Read((void*)GameInfo, file_len, fh);
-		GameInfo[file_len] = 0; // null terminator
-
-		filesystem->Close(fh);
-
-		Q_snprintf(verString, sizeof(verString), GameInfo + 8);
-
-		delete[] GameInfo;
-	}
-
-	char *szResult = (char*)malloc(sizeof(verString));
-	Q_strncpy(szResult, verString, sizeof(verString));
-	return szResult;
-}
-
-
-
-void CTFMainMenu::OnMessageCheckCompleted(const char* pMessage)
-{
-	pVersionCheck = false;
-
-	if (pMessage[0] == '0')
-		return;
-
-	if (m_pzLastMessage[0] != '\0' && !Q_strcmp(pMessage, m_pzLastMessage))
-		return;
-
-	char pzResultString[128];
-	char pzMessageString[128];
-
-	char * pch;
-	int id = 0;
-	pch = strchr((char*)pMessage, '\n');
-	if (pch != NULL)
-	{
-		id = pch - pMessage + 1;
-	}
-	Q_snprintf(pzResultString, id, "%s", pMessage);
-	Q_snprintf(pzMessageString, sizeof(pzMessageString), pMessage + id);
-	Q_snprintf(m_pzLastMessage, sizeof(m_pzLastMessage), pMessage);
-
-	MainMenuNotification Notification(pzResultString, pzMessageString);
-	SendNotification(Notification);
-}
-
-
-void CTFMainMenu::OnVersionCheckCompleted(const char* pMessage)
-{
-	if (Q_strcmp(GetVersionString(), pMessage) < 0)
-	{
-		char resultString[128];
-		bOutdated = true;
-		Q_snprintf(resultString, sizeof(resultString), "Your game is out of date.\nThe newest version of TF2C is %s.\nDownload the update at\nwww.tf2classic.com", pMessage);
-		MainMenuNotification Notification("Update!", resultString);
-		SendNotification(Notification);
-	}
-	else
-	{
-		bOutdated = false;
-	}
-}
-
-float toProportionalWide(float iWide)
-{
-	int x, y, x0, y0;
-	surface()->GetProportionalBase(x, y);
-	surface()->GetScreenSize(x0, y0);
-	return ((float)x0 / (float)x) * (float)iWide;
-}
-
-float toProportionalTall(float iTall)
-{
-	int x, y, x0, y0;
-	surface()->GetProportionalBase(x, y);
-	surface()->GetScreenSize(x0, y0);
-	return ((float)y0 / (float)y) * (float)iTall;
+	GET_MAINMENUPANEL(CTFNotificationPanel)->OnNotificationUpdate();
+	GET_MAINMENUPANEL(CTFMainMenuPanel)->OnNotificationUpdate();
+	GET_MAINMENUPANEL(CTFPauseMenuPanel)->OnNotificationUpdate();
 }

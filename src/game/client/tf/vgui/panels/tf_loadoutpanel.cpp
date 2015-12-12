@@ -168,7 +168,7 @@ void CTFLoadoutPanel::PerformLayout()
 	BaseClass::PerformLayout();
 
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
-		m_pWeaponIcons[i]->SetBounds(0, 0, toProportionalWide(PANEL_WIDE), toProportionalTall(PANEL_TALL));
+		m_pWeaponIcons[i]->SetBounds(0, 0, XRES(PANEL_WIDE), YRES(PANEL_TALL));
 		m_pWeaponIcons[i]->SetBorderVisible(false);
 		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 	}
@@ -419,7 +419,7 @@ void CTFLoadoutPanel::DefaultLayout()
 					iCols++;
 					if (iCols > iColCount) iColCount = iCols;
 					m_pWeaponButton->SetVisible(true);
-					m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
+					m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
 					m_pWeaponButton->SetItemDefinition(pItemData);
 					
 					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);

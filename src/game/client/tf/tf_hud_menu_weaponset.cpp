@@ -100,8 +100,8 @@ void CHudMenuWeaponSet::ApplySchemeSettings(IScheme *pScheme)
 
 	SetPaintBackgroundEnabled(true);
 
-	m_fWide = toProportionalWide(100);
-	m_fTall = toProportionalTall(82);
+	m_fWide = XRES(100);
+	m_fTall = YRES(82);
 
 	int screenWide, screenTall;
 	int x, y;

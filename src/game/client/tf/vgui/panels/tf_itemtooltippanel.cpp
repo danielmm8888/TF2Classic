@@ -151,7 +151,7 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 	}
 	int xpos, ypos;
 	m_pAttributeText->GetPos(xpos, ypos);
-	SetSize(GetWide(), toProportionalTall(10) + ypos + index * toProportionalTall(10));
+	SetSize(GetWide(), YRES(10) + ypos + index * YRES(10));
 }
 
 void CTFItemToolTipPanel::HideToolTip()

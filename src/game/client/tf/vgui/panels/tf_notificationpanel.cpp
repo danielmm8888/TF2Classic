@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "tf_notificationpanel.h"
+#include "tf_notificationmanager.h"
 #include "tf_mainmenupanel.h"
 #include "tf_mainmenu.h"
 #include "controls/tf_advbutton.h"
@@ -52,12 +53,12 @@ void CTFNotificationPanel::PerformLayout()
 
 void CTFNotificationPanel::OnNotificationUpdate()
 {
-	iCount = MAINMENU_ROOT->GetNotificationsCount();
+	iCount = GetNotificationManager()->GetNotificationsCount();
 	if (!IsVisible())
 	{
 		for (int i = 0; i < iCount; i++)
 		{
-			MainMenuNotification *pNotification = MAINMENU_ROOT->GetNotification(i);
+			MessageNotification *pNotification = GetNotificationManager()->GetNotification(i);
 			if (pNotification->bUnread)
 			{
 				iCurrent = i;
@@ -72,7 +73,7 @@ void CTFNotificationPanel::OnNotificationUpdate()
 
 void CTFNotificationPanel::UpdateLabels()
 {
-	iCount = MAINMENU_ROOT->GetNotificationsCount();
+	iCount = GetNotificationManager()->GetNotificationsCount();
 	if (iCount <= 0)
 	{
 		Hide();
@@ -88,7 +89,7 @@ void CTFNotificationPanel::UpdateLabels()
 	Q_snprintf(sCount, sizeof(sCount), "(%d/%d)", iCurrent + 1, iCount);
 	SetDialogVariable("count", sCount);
 
-	MainMenuNotification* pNotification = MAINMENU_ROOT->GetNotification(iCurrent);
+	MessageNotification* pNotification = GetNotificationManager()->GetNotification(iCurrent);
 	Q_snprintf(sTitle, sizeof(sTitle), pNotification->sTitle);
 	Q_snprintf(sMessage, sizeof(sMessage), pNotification->sMessage);
 
@@ -99,7 +100,7 @@ void CTFNotificationPanel::UpdateLabels()
 
 void CTFNotificationPanel::RemoveCurrent()
 {
-	MAINMENU_ROOT->RemoveNotification(iCurrent);
+	GetNotificationManager()->RemoveNotification(iCurrent);
 	UpdateLabels();
 }
 
