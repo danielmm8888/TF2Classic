@@ -1,6 +1,7 @@
 #include "cbase.h"
 #include "tf_mainmenupanel.h"
 #include "controls/tf_advbutton.h"
+#include "vgui_controls/SectionedListPanel.h"
 #include "tf_notificationmanager.h"
 #include "c_sdkversionchecker.h"
 #include "engine/IEngineSound.h"
@@ -52,6 +53,7 @@ bool CTFMainMenuPanel::Init()
 	m_pNotificationButton = NULL;
 	m_pProfileAvatar = NULL;
 	m_pBlogPanel = new CTFBlogPanel(this, "BlogPanel");
+	m_pServerlistPanel = new CTFServerlistPanel(this, "ServerlistPanel");
 
 	bInMenu = true;
 	bInGame = false;
@@ -289,6 +291,15 @@ char* CTFMainMenuPanel::GetRandomMusic()
 	return szResult;	
 }
 
+void CTFMainMenuPanel::SetServerlistSize(int size)
+{
+	m_pServerlistPanel->SetServerlistSize(size);
+}
+
+void CTFMainMenuPanel::UpdateServerInfo()
+{
+	m_pServerlistPanel->UpdateServerInfo();
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -325,5 +336,158 @@ void CTFBlogPanel::LoadBlogPost(const char* URL)
 	{
 		m_pHTMLPanel->SetVisible(true);
 		m_pHTMLPanel->OpenURL(URL, NULL);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Constructor
+//-----------------------------------------------------------------------------
+CTFServerlistPanel::CTFServerlistPanel(vgui::Panel* parent, const char *panelName) : CTFMenuPanelBase(parent, panelName)
+{
+	m_iSize = 0;
+	m_pServerList = new vgui::SectionedListPanel(this, "ServerList");
+	m_pConnectButton = new CTFAdvButton(this, "ConnectButton", "Connect");
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destructor
+//-----------------------------------------------------------------------------
+CTFServerlistPanel::~CTFServerlistPanel()
+{
+}
+
+void CTFServerlistPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+
+	LoadControlSettings("resource/UI/main_menu/ServerlistPanel.res");
+
+	m_pServerList->RemoveAll();
+	m_pServerList->RemoveAllSections();
+	m_pServerList->SetSectionFgColor(0, Color(255, 255, 255, 255));
+	m_pServerList->SetBgColor(Color(0, 0, 0, 0));
+	m_pServerList->SetBorder(NULL);
+	m_pServerList->AddSection(0, "Servers", ServerSortFunc);
+	m_pServerList->AddColumnToSection(0, "Name", "Servers", SectionedListPanel::COLUMN_BRIGHT, m_iServerWidth);
+	m_pServerList->AddColumnToSection(0, "Players", "Players", SectionedListPanel::COLUMN_BRIGHT, m_iPlayersWidth);
+	m_pServerList->AddColumnToSection(0, "Ping", "Ping", SectionedListPanel::COLUMN_BRIGHT, m_iPingWidth);
+	m_pServerList->AddColumnToSection(0, "Map", "Map", SectionedListPanel::COLUMN_BRIGHT, m_iMapWidth);
+	m_pServerList->SetSectionAlwaysVisible(0, true);
+
+	m_pConnectButton->SetVisible(false);
+	UpdateServerInfo();
+}
+
+void CTFServerlistPanel::PerformLayout()
+{
+	BaseClass::PerformLayout();
+}
+
+void CTFServerlistPanel::OnThink()
+{
+	if (!GetParent()->IsCursorOver())
+		return;
+
+	m_pServerList->ClearSelection();
+	m_pConnectButton->SetVisible(false);
+
+	for (int i = 0; i < m_pServerList->GetItemCount(); i++)
+	{
+		int x, y, wide, tall;
+		m_pServerList->GetItemBounds(i, x, y, wide, tall);
+		int cx, cy;
+		surface()->SurfaceGetCursorPos(cx, cy);
+		m_pServerList->ScreenToLocal(cx, cy);
+
+		if (cx > x && cx < x + wide && cy > y && cy < y + tall)
+		{
+			m_pServerList->SetSelectedItem(i);
+			int bx = x + wide - m_pConnectButton->GetWide() - XRES(3);
+			int by = y;
+			m_pConnectButton->SetPos(bx, by);
+			m_pConnectButton->SetVisible(true);
+
+			char szCommand[128];
+			Q_snprintf(szCommand, sizeof(szCommand), "connect %s", m_pServerList->GetItemData(i)->GetString("ServerIP", ""));
+			m_pConnectButton->SetCommandString(szCommand);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Used for sorting servers
+//-----------------------------------------------------------------------------
+bool CTFServerlistPanel::ServerSortFunc(vgui::SectionedListPanel *list, int itemID1, int itemID2)
+{
+	KeyValues *it1 = list->GetItemData(itemID1);
+	KeyValues *it2 = list->GetItemData(itemID2);
+	Assert(it1 && it2);
+
+	int v1 = it1->GetInt("CurPlayers");
+	int v2 = it2->GetInt("CurPlayers");
+	if (v1 > v2)
+		return true;
+	else if (v1 < v2)
+		return false;
+
+	int iPlayerIndex1 = it1->GetInt("Ping");
+	if (iPlayerIndex1 == 0)
+		return false;
+	int iPlayerIndex2 = it2->GetInt("Ping");
+	return (iPlayerIndex1 < iPlayerIndex2);
+}
+
+void CTFServerlistPanel::SetServerlistSize(int size) 
+{
+	m_iSize = size;
+};
+
+void CTFServerlistPanel::UpdateServerInfo()
+{
+	m_pServerList->RemoveAll();
+	HFont Font = GETSCHEME()->GetFont("Link", true);
+
+	for (int i = 0; i < m_iSize; i++)
+	{
+		gameserveritem_t m_Server = GetNotificationManager()->GetServerInfo(i);
+
+		if (m_Server.m_steamID.GetAccountID() == 0)
+			continue;
+
+		char szServerName[128];
+		char szServerIP[32];
+		char szServerPlayers[16];
+		int szServerCurPlayers;
+		int szServerPing;
+		char szServerMap[32];
+
+		Q_snprintf(szServerName, sizeof(szServerName), "%s", m_Server.GetName());
+		Q_snprintf(szServerIP, sizeof(szServerIP), "%s", m_Server.m_NetAdr.GetQueryAddressString());
+		Q_snprintf(szServerPlayers, sizeof(szServerPlayers), "%i/%i", m_Server.m_nPlayers, m_Server.m_nMaxPlayers);
+		szServerCurPlayers = m_Server.m_nPlayers;
+		szServerPing = m_Server.m_nPing;
+		Q_snprintf(szServerMap, sizeof(szServerMap), "%s", m_Server.m_szMap);
+
+		KeyValues *curitem = new KeyValues("data");
+
+		curitem->SetString("Name", szServerName);
+		curitem->SetString("ServerIP", szServerIP);
+		curitem->SetString("Players", szServerPlayers);
+		curitem->SetInt("Ping", szServerPing);
+		curitem->SetInt("CurPlayers", szServerCurPlayers);
+		curitem->SetString("Map", szServerMap);
+
+		int itemID = m_pServerList->AddItem(0, curitem);
+		m_pServerList->SetItemFont(itemID, Font);
+		curitem->deleteThis();
+	}
+
+	if (m_pServerList->GetItemCount() > 0)
+	{
+		SetVisible(true);
+	}
+	else
+	{
+		SetVisible(false);
 	}
 }

@@ -9,7 +9,8 @@
 const char *g_aRequestURLs[REQUEST_COUNT] =
 {
 	"http://services.0x13.io/tf2c/version/?latest=1",
-	"http://services.0x13.io/tf2c/motd/"
+	"http://services.0x13.io/tf2c/motd/",
+	"http://services.0x13.io/tf2c/servers/official/"
 };
 
 static CTFNotificationManager g_TFNotificationManager;
@@ -24,7 +25,13 @@ CON_COMMAND_F(tf2c_checkmessages, "Check for the messages", FCVAR_DEVELOPMENTONL
 	GetNotificationManager()->AddRequest(REQUEST_MESSAGE);
 }
 
+CON_COMMAND_F(tf2c_updateserverlist, "Check for the messages", FCVAR_DEVELOPMENTONLY)
+{
+	GetNotificationManager()->UpdateServerlistInfo();
+}
+
 ConVar tf2c_checkfrequency("tf2c_checkfrequency", "900", FCVAR_DEVELOPMENTONLY, "Messages check frequency (seconds)");
+ConVar tf2c_updatefrequency("tf2c_updatefrequency", "15", FCVAR_DEVELOPMENTONLY, "Updatelist update frequency (seconds)");
 
 bool RequestHandleLessFunc(const HTTPRequestHandle &lhs, const HTTPRequestHandle &rhs)
 {
@@ -58,11 +65,15 @@ bool CTFNotificationManager::Init()
 
 		m_SteamHTTP = steamapicontext->SteamHTTP();
 		m_Requests.SetLessFunc(RequestHandleLessFunc);
-		fLastCheck = tf2c_checkfrequency.GetFloat() * -1; 
+		fLastCheck = tf2c_checkfrequency.GetFloat() * -1;
+		fUpdateLastCheck = tf2c_updatefrequency.GetFloat() * -1;
 		iCurrentRequest = REQUEST_IDLE;
 		bCompleted = false;
 		bOutdated = false;
 		m_bInited = true;
+
+		//Do it only once
+		AddRequest(REQUEST_SERVERLIST);
 	}
 	return true;
 }
@@ -75,6 +86,12 @@ void CTFNotificationManager::Update(float frametime)
 		AddRequest(REQUEST_VERSION);
 		AddRequest(REQUEST_MESSAGE);
 	}
+
+	if (!MAINMENU_ROOT->InGame() && gpGlobals->curtime - fUpdateLastCheck > tf2c_updatefrequency.GetFloat())
+	{
+		fUpdateLastCheck = gpGlobals->curtime;
+		UpdateServerlistInfo();
+	}	
 }
 
 //-----------------------------------------------------------------------------
@@ -99,13 +116,18 @@ void CTFNotificationManager::AddRequest(RequestType type)
 	}
 	SteamAPICall_t hSteamAPICall;
 	m_SteamHTTP->SendHTTPRequest(m_httpRequest, &hSteamAPICall);
-	if (type == REQUEST_VERSION)
+
+	switch (type)
 	{
+	case REQUEST_VERSION:
 		m_CallResultVersion.Set(hSteamAPICall, this, (&CTFNotificationManager::OnHTTPRequestCompleted));
-	}
-	else if(type == REQUEST_MESSAGE)
-	{
+		break;
+	case REQUEST_MESSAGE:
 		m_CallResultMessage.Set(hSteamAPICall, this, (&CTFNotificationManager::OnHTTPRequestCompleted));
+		break;
+	case REQUEST_SERVERLIST:
+		m_CallResultServerlist.Set(hSteamAPICall, this, (&CTFNotificationManager::OnHTTPRequestCompleted));
+		break;
 	}
 	bCompleted = false;
 }
@@ -137,6 +159,9 @@ void CTFNotificationManager::OnHTTPRequestCompleted(HTTPRequestCompleted_t *Call
 			break;
 		case REQUEST_MESSAGE:
 			OnMessageCheckCompleted(result);
+			break;
+		case REQUEST_SERVERLIST:
+			OnServerlistCheckCompleted(result);
 			break;
 		}
 	}
@@ -189,12 +214,6 @@ void CTFNotificationManager::OnMessageCheckCompleted(const char* pMessage)
 
 	MessageNotification Notification(pzResultString, pzMessageString);
 	SendNotification(Notification);
-}
-
-void CTFNotificationManager::SendNotification(MessageNotification pMessage)
-{
-	pNotifications.AddToTail(pMessage);
-	MAINMENU_ROOT->OnNotificationUpdate();
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pLocalPlayer)
@@ -202,9 +221,85 @@ void CTFNotificationManager::SendNotification(MessageNotification pMessage)
 		CHudNotificationPanel *pNotifyPanel = GET_HUDELEMENT(CHudNotificationPanel);
 		if (pNotifyPanel)
 		{
-			pNotifyPanel->SetupNotifyCustom(pMessage.sMessage, "ico_notify_flag_moving", C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber());
+			pNotifyPanel->SetupNotifyCustom(Notification.sMessage, "ico_notify_flag_moving", C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber());
 		}
 	}
+}
+
+void CTFNotificationManager::OnServerlistCheckCompleted(const char* pMessage)
+{
+	if (pMessage[0] == '\0')
+		return;
+
+	if (m_pzLastMessage[0] != '\0' && !Q_strcmp(pMessage, m_pzLastMessage))
+		return;
+
+	char pzResultString[128];
+	char pzMessageString[128];
+
+	char * pch = (char*)pMessage;
+	char* pMes = (char*)pMessage;
+	int id = 0;
+	int offset = 0;
+	
+	while (pch != NULL)
+	{
+		pMes = pch;
+		pch = strchr((char*)pMes, ' ');
+		if (!pch) break;
+		id = pch - pMes + 1 - offset;
+		Q_snprintf(pzResultString, id, pMes + offset);
+
+		pMes = pch;
+		pch = strchr((char*)pMes, '\n');
+		if (!pch) break;
+		id = pch - pMes + 1;
+		Q_snprintf(pzMessageString, id, pMes);
+
+		offset = 1;
+
+		gameserveritem_t m_Server;
+		m_Server.m_NetAdr.Init(atoi(pzResultString), atoi(pzMessageString), atoi(pzMessageString));
+		m_ServerList.AddToTail(m_Server);
+	}
+
+	UpdateServerlistInfo();
+}
+
+void CTFNotificationManager::UpdateServerlistInfo()
+{
+	for (int i = 0; i < m_ServerList.Count(); i++)
+	{
+		m_Server = m_ServerList[i];
+		m_hPingQuery = steamapicontext->SteamMatchmakingServers()->PingServer(m_Server.m_NetAdr.GetIP(), m_Server.m_NetAdr.GetQueryPort(), this);
+	}
+	MAINMENU_ROOT->SetServerlistSize(m_ServerList.Count());
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: called when the server has successfully responded
+//-----------------------------------------------------------------------------
+void CTFNotificationManager::ServerResponded(gameserveritem_t &server)
+{
+	m_hPingQuery = HSERVERQUERY_INVALID;
+	m_Server = server;
+	int index = 0;
+	for (int i = 0; i < m_ServerList.Count(); i++)
+	{
+		if (m_ServerList[i].m_NetAdr.GetIP() == server.m_NetAdr.GetIP() &&
+			m_ServerList[i].m_NetAdr.GetConnectionPort() == server.m_NetAdr.GetConnectionPort())
+		{
+			m_ServerList[i] = server;
+			index = i;
+		}
+	}
+	MAINMENU_ROOT->OnServerInfoUpdate();
+}
+
+void CTFNotificationManager::SendNotification(MessageNotification pMessage)
+{
+	pNotifications.AddToTail(pMessage);
+	MAINMENU_ROOT->OnNotificationUpdate();
 }
 
 void CTFNotificationManager::RemoveNotification(int iIndex)

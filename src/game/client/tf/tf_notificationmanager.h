@@ -18,6 +18,7 @@ enum RequestType
 	REQUEST_IDLE = -1,
 	REQUEST_VERSION = 0,
 	REQUEST_MESSAGE,
+	REQUEST_SERVERLIST,
 
 	REQUEST_COUNT
 };
@@ -39,7 +40,7 @@ struct MessageNotification
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFNotificationManager : public CAutoGameSystemPerFrame, public CGameEventListener
+class CTFNotificationManager : public CAutoGameSystemPerFrame, public CGameEventListener, public ISteamMatchmakingPingResponse
 {
 public:
 	CTFNotificationManager();
@@ -63,6 +64,13 @@ public:
 	virtual bool IsOutdated() { return bOutdated; };
 	virtual char*GetVersionString();
 
+	// Server has responded successfully and has updated data
+	virtual void ServerResponded(gameserveritem_t &server);
+	virtual void ServerFailedToRespond(){}
+
+	void UpdateServerlistInfo();
+	gameserveritem_t GetServerInfo(int index) { return m_ServerList[index]; };
+
 private:
 	bool		m_bInited;
 	CUtlVector<MessageNotification>	pNotifications;
@@ -76,12 +84,19 @@ private:
 	CUtlMap<HTTPRequestHandle, RequestType>m_Requests;
 	RequestType			iCurrentRequest;
 	float				fLastCheck;
+	float				fUpdateLastCheck;
 	char				m_pzLastMessage[128];
 	void				OnMessageCheckCompleted(const char* pMessage);
 	void				OnVersionCheckCompleted(const char* pMessage);
+	void				OnServerlistCheckCompleted(const char* pMessage);	
 	CCallResult<CTFNotificationManager, HTTPRequestCompleted_t> m_CallResultVersion;
 	CCallResult<CTFNotificationManager, HTTPRequestCompleted_t> m_CallResultMessage;
+	CCallResult<CTFNotificationManager, HTTPRequestCompleted_t> m_CallResultServerlist;
 	void				OnHTTPRequestCompleted(HTTPRequestCompleted_t *CallResult, bool iofailure);
+
+	HServerQuery m_hPingQuery;
+	gameserveritem_t m_Server;
+	CUtlVector<gameserveritem_t> m_ServerList;
 };
 
 CTFNotificationManager *GetNotificationManager();

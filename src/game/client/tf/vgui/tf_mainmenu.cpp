@@ -14,6 +14,7 @@
 #include "panels/tf_tooltippanel.h"
 #include "panels/tf_itemtooltippanel.h"
 #include "engine/IEngineSound.h"
+#include "tf_hud_statpanel.h"
 #include "tf_notificationmanager.h"
 #include "tier0/icommandline.h"
 
@@ -341,4 +342,14 @@ void CTFMainMenu::OnNotificationUpdate()
 	GET_MAINMENUPANEL(CTFNotificationPanel)->OnNotificationUpdate();
 	GET_MAINMENUPANEL(CTFMainMenuPanel)->OnNotificationUpdate();
 	GET_MAINMENUPANEL(CTFPauseMenuPanel)->OnNotificationUpdate();
+}
+
+void CTFMainMenu::SetServerlistSize(int size)
+{
+	GET_MAINMENUPANEL(CTFMainMenuPanel)->SetServerlistSize(size);
+}
+
+void CTFMainMenu::OnServerInfoUpdate()
+{
+	GET_MAINMENUPANEL(CTFMainMenuPanel)->UpdateServerInfo();
 }

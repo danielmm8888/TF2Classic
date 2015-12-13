@@ -2,7 +2,8 @@
 #define TFMAINMENU_H
 
 #include "GameUI/IGameUI.h"
-#include "vgui_controls/Frame.h"
+#include "vgui_controls/Panel.h"
+#include "steam/steam_api.h"
 #include "tf_hud_statpanel.h"
 
 enum MenuPanel //position in this enum = zpos on the screen
@@ -63,6 +64,8 @@ public:
 	virtual void ShowItemToolTip(EconItemDefinition *pItemData);
 	virtual void HideItemToolTip();
 	virtual void OnNotificationUpdate();
+	virtual void SetServerlistSize(int size);
+	virtual void OnServerInfoUpdate();
 
 private:
 	CUtlVector<CTFMenuPanelBase*>		m_pPanels;
