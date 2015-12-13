@@ -141,70 +141,82 @@ struct pszWpnEntTranslationListEntry
 	const char *weapon_pyro;
 	const char *weapon_spy;
 	const char *weapon_engineer;
+	const char *weapon_civilian;
+	const char *weapon_mercenary;
 };
 static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
 {
-	"tf_weapon_shotgun",
+	"tf_weapon_shotgun",			// Base weapon to translate
 	NULL,
-	"tf_weapon_shotgun_primary",
-	"tf_weapon_shotgun_primary",
-	"tf_weapon_shotgun_soldier",
-	"tf_weapon_shotgun_primary",
-	"tf_weapon_shotgun_primary",
-	"tf_weapon_shotgun_hwg",
-	"tf_weapon_shotgun_pyro",
-	"tf_weapon_shotgun_primary",
-	"tf_weapon_shotgun_primary",
+	"tf_weapon_shotgun_primary",	// Scout
+	"tf_weapon_shotgun_primary",	// Sniper
+	"tf_weapon_shotgun_soldier",	// Soldier
+	"tf_weapon_shotgun_primary",	// Demoman
+	"tf_weapon_shotgun_primary",	// Medic
+	"tf_weapon_shotgun_hwg",		// Heavy
+	"tf_weapon_shotgun_pyro",		// Pyro
+	"tf_weapon_shotgun_primary",	// Spy
+	"tf_weapon_shotgun_primary",	// Engineer
+	"tf_weapon_shotgun_primary",	// Civilian
+	"tf_weapon_shotgun_primary",	// Mercenary
 
-	"tf_weapon_pistol",
+	"tf_weapon_pistol",				// Base weapon to translate
 	NULL,
-	"tf_weapon_pistol_scout",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
-	"tf_weapon_pistol",
+	"tf_weapon_pistol_scout",		// Scout
+	"tf_weapon_pistol",				// Sniper
+	"tf_weapon_pistol",				// Soldier
+	"tf_weapon_pistol",				// Demoman
+	"tf_weapon_pistol",				// Medic
+	"tf_weapon_pistol",				// Heavy
+	"tf_weapon_pistol",				// Pyro
+	"tf_weapon_pistol",				// Spy
+	"tf_weapon_pistol",				// Engineer
+	"tf_weapon_pistol",				// Civilian
+	"tf_weapon_pistol",				// Mercenary
 
-	"tf_weapon_shovel",
+	"tf_weapon_shovel",				// Base weapon to translate
 	NULL,
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
-	"tf_weapon_bottle",
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
-	"tf_weapon_shovel",
+	"tf_weapon_shovel",				// Scout
+	"tf_weapon_shovel",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_shovel",				// Medic
+	"tf_weapon_shovel",				// Heavy
+	"tf_weapon_shovel",				// Pyro
+	"tf_weapon_shovel",				// Spy
+	"tf_weapon_shovel",				// Engineer
+	"tf_weapon_shovel",				// Civilian
+	"tf_weapon_shovel",				// Mercenary
 
-	"tf_weapon_bottle",
+	"tf_weapon_bottle",				// Base weapon to translate
 	NULL,
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
-	"tf_weapon_shovel",
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
-	"tf_weapon_bottle",
+	"tf_weapon_bottle",				// Scout
+	"tf_weapon_bottle",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_bottle",				// Medic
+	"tf_weapon_bottle",				// Heavy
+	"tf_weapon_bottle",				// Pyro
+	"tf_weapon_bottle",				// Spy
+	"tf_weapon_bottle",				// Engineer
+	"tf_weapon_bottle",				// Civilian
+	"tf_weapon_bottle",				// Mercenary
 
-	"saxxy",
+	"saxxy",						// Base weapon to translate
 	NULL,
-	"tf_weapon_bat",
-	"tf_weapon_club",
-	"tf_weapon_shovel",
-	"tf_weapon_bottle",
-	"tf_weapon_bonesaw",
-	"tf_weapon_fireaxe",
-	"tf_weapon_fireaxe",
-	"tf_weapon_knife",
-	"tf_weapon_wrench",
+	"tf_weapon_bat",				// Scout
+	"tf_weapon_club",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_bonesaw",			// Medic
+	"tf_weapon_fireaxe",			// Heavy
+	"tf_weapon_fireaxe",			// Pyro
+	"tf_weapon_knife",				// Spy
+	"tf_weapon_wrench",				// Engineer
+	"tf_weapon_crowbar",			// Civilian
+	"tf_weapon_crowbar",			// Mercenary
 
-	"tf_weapon_throwable",
+	"tf_weapon_throwable",			// Base weapon to translate
 	NULL,
 	"tf_weapon_throwable", //UNK_10D88B2
 	"tf_weapon_throwable", //UNK_10D88B2
@@ -215,30 +227,36 @@ static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
 	"tf_weapon_throwable", //UNK_10D88B2
 	"tf_weapon_throwable", //UNK_10D88B2
 	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
 
-	"tf_weapon_parachute",
+	"tf_weapon_parachute",			// Base weapon to translate
 	NULL,
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_primary",
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_secondary",
-	"tf_weapon_parachute_secondary",
-	0,
+	"tf_weapon_parachute_secondary",	// Scout
+	"tf_weapon_parachute_secondary",	// Sniper
+	"tf_weapon_parachute_primary",		// Soldier
+	"tf_weapon_parachute_secondary",	// Demoman
+	"tf_weapon_parachute_secondary",	// Medic
+	"tf_weapon_parachute_secondary",	// Heavy
+	"tf_weapon_parachute_secondary",	// Pyro
+	"tf_weapon_parachute_secondary",	// Spy
+	0,									// Engineer
+	"tf_weapon_parachute_secondary",	// Civilian
+	"tf_weapon_parachute_secondary",	// Mercenary
 
-	"tf_weapon_revolver",
+	"tf_weapon_revolver",			// Base weapon to translate
 	NULL,
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver",
-	"tf_weapon_revolver_secondary",
+	"tf_weapon_revolver",			// Scout
+	"tf_weapon_revolver",			// Sniper
+	"tf_weapon_revolver",			// Soldier
+	"tf_weapon_revolver",			// Demoman
+	"tf_weapon_revolver",			// Medic
+	"tf_weapon_revolver",			// Heavy
+	"tf_weapon_revolver",			// Pyro
+	"tf_weapon_revolver",			// Spy
+	"tf_weapon_revolver_secondary",	// Engineer
+	"tf_weapon_revolver",			// Civilian
+	"tf_weapon_revolver",			// Mercenary
 };
 
 //-----------------------------------------------------------------------------
