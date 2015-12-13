@@ -393,6 +393,8 @@ void CTFServerlistPanel::OnThink()
 
 	for (int i = 0; i < m_pServerList->GetItemCount(); i++)
 	{
+		int _x, _y;
+		m_pServerList->GetPos(_x, _y);
 		int x, y, wide, tall;
 		m_pServerList->GetItemBounds(i, x, y, wide, tall);
 		int cx, cy;
@@ -402,8 +404,8 @@ void CTFServerlistPanel::OnThink()
 		if (cx > x && cx < x + wide && cy > y && cy < y + tall)
 		{
 			m_pServerList->SetSelectedItem(i);
-			int bx = x + wide - m_pConnectButton->GetWide() - XRES(3);
-			int by = y;
+			int bx = x + wide - m_pConnectButton->GetWide();
+			int by = y + _y;
 			m_pConnectButton->SetPos(bx, by);
 			m_pConnectButton->SetVisible(true);
 
@@ -445,7 +447,7 @@ void CTFServerlistPanel::SetServerlistSize(int size)
 void CTFServerlistPanel::UpdateServerInfo()
 {
 	m_pServerList->RemoveAll();
-	HFont Font = GETSCHEME()->GetFont("Link", true);
+	HFont Font = GETSCHEME()->GetFont("FontStoreOriginalPrice", true);
 
 	for (int i = 0; i < m_iSize; i++)
 	{
