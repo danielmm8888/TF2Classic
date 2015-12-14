@@ -217,6 +217,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	ClearMultiDamage();
 
 	int nBulletsPerShot = pWeaponInfo->GetWeaponData( iMode ).m_nBulletsPerShot;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nBulletsPerShot, mult_bullets_per_shot );
 
 	// Only shotguns should get fixed spread pattern.
 	bool bFixedSpread = false;
