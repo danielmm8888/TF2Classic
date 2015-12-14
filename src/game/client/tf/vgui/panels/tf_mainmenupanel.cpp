@@ -3,7 +3,7 @@
 #include "controls/tf_advbutton.h"
 #include "controls/tf_advslider.h"
 #include "vgui_controls/SectionedListPanel.h"
-#include "vgui_controls/Button.h"
+#include "vgui_controls/ImagePanel.h"
 #include "tf_notificationmanager.h"
 #include "c_sdkversionchecker.h"
 #include "engine/IEngineSound.h"
@@ -51,9 +51,11 @@ bool CTFMainMenuPanel::Init()
 		m_SteamID = steamapicontext->SteamUser()->GetSteamID();
 	}
 
+	m_iShowFakeIntro = 4;
 	m_pVersionLabel = NULL;
 	m_pNotificationButton = NULL;
 	m_pProfileAvatar = NULL;
+	m_pFakeBGImage = NULL;
 	m_pBlogPanel = new CTFBlogPanel(this, "BlogPanel");
 	m_pServerlistPanel = new CTFServerlistPanel(this, "ServerlistPanel");
 
@@ -71,6 +73,7 @@ void CTFMainMenuPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pVersionLabel = dynamic_cast<CExLabel *>(FindChildByName("VersionLabel"));
 	m_pNotificationButton = dynamic_cast<CTFAdvButton *>(FindChildByName("NotificationButton"));
 	m_pProfileAvatar = dynamic_cast<CAvatarImagePanel *>(FindChildByName("AvatarImage"));
+	m_pFakeBGImage = dynamic_cast<vgui::ImagePanel *>(FindChildByName("FakeBGImage"));
 
 	SetVersionLabel();
 }	
@@ -93,6 +96,23 @@ void CTFMainMenuPanel::PerformLayout()
 	ShowBlogPanel(tf2c_mainmenu_showblog.GetBool());
 	OnNotificationUpdate();
 	AutoLayout();
+
+	if (m_iShowFakeIntro > 0)
+	{
+		char szBGName[128];
+		engine->GetMainMenuBackgroundName(szBGName, sizeof(szBGName));
+		char szImage[128];
+		Q_snprintf(szImage, sizeof(szImage), "../console/%s", szBGName);
+		int width, height;
+		surface()->GetScreenSize(width, height);
+		float fRatio = (float)width / (float)height;
+		bool bWidescreen = (fRatio < 1.5 ? false : true);
+		if (bWidescreen)
+			Q_strcat(szImage, "_widescreen", sizeof(szImage));
+		m_pFakeBGImage->SetImage(szImage);
+		m_pFakeBGImage->SetVisible(true);
+		m_pFakeBGImage->SetAlpha(255);
+	}
 };
 
 void CTFMainMenuPanel::ShowBlogPanel(bool show)
@@ -185,6 +205,19 @@ void CTFMainMenuPanel::OnTick()
 void CTFMainMenuPanel::OnThink()
 {
 	BaseClass::OnThink();
+
+	if (m_iShowFakeIntro > 0)
+	{
+		m_iShowFakeIntro--;
+		if (m_iShowFakeIntro == 0)
+		{
+			vgui::GetAnimationController()->RunAnimationCommand(m_pFakeBGImage, "Alpha", 0, 1.0f, 1.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+		}
+	}	
+	if (m_pFakeBGImage->IsVisible() && m_pFakeBGImage->GetAlpha() == 0)
+	{
+		m_pFakeBGImage->SetVisible(false);
+	}
 };
 
 void CTFMainMenuPanel::Show()

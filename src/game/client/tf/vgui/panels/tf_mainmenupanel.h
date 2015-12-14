@@ -50,7 +50,10 @@ public:
 private:
 	CExLabel			*m_pVersionLabel;
 	CTFAdvButton		*m_pNotificationButton;
-	CAvatarImagePanel	*m_pProfileAvatar;
+	CAvatarImagePanel	*m_pProfileAvatar; 
+	vgui::ImagePanel	*m_pFakeBGImage;
+
+	int					m_iShowFakeIntro;
 
 	char				m_pzMusicLink[64];	
 	int					m_nSongGuid;
