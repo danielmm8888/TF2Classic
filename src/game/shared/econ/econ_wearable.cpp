@@ -61,7 +61,7 @@ int CEconWearable::GetSkin( void )
 
 void CEconWearable::UpdateWearableBodyGroups( CBasePlayer *pPlayer )
 {
-	EconItemVisuals *visual = &m_Item.GetStaticData()->visual;
+	EconItemVisuals *visual = m_Item.GetStaticData()->GetVisuals( GetTeamNumber() );
  	for ( unsigned int i = 0; i < visual->player_bodygroups.Count(); i++ )
 	{
 		const char *szBodyGroupName = visual->player_bodygroups.GetElementName(i);

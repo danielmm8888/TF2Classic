@@ -154,9 +154,6 @@ public:
 class EconItemDefinition
 {
 public:
-	CEconItemAttribute *IterateAttributes( string_t strClass );
-
-public:
 	EconItemDefinition()
 	{
 		CLEAR_STR(name);
@@ -181,6 +178,10 @@ public:
 		attach_to_hands = false;
 	}
 
+	EconItemVisuals *GetVisuals( int iTeamNum = TEAM_UNASSIGNED );
+	CEconItemAttribute *IterateAttributes( string_t strClass );
+
+public:
 	char name[128];
 	CUtlDict< bool, unsigned short > capabilities;
 	CUtlDict< bool, unsigned short > tags;
@@ -206,7 +207,7 @@ public:
 	CUtlDict< const char*, unsigned short > model_player_per_class;
 	bool attach_to_hands;
 	CUtlVector<CEconItemAttribute> attributes;
-	EconItemVisuals visual;
+	EconItemVisuals visual[TF_TEAM_COUNT];
 };
 
 //-----------------------------------------------------------------------------

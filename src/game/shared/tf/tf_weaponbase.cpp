@@ -1407,7 +1407,7 @@ const char *CTFWeaponBase::GetShootSound( int iIndex ) const
 
 	if ( HasItemDefinition() )
 	{
-		pszSoundName = m_Item.GetSoundOverride( iIndex );
+		pszSoundName = m_Item.GetSoundOverride( iIndex, GetTeamNumber() );
 	}
 
 	if ( !pszSoundName || pszSoundName[0] == '\0' )

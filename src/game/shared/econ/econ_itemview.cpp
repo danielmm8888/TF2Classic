@@ -128,7 +128,8 @@ Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOrigin
 
 	if ( pStatic )
 	{
-		FIND_ELEMENT( pStatic->visual.animation_replacement, actOriginalActivity, iOverridenActivity );
+		EconItemVisuals *pVisuals = pStatic->GetVisuals( iTeamNumber );
+		FIND_ELEMENT( pVisuals->animation_replacement, actOriginalActivity, iOverridenActivity );
 	}
 
 	return (Activity)iOverridenActivity;
@@ -142,19 +143,21 @@ const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *nam
 
 	if ( pStatic )
 	{
-		FIND_ELEMENT( pStatic->visual.animation_replacement, iOriginalAct, iOverridenAct );
+		EconItemVisuals *pVisuals = pStatic->GetVisuals( iTeamNumber );
+		FIND_ELEMENT( pVisuals->animation_replacement, iOriginalAct, iOverridenAct );
 	}
 
 	return ActivityList_NameForIndex( iOverridenAct );
 }
 
-const char *CEconItemView::GetSoundOverride( int iIndex ) const
+const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) const
 {
 	EconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
-		return pStatic->visual.aWeaponSounds[iIndex];
+		EconItemVisuals *pVisuals = pStatic->GetVisuals( iTeamNum );
+		return pVisuals->aWeaponSounds[iIndex];
 	}
 
 	return NULL;

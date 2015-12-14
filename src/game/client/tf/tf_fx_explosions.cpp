@@ -93,9 +93,9 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 	if ( iItemID >= 0 )
 	{
 		EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
-		if ( pItemDef && pItemDef->visual.aWeaponSounds[SPECIAL1][0] != '\0' )
+		if ( pItemDef && pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1][0] != '\0' )
 		{
-			pszSound = pItemDef->visual.aWeaponSounds[SPECIAL1];
+			pszSound = pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1];
 		}
 	}
 	
