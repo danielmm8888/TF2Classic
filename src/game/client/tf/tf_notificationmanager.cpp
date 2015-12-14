@@ -5,6 +5,7 @@
 #include "script_parser.h"
 #include "tf_gamerules.h"
 #include "tf_hud_notification_panel.h"
+//#include "public\steam\matchmakingtypes.h"
 
 const char *g_aRequestURLs[REQUEST_COUNT] =
 {
@@ -38,6 +39,11 @@ bool RequestHandleLessFunc(const HTTPRequestHandle &lhs, const HTTPRequestHandle
 	return lhs < rhs;
 }
 
+bool ServerLessFunc(const int &lhs, const int &rhs)
+{
+	return lhs < rhs;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: constructor
 //-----------------------------------------------------------------------------
@@ -65,6 +71,7 @@ bool CTFNotificationManager::Init()
 
 		m_SteamHTTP = steamapicontext->SteamHTTP();
 		m_Requests.SetLessFunc(RequestHandleLessFunc);
+		m_mapServers.SetLessFunc(ServerLessFunc);
 		fLastCheck = tf2c_checkfrequency.GetFloat() * -1;
 		fUpdateLastCheck = tf2c_updatefrequency.GetFloat() * -1;
 		iCurrentRequest = REQUEST_IDLE;
@@ -72,6 +79,11 @@ bool CTFNotificationManager::Init()
 		bOutdated = false;
 		m_bInited = true;
 
+		hRequest = 0;
+		MatchMakingKeyValuePair_t filter;
+		Q_strncpy(filter.m_szKey, "gamedir", sizeof(filter.m_szKey));
+		Q_strncpy(filter.m_szValue, "tf2classic", sizeof(filter.m_szKey)); // change "tf2classic" to engine->GetGameDirectory() before the release
+		m_vecServerFilters.AddToTail(filter);
 		//Do it only once
 		AddRequest(REQUEST_SERVERLIST);
 	}
@@ -267,33 +279,62 @@ void CTFNotificationManager::OnServerlistCheckCompleted(const char* pMessage)
 }
 
 void CTFNotificationManager::UpdateServerlistInfo()
+{	
+	if (steamapicontext->SteamMatchmakingServers()->IsRefreshing(hRequest))
+		return;
+
+	MatchMakingKeyValuePair_t *pFilters;
+	int nFilters = GetServerFilters(&pFilters);
+	hRequest = steamapicontext->SteamMatchmakingServers()->RequestInternetServerList(engine->GetAppID(), &pFilters, nFilters, this);
+}
+
+gameserveritem_t CTFNotificationManager::GetServerInfo(int index) 
+{ 
+	return m_mapServers[index];
+};
+
+bool CTFNotificationManager::IsOfficialServer(int index)
 {
 	for (int i = 0; i < m_ServerList.Count(); i++)
 	{
-		m_Server = m_ServerList[i];
-		m_hPingQuery = steamapicontext->SteamMatchmakingServers()->PingServer(m_Server.m_NetAdr.GetIP(), m_Server.m_NetAdr.GetQueryPort(), this);
+		if (m_ServerList[i].m_NetAdr.GetIP() == m_mapServers[index].m_NetAdr.GetIP() &&
+			m_ServerList[i].m_NetAdr.GetConnectionPort() == m_mapServers[index].m_NetAdr.GetConnectionPort())
+		{
+			return true;
+		}
 	}
-	MAINMENU_ROOT->SetServerlistSize(m_ServerList.Count());
+	return false;
+};
+
+void CTFNotificationManager::ServerResponded(HServerListRequest hRequest, int iServer)
+{
+	gameserveritem_t *pServerItem = steamapicontext->SteamMatchmakingServers()->GetServerDetails(hRequest, iServer);
+	int index = m_mapServers.Find(iServer);
+	if (index == m_mapServers.InvalidIndex())
+	{
+		m_mapServers.Insert(iServer, *pServerItem);
+		//Msg("%i SERVER %s (%s): PING %i, PLAYERS %i/%i, MAP %s\n", iServer, pServerItem->GetName(), pServerItem->m_NetAdr.GetQueryAddressString(),
+		//	pServerItem->m_nPing, pServerItem->m_nPlayers, pServerItem->m_nMaxPlayers, pServerItem->m_szMap);
+	}
+	else
+	{
+		m_mapServers[index] = *pServerItem;
+	}
+}
+
+void CTFNotificationManager::RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response)
+{
+	MAINMENU_ROOT->SetServerlistSize(m_mapServers.Count());	
+	MAINMENU_ROOT->OnServerInfoUpdate();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: called when the server has successfully responded
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CTFNotificationManager::ServerResponded(gameserveritem_t &server)
+uint32 CTFNotificationManager::GetServerFilters(MatchMakingKeyValuePair_t **pFilters)
 {
-	m_hPingQuery = HSERVERQUERY_INVALID;
-	m_Server = server;
-	int index = 0;
-	for (int i = 0; i < m_ServerList.Count(); i++)
-	{
-		if (m_ServerList[i].m_NetAdr.GetIP() == server.m_NetAdr.GetIP() &&
-			m_ServerList[i].m_NetAdr.GetConnectionPort() == server.m_NetAdr.GetConnectionPort())
-		{
-			m_ServerList[i] = server;
-			index = i;
-		}
-	}
-	MAINMENU_ROOT->OnServerInfoUpdate();
+	*pFilters = m_vecServerFilters.Base();
+	return m_vecServerFilters.Count();
 }
 
 void CTFNotificationManager::SendNotification(MessageNotification pMessage)

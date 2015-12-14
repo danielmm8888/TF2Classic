@@ -1,7 +1,9 @@
 #include "cbase.h"
 #include "tf_mainmenupanel.h"
 #include "controls/tf_advbutton.h"
+#include "controls/tf_advslider.h"
 #include "vgui_controls/SectionedListPanel.h"
+#include "vgui_controls/Button.h"
 #include "tf_notificationmanager.h"
 #include "c_sdkversionchecker.h"
 #include "engine/IEngineSound.h"
@@ -347,6 +349,7 @@ CTFServerlistPanel::CTFServerlistPanel(vgui::Panel* parent, const char *panelNam
 	m_iSize = 0;
 	m_pServerList = new vgui::SectionedListPanel(this, "ServerList");
 	m_pConnectButton = new CTFAdvButton(this, "ConnectButton", "Connect");
+	m_pListSlider = new CTFAdvSlider(this, "ListSlider", "");
 }
 
 //-----------------------------------------------------------------------------
@@ -373,6 +376,7 @@ void CTFServerlistPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 	m_pServerList->AddColumnToSection(0, "Ping", "Ping", SectionedListPanel::COLUMN_BRIGHT, m_iPingWidth);
 	m_pServerList->AddColumnToSection(0, "Map", "Map", SectionedListPanel::COLUMN_BRIGHT, m_iMapWidth);
 	m_pServerList->SetSectionAlwaysVisible(0, true);
+	m_pServerList->GetScrollBar()->UseImages("", "", "", ""); //hack to hide the scrollbar
 
 	m_pConnectButton->SetVisible(false);
 	UpdateServerInfo();
@@ -385,11 +389,13 @@ void CTFServerlistPanel::PerformLayout()
 
 void CTFServerlistPanel::OnThink()
 {
-	if (!GetParent()->IsCursorOver())
-		return;
-
+	m_pListSlider->SetValue(m_pServerList->GetScrollBar()->GetValue());
 	m_pServerList->ClearSelection();
+	m_pListSlider->SetVisible(false);
 	m_pConnectButton->SetVisible(false);
+
+	if (!IsCursorOver())
+		return;
 
 	for (int i = 0; i < m_pServerList->GetItemCount(); i++)
 	{
@@ -404,15 +410,27 @@ void CTFServerlistPanel::OnThink()
 		if (cx > x && cx < x + wide && cy > y && cy < y + tall)
 		{
 			m_pServerList->SetSelectedItem(i);
-			int bx = x + wide - m_pConnectButton->GetWide();
 			int by = y + _y;
-			m_pConnectButton->SetPos(bx, by);
+			m_pConnectButton->SetPos(m_iServerWidth + m_iPlayersWidth + m_iPingWidth, by);
 			m_pConnectButton->SetVisible(true);
+			m_pListSlider->SetVisible(true);
 
 			char szCommand[128];
 			Q_snprintf(szCommand, sizeof(szCommand), "connect %s", m_pServerList->GetItemData(i)->GetString("ServerIP", ""));
 			m_pConnectButton->SetCommandString(szCommand);
 		}
+	}
+}
+
+void CTFServerlistPanel::OnCommand(const char* command)
+{
+	if (!Q_strcmp(command, "scrolled"))
+	{
+		m_pServerList->GetScrollBar()->SetValue(m_pListSlider->GetValue());
+	}
+	else
+	{
+		BaseClass::OnCommand(command);
 	}
 }
 
@@ -432,11 +450,18 @@ bool CTFServerlistPanel::ServerSortFunc(vgui::SectionedListPanel *list, int item
 	else if (v1 < v2)
 		return false;
 
-	int iPlayerIndex1 = it1->GetInt("Ping");
-	if (iPlayerIndex1 == 0)
+	int iOff1 = it1->GetBool("Official");
+	int iOff2 = it2->GetBool("Official");
+	if (iOff1 && !iOff2)
+		return true;
+	else if (!iOff1 && iOff2)
 		return false;
-	int iPlayerIndex2 = it2->GetInt("Ping");
-	return (iPlayerIndex1 < iPlayerIndex2);
+
+	int iPing1 = it1->GetInt("Ping");
+	if (iPing1 == 0)
+		return false;
+	int iPing2 = it2->GetInt("Ping");
+	return (iPing1 < iPing2);
 }
 
 void CTFServerlistPanel::SetServerlistSize(int size) 
@@ -451,7 +476,8 @@ void CTFServerlistPanel::UpdateServerInfo()
 
 	for (int i = 0; i < m_iSize; i++)
 	{
-		gameserveritem_t m_Server = GetNotificationManager()->GetServerInfo(i);
+		gameserveritem_t m_Server = GetNotificationManager()->GetServerInfo(i);		
+		bool bOfficial = GetNotificationManager()->IsOfficialServer(i);
 
 		if (m_Server.m_steamID.GetAccountID() == 0)
 			continue;
@@ -478,9 +504,17 @@ void CTFServerlistPanel::UpdateServerInfo()
 		curitem->SetInt("Ping", szServerPing);
 		curitem->SetInt("CurPlayers", szServerCurPlayers);
 		curitem->SetString("Map", szServerMap);
+		curitem->SetBool("Official", bOfficial);		
 
 		int itemID = m_pServerList->AddItem(0, curitem);
+		if (bOfficial)
+			m_pServerList->SetItemFgColor(itemID, GETSCHEME()->GetColor("TeamYellow", Color(255, 255, 255, 255)));
+		else
+			m_pServerList->SetItemFgColor(itemID, GETSCHEME()->GetColor("AdvTextDefault", Color(255, 255, 255, 255)));
 		m_pServerList->SetItemFont(itemID, Font);
+		int min, max;
+		m_pServerList->GetScrollBar()->GetRange(min, max);
+		m_pListSlider->SetRange(min, max - m_pServerList->GetScrollBar()->GetButton(0)->GetTall() * 4);
 		curitem->deleteThis();
 	}
 

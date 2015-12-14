@@ -40,7 +40,7 @@ struct MessageNotification
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CTFNotificationManager : public CAutoGameSystemPerFrame, public CGameEventListener, public ISteamMatchmakingPingResponse
+class CTFNotificationManager : public CAutoGameSystemPerFrame, public CGameEventListener, public ISteamMatchmakingServerListResponse
 {
 public:
 	CTFNotificationManager();
@@ -64,12 +64,17 @@ public:
 	virtual bool IsOutdated() { return bOutdated; };
 	virtual char*GetVersionString();
 
-	// Server has responded successfully and has updated data
-	virtual void ServerResponded(gameserveritem_t &server);
-	virtual void ServerFailedToRespond(){}
+	uint32 GetServerFilters(MatchMakingKeyValuePair_t **pFilters);
+	// Server has responded ok with updated data
+	virtual void ServerResponded(HServerListRequest hRequest, int iServer);
+	// Server has failed to respond
+	virtual void ServerFailedToRespond(HServerListRequest hRequest, int iServer){}
+	// A list refresh you had initiated is now 100% completed
+	virtual void RefreshComplete(HServerListRequest hRequest, EMatchMakingServerResponse response);
 
 	void UpdateServerlistInfo();
-	gameserveritem_t GetServerInfo(int index) { return m_ServerList[index]; };
+	gameserveritem_t GetServerInfo(int index);
+	bool IsOfficialServer(int index);
 
 private:
 	bool		m_bInited;
@@ -94,9 +99,10 @@ private:
 	CCallResult<CTFNotificationManager, HTTPRequestCompleted_t> m_CallResultServerlist;
 	void				OnHTTPRequestCompleted(HTTPRequestCompleted_t *CallResult, bool iofailure);
 
-	HServerQuery m_hPingQuery;
-	gameserveritem_t m_Server;
+	HServerListRequest hRequest;
 	CUtlVector<gameserveritem_t> m_ServerList;
+	CUtlMap<int, gameserveritem_t> m_mapServers;
+	CUtlVector<MatchMakingKeyValuePair_t> m_vecServerFilters;
 };
 
 CTFNotificationManager *GetNotificationManager();
