@@ -602,7 +602,9 @@ float CTFWeaponBaseGun::GetProjectileSpeed( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponBaseGun::GetWeaponSpread( void )
 {
-	return m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flSpread;
+	float flSpread = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flSpread;
+	CALL_ATTRIB_HOOK_FLOAT( flSpread, mult_spread_scale );
+	return flSpread;
 }
 
 //-----------------------------------------------------------------------------
@@ -611,9 +613,7 @@ float CTFWeaponBaseGun::GetWeaponSpread( void )
 float CTFWeaponBaseGun::GetProjectileDamage( void )
 {
 	float flDamage = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
-
 	CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
-
 	return flDamage;
 }
 
