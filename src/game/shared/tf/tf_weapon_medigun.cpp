@@ -31,6 +31,46 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+const char *g_pszMedigunHealSounds[TF_MEDIGUN_COUNT] =
+{
+	"WeaponMedigun.Healing",
+	"WeaponMedigun.Healing",
+	"Weapon_Quick_Fix.Healing",
+	"WeaponMedigun_Vaccinator.Healing"
+};
+
+typedef struct
+{
+	const char *fullcharge;
+	const char *beam;
+	const char *beam_invlun;
+}
+MedigunParticles_t;
+
+MedigunParticles_t g_MedigunParticles[TF_MEDIGUN_COUNT] =
+{
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invuln"
+	},
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"kritz_beam_%s",
+		"kritz_beam_%s_invuln"
+	},
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invuln"
+	},
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invuln"
+	},
+};
+
 // Buff ranges
 ConVar weapon_medigun_damage_modifier( "weapon_medigun_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
 ConVar weapon_medigun_construction_rate( "weapon_medigun_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the medigun." );
@@ -172,21 +212,33 @@ void CWeaponMedigun::WeaponReset( void )
 void CWeaponMedigun::Precache()
 {
 	BaseClass::Precache();
+
+	for ( int i = 0; i < TF_MEDIGUN_COUNT; i++ )
+	{
+		PrecacheScriptSound( g_pszMedigunHealSounds[i] );
+	}
+
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
-	PrecacheScriptSound( "WeaponMedigun.Healing" );
 	PrecacheScriptSound( "WeaponMedigun.Charged" );
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
 	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
+	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_green" );
+	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_yellow" );
 	PrecacheParticleSystem( "medicgun_beam_red_invun" );
 	PrecacheParticleSystem( "medicgun_beam_red" );
 	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
 	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green_invun");
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow_invun");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+	PrecacheParticleSystem( "medicgun_beam_green_invun" );
+	PrecacheParticleSystem( "medicgun_beam_green" );
+	PrecacheParticleSystem( "medicgun_beam_yellow_invun" );
+	PrecacheParticleSystem( "medicgun_beam_yellow" );
+
+	// Precache charge sounds.
+	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )
+	{
+		PrecacheScriptSound( g_MedigunEffects[i].sound_enable );
+		PrecacheScriptSound( g_MedigunEffects[i].sound_disable );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -290,6 +342,44 @@ float CWeaponMedigun::GetStickRange( void )
 float CWeaponMedigun::GetHealRate( void )
 {
 	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CWeaponMedigun::GetMedigunType( void )
+{
+	int iType = 0;
+	CALL_ATTRIB_HOOK_INT( iType, set_weapon_mode );
+
+	if ( iType >= 0 && iType < TF_MEDIGUN_COUNT )
+		return iType;
+
+	AssertMsg( 0, "Invalid medigun type!\n" );
+	return TF_MEDIGUN_STOCK;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+medigun_charge_types CWeaponMedigun::GetChargeType( void )
+{
+	int iChargeType = TF_CHARGE_INVULNERABLE;
+	CALL_ATTRIB_HOOK_INT( iChargeType, set_charge_type );
+
+	if ( iChargeType > TF_CHARGE_NONE && iChargeType < TF_CHARGE_COUNT )
+		return (medigun_charge_types)iChargeType;
+
+	AssertMsg( 0, "Invalid charge type!\n" );
+	return TF_CHARGE_NONE;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CWeaponMedigun::GetHealSound( void )
+{
+	return g_pszMedigunHealSounds[GetMedigunType()];
 }
 
 //-----------------------------------------------------------------------------
@@ -642,7 +732,6 @@ void CWeaponMedigun::DrainCharge( void )
 			*/
 
 			pOwner->m_Shared.RecalculateChargeEffects();
-			pOwner->m_Shared.RecalculateCrits();
 #endif
 		}
 	}
@@ -932,7 +1021,7 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 {
 	if ( bStopHealingSound )
 	{
-		StopSound( "WeaponMedigun.Healing" );
+		StopSound( GetHealSound() );
 	}
 
 	if ( bStopNoTargetSound )
@@ -1097,7 +1186,7 @@ void CWeaponMedigun::ClientThink()
 		{
 			m_bPlayingSound = true;
 			CLocalPlayerFilter filter;
-			EmitSound( filter, entindex(), "WeaponMedigun.Healing" );
+			EmitSound( filter, entindex(), GetHealSound() );
 		}
 	}
 

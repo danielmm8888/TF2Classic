@@ -252,6 +252,8 @@ CTFPlayerShared::CTFPlayerShared()
 	m_iDisguiseWeaponModelIndex = -1;
 	m_pDisguiseWeaponInfo = NULL;
 	m_pCritSound = NULL;
+#else
+	memset( m_flChargeOffTime, 0.0f, sizeof( m_flChargeOffTime ) );
 #endif
 }
 
@@ -969,54 +971,8 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		}
 	}
 
-	if ( InCond( TF_COND_INVULNERABLE )  )
-	{
-		bool bRemoveInvul = false;
-
-		if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() != m_pOuter->GetTeamNumber() ) )
-		{
-			bRemoveInvul = true;
-		}
-		
-		if ( m_flInvulnerableOffTime )
-		{
-			if ( gpGlobals->curtime > m_flInvulnerableOffTime )
-			{
-				bRemoveInvul = true;
-			}
-		}
-
-		if ( bRemoveInvul == true )
-		{
-			m_flInvulnerableOffTime = 0;
-			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
-			RemoveCond( TF_COND_INVULNERABLE );
-		}
-	}
-
-	if ( InCond( TF_COND_CRITBOOSTED ) )
-	{
-		bool bRemoveCrits = false;
-
-		if ((TFGameRules()->State_Get() == GR_STATE_TEAM_WIN) && (TFGameRules()->GetWinningTeam() != m_pOuter->GetTeamNumber()))
-		{
-			bRemoveCrits = true;
-		}
-
-		if (m_flCritOffTime)
-		{
-			if (gpGlobals->curtime > m_flCritOffTime)
-			{
-				bRemoveCrits = true;
-			}
-		}
-
-		if (bRemoveCrits == true)
-		{
-			m_flCritOffTime = 0;
-			RemoveCond( TF_COND_CRITBOOSTED );
-		}
-	}
+	TestAndExpireChargeEffect( TF_CHARGE_INVULNERABLE );
+	TestAndExpireChargeEffect( TF_CHARGE_CRITBOOSTED );
 
 	if ( InCond( TF_COND_STEALTHED_BLINK ) )
 	{
@@ -2206,39 +2162,20 @@ void CTFPlayerShared::StopHealing( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFPlayerShared::IsProvidingInvuln( CTFPlayer *pPlayer )
+medigun_charge_types CTFPlayerShared::GetChargeEffectBeingProvided( CTFPlayer *pPlayer )
 {
 	if ( !pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
-		return false;
+		return TF_CHARGE_NONE;
 
 	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
 	if ( !pWpn )
-		return false;
+		return TF_CHARGE_NONE;
 
 	CWeaponMedigun *pMedigun = dynamic_cast <CWeaponMedigun* >( pWpn );
 	if ( pMedigun && pMedigun->IsReleasingCharge() )
-		return true;
+		return pMedigun->GetChargeType();
 
-	return false;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFPlayerShared::IsProvidingCrits( CTFPlayer *pPlayer )
-{
-	if ( !pPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
-		return false;
-
-	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-	if (!pWpn)
-		return false;
-
-	CWeaponKritzkrieg *pKritzkrieg = dynamic_cast<CWeaponKritzkrieg*>( pWpn );
-	if ( pKritzkrieg && pKritzkrieg->IsReleasingCharge() )
-		return true;
-
-	return false;
+	return TF_CHARGE_NONE;
 }
 
 //-----------------------------------------------------------------------------
@@ -2246,42 +2183,171 @@ bool CTFPlayerShared::IsProvidingCrits( CTFPlayer *pPlayer )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 {
-	bool bShouldBeInvuln = false;
+	bool bShouldCharge[TF_CHARGE_COUNT] = { };
+	CTFPlayer *pProviders[TF_CHARGE_COUNT] = { };
 
 	if ( m_pOuter->m_flPowerPlayTime > gpGlobals->curtime )
 	{
-		bShouldBeInvuln = true;
+		bShouldCharge[TF_CHARGE_INVULNERABLE] = true;
 	}
 
-	// If we're not carrying the flag, and we're being healed by a medic 
-	// who's generating invuln, then we should get invuln.
-	if ( !m_pOuter->HasTheFlag() )
+	medigun_charge_types selfCharge = GetChargeEffectBeingProvided( m_pOuter );
+
+	// Charging self?
+	if ( selfCharge != TF_CHARGE_NONE )
 	{
-		if ( IsProvidingInvuln( m_pOuter ) )
+		bShouldCharge[selfCharge] = true;
+		pProviders[selfCharge] = m_pOuter;
+	}
+	else
+	{
+		// Check players healing us.
+		for ( int i = 0; i < m_aHealers.Count(); i++ )
 		{
-			bShouldBeInvuln = true;
-		}
-		else
-		{
-			for ( int i = 0; i < m_aHealers.Count(); i++ )
+			if ( !m_aHealers[i].pPlayer )
+				continue;
+
+			CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
+			if ( !pPlayer )
+				continue;
+
+			medigun_charge_types chargeType = GetChargeEffectBeingProvided( pPlayer );
+
+			if ( chargeType != TF_CHARGE_NONE )
 			{
-				if ( !m_aHealers[i].pPlayer )
-					continue;
-
-				CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
-				if ( !pPlayer )
-					continue;
-
-				if ( IsProvidingInvuln( pPlayer ) )
-				{
-					bShouldBeInvuln = true;
-					break;
-				}
+				bShouldCharge[chargeType] = true;
+				pProviders[chargeType] = pPlayer;
 			}
 		}
 	}
 
-	SetInvulnerable( bShouldBeInvuln, bInstantRemove );
+	// Deny stock uber while carrying flag.
+	if ( m_pOuter->HasTheFlag() )
+	{
+		bShouldCharge[TF_CHARGE_INVULNERABLE] = false;
+	}
+
+	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )
+	{
+		float flRemoveTime = i == TF_CHARGE_INVULNERABLE ? tf_invuln_time.GetFloat() : 0.0f;
+		SetChargeEffect( (medigun_charge_types)i, bShouldCharge[i], bInstantRemove, g_MedigunEffects[i], flRemoveTime, pProviders[i] );
+	}
+}
+
+void CTFPlayerShared::SetChargeEffect( medigun_charge_types chargeType, bool bShouldCharge, bool bInstantRemove, const MedigunEffects_t &chargeEffect, float flRemoveTime, CTFPlayer *pProvider )
+{
+	if ( InCond( chargeEffect.condition_enable ) == bShouldCharge )
+	{
+		if ( bShouldCharge && m_flChargeOffTime[chargeType] != 0.0f )
+		{
+			m_flChargeOffTime[chargeType] = 0.0f;
+
+			if ( chargeEffect.condition_disable != TF_COND_LAST )
+				RemoveCond( chargeEffect.condition_disable );
+		}
+		return;
+	}
+
+	if ( bShouldCharge )
+	{
+		Assert( chargeType != TF_CHARGE_INVULNERABLE || !m_pOuter->HasTheFlag() );
+
+		if ( m_flChargeOffTime[chargeType] != 0.0f )
+		{
+			m_pOuter->StopSound( chargeEffect.sound_disable );
+
+			m_flChargeOffTime[chargeType] = 0.0f;
+
+			if ( chargeEffect.condition_disable != TF_COND_LAST )
+				RemoveCond( chargeEffect.condition_disable );
+		}
+
+		// Charge on.
+		AddCond( chargeEffect.condition_enable );
+
+		// Stock uber removes negative conditions.
+		if ( chargeType == TF_CHARGE_INVULNERABLE )
+		{
+			if ( InCond( TF_COND_BURNING ) )
+			{
+				RemoveCond( TF_COND_BURNING );
+			}
+
+			if ( InCond( TF_COND_SLOWED ) )
+			{
+				RemoveCond( TF_COND_SLOWED );
+			}
+		}
+
+		CSingleUserRecipientFilter filter( m_pOuter );
+		m_pOuter->EmitSound( filter, m_pOuter->entindex(), chargeEffect.sound_enable );
+	}
+	else
+	{
+		m_pOuter->StopSound( chargeEffect.sound_enable );
+
+		if ( m_flChargeOffTime[chargeType] == 0.0f )
+		{
+			CSingleUserRecipientFilter filter( m_pOuter );
+			m_pOuter->EmitSound( filter, m_pOuter->entindex(), chargeEffect.sound_disable );
+		}
+
+		if ( bInstantRemove )
+		{
+			m_flChargeOffTime[chargeType] = 0.0f;
+			RemoveCond( chargeEffect.condition_enable );
+			
+			if ( chargeEffect.condition_disable != TF_COND_LAST )
+				RemoveCond( chargeEffect.condition_disable );
+		}
+		else
+		{
+			// Already turning it off?
+			if ( m_flChargeOffTime[chargeType] != 0.0f )
+				return;
+
+			if ( chargeEffect.condition_disable != TF_COND_LAST )
+				AddCond( chargeEffect.condition_disable );
+
+			m_flChargeOffTime[chargeType] = gpGlobals->curtime + flRemoveTime;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::TestAndExpireChargeEffect( medigun_charge_types chargeType )
+{
+	if ( InCond( g_MedigunEffects[chargeType].condition_enable ) )
+	{
+		bool bRemoveCharge = false;
+
+		if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() != m_pOuter->GetTeamNumber() ) )
+		{
+			bRemoveCharge = true;
+		}
+
+		if ( m_flChargeOffTime[chargeType] != 0.0f )
+		{
+			if ( gpGlobals->curtime > m_flChargeOffTime[chargeType] )
+			{
+				bRemoveCharge = true;
+			}
+		}
+
+		if ( bRemoveCharge == true )
+		{
+			m_flChargeOffTime[chargeType] = 0.0f;
+
+			if ( g_MedigunEffects[chargeType].condition_disable != TF_COND_LAST )
+			{
+				RemoveCond( g_MedigunEffects[chargeType].condition_disable );
+			}
+
+			RemoveCond( g_MedigunEffects[chargeType].condition_enable );
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2289,170 +2355,9 @@ void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::RecalculateCrits( bool bInstantRemove )
 {
-	bool bShouldBeCrit = false;
-
-	if ( m_pOuter->m_flPowerPlayTime > gpGlobals->curtime )
-	{
-		bShouldBeCrit = true;
-	}
-
-	// If we're not carrying the flag, and we're being healed by a medic 
-	// who's generating invuln, then we should get invuln.
-	if ( !m_pOuter->HasTheFlag() )
-	{
-		if ( IsProvidingCrits( m_pOuter ) )
-		{
-			bShouldBeCrit = true;
-		}
-		else
-		{
-			for ( int i = 0; i < m_aHealers.Count(); i++ )
-			{
-				if ( !m_aHealers[i].pPlayer )
-					continue;
-
-				CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
-				if ( !pPlayer )
-					continue;
-
-				if ( IsProvidingCrits( pPlayer ) )
-				{
-					bShouldBeCrit = true;
-					break;
-				}
-			}
-		}
-	}
-
-	SetCrits( bShouldBeCrit, bInstantRemove );
+	// Remove me.
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerShared::SetInvulnerable( bool bState, bool bInstant )
-{
-	bool bCurrentState = InCond( TF_COND_INVULNERABLE );
-	if ( bCurrentState == bState )
-	{
-		if ( bState && m_flInvulnerableOffTime )
-		{
-			m_flInvulnerableOffTime = 0;
-			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
-		}
-		return;
-	}
-
-	if ( bState )
-	{
-		Assert( !m_pOuter->HasTheFlag() );
-
-		if ( m_flInvulnerableOffTime )
-		{
-			m_pOuter->StopSound( "TFPlayer.InvulnerableOff" );
-
-			m_flInvulnerableOffTime = 0;
-			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
-		}
-
-		// Invulnerable turning on
-		AddCond( TF_COND_INVULNERABLE );
-
-		// remove any persistent damaging conditions
-		if ( InCond( TF_COND_BURNING ) )
-		{
-			RemoveCond( TF_COND_BURNING );
-		}
-
-		if ( InCond( TF_COND_SLOWED ) )
-		{
-			RemoveCond( TF_COND_SLOWED );
-		}
-
-		CSingleUserRecipientFilter filter( m_pOuter );
-		m_pOuter->EmitSound( filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn" );
-	}
-	else
-	{
-		if ( !m_flInvulnerableOffTime )
-		{
-			CSingleUserRecipientFilter filter( m_pOuter );
-			m_pOuter->EmitSound( filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOff" );
-		}
-
-		if ( bInstant )
-		{
-			m_flInvulnerableOffTime = 0;
-			RemoveCond( TF_COND_INVULNERABLE );
-			RemoveCond( TF_COND_INVULNERABLE_WEARINGOFF );
-		}
-		else
-		{
-			// We're already in the process of turning it off
-			if ( m_flInvulnerableOffTime )
-				return;
-
-			AddCond( TF_COND_INVULNERABLE_WEARINGOFF );
-			m_flInvulnerableOffTime = gpGlobals->curtime + tf_invuln_time.GetFloat();
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFPlayerShared::SetCrits(bool bState, bool bInstant)
-{
-	bool bCurrentState = InCond( TF_COND_CRITBOOSTED );
-	if (bCurrentState == bState)
-	{
-		if (bState && m_flCritOffTime)
-		{
-			m_flCritOffTime = 0;
-		}
-		return;
-	}
-
-	if (bState)
-	{
-		Assert(!m_pOuter->HasTheFlag());
-
-		if (m_flCritOffTime)
-		{
-			m_pOuter->StopSound("TFPlayer.InvulnerableOff");
-
-			m_flCritOffTime = 0;
-		}
-
-		// Invulnerable turning on
-		AddCond( TF_COND_CRITBOOSTED );
-
-		CSingleUserRecipientFilter filter(m_pOuter);
-		m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOn");
-	}
-	else
-	{
-		if (!m_flCritOffTime)
-		{
-			CSingleUserRecipientFilter filter(m_pOuter);
-			m_pOuter->EmitSound(filter, m_pOuter->entindex(), "TFPlayer.InvulnerableOff");
-		}
-
-		if (bInstant)
-		{
-			m_flCritOffTime = 0;
-			RemoveCond( TF_COND_CRITBOOSTED );
-		}
-		else
-		{
-			// We're already in the process of turning it off
-			if (m_flCritOffTime)
-				return;
-
-			m_flCritOffTime = gpGlobals->curtime + tf_invuln_time.GetFloat();
-		}
-	}
-}
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

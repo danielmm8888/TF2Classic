@@ -551,6 +551,43 @@ extern int condition_to_attribute_translation[];
 int ConditionExpiresFast( int nCond );
 
 //-----------------------------------------------------------------------------
+// Mediguns.
+//-----------------------------------------------------------------------------
+enum
+{
+	TF_MEDIGUN_STOCK = 0,
+	TF_MEDIGUN_KRITZKRIEG,
+	TF_MEDIGUN_QUICKFIX,
+	TF_MEDIGUN_VACCINATOR,
+	TF_MEDIGUN_COUNT
+};
+
+enum medigun_charge_types
+{
+	TF_CHARGE_NONE = -1,
+	TF_CHARGE_INVULNERABLE = 0,
+	TF_CHARGE_CRITBOOSTED,
+	// TODO:
+#if 0
+	TF_CHARGE_MEGAHEAL,
+	TF_CHARGE_BULLET_RESIST,
+	TF_CHARGE_BLAST_RESIST,
+	TF_CHARGE_FIRE_RESIST,
+#endif
+	TF_CHARGE_COUNT
+};
+
+typedef struct
+{
+	int condition_enable;
+	int condition_disable;
+	const char *sound_enable;
+	const char *sound_disable;
+} MedigunEffects_t;
+
+extern MedigunEffects_t g_MedigunEffects[];
+
+//-----------------------------------------------------------------------------
 // TF Player State.
 //-----------------------------------------------------------------------------
 enum 

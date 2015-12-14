@@ -279,11 +279,9 @@ private:
 	int	  GetNumKillsInTime( float flTime );
 
 	// Invulnerable.
-	bool  IsProvidingInvuln( CTFPlayer *pPlayer );
-	void  SetInvulnerable( bool bState, bool bInstant = false );
-	// Kritzkrieg.
-	bool  IsProvidingCrits(CTFPlayer *pPlayer);
-	void  SetCrits(bool bState, bool bInstant = false);
+	medigun_charge_types  GetChargeEffectBeingProvided( CTFPlayer *pPlayer );
+	void  SetChargeEffect( medigun_charge_types chargeType, bool bShouldCharge, bool bInstantRemove, const MedigunEffects_t &chargeEffect, float flRemoveTime, CTFPlayer *pProvider );
+	void  TestAndExpireChargeEffect( medigun_charge_types chargeType );
 #endif
 
 private:
@@ -335,7 +333,7 @@ private:
 	float					m_flDisguiseHealFraction;	// Same for disguised healing
 
 	float m_flInvulnerableOffTime;
-	float m_flCritOffTime;
+	float m_flChargeOffTime[TF_CHARGE_COUNT];
 #endif
 
 	// Burn handling

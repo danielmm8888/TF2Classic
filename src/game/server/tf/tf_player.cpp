@@ -5434,9 +5434,7 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoS
 	{
 		if ( ammosource != TF_AMMO_SOURCE_RESUPPLY )
 		{
-			float flMultiplier = 1.0f;
-			CALL_ATTRIB_HOOK_FLOAT( flMultiplier, mult_metal_pickup );
-			iCount *= flMultiplier;
+			CALL_ATTRIB_HOOK_INT( iCount, mult_metal_pickup );
 		}
 	}
 	/*else if ( CALL_ATTRIB_HOOK_INT( bBool, ammo_becomes_health ) == 1 )

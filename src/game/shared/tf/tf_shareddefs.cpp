@@ -23,6 +23,28 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Yellow"
 };
 
+const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
+{
+	NULL,
+	NULL,
+	"red",
+	"blue",
+	"green",
+	"yellow"
+};
+
+const char *GetTeamParticleName( const char *pszTemplate, int iTeam )
+{
+	static char pszParticleName[256];
+	if ( iTeam >= FIRST_GAME_TEAM && iTeam < TF_TEAM_COUNT )
+	{
+		Q_snprintf( pszParticleName, 256, pszTemplate, g_aTeamParticleNames[iTeam] );
+		return pszParticleName;
+	}
+
+	return NULL;
+}
+
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
 {
 	{ 0, 0, 0, 0 }, // Unassigned
@@ -682,6 +704,20 @@ int ConditionExpiresFast( int nCond )
 
 	return false;
 }
+
+
+//-----------------------------------------------------------------------------
+// Mediguns.
+//-----------------------------------------------------------------------------
+MedigunEffects_t g_MedigunEffects[] =
+{
+	{ TF_COND_INVULNERABLE, TF_COND_INVULNERABLE_WEARINGOFF, "TFPlayer.InvulnerableOn", "TFPlayer.InvulnerableOff" },
+	{ TF_COND_CRITBOOSTED, TF_COND_LAST, "TFPlayer.CritBoostOn", "TFPlayer.CritBoostOff" },
+	{ TF_COND_MEGAHEAL, TF_COND_LAST, "TFPlayer.QuickFixInvulnerableOn", "TFPlayer.MegaHealOff" },
+	{ TF_COND_MEDIGUN_UBER_BULLET_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_BLAST_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_FIRE_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+};
 
 // ------------------------------------------------------------------------------------------------ //
 // CObjectInfo tables.
