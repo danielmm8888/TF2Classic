@@ -24,6 +24,7 @@ public:
 	virtual void Spawn( void );
 
 	int	GetTotalScore( int iIndex );
+	Color GetPlayerColor( int iIndex );
 
 protected:
 	CNetworkArray( int,	m_iTotalScore, MAX_PLAYERS+1 );

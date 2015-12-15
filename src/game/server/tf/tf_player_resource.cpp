@@ -91,3 +91,11 @@ int CTFPlayerResource::GetTotalScore( int iIndex )
 
 	return 0;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+Color CTFPlayerResource::GetPlayerColor( int iIndex )
+{
+	return Color( m_iColors[iIndex].x * 255.0, m_iColors[iIndex].y * 255.0, m_iColors[iIndex].z * 255.0, 255 );
+}
