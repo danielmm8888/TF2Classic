@@ -49,7 +49,7 @@ const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeath
 {
 	static char szParticleName[256];
 
-	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam ) );
+	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride ) );
 	return szParticleName;
 }
 
