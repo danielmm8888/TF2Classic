@@ -211,7 +211,7 @@ void CTFMainMenuPanel::OnThink()
 		m_iShowFakeIntro--;
 		if (m_iShowFakeIntro == 0)
 		{
-			vgui::GetAnimationController()->RunAnimationCommand(m_pFakeBGImage, "Alpha", 0, 1.0f, 1.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+			vgui::GetAnimationController()->RunAnimationCommand(m_pFakeBGImage, "Alpha", 0, 0.5f, 1.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
 		}
 	}	
 	if (m_pFakeBGImage->IsVisible() && m_pFakeBGImage->GetAlpha() == 0)
@@ -483,12 +483,14 @@ bool CTFServerlistPanel::ServerSortFunc(vgui::SectionedListPanel *list, int item
 	else if (v1 < v2)
 		return false;
 
+	/*
 	int iOff1 = it1->GetBool("Official");
 	int iOff2 = it2->GetBool("Official");
 	if (iOff1 && !iOff2)
 		return true;
 	else if (!iOff1 && iOff2)
 		return false;
+	*/
 
 	int iPing1 = it1->GetInt("Ping");
 	if (iPing1 == 0)
@@ -510,9 +512,11 @@ void CTFServerlistPanel::UpdateServerInfo()
 	for (int i = 0; i < m_iSize; i++)
 	{
 		gameserveritem_t m_Server = GetNotificationManager()->GetServerInfo(i);		
-		bool bOfficial = GetNotificationManager()->IsOfficialServer(i);
-
 		if (m_Server.m_steamID.GetAccountID() == 0)
+			continue;
+
+		bool bOfficial = GetNotificationManager()->IsOfficialServer(i);
+		if (!bOfficial)
 			continue;
 
 		char szServerName[128];
@@ -537,17 +541,16 @@ void CTFServerlistPanel::UpdateServerInfo()
 		curitem->SetInt("Ping", szServerPing);
 		curitem->SetInt("CurPlayers", szServerCurPlayers);
 		curitem->SetString("Map", szServerMap);
-		curitem->SetBool("Official", bOfficial);		
+		//curitem->SetBool("Official", bOfficial);		
 
 		int itemID = m_pServerList->AddItem(0, curitem);
+		/*
 		if (bOfficial)
 			m_pServerList->SetItemFgColor(itemID, GETSCHEME()->GetColor("TeamYellow", Color(255, 255, 255, 255)));
 		else
 			m_pServerList->SetItemFgColor(itemID, GETSCHEME()->GetColor("AdvTextDefault", Color(255, 255, 255, 255)));
+		*/
 		m_pServerList->SetItemFont(itemID, Font);
-		int min, max;
-		m_pServerList->GetScrollBar()->GetRange(min, max);
-		m_pListSlider->SetRange(min, max - m_pServerList->GetScrollBar()->GetButton(0)->GetTall() * 4);
 		curitem->deleteThis();
 	}
 
@@ -559,4 +562,9 @@ void CTFServerlistPanel::UpdateServerInfo()
 	{
 		SetVisible(false);
 	}
+
+	int min, max;
+	m_pServerList->InvalidateLayout(1, 0);
+	m_pServerList->GetScrollBar()->GetRange(min, max);
+	m_pListSlider->SetRange(min, max - m_pServerList->GetScrollBar()->GetButton(0)->GetTall() * 4);
 }
