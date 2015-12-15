@@ -142,29 +142,7 @@ void C_ObjectTeleporter::StartChargedEffects()
 {
 	char szEffect[ 128 ];
 
-	string_t teamname;
-	switch ( GetTeamNumber() )
-	{
-		case TF_TEAM_RED:
-			teamname = "red";
-			break;
-
-		case TF_TEAM_BLUE:
-			teamname = "blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			teamname = "green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			teamname = "yellow";
-			break;
-
-		default:
-			teamname = "blue";
-			break;
-	}
+	string_t teamname = MAKE_STRING( GetTeamParticleName( GetTeamNumber() ) );
 
 	Q_snprintf( szEffect, sizeof( szEffect), "teleporter_%s_charged_level%d", teamname, m_iUpgradeLevel );
 
@@ -176,29 +154,7 @@ void C_ObjectTeleporter::StartActiveEffects()
 {
 	char szEffect[ 128 ];
 
-	string_t teamname;
-	switch (GetTeamNumber())
-	{
-	case TF_TEAM_RED:
-		teamname = "red";
-		break;
-
-	case TF_TEAM_BLUE:
-		teamname = "blue";
-		break;
-
-	case TF_TEAM_GREEN:
-		teamname = "green";
-		break;
-
-	case TF_TEAM_YELLOW:
-		teamname = "yellow";
-		break;
-
-	default:
-		teamname = "blue";
-		break;
-	}
+	string_t teamname = MAKE_STRING( GetTeamParticleName( GetTeamNumber() ) );
 
 	Q_snprintf( szEffect, sizeof(szEffect), "teleporter_%s_%s_level%d", teamname,
 		( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE ) ? "entrance" : "exit", 

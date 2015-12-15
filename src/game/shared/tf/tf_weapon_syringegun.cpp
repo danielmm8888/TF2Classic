@@ -48,9 +48,9 @@ void CTFSyringeGun::Precache()
 	PrecacheParticleSystem( "nailtrails_medic_blue" );
 	PrecacheParticleSystem( "nailtrails_medic_red_crit" );
 	PrecacheParticleSystem( "nailtrails_medic_red" );
-	PrecacheParticleSystem("nailtrails_medic_green_crit");
-	PrecacheParticleSystem("nailtrails_medic_green");
-	PrecacheParticleSystem("nailtrails_medic_yellow_crit");
-	PrecacheParticleSystem("nailtrails_medic_yellow");
+	PrecacheParticleSystem( "nailtrails_medic_green_crit" );
+	PrecacheParticleSystem( "nailtrails_medic_green" );
+	PrecacheParticleSystem( "nailtrails_medic_yellow_crit" );
+	PrecacheParticleSystem( "nailtrails_medic_yellow" );
 #endif
 }

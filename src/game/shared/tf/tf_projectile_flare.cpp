@@ -266,47 +266,9 @@ void CTFProjectile_Flare::CreateTrails( void )
 	if ( IsDormant() )
 		return;
 
-	if ( m_bCritical )
-	{
-		switch( GetTeamNumber() )
-		{
-		case TF_TEAM_RED:
-			ParticleProp()->Create( "flaregun_trail_crit_red", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_BLUE:
-			ParticleProp()->Create( "flaregun_trail_crit_blue", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_GREEN:
-			ParticleProp()->Create( "flaregun_trail_crit_green", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_YELLOW:
-			ParticleProp()->Create( "flaregun_trail_crit_yellow", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		default:
-			ParticleProp()->Create( "flaregun_trail_crit_red", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		}
-	}
-	else
-	{
-		switch( GetTeamNumber() )
-		{
-		case TF_TEAM_RED:
-			ParticleProp()->Create( "flaregun_trail_red", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_BLUE:
-			ParticleProp()->Create( "flaregun_trail_blue", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_GREEN:
-			ParticleProp()->Create( "flaregun_trail_green", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		case TF_TEAM_YELLOW:
-			ParticleProp()->Create( "flaregun_trail_yellow", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		default:
-			ParticleProp()->Create( "flaregun_trail_red", PATTACH_ABSORIGIN_FOLLOW );
-			break;
-		}
-	}
+	const char *pszFormat = m_bCritical ? "flaregun_trail_crit_%s" : "flaregun_trail_%s";
+	const char *pszEffectName = ConstructTeamParticle( pszFormat, GetTeamNumber(), false );
+
+	ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
 }
 #endif

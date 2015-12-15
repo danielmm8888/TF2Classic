@@ -176,30 +176,7 @@ void C_ObjectDispenser::UpdateEffects( void )
 			if ( bHaveEffect )
 				continue;
 
-			const char *pszEffectName;
-			switch (GetTeamNumber())
-			{
-				case TF_TEAM_RED:
-					pszEffectName = "dispenser_heal_red";
-					break;
-
-				case TF_TEAM_BLUE:
-					pszEffectName = "dispenser_heal_blue";
-					break;
-
-				case TF_TEAM_GREEN:
-					pszEffectName = "dispenser_heal_green";
-					break;
-
-				case TF_TEAM_YELLOW:
-					pszEffectName = "dispenser_heal_yellow";
-					break;
-
-				default:
-					pszEffectName = "dispenser_heal_blue";
-					break;
-
-			}
+			const char *pszEffectName = ConstructTeamParticle( "dispenser_heal_%s", GetTeamNumber() );
 
 			CNewParticleEffect *pEffect = ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "heal_origin" );
 			ParticleProp()->AddControlPoint( pEffect, 1, pTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );

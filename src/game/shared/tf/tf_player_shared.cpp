@@ -1043,29 +1043,9 @@ void CTFPlayerShared::OnAddDisguising( void )
 
 	if ( !m_pOuter->IsLocalPlayer() && ( !InCond( TF_COND_STEALTHED ) || !m_pOuter->IsEnemyPlayer() ) )
 	{
-		const char *pEffectName;
-		switch (m_pOuter->GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			pEffectName = "spy_start_disguise_red";
-			break;
+		const char *pszEffectName = ConstructTeamParticle( "spy_start_disguise_%s", m_pOuter->GetTeamNumber() );
 
-		case TF_TEAM_BLUE:
-			pEffectName = "spy_start_disguise_blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			pEffectName = "spy_start_disguise_green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			pEffectName = "spy_start_disguise_yellow";
-			break;
-		default:
-			pEffectName = "spy_start_disguise_red";
-			break;
-		}
-		m_pOuter->m_pDisguisingEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
+		m_pOuter->m_pDisguisingEffect = m_pOuter->ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
 		m_pOuter->m_flDisguiseEffectStartTime = gpGlobals->curtime;
 	}
 
@@ -1550,38 +1530,11 @@ void CTFPlayerShared::OnAddBurning( void )
 	// Start the burning effect
 	if ( !m_pOuter->m_pBurningEffect )
 	{
-		const char *pEffectName;
+		const char *pszEffectName = ConstructTeamParticle( "burningplayer_%s", m_pOuter->GetTeamNumber(), true );
 			
-		switch (m_pOuter->GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			pEffectName = "burningplayer_red";
-			break;
+		m_pOuter->m_pBurningEffect = m_pOuter->ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
 
-		case TF_TEAM_BLUE:
-			pEffectName = "burningplayer_blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			pEffectName = "burningplayer_green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			pEffectName = "burningplayer_yellow";
-			break;
-
-		default:
-			pEffectName = "burningplayer_red";
-			break;
-		}
-
-		if ( TFGameRules()->IsDeathmatch() )
-			pEffectName = "burningplayer_dm";
-			
-		m_pOuter->m_pBurningEffect = m_pOuter->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
-
-		if ( TFGameRules()->IsDeathmatch() )
-			SetParticleToMercColor( m_pOuter->m_pBurningEffect );
+		SetParticleToMercColor( m_pOuter->m_pBurningEffect );
 
 		m_pOuter->m_flBurnEffectStartTime = gpGlobals->curtime;
 		m_pOuter->m_flBurnEffectEndTime = gpGlobals->curtime + TF_BURNING_FLAME_LIFE;
@@ -2042,26 +1995,20 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 
 		if ( m_hCritEffectHost.Get() )
 		{
-			char *pEffectName = NULL;
-			char pEffectNameTemp[128];
+			// Ugh, why did Valve choose to use "blu" instead of "blue" here?..
+			char szEffectName[128];
 			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
+			const char *pszTeamName = !TFGameRules()->IsDeathmatch() ? pTeam->Get_Name() : "dm";
 
-			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "critgun_weaponmodel_%s", pTeam->Get_Name() );
-			pEffectName = pEffectNameTemp;
+			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s", pszTeamName );
 
-			if ( TFGameRules()->IsDeathmatch() )
-				pEffectName = "critgun_weaponmodel_dm";
+			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			SetParticleToMercColor( pCritParticle );
 
-			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s_glow", pszTeamName );
 
-			if ( TFGameRules()->IsDeathmatch() )
-				SetParticleToMercColor( pCritParticle );
-
-			Q_snprintf( pEffectNameTemp, sizeof( pEffectNameTemp ), "%s_glow", pEffectName );
-			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( pEffectNameTemp, PATTACH_ABSORIGIN_FOLLOW );
-
-			if ( TFGameRules()->IsDeathmatch() )
-				SetParticleToMercColor( pCritParticle );
+			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			SetParticleToMercColor( pCritParticle );
 		}
 
 		if ( !m_pCritSound )
@@ -2091,17 +2038,14 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFPlayerShared::SetParticleToMercColor(CNewParticleEffect *pParticle)
+bool CTFPlayerShared::SetParticleToMercColor( CNewParticleEffect *pParticle )
 {
-	if (pParticle && TFGameRules() && TFGameRules()->IsDeathmatch())
+	if ( pParticle && TFGameRules() && TFGameRules()->IsDeathmatch() )
 	{
-		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
-		int index = m_pOuter->entindex();
-		Color clr = tf_PR->GetPlayerColor(index);
-		Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
-		pParticle->SetControlPoint(9, vec);
+		pParticle->SetControlPoint( 9, m_pOuter->m_vecPlayerColor );
 		return true;
 	}
+
 	return false;
 }
 

@@ -209,7 +209,7 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 
 		if ( strMyClass == strClass )
 		{
-			return &m_AttributeList[i];
+			return pAttribute;
 		}
 	}
 

@@ -25,24 +25,32 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 
 const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
 {
-	NULL,
-	NULL,
+	"",
+	"",
 	"red",
 	"blue",
 	"green",
 	"yellow"
 };
 
-const char *GetTeamParticleName( const char *pszTemplate, int iTeam )
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/ )
 {
-	static char pszParticleName[256];
-	if ( iTeam >= FIRST_GAME_TEAM && iTeam < TF_TEAM_COUNT )
+	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() )
 	{
-		Q_snprintf( pszParticleName, 256, pszTemplate, g_aTeamParticleNames[iTeam] );
-		return pszParticleName;
+		return "dm";
 	}
 
-	return NULL;
+	int index = clamp( iTeam, FIRST_GAME_TEAM, TF_TEAM_COUNT - 1 );
+
+	return g_aTeamParticleNames[index];
+}
+
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/ )
+{
+	static char szParticleName[256];
+
+	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam ) );
+	return szParticleName;
 }
 
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
@@ -54,6 +62,11 @@ color32 g_aTeamColors[TF_TEAM_COUNT] =
 	{ 0, 255, 0, 0 }, // Green
 	{ 255, 255, 0, 0 } // Yellow
 };
+
+bool IsGameTeam( int iTeam )
+{
+	return ( iTeam > LAST_SHARED_TEAM && iTeam < TF_TEAM_COUNT ); 
+}
 
 //-----------------------------------------------------------------------------
 // Classes.

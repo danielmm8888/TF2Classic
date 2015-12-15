@@ -906,71 +906,33 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	{
 		if ( m_bCritFire )
 		{
-			switch(pOwner->GetTeamNumber())
-			{
-			case TF_TEAM_RED:
-				pszParticleEffect = "flamethrower_crit_red";
-				break;
-			case TF_TEAM_BLUE:
-				pszParticleEffect = "flamethrower_crit_blue";
-				break;
-			case TF_TEAM_GREEN:
-				pszParticleEffect = "flamethrower_crit_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszParticleEffect = "flamethrower_crit_yellow";
-				break;
-			default:
-				pszParticleEffect = "flamethrower_crit_blue";
-				break;
-			}
-
-			if (TFGameRules()->IsDeathmatch())
-				pszParticleEffect = "flamethrower_crit_dm";
+			pszParticleEffect = ConstructTeamParticle( "flamethrower_crit_%s", pOwner->GetTeamNumber(), true );
 		}
 		else 
 		{
-			switch(pOwner->GetTeamNumber())
-			{
-			case TF_TEAM_RED:
-				pszParticleEffect = "flamethrower";
-				break;
-			case TF_TEAM_BLUE:
-				pszParticleEffect = "flamethrower_blue";
-				break;
-			case TF_TEAM_GREEN:
-				pszParticleEffect = "flamethrower_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszParticleEffect = "flamethrower_yellow";
-				break;
-			default:
-				pszParticleEffect = "flamethrower_blue";
-				break;
-			}
-
-			if (TFGameRules()->IsDeathmatch())
-				pszParticleEffect = "flamethrower_dm";
+			pszParticleEffect = ConstructTeamParticle( "flamethrower_%s", pOwner->GetTeamNumber(), true );
 		}		
 	}
 
 	// Start the effect on the viewmodel if our owner is the local player
-	C_TFPlayer *pLocalPlayer = ToTFPlayer(C_BasePlayer::GetLocalPlayer());
+	C_TFPlayer *pLocalPlayer = ToTFPlayer( C_BasePlayer::GetLocalPlayer() );
+	CNewParticleEffect *pParticle = NULL;
 	if ( pLocalPlayer && pLocalPlayer == GetOwner() )
 	{
 		if ( pLocalPlayer->GetViewModel() )
 		{
 			pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			pLocalPlayer->m_Shared.SetParticleToMercColor(
-				pLocalPlayer->GetViewModel()->ParticleProp()->Create(pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle")
-				);
+			pParticle = pLocalPlayer->GetViewModel()->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
 		}
 	}
 	else
 	{
 		ParticleProp()->StopEmission();
-		ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+		pParticle = ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
 	}
+
+	pOwner->m_Shared.SetParticleToMercColor( pParticle );
+
 	m_bFlameEffects = true;
 }
 

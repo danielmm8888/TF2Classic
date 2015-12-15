@@ -708,7 +708,7 @@ CEconItemAttribute *EconItemDefinition::IterateAttributes( string_t strClass )
 
 		if ( strMyClass == strClass )
 		{
-			return &attributes[i];
+			return pAttribute;
 		}
 	}
 

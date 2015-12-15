@@ -34,8 +34,12 @@ enum
 #define TF_TEAM_AUTOASSIGN (TF_TEAM_COUNT + 1 )
 
 extern const char *g_aTeamNames[TF_TEAM_COUNT];
+extern const char *g_aTeamParticleNames[TF_TEAM_COUNT];
 extern color32 g_aTeamColors[TF_TEAM_COUNT];
 extern color32 g_aTeamSkinColors[TF_TEAM_COUNT];
+
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride = false );
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride = false );
 
 #define CONTENTS_REDTEAM	CONTENTS_TEAM1
 #define CONTENTS_BLUETEAM	CONTENTS_TEAM2
@@ -559,6 +563,7 @@ enum
 	TF_MEDIGUN_KRITZKRIEG,
 	TF_MEDIGUN_QUICKFIX,
 	TF_MEDIGUN_VACCINATOR,
+	TF_MEDIGUN_OVERHEALER,
 	TF_MEDIGUN_COUNT
 };
 
