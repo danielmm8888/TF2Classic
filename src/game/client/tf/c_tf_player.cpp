@@ -48,7 +48,6 @@
 #include "tf_hud_statpanel.h"
 #include "input.h"
 #include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_hud_mediccallers.h"
 #include "in_main.h"

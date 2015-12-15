@@ -17,7 +17,6 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
 #include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include <vgui_controls/AnimationController.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -97,11 +96,20 @@ bool CHudMedicChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	if ( pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN 
-		|| pWpn->GetWeaponID() == TF_WEAPON_OVERHEALER
-		|| pWpn->GetWeaponID() == TF_WEAPON_KRITZKRIEG 
-		|| pWpn->GetWeaponID() == TF_WEAPON_UBERSAW )
+	if ( pWpn->GetWeaponID() == TF_WEAPON_BONESAW )
 	{
+		return CHudElement::ShouldDraw();
+	}
+
+	if ( pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN )
+	{
+		// Hide this if weapon can't earn uber.
+		float flChargeRate = 1.0f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flChargeRate, mult_medigun_uberchargerate );
+
+		if ( !flChargeRate )
+			return false;
+
 		return CHudElement::ShouldDraw();
 	}
 
@@ -118,7 +126,7 @@ void CHudMedicChargeMeter::OnTick( void )
 	if ( !pPlayer )
 		return;
 
-	CWeaponMedigun *pMedigun = ( CWeaponMedigun* ) pPlayer->GetMedigun();
+	CWeaponMedigun *pMedigun = pPlayer->GetMedigun();
 
 	if ( !pMedigun )
 		return;
@@ -128,13 +136,13 @@ void CHudMedicChargeMeter::OnTick( void )
 	if ( !pActiveWpn )
 		return;
 
-	if ( pPlayer->GetActiveTFWeapon() == pMedigun || pActiveWpn->GetWeaponID() == TF_WEAPON_UBERSAW  )
+	if ( pPlayer->GetActiveTFWeapon() == pMedigun || pActiveWpn->GetWeaponID() == TF_WEAPON_BONESAW )
 	{
 		float flCharge = pMedigun->GetChargeLevel();
 
 		if ( flCharge != m_flLastChargeValue )
 		{
-			SetDialogVariable( "charge", ( int )( flCharge * 100 ) );
+			SetDialogVariable( "charge", (int)( flCharge * 100 ) );
 
 			if ( m_pChargeMeter )
 			{

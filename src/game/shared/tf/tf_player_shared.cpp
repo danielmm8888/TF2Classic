@@ -13,7 +13,6 @@
 #include "entity_capture_flag.h"
 #include "baseobject_shared.h"
 #include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 #include "tf_viewmodel.h"
