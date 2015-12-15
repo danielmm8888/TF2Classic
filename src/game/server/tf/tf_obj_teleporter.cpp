@@ -128,28 +128,13 @@ void CObjectTeleporter::TeleporterReceive( CTFPlayer *pPlayer, float flDelay )
 	CPVSFilter filter( origin );
 
 	int iTeam = pPlayer->GetTeamNumber();
-	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
 		iTeam = pPlayer->m_Shared.GetDisguiseTeam();
 	}
 
-	switch( iTeam )
-	{
-	case TF_TEAM_RED:
-		TE_TFParticleEffect( filter, 0.0, "teleportedin_red", origin, vec3_angle );
-		break;
-	case TF_TEAM_BLUE:
-		TE_TFParticleEffect( filter, 0.0, "teleportedin_blue", origin, vec3_angle );
-		break;
-	case TF_TEAM_GREEN:
-		TE_TFParticleEffect( filter, 0.0, "teleportedin_green", origin, vec3_angle );
-		break;
-	case TF_TEAM_YELLOW:
-		TE_TFParticleEffect( filter, 0.0, "teleportedin_yellow", origin, vec3_angle );
-		break;
-	default:
-		break;
-	}
+	const char *pszEffectName = ConstructTeamParticle( "teleportedin_%s", iTeam );
+	TE_TFParticleEffect( filter, 0.0, pszEffectName, origin, vec3_angle );
 
 	EmitSound( "Building_Teleporter.Receive" );
 
@@ -175,32 +160,16 @@ void CObjectTeleporter::TeleporterSend( CTFPlayer *pPlayer )
 	CPVSFilter filter( origin );
 
 	int iTeam = pPlayer->GetTeamNumber();
-	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
 		iTeam = pPlayer->m_Shared.GetDisguiseTeam();
 	}
 
-	switch( iTeam )
-	{
-	case TF_TEAM_RED:
-		TE_TFParticleEffect( filter, 0.0, "teleported_red", origin, vec3_angle );
-		TE_TFParticleEffect( filter, 0.0, "player_sparkles_red", origin, vec3_angle, pPlayer, PATTACH_POINT );
-		break;
-	case TF_TEAM_BLUE:
-		TE_TFParticleEffect( filter, 0.0, "teleported_blue", origin, vec3_angle );
-		TE_TFParticleEffect( filter, 0.0, "player_sparkles_blue", origin, vec3_angle, pPlayer, PATTACH_POINT );
-		break;
-	case TF_TEAM_GREEN:
-		TE_TFParticleEffect(filter, 0.0, "teleported_green", origin, vec3_angle);
-		TE_TFParticleEffect(filter, 0.0, "player_sparkles_green", origin, vec3_angle, pPlayer, PATTACH_POINT);
-		break;
-	case TF_TEAM_YELLOW:
-		TE_TFParticleEffect(filter, 0.0, "teleported_yellow", origin, vec3_angle);
-		TE_TFParticleEffect(filter, 0.0, "player_sparkles_yellow", origin, vec3_angle, pPlayer, PATTACH_POINT);
-		break;
-	default:
-		break;
-	}
+	const char *pszTeleportedEffect = ConstructTeamParticle( "teleported_%s", iTeam );
+	const char *pszSparklesEffect = ConstructTeamParticle( "player_sparkles_%s", iTeam );
+
+	TE_TFParticleEffect( filter, 0.0, pszTeleportedEffect, origin, vec3_angle );
+	TE_TFParticleEffect( filter, 0.0, pszSparklesEffect, origin, vec3_angle, pPlayer, PATTACH_POINT );
 
 	EmitSound( "Building_Teleporter.Send" );
 
@@ -681,6 +650,7 @@ void CObjectTeleporter::TeleporterThink( void )
 	if ( IsDisabled() || IsRedeploying() || IsMatchingTeleporterReady() == false )
 	{
 		ShowDirectionArrow( false );
+
 		if ( GetState() != TELEPORTER_STATE_IDLE && !IsUpgrading() )
 		{
 			SetState( TELEPORTER_STATE_IDLE );
@@ -690,7 +660,7 @@ void CObjectTeleporter::TeleporterThink( void )
 			{
 				// The other end has been destroyed. Revert back to L1.
 				m_iUpgradeLevel = 1;
-				m_iGoalUpgradeLevel = 1;
+
 				// We need to adjust for any damage received if we downgraded
 				float iHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
 				SetMaxHealth( GetMaxHealthForCurrentLevel() );

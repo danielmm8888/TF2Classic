@@ -31,7 +31,7 @@ public:
 	~CTFGrenadePipebombProjectile();
 
 	// Unique identifier.
-	virtual int			GetWeaponID( void ) const	{ return ( m_iType == TF_GL_MODE_REMOTE_DETONATE ) ? TF_WEAPON_GRENADE_PIPEBOMB : TF_WEAPON_GRENADE_DEMOMAN; }
+	virtual int			GetWeaponID( void ) const	{ return ( m_iType == TF_GL_MODE_REMOTE_DETONATE ) ? TF_WEAPON_PIPEBOMBLAUNCHER : TF_WEAPON_GRENADELAUNCHER; }
 
 	int GetType( void ){ return m_iType; } 
 	virtual int			GetDamageType();

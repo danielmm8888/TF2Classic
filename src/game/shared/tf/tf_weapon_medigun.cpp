@@ -31,6 +31,57 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+const char *g_pszMedigunHealSounds[TF_MEDIGUN_COUNT] =
+{
+	"WeaponMedigun.Healing",
+	"WeaponMedigun.Healing",
+	"Weapon_Quick_Fix.Healing",
+	"WeaponMedigun_Vaccinator.Healing",
+	"WeaponMedigun.Healing"
+};
+
+typedef struct
+{
+	const char *fullcharge;
+	const char *beam;
+	const char *beam_invlun;
+}
+MedigunParticles_t;
+
+MedigunParticles_t g_MedigunParticles[TF_MEDIGUN_COUNT] =
+{
+	// Stock
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Kritzkrieg
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"kritz_beam_%s",
+		"kritz_beam_%s_invun"
+	},
+	// Quick-Fix
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Vaccinator
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Overhealer
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"overhealer_%s_beam",
+		"overhealer_%s_beam"
+	},
+};
+
 // Buff ranges
 ConVar weapon_medigun_damage_modifier( "weapon_medigun_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
 ConVar weapon_medigun_construction_rate( "weapon_medigun_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the medigun." );
@@ -172,21 +223,27 @@ void CWeaponMedigun::WeaponReset( void )
 void CWeaponMedigun::Precache()
 {
 	BaseClass::Precache();
+
+	int iType = GetMedigunType();
+
+	PrecacheScriptSound( g_pszMedigunHealSounds[iType] );
+
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
-	PrecacheScriptSound( "WeaponMedigun.Healing" );
 	PrecacheScriptSound( "WeaponMedigun.Charged" );
-	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
-	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
-	PrecacheParticleSystem( "medicgun_beam_red_invun" );
-	PrecacheParticleSystem( "medicgun_beam_red" );
-	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
-	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green_invun");
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow_invun");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+
+	for ( int i = TF_TEAM_RED; i < TF_TEAM_COUNT; i++ )
+	{
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].fullcharge, i ) );
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam, i ) );
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam_invlun, i ) );
+	}
+
+	// Precache charge sounds.
+	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )
+	{
+		PrecacheScriptSound( g_MedigunEffects[i].sound_enable );
+		PrecacheScriptSound( g_MedigunEffects[i].sound_disable );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -289,7 +346,47 @@ float CWeaponMedigun::GetStickRange( void )
 //-----------------------------------------------------------------------------
 float CWeaponMedigun::GetHealRate( void )
 {
-	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+	float flHealRate = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+	CALL_ATTRIB_HOOK_FLOAT( flHealRate, mult_medigun_healrate );
+	return flHealRate;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CWeaponMedigun::GetMedigunType( void )
+{
+	int iType = 0;
+	CALL_ATTRIB_HOOK_INT( iType, set_weapon_mode );
+
+	if ( iType >= 0 && iType < TF_MEDIGUN_COUNT )
+		return iType;
+
+	AssertMsg( 0, "Invalid medigun type!\n" );
+	return TF_MEDIGUN_STOCK;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+medigun_charge_types CWeaponMedigun::GetChargeType( void )
+{
+	int iChargeType = TF_CHARGE_INVULNERABLE;
+	CALL_ATTRIB_HOOK_INT( iChargeType, set_charge_type );
+
+	if ( iChargeType > TF_CHARGE_NONE && iChargeType < TF_CHARGE_COUNT )
+		return (medigun_charge_types)iChargeType;
+
+	AssertMsg( 0, "Invalid charge type!\n" );
+	return TF_CHARGE_NONE;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CWeaponMedigun::GetHealSound( void )
+{
+	return g_pszMedigunHealSounds[GetMedigunType()];
 }
 
 //-----------------------------------------------------------------------------
@@ -540,6 +637,8 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 				{
 					float flChargeAmount = gpGlobals->frametime / weapon_medigun_charge_rate.GetFloat();
 
+					CALL_ATTRIB_HOOK_FLOAT( flChargeAmount, mult_medigun_uberchargerate );
+
 					// Reduced charge for healing fully healed guys
 					if ( pNewTarget->GetHealth() >= iBoostMax && ( TFGameRules() && !TFGameRules()->InSetup() ) )
 					{
@@ -642,7 +741,6 @@ void CWeaponMedigun::DrainCharge( void )
 			*/
 
 			pOwner->m_Shared.RecalculateChargeEffects();
-			pOwner->m_Shared.RecalculateCrits();
 #endif
 		}
 	}
@@ -932,7 +1030,7 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 {
 	if ( bStopHealingSound )
 	{
-		StopSound( "WeaponMedigun.Healing" );
+		StopSound( GetHealSound() );
 	}
 
 	if ( bStopNoTargetSound )
@@ -970,26 +1068,7 @@ void CWeaponMedigun::ManageChargeEffect( void )
 	{
 		if ( m_pChargeEffect == NULL )
 		{
-			char *pszEffectName = NULL;
-
-			switch( GetTFPlayerOwner()->GetTeamNumber() )
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_blue";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_red";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_yellow";
-				break;
-			default:
-				pszEffectName = "";
-				break;
-			}
+			const char *pszEffectName = ConstructTeamParticle( g_MedigunParticles[GetMedigunType()].fullcharge, GetTFPlayerOwner()->GetTeamNumber() );
 
 			m_pChargeEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
 		}
@@ -1097,7 +1176,7 @@ void CWeaponMedigun::ClientThink()
 		{
 			m_bPlayingSound = true;
 			CLocalPlayerFilter filter;
-			EmitSound( filter, entindex(), "WeaponMedigun.Healing" );
+			EmitSound( filter, entindex(), GetHealSound() );
 		}
 	}
 
@@ -1149,50 +1228,8 @@ void CWeaponMedigun::UpdateEffects( void )
 		if ( m_hHealingTargetEffect.pTarget == m_hHealingTarget )
 			return;
 
-		const char *pszEffectName;
-		if (m_bChargeRelease)
-		{
-			switch (GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue_invun";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red_invun";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green_invun";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow_invun";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			}
-		}
-		else
-		{
-			switch (GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			}
-		}
-
+		const char *pszFormat = IsReleasingCharge() ? g_MedigunParticles[GetMedigunType()].beam_invlun : g_MedigunParticles[GetMedigunType()].beam;
+		const char *pszEffectName = ConstructTeamParticle( pszFormat, GetTeamNumber() );
 
 		CNewParticleEffect *pEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
 		pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );

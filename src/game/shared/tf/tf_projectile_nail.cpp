@@ -75,30 +75,9 @@ float CTFProjectile_Syringe::GetGravity( void )
 //-----------------------------------------------------------------------------
 const char *GetSyringeTrailParticleName( int iTeamNumber, bool bCritical )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		return (bCritical ? "nailtrails_medic_dm_crit" : "nailtrails_medic_dm");
+	const char *pszFormat = bCritical ? "nailtrails_medic_%s_crit" : "nailtrails_medic_%s";
 
-	switch (iTeamNumber)
-	{
-	case TF_TEAM_RED:
-		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
-		break;
-
-	case TF_TEAM_BLUE:
-		return ( bCritical ? "nailtrails_medic_blue_crit" : "nailtrails_medic_blue" );
-		break;
-
-	case TF_TEAM_GREEN:
-		return ( bCritical ? "nailtrails_medic_green_crit" : "nailtrails_medic_green" );
-		break;
-
-	case TF_TEAM_YELLOW:
-		return ( bCritical ? "nailtrails_medic_yellow_crit" : "nailtrails_medic_yellow" );
-		break;
-	default:
-		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
-		break;
-	}
+	return ConstructTeamParticle( pszFormat, iTeamNumber, true );
 }
 
 //-----------------------------------------------------------------------------
@@ -201,30 +180,9 @@ float CTFProjectile_Nail::GetGravity(void)
 //-----------------------------------------------------------------------------
 const char *GetNailTrailParticleName(int iTeamNumber, bool bCritical)
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		return (bCritical ? "nailtrails_scout_dm_crit" : "nailtrails_scout_dm");
+	const char *pszFormat = bCritical ? "nailtrails_scout_%s_crit" : "nailtrails_scout_%s";
 
-	switch (iTeamNumber)
-	{
-	case TF_TEAM_RED:
-		return ( bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red" );
-		break;
-
-	case TF_TEAM_BLUE:
-		return ( bCritical ? "nailtrails_scout_blue_crit" : "nailtrails_scout_blue" );
-		break;
-
-	case TF_TEAM_GREEN:
-		return ( bCritical ? "nailtrails_scout_green_crit" : "nailtrails_scout_green" );
-		break;
-
-	case TF_TEAM_YELLOW:
-		return ( bCritical ? "nailtrails_scout_yellow_crit" : "nailtrails_scout_yellow" );
-		break;
-	default:
-		return ( bCritical ? "nailtrails_scout_red_crit" : "nailtrails_scout_red" );
-		break;
-	}
+	return ConstructTeamParticle( pszFormat, iTeamNumber, true );
 }
 
 //-----------------------------------------------------------------------------
@@ -323,32 +281,11 @@ float CTFProjectile_Dart::GetGravity(void)
 // Purpose: 
 // Output : const char
 //-----------------------------------------------------------------------------
-const char *GetTranqDartTrailParticleName(int iTeamNumber, bool bCritical)
+const char *GetTranqDartTrailParticleName( int iTeamNumber, bool bCritical )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		return (bCritical ? "nailtrails_medic_dm_crit" : "tranq_tracer_teamcolor_dm");
+	const char *pszFormat = bCritical ? "nailtrails_medic_%s_crit" : "tranq_tracer_teamcolor_%s";
 
-	switch (iTeamNumber)
-	{
-	case TF_TEAM_RED:
-		return ( bCritical ? "nailtrails_medic_red_crit" : "tranq_tracer_teamcolor_red" );
-		break;
-
-	case TF_TEAM_BLUE:
-		return ( bCritical ? "nailtrails_medic_blue_crit" : "tranq_tracer_teamcolor_blue" );
-		break;
-
-	case TF_TEAM_GREEN:
-		return ( bCritical ? "nailtrails_medic_green_crit" : "tranq_tracer_teamcolor_green" );
-		break;
-
-	case TF_TEAM_YELLOW:
-		return ( bCritical ? "nailtrails_medic_yellow_crit" : "tranq_tracer_teamcolor_yellow" );
-		break;
-	default:
-		return ( bCritical ? "nailtrails_medic_red_crit" : "nailtrails_medic_red" );
-		break;
-	}
+	return ConstructTeamParticle( pszFormat, iTeamNumber, true );
 }
 
 //-----------------------------------------------------------------------------

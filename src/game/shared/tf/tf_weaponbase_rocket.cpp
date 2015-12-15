@@ -330,6 +330,17 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	AddSolidFlags( FSOLID_NOT_SOLID );
 	m_takedamage = DAMAGE_NO;
 
+	// Figure out Econ ID.
+	int iItemID = -1;
+	if ( m_hLauncher.Get() )
+	{
+		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( m_hLauncher.Get() );
+		if ( pWeapon )
+		{
+			iItemID = pWeapon->GetItemID();
+		}
+	}
+
 	// Pull out a bit.
 	if ( pTrace->fraction != 1.0 )
 	{
@@ -339,7 +350,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	// Play explosion sound and effect.
 	Vector vecOrigin = GetAbsOrigin();
 	CPVSFilter filter( vecOrigin );
-	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex() );
+	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex(), iItemID );
 	CSoundEnt::InsertSound ( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
 
 	// Damage.

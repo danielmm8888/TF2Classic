@@ -16,14 +16,14 @@
 		"fieldName" "HudWeaponAmmo"
 		"visible" "1"
 		"enabled" "1"
-		"xpos"	"r119"	[$WIN32]
+		"xpos"	"r95"	[$WIN32]
 		"xpos_minmode"	"r85"	[$WIN32]
-		"ypos"	"r85"	[$WIN32]
+		"ypos"	"r55"	[$WIN32]
 		"ypos_minmode"	"r36"	[$WIN32]
 		"xpos"	"r131"	[$X360]
 		"ypos"	"r77"	[$X360]
-		"wide"	"110"
-		"tall"	"90"
+		"wide"	"94"
+		"tall"	"45"
 	}
 	
 	HudObjectiveStatus
@@ -52,6 +52,16 @@
 	
 		"red_active_xpos"			"106"
 		"red_active_xpos_minmode"	"105"
+		
+		"green_active_xpos"				"16"
+		"green_active_xpos_minmode"		"55"
+		"green_active_ypos"				"39"
+		"green_active_ypos_minmode"		"14"
+	
+		"yellow_active_xpos"			"106"
+		"yellow_active_xpos_minmode"	"105"
+		"yellow_active_ypos"			"39"
+		"yellow_active_ypos_minmode"	"14"
 	}	
 	
 	HudCloakMeter
@@ -169,14 +179,14 @@
 		"RightMargin_lodef" "38"
 		"visible" "1"
 		"enabled" "1"
-		"SmallBoxWide" "60"
-		"SmallBoxTall" "45"
+		"SmallBoxWide" "74"
+		"SmallBoxTall" "54"
 		"PlusStyleBoxWide" "90"
 		"PlusStyleBoxTall" "63"
 		"PlusStyleExpandSelected"	"0.3"
-		"LargeBoxWide" "100"
-		"LargeBoxTall" "70"
-		"BoxGap" "10"	[$WIN32]
+		"LargeBoxWide" "112"
+		"LargeBoxTall" "76"
+		"BoxGap" "5"	[$WIN32]
 		"BoxGap" "4"	[$X360]
 		"SelectionNumberXPos" "12"
 		"SelectionNumberYPos" "4"

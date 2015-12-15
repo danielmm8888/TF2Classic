@@ -31,13 +31,15 @@ const char *g_LoadoutSlots[] =
 	"action",
 };
 
-const char *g_TeamVisualSections[] =
+const char *g_TeamVisualSections[TF_TEAM_COUNT] =
 {
-	"visuals",
-	NULL, // nullptr
-	"visuals_red",
-	"visuals_blu",
-	"visuals_mvm_boss"
+	"visuals",			// TEAM_UNASSIGNED
+	"",					// TEAM_SPECTATOR
+	"visuals_red",		// TEAM_RED
+	"visuals_blu",		// TEAM_BLUE
+	"visuals_grn",		// TEAM_GREEN
+	"visuals_ylw",		// TEAM_YELLOW
+	//"visuals_mvm_boss"	// ???
 };
 
 const char *g_AttributeDescriptionFormats[] =
@@ -275,6 +277,92 @@ public:
 		}
 	};
 
+	bool ParseVisuals( KeyValues *pData, EconItemDefinition* pItem, int iIndex )
+	{
+		EconItemVisuals *visual = &pItem->visual[iIndex];
+
+		for ( KeyValues *pVisualData = pData->GetFirstSubKey(); pVisualData != NULL; pVisualData = pVisualData->GetNextKey() )
+		{
+			if ( !Q_stricmp( pVisualData->GetName(), "player_bodygroups" ) )
+			{
+				GET_VALUES_FAST_BOOL( visual->player_bodygroups, pVisualData );
+			}
+			else if ( !Q_stricmp( pVisualData->GetName(), "attached_models" ) )
+			{
+				// TODO
+			}
+			else if ( !Q_stricmp( pVisualData->GetName(), "animation_replacement" ) )
+			{
+				for ( KeyValues *pKeyData = pVisualData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )
+				{
+					int key = ActivityList_IndexForName( pVisualData->GetName() );
+					int value = ActivityList_IndexForName( pVisualData->GetString() );
+
+					if ( key != kActivityLookup_Missing && value != kActivityLookup_Missing )
+					{
+						visual->animation_replacement.InsertOrReplace( key, value );
+					}
+				}
+			}
+			else if ( !Q_stricmp( pVisualData->GetName(), "playback_activity" ) )
+			{
+				GET_VALUES_FAST_STRING( visual->playback_activity, pVisualData );
+			}
+			else if ( !Q_strnicmp( pVisualData->GetName(), "sound_", 6 ) )
+			{
+				// Fetching this similar to weapon script file parsing.
+				const char *szSoundName = pVisualData->GetString();
+
+				// Advancing pointer past sound_ prefix... why couldn't they just make a subsection for sounds?
+				int iSound = GetWeaponSoundFromString( pVisualData->GetName() + 6 );
+
+				if ( iSound != -1 )
+				{
+					Q_strncpy( visual->aWeaponSounds[iSound], szSoundName, MAX_WEAPON_STRING );
+				}
+			}
+			else if ( !Q_stricmp( pVisualData->GetName(), "styles" ) )
+			{
+				/*
+				for (KeyValues *pStyleData = pVisualData->GetFirstSubKey(); pStyleData != NULL; pStyleData = pStyleData->GetNextKey())
+				{
+				EconItemStyle *style;
+				IF_ELEMENT_FOUND(visual->styles, pStyleData->GetName())
+				{
+				style = visual->styles.Element(index);
+				}
+				else
+				{
+				style = new EconItemStyle();
+				visual->styles.Insert(pStyleData->GetName(), style);
+				}
+
+				GET_STRING(style, pStyleData, name);
+				GET_STRING(style, pStyleData, model_player);
+				GET_STRING(style, pStyleData, image_inventory);
+				GET_BOOL(style, pStyleData, selectable);
+				GET_INT(style, pStyleData, skin_red);
+				GET_INT(style, pStyleData, skin_blu);
+
+				for (KeyValues *pStyleModelData = pStyleData->GetFirstSubKey(); pStyleModelData != NULL; pStyleModelData = pStyleModelData->GetNextKey())
+				{
+				if (!Q_stricmp(pStyleModelData->GetName(), "model_player_per_class"))
+				{
+				GET_VALUES_FAST_STRING(style->model_player_per_class, pStyleModelData);
+				}
+				}
+				}
+				*/
+			}
+			else
+			{
+				GET_VALUES_FAST_STRING( visual->misc_info, pVisualData );
+			}
+		}
+
+		return true;
+	}
+
 	bool ParseItemRec(KeyValues *pData, EconItemDefinition* pItem)
 	{
 		char prefab[64];
@@ -337,33 +425,33 @@ public:
 		GET_STRING(pItem, pData, model_player);
 		GET_STRING(pItem, pData, model_world);
 		
-		for (KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
-			if (!Q_stricmp(pSubData->GetName(), "capabilities"))
+			if ( !Q_stricmp( pSubData->GetName(), "capabilities" ) )
 			{
-				GET_VALUES_FAST_BOOL(pItem->capabilities, pSubData);
+				GET_VALUES_FAST_BOOL( pItem->capabilities, pSubData );
 			}
-			if (!Q_stricmp(pSubData->GetName(), "tags"))
+			else if ( !Q_stricmp( pSubData->GetName(), "tags" ) )
 			{
-				GET_VALUES_FAST_BOOL(pItem->tags, pSubData);
+				GET_VALUES_FAST_BOOL( pItem->tags, pSubData );
 			}
-			if (!Q_stricmp(pSubData->GetName(), "model_player_per_class"))
+			else if ( !Q_stricmp( pSubData->GetName(), "model_player_per_class" ) )
 			{
-				GET_VALUES_FAST_STRING(pItem->model_player_per_class, pSubData);
+				GET_VALUES_FAST_STRING( pItem->model_player_per_class, pSubData );
 			}
-			if (!Q_stricmp(pSubData->GetName(), "used_by_classes"))
+			else if ( !Q_stricmp( pSubData->GetName(), "used_by_classes" ) )
 			{
-				GET_VALUES_FAST_BOOL(pItem->used_by_classes, pSubData);
+				GET_VALUES_FAST_BOOL( pItem->used_by_classes, pSubData );
 			}
-			if (!Q_stricmp(pSubData->GetName(), "attributes"))
+			else if ( !Q_stricmp( pSubData->GetName(), "attributes" ) )
 			{
-				for (KeyValues *pAttribData = pSubData->GetFirstSubKey(); pAttribData != NULL; pAttribData = pAttribData->GetNextKey())
+				for ( KeyValues *pAttribData = pSubData->GetFirstSubKey(); pAttribData != NULL; pAttribData = pAttribData->GetNextKey() )
 				{
 					int iAttributeID = GetItemSchema()->GetAttributeIndex( pAttribData->GetName() );
 
 					if ( iAttributeID == -1 )
 						continue;
-					
+
 					CEconItemAttribute attribute;
 					attribute.m_iAttributeDefinitionIndex = iAttributeID;
 					GET_STRING( ( &attribute ), pAttribData, attribute_class );
@@ -371,86 +459,28 @@ public:
 					pItem->attributes.AddToTail( attribute );
 				}
 			}
-			if (!Q_stricmp(pSubData->GetName(), "visuals"))
+			else if ( !Q_stricmp( pSubData->GetName(), "visuals_mvm_boss" ) )
 			{
-				EconItemVisuals *visual = &pItem->visual;
+				// Deliberately skipping this.
+			}
+			else if ( !Q_strnicmp( pSubData->GetName(), "visuals", 7 ) )
+			{
+				// Figure out what team is this meant for.
+				int iVisuals = UTIL_StringFieldToInt( pSubData->GetName(), g_TeamVisualSections, TF_TEAM_COUNT );
 
-				for (KeyValues *pVisualData = pSubData->GetFirstSubKey(); pVisualData != NULL; pVisualData = pVisualData->GetNextKey())
+				if ( iVisuals != -1 )
 				{
-					if ( !Q_stricmp( pVisualData->GetName(), "player_bodygroups" ) )
+					if ( iVisuals == TEAM_UNASSIGNED )
 					{
-						GET_VALUES_FAST_BOOL( visual->player_bodygroups, pVisualData );
-					}
-					else if ( !Q_stricmp( pVisualData->GetName(), "attached_models" ) )
-					{
-						// TODO
-					}
-					else if ( !Q_stricmp( pVisualData->GetName(), "animation_replacement" ) )
-					{
-						for ( KeyValues *pKeyData = pVisualData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )
+						// Hacky: for standard visuals block, assign it to all teams at once.
+						for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 						{
-							int key = ActivityList_IndexForName( pVisualData->GetName() );
-							int value = ActivityList_IndexForName( pVisualData->GetString() );
-
-							if ( key != kActivityLookup_Missing && value != kActivityLookup_Missing )
-							{
-								visual->animation_replacement.InsertOrReplace( key, value );
-							}
+							ParseVisuals( pSubData, pItem, i );
 						}
-					}
-					else if ( !Q_stricmp( pVisualData->GetName(), "playback_activity" ) )
-					{
-						GET_VALUES_FAST_STRING( visual->playback_activity, pVisualData );
-					}
-					else if ( !Q_strnicmp( pVisualData->GetName(), "sound_", 6 ) )
-					{
-						// Fetching this similar to weapon script file parsing.
-						const char *szSoundName = pVisualData->GetString();
-
-						// Advancing pointer past sound_ prefix... why couldn't they just make a subsection for sounds?
-						int iSound = GetWeaponSoundFromString( pVisualData->GetName() + 6 );
-
-						if ( iSound != -1 )
-						{
-							Q_strncpy( visual->aWeaponSounds[iSound], szSoundName, MAX_WEAPON_STRING );
-						}
-					}
-					else if (!Q_stricmp(pVisualData->GetName(), "styles"))
-					{
-						/*
-						for (KeyValues *pStyleData = pVisualData->GetFirstSubKey(); pStyleData != NULL; pStyleData = pStyleData->GetNextKey())
-						{
-							EconItemStyle *style;
-							IF_ELEMENT_FOUND(visual->styles, pStyleData->GetName())
-							{
-								style = visual->styles.Element(index);
-							}
-							else
-							{
-								style = new EconItemStyle();
-								visual->styles.Insert(pStyleData->GetName(), style);
-							}
-
-							GET_STRING(style, pStyleData, name);
-							GET_STRING(style, pStyleData, model_player);
-							GET_STRING(style, pStyleData, image_inventory);
-							GET_BOOL(style, pStyleData, selectable);
-							GET_INT(style, pStyleData, skin_red);
-							GET_INT(style, pStyleData, skin_blu);
-
-							for (KeyValues *pStyleModelData = pStyleData->GetFirstSubKey(); pStyleModelData != NULL; pStyleModelData = pStyleModelData->GetNextKey())
-							{
-								if (!Q_stricmp(pStyleModelData->GetName(), "model_player_per_class"))
-								{
-									GET_VALUES_FAST_STRING(style->model_player_per_class, pStyleModelData);
-								}
-							}
-						}
-						*/
 					}
 					else
 					{
-						GET_VALUES_FAST_STRING(visual->misc_info, pVisualData);
+						ParseVisuals( pSubData, pItem, iVisuals );
 					}
 				}
 			}
@@ -658,6 +688,16 @@ EconItemVisuals::EconItemVisuals()
 // EconItemDefinition
 //-----------------------------------------------------------------------------
 
+EconItemVisuals *EconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
+{
+	if ( iTeamNum >= FIRST_GAME_TEAM && iTeamNum < TF_TEAM_COUNT )
+	{
+		return &visual[iTeamNum];
+	}
+
+	return &visual[TEAM_UNASSIGNED];
+}
+
 CEconItemAttribute *EconItemDefinition::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.
@@ -668,7 +708,7 @@ CEconItemAttribute *EconItemDefinition::IterateAttributes( string_t strClass )
 
 		if ( strMyClass == strClass )
 		{
-			return &attributes[i];
+			return pAttribute;
 		}
 	}
 

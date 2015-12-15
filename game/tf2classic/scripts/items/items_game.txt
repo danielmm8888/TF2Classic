@@ -1024,6 +1024,51 @@
 			"drop_sound"		"ui/item_light_gun_drop.wav"
 			"xifier_class_remap"	"flaregun"
 		}
+		"weapon_nailgun"
+		{
+			"capabilities"
+			{
+				"nameable"		"1"
+			}
+			"tags"
+			{
+				"can_deal_damage"			"1"
+				"can_deal_critical_damage"	"1"
+				"can_deal_mvm_penetration_damage"	"1"
+				"can_deal_long_distance_damage"	"1"
+			}
+			"item_class"	"tf_weapon_nailgun"
+			"craft_class"	"weapon"
+			"craft_material_type"	"weapon"
+			"item_type_name"	"#TF_Weapon_Nailgun"
+			"item_name"	"#TF_Weapon_Nailgun"
+			"item_slot"	"primary"
+			"anim_slot"	"item2"
+			"item_quality"	"normal"
+			"baseitem" "1"
+			"min_ilevel"	"1"
+			"max_ilevel"	"1"
+			"image_inventory"	"backpack/weapons/c_models/c_scattergun"
+			"image_inventory_size_w"		"128"
+			"image_inventory_size_h"		"82"
+			"attach_to_hands"	"1"
+			"model_world"	"models/weapons/w_models/w_nailgun.mdl"
+			"model_player"	"models/weapons/v_models/v_nailgun_scout.mdl"
+			"used_by_classes"
+			{
+				"scout"	"1"
+			}
+			"attributes"
+			{
+				"hidden primary max ammo bonus"
+				{
+					"attribute_class" "mult_maxammo_primary"
+					"value" "3.125"
+				}
+			}
+			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
+			"drop_sound"		"ui/item_heavy_gun_drop.wav"		
+		}
 	}
 	"items"
 	{
@@ -1765,7 +1810,6 @@
 			"drop_sound"		"ui/item_watch_drop.wav"
 		}
 
-		
 		"735"
 		{
 			"name"	"TF_WEAPON_BUILDER_SPY"
@@ -1836,6 +1880,11 @@
 			}
 			"attributes"
 			{
+				"lunchbox adds minicrits"
+				{
+					"attribute_class"	"set_weapon_mode"
+					"value"				"1"
+				}
 				"medigun charge is crit boost"
 				{
 					"attribute_class"	"set_charge_type"
@@ -1939,7 +1988,12 @@
 			"drop_sound" 		"ui/item_helmet_pickup.wav"
 		}
 		
-		
+		"752"
+		{
+			"name"	"TF_WEAPON_NAILGUN"
+			"first_sale_date"	"2010/09/29"
+			"prefab"	"weapon_nailgun"
+		}
 		"751"
 		{
 			"name" "The Cleaner's Carbine"

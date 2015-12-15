@@ -58,12 +58,16 @@ public:
 	virtual float	GetStickRange( void );
 	virtual float	GetHealRate( void );
 	virtual bool	AppliesModifier( void ) { return true; }
+	int				GetMedigunType( void );
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_MEDIGUN; }
 
 	bool			IsReleasingCharge( void ) { return (m_bChargeRelease && !m_bHolstered); }
+	medigun_charge_types GetChargeType( void );
 
 	CBaseEntity		*GetHealTarget( void ) { return m_hHealingTarget.Get(); }
+
+	const char		*GetHealSound( void );
 
 #if defined( CLIENT_DLL )
 	// Stop all sounds being output.

@@ -582,6 +582,15 @@
 				"width"		"96"
 				"height"	"32"
 		}
+		"flaregun"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"96"
+				"y"		"64"
+				"width"		"96"
+				"height"	"32"
+		}
 		"wrench"
 		{
 				"dfile"	"HUD/d_images"

@@ -48,7 +48,6 @@
 #include "tf_hud_statpanel.h"
 #include "input.h"
 #include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_hud_mediccallers.h"
 #include "in_main.h"
@@ -1519,7 +1518,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 
 	RecvPropEHandle( RECVINFO( m_hItem ) ),
 
-	RecvPropVector(RECVINFO(m_vecPlayerColor)),
+	RecvPropVector( RECVINFO( m_vecPlayerColor ) ),
 
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
@@ -2095,35 +2094,17 @@ void C_TFPlayer::UpdateRecentlyTeleportedEffect( void )
 	{
 		if ( !m_pTeleporterEffect )
 		{
-			char *pEffect = NULL;
-
 			int iTeam = GetTeamNumber();
-			if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
+			if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				iTeam = m_Shared.GetDisguiseTeam();
 			}
 
-			switch ( iTeam )
-			{
-			case TF_TEAM_RED:
-				pEffect = "player_recent_teleport_red";
-				break;
-			case TF_TEAM_BLUE:
-				pEffect = "player_recent_teleport_blue";
-				break;
-			case TF_TEAM_GREEN:
-				pEffect = "player_recent_teleport_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pEffect = "player_recent_teleport_yellow";
-				break;
-			default:
-				break;
-			}
+			const char *pszEffect = ConstructTeamParticle( "player_recent_teleport_%s", iTeam );
 
-			if ( pEffect )
+			if ( pszEffect )
 			{
-				m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
+				m_pTeleporterEffect = ParticleProp()->Create( pszEffect, PATTACH_ABSORIGIN_FOLLOW );
 			}
 		}
 	}
@@ -2306,29 +2287,10 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 {
 	if ( bShow )
 	{
-		const char *pszEffect = NULL;
-		switch ( GetTeamNumber() )
-		{
-		case TF_TEAM_RED:
-			pszEffect = "particle_nemesis_red";
-			break;
-		case TF_TEAM_BLUE:
-			pszEffect = "particle_nemesis_blue";
-			break;
-		case TF_TEAM_GREEN:
-			pszEffect = "particle_nemesis_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pszEffect = "particle_nemesis_yellow";
-			break;
-		default:
-			return;	// shouldn't get called if we're not on a team; bail out if it does
-		}
-		if (TFGameRules()->IsDeathmatch())
-			pszEffect = "particle_nemesis_dm";
+		const char *pszEffect = ConstructTeamParticle( "particle_nemesis_%s", GetTeamNumber(), true );
 
 		m_Shared.SetParticleToMercColor(
-			ParticleProp()->Create(pszEffect, PATTACH_POINT_FOLLOW, "head")
+			ParticleProp()->Create( pszEffect, PATTACH_POINT_FOLLOW, "head" )
 		);
 	}
 	else

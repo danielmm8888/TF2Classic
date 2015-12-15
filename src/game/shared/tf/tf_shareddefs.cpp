@@ -23,6 +23,36 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Yellow"
 };
 
+const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
+{
+	"",
+	"",
+	"red",
+	"blue",
+	"green",
+	"yellow"
+};
+
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/ )
+{
+	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() )
+	{
+		return "dm";
+	}
+
+	int index = clamp( iTeam, FIRST_GAME_TEAM, TF_TEAM_COUNT - 1 );
+
+	return g_aTeamParticleNames[index];
+}
+
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/ )
+{
+	static char szParticleName[256];
+
+	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam ) );
+	return szParticleName;
+}
+
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
 {
 	{ 0, 0, 0, 0 }, // Unassigned
@@ -32,6 +62,11 @@ color32 g_aTeamColors[TF_TEAM_COUNT] =
 	{ 0, 255, 0, 0 }, // Green
 	{ 255, 255, 0, 0 } // Yellow
 };
+
+bool IsGameTeam( int iTeam )
+{
+	return ( iTeam > LAST_SHARED_TEAM && iTeam < TF_TEAM_COUNT ); 
+}
 
 //-----------------------------------------------------------------------------
 // Classes.
@@ -682,6 +717,20 @@ int ConditionExpiresFast( int nCond )
 
 	return false;
 }
+
+
+//-----------------------------------------------------------------------------
+// Mediguns.
+//-----------------------------------------------------------------------------
+MedigunEffects_t g_MedigunEffects[] =
+{
+	{ TF_COND_INVULNERABLE, TF_COND_INVULNERABLE_WEARINGOFF, "TFPlayer.InvulnerableOn", "TFPlayer.InvulnerableOff" },
+	{ TF_COND_CRITBOOSTED, TF_COND_LAST, "TFPlayer.CritBoostOn", "TFPlayer.CritBoostOff" },
+	{ TF_COND_MEGAHEAL, TF_COND_LAST, "TFPlayer.QuickFixInvulnerableOn", "TFPlayer.MegaHealOff" },
+	{ TF_COND_MEDIGUN_UBER_BULLET_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_BLAST_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_FIRE_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+};
 
 // ------------------------------------------------------------------------------------------------ //
 // CObjectInfo tables.

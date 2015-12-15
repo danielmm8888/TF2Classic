@@ -34,8 +34,12 @@ enum
 #define TF_TEAM_AUTOASSIGN (TF_TEAM_COUNT + 1 )
 
 extern const char *g_aTeamNames[TF_TEAM_COUNT];
+extern const char *g_aTeamParticleNames[TF_TEAM_COUNT];
 extern color32 g_aTeamColors[TF_TEAM_COUNT];
 extern color32 g_aTeamSkinColors[TF_TEAM_COUNT];
+
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride = false );
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride = false );
 
 #define CONTENTS_REDTEAM	CONTENTS_TEAM1
 #define CONTENTS_BLUETEAM	CONTENTS_TEAM2
@@ -345,15 +349,15 @@ enum
 	TF_WEAPON_INVIS,
 	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
 	TF_WEAPON_SMG_SCOUT,
-	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_CYCLOPS,
-	TF_WEAPON_OVERHEALER,
-	TF_WEAPON_FISHWHACKER,
-	TF_WEAPON_SHOTGUN_MEDIC,
+	TF_WEAPON_ROCKETLAUNCHERBETA, // DELETE
+	TF_WEAPON_CYCLOPS, // DELETE
+	TF_WEAPON_OVERHEALER, // DELETE
+	TF_WEAPON_FISHWHACKER, // DELETE
+	TF_WEAPON_SHOTGUN_MEDIC, // DELETE
 	TF_WEAPON_HUNTERRIFLE,
 	TF_WEAPON_UMBRELLA,
-	TF_WEAPON_KRITZKRIEG,
-	TF_WEAPON_UBERSAW,
+	TF_WEAPON_KRITZKRIEG, // DELETE
+	TF_WEAPON_UBERSAW, // DELETE
 	TF_WEAPON_FLAREGUN,
 	TF_WEAPON_HAMMERFISTS,
 	TF_WEAPON_STENGUN,
@@ -549,6 +553,44 @@ enum
 extern int condition_to_attribute_translation[];
 
 int ConditionExpiresFast( int nCond );
+
+//-----------------------------------------------------------------------------
+// Mediguns.
+//-----------------------------------------------------------------------------
+enum
+{
+	TF_MEDIGUN_STOCK = 0,
+	TF_MEDIGUN_KRITZKRIEG,
+	TF_MEDIGUN_QUICKFIX,
+	TF_MEDIGUN_VACCINATOR,
+	TF_MEDIGUN_OVERHEALER,
+	TF_MEDIGUN_COUNT
+};
+
+enum medigun_charge_types
+{
+	TF_CHARGE_NONE = -1,
+	TF_CHARGE_INVULNERABLE = 0,
+	TF_CHARGE_CRITBOOSTED,
+	// TODO:
+#if 0
+	TF_CHARGE_MEGAHEAL,
+	TF_CHARGE_BULLET_RESIST,
+	TF_CHARGE_BLAST_RESIST,
+	TF_CHARGE_FIRE_RESIST,
+#endif
+	TF_CHARGE_COUNT
+};
+
+typedef struct
+{
+	int condition_enable;
+	int condition_disable;
+	const char *sound_enable;
+	const char *sound_disable;
+} MedigunEffects_t;
+
+extern MedigunEffects_t g_MedigunEffects[];
 
 //-----------------------------------------------------------------------------
 // TF Player State.

@@ -427,7 +427,6 @@ bool CTFPipebombLauncher::DetonateRemotePipebombs( bool bFizzle )
 				}
 			}
 #ifdef GAME_DLL
-			
 			pTemp->Detonate();
 #endif
 		}
