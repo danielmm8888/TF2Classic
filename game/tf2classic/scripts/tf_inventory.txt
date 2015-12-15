@@ -5,95 +5,95 @@
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"scout"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"sniper"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"soldier"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
-	"Demoman"
+	"demoman"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"medic"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"heavy"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"pyro"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"spy"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"engineer"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"Civilian"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 	"Mercenary"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
 		"Melee"		"0"
-		"building"		"0"
-		"PDA"		"0"
+		"PDA1"		"0"
+		"PDA2"		"0"
 	}
 }
