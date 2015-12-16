@@ -467,7 +467,24 @@ int Item3ArmActTable[13][2] = {
 // Purpose: 
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
-{
+{	
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
+	if ( pTFPlayer == NULL )
+	{
+		Assert( false ); // This shouldn't be possible
+		return iActivity;
+	}
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel( m_nViewModelIndex, false ) );
+	if ( vm == NULL )
+	{
+		return iActivity;
+	}
+
+	// This is only used by TF2 VM type.
+	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
+		return iActivity;
+
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
 	if ( HasItemDefinition() )
@@ -479,35 +496,11 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 		}
 
 		Activity actActivityOverride = m_Item.GetActivityOverride( GetTeamNumber(), (Activity)iActivity );
-		if ( actActivityOverride != ACT_INVALID )
+		if ( actActivityOverride != iActivity )
 		{
-			iActivity = actActivityOverride;
-			return iActivity;
+			return actActivityOverride;
 		}
 	}
-
-	Activity actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
-	if ( actActivityOverride != iActivity )
-	{
-		iActivity = actActivityOverride;
-		return iActivity;
-	}
-	
-	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
-	if ( pTFPlayer == NULL )
-	{
-		Assert(false); // This shouldn't be possible
-		return iActivity;
-	}
-
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel( m_nViewModelIndex, false ) );
-	if (vm == NULL)
-	{
-		return iActivity;
-	}
-
-	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
-		return iActivity;
 
 	switch ( iWeaponRole )
 	{
@@ -570,10 +563,6 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 		default:
 			return iActivity;
 	};
-
-	actActivityOverride = m_pWeaponInfo->GetActivityOverride( (Activity)iActivity );
-	if ( actActivityOverride != iActivity )
-		iActivity = actActivityOverride;
 	
 	return iActivity;
 }

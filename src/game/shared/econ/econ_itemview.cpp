@@ -56,6 +56,9 @@ END_SEND_TABLE()
 
 EconItemDefinition *CEconItemView::GetStaticData( void ) const
 {
+	if ( m_iItemDefinitionIndex < 0 )
+		return NULL;
+
 	return GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
 }
 
@@ -124,30 +127,37 @@ Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOrigin
 {
 	EconItemDefinition *pStatic = GetStaticData();
 
-	int iOverridenActivity = ACT_INVALID;
-
 	if ( pStatic )
 	{
+		int iOverridenActivity = ACT_INVALID;
+
 		EconItemVisuals *pVisuals = pStatic->GetVisuals( iTeamNumber );
 		FIND_ELEMENT( pVisuals->animation_replacement, actOriginalActivity, iOverridenActivity );
+
+		if ( iOverridenActivity != ACT_INVALID )
+			return (Activity)iOverridenActivity;
 	}
 
-	return (Activity)iOverridenActivity;
+	return actOriginalActivity;
 }
 
 const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *name )
 {
 	EconItemDefinition *pStatic = GetStaticData();
-	int iOriginalAct = ActivityList_IndexForName( name );
-	int iOverridenAct = ACT_INVALID;
 
 	if ( pStatic )
 	{
+		int iOriginalAct = ActivityList_IndexForName( name );
+		int iOverridenAct = ACT_INVALID;
 		EconItemVisuals *pVisuals = pStatic->GetVisuals( iTeamNumber );
+
 		FIND_ELEMENT( pVisuals->animation_replacement, iOriginalAct, iOverridenAct );
+
+		if ( iOverridenAct != ACT_INVALID )
+			return ActivityList_NameForIndex( iOverridenAct );
 	}
 
-	return ActivityList_NameForIndex( iOverridenAct );
+	return name;
 }
 
 const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) const

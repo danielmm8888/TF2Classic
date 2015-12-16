@@ -74,8 +74,6 @@ public:
 
 	WeaponData_t const &GetWeaponData( int iWeapon ) const	{ return m_WeaponData[iWeapon]; }
 
-	Activity GetActivityOverride( Activity actOriginalActivity ) const;
-
 public:
 
 	WeaponData_t	m_WeaponData[2];
@@ -123,11 +121,6 @@ public:
 	int		m_iSlotDM;
 	int		m_iPositionDM;
 #endif
-
-protected:
-	CUtlDict< const char*, unsigned short > m_AnimationReplacement;
-	CUtlDict< const char*, unsigned short > m_AnimationReplacementDM;
-
 };
 
 #endif // TF_WEAPON_PARSE_H
