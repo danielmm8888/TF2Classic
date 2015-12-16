@@ -1946,7 +1946,7 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 		CALL_ATTRIB_HOOK_FLOAT( flAddCharge, add_onhit_ubercharge );
 		if ( flAddCharge )
 		{
-			CWeaponMedigun *pMedigun = pOwner->GetMedigun();;
+			CWeaponMedigun *pMedigun = pOwner->GetMedigun();
 
 			if ( pMedigun )
 			{
