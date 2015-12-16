@@ -158,7 +158,7 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 		int actCount = ARRAYSIZE( m_acttableLoserState );
 		for ( int i = 0; i < actCount; i++ )
 		{
-			const acttable_t& act = m_acttableLoserState[ i ];
+			const acttable_t& act = m_acttableLoserState[i];
 			if ( actDesired == act.baseAct)
 				return (Activity)act.weaponAct;
 		}
@@ -175,20 +175,15 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 		}
 	}
 
-	if ( GetTFPlayer()->GetActiveWeapon() )
+	CBaseCombatWeapon *pWeapon = GetTFPlayer()->GetActiveWeapon();
+	if ( pWeapon )
 	{
-		Activity actOverridenActivity;
-
-		actOverridenActivity = GetTFPlayer()->GetActiveTFWeapon()->GetTFWpnData().GetActivityOverride( translateActivity );
-		if ( actOverridenActivity != translateActivity )
-			return actOverridenActivity;
-
 		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
 
-		actOverridenActivity = GetTFPlayer()->GetActiveTFWeapon()->GetTFWpnData().GetActivityOverride( translateActivity );
-		if ( actOverridenActivity != translateActivity )
-			return actOverridenActivity;
+		// Live TF2 does this but is doing this after the above call correct?
+		translateActivity = pWeapon->GetItem()->GetActivityOverride( GetTFPlayer()->GetTeamNumber(), translateActivity );
 	}
+
 	return translateActivity;
 }
 
@@ -492,6 +487,18 @@ void CTFPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
 		}
 	}
 #endif
+}
+
+void CTFPlayerAnimState::RestartGesture( int iGestureSlot, Activity iGestureActivity, bool bAutoKill )
+{
+	CBaseCombatWeapon *pWeapon = m_pTFPlayer->GetActiveWeapon();
+
+	if ( pWeapon )
+	{
+		iGestureActivity = pWeapon->GetItem()->GetActivityOverride( m_pTFPlayer->GetTeamNumber(), iGestureActivity );
+	}
+
+	BaseClass::RestartGesture( iGestureSlot, iGestureActivity, bAutoKill );
 }
 
 //-----------------------------------------------------------------------------

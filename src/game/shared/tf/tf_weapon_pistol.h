@@ -45,6 +45,8 @@ public:
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_PISTOL; }
 
+	DECLARE_DM_ACTTABLE();
+
 private:
 	CTFPistol( const CTFPistol & ) {}
 };

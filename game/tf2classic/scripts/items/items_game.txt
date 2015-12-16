@@ -1237,11 +1237,11 @@
 			{
 				"animation_replacement"
 				{
-					//"ACT_VM_IDLE"	"ACT_FISTS_VM_IDLE"
-					//"ACT_VM_HITLEFT"	"ACT_FISTS_VM_HITLEFT"
-					//"ACT_VM_HITRIGHT"	"ACT_FISTS_VM_HITRIGHT"
-					//"ACT_VM_SWINGHARD"	"ACT_FISTS_VM_SWINGHARD"
-					//"ACT_VM_DRAW"	"ACT_FISTS_VM_DRAW"
+					"ACT_VM_IDLE"	"ACT_FISTS_VM_IDLE"
+					"ACT_VM_HITLEFT"	"ACT_FISTS_VM_HITLEFT"
+					"ACT_VM_HITRIGHT"	"ACT_FISTS_VM_HITRIGHT"
+					"ACT_VM_SWINGHARD"	"ACT_FISTS_VM_SWINGHARD"
+					"ACT_VM_DRAW"	"ACT_FISTS_VM_DRAW"
 				}
 				"styles"
 				{
@@ -1664,8 +1664,8 @@
 			{
 				"animation_replacement"
 				{
-					//"ACT_VM_IDLE"	"ACT_ENGINEER_PDA2_VM_IDLE"
-					//"ACT_VM_DRAW"	"ACT_ENGINEER_PDA2_VM_DRAW"
+					"ACT_VM_IDLE"	"ACT_ENGINEER_PDA2_VM_IDLE"
+					"ACT_VM_DRAW"	"ACT_ENGINEER_PDA2_VM_DRAW"
 				}
 			}
 		}
@@ -1699,8 +1699,8 @@
 			{
 				"animation_replacement"
 				{
-					//"ACT_VM_IDLE"	"ACT_ENGINEER_PDA1_VM_IDLE"
-					//"ACT_VM_DRAW"	"ACT_ENGINEER_PDA1_VM_DRAW"
+					"ACT_VM_IDLE"	"ACT_ENGINEER_PDA1_VM_IDLE"
+					"ACT_VM_DRAW"	"ACT_ENGINEER_PDA1_VM_DRAW"
 				}
 			}
 		}
@@ -1759,8 +1759,8 @@
 			{
 				"animation_replacement"
 				{
-					//"ACT_VM_IDLE"	"ACT_ENGINEER_BLD_VM_IDLE"
-					//"ACT_VM_DRAW"	"ACT_ENGINEER_BLD_VM_DRAW"
+					"ACT_VM_IDLE"	"ACT_ENGINEER_BLD_VM_IDLE"
+					"ACT_VM_DRAW"	"ACT_ENGINEER_BLD_VM_DRAW"
 				}
 			}
 		}

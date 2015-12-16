@@ -40,6 +40,7 @@ public:
 	virtual void Update( float eyeYaw, float eyePitch );
 
 	virtual void	DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
+	virtual void	RestartGesture( int iGestureSlot, Activity iGestureActivity, bool bAutoKill = true );
 
 	virtual bool	HandleMoving(Activity &idealActivity);
 	virtual bool	HandleJumping(Activity &idealActivity);

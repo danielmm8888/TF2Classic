@@ -677,6 +677,11 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 void CWeaponMedigun::AddCharge( float flAmount )
 {
+	float flChargeRate = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flChargeRate, mult_medigun_uberchargerate );
+	if ( !flChargeRate ) // Can't earn uber.
+		return;
+
 #ifdef GAME_DLL
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	CTFPlayer *pHealingTarget = ToTFPlayer( m_hHealingTarget );

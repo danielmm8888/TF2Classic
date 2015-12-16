@@ -265,10 +265,10 @@ public:
 			GET_STRING( pAttribute, pSubData, description_string );
 
 			const char *szFormat = pSubData->GetString( "description_format" );
-			pAttribute->description_format = UTIL_StringFieldToInt( szFormat, g_AttributeDescriptionFormats, 12 );
+			pAttribute->description_format = UTIL_StringFieldToInt( szFormat, g_AttributeDescriptionFormats, ARRAYSIZE( g_AttributeDescriptionFormats ) );
 
 			const char *szEffect = pSubData->GetString( "effect_type" );
-			pAttribute->effect_type = UTIL_StringFieldToInt( szEffect, g_EffectTypes, 5 );
+			pAttribute->effect_type = UTIL_StringFieldToInt( szEffect, g_EffectTypes, ARRAYSIZE( g_EffectTypes ) );
 
 			GET_BOOL( pAttribute, pSubData, hidden );
 			GET_BOOL( pAttribute, pSubData, stored_as_integer );
@@ -279,13 +279,13 @@ public:
 
 	bool ParseVisuals( KeyValues *pData, EconItemDefinition* pItem, int iIndex )
 	{
-		EconItemVisuals *visual = &pItem->visual[iIndex];
+		EconItemVisuals *pVisuals = &pItem->visual[iIndex];
 
 		for ( KeyValues *pVisualData = pData->GetFirstSubKey(); pVisualData != NULL; pVisualData = pVisualData->GetNextKey() )
 		{
 			if ( !Q_stricmp( pVisualData->GetName(), "player_bodygroups" ) )
 			{
-				GET_VALUES_FAST_BOOL( visual->player_bodygroups, pVisualData );
+				GET_VALUES_FAST_BOOL( pVisuals->player_bodygroups, pVisualData );
 			}
 			else if ( !Q_stricmp( pVisualData->GetName(), "attached_models" ) )
 			{
@@ -295,18 +295,18 @@ public:
 			{
 				for ( KeyValues *pKeyData = pVisualData->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey() )
 				{
-					int key = ActivityList_IndexForName( pVisualData->GetName() );
-					int value = ActivityList_IndexForName( pVisualData->GetString() );
+					int key = ActivityList_IndexForName( pKeyData->GetName() );
+					int value = ActivityList_IndexForName( pKeyData->GetString() );
 
 					if ( key != kActivityLookup_Missing && value != kActivityLookup_Missing )
 					{
-						visual->animation_replacement.InsertOrReplace( key, value );
+						pVisuals->animation_replacement.Insert( key, value );
 					}
 				}
 			}
 			else if ( !Q_stricmp( pVisualData->GetName(), "playback_activity" ) )
 			{
-				GET_VALUES_FAST_STRING( visual->playback_activity, pVisualData );
+				GET_VALUES_FAST_STRING( pVisuals->playback_activity, pVisualData );
 			}
 			else if ( !Q_strnicmp( pVisualData->GetName(), "sound_", 6 ) )
 			{
@@ -318,7 +318,7 @@ public:
 
 				if ( iSound != -1 )
 				{
-					Q_strncpy( visual->aWeaponSounds[iSound], szSoundName, MAX_WEAPON_STRING );
+					Q_strncpy( pVisuals->aWeaponSounds[iSound], szSoundName, MAX_WEAPON_STRING );
 				}
 			}
 			else if ( !Q_stricmp( pVisualData->GetName(), "styles" ) )
@@ -356,7 +356,7 @@ public:
 			}
 			else
 			{
-				GET_VALUES_FAST_STRING( visual->misc_info, pVisualData );
+				GET_VALUES_FAST_STRING( pVisuals->misc_info, pVisualData );
 			}
 		}
 
@@ -519,6 +519,10 @@ bool CEconItemSchema::Init()
 {
 	if (!m_bInited)
 	{
+		// Must register activities early so we can parse animation replacements.
+		ActivityList_Free();
+		ActivityList_RegisterSharedActivities();
+
 		g_EconSchemaParser.InitParser("scripts/items/items_game.txt", true, false);
 
 		m_bInited = true;
