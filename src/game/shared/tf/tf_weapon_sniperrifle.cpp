@@ -21,6 +21,10 @@
 #include "toolframework_client.h"
 #include "input.h"
 
+// For TFGameRules() and Player resources
+#include "tf_gamerules.h"
+#include "c_tf_playerresource.h"
+
 // forward declarations
 void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #endif
@@ -38,6 +42,7 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 #define SNIPER_DOT_SPRITE_BLUE		"effects/sniperdot_blue.vmt"
 #define SNIPER_DOT_SPRITE_GREEN		"effects/sniperdot_green.vmt"
 #define SNIPER_DOT_SPRITE_YELLOW	"effects/sniperdot_yellow.vmt"
+#define SNIPER_DOT_SPRITE_CLEAR		"effects/sniperdot_clear.vmt"
 
 //=============================================================================
 //
@@ -875,9 +880,30 @@ int CSniperDot::DrawModel( int flags )
 
 	float flLifeTime = gpGlobals->curtime - m_flChargeStartTime;
 	float flStrength = RemapValClamped( flLifeTime, 0.0, TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX / TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC, 0.1, 1.0 );
-
+	
 	color32 innercolor = { 255, 255, 255, 255 };
 	color32 outercolor = { 255, 255, 255, 128 };
+
+	// PistonMiner: DM sniper point coloring
+	if (TFGameRules()->IsDeathmatch())
+	{
+		// Get the color of the mercenary we are drawing the dot of.
+		C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
+		Color ownercolor = tf_PR->GetPlayerColor(pPlayer->index);
+
+		// Convert to HSV so we can edit the color better.
+		Vector hsv, rgb;
+		RGBtoHSV(Vector(ownercolor.r() / 255.f, ownercolor.g() / 255.f, ownercolor.b() / 255.f), hsv);
+
+		// Set the Value to max for constant brightness.
+		hsv.z = 1.0;
+
+		// Convert back to RGB
+		HSVtoRGB(hsv, rgb);
+
+		// Apply the color to our sprite.
+		m_hSpriteMaterial->ColorModulate( rgb.x, rgb.y, rgb.z );
+	}
 
 	DrawSprite( vecEndPos, flSize, flSize, outercolor );
 	DrawSprite( vecEndPos, flSize * flStrength, flSize * flStrength, innercolor );
@@ -908,21 +934,29 @@ void CSniperDot::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( updateType == DATA_UPDATE_CREATED )
 	{
-
-		switch (GetTeamNumber())
+		// If we are in DM mode, we precache a clear, white
+		// version of the sniper dot which we can color in later.
+		if ( TFGameRules()->IsDeathmatch() )
 		{
-		case TF_TEAM_RED:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_BLUE:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_GREEN:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_GREEN, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
-		case TF_TEAM_YELLOW:
-			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_YELLOW, TEXTURE_GROUP_CLIENT_EFFECTS);
-			break;
+			m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_CLEAR, TEXTURE_GROUP_CLIENT_EFFECTS);
+		}
+		else
+		{
+			switch (GetTeamNumber())
+			{
+			case TF_TEAM_RED:
+				m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_RED, TEXTURE_GROUP_CLIENT_EFFECTS);
+				break;
+			case TF_TEAM_BLUE:
+				m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_BLUE, TEXTURE_GROUP_CLIENT_EFFECTS);
+				break;
+			case TF_TEAM_GREEN:
+				m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_GREEN, TEXTURE_GROUP_CLIENT_EFFECTS);
+				break;
+			case TF_TEAM_YELLOW:
+				m_hSpriteMaterial.Init(SNIPER_DOT_SPRITE_YELLOW, TEXTURE_GROUP_CLIENT_EFFECTS);
+				break;
+			}
 		}
 	}
 }
