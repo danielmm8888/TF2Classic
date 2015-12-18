@@ -821,7 +821,7 @@ bool CTFWeaponBase::Deploy( void )
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.
-		float flDeployTime = 0.67;
+		float flDeployTime = 0.5f;
 		m_flNextPrimaryAttack = max( flOriginalPrimaryAttack, gpGlobals->curtime + flDeployTime );
 		m_flNextSecondaryAttack = max( flOriginalSecondaryAttack, gpGlobals->curtime + flDeployTime );
 
