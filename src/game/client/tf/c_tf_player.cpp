@@ -2360,6 +2360,8 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2396,6 +2398,8 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -3910,7 +3914,7 @@ void C_TFPlayer::ValidateModelIndex( void )
 void C_TFPlayer::Simulate( void )
 {
 	//Frame updates
-	if ( this == C_BasePlayer::GetLocalPlayer() )
+	if ( IsLocalPlayer() )
 	{
 		//Update the flashlight
 		Flashlight();

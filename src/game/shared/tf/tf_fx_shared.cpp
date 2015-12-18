@@ -133,11 +133,10 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	bDoEffects = true;
 
 	// The minigun has custom sound & animation code to deal with its windup/down.
-	if ( !pPlayer->IsLocalPlayer() 
-		&& iWeapon != TF_WEAPON_MINIGUN )
+	if ( pPlayer->ShouldDrawThisPlayer() && iWeapon != TF_WEAPON_MINIGUN )
 	{
 		// Fire the animation event.
-		if ( pPlayer && !pPlayer->IsDormant() )
+		if ( !pPlayer->IsDormant() )
 		{
 			if ( iMode == TF_WEAPON_PRIMARY_MODE )
 			{

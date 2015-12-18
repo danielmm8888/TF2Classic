@@ -7680,7 +7680,7 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	if ( args.ArgC() < 2 )
 		return;
 
-	const char *pszWeaponName = args[2];
+	const char *pszWeaponName = args[1];
 
 	int iWeaponID = GetWeaponId( pszWeaponName );
 
@@ -7711,7 +7711,7 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	}
 }
 
-CON_COMMAND_F( give_econ, "Give ECON with specified ID from item schema.", FCVAR_CHEAT )
+CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", FCVAR_CHEAT )
 {
 	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
 	if ( args.ArgC() < 2 )

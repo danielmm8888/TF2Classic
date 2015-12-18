@@ -103,6 +103,7 @@ CTFFlameThrower::CTFFlameThrower()
 	WeaponReset();
 
 #if defined( CLIENT_DLL )
+	m_pFlameEffect = NULL;
 	m_pFiringStartSound = NULL;
 	m_pFiringLoop = NULL;
 	m_bFiringLoopCritical = false;
@@ -832,24 +833,17 @@ void CTFFlameThrower::StopFlame( bool bAbrupt /* = false */ )
 		m_pFiringStartSound = NULL;
 	}
 
-	if ( m_bFlameEffects )
+	if ( m_pFlameEffect )
 	{
-		// Stop the effect on the viewmodel if our owner is the local player
-		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer && pLocalPlayer == GetOwner() )
+		if ( m_hFlameEffectHost.Get() )
 		{
-			if ( pLocalPlayer->GetViewModel() )
-			{
-				pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			}
+			m_hFlameEffectHost->ParticleProp()->StopEmission( m_pFlameEffect );
+			m_hFlameEffectHost = NULL;
 		}
-		else
-		{
-			ParticleProp()->StopEmission();
-		}
+
+		m_pFlameEffect = NULL;
 	}
 
-	m_bFlameEffects = false;
 	m_iParticleWaterLevel = -1;
 }
 
@@ -894,7 +888,13 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	if ( !pOwner )
 		return;
 
+	if ( m_pFlameEffect && m_hFlameEffectHost.Get() )
+	{
+		m_hFlameEffectHost->ParticleProp()->StopEmission( m_pFlameEffect );
+	}
+
 	m_iParticleWaterLevel = pOwner->GetWaterLevel();
+	int iTeam = pOwner->GetTeamNumber();
 
 	// Start the appropriate particle effect
 	const char *pszParticleEffect;
@@ -906,34 +906,24 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	{
 		if ( m_bCritFire )
 		{
-			pszParticleEffect = ConstructTeamParticle( "flamethrower_crit_%s", pOwner->GetTeamNumber(), true );
+			pszParticleEffect = ConstructTeamParticle( "flamethrower_crit_%s", iTeam, true );
 		}
 		else 
 		{
-			pszParticleEffect = ConstructTeamParticle( "flamethrower_%s", pOwner->GetTeamNumber(), true );
+			pszParticleEffect = iTeam == TF_TEAM_RED ? "flamethrower" : ConstructTeamParticle( "flamethrower_%s", pOwner->GetTeamNumber(), true );
 		}		
 	}
 
 	// Start the effect on the viewmodel if our owner is the local player
-	C_TFPlayer *pLocalPlayer = ToTFPlayer( C_BasePlayer::GetLocalPlayer() );
-	CNewParticleEffect *pParticle = NULL;
-	if ( pLocalPlayer && pLocalPlayer == GetOwner() )
+	C_BaseEntity *pModel = GetWeaponForEffect();
+
+	if ( pModel )
 	{
-		if ( pLocalPlayer->GetViewModel() )
-		{
-			pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			pParticle = pLocalPlayer->GetViewModel()->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
-		}
-	}
-	else
-	{
-		ParticleProp()->StopEmission();
-		pParticle = ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+		m_pFlameEffect = pModel->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+		m_hFlameEffectHost = pModel;
 	}
 
-	pOwner->m_Shared.SetParticleToMercColor( pParticle );
-
-	m_bFlameEffects = true;
+	pOwner->m_Shared.SetParticleToMercColor( m_pFlameEffect );
 }
 
 #endif

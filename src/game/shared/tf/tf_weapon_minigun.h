@@ -127,6 +127,7 @@ private:
 	void StopBrassEffect();
 	void HandleBrassEffect();
 
+	EHANDLE				m_hBrassEffectHost;
 	CNewParticleEffect *m_pEjectBrassEffect;
 	int					m_iEjectBrassAttachment;
 
@@ -134,6 +135,7 @@ private:
 	void StopMuzzleEffect();
 	void HandleMuzzleEffect();
 
+	EHANDLE				m_hMuzzleEffectHost;
 	CNewParticleEffect *m_pMuzzleEffect;
 	int					m_iMuzzleAttachment;
 #endif

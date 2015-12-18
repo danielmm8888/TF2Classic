@@ -104,7 +104,8 @@ private:
 	CSoundPatch	*m_pFiringStartSound;
 	CSoundPatch	*m_pFiringLoop;
 	bool		m_bFiringLoopCritical;
-	bool		m_bFlameEffects;
+	CNewParticleEffect *m_pFlameEffect;
+	EHANDLE		m_hFlameEffectHost;
 	CSoundPatch *m_pPilotLightSound;
 #endif
 

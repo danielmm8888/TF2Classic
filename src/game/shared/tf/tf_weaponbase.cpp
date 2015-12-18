@@ -1984,14 +1984,8 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 	const char *pszMuzzleFlashParticleEffect = GetMuzzleFlashParticleEffect();
 
 	// Pick the right muzzleflash (3rd / 1st person)
-	CTFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pLocalPlayer && ( GetOwnerEntity() == pLocalPlayer || 
-		( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == GetOwnerEntity() ) ) )
+	if ( UsingViewModel() )
 	{
-		// Don't draw muzzleflashes if the viewmodels are disabled
-		if ( !r_drawviewmodel.GetBool() )
-			return;
-
 		pszMuzzleFlashEffect = GetMuzzleFlashEffectName_1st();
 	}
 	else
@@ -2102,12 +2096,11 @@ void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 	if ( pOwner == NULL )
 		return;
 
-	bool bDrawMuzzleFlashOnViewModel = ( pOwner->IsLocalPlayer() && !C_BasePlayer::ShouldDrawLocalPlayer() ) ||
-		( IsLocalPlayerSpectator() && GetSpectatorMode() == OBS_MODE_IN_EYE && GetSpectatorTarget() == pOwner->entindex() );
+	bool bDrawMuzzleFlashOnViewModel = !pOwner->ShouldDrawThisPlayer();
 
 	// Don't draw muzzleflashes if the viewmodels are disabled
-	if ( !r_drawviewmodel.GetBool() )
-		bDrawMuzzleFlashOnViewModel = false;
+	if ( bDrawMuzzleFlashOnViewModel && !r_drawviewmodel.GetBool() )
+		return;
 
 	if ( bDrawMuzzleFlashOnViewModel )
 	{
@@ -2661,24 +2654,30 @@ CTFPlayer *CTFWeaponBase::GetTFPlayerOwner() const
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+bool CTFWeaponBase::UsingViewModel( void )
+{
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && !pOwner->ShouldDrawThisPlayer() )
+		return true;
+
+	return false;
+}
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
 C_BaseEntity *CTFWeaponBase::GetWeaponForEffect()
 {
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( !pLocalPlayer )
-		return NULL;
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
 
-#if 0
-	// This causes many problems!
-	if ( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE )
+	if ( pOwner && !pOwner->ShouldDrawThisPlayer() )
 	{
-		C_BasePlayer *pObserverTarget = ToBasePlayer( pLocalPlayer->GetObserverTarget() );
-		if ( pObserverTarget )
-			return pObserverTarget->GetViewModel();
+		C_BaseViewModel *pViewModel = pOwner->GetViewModel();
+		
+		if ( pViewModel )
+			return pViewModel;
 	}
-#endif
-
-	if ( pLocalPlayer == GetTFPlayerOwner() && !C_BasePlayer::ShouldDrawLocalPlayer() )
-		return pLocalPlayer->GetViewModel();
 
 	return this;
 }
