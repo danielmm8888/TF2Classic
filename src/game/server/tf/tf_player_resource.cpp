@@ -51,11 +51,9 @@ void CTFPlayerResource::UpdatePlayerData( void )
 			int iTotalScore = CTFGameRules::CalcPlayerScore( &pPlayerStats->statsAccumulated );
 			m_iTotalScore.Set( i, iTotalScore );
 
-			Vector vecColor = pPlayer->m_vecPlayerColor;
-			m_iColors.Set(i, Vector(vecColor.x, vecColor.y, vecColor.z));
-			//Msg("Server %f %f %f\n", m_iColors.Get(i).x, m_iColors.Get(i).y, m_iColors.Get(i).z);
+			m_iColors.Set( i, pPlayer->m_vecPlayerColor );
 
-			m_iKillstreak.Set(i, pPlayer->m_Shared.GetKillstreak());
+			m_iKillstreak.Set( i, pPlayer->m_Shared.GetKillstreak() );
 			}					
 		}
 	}

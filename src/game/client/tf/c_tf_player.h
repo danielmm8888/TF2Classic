@@ -34,6 +34,7 @@ extern ConVar cl_autoreload;
 extern ConVar tf2c_setmerccolor_r;
 extern ConVar tf2c_setmerccolor_g;
 extern ConVar tf2c_setmerccolor_b;
+extern ConVar tf2c_setmercparticle;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -273,7 +274,7 @@ private:
 
 public:
 
-	Vector					m_vecPlayerColor;
+	Vector				m_vecPlayerColor;
 
 private:
 

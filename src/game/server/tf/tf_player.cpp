@@ -399,7 +399,7 @@ CTFPlayer::CTFPlayer()
 
 	m_vecLastDeathPosition = Vector( FLT_MAX, FLT_MAX, FLT_MAX );
 
-	m_vecPlayerColor = Vector(1.0f, 1.0f, 1.0f);
+	m_vecPlayerColor.Init( 1.0f, 1.0f, 1.0f );
 
 	SetDesiredPlayerClassIndex( TF_CLASS_UNDEFINED );
 
@@ -811,11 +811,6 @@ void CTFPlayer::PrecachePlayerModels( void )
 		PrecacheModel( "models/effects/bday_hat.mdl" );
 	}
 
-	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
-	{
-		PrecacheModel( "models/items/ammopack_medium.mdl" );
-	}
-
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
 	{
@@ -892,8 +887,9 @@ void CTFPlayer::InitialSpawn( void )
 
 	m_bIsPlayerADev = PlayerHasPowerplay();
 
-	StateEnter( TF_STATE_WELCOME );
+	UpdatePlayerColor();
 
+	StateEnter( TF_STATE_WELCOME );
 }
 
 
@@ -1108,6 +1104,9 @@ void CTFPlayer::InitClass( void )
 
 	// Give default items for class.
 	GiveDefaultItems();
+
+	// Update player's color.
+	UpdatePlayerColor();
 }
 
 //-----------------------------------------------------------------------------
@@ -4505,12 +4504,6 @@ void CTFPlayer::DropAmmoPack( void )
 	if( !CalculateAmmoPackPositionAndAngles( pWeapon, vecPackOrigin, vecPackAngles ) )
 		return;
 
-	// In DM, use medium ammo pack model and drop it along with our weapon ala Gun Mettle.
-	if ( TFGameRules()->IsDeathmatch() )
-	{
-		pszWorldModel = "models/items/ammopack_medium.mdl";
-	}
-
 	// Fill the ammo pack with unused player ammo, if out add a minimum amount.
 	int iPrimary = max( 5, GetAmmoCount( TF_AMMO_PRIMARY ) );
 	int iSecondary = max( 5, GetAmmoCount( TF_AMMO_SECONDARY ) );
@@ -4680,7 +4673,7 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 {
 	if ( !pWeapon ||
 		pWeapon->GetTFWpnData().m_bDontDrop ||
-		( pWeapon->IsWeapon( TF_WEAPON_BUILDER ) && m_Shared.IsCarryingObject() ) )
+		pWeapon->IsWeapon( TF_WEAPON_BUILDER ) )
 	{
 		// Can't drop this weapon
 		return;
@@ -4691,9 +4684,10 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 		( pWeapon->IsWeapon( TF_WEAPON_PISTOL ) || pWeapon->IsWeapon( TF_WEAPON_CROWBAR ) ) )
 		return;
 
-	int iClip = pWeapon->UsesClipsForAmmo1() ? pWeapon->Clip1() : -1;
+	int iClip = pWeapon->UsesClipsForAmmo1() ? pWeapon->Clip1() : WEAPON_NOCLIP;
 	int iAmmo = GetAmmoCount( pWeapon->GetPrimaryAmmoType() );
 
+	// Don't drop empty weapons
 	if ( iAmmo == 0 )
 		return;
 
@@ -7905,4 +7899,18 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 	}
 
 	return true; 
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::UpdatePlayerColor( void )
+{
+	// Update color from their convars
+	Vector vecNewColor;
+	vecNewColor.x = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
+	vecNewColor.y = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
+	vecNewColor.z = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+
+	m_vecPlayerColor = vecNewColor;
 }
