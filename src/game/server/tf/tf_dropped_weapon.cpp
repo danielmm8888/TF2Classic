@@ -32,6 +32,8 @@ void CTFDroppedWeapon::Spawn( void )
 {
 	m_pWeaponInfo = GetTFWeaponInfo( m_nWeaponID );
 
+	Assert( m_pWeaponInfo );
+
 	m_iMaxAmmo = m_pWeaponInfo->m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
 
 	SetModel( STRING( GetModelName() ) );
@@ -122,15 +124,14 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
 				// Give however many ammo we have
-				if ( pTFPlayer->GiveAmmo( m_iAmmo, GetTFWeaponInfo( m_nWeaponID )->iAmmoType ) )
+				if ( pTFPlayer->GiveAmmo( m_iAmmo, m_pWeaponInfo->iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
 			}
-			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) )
+			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && ( pTFPlayer->m_nButtons & IN_USE ) ) // Check Use button
 			{
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );
 
-				// Check Use button
 				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
 				{
 					pWeapon->Holster();
@@ -179,6 +180,8 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 			UserMessageBegin( user, "ItemPickup" );
 			WRITE_STRING( GetClassname() );
 			MessageEnd();
+
+			pPlayer->EmitSound( "BaseCombatCharacter.AmmoPickup" );
 		}
 	}
 

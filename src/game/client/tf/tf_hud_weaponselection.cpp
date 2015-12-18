@@ -119,24 +119,23 @@ void CItemModelPanel::PerformLayout()
 	m_pSlotID->SetContentAlignment(CTFAdvButtonBase::GetAlignment("east"));
 }
 
-void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int ID)
+void CItemModelPanel::SetWeapon( C_BaseCombatWeapon *pWeapon, int ID )
 {
 	m_pWeapon = pWeapon;
 	m_ID = ID;
 
-	int iItemID = m_pWeapon->GetItemID();
-	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
+	EconItemDefinition *pItemDefinition = m_pWeapon->GetItem()->GetStaticData();
 	wchar_t *pText = NULL;
-	if (pItemDefinition)
+	if ( pItemDefinition )
 	{
-		pText = g_pVGuiLocalize->Find(pItemDefinition->item_name);
+		pText = g_pVGuiLocalize->Find( pItemDefinition->item_name );
 		char szImage[128];
-		Q_snprintf(szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory);
+		Q_snprintf( szImage, sizeof( szImage ), "../%s_large", pItemDefinition->image_inventory );
 		char szSlotID[8];
-		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
-		m_pWeaponImage->SetImage(szImage);
-		m_pWeaponName->SetText(pText);
-		m_pSlotID->SetText(szSlotID);
+		itoa( m_ID + 1, szSlotID, sizeof( szSlotID ) );
+		m_pWeaponImage->SetImage( szImage );
+		m_pWeaponName->SetText( pText );
+		m_pSlotID->SetText( szSlotID );
 	}
 }
 

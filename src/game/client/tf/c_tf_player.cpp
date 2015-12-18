@@ -86,19 +86,6 @@ ConVar cl_autoreload( "cl_autoreload", "1",  FCVAR_USERINFO | FCVAR_ARCHIVE, "Wh
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
-static void OnMercColorChange( IConVar *var, const char *pOldValue, float flOldValue )
-{
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( !pLocalPlayer )
-		return;
-
-	float flRed = tf2c_setmerccolor_r.GetInt() / 255.0f;
-	float flGreen = tf2c_setmerccolor_g.GetInt() / 255.0f;
-	float flBlue = tf2c_setmerccolor_b.GetInt() / 255.0f;
-
-	pLocalPlayer->m_vecPlayerColor = Vector( flRed, flGreen, flBlue );
-}
-
 static void OnMercParticleChange( IConVar *var, const char *pOldValue, float flOldValue )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
@@ -110,10 +97,10 @@ static void OnMercParticleChange( IConVar *var, const char *pOldValue, float flO
 	pLocalPlayer->m_Shared.SetRespawnParticleID( pCvar->GetInt() );
 }
 
-ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's red channel value", true, 0, true, 255, OnMercColorChange);
-ConVar tf2c_setmerccolor_g( "tf2c_setmerccolor_g", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's green channel value", true, 0, true, 255, OnMercColorChange );
-ConVar tf2c_setmerccolor_b( "tf2c_setmerccolor_b", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc color's blue channel value", true, 0, true, 255, OnMercColorChange );
-ConVar tf2c_setmercparticle( "tf2c_setmercparticle", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange );
+ConVar tf2c_setmerccolor_r( "tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's red channel value", true, 0, true, 255 );
+ConVar tf2c_setmerccolor_g( "tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's green channel value", true, 0, true, 255 );
+ConVar tf2c_setmerccolor_b( "tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's blue channel value", true, 0, true, 255 );
+ConVar tf2c_setmercparticle( "tf2c_setmercparticle", "1", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc's respawn particle index", OnMercParticleChange );
 
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
@@ -1540,7 +1527,6 @@ BEGIN_PREDICTION_DATA( C_TFPlayer )
 	DEFINE_PRED_FIELD( m_nResetEventsParity, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE | FTYPEDESC_NOERRORCHECK ),
 	DEFINE_PRED_FIELD( m_nMuzzleFlashParity, FIELD_CHARACTER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE  ),
 	DEFINE_PRED_FIELD( m_hOffHandWeapon, FIELD_EHANDLE, FTYPEDESC_INSENDTABLE ),
-	DEFINE_PRED_FIELD( m_vecPlayerColor, FIELD_VECTOR, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 
 // ------------------------------------------------------------------------------------------ //
@@ -2360,6 +2346,8 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2396,6 +2384,8 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -3910,7 +3900,7 @@ void C_TFPlayer::ValidateModelIndex( void )
 void C_TFPlayer::Simulate( void )
 {
 	//Frame updates
-	if ( this == C_BasePlayer::GetLocalPlayer() )
+	if ( IsLocalPlayer() )
 	{
 		//Update the flashlight
 		Flashlight();

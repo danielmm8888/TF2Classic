@@ -72,10 +72,12 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFFlameThrower, DT_WeaponFlameThrower )
 BEGIN_NETWORK_TABLE( CTFFlameThrower, DT_WeaponFlameThrower )
 	#if defined( CLIENT_DLL )
 		RecvPropInt( RECVINFO( m_iWeaponState ) ),
-		RecvPropBool( RECVINFO( m_bCritFire ) )
+		RecvPropBool( RECVINFO( m_bCritFire ) ),
+		RecvPropBool( RECVINFO( m_bHitTarget ) )
 	#else
 		SendPropInt( SENDINFO( m_iWeaponState ), 4, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
-		SendPropBool( SENDINFO( m_bCritFire ) )
+		SendPropBool( SENDINFO( m_bCritFire ) ),
+		SendPropBool( SENDINFO( m_bHitTarget ) )
 	#endif
 END_NETWORK_TABLE()
 
@@ -103,10 +105,14 @@ CTFFlameThrower::CTFFlameThrower()
 	WeaponReset();
 
 #if defined( CLIENT_DLL )
+	m_pFlameEffect = NULL;
 	m_pFiringStartSound = NULL;
 	m_pFiringLoop = NULL;
 	m_bFiringLoopCritical = false;
 	m_pPilotLightSound = NULL;
+	m_pHitTargetSound = NULL;
+#else
+	m_flStopHitSoundTime = 0.0f;
 #endif
 }
 
@@ -138,6 +144,14 @@ void CTFFlameThrower::DestroySounds( void )
 		controller.SoundDestroy( m_pPilotLightSound );
 		m_pPilotLightSound = NULL;
 	}
+	if ( m_pHitTargetSound )
+	{
+		controller.SoundDestroy( m_pHitTargetSound );
+		m_pHitTargetSound = NULL;
+	}
+
+	m_bHitTarget = false;
+	m_bOldHitTarget = false;
 #endif
 
 }
@@ -147,6 +161,7 @@ void CTFFlameThrower::WeaponReset( void )
 
 	m_iWeaponState = FT_STATE_IDLE;
 	m_bCritFire = false;
+	m_bHitTarget = false;
 	m_flStartFiringTime = 0;
 	m_flAmmoUseRemainder = 0;
 
@@ -164,6 +179,7 @@ void CTFFlameThrower::Precache( void )
 	PrecacheScriptSound( "TFPlayer.AirBlastImpact" );
 	PrecacheScriptSound( "TFPlayer.FlameOut" );
 	PrecacheScriptSound( "Weapon_FlameThrower.AirBurstAttackDeflect" );
+	PrecacheScriptSound( "Weapon_FlameThrower.FireHit" );
 	PrecacheParticleSystem( "deflect_fx" );
 }
 
@@ -183,6 +199,7 @@ bool CTFFlameThrower::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	m_iWeaponState = FT_STATE_IDLE;
 	m_bCritFire = false;
+	m_bHitTarget = false;
 
 #if defined ( CLIENT_DLL )
 	StopFlame();
@@ -225,6 +242,7 @@ void CTFFlameThrower::ItemPostFrame()
 			pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_POST );
 			m_iWeaponState = FT_STATE_IDLE;
 			m_bCritFire = false;
+			m_bHitTarget = false;
 		}
 
 		if ( !ReloadOrSwitchWeapons() )
@@ -804,6 +822,23 @@ void CTFFlameThrower::StartFlame()
 				controller.Play( m_pFiringLoop, 1.0, 100 );
 			}
 		}
+
+		if( m_bHitTarget != m_bOldHitTarget )
+		{
+			if ( m_bHitTarget )
+			{
+				CLocalPlayerFilter filter;
+				m_pHitTargetSound = controller.SoundCreate( filter, entindex(), "Weapon_FlameThrower.FireHit" );
+				controller.Play( m_pHitTargetSound, 1.0f, 100.0f );
+			}
+			else if ( m_pHitTargetSound )
+			{
+				controller.SoundDestroy( m_pHitTargetSound );
+				m_pHitTargetSound = NULL;
+			}
+
+			m_bOldHitTarget = m_bHitTarget;
+		}
 	}
 }
 
@@ -820,36 +855,43 @@ void CTFFlameThrower::StopFlame( bool bAbrupt /* = false */ )
 		EmitSound( filter, entindex(), shootsound );
 	}
 
+	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
+
 	if ( m_pFiringLoop )
 	{
-		CSoundEnvelopeController::GetController().SoundDestroy( m_pFiringLoop );
+		controller.SoundDestroy( m_pFiringLoop );
 		m_pFiringLoop = NULL;
 	}
 
 	if ( m_pFiringStartSound )
 	{
-		CSoundEnvelopeController::GetController().SoundDestroy( m_pFiringStartSound );
+		controller.SoundDestroy( m_pFiringStartSound );
 		m_pFiringStartSound = NULL;
 	}
 
-	if ( m_bFlameEffects )
+	if ( m_pFlameEffect )
 	{
-		// Stop the effect on the viewmodel if our owner is the local player
-		C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
-		if ( pLocalPlayer && pLocalPlayer == GetOwner() )
+		if ( m_hFlameEffectHost.Get() )
 		{
-			if ( pLocalPlayer->GetViewModel() )
-			{
-				pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			}
+			m_hFlameEffectHost->ParticleProp()->StopEmission( m_pFlameEffect );
+			m_hFlameEffectHost = NULL;
 		}
-		else
-		{
-			ParticleProp()->StopEmission();
-		}
+
+		m_pFlameEffect = NULL;
 	}
 
-	m_bFlameEffects = false;
+	if ( !bAbrupt )
+	{
+		if ( m_pHitTargetSound )
+		{
+			controller.SoundDestroy( m_pHitTargetSound );
+			m_pHitTargetSound = NULL;
+		}
+
+		m_bOldHitTarget = false;
+		m_bHitTarget = false;
+	}
+
 	m_iParticleWaterLevel = -1;
 }
 
@@ -894,7 +936,13 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	if ( !pOwner )
 		return;
 
+	if ( m_pFlameEffect && m_hFlameEffectHost.Get() )
+	{
+		m_hFlameEffectHost->ParticleProp()->StopEmission( m_pFlameEffect );
+	}
+
 	m_iParticleWaterLevel = pOwner->GetWaterLevel();
+	int iTeam = pOwner->GetTeamNumber();
 
 	// Start the appropriate particle effect
 	const char *pszParticleEffect;
@@ -906,36 +954,54 @@ void CTFFlameThrower::RestartParticleEffect( void )
 	{
 		if ( m_bCritFire )
 		{
-			pszParticleEffect = ConstructTeamParticle( "flamethrower_crit_%s", pOwner->GetTeamNumber(), true );
+			pszParticleEffect = ConstructTeamParticle( "flamethrower_crit_%s", iTeam, true );
 		}
 		else 
 		{
-			pszParticleEffect = ConstructTeamParticle( "flamethrower_%s", pOwner->GetTeamNumber(), true );
+			pszParticleEffect = iTeam == TF_TEAM_RED ? "flamethrower" : ConstructTeamParticle( "flamethrower_%s", pOwner->GetTeamNumber(), true );
 		}		
 	}
 
 	// Start the effect on the viewmodel if our owner is the local player
-	C_TFPlayer *pLocalPlayer = ToTFPlayer( C_BasePlayer::GetLocalPlayer() );
-	CNewParticleEffect *pParticle = NULL;
-	if ( pLocalPlayer && pLocalPlayer == GetOwner() )
+	C_BaseEntity *pModel = GetWeaponForEffect();
+
+	if ( pModel )
 	{
-		if ( pLocalPlayer->GetViewModel() )
-		{
-			pLocalPlayer->GetViewModel()->ParticleProp()->StopEmission();
-			pParticle = pLocalPlayer->GetViewModel()->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
-		}
+		m_pFlameEffect = pModel->ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+		m_hFlameEffectHost = pModel;
+	}
+
+	pOwner->m_Shared.SetParticleToMercColor( m_pFlameEffect );
+}
+
+#else
+//-----------------------------------------------------------------------------
+// Purpose: Notify client that we're hitting an enemy.
+//-----------------------------------------------------------------------------
+void CTFFlameThrower::SetHitTarget( void )
+{
+	if ( m_iWeaponState > FT_STATE_IDLE )
+	{
+		if ( !m_bHitTarget )
+			m_bHitTarget = true;
+
+		m_flStopHitSoundTime = gpGlobals->curtime + 0.2f;
+		SetContextThink( &CTFFlameThrower::HitTargetThink, gpGlobals->curtime + 0.1f, "FlameThrowerHitTargetThink" );
+	}
+}
+
+void CTFFlameThrower::HitTargetThink( void )
+{
+	if ( m_flStopHitSoundTime != 0.0f && m_flStopHitSoundTime > gpGlobals->curtime )
+	{
+		m_bHitTarget = false;
+		SetContextThink( NULL, 0, "FlameThrowerHitTargetThink" );
 	}
 	else
 	{
-		ParticleProp()->StopEmission();
-		pParticle = ParticleProp()->Create( pszParticleEffect, PATTACH_POINT_FOLLOW, "muzzle" );
+		SetContextThink( &CTFFlameThrower::HitTargetThink, gpGlobals->curtime + 0.1f, "FlameThrowerHitTargetThink" );
 	}
-
-	pOwner->m_Shared.SetParticleToMercColor( pParticle );
-
-	m_bFlameEffects = true;
 }
-
 #endif
 
 #ifdef GAME_DLL
@@ -965,6 +1031,7 @@ void CTFFlameEntity::Spawn( void )
 	m_vecInitialPos = GetAbsOrigin();
 	m_vecPrevPos = m_vecInitialPos;
 	m_flTimeRemove = gpGlobals->curtime + ( tf_flamethrower_flametime.GetFloat() * random->RandomFloat( 0.9, 1.1 ) );
+	m_hLauncher = dynamic_cast<CTFFlameThrower *>( GetOwnerEntity() );
 	
 	// Setup the think function.
 	SetThink( &CTFFlameEntity::FlameThink );
@@ -1197,6 +1264,8 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 	if ( !pAttacker )
 		return;
 
+	SetHitTarget();
+
 	CTakeDamageInfo info( GetOwnerEntity(), pAttacker, GetOwnerEntity(), flDamage, m_iDmgType, TF_DMG_CUSTOM_BURNING );
 	info.SetReportedPosition( pAttacker->GetAbsOrigin() );
 
@@ -1206,6 +1275,14 @@ void CTFFlameEntity::OnCollide( CBaseEntity *pOther )
 
 	pOther->DispatchTraceAttack( info, GetAbsVelocity(), &pTrace );
 	ApplyMultiDamage();
+}
+
+void CTFFlameEntity::SetHitTarget( void )
+{
+	if ( m_hLauncher.Get() )
+	{
+		m_hLauncher->SetHitTarget();
+	}
 }
 
 #endif // GAME_DLL

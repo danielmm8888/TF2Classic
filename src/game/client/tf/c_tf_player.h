@@ -34,6 +34,7 @@ extern ConVar cl_autoreload;
 extern ConVar tf2c_setmerccolor_r;
 extern ConVar tf2c_setmerccolor_g;
 extern ConVar tf2c_setmerccolor_b;
+extern ConVar tf2c_setmercparticle;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -79,6 +80,7 @@ public:
 
 	virtual void Simulate( void );
 	virtual void FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options );
+	virtual void PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force );
 
 	void LoadInventory(void);
 	void EditInventory(int iSlot, int iWeapon);
@@ -272,7 +274,7 @@ private:
 
 public:
 
-	Vector					m_vecPlayerColor;
+	Vector				m_vecPlayerColor;
 
 private:
 
