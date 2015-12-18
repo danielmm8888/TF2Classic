@@ -232,6 +232,8 @@ public:
 	void			SetGreenKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hGreenKothTimer.Set( pTimer ); }
 	void			SetYellowKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hYellowKothTimer.Set( pTimer ); }
 
+	virtual bool ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen);
+
 protected:
 	virtual void	InitTeams( void );
 

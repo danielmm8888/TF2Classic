@@ -2394,6 +2394,11 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		return BaseClass::PlayerRelationship(pPlayer, pTarget);
 	}
 
+	bool CTFGameRules::ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen)
+	{
+		return BaseClass::ClientConnected(pEntity, pszName, pszAddress, reject, maxrejectlen);
+	}
+
 Vector DropToGround( 
 	CBaseEntity *pMainEnt, 
 	const Vector &vPos, 
