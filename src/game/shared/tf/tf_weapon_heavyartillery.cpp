@@ -49,30 +49,35 @@ void CTFHeavyArtillery::PrimaryAttack( void )
 	BaseClass::PrimaryAttack();
 
 	float maxVerticalKickAngle = m_pWeaponInfo->GetWeaponData(TF_WEAPON_PRIMARY_MODE).m_flPunchAngle;
-	float slideLimitTime = 10.5f;
+	float slideLimitTime = 7.f;
 
 	// Find how far into our accuracy degradation we are
-	float kickPerc = m_fFireDuration * slideLimitTime;
+	float kickPerc = min(1.0, m_fFireDuration / slideLimitTime);
 
-	// do this to get a hard discontinuity, clear out anything under 10 degrees punch
-	pPlayer->ViewPunchReset( 10 );
+	// do this to get a hard discontinuity
+	pPlayer->ViewPunchReset();
 
 	//Apply this to the view angles as well
 	QAngle vecScratch;
-	vecScratch.x = -( 0.2f + ( maxVerticalKickAngle * kickPerc ) );
-	vecScratch.y = -( 0.2f + ( maxVerticalKickAngle * kickPerc ) ) / 3;
-	vecScratch.z = 0.1f + ( maxVerticalKickAngle * kickPerc) / 8;
+	vecScratch.x = -( RandomFloat(0.f, 1.f) + ( maxVerticalKickAngle * kickPerc ) * RandomFloat(0.5f, 1.f) );
+	vecScratch.y = -( RandomFloat(0.f, 1.f) + ( maxVerticalKickAngle * kickPerc ) * RandomFloat(0.5f, 1.f) );
+	vecScratch.z = RandomFloat(0.f, 2.f) + (maxVerticalKickAngle * kickPerc);
 
 	//Wibble left and right
-	if ( random->RandomInt( -1, 1 ) >= 0 )
-		vecScratch.y *= -1;
-
+	if ( random->RandomInt( 0, 1 ) != 0 )
+		vecScratch.y *= -1.f;
+	
 	//Wobble up and down
-	if ( random->RandomInt( -1, 1 ) >= 0 )
-		vecScratch.z *= -1;
+	if ( random->RandomInt( 0, 1 ) != 0 )
+		vecScratch.z *= -1.f;
+
+	if ( random->RandomInt( 0, 1 ) != 0 )
+		vecScratch.x *= -1.f;
+	
+	vecScratch.x -= kickPerc * 20.f;
 
 	//Clip this to our desired min/max
-	ClipPunchAngleOffset( vecScratch, pPlayer->m_Local.m_vecPunchAngle, QAngle( 24.0f, 3.0f, 1.0f ) );
+	ClipPunchAngleOffset( vecScratch, pPlayer->m_Local.m_vecPunchAngle, QAngle( 64.0f, 64.0f, 1.0f ) );
 
 	//Add it to the view punch
 	// NOTE: 0.5 is just tuned to match the old effect before the punch became simulated
