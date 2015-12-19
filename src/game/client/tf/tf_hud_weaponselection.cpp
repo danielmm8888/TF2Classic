@@ -77,7 +77,6 @@ CItemModelPanel::CItemModelPanel(Panel *parent, const char* name) : EditablePane
 
 void CItemModelPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
-	m_pWeaponName->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
 	m_pSlotID->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
 	m_pDefaultFont = pScheme->GetFont("ItemFontNameSmallest", true);
 	m_pSelectedFont = pScheme->GetFont("ItemFontNameSmall", true);
@@ -114,6 +113,16 @@ void CItemModelPanel::PerformLayout()
 	m_pWeaponName->SetFont(m_bSelected ? m_pSelectedFont : m_pDefaultFont);
 	m_pWeaponName->SetContentAlignment(CTFAdvButtonBase::GetAlignment("center"));
 	m_pWeaponName->SetCenterWrap(true);
+	if (!m_pWeapon->CanBeSelected())
+	{
+		wchar_t *pText = g_pVGuiLocalize->Find("#TF_OUT_OF_AMMO");
+		m_pWeaponName->SetText(pText);
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("RedSolid", Color(255, 255, 255, 255)));
+	}
+	else
+	{
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("TanLight", Color(255, 255, 255, 255)));
+	}
 	m_pSlotID->SetBounds(0, YRES(5), GetWide() - XRES(5), YRES(10));
 	m_pSlotID->SetFont(m_bSelected ? m_pNumberSelectedFont : m_pNumberDefaultFont);
 	m_pSlotID->SetContentAlignment(CTFAdvButtonBase::GetAlignment("east"));
@@ -1056,6 +1065,10 @@ void CHudWeaponSelection::FireGameEvent( IGameEvent *event )
 
 	if ( Q_strcmp(type, "localplayer_changeclass") == 0 )
 	{
+		for (int i = 0; i < m_iMaxSlots; i++)
+		{
+			pModelPanels[i]->SetVisible(false);
+		}
 		int nUpdateType = event->GetInt( "updateType" );
 		bool bIsCreationUpdate = ( nUpdateType == DATA_UPDATE_CREATED );
 		// Don't demo selection in minmode
