@@ -64,7 +64,7 @@
 ConVar  tf2c_airblast( "tf2c_airblast", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast function of the Flamethrower." );
 ConVar  tf2c_airblast_players( "tf2c_airblast_players", "1", FCVAR_REPLICATED, "Enable/Disable the Airblast pushing players." );
 #ifdef GAME_DLL
-ConVar	tf2c_debug_airblast( "tf2c_debug_airblast", "0", FCVAR_CHEAT, "Visualize airblast box." );
+ConVar	tf2c_debug_airblast( "tf2c_debug_airblast", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Visualize airblast box." );
 #endif
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFFlameThrower, DT_WeaponFlameThrower )
@@ -111,8 +111,6 @@ CTFFlameThrower::CTFFlameThrower()
 	m_bFiringLoopCritical = false;
 	m_pPilotLightSound = NULL;
 	m_pHitTargetSound = NULL;
-#else
-	m_flStopHitSoundTime = 0.0f;
 #endif
 }
 
@@ -164,6 +162,10 @@ void CTFFlameThrower::WeaponReset( void )
 	m_bHitTarget = false;
 	m_flStartFiringTime = 0;
 	m_flAmmoUseRemainder = 0;
+
+#ifdef GAME_DLL
+	m_flStopHitSoundTime = 0.0f;
+#endif
 
 	DestroySounds();
 }
@@ -995,6 +997,7 @@ void CTFFlameThrower::HitTargetThink( void )
 	if ( m_flStopHitSoundTime != 0.0f && m_flStopHitSoundTime > gpGlobals->curtime )
 	{
 		m_bHitTarget = false;
+		m_flStopHitSoundTime = 0.0f;
 		SetContextThink( NULL, 0, "FlameThrowerHitTargetThink" );
 	}
 	else
