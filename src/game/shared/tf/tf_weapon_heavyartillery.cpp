@@ -51,9 +51,20 @@ void CTFHeavyArtillery::PrimaryAttack( void )
 	float maxVerticalKickAngle = m_pWeaponInfo->GetWeaponData(TF_WEAPON_PRIMARY_MODE).m_flPunchAngle;
 	float slideLimitTime = 7.f;
 
+	static float lastAttack, baseAccuracy, nextAccuracy;
+	
+	// Lazy init. Kinda.
+	if (lastAttack < 0.1f)
+		lastAttack = gpGlobals->curtime;
+	
+	// If this is a new attack, apply base inaccuracy degradation from previous shot if necessary.
+	if (lastAttack < gpGlobals->curtime - 0.1f)
+		baseAccuracy = max(0.f, nextAccuracy - (gpGlobals->curtime - lastAttack) / slideLimitTime / nextAccuracy);
+	
 	// Find how far into our accuracy degradation we are
-	float kickPerc = min(1.0, m_fFireDuration / slideLimitTime);
-
+	float kickPerc = nextAccuracy = min(1.f, m_fFireDuration / slideLimitTime + baseAccuracy);
+	lastAttack = gpGlobals->curtime;
+	
 	// do this to get a hard discontinuity
 	pPlayer->ViewPunchReset();
 
