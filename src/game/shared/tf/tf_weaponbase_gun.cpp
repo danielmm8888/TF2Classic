@@ -380,17 +380,13 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 	// If we're seeing another player shooting the projectile, move their start point to the weapon origin
 	if ( pPlayer )
 	{
-		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-		if ( pLocalPlayer != pPlayer || C_BasePlayer::ShouldDrawLocalPlayer() )
+		if ( !UsingViewModel() )
 		{
-			if ( pPlayer->GetActiveWeapon() )
-			{
-				pPlayer->GetActiveWeapon()->GetAttachment( "muzzle", *vecSrc );
-			}
+			GetAttachment( "muzzle", *vecSrc );
 		}
 		else
 		{
-			C_BaseEntity *pViewModel = pLocalPlayer->GetViewModel();
+			C_BaseEntity *pViewModel = pPlayer->GetViewModel();
 
 			if ( pViewModel )
 			{

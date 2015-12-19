@@ -77,7 +77,6 @@ CItemModelPanel::CItemModelPanel(Panel *parent, const char* name) : EditablePane
 
 void CItemModelPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 {
-	m_pWeaponName->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
 	m_pSlotID->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
 	m_pDefaultFont = pScheme->GetFont("ItemFontNameSmallest", true);
 	m_pSelectedFont = pScheme->GetFont("ItemFontNameSmall", true);
@@ -108,18 +107,27 @@ void CItemModelPanel::PerformLayout()
 	}
 	SetBorder(border);
 	m_pWeaponImage->SetShouldScaleImage(true);
-	m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
 	m_pWeaponImage->SetZPos(-1);
 	m_pWeaponName->SetBounds(XRES(5), GetTall() - YRES(20), GetWide() - XRES(10), YRES(20));
 	m_pWeaponName->SetFont(m_bSelected ? m_pSelectedFont : m_pDefaultFont);
 	m_pWeaponName->SetContentAlignment(CTFAdvButtonBase::GetAlignment("center"));
 	m_pWeaponName->SetCenterWrap(true);
+	if (!m_pWeapon->CanBeSelected())
+	{
+		wchar_t *pText = g_pVGuiLocalize->Find("#TF_OUT_OF_AMMO");
+		m_pWeaponName->SetText(pText);
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("RedSolid", Color(255, 255, 255, 255)));
+	}
+	else
+	{
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("TanLight", Color(255, 255, 255, 255)));
+	}
 	m_pSlotID->SetBounds(0, YRES(5), GetWide() - XRES(5), YRES(10));
 	m_pSlotID->SetFont(m_bSelected ? m_pNumberSelectedFont : m_pNumberDefaultFont);
 	m_pSlotID->SetContentAlignment(CTFAdvButtonBase::GetAlignment("east"));
 }
 
-void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int ID)
+void CItemModelPanel::SetWeapon( C_BaseCombatWeapon *pWeapon, int ID )
 {
 	m_pWeapon = pWeapon;
 	m_ID = ID;
@@ -127,17 +135,30 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int ID)
 	int iItemID = m_pWeapon->GetItemID();
 	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
 	wchar_t *pText = NULL;
-	if (pItemDefinition)
+	if ( pItemDefinition )
 	{
-		pText = g_pVGuiLocalize->Find(pItemDefinition->item_name);
+		pText = g_pVGuiLocalize->Find( pItemDefinition->item_name );
 		char szImage[128];
-		Q_snprintf(szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory);
-		char szSlotID[8];
-		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
+		Q_snprintf( szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory );
 		m_pWeaponImage->SetImage(szImage);
-		m_pWeaponName->SetText(pText);
-		m_pSlotID->SetText(szSlotID);
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5.0) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
 	}
+	else
+	{
+		pText = g_pVGuiLocalize->Find(m_pWeapon->GetWpnData().szPrintName);
+		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+		if ( pTexture )
+		{
+			char szImage[64];
+			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
+			m_pWeaponImage->SetImage( szImage );
+		}
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
+	}
+	char szSlotID[8];
+	itoa( m_ID + 1, szSlotID, sizeof( szSlotID ) );
+	m_pSlotID->SetText( szSlotID );
+	m_pWeaponName->SetText( pText );
 }
 
 void CItemModelPanel::SetSelected(bool bSelected)
@@ -1057,6 +1078,10 @@ void CHudWeaponSelection::FireGameEvent( IGameEvent *event )
 
 	if ( Q_strcmp(type, "localplayer_changeclass") == 0 )
 	{
+		for (int i = 0; i < m_iMaxSlots; i++)
+		{
+			pModelPanels[i]->SetVisible(false);
+		}
 		int nUpdateType = event->GetInt( "updateType" );
 		bool bIsCreationUpdate = ( nUpdateType == DATA_UPDATE_CREATED );
 		// Don't demo selection in minmode

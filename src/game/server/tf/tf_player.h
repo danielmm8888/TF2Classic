@@ -342,14 +342,19 @@ public:
 
 	bool ShouldAnnouceAchievement( void );
 
+	virtual void		PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force );
+	virtual bool		IsDeflectable( void ) { return true; }
+
 	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
 	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
 	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
+	void UpdatePlayerColor( void );
+
 public:
 
-	CNetworkVar(Vector, m_vecPlayerColor);
+	CNetworkVector( m_vecPlayerColor );
 
 	CTFPlayerShared m_Shared;
 
@@ -432,8 +437,6 @@ public:
 	float	m_flSpawnProtectTime;
 
 	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
-
-	virtual bool		IsDeflectable( void ) { return true; }
 
 private:
 

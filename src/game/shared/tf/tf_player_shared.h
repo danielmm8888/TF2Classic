@@ -156,7 +156,7 @@ public:
 	int		GetDisguiseWeaponModelIndex( void ) { return m_iDisguiseWeaponModelIndex; }
 	CTFWeaponInfo *GetDisguiseWeaponInfo( void );
 
-	void	UpdateCritBoostEffect( bool bForceHide );
+	void	UpdateCritBoostEffect( bool bForceHide = false );
 	bool	SetParticleToMercColor( CNewParticleEffect *pParticle );
 #endif
 
@@ -384,6 +384,7 @@ private:
 
 	WEAPON_FILE_INFO_HANDLE	m_hDisguiseWeaponInfo;
 
+	CNewParticleEffect *m_pCritEffects[2];
 	EHANDLE m_hCritEffectHost;
 	CSoundPatch *m_pCritSound;
 

@@ -144,7 +144,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 {
 	bool bSuccess = false;
 
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pPlayer);
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer *>(pPlayer);
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
@@ -159,7 +159,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			if ( pWeapon->GetWeaponID() == m_nWeaponID )
 			{
 				// Weapon spawners give 50% ammo.
-				if ( pPlayer->GiveAmmo( iAmmoCount, iAmmoType ) )
+				if ( pTFPlayer->GiveAmmo( iAmmoCount, iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
@@ -217,7 +217,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			WRITE_STRING( GetClassname() );
 			MessageEnd();
 
-			//EmitSound(user, entindex(), TF_HEALTHKIT_PICKUP_SOUND);
+			pPlayer->EmitSound( "BaseCombatCharacter.AmmoPickup" );
 		}
 	}
 

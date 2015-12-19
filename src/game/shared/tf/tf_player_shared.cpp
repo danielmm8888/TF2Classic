@@ -28,6 +28,7 @@
 #include "engine/ivdebugoverlay.h"
 #include "c_tf_playerresource.h"
 #include "c_tf_team.h"
+#include "prediction.h"
 
 #define CTFPlayerClass C_TFPlayerClass
 
@@ -251,8 +252,9 @@ CTFPlayerShared::CTFPlayerShared()
 	m_iDisguiseWeaponModelIndex = -1;
 	m_pDisguiseWeaponInfo = NULL;
 	m_pCritSound = NULL;
+	memset( m_pCritEffects, 0, sizeof( m_pCritEffects ) );
 #else
-	memset( m_flChargeOffTime, 0.0f, sizeof( m_flChargeOffTime ) );
+	memset( m_flChargeOffTime, 0, sizeof( m_flChargeOffTime ) );
 #endif
 }
 
@@ -492,7 +494,7 @@ void CTFPlayerShared::OnDataChanged( void )
 
 	if ( m_bWasCritBoosted != IsCritBoosted() )
 	{
-		UpdateCritBoostEffect( false );
+		UpdateCritBoostEffect();
 	}
 
 	if ( m_nOldDisguiseClass != GetDisguiseClass() || m_nOldDisguiseTeam != GetDisguiseTeam() )
@@ -1078,7 +1080,7 @@ void CTFPlayerShared::OnDisguiseChanged( void )
 	// recalc disguise model index
 	//RecalcDisguiseWeapon();
 	m_pOuter->UpdateRecentlyTeleportedEffect();
-	UpdateCritBoostEffect( false );
+	UpdateCritBoostEffect();
 }
 #endif
 
@@ -1409,7 +1411,7 @@ void CTFPlayerShared::OnAddStealthed( void )
 {
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_Cloak" );
-	UpdateCritBoostEffect( false );
+	UpdateCritBoostEffect();
 	m_pOuter->RemoveAllDecals();
 	m_pOuter->UpdateRecentlyTeleportedEffect();
 #else
@@ -1444,7 +1446,7 @@ void CTFPlayerShared::OnRemoveStealthed( void )
 {
 #ifdef CLIENT_DLL
 	m_pOuter->EmitSound( "Player.Spy_UnCloak" );
-	UpdateCritBoostEffect( false );
+	UpdateCritBoostEffect();
 	m_pOuter->UpdateRecentlyTeleportedEffect();
 #endif
 
@@ -1499,7 +1501,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 	// They may have called for medic and created a visible medic bubble
 	m_pOuter->ParticleProp()->StopParticlesNamed( "speech_mediccall", true );
 
-	UpdateCritBoostEffect( false );
+	UpdateCritBoostEffect();
 
 #else
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
@@ -1951,7 +1953,7 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 //-----------------------------------------------------------------------------
 // Purpose: Crit effects handling.
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
+void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 {
 	bool bShouldShow = !bForceHide;
 
@@ -1977,13 +1979,19 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 
 	if ( bShouldShow )
 	{
-		if ( m_hCritEffectHost.Get() )
+		// Update crit effect model.
+		for ( int i = 0; i < ARRAYSIZE( m_pCritEffects ); i++ )
 		{
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-			m_hCritEffectHost = NULL;
+			if ( m_pCritEffects[i] )
+			{
+				if ( m_hCritEffectHost.Get() )
+					m_hCritEffectHost->ParticleProp()->StopEmission( m_pCritEffects[i] );
+
+				m_pCritEffects[i] = NULL;
+			}
 		}
 
-		if ( m_pOuter->IsLocalPlayer() )
+		if ( !m_pOuter->ShouldDrawThisPlayer() )
 		{
 			m_hCritEffectHost = m_pOuter->GetViewModel();
 		}
@@ -1999,15 +2007,17 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
 			const char *pszTeamName = !TFGameRules()->IsDeathmatch() ? pTeam->Get_Name() : "dm";
 
+
 			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s", pszTeamName );
 
-			CNewParticleEffect *pCritParticle = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
-			SetParticleToMercColor( pCritParticle );
+			m_pCritEffects[0] = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			SetParticleToMercColor( m_pCritEffects[0] );
+
 
 			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s_glow", pszTeamName );
 
-			pCritParticle = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
-			SetParticleToMercColor( pCritParticle );
+			m_pCritEffects[1] = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			SetParticleToMercColor( m_pCritEffects[1] );
 		}
 
 		if ( !m_pCritSound )
@@ -2020,11 +2030,20 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide )
 	}
 	else
 	{
-		if ( m_hCritEffectHost.Get() )
+		for ( int i = 0; i < ARRAYSIZE( m_pCritEffects ); i++ )
 		{
-			m_hCritEffectHost->ParticleProp()->StopEmission();
-			m_hCritEffectHost = NULL;
+			if ( m_pCritEffects[i] )
+			{
+				if ( m_hCritEffectHost.Get() )
+				{
+					m_hCritEffectHost->ParticleProp()->StopEmission( m_pCritEffects[i] );
+				}
+
+				m_pCritEffects[i] = NULL;
+			}
 		}
+
+		m_hCritEffectHost = NULL;
 
 		if ( m_pCritSound )
 		{
@@ -2680,28 +2699,12 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 					iAttachment = pWeapon->LookupAttachment( "muzzle" );
 				}
 
-				C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-
 				bool bInToolRecordingMode = clienttools->IsInRecordingMode();
 
 				// try to align tracers to actual weapon barrel if possible
-				if ( IsLocalPlayer() && !bInToolRecordingMode )
+				if ( !ShouldDrawThisPlayer() && !bInToolRecordingMode )
 				{
-					C_TFViewModel *pViewModel = dynamic_cast<C_TFViewModel*>(GetViewModel(0));
-
-					if ( pViewModel )
-					{
-						iEntIndex = pViewModel->entindex();
-						pViewModel->GetAttachment( iAttachment, vecStart );
-					}
-				}
-				else if ( pLocalPlayer &&
-					pLocalPlayer->GetObserverTarget() == this &&
-					pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE )
-				{	
-					// get our observer target's view model
-
-					C_TFViewModel *pViewModel = dynamic_cast<C_TFViewModel*>(pLocalPlayer->GetViewModel(0));
+					C_TFViewModel *pViewModel = dynamic_cast<C_TFViewModel *>( GetViewModel() );
 
 					if ( pViewModel )
 					{
@@ -3498,11 +3501,8 @@ float CTFPlayer::MedicGetChargeLevel( void )
 //-----------------------------------------------------------------------------
 CWeaponMedigun *CTFPlayer::GetMedigun( void )
 {
-	// This is a temporary workaround until we get conditions working and we can 
-	// just base everything off of the same entity
-
 	CTFWeaponBase *pWeapon = Weapon_OwnsThisID( TF_WEAPON_MEDIGUN );
-	if ( Weapon_OwnsThisID( TF_WEAPON_MEDIGUN ) )
+	if ( pWeapon )
 		return static_cast<CWeaponMedigun *>( pWeapon );
 
 	return NULL;
@@ -3545,4 +3545,15 @@ CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByType( int iType )
 
 	return NULL;
 
+}
+
+void CTFPlayer::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force )
+{
+#ifdef CLIENT_DLL
+	// Don't make predicted footstep sounds in third person, animevents will take care of that.
+	if ( prediction->InPrediction() && C_BasePlayer::ShouldDrawLocalPlayer() )
+		return;
+#endif
+
+	BaseClass::PlayStepSound( vecOrigin, psurface, fvol, force );
 }

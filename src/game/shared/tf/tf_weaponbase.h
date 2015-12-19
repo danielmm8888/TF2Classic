@@ -200,7 +200,8 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	CTFPlayer *GetTFPlayerOwner() const;
 
 #ifdef CLIENT_DLL
-	C_BaseEntity *GetWeaponForEffect();
+	bool			UsingViewModel( void );
+	C_BaseEntity	*GetWeaponForEffect();
 #endif
 
 	bool CanAttack( void );
