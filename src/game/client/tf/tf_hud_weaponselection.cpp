@@ -107,7 +107,6 @@ void CItemModelPanel::PerformLayout()
 	}
 	SetBorder(border);
 	m_pWeaponImage->SetShouldScaleImage(true);
-	m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
 	m_pWeaponImage->SetZPos(-1);
 	m_pWeaponName->SetBounds(XRES(5), GetTall() - YRES(20), GetWide() - XRES(10), YRES(20));
 	m_pWeaponName->SetFont(m_bSelected ? m_pSelectedFont : m_pDefaultFont);
@@ -133,19 +132,33 @@ void CItemModelPanel::SetWeapon( C_BaseCombatWeapon *pWeapon, int ID )
 	m_pWeapon = pWeapon;
 	m_ID = ID;
 
-	EconItemDefinition *pItemDefinition = m_pWeapon->GetItem()->GetStaticData();
+	int iItemID = m_pWeapon->GetItemID();
+	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
 	wchar_t *pText = NULL;
 	if ( pItemDefinition )
 	{
 		pText = g_pVGuiLocalize->Find( pItemDefinition->item_name );
 		char szImage[128];
-		Q_snprintf( szImage, sizeof( szImage ), "../%s_large", pItemDefinition->image_inventory );
-		char szSlotID[8];
-		itoa( m_ID + 1, szSlotID, sizeof( szSlotID ) );
-		m_pWeaponImage->SetImage( szImage );
-		m_pWeaponName->SetText( pText );
-		m_pSlotID->SetText( szSlotID );
+		Q_snprintf( szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory );
+		m_pWeaponImage->SetImage(szImage);
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5.0) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
 	}
+	else
+	{
+		pText = g_pVGuiLocalize->Find(m_pWeapon->GetWpnData().szPrintName);
+		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+		if ( pTexture )
+		{
+			char szImage[64];
+			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
+			m_pWeaponImage->SetImage( szImage );
+		}
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
+	}
+	char szSlotID[8];
+	itoa( m_ID + 1, szSlotID, sizeof( szSlotID ) );
+	m_pSlotID->SetText( szSlotID );
+	m_pWeaponName->SetText( pText );
 }
 
 void CItemModelPanel::SetSelected(bool bSelected)
