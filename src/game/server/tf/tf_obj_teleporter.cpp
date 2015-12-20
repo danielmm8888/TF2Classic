@@ -38,6 +38,8 @@ IMPLEMENT_SERVERCLASS_ST( CObjectTeleporter, DT_ObjectTeleporter )
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectTeleporter )
+	DEFINE_KEYFIELD( m_iTeleporterType, FIELD_INTEGER, "teleporterType" ),
+	DEFINE_KEYFIELD( m_szMatchingTeleporterName, FIELD_STRING, "matchingTeleporter" ),
 	DEFINE_THINKFUNC( TeleporterThink ),
 	DEFINE_ENTITYFUNC( TeleporterTouch ),
 END_DATADESC()
@@ -73,6 +75,7 @@ CObjectTeleporter::CObjectTeleporter()
 	m_iHealth = TELEPORTER_MAX_HEALTH;
 	UseClientSideAnimation();
 	SetType( OBJ_TELEPORTER );
+	m_iTeleporterType = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,6 +83,12 @@ CObjectTeleporter::CObjectTeleporter()
 //-----------------------------------------------------------------------------
 void CObjectTeleporter::Spawn()
 {
+	// Only used by teleporters placed in hammer
+	if ( m_iTeleporterType == 1 )
+		SetObjectMode( TELEPORTER_TYPE_ENTRANCE );
+	else if ( m_iTeleporterType == 2 )
+		SetObjectMode( TELEPORTER_TYPE_EXIT );
+
 	SetSolid( SOLID_BBOX );
 	
 	m_takedamage = DAMAGE_NO;
@@ -90,10 +99,10 @@ void CObjectTeleporter::Spawn()
 
 	m_flYawToExit = 0;
 
-	if (GetObjectMode() == TELEPORTER_TYPE_ENTRANCE)
-		SetModel(TELEPORTER_MODEL_ENTRANCE_PLACEMENT);
+	if ( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE )
+		SetModel( TELEPORTER_MODEL_ENTRANCE_PLACEMENT );
 	else
-		SetModel(TELEPORTER_MODEL_EXIT_PLACEMENT);
+		SetModel( TELEPORTER_MODEL_EXIT_PLACEMENT );
 
 	BaseClass::Spawn();
 }
@@ -259,13 +268,6 @@ void CObjectTeleporter::FinishUpgrading( void )
 //-----------------------------------------------------------------------------
 void CObjectTeleporter::OnGoActive( void )
 {
-	CTFPlayer *pBuilder = GetBuilder();
-
-	Assert( pBuilder );
-
-	if ( !pBuilder )
-		return;
-
 	SetModel( TELEPORTER_MODEL_LIGHT );
 	SetActivity( ACT_OBJ_IDLE );
 
@@ -355,15 +357,6 @@ void CObjectTeleporter::TeleporterTouch( CBaseEntity *pOther )
 
 	CTFPlayer *pPlayer = ToTFPlayer( pOther );
 
-	CTFPlayer *pBuilder = GetBuilder();
-
-	Assert( pBuilder );
-
-	if ( !pBuilder )
-	{
-		return;
-	}
-
 	// is this an entrance and do we have an exit?
 	if ( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE )
 	{		
@@ -421,11 +414,10 @@ bool CObjectTeleporter::IsMatchingTeleporterReady( void )
 bool CObjectTeleporter::PlayerCanBeTeleported( CTFPlayer *pSender )
 {
 	bool bResult = false;
-	//CTFPlayer *pBuilder = GetBuilder();
 
 	if ( pSender )
 	{
-		if (!pSender->HasTheFlag())
+		if ( !pSender->HasTheFlag() )
 		{
 			int iTeamNumber = pSender->GetTeamNumber();
 
@@ -501,10 +493,27 @@ bool CObjectTeleporter::CheckUpgradeOnHit( CTFPlayer *pPlayer )
 	return bUpgradeSuccesful;
 }
 
+void CObjectTeleporter::InitializeMapPlacedObject( void )
+{
+	BaseClass::InitializeMapPlacedObject();
 
-/*
+	CObjectTeleporter *pMatch = dynamic_cast<CObjectTeleporter*> ( gEntList.FindEntityByName( NULL, m_szMatchingTeleporterName ) ) ;
+	if ( pMatch )
+	{
+		// Copy upgrade state from higher level end.
+		bool bCopyFrom = pMatch->GetUpgradeLevel() > GetUpgradeLevel();
 
-InitializeMapPlacedObject*/
+		if ( pMatch->GetUpgradeLevel() == GetUpgradeLevel() )
+		{
+			// If same level use it if it has more metal.
+			bCopyFrom = pMatch->m_iUpgradeMetal > m_iUpgradeMetal;
+		}
+
+		CopyUpgradeStateToMatch( pMatch, bCopyFrom );
+
+		m_hMatchingTeleporter = pMatch;
+	}
+}
 
 CObjectTeleporter *CObjectTeleporter::GetMatchingTeleporter( void )
 {
@@ -828,7 +837,9 @@ void CObjectTeleporter::TeleporterThink( void )
 				pTeleportingPlayer->TeleportEffect();
 
 				pTeleportingPlayer->m_Shared.RemoveCond( TF_COND_SELECTED_TO_TELEPORT );
-				CTF_GameStats.Event_PlayerUsedTeleport( GetBuilder(), pTeleportingPlayer );
+
+				if ( !m_bWasMapPlaced && GetBuilder() )
+					CTF_GameStats.Event_PlayerUsedTeleport( GetBuilder(), pTeleportingPlayer );
 
 				IGameEvent * event = gameeventmanager->CreateEvent( "player_teleported" );
 				if ( event )
@@ -1078,8 +1089,6 @@ CObjectTeleporter* CObjectTeleporter::FindMatch( void )
 	CObjectTeleporter *pMatch = NULL;
 
 	CTFPlayer *pBuilder = GetBuilder();
-
-	Assert( pBuilder );
 
 	if ( !pBuilder )
 	{

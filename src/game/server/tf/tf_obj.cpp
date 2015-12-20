@@ -82,6 +82,10 @@ BEGIN_DATADESC( CBaseObject )
 	DEFINE_KEYFIELD( m_iDefaultUpgrade, FIELD_INTEGER, "defaultupgrade" ),
 
 	// Inputs
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Show", InputShow ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Hide", InputHide ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHealth", InputSetHealth ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddHealth", InputAddHealth ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveHealth", InputRemoveHealth ),
@@ -268,11 +272,6 @@ bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 	{
 		return false;
 	}
-	
-	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
-	{
-		return false;
-	}
 
 	if ( IsPlacing() )
 	{
@@ -394,6 +393,9 @@ void CBaseObject::Spawn( void )
 	{
 		AddEffects( EF_NODRAW );
 	}
+
+	if ( GetBuilder() == NULL )
+		InitializeMapPlacedObject();
 
 	// assume valid placement
 	m_bServerOverridePlacement = true;
@@ -569,6 +571,14 @@ void CBaseObject::SpawnControlPanels()
 		int nScreen = m_hScreens.AddToTail( );
 		m_hScreens[nScreen].Set( pScreen );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InitializeMapPlacedObject( void )
+{
+	m_bWasMapPlaced = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -2259,6 +2269,42 @@ bool CBaseObject::ShowVGUIScreen( int panelIndex, bool bShow )
 		return false;
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputShow( inputdata_t &inputdata )
+{
+	RemoveFlag( EF_NODRAW );
+	SetDisabled( false );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputHide( inputdata_t &inputdata )
+{
+	AddFlag( EF_NODRAW );
+	SetDisabled( true );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputEnable( inputdata_t &inputdata )
+{
+	SetDisabled( false );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputDisable( inputdata_t &inputdata )
+{
+	AddFlag( EF_NODRAW );
+	SetDisabled( true );
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: Set the health of the object

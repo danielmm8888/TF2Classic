@@ -22,6 +22,9 @@ enum
 	DISPENSER_LEVEL_3,
 };
 
+#define SF_IGNORE_LOS	0x0004
+#define SF_NO_DISGUISED_SPY_HEALING	0x0008
+
 // ------------------------------------------------------------------------ //
 // Resupply object that's built by the player
 // ------------------------------------------------------------------------ //
@@ -116,12 +119,16 @@ private:
 class CObjectCartDispenser : public CObjectDispenser
 {
 	DECLARE_CLASS( CObjectCartDispenser, CObjectDispenser );
+	DECLARE_DATADESC();
 
 public:
+
 	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
 	virtual void	OnGoActive( void );	
-	virtual void	Spawn();
-	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName );
+	virtual void	Spawn( void );
+	virtual bool	CanBeUpgraded( CTFPlayer *pPlayer ) { return false; }
+	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName ) { return; }
+	virtual void	SetModel( const char *pModel ) { return; }
 
 private:
 
@@ -133,6 +140,7 @@ private:
 
 	EHANDLE m_hTouchTrigger;
 
+	string_t m_szTriggerName;
 
 };
 

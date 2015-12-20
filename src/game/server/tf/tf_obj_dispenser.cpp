@@ -537,7 +537,12 @@ int CObjectDispenser::GetBaseHealth( void )
 
 float CObjectDispenser::GetDispenserRadius( void )
 {
-	return 64.0f;
+	float flRadius = 64.0f;
+
+	if ( GetOwner() )
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), flRadius, mult_dispenser_radius );
+
+	return flRadius;
 }
 
 float CObjectDispenser::GetHealRate( void )
@@ -722,7 +727,7 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 {
-	if ( !pTarget->FVisible( this, MASK_BLOCKLOS ) )
+	if ( !HasSpawnFlags( SF_IGNORE_LOS ) && !pTarget->FVisible( this, MASK_BLOCKLOS ) )
 		return false;
 
 	if ( pTarget->IsPlayer() && pTarget->IsAlive() )
@@ -733,7 +738,7 @@ bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 		int iTeam = GetTeamNumber();
 		int iPlayerTeam = pTFPlayer->GetTeamNumber();
 
-		if ( iPlayerTeam != iTeam && pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( iPlayerTeam != iTeam && pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && !HasSpawnFlags( SF_NO_DISGUISED_SPY_HEALING ) )
 		{
 			iPlayerTeam = pTFPlayer->m_Shared.GetDisguiseTeam();
 		}
@@ -781,7 +786,7 @@ bool CObjectDispenser::IsHealingTarget( CBaseEntity *pTarget )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CObjectDispenser::DrawDebugTextOverlays(void) 
+int CObjectDispenser::DrawDebugTextOverlays( void ) 
 {
 	int text_offset = BaseClass::DrawDebugTextOverlays();
 
@@ -795,12 +800,16 @@ int CObjectDispenser::DrawDebugTextOverlays(void)
 	return text_offset;
 }
 
+BEGIN_DATADESC( CObjectCartDispenser )
+	DEFINE_KEYFIELD( m_szTriggerName, FIELD_STRING, "touch_trigger" ),
+END_DATADESC()
+
 LINK_ENTITY_TO_CLASS( mapobj_cart_dispenser, CObjectCartDispenser );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CObjectCartDispenser::Spawn()
+void CObjectCartDispenser::Spawn( void )
 {
 	CollisionProp()->SetSurroundingBoundsType( USE_BEST_COLLISION_BOUNDS );
 
@@ -809,7 +818,7 @@ void CObjectCartDispenser::Spawn()
 	m_iUpgradeLevel = 1;
 	m_iUpgradeMetal = 0;
 
-	AddFlag( FL_OBJECT ); // So NPCs will notice it
+	AddFlag( FL_OBJECT ); 
 	SetViewOffset( WorldSpaceCenter() - GetAbsOrigin() );
 
 	if (!VPhysicsGetObject())
@@ -822,20 +831,11 @@ void CObjectCartDispenser::Spawn()
 		AddEffects( EF_NODRAW );
 	}
 
-	SetModel( GetPlacementModel() );
-	SetSolid( SOLID_BBOX );
+	SetObjectFlags( OF_IS_CART_OBJECT );
 
-	UTIL_SetSize( this, DISPENSER_MINS, DISPENSER_MAXS );
+	SetModel( "" );
 
 	m_iAmmoMetal = 0;
-}
-
-//-----------------------------------------------------------------------------
-// Spawn the vgui control screens on the object
-//-----------------------------------------------------------------------------
-void CObjectCartDispenser::GetControlPanelInfo(int nPanelIndex, const char *&pPanelName)
-{
-	return;
 }
 
 //-----------------------------------------------------------------------------
@@ -852,9 +852,19 @@ void CObjectCartDispenser::OnGoActive( void )
 
 	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
 
-	m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
-
-	CBaseObject::OnGoActive();
+	if ( m_szTriggerName != NULL_STRING )
+	{
+		CBaseEntity *pTriggerEnt = gEntList.FindEntityByName( NULL, m_szTriggerName );
+		if ( pTriggerEnt )
+		{
+			pTriggerEnt->SetOwnerEntity( this );
+			m_hTouchTrigger = gEntList.FindEntityByName( NULL, m_szTriggerName );
+		}
+	}
+	else
+	{
+		m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
+	}
 
 	EmitSound( "Building_Dispenser.Idle" );
 }

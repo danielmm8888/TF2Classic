@@ -25,6 +25,7 @@ enum
 	SENTRY_LEVEL_3,
 };
 
+#define SF_OBJ_UPGRADABLE			0x0004
 #define SF_SENTRY_INFINITE_AMMO		0x0008
 
 // ------------------------------------------------------------------------ //
@@ -54,6 +55,8 @@ public:
 
 	// Engineer hit me with a wrench
 	virtual bool	OnWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector vecHitPos );
+	// If the players hit us with a wrench, should we upgrade
+	virtual bool	CanBeUpgraded( CTFPlayer *pPlayer );
 
 	virtual void	OnStartDisabled( void );
 	virtual void	OnEndDisabled( void );
@@ -73,8 +76,6 @@ private:
 	// Main think
 	void SentryThink( void );
 
-	// If the players hit us with a wrench, should we upgrade
-	bool CanBeUpgraded( CTFPlayer *pPlayer );
 	void StartUpgrading( void );
 	void FinishUpgrading( void );
 

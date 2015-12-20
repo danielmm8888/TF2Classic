@@ -575,7 +575,6 @@ void CTFWeaponBuilder::StartBuilding( void )
 	Assert( pObj );
 
 	pObj->StartBuilding( GetOwner() );
-	pObj->AddSpawnFlags( SF_OBJ_UPGRADABLE );
 
 	m_hObjectBeingBuilt = NULL;
 

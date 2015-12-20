@@ -23,6 +23,7 @@ class CObjectTeleporter : public CBaseObject
 	DECLARE_CLASS( CObjectTeleporter, CBaseObject );
 
 public:
+	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
 	CObjectTeleporter();
@@ -60,6 +61,8 @@ public:
 	virtual bool Command_Repair( CTFPlayer *pActivator );
 
 	virtual bool CheckUpgradeOnHit( CTFPlayer *pPlayer );
+
+	virtual void InitializeMapPlacedObject( void );
 
 	bool IsMatchingTeleporterReady( void );
 
@@ -104,7 +107,9 @@ protected:
 	int m_iBlurBodygroup;
 
 private:
-	DECLARE_DATADESC();
+	// Only used by hammer placed entities
+	int m_iTeleporterType;
+	string_t m_szMatchingTeleporterName;
 };
 
 #endif // TF_OBJ_TELEPORTER_H

@@ -177,8 +177,13 @@ void C_ObjectDispenser::UpdateEffects( void )
 				continue;
 
 			const char *pszEffectName = ConstructTeamParticle( "dispenser_heal_%s", GetTeamNumber() );
+			CNewParticleEffect *pEffect = NULL;
 
-			CNewParticleEffect *pEffect = ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "heal_origin" );
+			if ( GetObjectFlags() & OF_IS_CART_OBJECT )
+				pEffect = ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			else
+				pEffect = ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "heal_origin" );
+
 			ParticleProp()->AddControlPoint( pEffect, 1, pTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );
 
 			int iIndex = m_hHealingTargetEffects.AddToTail();

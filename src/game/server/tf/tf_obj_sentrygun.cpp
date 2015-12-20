@@ -105,6 +105,7 @@ IMPLEMENT_SERVERCLASS_ST( CObjectSentrygun, DT_ObjectSentrygun )
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectSentrygun )
+
 END_DATADESC()
 
 LINK_ENTITY_TO_CLASS(obj_sentrygun, CObjectSentrygun);
@@ -255,6 +256,19 @@ bool CObjectSentrygun::StartBuilding( CBaseEntity *pBuilder )
 }
 
 //-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
+{
+	if ( !m_bWasMapPlaced || HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
+	{
+		return BaseClass::CanBeUpgraded( pPlayer );
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CObjectSentrygun::OnGoActive( void )
@@ -356,20 +370,6 @@ void CObjectSentrygun::Precache()
 	PrecacheParticleSystem( "sentrydamage_2" );
 	PrecacheParticleSystem( "sentrydamage_3" );
 	PrecacheParticleSystem( "sentrydamage_4" );
-}
-
-//-----------------------------------------------------------------------------
-//
-//-----------------------------------------------------------------------------
-bool CObjectSentrygun::CanBeUpgraded( CTFPlayer *pPlayer )
-{
-	// Already upgrading
-	if ( m_iState == SENTRY_STATE_UPGRADING )
-	{
-		return false;
-	}
-
-	return BaseClass::CanBeUpgraded( pPlayer );
 }
 
 //-----------------------------------------------------------------------------
@@ -684,29 +684,29 @@ bool CObjectSentrygun::FindTarget()
 		if (pTargetCurrent == NULL)
 		{
 			int nTeamObjectCount = pTeamList[i]->GetNumObjects();
-			for (int iObject = 0; iObject < nTeamObjectCount; ++iObject)
+			for ( int iObject = 0; iObject < nTeamObjectCount; ++iObject )
 			{
-				CBaseObject *pTargetObject = pTeamList[i]->GetObject(iObject);
-				if (!pTargetObject)
+				CBaseObject *pTargetObject = pTeamList[i]->GetObject( iObject );
+				if ( !pTargetObject )
 					continue;
 
 				vecTargetCenter = pTargetObject->GetAbsOrigin();
 				vecTargetCenter += pTargetObject->GetViewOffset();
-				VectorSubtract(vecTargetCenter, vecSentryOrigin, vecSegment);
+				VectorSubtract( vecTargetCenter, vecSentryOrigin, vecSegment );
 				float flDist2 = vecSegment.LengthSqr();
 
 				// Store the current target distance if we come across it
-				if (pTargetObject == pTargetOld)
+				if ( pTargetObject == pTargetOld )
 				{
 					flOldTargetDist2 = flDist2;
 				}
 
 				// Check to see if the target is closer than the already validated target.
-				if (flDist2 > flMinDist2)
+				if ( flDist2 > flMinDist2 )
 					continue;
 
 				// It is closer, check to see if the target is valid.
-				if (ValidTargetObject(pTargetObject, vecSentryOrigin, vecTargetCenter))
+				if ( ValidTargetObject( pTargetObject, vecSentryOrigin, vecTargetCenter ) )
 				{
 					flMinDist2 = flDist2;
 					pTargetCurrent = pTargetObject;
@@ -769,6 +769,9 @@ bool CObjectSentrygun::ValidTargetObject( CBaseObject *pObject, const Vector &ve
 
 	// Not across water boundary.
 	if ( ( GetWaterLevel() == 0 && pObject->GetWaterLevel() >= 3 ) || ( GetWaterLevel() == 3 && pObject->GetWaterLevel() <= 0 ) )
+		return false;
+
+	if ( GetObjectFlags() & OF_IS_CART_OBJECT )
 		return false;
 
 	// Ray trace.

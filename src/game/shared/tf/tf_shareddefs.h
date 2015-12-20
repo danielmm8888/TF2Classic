@@ -971,8 +971,9 @@ enum
 {
 	OF_ALLOW_REPEAT_PLACEMENT				= 0x01,
 	OF_MUST_BE_BUILT_ON_ATTACHMENT			= 0x02,
+	OF_IS_CART_OBJECT						= 0x04, //I'm not sure what the exact name is, but live tf2 uses it for the payload bomb dispenser object
 
-	OF_BIT_COUNT	= 2
+	OF_BIT_COUNT	= 4
 };
 
 //--------------------------------------------------------------------------
