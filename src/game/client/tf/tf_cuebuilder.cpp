@@ -268,6 +268,9 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 			if (!tf_PR)
 				return;
 
+			if (m_iCurrentTrack == -1)
+				return;
+
 			int iLocalIndex = GetLocalPlayerIndex();
 			int iLocalScore = tf_PR->GetTotalScore(iLocalIndex);
 			int iLocalKillstreak = tf_PR->GetKillstreak(iLocalIndex);
