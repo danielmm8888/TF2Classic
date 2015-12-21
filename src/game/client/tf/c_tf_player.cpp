@@ -386,7 +386,7 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		int nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
 		SetModelIndex( nModelIndex );	
 
-		if (TFGameRules()->IsDeathmatch())
+		if ( TFGameRules()->IsDeathmatch() )
 		{
 			m_nSkin = 8;
 		}
@@ -3582,18 +3582,20 @@ int C_TFPlayer::GetSkin()
 			break;
 	}
 
+	if ( TFGameRules()->IsDeathmatch() )
+		nSkin = 8;
+
 	// 3 and 4 are invulnerable
 	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
 	{
 		nSkin += 2;
+		if ( TFGameRules()->IsDeathmatch() )
+			nSkin = 9;
 	}
 	else if ( m_Shared.InCond( TF_COND_DISGUISED ) && !IsEnemyPlayer() )
 	{
 		nSkin += 4 + ( ( m_Shared.GetDisguiseClass() - TF_FIRST_NORMAL_CLASS ) * 2 );
 	}
-
-	if (TFGameRules()->IsDeathmatch())
-		nSkin = 8;
 
 	return nSkin;
 }
