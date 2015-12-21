@@ -416,6 +416,7 @@ extern const char *g_szProjectileNames[];
 #define TF_BURNING_DMG				3
 
 // disguising
+#define TF_TIME_TO_CHANGE_DISGUISE 0.5
 #define TF_TIME_TO_DISGUISE 2.0
 #define TF_TIME_TO_SHOW_DISGUISED_FINISHED_EFFECT 5.0
 

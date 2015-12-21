@@ -6843,6 +6843,10 @@ void CTFPlayer::Taunt( void )
 	if ( GetGroundEntity() == NULL )
 		return;
 
+	// Can't taunt while disguised.
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+		return;
+
 	// Allow voice commands, etc to be interrupted.
 	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
 	Assert( pExpresser );
@@ -6854,6 +6858,12 @@ void CTFPlayer::Taunt( void )
 	{
 		// Get the duration of the scene.
 		float flDuration = GetSceneDuration( szResponse ) + 0.2f;
+
+		// Clear disguising state.
+		if ( m_Shared.InCond( TF_COND_DISGUISING ) )
+		{
+			m_Shared.RemoveCond( TF_COND_DISGUISING );
+		}
 
 		// Set player state as taunting.
 		m_Shared.AddCond( TF_COND_TAUNTING );
