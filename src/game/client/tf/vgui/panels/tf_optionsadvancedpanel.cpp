@@ -129,7 +129,7 @@ void CTFOptionsAdvancedPanel::GatherCurrentValues()
 
 		if (!pList->pControl)
 		{
-			pObj->SetCurValue(pObj->defValue);
+			pObj->SetCurValue(pObj->curValue);
 			pList = pList->next;
 			continue;
 		}
@@ -163,7 +163,7 @@ void CTFOptionsAdvancedPanel::GatherCurrentValues()
 			int activeItem = pCombo->GetActiveItem();
 
 			pItem = pObj->pListItems;
-			//			int n = (int)pObj->fdefValue;
+			//			int n = (int)pObj->fcurValue;
 
 			while (pItem)
 			{
@@ -180,7 +180,7 @@ void CTFOptionsAdvancedPanel::GatherCurrentValues()
 			else  // Couln't find index
 			{
 				//assert(!("Couldn't find string in list, using default value"));
-				sprintf(szValue, "%s", pObj->defValue);
+				sprintf(szValue, "%s", pObj->curValue);
 			}
 			break;
 		}
@@ -219,7 +219,7 @@ void CTFOptionsAdvancedPanel::CreateControls()
 	Panel *objParent = m_pListPanel;
 	while (pObj)
 	{
-		//Msg("\nAdded: %s %s %f %f %i\n", pObj->prompt, pObj->cvarname, pObj->fcurValue, pObj->fdefValue, pObj->type);
+		//Msg("\nAdded: %s %s %f %f %i\n", pObj->prompt, pObj->cvarname, pObj->fcurValue, pObj->fcurValue, pObj->type);
 		
 		if (pObj->type == O_OBSOLETE)
 		{
@@ -235,7 +235,7 @@ void CTFOptionsAdvancedPanel::CreateControls()
 		{
 		case O_BOOL:
 			pBox = new CTFAdvCheckButton(pCtrl, "DescCheckButton", pObj->prompt);
-			pBox->SetSelected(pObj->fdefValue != 0.0f ? true : false);
+			pBox->SetSelected(pObj->fcurValue != 0.0f ? true : false);
 			pBox->SetCommandString(pObj->cvarname);
 			pBox->GetButton()->SetFontByString(m_pListPanel->GetFontString());
 			if (pObj->tooltip[0] != '\0')
@@ -257,12 +257,12 @@ void CTFOptionsAdvancedPanel::CreateControls()
 		case O_STRING:
 		case O_NUMBER:
 			pEdit = new TextEntry(pCtrl, "DescTextEntry");
-			pEdit->InsertString(pObj->defValue);
+			pEdit->InsertString(pObj->curValue);
 			pCtrl->pControl = (Panel *)pEdit;
 			break;
 		case O_SLIDER:
 			pScroll = new CTFAdvSlider(pCtrl, "DescScrollEntry", pObj->prompt);
-			pScroll->SetValue(pObj->fdefValue);
+			pScroll->SetValue(pObj->fcurValue);
 			pScroll->SetCommandString(pObj->cvarname);
 			pScroll->SetMinMax(pObj->fMin, pObj->fMax);
 			pScroll->GetButton()->SetFontByString(m_pListPanel->GetFontString());
@@ -278,7 +278,7 @@ void CTFOptionsAdvancedPanel::CreateControls()
 				pListItem = pListItem->pNext;
 			}
 
-			pCombo->ActivateItemByRow((int)pObj->fdefValue);
+			pCombo->ActivateItemByRow((int)pObj->fcurValue);
 
 			pCtrl->pControl = (Panel *)pCombo;
 			break;
