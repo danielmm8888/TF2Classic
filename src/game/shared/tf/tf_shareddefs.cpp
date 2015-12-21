@@ -23,6 +23,16 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Yellow"
 };
 
+const char *g_aTeamNamesShort[TF_TEAM_COUNT] =
+{
+	"red", // Unassigned
+	"red", // Spectator
+	"red",
+	"blu",
+	"grn",
+	"ylw"
+};
+
 const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
 {
 	"",

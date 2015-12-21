@@ -364,7 +364,7 @@ private:
 
 	CNetworkVar( int, m_iCritMult );
 
-	CNetworkArray(int, m_nStreaks, 3);
+	CNetworkArray( int, m_nStreaks, 3 );
 
 	CNetworkArray( bool, m_bPlayerDominated, MAX_PLAYERS+1 );		// array of state per other player whether player is dominating other players
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player

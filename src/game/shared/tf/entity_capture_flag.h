@@ -140,6 +140,8 @@ public:
 
 	void			FlagTouch( CBaseEntity *pOther );
 
+	const char		*GetTrailEffect( int iTeamNum, char *buf , size_t buflen );
+
 	bool			IsDisabled( void );
 	void			SetDisabled( bool bDisabled );
 
@@ -176,9 +178,12 @@ public:
 	}
 	bool			IsCaptured( void ){ return m_bCaptured; }
 
-	int				UpdateTransmitState();
+	int				UpdateTransmitState( void );
 
-	void			ManageSpriteTrail();
+	void			ManageSpriteTrail( void );
+
+	void			CreateReturnIcon( void );
+	void			DestroyReturnIcon( void );
 
 #else // CLIENT DLL Functions
 

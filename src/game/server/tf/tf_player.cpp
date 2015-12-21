@@ -4550,7 +4550,7 @@ void CTFPlayer::DropAmmoPack( void )
 
 		pAmmoPack->SetInitialVelocity( vecImpulse );
 
-		switch (GetTeamNumber())
+		switch ( GetTeamNumber() )
 		{
 			case TF_TEAM_RED:
 				pAmmoPack->m_nSkin = 0;
@@ -4840,7 +4840,7 @@ void CTFPlayer::UpdateSkin( int iTeam )
 	//int iSkin = iTeam - 2;
 	int iSkin;
 
-	if (TFGameRules()->IsFourTeamGame())
+	if ( TFGameRules()->IsFourTeamGame() )
 	{
 		switch (iTeam)
 		{
