@@ -639,10 +639,15 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 
 					CALL_ATTRIB_HOOK_FLOAT( flChargeAmount, mult_medigun_uberchargerate );
 
-					// Reduced charge for healing fully healed guys
-					if ( pNewTarget->GetHealth() >= iBoostMax && ( TFGameRules() && !TFGameRules()->InSetup() ) )
+					if ( TFGameRules() && TFGameRules()->InSetup() )
 					{
-						flChargeAmount *= 0.5;
+						// Build charge at triple rate during setup
+						flChargeAmount *= 3.0f;
+					}
+					else if ( pNewTarget->GetHealth() >= iBoostMax )
+					{
+						// Reduced charge for healing fully healed guys
+						flChargeAmount *= 0.5f;
 					}
 
 					int iTotalHealers = pTFPlayer->m_Shared.GetNumHealers();
