@@ -4290,6 +4290,41 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	m_Shared.SetKillstreak(0);
 }
 
+bool CTFPlayer::Event_Gibbed( const CTakeDamageInfo &info )
+{
+	// CTFRagdoll takes care of gibbing.
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayer::BecomeRagdoll( const CTakeDamageInfo &info, const Vector &forceVector )
+{
+	if ( CanBecomeRagdoll() )
+	{
+		VPhysicsDestroyObject();
+		AddSolidFlags( FSOLID_NOT_SOLID );
+		m_nRenderFX = kRenderFxRagdoll;
+
+		// Have to do this dance because m_vecForce is a network vector
+		// and can't be sent to ClampRagdollForce as a Vector *
+		Vector vecClampedForce;
+		ClampRagdollForce( forceVector, &vecClampedForce );
+		m_vecForce = vecClampedForce;
+
+		SetParent( NULL );
+
+		AddFlag( FL_TRANSRAGDOLL );
+
+		SetMoveType( MOVETYPE_NONE );
+
+		return true;
+	}
+
+	return false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -6188,6 +6223,7 @@ void CTFPlayer::CreateRagdollEntity( bool bGib, bool bBurning )
 	// Add additional gib setup.
 	if ( bGib )
 	{
+		EmitSound( "BaseCombatCharacter.CorpseGib" ); // Squish!
 		m_nRenderFX = kRenderFxRagdoll;
 	}
 
