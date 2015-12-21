@@ -38,6 +38,9 @@ public:
 
 	virtual int GetCustomDamageType() const { return TF_DMG_CUSTOM_MINIGUN; }
 
+protected:
+	float m_fLastAttack, m_fBaseAccuracy, m_fNextAccuracy;
+
 private:
 
 	void ClipPunchAngleOffset( QAngle &in, const QAngle &punch, const QAngle &clip );

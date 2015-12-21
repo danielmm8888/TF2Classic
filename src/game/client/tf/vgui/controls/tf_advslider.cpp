@@ -213,9 +213,6 @@ float CTFAdvSlider::GetPercentage()
 
 void CTFAdvSlider::SetValue(float fVal)
 {
-	if (fVal == fValue)
-		return;
-
 	float fPerc = (fVal - fMinValue) / (fMaxValue - fMinValue);
 	SetPercentage(fPerc);
 }

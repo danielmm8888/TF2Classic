@@ -422,13 +422,14 @@ void CTFServerlistPanel::PerformLayout()
 
 void CTFServerlistPanel::OnThink()
 {
-	m_pListSlider->SetValue(m_pServerList->GetScrollBar()->GetValue());
 	m_pServerList->ClearSelection();
 	m_pListSlider->SetVisible(false);
 	m_pConnectButton->SetVisible(false);
 
 	if (!IsCursorOver())
 		return;
+
+	m_pListSlider->SetValue(m_pServerList->GetScrollBar()->GetValue());
 
 	for (int i = 0; i < m_pServerList->GetItemCount(); i++)
 	{
