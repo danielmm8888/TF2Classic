@@ -1617,6 +1617,8 @@ void C_TFPlayer::UpdateOnRemove( void )
 
 	m_Shared.RemoveAllCond( this );
 
+	m_Shared.UpdateCritBoostEffect( true );
+
 	if ( IsLocalPlayer() )
 	{
 		CTFStatPanel *pStatPanel = GetStatPanel();
@@ -1713,10 +1715,7 @@ void C_TFPlayer::SetDormant( bool bDormant )
 			ShowNemesisIcon( false );
 		}
 		// Kill crit effects.
-		if ( m_Shared.IsCritBoosted() )
-		{
-			m_Shared.UpdateCritBoostEffect( true );
-		}
+		m_Shared.UpdateCritBoostEffect( true );
 	}
 
 	if ( IsDormant() && !bDormant )
