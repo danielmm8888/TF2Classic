@@ -459,26 +459,32 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 	if ( !pTimer )
 		return;
 
-	if ( m_pSetupBG && m_pSetupLabel )
+	if ( m_pSetupLabel )
 	{
 		// get the time remaining (in seconds)
 		if ( pTimer )
 		{
 			bool bInSetup = TFGameRules()->InSetup();
-			m_pSetupBG->SetVisible( bInSetup );
+
+			if ( m_pSetupBG )
+				m_pSetupBG->SetVisible( bInSetup );
+
 			m_pSetupLabel->SetVisible( bInSetup );
 		}
 	}
 
 	// Set the Sudden Death panels to be visible
-	if ( m_pSuddenDeathBG && m_pSuddenDeathLabel )
+	if ( m_pSuddenDeathLabel )
 	{
 		bool bInSD = TFGameRules()->InStalemate();
-		m_pSuddenDeathBG->SetVisible( bInSD );
+
+		if ( m_pSuddenDeathBG )
+			m_pSuddenDeathBG->SetVisible( bInSD );
+
 		m_pSuddenDeathLabel->SetVisible( bInSD );
 	}
 
-	if ( m_pOvertimeBG && m_pOvertimeLabel )
+	if ( m_pOvertimeLabel )
 	{
 		bool bInOver = TFGameRules()->InOvertime();
 
@@ -489,7 +495,7 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 
 		if ( bInOver )
 		{
-			if ( !m_pOvertimeBG->IsVisible() )
+			if ( m_pOvertimeBG && !m_pOvertimeBG->IsVisible() )
 			{
 				m_pOvertimeLabel->SetAlpha( 0 );
 				m_pOvertimeBG->SetAlpha( 0 );
@@ -497,36 +503,46 @@ void CTFHudTimeStatus::SetExtraTimePanels()
 				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "OvertimeShow" ); 
 
 				// need to turn off the SuddenDeath images if they're on
-				m_pSuddenDeathBG->SetVisible( false );
+				if ( m_pSuddenDeathBG )
+					m_pSuddenDeathBG->SetVisible( false );
+
 				m_pSuddenDeathLabel->SetVisible( false );
 			}
 
-			m_pOvertimeBG->SetVisible( true );
+			if ( m_pOvertimeBG )
+				m_pOvertimeBG->SetVisible( true );
+
 			m_pOvertimeLabel->SetVisible( true );
 
 			CheckClockLabelLength( m_pOvertimeLabel, m_pOvertimeBG );
 		}
 		else
 		{
-			m_pOvertimeBG->SetVisible( false );
+			if ( m_pOvertimeBG )
+				m_pOvertimeBG->SetVisible( false );
+
 			m_pOvertimeLabel->SetVisible( false );
 		}
 	}
 
-	if ( m_pWaitingForPlayersBG && m_pWaitingForPlayersLabel )
+	if ( m_pWaitingForPlayersLabel )
 	{
 		bool bInWaitingForPlayers = TFGameRules()->IsInWaitingForPlayers();
-		m_pWaitingForPlayersBG->SetVisible( bInWaitingForPlayers );
+
 		m_pWaitingForPlayersLabel->SetVisible( bInWaitingForPlayers );
+
+		if ( m_pWaitingForPlayersBG )
+			m_pWaitingForPlayersBG->SetVisible( bInWaitingForPlayers );
 
 		if ( bInWaitingForPlayers )
 		{
 			// can't be waiting for players *AND* in setup at the same time
-			if ( m_pSetupBG && m_pSetupLabel )
-			{
-				m_pSetupBG->SetVisible( false );
+
+			if ( m_pSetupLabel )
 				m_pSetupLabel->SetVisible( false );
-			}
+
+			if ( m_pSetupBG )
+				m_pSetupBG->SetVisible( false );
 
 			CheckClockLabelLength( m_pWaitingForPlayersLabel, m_pWaitingForPlayersBG );
 		}
@@ -565,7 +581,7 @@ void CTFHudTimeStatus::ApplySchemeSettings( IScheme *pScheme )
 	m_pSuddenDeathLabel = dynamic_cast<CExLabel *>(FindChildByName("SuddenDeathLabel"));
 	m_pSuddenDeathBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "SuddenDeathBG" ) );
 
-	m_pWaitingForPlayersLabel = dynamic_cast<CExLabel *>(FindChildByName("WaitingForPlayersLabel"));
+	m_pWaitingForPlayersLabel = dynamic_cast<CExLabel *>( FindChildByName("WaitingForPlayersLabel") );
 	m_pWaitingForPlayersBG = dynamic_cast<CTFImagePanel *>( FindChildByName("WaitingForPlayersBG" ) );
 
 	m_pSetupLabel = dynamic_cast<CExLabel *>(FindChildByName("SetupLabel"));
