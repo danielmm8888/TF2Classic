@@ -211,7 +211,7 @@ void CTFMainMenuPanel::OnThink()
 		m_iShowFakeIntro--;
 		if (m_iShowFakeIntro == 0)
 		{
-			vgui::GetAnimationController()->RunAnimationCommand(m_pFakeBGImage, "Alpha", 0, 0.5f, 1.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+			vgui::GetAnimationController()->RunAnimationCommand(m_pFakeBGImage, "Alpha", 0, 1.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE);
 		}
 	}	
 	if (m_pFakeBGImage->IsVisible() && m_pFakeBGImage->GetAlpha() == 0)
@@ -223,7 +223,7 @@ void CTFMainMenuPanel::OnThink()
 void CTFMainMenuPanel::Show()
 {
 	BaseClass::Show();
-	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE);
 };
 
 void CTFMainMenuPanel::Hide()

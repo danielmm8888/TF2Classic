@@ -115,7 +115,7 @@ void CTFPauseMenuPanel::OnThink()
 void CTFPauseMenuPanel::Show()
 {
 	BaseClass::Show();
-	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE);
 };
 
 void CTFPauseMenuPanel::Hide()

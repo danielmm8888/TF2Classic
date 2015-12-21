@@ -37,6 +37,8 @@ public:
 	void SetCurrentPreset(int iPreset) { iCurrentPreset = iPreset; };
 	void SetModelWeapon(int iClass, int iSlot, int iPreset);
 	void SetModelClass(int iClass);
+	void SetSlotAndPreset(int iSlot, int iPreset);
+	void SideRow(int iRow, int iDir);
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
@@ -44,6 +46,8 @@ private:
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CTFRGBPanel		*m_pRGBPanel;
 	CUtlVector<CTFAdvItemButton*> m_pWeaponIcons;
+	CUtlVector<CTFAdvItemButton*> m_pSlideButtons;
+	CUtlVector<int> m_RawIDPos;
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	iCurrentClass;
 	int	iCurrentSlot;
