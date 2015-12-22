@@ -1316,6 +1316,9 @@ void CTFGameRules::Activate()
 	{
 		m_nGameType.Set( TF_GAMETYPE_DM );
 		tf_gamemode_dm.SetValue( 1 );
+		Msg( "Executing server deathmatch config file\n", 1 );
+		engine->ServerCommand( "exec config_deathmatch.cfg \n" );
+		engine->ServerExecute();
 		return;
 	}
 
