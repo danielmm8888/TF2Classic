@@ -159,6 +159,31 @@ bool CTFLoadoutPanel::Init()
 	for (int i = 0; i < INVENTORY_ROWNUM; i++){
 		m_RawIDPos.AddToTail(0);
 	}
+
+
+	for (int iClassIndex = 0; iClassIndex < TF_CLASS_COUNT_ALL; iClassIndex++)
+	{
+		if (pszClassModels[iClassIndex][0] != '\0')
+			modelinfo->FindOrLoadModel(pszClassModels[iClassIndex]);
+		for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+			{
+				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_WPN_TYPE_MELEE && iPreset == 0)))
+				{
+					char pModel[64];
+					Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
+					if (!Q_strcmp(pModel, ""))
+						Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+					if (pModel[0] != '\0')
+						modelinfo->FindOrLoadModel(pModel);
+					//if (pItemData->image_inventory != '\0')
+					//	PrecacheMaterial(pItemData->image_inventory);
+				}
+			}
+	}
+
 	return true;
 }
 
@@ -338,7 +363,7 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 			iSlot = pItemData->item_slot;
 		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
-		if (pModel != '\0')
+		if (pModel[0] != '\0')
 			m_pClassModelPanel->SetMergeMDL(pModel, NULL, iCurrentSkin);
 	}
 	else
