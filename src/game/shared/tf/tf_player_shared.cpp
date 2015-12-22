@@ -2963,7 +2963,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	// Reduce our speed if we were tranquilized
 	if ( m_Shared.InCond( TF_COND_SLOWED ) )
 	{
-		maxfbspeed *= 0.55f;
+		maxfbspeed *= 0.6f;
 	}
 
 	// if we're in bonus time because a team has won, give the winners 110% speed and the losers 90% speed

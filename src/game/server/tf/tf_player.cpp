@@ -1285,7 +1285,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( !pItemInfo )
 			{
-				AssertMsg( false, "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
+				Warning( "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
 				continue;
 			}
 
@@ -3530,7 +3530,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 						switch ( pWeapon->GetWeaponID() )
 						{
 						case TF_WEAPON_ROCKETLAUNCHER:
-						case TF_WEAPON_ROCKETLAUNCHERBETA:
 						case TF_WEAPON_PIPEBOMBLAUNCHER:
 							// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
 							flRandomDamage *= 0.5;
@@ -3805,11 +3804,13 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
 
+#if 0
 	// Hit by tranq
 	if ( info.GetDamageType() & DMG_PARALYZE )
 	{
 		m_Shared.AddCond( TF_COND_SLOWED, 4.0f );
 	}
+#endif
 
 	bool bIgniting = false;
 
