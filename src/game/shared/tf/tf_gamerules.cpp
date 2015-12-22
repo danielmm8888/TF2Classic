@@ -2960,34 +2960,42 @@ void CTFGameRules::CreateStandardEntities()
 //-----------------------------------------------------------------------------
 // Purpose: determine the class name of the weapon that got a kill
 //-----------------------------------------------------------------------------
-const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim, int *iWeaponID )
+const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim )
 {
 	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
 	CTFPlayer *pScorer = ToTFPlayer( TFGameRules()->GetDeathScorer( pKiller, pInflictor, pVictim ) );
 	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+	int iWeaponID = TF_WEAPON_NONE;
 
 	const char *killer_weapon_name = "world";
 
 	// Handle special kill types first.
+	const char *pszCustomKill = NULL;
+
 	switch ( info.GetDamageCustom() )
 	{
 	case TF_DMG_TAUNT_PYRO:
-		killer_weapon_name = "tf_weapon_taunt_pyro";
+		pszCustomKill = "taunt_pyro";
 		break;
 	case TF_DMG_TAUNT_HEAVY:
-		killer_weapon_name = "tf_weapon_taunt_heavy";
+		pszCustomKill = "taunt_heavy";
 		break;
 	case TF_DMG_TAUNT_SPY:
-		killer_weapon_name = "tf_weapon_taunt_spy";
+		pszCustomKill = "taunt_spy";
 		break;
 	case TF_DMG_TELEFRAG:
-		killer_weapon_name = "telefrag";
+		pszCustomKill = "telefrag";
 		break;
 	case TF_DMG_BUILDING_CARRIED:
-		killer_weapon_name = "tf_weapon_building_carried_destroyed";
+		pszCustomKill = "building_carried_destroyed";
 		break;
-	case TF_DMG_CUSTOM_BURNING:
+	}
+
+	if ( pszCustomKill != NULL )
+		return pszCustomKill;
+
+	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING )
 	{
 		// Player stores last weapon that burned him so if he burns to death we know what killed him.
 		if ( pWeapon )
@@ -3000,7 +3008,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 				if ( pRocket )
 				{
-					*iWeaponID = pRocket->GetWeaponID();
+					iWeaponID = pRocket->GetWeaponID();
 
 					// Fire weapon deflects go here.
 					if ( pRocket->m_iDeflected )
@@ -3019,65 +3027,69 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		{
 			// Default to flamethrower if no burn weapon is specified.
 			killer_weapon_name = "tf_weapon_flamethrower";
+			iWeaponID = TF_WEAPON_FLAMETHROWER;
 		}
-
-		break;
 	}
-	default:
+	else if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
 	{
-		if ( pScorer && pInflictor && ( pInflictor == pScorer ) )
+		// If the inflictor is the killer, then it must be their current weapon doing the damage
+		CTFWeaponBase *pActiveWpn = pScorer->GetActiveTFWeapon();
+		if ( pActiveWpn )
 		{
-			// If the inflictor is the killer, then it must be their current weapon doing the damage
-			CTFWeaponBase *pActiveWpn = pScorer->GetActiveTFWeapon();
-			if ( pActiveWpn )
-			{
-				*iWeaponID = pActiveWpn->GetWeaponID();
-				killer_weapon_name = pActiveWpn->GetClassname();
-			}
-		}
-		else if ( pInflictor )
-		{
-			killer_weapon_name = pInflictor->GetClassname();
-
-			// See if this was a deflect kill.
-			if ( CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pInflictor ) )
-			{
-				*iWeaponID = pTFWeapon->GetWeaponID();
-			}
-			else if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
-			{
-				*iWeaponID = pRocket->GetWeaponID();
-
-				if ( pRocket->m_iDeflected )
-				{
-					switch ( pRocket->GetWeaponID() )
-					{
-					case TF_WEAPON_ROCKETLAUNCHER:
-					case TF_WEAPON_SENTRY_ROCKET:
-						killer_weapon_name = "deflect_rocket";
-						break;
-					}
-				}
-			}
-			else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
-			{
-				*iWeaponID = pGrenade->GetWeaponID();
-
-				if ( pGrenade->m_iDeflected )
-				{
-					switch ( pGrenade->GetWeaponID() )
-					{
-					case TF_WEAPON_PIPEBOMBLAUNCHER:
-						killer_weapon_name = "deflect_sticky";
-						break;
-					case TF_WEAPON_GRENADELAUNCHER:
-						killer_weapon_name = "deflect_promode";
-						break;
-					}
-				}
-			}
+			killer_weapon_name = pActiveWpn->GetClassname();
+			iWeaponID = pActiveWpn->GetWeaponID();
 		}
 	}
+	else if ( pInflictor )
+	{
+		killer_weapon_name = pInflictor->GetClassname();
+
+		if ( CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pInflictor ) )
+		{
+			iWeaponID = pTFWeapon->GetWeaponID();
+		}
+		// See if this was a deflect kill.
+		else if ( CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor ) )
+		{
+			iWeaponID = pRocket->GetWeaponID();
+
+			if ( pRocket->m_iDeflected )
+			{
+				switch ( pRocket->GetWeaponID() )
+				{
+				case TF_WEAPON_ROCKETLAUNCHER:
+					killer_weapon_name = "deflect_rocket";
+					break;
+				}
+			}
+		}
+		else if ( CTFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<CTFWeaponBaseGrenadeProj *>( pInflictor ) )
+		{
+			iWeaponID = pGrenade->GetWeaponID();
+
+			// Most grenades have their own kill icons except for pipes and stickies, those use weapon icons.
+			if ( iWeaponID == TF_WEAPON_GRENADE_DEMOMAN || iWeaponID == TF_WEAPON_GRENADE_PIPEBOMB )
+			{
+				CTFWeaponBase *pLauncher = dynamic_cast<CTFWeaponBase *>( pGrenade->m_hLauncher.Get() );
+				if ( pLauncher )
+				{
+					iWeaponID = pLauncher->GetWeaponID();
+				}
+			}
+
+			if ( pGrenade->m_iDeflected )
+			{
+				switch ( pGrenade->GetWeaponID() )
+				{
+				case TF_WEAPON_GRENADE_PIPEBOMB:
+					killer_weapon_name = "deflect_sticky";
+					break;
+				case TF_WEAPON_GRENADE_DEMOMAN:
+					killer_weapon_name = "deflect_promode";
+					break;
+				}
+			}
+		}
 	}
 
 	// strip certain prefixes from inflictor's classname
@@ -3096,7 +3108,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	// In case of a sentry kill change the icon according to sentry level.
 	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
 	{
-		CBaseObject* pObject = assert_cast<CBaseObject * >( pInflictor );
+		CBaseObject* pObject = assert_cast<CBaseObject *>( pInflictor );
 
 		if ( pObject )
 		{
@@ -3115,6 +3127,19 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	{
 		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
+	}
+	else if ( pScorer && iWeaponID )
+	{
+		// Look for weapon name in the schema.
+		CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
+		if ( pWeapon )
+		{
+			EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
+			if ( pStatic && pStatic->item_iconname[0] != '\0' )
+			{
+				killer_weapon_name = pStatic->item_iconname;
+			}
+		}
 	}
 
 	return killer_weapon_name;
@@ -3206,25 +3231,13 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	CBaseEntity *pKiller = info.GetAttacker();
 	CTFPlayer *pScorer = ToTFPlayer( GetDeathScorer( pKiller, pInflictor, pVictim ) );
 	CTFPlayer *pAssister = ToTFPlayer( GetAssister( pVictim, pScorer, pInflictor ) );
-	int iWeaponID = TF_WEAPON_NONE;
 
 	// Work out what killed the player, and send a message to all clients about it
-	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim, &iWeaponID );
+	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim );
 
 	if ( pScorer )	// Is the killer a client?
 	{
 		killer_ID = pScorer->GetUserID();
-
-		// Use icon from item schema if possible.
-		CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
-		if ( pWeapon && pWeapon->HasItemDefinition() )
-		{
-			EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
-			if ( pStatic && pStatic->item_iconname[0] != '\0' )
-			{
-				killer_weapon_name = pStatic->item_iconname;
-			}
-		}
 	}
 
 	int iDeathFlags = pTFPlayerVictim->GetDeathFlags();

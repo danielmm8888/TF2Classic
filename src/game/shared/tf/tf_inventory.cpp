@@ -304,10 +304,10 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Scout
 		{
-			13, 752
+			13, 9002
 		},
 		{
-			23//, TF_WEAPON_SMG_SCOUT
+			23
 		},
 		{
 			0
@@ -315,18 +315,18 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Sniper
 		{
-			14//, TF_WEAPON_HUNTERRIFLE
+			14, 9007
 		},
 		{
 			16, 751
 		},
 		{
-			3//, TF_WEAPON_FISHWHACKER
+			3, 9008
 		}
 	},
 	{ // Soldier
 		{
-			18, 9001//, TF_WEAPON_ROCKETLAUNCHERBETA
+			18, 9004, 9001
 		},
 		{
 			10
@@ -337,7 +337,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Demoman
 		{
-			19//, TF_WEAPON_CYCLOPS
+			19, 9005
 		},
 		{
 			20
@@ -351,10 +351,10 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			17
 		},
 		{
-			29, 35//, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
+			29, 35, 9006
 		},
 		{
-			8//, TF_WEAPON_UBERSAW
+			8, 37
 		}
 	},
 	{ // Heavy
@@ -381,7 +381,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Spy
 		{
-			24//, TF_WEAPON_TRANQ
+			24, 9009
 		},
 		{
 			735					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.

@@ -105,6 +105,8 @@ public:
 	virtual int			TakeHealth( float flHealth, int bitsDamageType );
 	virtual	void		Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 	virtual void		Event_Killed( const CTakeDamageInfo &info );
+	virtual bool		Event_Gibbed( const CTakeDamageInfo &info );
+	virtual bool		BecomeRagdoll( const CTakeDamageInfo &info, const Vector &forceVector );
 	virtual void		PlayerDeathThink( void );
 
 	virtual int			OnTakeDamage( const CTakeDamageInfo &inputInfo );
