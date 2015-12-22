@@ -475,6 +475,9 @@ public:
 						// Hacky: for standard visuals block, assign it to all teams at once.
 						for ( int i = 0; i < TF_TEAM_COUNT; i++ )
 						{
+							if ( i == TEAM_SPECTATOR )
+								continue;
+
 							ParseVisuals( pSubData, pItem, i );
 						}
 					}
@@ -533,6 +536,38 @@ bool CEconItemSchema::Init()
 
 void CEconItemSchema::Update(float frametime)
 {
+}
+
+void CEconItemSchema::LevelInitPreEntity( void )
+{
+	// Precache everything from schema.
+	FOR_EACH_MAP( m_Items, i )
+	{
+		EconItemDefinition *pItem = m_Items[i];
+
+		// Precache models.
+		if ( pItem->model_world[0] )
+			CBaseEntity::PrecacheModel( pItem->model_world );
+
+		if ( pItem->model_player[0] )
+			CBaseEntity::PrecacheModel( pItem->model_player );
+
+		// Precache visuals.
+		for ( int i = 0; i < TF_TEAM_COUNT; i++ )
+		{
+			if ( i == TEAM_SPECTATOR )
+				continue;
+
+			EconItemVisuals *pVisuals = &pItem->visual[i];
+
+			// Precache sounds.
+			for ( int i = 0; i < NUM_SHOOT_SOUND_TYPES; i++ )
+			{
+				if ( pVisuals->aWeaponSounds[i][0] != '\0' )
+					CBaseEntity::PrecacheScriptSound( pVisuals->aWeaponSounds[i] );
+			}
+		}
+	}
 }
 
 #include <vgui/ILocalize.h>

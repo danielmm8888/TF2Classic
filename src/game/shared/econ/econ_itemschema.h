@@ -225,6 +225,7 @@ public:
 	virtual char const *Name() { return "CEconItemSchema"; }
 	// Gets called each frame
 	virtual void Update(float frametime);
+	virtual void LevelInitPreEntity( void );
 
 	// Methods of CGameEventListener
 	virtual void FireGameEvent(IGameEvent *event);
