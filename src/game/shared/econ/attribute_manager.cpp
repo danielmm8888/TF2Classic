@@ -96,15 +96,10 @@ void CAttributeManager::StopProvidingTo( CBaseEntity *pEntity )
 
 void CAttributeManager::InitializeAttributes( CBaseEntity *pEntity )
 {
-	IHasAttributes *pAttributes = pEntity->GetHasAttributesInterfacePtr();
+	Assert( pEntity->GetHasAttributesInterfacePtr() != NULL );
 
-	Assert( pAttributes );
-
-	if ( pAttributes )
-	{
-		m_hOuter.Set( pEntity );
-		m_bParsingMyself = false;
-	}
+	m_hOuter.Set( pEntity );
+	m_bParsingMyself = false;
 }
 
 float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )

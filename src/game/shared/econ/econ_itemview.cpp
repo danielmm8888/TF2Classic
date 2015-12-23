@@ -207,15 +207,11 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 	{
 		CEconItemAttribute *pAttribute = &m_AttributeList[i];
 
-#ifndef CLIENT_DLL
-		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
-#else
 		EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
 		if ( !pStatic )
 			continue;
 
 		string_t strMyClass = AllocPooledString( pStatic->attribute_class );
-#endif
 
 		if ( strMyClass == strClass )
 		{

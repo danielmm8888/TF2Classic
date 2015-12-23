@@ -682,12 +682,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
 	const char *pszModelName = NULL;
 
-	// DM can use its own VMs.
-	if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
-	{
-		pszModelName = GetTFWpnData().m_szViewModelDM;
-	}
-	else if ( HasItemDefinition() )
+	if ( HasItemDefinition() )
 	{
 		pszModelName = m_Item.GetPlayerDisplayModel();
 	}
@@ -840,7 +835,6 @@ bool CTFWeaponBase::Deploy( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
 {
-	SetOwnerEntity( pOwner );
 	BaseClass::Equip( pOwner );
 	
 	// Add it to attribute providers list.
@@ -1067,6 +1061,27 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 		return fDefaultClipMult;
 
 	return iDefaultClip;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetMaxAmmo( void )
+{
+	return GetTFWpnData().m_iMaxAmmo;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetInitialAmmo( void )
+{
+	int iSpawnAmmo = 0;
+	CALL_ATTRIB_HOOK_INT( iSpawnAmmo, mod_spawn_ammo_override );
+	if ( iSpawnAmmo )
+		return iSpawnAmmo;
+
+	return GetTFWpnData().m_iSpawnAmmo;
 }
 
 //-----------------------------------------------------------------------------
@@ -1498,7 +1513,7 @@ void CTFWeaponBase::ItemPostFrame( void )
 	BaseClass::ItemPostFrame();
 
 	// Check for reload singly interrupts.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 	{
 		ReloadSinglyPostFrame();
 	}
@@ -2372,6 +2387,61 @@ acttable_t CTFWeaponBase::m_acttableSecondary[] =
 	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_SECONDARY,	false },
 };
 
+acttable_t CTFWeaponBase::m_acttableSecondary2[] =
+{
+	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_SECONDARY2, false },
+	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_SECONDARY2, false },
+	{ ACT_MP_RUN, ACT_MP_RUN_SECONDARY2, false },
+	{ ACT_MP_WALK, ACT_MP_WALK_SECONDARY2, false },
+	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_SECONDARY2, false },
+	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_SECONDARY2, false },
+	{ ACT_MP_JUMP, ACT_MP_JUMP_SECONDARY2, false },
+	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_SECONDARY2, false },
+	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_SECONDARY2, false },
+	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_SECONDARY2, false },
+	{ ACT_MP_SWIM, ACT_MP_SWIM_SECONDARY2, false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_SECONDARY, false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_SECONDARY2, false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_SECONDARY2, false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_SECONDARY2, false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE, ACT_MP_ATTACK_AIRWALK_SECONDARY2, false },
+
+	{ ACT_MP_RELOAD_STAND, ACT_MP_RELOAD_STAND_SECONDARY2, false },
+	{ ACT_MP_RELOAD_STAND_LOOP, ACT_MP_RELOAD_STAND_SECONDARY2_LOOP, false },
+	{ ACT_MP_RELOAD_STAND_END, ACT_MP_RELOAD_STAND_SECONDARY2_END, false },
+	{ ACT_MP_RELOAD_CROUCH, ACT_MP_RELOAD_CROUCH_SECONDARY2, false },
+	{ ACT_MP_RELOAD_CROUCH_LOOP, ACT_MP_RELOAD_CROUCH_SECONDARY2_LOOP, false },
+	{ ACT_MP_RELOAD_CROUCH_END, ACT_MP_RELOAD_CROUCH_SECONDARY2_END, false },
+	{ ACT_MP_RELOAD_SWIM, ACT_MP_RELOAD_SWIM_SECONDARY2, false },
+	{ ACT_MP_RELOAD_SWIM_LOOP, ACT_MP_RELOAD_SWIM_SECONDARY2_LOOP, false },
+	{ ACT_MP_RELOAD_SWIM_END, ACT_MP_RELOAD_SWIM_SECONDARY2_END, false },
+	{ ACT_MP_RELOAD_AIRWALK, ACT_MP_RELOAD_AIRWALK_SECONDARY2, false },
+	{ ACT_MP_RELOAD_AIRWALK_LOOP, ACT_MP_RELOAD_AIRWALK_SECONDARY2_LOOP, false },
+	{ ACT_MP_RELOAD_AIRWALK_END, ACT_MP_RELOAD_AIRWALK_SECONDARY2_END, false },
+
+	{ ACT_MP_GESTURE_FLINCH, ACT_MP_GESTURE_FLINCH_SECONDARY, false },\
+
+	{ ACT_MP_GRENADE1_DRAW, ACT_MP_SECONDARY_GRENADE1_DRAW, false },
+	{ ACT_MP_GRENADE1_IDLE, ACT_MP_SECONDARY_GRENADE1_IDLE, false },
+	{ ACT_MP_GRENADE1_ATTACK, ACT_MP_SECONDARY_GRENADE1_ATTACK, false },
+	{ ACT_MP_GRENADE2_DRAW, ACT_MP_SECONDARY_GRENADE2_DRAW, false },
+	{ ACT_MP_GRENADE2_IDLE, ACT_MP_SECONDARY_GRENADE2_IDLE, false },
+	{ ACT_MP_GRENADE2_ATTACK, ACT_MP_SECONDARY_GRENADE2_ATTACK, false },
+
+	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
+
+	{ ACT_MP_GESTURE_VC_HANDMOUTH, ACT_MP_GESTURE_VC_HANDMOUTH_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT, ACT_MP_GESTURE_VC_FINGERPOINT_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP, ACT_MP_GESTURE_VC_FISTPUMP_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP, ACT_MP_GESTURE_VC_THUMBSUP_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_NODYES, ACT_MP_GESTURE_VC_NODYES_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_NODNO, ACT_MP_GESTURE_VC_NODNO_SECONDARY, false },
+};
+
 acttable_t CTFWeaponBase::m_acttableMelee[] = 
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_MELEE,				false },
@@ -2608,6 +2678,10 @@ acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
 		iActivityCount = ARRAYSIZE( m_acttableSecondary );
+		break;
+	case TF_WPN_TYPE_SECONDARY2:
+		pTable = m_acttableSecondary2;
+		iActivityCount = ARRAYSIZE( m_acttableSecondary2 );
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;

@@ -131,11 +131,7 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 		SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
 	}
 
-	// Check the reload mode and behave appropriately.
-	if ( ReloadsSingly() )
-	{
-		m_iReloadMode.Set( TF_RELOAD_START );
-	}
+	AbortReload();
 }	
 
 //-----------------------------------------------------------------------------

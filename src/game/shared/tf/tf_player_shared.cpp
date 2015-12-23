@@ -126,7 +126,6 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerSharedLocal )
 	RecvPropArray3( RECVINFO_ARRAY( m_bPlayerDominated ), RecvPropBool( RECVINFO( m_bPlayerDominated[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_bPlayerDominatingMe ), RecvPropBool( RECVINFO( m_bPlayerDominatingMe[0] ) ) ),
 	RecvPropInt( RECVINFO( m_iDesiredWeaponID ) ),
-	RecvPropInt( RECVINFO( m_iRespawnParticleID ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_nStreaks ), RecvPropInt( RECVINFO( m_nStreaks[0] ) ) ),
 	RecvPropArray3( RECVINFO_ARRAY( m_flCondExpireTimeLeft ), RecvPropFloat( RECVINFO( m_flCondExpireTimeLeft[0] ) ) ),
 END_RECV_TABLE()
@@ -146,6 +145,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropEHandle( RECVINFO( m_hCarriedObject ) ),
 	RecvPropBool( RECVINFO( m_bCarryingObject ) ),
 	RecvPropInt( RECVINFO( m_nTeamTeleporterUsed ) ),
+	RecvPropInt( RECVINFO( m_iRespawnParticleID ) ),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -185,8 +185,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerSharedLocal )
 	SendPropFloat( SENDINFO( m_flCloakMeter ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN, 0.0, 100.0 ),
 	SendPropArray3( SENDINFO_ARRAY3( m_bPlayerDominated ), SendPropBool( SENDINFO_ARRAY( m_bPlayerDominated ) ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_bPlayerDominatingMe ), SendPropBool( SENDINFO_ARRAY( m_bPlayerDominatingMe ) ) ),
-	SendPropInt( SENDINFO( m_iDesiredWeaponID ), Q_log2( TF_WEAPON_COUNT )+1, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO( m_iRespawnParticleID ), SPROP_NOSCALE, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iDesiredWeaponID ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_nStreaks ), SendPropInt( SENDINFO_ARRAY( m_nStreaks ) ) ),
 	SendPropArray3( SENDINFO_ARRAY3( m_flCondExpireTimeLeft ), SendPropFloat( SENDINFO_ARRAY( m_flCondExpireTimeLeft ) ) ),
 END_SEND_TABLE()
@@ -206,6 +205,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
 	SendPropBool( SENDINFO( m_bCarryingObject ) ),
 	SendPropInt( SENDINFO( m_nTeamTeleporterUsed ), 3, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iRespawnParticleID ), 0, SPROP_UNSIGNED ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -241,7 +241,7 @@ CTFPlayerShared::CTFPlayerShared()
 	m_iCritMult = 0;
 	m_flInvisibility = 0.0f;
 
-	m_iDesiredWeaponID = TF_WEAPON_NONE;
+	m_iDesiredWeaponID = -1;
 	m_iRespawnParticleID = 0;
 
 	m_iDisguiseWeaponID = TF_WEAPON_NONE;
@@ -1893,17 +1893,19 @@ void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 
 	Assert( m_pOuter->GetPlayerClass()->GetClassIndex() == TF_CLASS_SPY );
 
-	CTFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
-
 	int iWeaponID = TF_WEAPON_NONE;
 
+#if 0
 	// Use disguise target's weapons if possible.
+	CTFPlayer *pDisguiseTarget = ToTFPlayer( GetDisguiseTarget() );
+
 	if ( pDisguiseTarget && pDisguiseTarget->IsPlayerClass( m_nDisguiseClass ) )
 	{
 		if ( iSlot < TF_PLAYER_WEAPON_COUNT )
 			iWeaponID = GetTFInventory()->GetWeapon(pDisguiseTarget->GetPlayerClass()->GetClassIndex(), iSlot, pDisguiseTarget->GetWeaponPreset(iSlot));
 	}
 	else
+#endif
 	{
 		TFPlayerClassData_t *pData = GetPlayerClassData( m_nDisguiseClass );
 

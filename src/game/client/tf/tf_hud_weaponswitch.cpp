@@ -16,7 +16,6 @@
 #include "tf_hud_weaponswitch.h"
 #include "c_tf_player.h"
 #include "tf_hud_freezepanel.h"
-#include "tf_imagepanel.h"
 
 #include "tf_gamerules.h"
 #include "tf_weapon_parse.h"
@@ -34,8 +33,11 @@ CTFHudWeaponSwitch::CTFHudWeaponSwitch(const char *pElementName) : CHudElement(p
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent(pParent);
 
-	pWeaponFromInfo = NULL;
-	pWeaponToInfo = NULL;
+	m_pItemDefFrom = NULL;
+	m_pItemDefTo = NULL;
+
+	m_pImageFrom = NULL;
+	m_pImageTo = NULL;
 
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
@@ -56,15 +58,18 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 		return false;
 
 	int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
-	if (iWeaponTo != TF_WEAPON_NONE)
+	if (iWeaponTo != -1)
 	{
-		pWeaponToInfo = GetTFWeaponInfo(iWeaponTo);
+		m_pItemDefTo = GetItemSchema()->GetItemDefinition( iWeaponTo );
 
-		C_TFWeaponBase *pWeaponFrom = (C_TFWeaponBase *)pLocalTFPlayer->Weapon_GetSlot( pWeaponToInfo->iSlot );
+		if ( !m_pItemDefTo )
+			return false;
+
+		C_TFWeaponBase *pWeaponFrom = (C_TFWeaponBase *)pLocalTFPlayer->Weapon_GetSlot( m_pItemDefTo->item_slot );
 		if (!pWeaponFrom)
 			return false;
 
-		pWeaponFromInfo = GetTFWeaponInfo(pWeaponFrom->GetWeaponID());
+		m_pItemDefFrom = pWeaponFrom->GetItem()->GetStaticData();
 		UpdateStatus();
 
 		return true;
@@ -82,6 +87,9 @@ void CTFHudWeaponSwitch::ApplySchemeSettings( IScheme *pScheme )
 
 	// load control settings...
 	LoadControlSettings( "resource/UI/HudWeaponSwitch.res" );
+
+	m_pImageFrom = dynamic_cast<CTFImagePanel *>( FindChildByName( "WeaponBucketFrom" ) );
+	m_pImageTo = dynamic_cast<CTFImagePanel *>( FindChildByName( "WeaponBucketTo" ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -97,11 +105,11 @@ void CTFHudWeaponSwitch::OnTick()
 //-----------------------------------------------------------------------------
 void CTFHudWeaponSwitch::UpdateStatus( void )
 {
-	if (!pWeaponFromInfo || !pWeaponToInfo)
+	if ( !m_pItemDefFrom || !m_pItemDefTo )
 		return;
 
-	SetDialogVariable("weapontoalias", g_pVGuiLocalize->Find(pWeaponToInfo->szPrintName));
-	SetDialogVariable("weaponfromalias", g_pVGuiLocalize->Find(pWeaponFromInfo->szPrintName));
+	SetDialogVariable( "weapontoalias", g_pVGuiLocalize->Find( m_pItemDefTo->item_name ) );
+	SetDialogVariable( "weaponfromalias", g_pVGuiLocalize->Find( m_pItemDefFrom->item_name ) );
 
 
 	const char *key = engine->Key_LookupBinding("+use");
@@ -113,19 +121,21 @@ void CTFHudWeaponSwitch::UpdateStatus( void )
 	Q_snprintf(hint, sizeof(hint), "Press '%s' to switch", key);
 	SetDialogVariable("hint", hint);
 
-	const CHudTexture *pTextureFrom = pWeaponFromInfo->iconInactive;
-	if (pTextureFrom)
+	const char *pszTextureFrom = m_pItemDefFrom->image_inventory;
+
+	if ( m_pImageFrom )
 	{
-		char szImage[64];
-		Q_snprintf(szImage, sizeof(szImage), "../%s", pTextureFrom->szTextureFile);
-		dynamic_cast<CTFImagePanel *>(FindChildByName("WeaponBucketFrom"))->SetImage(szImage);
+		char szImage[128];
+		Q_snprintf( szImage, sizeof( szImage ), "../%s", pszTextureFrom );
+		m_pImageFrom->SetImage( szImage );
 	}
 
-	const CHudTexture *pTextureTo = pWeaponToInfo->iconInactive;
-	if (pTextureTo)
+	const char *pszTextureTo = m_pItemDefTo->image_inventory;
+
+	if ( m_pImageTo )
 	{
-		char szImage[64];
-		Q_snprintf(szImage, sizeof(szImage), "../%s", pTextureTo->szTextureFile);
-		dynamic_cast<CTFImagePanel *>(FindChildByName("WeaponBucketTo"))->SetImage(szImage);
+		char szImage[128];
+		Q_snprintf( szImage, sizeof( szImage ), "../%s", pszTextureTo );
+		m_pImageTo->SetImage( szImage );
 	}
 }

@@ -26,21 +26,22 @@ public:
 
 	bool	MyTouch( CBasePlayer *pPlayer );
 	virtual bool	ValidTouch( CBaseEntity *pPlayer );
-	void	SetWeaponID( unsigned int nWeaponID ){ m_nWeaponID = nWeaponID; }
+	void	SetItem( CEconItemView *pItem ){ m_Item = *pItem; }
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
 	float	GetCreationTime( void ) { return m_flCreationTime; }
 	void	SetClip( int iClip ) { m_iClip = iClip; }
 	void	SetAmmo( int iAmmo ) { m_iAmmo = iAmmo; }
+	void	SetMaxAmmo( int iAmmo ) { m_iMaxAmmo = iAmmo; }
 
-	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, unsigned int nWeaponID );
+	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CTFWeaponBase *pWeapon );
 
 
 private:
 	float m_flCreationTime;
 	float m_flRemoveTime;
-	int m_nWeaponID;
 	CTFWeaponInfo *m_pWeaponInfo;
+	CEconItemView m_Item;
 	
 	int m_iClip;
 	CNetworkVar( int, m_iAmmo );

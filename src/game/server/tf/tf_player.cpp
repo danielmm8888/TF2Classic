@@ -4709,6 +4709,7 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 {
 	if ( !pWeapon ||
 		pWeapon->GetTFWpnData().m_bDontDrop ||
+		!pWeapon->HasItemDefinition() ||
 		pWeapon->IsWeapon( TF_WEAPON_BUILDER ) )
 	{
 		// Can't drop this weapon
@@ -4738,13 +4739,14 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 		return;
 
 	// Create dropped weapon entity.
-	CTFDroppedWeapon *pDroppedWeapon = CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pszWorldModel, pWeapon->GetWeaponID() );;
+	CTFDroppedWeapon *pDroppedWeapon = CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pWeapon );;
 	Assert( pDroppedWeapon );
 	if ( pDroppedWeapon )
 	{
 		// Give the dropped weapon entity our ammo.
 		pDroppedWeapon->SetClip( iClip );
 		pDroppedWeapon->SetAmmo( iAmmo );
+		pDroppedWeapon->SetMaxAmmo( GetMaxAmmo( pWeapon->GetPrimaryAmmoType() ) );
 
 		// Randomize velocity if we dropped weapon upon being killed.
 		if ( bKilled )
@@ -5534,54 +5536,48 @@ int CTFPlayer::GetMaxAmmo( int iAmmoIndex, int iClassNumber /*= -1*/ )
 		iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
 	}
 
-	// Using old system in DM since DM weapons don't use attributes.
-	if ( TFGameRules()->IsDeathmatch() )
+	// If we have a weapon that overrides max ammo, use its value.
+	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
+	for ( int i = 0; i < WeaponCount(); i++ )
 	{
-		// If we have a weapon that overrides max ammo, use its value.
-		// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
-		for ( int i = 0; i < WeaponCount(); i++ )
+		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon( i );
+
+		if ( !pWpn )
+			continue;
+
+		if ( pWpn->GetPrimaryAmmoType() != iAmmoIndex )
+			continue;
+
+		int iCustomMaxAmmo = pWpn->GetMaxAmmo();
+		if ( iCustomMaxAmmo )
 		{
-			CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon( i );
-
-			if ( !pWpn )
-				continue;
-
-			if ( pWpn->GetTFWpnData().iAmmoType != iAmmoIndex )
-				continue;
-
-			int iCustomMaxAmmo = pWpn->GetTFWpnData().m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo;
-			if ( iCustomMaxAmmo )
-			{
-				iMaxAmmo = iCustomMaxAmmo;
-				break;
-			}
+			iMaxAmmo = iCustomMaxAmmo;
+			break;
 		}
 	}
-	else
+
+	switch ( iAmmoIndex )
 	{
-		switch ( iAmmoIndex )
-		{
-		case TF_AMMO_PRIMARY:
-			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_primary );
-			break;
+	case TF_AMMO_PRIMARY:
+		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_primary );
+		break;
 
-		case TF_AMMO_SECONDARY:
-			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_secondary );
-			break;
+	case TF_AMMO_SECONDARY:
+		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_secondary );
+		break;
 
-		case TF_AMMO_METAL:
-			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_metal );
-			break;
+	case TF_AMMO_METAL:
+		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_metal );
+		break;
 
-		case TF_AMMO_GRENADES1:
-			CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_grenades1 );
-			break;
+	case TF_AMMO_GRENADES1:
+		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_grenades1 );
+		break;
 
-		case 6:
-		default:
-			iMaxAmmo = 1;
-			break;
-		}
+	case 6:
+	default:
+		iMaxAmmo = 1;
+		break;
 	}
 
 	return iMaxAmmo;
