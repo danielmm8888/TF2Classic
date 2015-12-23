@@ -316,7 +316,7 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ESCORT )
 			{
-				pszGameTypeAbbreviation = "pl";
+				pszGameTypeAbbreviation = "payload";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_DM )
 			{

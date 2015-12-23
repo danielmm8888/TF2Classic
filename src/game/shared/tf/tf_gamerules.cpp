@@ -1360,6 +1360,8 @@ void CTFGameRules::Activate()
 	if ( pTrain )
 	{
 		m_nGameType.Set( TF_GAMETYPE_ESCORT );
+		//if ( gEntList.FindEntityByClassname( NULL, "tf_logic_multiple_escort" ) )
+
 		tf_gamemode_payload.SetValue( 0 );
 		return;
 	}
