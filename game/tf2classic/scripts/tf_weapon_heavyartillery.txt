@@ -12,7 +12,7 @@ WeaponData
 	"Range"			"8192"
 	"BulletsPerShot"	"2"
 	"Spread"		"0.0"
-	"PunchAngle"		"3.0" 
+	"PunchAngle"		"20.0" 
 	"TimeFireDelay"		"0.075"
 	"ProjectileType"	"projectile_bullet"
 	"BrassModel"		"models/weapons/shells/shell_minigun.mdl"

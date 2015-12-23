@@ -10,26 +10,20 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_guitar_01.wav"
+			"wave" 		"music/cues/dm_main_01.wav"
 			"volume"	"1.00"
 		}
 		
 		"LAYER_MISC"
 		{	
-			"wave"		"music/cues/dm_orch_01.wav"
-			"volume"	"0.35"	
+			"wave"		""
+			"volume"	"0.01"	
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_01_danger.wav"
-				"volume_override"	"0.40"		
+				"wave_override"		"music/cues/dm_orch_01.wav"
+				"volume_override"	"0.55"		
 			}
-		}		
-		
-		"LAYER_PERC"
-		{			
-			"wave" 		"music/cues/dm_drums_01.wav"	
-			"volume"	"1.00"
 		}		
 	}	
 
@@ -43,27 +37,21 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_guitar_02.wav"
+			"wave" 		"music/cues/dm_main_02.wav"
 			"volume"	"1.00"
 		}
 		
 		"LAYER_MISC"
 		{	
-			"wave"		"music/cues/dm_orch_02.wav"
-			"volume"	"0.25"	
+			"wave"		""
+			"volume"	"0.01"	
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_02_danger.wav"
-				"volume_override"	"0.45"		
+				"wave_override"		"music/cues/dm_orch_02.wav"
+				"volume_override"	"0.55"		
 			}
-		}		
-		
-		"LAYER_PERC"
-		{			
-			"wave" 		"music/cues/dm_drums_02.wav"	
-			"volume"	"1.00"
-		}	
+		}
 	}	
 
 	"hard"
@@ -76,27 +64,21 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_guitar_03.wav"
+			"wave" 		"music/cues/dm_main_03.wav"
 			"volume"	"1.00"
 		}
 		
 		"LAYER_MISC"
 		{	
-			"wave"		"music/cues/dm_orch_03.wav"
-			"volume"	"0.25"		
+			"wave"		""
+			"volume"	"0.01"		
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_03_danger.wav"
-				"volume_override"	"0.50"		
+				"wave_override"		"music/cues/dm_orch_03.wav"
+				"volume_override"	"0.60"		
 			}
-		}		
-		
-		"LAYER_PERC"
-		{			
-			"wave" 		"music/cues/dm_drums_03.wav"	
-			"volume"	"1.00"
-		}	
+		}
 	}	
 
 	"second"
@@ -109,27 +91,21 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_guitar_04.wav"
+			"wave" 		"music/cues/dm_main_04.wav"
 			"volume"	"1.00"
 		}
 		
 		"LAYER_MISC"
 		{	
-			"wave"		"music/cues/dm_orch_04.wav"
-			"volume"	"0.35"	
+			"wave"		""
+			"volume"	"0.01"	
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_04_danger.wav"
-				"volume_override"	"0.50"		
+				"wave_override"		"music/cues/dm_orch_04.wav"
+				"volume_override"	"0.60"		
 			}
-		}		
-		
-		"LAYER_PERC"
-		{			
-			"wave" 		"music/cues/dm_drums_04.wav"	
-			"volume"	"1.00"
-		}	
+		}
 	}	
 
 	"final"
@@ -142,26 +118,20 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_guitar_05.wav"
+			"wave" 		"music/cues/dm_main_05.wav"
 			"volume"	"1.00"
 		}
 		
 		"LAYER_MISC"
 		{	
-			"wave"		"music/cues/dm_orch_05.wav"
-			"volume"	"0.40"	
+			"wave"		""
+			"volume"	"0.01"	
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_05_danger.wav"
-				"volume_override"	"0.50"		
+				"wave_override"		"music/cues/dm_orch_05.wav"
+				"volume_override"	"0.55"		
 			}
-		}		
-		
-		"LAYER_PERC"
-		{			
-			"wave" 		"music/cues/dm_drums_05.wav"	
-			"volume"	"1.00"
-		}	
+		}
 	}	
 }
