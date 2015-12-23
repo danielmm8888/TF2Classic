@@ -167,12 +167,16 @@
 	input AddYellowTeamScore(integer) : "Add to the YLW team score (can be a negative number)"
 	//input SetRequiredObserverTarget(string) : "Sets the given entity (by name) to be the required observer target for all spectators. Must be cleared to allow spectators to cycle through targets normally again."
 	//input SetStalemateOnTimelimit(bool) : "Determines whether mp_timelimit can end the match in the middle of a round."
-	//input SetRedKothClockActive(void) : "Set the RED team clock active for KOTH maps."
-	//input SetBlueKothClockActive(void) : "Set the BLU team clock active for KOTH maps."
-	//input SetCTFCaptureBonusTime(float) : "Set the length (in seconds) of team crit time for CTF captures. 0 = none"
-	//input PlayVORed(string) : "Play the given sound entry via the VO channel"
-	//input PlayVOBlue(string) : "Play the given sound entry via the VO channel"
-	//input PlayVO(string) : "Play the given sound entry via the VO channel"
+	input SetRedKothClockActive(void) : "Set the RED team clock active for KOTH maps."
+	input SetBlueKothClockActive(void) : "Set the BLU team clock active for KOTH maps."
+	input SetGreenKothClockActive(void) : "Set the GRN team clock active for KOTH maps."
+	input SetYellowKothClockActive(void) : "Set the YLW team clock active for KOTH maps."
+	input SetCTFCaptureBonusTime(float) : "Set the length (in seconds) of team crit time for CTF captures. 0 = none"
+	input PlayVORed(string) : "Play the given sound entry via the VO channel"
+	input PlayVOBlue(string) : "Play the given sound entry via the VO channel"
+	input PlayVOGreen(string) : "Play the given sound entry via the VO channel"
+	input PlayVOYellow(string) : "Play the given sound entry via the VO channel"
+	input PlayVO(string) : "Play the given sound entry via the VO channel"
 	//input HandleMapEvent(string) : "Handles map events. This will be different events for different maps."
 	//input SetCustomUpgradesFile(string) : "Specifies the path relative to the game directory to the upgrades file to be used."
 
@@ -430,11 +434,46 @@
 	output OnCapture(void) : "Sent when a flag is captured in this zone."
 ]
 
+@SolidClass base(Targetname, Parentname, EnableDisable, TeamNum) = func_flagdetectionzone :
+	"TF flag detection zone."
+[
+	alarm(choices) : "Alarm" : 0 : "Trigger bomb alarm." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	input Test( void ) : "Send OnStartTouchFlag & OnPickedUpFlag outputs if any player with flag is touching. Send OnEndTouchFlag & OnDroppedFlag outputs if no player with flag is touching."
+	
+	output OnStartTouchFlag(void) : "Sent when a flag or flag carrier first touches the zone."
+	output OnEndTouchFlag(void) : "Sent when a flag or flag carrier stops touching the zone."
+	output OnDroppedFlag(void) : "Sent when a flag is dropped in the zone."
+	output OnPickedUpFlag(void) : "Sent when a flag is picked up in the zone."
+]
+
 @SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nogrenades :
 	"Grenades protected area." []
 
-@SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nobuild :
-	"Engineer no-build area." []
+@SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nobuild : "Engineer no-build area."
+[
+	AllowSentry(choices) : "Allow Sentries" : 0 : "Sentries are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	AllowDispenser(choices) : "Allow Dispensers" : 0 : "Dispensers are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	AllowTeleporters(choices) : "Allow Teleporters" : 0 : "Teleporters are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
 
 @SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_regenerate :
 	"Regeneration zone for players."
@@ -734,6 +773,11 @@
 		1 : "Yes"
 		0 : "No"
 	]
+	
+	team_startcap_2(integer) : "Number of RED players to start capping" : 1 
+	team_startcap_3(integer) : "Number of BLUE players to start capping" : 1 
+	team_startcap_4(integer) : "Number of GREEN players to start capping" : 1 
+	team_startcap_5(integer) : "Number of YELLOW players to start capping" : 1 
 
 	team_numcap_2(integer) : "Number of RED players to cap" : 1
 	team_numcap_3(integer) : "Number of BLUE players to cap" : 1
@@ -769,8 +813,78 @@
 	output OnBreakCap(void) : "Sent when either team break capture."
 	output OnEndCap(void)   : "Sent when either team end capture."
 
+	output OnNumCappersChanged(integer) : "Sent when the number of cappers changes, passes the value in int."
+	output OnNumCappersChanged2(integer) : "Sent when the number of cappers changes, passes the value in int (-1 for capture blocked)."
+	
 	// Inputs
 	input SetTeamCanCap(string) : "Set whether a specific team is allowed to capture this point. Format is: <team number> <(0/1)>. i.e. '2 0' would prevent RED from capturing this point, whereas '3 1' would allow BLUE to cap it."
+
+	input SetControlPoint(string) : "Assign area capture to the passed control point."
+	input CaptureCurrentCP(string) : "If we're being capped, forces the current point to capture."	
+]
+
+@PointClass base(Targetname, TeamNum, EnableDisable) = team_train_watcher :
+	"Entity that tracks the train progress through train escort maps"
+[
+	train_can_recede(choices) : "Can the train recede?" : 1 : "Used to hide the HUD countdown." = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+	
+	train_recede_time(integer) : "Train recede time (in seconds)" : 0 : "Length of time before the train begins to recede. 0 = use TF2 default setting of 30 seconds."
+	
+	handle_train_movement(choices) : "Handle train movement?" : 0 : "Should the train watcher handle all train movement?" = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+	
+	speed_forward_modifier(float) : "Speed Forward Modifier" : 1 : "Applies the given modifier to all forward speeds. Only used if the watcher is handling the train movement. [0, 1]"
+	
+	env_spark_name(string) : "Train spark sprites" : "" : "Name of the env_spark entities used under the train for backward movement. They should all have the same entity name. Only used if the watcher is handling the train movement."
+	
+	train(target_destination) : "Train to watch."
+	start_node(target_destination) : "Node that the path starts at."
+	goal_node(target_destination) : "Node that the path ends at."
+	
+	linked_pathtrack_1(target_destination) : "Linked PathTrack 1"
+	linked_cp_1(target_destination) : "Linked CP 1"
+	
+	linked_pathtrack_2(target_destination) : "Linked PathTrack 2"
+	linked_cp_2(target_destination) : "Linked CP 2"
+	
+	linked_pathtrack_3(target_destination) : "Linked PathTrack 3"
+	linked_cp_3(target_destination) : "Linked CP 3"
+	
+	linked_pathtrack_4(target_destination) : "Linked PathTrack 4"
+	linked_cp_4(target_destination) : "Linked CP 4"
+	
+	linked_pathtrack_5(target_destination) : "Linked PathTrack 5"
+	linked_cp_5(target_destination) : "Linked CP 5"
+	
+	linked_pathtrack_6(target_destination) : "Linked PathTrack 6"
+	linked_cp_6(target_destination) : "Linked CP 6"
+	
+	linked_pathtrack_7(target_destination) : "Linked PathTrack 7"
+	linked_cp_7(target_destination) : "Linked CP 7"
+	
+	linked_pathtrack_8(target_destination) : "Linked PathTrack 8"
+	linked_cp_8(target_destination) : "Linked CP 8"
+		
+	hud_min_speed_level_1(float) : "Min Speed for Speed Level 1" : 30
+	hud_min_speed_level_2(float) : "Min Speed for Speed Level 2" : 60
+	hud_min_speed_level_3(float) : "Min Speed for Speed Level 3" : 90
+	
+	// Inputs
+	input SetNumTrainCappers(integer) : "Set Number of players capping the train"
+	input SetSpeedForwardModifier(float) : "Set the speed forward modifier. Only used if the watcher is handling the train movement. [0, 1]"
+	input SetTrainRecedeTime(integer) : "Set the number of seconds before the train starts to recede."
+	input SetTrainCanRecede(bool) : "Determines whether or not the train can recede."
+	input SetTrainRecedeTimeAndUpdate(integer) : "Set the number of seconds before the train starts to recede and update the current recede time."
+	
+	// Outputs
+	output OnTrainStartRecede(void)   : "Sent when the train should start receding"
 ]
 
 @PointClass base(Targetname) iconsprite("editor/game_text.vmt") = game_text_tf :
@@ -800,6 +914,116 @@
 
 	// Inputs
 	input Display(void) : "Display the message text."
+]
+
+@BaseClass = BaseObject
+[
+	TeamNum(choices) : "Team" : 2 : "Team" =
+	[
+		2 : "Red"
+		3 : "Blue"
+		4 : "Green"
+		5 : "Yellow"
+	]
+	
+	// invuln
+	spawnflags(flags) =
+	[
+		2: "Invulnerable" : 0
+	]
+
+	// Inputs
+	input SetBuilder(string) : "Sets the builder of this object to the player given (from an output)"
+	input Show(void) : "Makes the building visible and tries to re-enable it."
+	input Hide(void) : "Makes the building invisible and disables it."
+	input SetHealth(integer) : "Sets a new value for the breakable's health. If the breakable's health reaches zero it will break."
+	input AddHealth(integer) : "Adds health to the breakable. If the breakable's health reaches zero it will break."
+	input RemoveHealth(integer) : "Removes health from the breakable. If the breakable's health reaches zero it will break."
+	input Enable(void) : "Enable this entity."
+	input Disable(void) : "Disable this entity."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/dispenser_light.mdl") = obj_dispenser : 
+	"TF2 Dispenser" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+	]
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/sentry3.mdl") = obj_sentrygun : 
+	"TF2 Sentrygun" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+	
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+		8: "Infinite Ammo" : 0
+	]
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/teleporter_light.mdl") = obj_teleporter : 
+	"TF2 Teleporter" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+	]
+
+	teleporterType(choices) : "Type" : 1 =
+	[
+		1 : "Entrance"
+		2 : "Exit"
+	]
+
+	matchingTeleporter(target_destination) : "Matching Teleporter" : : "The teleporter linked to this one."
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject) iconsprite("editor/bullseye.vmt") = mapobj_cart_dispenser : 
+	"TF2 Dispenser" 
+[
+	spawnflags(flags) =
+	[
+		4: "Ignore line of sight check" : 1
+		8: "Don't heal disguised/stealthed spies" : 1
+	]
+	
+	touch_trigger(target_destination) : "Custom Touch Trigger"
+	
+	input FireHalloweenBonus(integer) : "Trigger bonus effect on players near this dispenser"
+	input SetDispenserLevel(integer) : "Set the dispenser level: 1, 2, or 3"
+	input Enable(void) : "Enable this entity."
+	input Disable(void) : "Disable this entity."
 ]
 
 @PointClass base(Targetname) = tf_logic_deathmatch :
@@ -849,8 +1073,14 @@
 
 	input SetRedTimer(integer)	:	"Set the time remaining for the RED timer."
 	input SetBlueTimer(integer)	:	"Set the time remaining for the BLUE timer."
+	input SetGreenTimer(integer)	:	"Set the time remaining for the GREEN timer."
+	input SetYellowTimer(integer)	:	"Set the time remaining for the YELLOW timer."
+
 	input AddRedTimer(integer)	:	"Add time to the RED timer."
 	input AddBlueTimer(integer)	:	"Add time to the BLUE timer."
+	input AddGreenTimer(integer)	:	"Add time to the GREEN timer."
+	input AddYellowTimer(integer)	:	"Add time to the YELLOW timer."
+
 ]	
 	
 	
@@ -967,7 +1197,7 @@
 @PointClass base(Item) studio("models/items/medkit_large.mdl") = tf_weaponspawner :
 	"Entity that spawns the selected weapon. (This will only work in DM)"
 [
-	WeaponNumber(Choices) : "Weapon" : 0 =
+	WeaponNumber(Choices) : "Weapon (OBSOLETE)" : 0 =
 	[
 		15 : "Scattergun ( Primary )"
 		16 : "Sniper rifle ( Primary )"
@@ -983,6 +1213,22 @@
 		37 : "Pistol ( Secondary )"
 		69 : "Six Shooter ( Secondary )"
 		5 : "Crowbar ( Melee )"
+
+	itemid(Choices) : "Weapon" : 0 =
+	[
+		14 : "Sniper rifle ( Primary )"
+		15 : "Minigun ( Primary )"
+		18 : "Rocket launcher ( Primary )"
+		19 : "Pipebomb launcher ( Primary )"
+		21 : "Flamethrower ( Primary )"
+		9011 : "Sten Gun ( Primary )"
+		9014 : "Heavy Artillery ( Primary )"
+		9012 : "Double barrel shotgun ( Primary )"
+		10 : "Shotgun ( Secondary )"
+		16 : "SMG ( Secondary )"
+		22 : "Pistol ( Secondary )"
+		9013 : "Six Shooter ( Secondary )"
+		9010 : "Crowbar ( Melee )"
 	]
 	
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 10
@@ -1067,9 +1313,9 @@
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
 
-@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_shortuber : "Powerup uber" 
+@PointClass base(Item) studio("models/items/powerup_uber.mdl") = item_powerup_shortuber : "Powerup uber" 
 [
-	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
+	ModelName(string)    : "Model override" : "models/items/powerup_uber.mdl"
 	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
