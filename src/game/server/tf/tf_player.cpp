@@ -2379,7 +2379,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 
 	if ( FStrEq( pcmd, "addcond" ) )
 	{
-		if ( sv_cheats->GetBool() )
+		if ( sv_cheats->GetBool() || PlayerHasPowerplay() )
 		{
 			if ( args.ArgC() >= 2 )
 			{
@@ -7759,10 +7759,16 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	}
 }
 
-CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", FCVAR_CHEAT )
+CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", FCVAR_NONE )
 {
-	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
 	if ( args.ArgC() < 2 )
+		return;
+
+	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
+	if ( !pPlayer )
+		return;
+
+	if ( !sv_cheats->GetBool() && !pPlayer->PlayerHasPowerplay() )
 		return;
 
 	int iItemID = atoi( args[1] );
