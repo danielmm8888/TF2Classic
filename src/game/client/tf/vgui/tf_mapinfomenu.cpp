@@ -462,16 +462,27 @@ static s_MapInfo s_Maps[] = {
 	"pl_cactuscanyon",		"Cactus Canyon",	"#Gametype_Escort",				"Valve",
 	"sd_doomsday",			"Doomsday",			"#Gametype_SD",					"Valve",
 	"sd_doomsday_event",	"Carnival of Carnage", "#Gametype_SD",				"Valve",
+
+	"koth_nucleus",			"Nucleus",			"#Gametype_Koth",				"Valve",
+	"koth_sawmill",			"Sawmill (KOTH)",	"#Gametype_Koth",				"Valve",
+	"arena_sawmill",		"Sawmill (Arena)",	"#Gametype_Arena",				"Valve",
+	"cp_powerhouse",		"Powerhouse",		"#Gametype_CP",					"Valve",
+
+	"ctf_turbine",			"Turbine",			"#Gametype_CTF",				"Flobster",
 	//---------------------- TF2C maps ----------------------
 	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM, Nineaxis",
 	"cp_tidal_v4",		"Tidal",			"#Gametype_CP",					"Heyo",
 	"cp_amaranth",		"Amaranth",			"#Gametype_AttackDefense",		"Berry, TheoF114",
-	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, VALVe",
+	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, Valve",
 	"cp_cragg_a1",		"Cragg",			"#Gametype_CP_Domination",		"Berry",
 	"ctf_casbah",		"Casbah",			"#Gametype_CTF",				"MacD11",
 	"ctf_landfall_rc"	"Landfall",			"#Gametype_CTF",				"Dr. Spud",
 	"dm_wiseau"			"Wiseau",			"#Gametype_Deathmatch",			"MacD11, iiboharz",
 	"dm_grain"			"Grain",			"#Gametype_Deathmatch",			"Ms. Mudpie",
+	"dm_parley"			"Parley",			"#Gametype_Deathmatch",			"DrPyspy",
+	"dm_lumberyard"		"Lumberyard",		"#Gametype_Deathmatch",			"iiboharz, MacD11, Valve",
+	"dm_ravine"			"Ravine",			"#Gametype_Deathmatch",			"Snowshoe, Valve",
+	"dm_2fort"			"2Fort (DM)",		"#Gametype_Deathmatch",			"iiboharz, Valve",
 };
 
 static s_MapTypeInfo s_MapTypes[] = {
