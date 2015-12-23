@@ -280,7 +280,9 @@ void CTFNotificationManager::OnServerlistCheckCompleted(const char* pMessage)
 
 void CTFNotificationManager::UpdateServerlistInfo()
 {	
-	if (steamapicontext->SteamMatchmakingServers() && steamapicontext->SteamMatchmakingServers()->IsRefreshing(hRequest))
+	ISteamMatchmakingServers *pMatchmaking = steamapicontext->SteamMatchmakingServers();
+
+	if ( !pMatchmaking || pMatchmaking->IsRefreshing( hRequest ) )
 		return;
 
 	MatchMakingKeyValuePair_t *pFilters;
