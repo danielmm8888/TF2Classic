@@ -155,9 +155,11 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool CalcIsAttackCriticalHelper();
 	bool IsCurrentAttackACrit() { return m_bCurrentAttackIsCrit; }
 
-	// Clip.
+	// Ammo.
 	virtual int	GetMaxClip1( void ) const;
 	virtual int	GetDefaultClip1( void ) const;
+	virtual int GetMaxAmmo( void );
+	virtual int GetInitialAmmo( void );
 
 	// Reloads.
 	virtual bool Reload( void );
@@ -184,6 +186,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual acttable_t *ActivityList( int &iActivityCount );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
+	static acttable_t m_acttableSecondary2[];
 	static acttable_t m_acttableMelee[];
 	static acttable_t m_acttableBuilding[];
 	static acttable_t m_acttablePDA[];
@@ -326,5 +329,32 @@ private:
 };
 
 #define WEAPON_RANDOM_RANGE 10000
+
+// Mercenary needs a different activity set for each weapon so use these in stock weapons code.
+#define DECLARE_DM_ACTTABLE()		static acttable_t m_acttable[];\
+	virtual Activity ActivityOverride( Activity baseAct, bool *pRequired ) OVERRIDE;
+
+#define IMPLEMENT_DM_ACTTABLE(className) \
+	Activity className::ActivityOverride( Activity baseAct, bool *pRequired )	\
+	{																			\
+		CTFPlayer *pOwner = GetTFPlayerOwner();									\
+		if ( pOwner && pOwner->IsPlayerClass( TF_CLASS_MERCENARY ) )			\
+		{																		\
+			int actCount = ARRAYSIZE( m_acttable );								\
+			for ( int i = 0; i < actCount; i++ )								\
+			{																	\
+				const acttable_t& act = m_acttable[i];							\
+				if ( baseAct == act.baseAct )									\
+				{																\
+					if ( pRequired )											\
+					{															\
+						*pRequired = act.required;								\
+					}															\
+					return (Activity)act.weaponAct;								\
+				}																\
+			}																	\
+		}																		\
+		return BaseClass::ActivityOverride( baseAct, pRequired );				\
+	}
 
 #endif // TF_WEAPONBASE_H

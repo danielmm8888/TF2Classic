@@ -11,6 +11,9 @@
 #pragma once
 #endif
 
+#include "tf_imagepanel.h"
+#include "econ_itemschema.h"
+
 class CTFWeaponInfo;
 
 //-----------------------------------------------------------------------------
@@ -31,11 +34,12 @@ public:
 private:
 	
 	void UpdateStatus( void );
-	CTFWeaponInfo *pWeaponFromInfo;
-	CTFWeaponInfo *pWeaponToInfo;
+	EconItemDefinition *m_pItemDefFrom;
+	EconItemDefinition *m_pItemDefTo;
 
 private:
-
+	CTFImagePanel *m_pImageFrom;
+	CTFImagePanel *m_pImageTo;
 };
 
 #endif	// TF_HUD_WEAPONDESIRE_H

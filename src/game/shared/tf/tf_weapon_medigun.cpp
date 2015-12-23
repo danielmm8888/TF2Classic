@@ -309,6 +309,7 @@ void CWeaponMedigun::UpdateOnRemove( void )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
+	m_bHolstered = true;
 
 #ifdef CLIENT_DLL
 	if ( m_bPlayingSound )
@@ -318,6 +319,7 @@ void CWeaponMedigun::UpdateOnRemove( void )
 	}
 
 	UpdateEffects();
+	ManageChargeEffect();
 #endif
 
 

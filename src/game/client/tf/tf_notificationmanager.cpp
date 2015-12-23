@@ -285,7 +285,7 @@ void CTFNotificationManager::UpdateServerlistInfo()
 
 	MatchMakingKeyValuePair_t *pFilters;
 	int nFilters = GetServerFilters(&pFilters);
-	hRequest = steamapicontext->SteamMatchmakingServers()->RequestInternetServerList(engine->GetAppID(), &pFilters, nFilters, this);
+	hRequest = pMatchmaking->RequestInternetServerList( engine->GetAppID(), &pFilters, nFilters, this );
 }
 
 gameserveritem_t CTFNotificationManager::GetServerInfo(int index) 
