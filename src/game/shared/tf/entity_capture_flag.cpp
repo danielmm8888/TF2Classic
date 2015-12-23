@@ -985,9 +985,10 @@ void CCaptureFlag::Drop( CTFPlayer *pPlayer, bool bVisible,  bool bThrown /*= fa
 	BaseClass::Drop( pPlayer, bVisible );
 
 	pPlayer->TeamFortress_SetSpeed();
-	pPlayer->RemoveGlowEffect();
 
 #ifdef GAME_DLL
+
+	pPlayer->RemoveGlowEffect();
 
 	if ( bThrown )
 	{
