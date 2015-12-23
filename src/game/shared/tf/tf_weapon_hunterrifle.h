@@ -30,7 +30,7 @@ public:
 	CTFHunterRifle(){ m_iWeaponMode = TF_WEAPON_PRIMARY_MODE; m_bReloadsSingly = false; };
 	~CTFHunterRifle(){};
 
-	virtual int	GetWeaponID( void ) const			{ return TF_WEAPON_HUNTERRIFLE; }
+	virtual int	GetWeaponID( void ) const			{ return TF_WEAPON_SNIPERRIFLE; }
 
 	virtual void Spawn();
 	void		 ResetTimers( void );

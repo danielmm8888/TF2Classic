@@ -89,27 +89,31 @@ bool CHudMedicChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
+	C_TFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
 
 	if ( !pWpn )
 	{
 		return false;
 	}
 
-	if ( pWpn->GetWeaponID() == TF_WEAPON_BONESAW )
+	C_WeaponMedigun *pMedigun = pPlayer->GetMedigun();
+
+	if ( !pMedigun )
 	{
-		return CHudElement::ShouldDraw();
+		return false;
 	}
 
-	if ( pWpn->GetWeaponID() == TF_WEAPON_MEDIGUN )
+	// Hide the meter if the medigun can't earn uber.
+	float flChargeRate = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pMedigun, flChargeRate, mult_medigun_uberchargerate );
+
+	if ( !flChargeRate )
 	{
-		// Hide this if weapon can't earn uber.
-		float flChargeRate = 1.0f;
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flChargeRate, mult_medigun_uberchargerate );
+		return false;
+	}
 
-		if ( !flChargeRate )
-			return false;
-
+	if ( pWpn == pMedigun || pWpn->GetWeaponID() == TF_WEAPON_BONESAW )
+	{
 		return CHudElement::ShouldDraw();
 	}
 
@@ -126,12 +130,12 @@ void CHudMedicChargeMeter::OnTick( void )
 	if ( !pPlayer )
 		return;
 
-	CWeaponMedigun *pMedigun = pPlayer->GetMedigun();
+	C_WeaponMedigun *pMedigun = pPlayer->GetMedigun();
 
 	if ( !pMedigun )
 		return;
 
-	CTFWeaponBase *pActiveWpn = pPlayer->GetActiveTFWeapon();
+	C_TFWeaponBase *pActiveWpn = pPlayer->GetActiveTFWeapon();
 
 	if ( !pActiveWpn )
 		return;

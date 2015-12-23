@@ -106,8 +106,6 @@ private:
 	int			m_iParticleWaterLevel;
 	float		m_flAmmoUseRemainder;
 
-	float m_flStopHitSoundTime;
-
 #if defined( CLIENT_DLL )
 	CSoundPatch	*m_pFiringStartSound;
 
@@ -121,6 +119,8 @@ private:
 
 	bool m_bOldHitTarget;
 	CSoundPatch *m_pHitTargetSound;
+#else
+	float m_flStopHitSoundTime;
 #endif
 
 	CTFFlameThrower( const CTFFlameThrower & );

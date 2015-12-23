@@ -24,7 +24,7 @@
 #define CTFBaseRocket C_TFBaseRocket
 #endif
 
-#define TF_ROCKET_RADIUS	(110.0f * 1.1f)	//radius * TF scale up factor
+#define TF_ROCKET_RADIUS	146.0f	// Matches grenade radius.
 
 //=============================================================================
 //

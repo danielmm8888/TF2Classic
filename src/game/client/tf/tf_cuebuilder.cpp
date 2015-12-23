@@ -121,7 +121,7 @@ static void EnableCommand(IConVar *var, const char *pOldValue, float flOldValue)
 		GetCueBuilder()->StopCue();
 	}
 }
-ConVar tf2c_cues_enabled("tf2c_cues_enabled", "1", FCVAR_USERINFO | FCVAR_ARCHIVE, "Enable dynamic music", EnableCommand);
+ConVar tf2c_cues_enabled("tf2c_cues_enabled", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Enable dynamic music", EnableCommand);
 
 void PlayCommand(const CCommand &args)
 {
@@ -217,12 +217,15 @@ void CTFCueBuilder::Update(float frametime)
 //-----------------------------------------------------------------------------
 // Purpose: Event handler
 //-----------------------------------------------------------------------------
-void CTFCueBuilder::FireGameEvent(IGameEvent *event)
+void CTFCueBuilder::FireGameEvent( IGameEvent *event )
 {
-	const char *type = event->GetName();
-
-	if (!TFGameRules())
+	if ( !tf2c_cues_enabled.GetBool() )
 		return;
+
+	if ( !TFGameRules() )
+		return;
+
+	const char *type = event->GetName();
 
 	if (0 == Q_strcmp(type, "localplayer_changeteam"))
 	{

@@ -1285,7 +1285,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			if ( !pItemInfo )
 			{
-				AssertMsg( false, "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
+				Warning( "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
 				continue;
 			}
 
@@ -3530,7 +3530,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 						switch ( pWeapon->GetWeaponID() )
 						{
 						case TF_WEAPON_ROCKETLAUNCHER:
-						case TF_WEAPON_ROCKETLAUNCHERBETA:
 						case TF_WEAPON_PIPEBOMBLAUNCHER:
 							// Rocket launcher and sticky launcher only have half the bonus of the other weapons at short range
 							flRandomDamage *= 0.5;
@@ -3805,11 +3804,13 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
 
+#if 0
 	// Hit by tranq
 	if ( info.GetDamageType() & DMG_PARALYZE )
 	{
 		m_Shared.AddCond( TF_COND_SLOWED, 4.0f );
 	}
+#endif
 
 	bool bIgniting = false;
 
@@ -4288,6 +4289,41 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	}
 
 	m_Shared.SetKillstreak(0);
+}
+
+bool CTFPlayer::Event_Gibbed( const CTakeDamageInfo &info )
+{
+	// CTFRagdoll takes care of gibbing.
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayer::BecomeRagdoll( const CTakeDamageInfo &info, const Vector &forceVector )
+{
+	if ( CanBecomeRagdoll() )
+	{
+		VPhysicsDestroyObject();
+		AddSolidFlags( FSOLID_NOT_SOLID );
+		m_nRenderFX = kRenderFxRagdoll;
+
+		// Have to do this dance because m_vecForce is a network vector
+		// and can't be sent to ClampRagdollForce as a Vector *
+		Vector vecClampedForce;
+		ClampRagdollForce( forceVector, &vecClampedForce );
+		m_vecForce = vecClampedForce;
+
+		SetParent( NULL );
+
+		AddFlag( FL_TRANSRAGDOLL );
+
+		SetMoveType( MOVETYPE_NONE );
+
+		return true;
+	}
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -6188,6 +6224,7 @@ void CTFPlayer::CreateRagdollEntity( bool bGib, bool bBurning )
 	// Add additional gib setup.
 	if ( bGib )
 	{
+		EmitSound( "BaseCombatCharacter.CorpseGib" ); // Squish!
 		m_nRenderFX = kRenderFxRagdoll;
 	}
 
@@ -6807,6 +6844,10 @@ void CTFPlayer::Taunt( void )
 	if ( GetGroundEntity() == NULL )
 		return;
 
+	// Can't taunt while disguised.
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+		return;
+
 	// Allow voice commands, etc to be interrupted.
 	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
 	Assert( pExpresser );
@@ -6818,6 +6859,12 @@ void CTFPlayer::Taunt( void )
 	{
 		// Get the duration of the scene.
 		float flDuration = GetSceneDuration( szResponse ) + 0.2f;
+
+		// Clear disguising state.
+		if ( m_Shared.InCond( TF_COND_DISGUISING ) )
+		{
+			m_Shared.RemoveCond( TF_COND_DISGUISING );
+		}
 
 		// Set player state as taunting.
 		m_Shared.AddCond( TF_COND_TAUNTING );
@@ -7037,6 +7084,17 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 	criteriaSet.AppendCriteria( "invulnerable", m_Shared.InCond( TF_COND_INVULNERABLE ) ? "1" : "0" );
 	criteriaSet.AppendCriteria( "beinghealed", m_Shared.InCond( TF_COND_HEALTH_BUFF ) ? "1" : "0" );
 	criteriaSet.AppendCriteria( "waitingforplayers", (TFGameRules()->IsInWaitingForPlayers() || TFGameRules()->IsInPreMatch()) ? "1" : "0" );
+	criteriaSet.AppendCriteria( "teamrole", GetTFTeam()->GetRole() ? "defense" : "offense" );
+
+	if ( GetTFTeam() )
+	{
+		int iTeamRole = GetTFTeam()->GetRole();
+
+		if ( iTeamRole == 1 )
+			criteriaSet.AppendCriteria( "teamrole", "defense" );
+		else
+			criteriaSet.AppendCriteria( "teamrole", "offense" );
+	}
 
 	// Current weapon role
 	CTFWeaponBase *pActiveWeapon = m_Shared.GetActiveTFWeapon();

@@ -1039,10 +1039,10 @@ void CTFPlayerShared::OnAddDisguising( void )
 #ifdef CLIENT_DLL
 	if ( m_pOuter->m_pDisguisingEffect )
 	{
-//		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
+		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
 	}
 
-	if ( !m_pOuter->IsLocalPlayer() && ( !InCond( TF_COND_STEALTHED ) || !m_pOuter->IsEnemyPlayer() ) )
+	if ( ( !m_pOuter->IsLocalPlayer() || !m_pOuter->InFirstPersonView() ) && ( !InCond( TF_COND_STEALTHED ) || !m_pOuter->IsEnemyPlayer() ) )
 	{
 		const char *pszEffectName = ConstructTeamParticle( "spy_start_disguise_%s", m_pOuter->GetTeamNumber() );
 
@@ -1064,7 +1064,7 @@ void CTFPlayerShared::OnAddDisguised( void )
 	if ( m_pOuter->m_pDisguisingEffect )
 	{
 		// turn off disguising particles
-//		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
+		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
 		m_pOuter->m_pDisguisingEffect = NULL;
 	}
 	m_pOuter->m_flDisguiseEndEffectStartTime = gpGlobals->curtime;
@@ -1463,7 +1463,7 @@ void CTFPlayerShared::OnRemoveDisguising( void )
 #ifdef CLIENT_DLL
 	if ( m_pOuter->m_pDisguisingEffect )
 	{
-//		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
+		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
 		m_pOuter->m_pDisguisingEffect = NULL;
 	}
 #else
@@ -1735,6 +1735,12 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 		return;
 	}
 
+	// Can't disguise while taunting.
+	if ( InCond( TF_COND_TAUNTING ) )
+	{
+		return;
+	}
+
 	// we're not disguising as anything but ourselves (so reset everything)
 	if ( nRealTeam == nTeam && nRealClass == nClass )
 	{
@@ -1771,7 +1777,7 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 
 	// Switching disguises is faster if we're already disguised
 	if ( InCond( TF_COND_DISGUISED ) )
-		m_flDisguiseCompleteTime = gpGlobals->curtime + 0.5;
+		m_flDisguiseCompleteTime = gpGlobals->curtime + TF_TIME_TO_CHANGE_DISGUISE;
 	else
 		m_flDisguiseCompleteTime = gpGlobals->curtime + TF_TIME_TO_DISGUISE;
 #endif
@@ -2957,7 +2963,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 	// Reduce our speed if we were tranquilized
 	if ( m_Shared.InCond( TF_COND_SLOWED ) )
 	{
-		maxfbspeed *= 0.55f;
+		maxfbspeed *= 0.6f;
 	}
 
 	// if we're in bonus time because a team has won, give the winners 110% speed and the losers 90% speed
