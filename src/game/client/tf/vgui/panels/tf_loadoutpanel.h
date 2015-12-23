@@ -39,6 +39,7 @@ public:
 	void SetModelClass(int iClass);
 	void SetSlotAndPreset(int iSlot, int iPreset);
 	void SideRow(int iRow, int iDir);
+	void ResetRows();
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;

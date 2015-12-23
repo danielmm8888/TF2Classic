@@ -240,6 +240,7 @@ void CTFLoadoutPanel::SetCurrentClass(int iClass)
 		return;
 
 	iCurrentClass = iClass; 	
+	ResetRows();
 	DefaultLayout(); 
 };
 
@@ -346,6 +347,19 @@ void CTFLoadoutPanel::SideRow(int iRow, int iDir)
 	}
 
 	DefaultLayout();
+}
+
+void CTFLoadoutPanel::ResetRows()
+{
+	for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+	{
+		m_RawIDPos[iSlot] = 0;
+		for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+		{
+			CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+			m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
+		}
+	}
 }
 
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
