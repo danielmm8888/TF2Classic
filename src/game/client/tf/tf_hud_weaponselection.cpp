@@ -17,7 +17,6 @@
 #include <vgui_controls/Panel.h>
 #include <vgui_controls/Label.h>
 #include <vgui_controls/EditablePanel.h>
-#include "controls/tf_advbuttonbase.h"
 
 #include "vgui/ILocalize.h"
 
@@ -26,6 +25,7 @@
 #include "tf_imagepanel.h"
 #include "c_tf_player.h"
 #include "c_tf_weapon_builder.h"
+#include "tf_hud_weaponswitch.h"
 
 #define SELECTION_TIMEOUT_THRESHOLD		2.5f	// Seconds
 #define SELECTION_FADEOUT_TIME			3.0f
@@ -35,136 +35,6 @@
 
 ConVar tf_weapon_select_demo_start_delay( "tf_weapon_select_demo_start_delay", "1.0", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Delay after spawning to start the weapon bucket demo." );
 ConVar tf_weapon_select_demo_time( "tf_weapon_select_demo_time", "0.5", FCVAR_CLIENTDLL | FCVAR_ARCHIVE, "Time to pulse each weapon bucket upon spawning as a new class. 0 to turn off." );
-
-class CItemModelPanel : public vgui::EditablePanel
-{
-	DECLARE_CLASS_SIMPLE(CItemModelPanel, vgui::Panel);
-
-public:
-	CItemModelPanel(Panel *parent, const char* name);
-
-	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
-	virtual void PerformLayout();
-
-	virtual void SetWeapon(C_BaseCombatWeapon *pWeapon, int ID);
-	virtual void SetSelected(bool bSelected);
-
-private:
-	C_BaseCombatWeapon	*m_pWeapon;
-	vgui::Label			*m_pWeaponName;
-	vgui::Label			*m_pSlotID;
-	vgui::ImagePanel	*m_pWeaponImage;
-	vgui::HFont			 m_pDefaultFont;
-	vgui::HFont			 m_pSelectedFont;
-	vgui::HFont			 m_pNumberDefaultFont;
-	vgui::HFont			 m_pNumberSelectedFont;
-	vgui::IBorder		*m_pDefaultBorder;
-	vgui::IBorder		*m_pSelectedRedBorder;
-	vgui::IBorder		*m_pSelectedBlueBorder;
-	bool				 m_bSelected;
-	int					 m_ID;
-};
-//-----------------------------------------------------------------------------
-// Purpose: Constructor
-//-----------------------------------------------------------------------------
-CItemModelPanel::CItemModelPanel(Panel *parent, const char* name) : EditablePanel(parent, name)
-{
-	m_pWeapon = NULL;
-	m_pWeaponName = new vgui::Label(this, "WeaponName", "text");
-	m_pSlotID = new vgui::Label(this, "SlotID", "0");
-	m_pWeaponImage = new vgui::ImagePanel(this, "WeaponImage");
-}
-
-void CItemModelPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
-{
-	m_pSlotID->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
-	m_pDefaultFont = pScheme->GetFont("ItemFontNameSmallest", true);
-	m_pSelectedFont = pScheme->GetFont("ItemFontNameSmall", true);
-	m_pNumberDefaultFont = pScheme->GetFont("FontStorePromotion", true);
-	m_pNumberSelectedFont = pScheme->GetFont("HudFontSmall", true);
-	m_pDefaultBorder = pScheme->GetBorder("TFFatLineBorder");
-	m_pSelectedRedBorder = pScheme->GetBorder("TFFatLineBorderRedBG");
-	m_pSelectedBlueBorder = pScheme->GetBorder("TFFatLineBorderBlueBG");
-}
-
-void CItemModelPanel::PerformLayout()
-{
-	IBorder *border = m_pDefaultBorder;
-	if (m_bSelected)
-	{
-		C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-		if (!pPlayer)
-			return;
-		int iTeam = pPlayer->GetTeamNumber();
-		if (iTeam == TF_TEAM_RED)
-		{
-			border = m_pSelectedRedBorder;
-		}
-		else
-		{
-			border = m_pSelectedBlueBorder;
-		}
-	}
-	SetBorder(border);
-	m_pWeaponImage->SetShouldScaleImage(true);
-	m_pWeaponImage->SetZPos(-1);
-	m_pWeaponName->SetBounds(XRES(5), GetTall() - YRES(20), GetWide() - XRES(10), YRES(20));
-	m_pWeaponName->SetFont(m_bSelected ? m_pSelectedFont : m_pDefaultFont);
-	m_pWeaponName->SetContentAlignment(CTFAdvButtonBase::GetAlignment("center"));
-	m_pWeaponName->SetCenterWrap(true);
-	if (!m_pWeapon->CanBeSelected())
-	{
-		wchar_t *pText = g_pVGuiLocalize->Find("#TF_OUT_OF_AMMO");
-		m_pWeaponName->SetText(pText);
-		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("RedSolid", Color(255, 255, 255, 255)));
-	}
-	else
-	{
-		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("TanLight", Color(255, 255, 255, 255)));
-	}
-	m_pSlotID->SetBounds(0, YRES(5), GetWide() - XRES(5), YRES(10));
-	m_pSlotID->SetFont(m_bSelected ? m_pNumberSelectedFont : m_pNumberDefaultFont);
-	m_pSlotID->SetContentAlignment(CTFAdvButtonBase::GetAlignment("east"));
-}
-
-void CItemModelPanel::SetWeapon( C_BaseCombatWeapon *pWeapon, int ID )
-{
-	m_pWeapon = pWeapon;
-	m_ID = ID;
-
-	int iItemID = m_pWeapon->GetItemID();
-	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
-	wchar_t *pText = NULL;
-	if ( pItemDefinition )
-	{
-		pText = g_pVGuiLocalize->Find( pItemDefinition->item_name );
-		char szImage[128];
-		Q_snprintf( szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory );
-		m_pWeaponImage->SetImage(szImage);
-		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5.0) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
-	}
-	else
-	{
-		pText = g_pVGuiLocalize->Find(m_pWeapon->GetWpnData().szPrintName);
-		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-		if ( pTexture )
-		{
-			char szImage[64];
-			Q_snprintf( szImage, sizeof(szImage), "../%s", pTexture->szTextureFile );
-			m_pWeaponImage->SetImage( szImage );
-		}
-		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
-	}
-	char szSlotID[8];
-	itoa( m_ID + 1, szSlotID, sizeof( szSlotID ) );
-	m_pSlotID->SetText( szSlotID );
-	m_pWeaponName->SetText( pText );
-}
-
-void CItemModelPanel::SetSelected(bool bSelected)
-{
-	m_bSelected = bSelected;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: tf weapon selection hud element
@@ -555,8 +425,6 @@ void CHudWeaponSelection::PostChildPaint()
 					{
 
 						// draw selected weapon
-						pModelPanels[i]->SetWeapon(pWeapon, i);
-						pModelPanels[i]->SetSelected(bSelectedWeapon);
 						pModelPanels[i]->SetVisible(true);
 						if (bSelectedWeapon)
 						{
@@ -570,7 +438,7 @@ void CHudWeaponSelection::PostChildPaint()
 							pModelPanels[i]->SetBounds(xpos, ypos, m_flSmallBoxWide, m_flSmallBoxTall);
 							ypos += (m_flSmallBoxTall + m_flBoxGap);
 						}
-						pModelPanels[i]->PerformLayout();
+						pModelPanels[i]->SetWeapon(pWeapon, bSelectedWeapon, i);
 
 					}
 				}
@@ -612,11 +480,9 @@ void CHudWeaponSelection::PostChildPaint()
 							continue;
 
 						// draw selected weapon
-						pModelPanels[i]->SetWeapon(pWeapon, i);
-						pModelPanels[i]->SetSelected(true);
 						pModelPanels[i]->SetVisible(true);
 						pModelPanels[i]->SetBounds(xpos, ypos, m_flLargeBoxWide, m_flLargeBoxTall);
-						pModelPanels[i]->PerformLayout();
+						pModelPanels[i]->SetWeapon(pWeapon, true, i);
 
 						xpos -= ( m_flLargeBoxWide + m_flBoxGap );
 						bFirstItem = false;
@@ -637,11 +503,9 @@ void CHudWeaponSelection::PostChildPaint()
 							continue;
 
 						// draw has weapon in slot
-						pModelPanels[i]->SetWeapon(pWeapon, i);
-						pModelPanels[i]->SetSelected(false);
 						pModelPanels[i]->SetVisible(true);
 						pModelPanels[i]->SetBounds(xpos, ypos, m_flSmallBoxWide, m_flSmallBoxTall);
-						pModelPanels[i]->PerformLayout();
+						pModelPanels[i]->SetWeapon(pWeapon, false, i);
 						
 						ypos += ( m_flSmallBoxTall + m_flBoxGap );	
 					}
