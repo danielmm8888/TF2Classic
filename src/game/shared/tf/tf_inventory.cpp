@@ -318,7 +318,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			14, 9007
 		},
 		{
-			16, 751
+			16
 		},
 		{
 			3, 9008
@@ -326,7 +326,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 	},
 	{ // Soldier
 		{
-			18, 9004, 9001
+			18, 9004
 		},
 		{
 			10

@@ -149,6 +149,9 @@ bool CWeaponSpawner::KeyValue( const char *szKeyName, const char *szValue )
 
 		int iInputID = atoi( szValue );
 
+		if ( iInputID == 0 )
+			return true;
+
 		for ( int i = 0; i < ARRAYSIZE( g_aWeaponTranslations ); i++ )
 		{
 			if ( g_aWeaponTranslations[i].iWeaponID == iInputID )
