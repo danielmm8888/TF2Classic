@@ -12,6 +12,7 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ImagePanel.h>
 #include <vgui_controls/Label.h>
+#include "controls/tf_advbuttonbase.h"
 
 #include "tf_hud_weaponswitch.h"
 #include "c_tf_player.h"
@@ -26,6 +27,156 @@ using namespace vgui;
 DECLARE_HUDELEMENT(CTFHudWeaponSwitch);
 
 //-----------------------------------------------------------------------------
+// Purpose: Constructor
+//-----------------------------------------------------------------------------
+CItemModelPanel::CItemModelPanel(Panel *parent, const char* name) : EditablePanel(parent, name)
+{
+	m_pWeapon = NULL;
+	m_pWeaponName = new vgui::Label(this, "WeaponName", "text");
+	m_pSlotID = new vgui::Label(this, "SlotID", "0");
+	m_pWeaponImage = new vgui::ImagePanel(this, "WeaponImage");
+	m_iBorderStyle = -1;
+	m_ID = -1;
+}
+
+void CItemModelPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
+{
+	m_pSlotID->SetFgColor(pScheme->GetColor("TanLight", Color(255, 255, 255, 255)));
+	m_pDefaultFont = pScheme->GetFont("ItemFontNameSmallest", true);
+	m_pSelectedFont = pScheme->GetFont("ItemFontNameSmall", true);
+	m_pNumberDefaultFont = pScheme->GetFont("FontStorePromotion", true);
+	m_pNumberSelectedFont = pScheme->GetFont("HudFontSmall", true);
+	m_pDefaultBorder = pScheme->GetBorder("TFFatLineBorder");
+	m_pSelectedRedBorder = pScheme->GetBorder("TFFatLineBorderRedBG");
+	m_pSelectedBlueBorder = pScheme->GetBorder("TFFatLineBorderBlueBG");
+}
+
+void CItemModelPanel::PerformLayout()
+{
+	if (m_iBorderStyle == -1)
+	{
+		SetPaintBorderEnabled(false);
+	}
+	else if (m_iBorderStyle == 0)
+	{
+		SetPaintBorderEnabled(true);
+		IBorder *border = m_pDefaultBorder;
+		SetBorder(border);
+	}
+	else if (m_iBorderStyle == 1)
+	{
+		C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+		IBorder *border;
+		if (!pPlayer)
+			return;
+		int iTeam = pPlayer->GetTeamNumber();
+		if (iTeam == TF_TEAM_RED)
+		{
+			border = m_pSelectedRedBorder;
+		}
+		else
+		{
+			border = m_pSelectedBlueBorder;
+		}
+		SetBorder(border);
+	}
+	m_pWeaponImage->SetShouldScaleImage(true);
+	m_pWeaponImage->SetZPos(-1);
+	m_pWeaponName->SetBounds(XRES(5), GetTall() - YRES(20), GetWide() - XRES(10), YRES(20));
+	m_pWeaponName->SetFont(m_iBorderStyle ? m_pSelectedFont : m_pDefaultFont);
+	m_pWeaponName->SetContentAlignment(CTFAdvButtonBase::GetAlignment("center"));
+	m_pWeaponName->SetCenterWrap(true);
+	if (m_pWeapon && !m_pWeapon->CanBeSelected())
+	{
+		wchar_t *pText = g_pVGuiLocalize->Find("#TF_OUT_OF_AMMO");
+		m_pWeaponName->SetText(pText);
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("RedSolid", Color(255, 255, 255, 255)));
+	}
+	else
+	{
+		m_pWeaponName->SetFgColor(GETSCHEME()->GetColor("TanLight", Color(255, 255, 255, 255)));
+	}
+	m_pSlotID->SetBounds(0, YRES(5), GetWide() - XRES(5), YRES(10));
+	m_pSlotID->SetFont(m_iBorderStyle ? m_pNumberSelectedFont : m_pNumberDefaultFont);
+	m_pSlotID->SetContentAlignment(CTFAdvButtonBase::GetAlignment("east"));
+}
+
+void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, int ID)
+{
+	m_pWeapon = pWeapon;
+	m_ID = ID;
+	m_iBorderStyle = iBorderStyle;
+
+	int iItemID = m_pWeapon->GetItemID();
+	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
+	wchar_t *pText = NULL;
+	if (pItemDefinition)
+	{
+		pText = g_pVGuiLocalize->Find(pItemDefinition->item_name);
+		char szImage[128];
+		Q_snprintf(szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory);
+		m_pWeaponImage->SetImage(szImage);
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5.0) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
+	}
+	else
+	{
+		pText = g_pVGuiLocalize->Find(m_pWeapon->GetWpnData().szPrintName);
+		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
+		if (pTexture)
+		{
+			char szImage[64];
+			Q_snprintf(szImage, sizeof(szImage), "../%s", pTexture->szTextureFile);
+			m_pWeaponImage->SetImage(szImage);
+		}
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
+	}
+	m_pWeaponName->SetText(pText);
+	if (ID != -1)
+	{
+		char szSlotID[8];
+		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
+		m_pSlotID->SetText(szSlotID);
+	}
+	else
+	{
+		m_pSlotID->SetText("");
+	}
+	PerformLayout();
+}
+
+void CItemModelPanel::SetWeapon(EconItemDefinition *pItemDefinition, int iBorderStyle, int ID)
+{
+	m_pWeapon = NULL;
+	m_ID = ID;
+	m_iBorderStyle = iBorderStyle;
+
+	wchar_t *pText = NULL;
+	if (pItemDefinition)
+	{
+		pText = g_pVGuiLocalize->Find(pItemDefinition->item_name);
+		char szImage[128];
+		Q_snprintf(szImage, sizeof(szImage), "../%s_large", pItemDefinition->image_inventory);
+		m_pWeaponImage->SetImage(szImage);
+		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 5.0) + XRES(4), GetWide() - XRES(8), GetWide() - XRES(8));
+	}
+
+	m_pWeaponName->SetText(pText);
+	if (ID != -1)
+	{
+		char szSlotID[8];
+		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
+		m_pSlotID->SetText(szSlotID);
+	}
+	else
+	{
+		m_pSlotID->SetText("");
+	}
+	PerformLayout();
+}
+
+
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 CTFHudWeaponSwitch::CTFHudWeaponSwitch(const char *pElementName) : CHudElement(pElementName), BaseClass(NULL, "HudWeaponSwitch")
@@ -36,8 +187,8 @@ CTFHudWeaponSwitch::CTFHudWeaponSwitch(const char *pElementName) : CHudElement(p
 	m_pItemDefFrom = NULL;
 	m_pItemDefTo = NULL;
 
-	m_pImageFrom = NULL;
-	m_pImageTo = NULL;
+	m_pWeaponFrom = new CItemModelPanel(this, "WeaponFrom");
+	m_pWeaponTo = new CItemModelPanel(this, "WeaponTo");
 
 	vgui::ivgui()->AddTickSignal(GetVPanel(), 100);
 }
@@ -60,6 +211,7 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 	int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
 	if (iWeaponTo != -1)
 	{
+
 		m_pItemDefTo = GetItemSchema()->GetItemDefinition( iWeaponTo );
 
 		if ( !m_pItemDefTo )
@@ -87,9 +239,6 @@ void CTFHudWeaponSwitch::ApplySchemeSettings( IScheme *pScheme )
 
 	// load control settings...
 	LoadControlSettings( "resource/UI/HudWeaponSwitch.res" );
-
-	m_pImageFrom = dynamic_cast<CTFImagePanel *>( FindChildByName( "WeaponBucketFrom" ) );
-	m_pImageTo = dynamic_cast<CTFImagePanel *>( FindChildByName( "WeaponBucketTo" ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -108,9 +257,8 @@ void CTFHudWeaponSwitch::UpdateStatus( void )
 	if ( !m_pItemDefFrom || !m_pItemDefTo )
 		return;
 
-	SetDialogVariable( "weapontoalias", g_pVGuiLocalize->Find( m_pItemDefTo->item_name ) );
-	SetDialogVariable( "weaponfromalias", g_pVGuiLocalize->Find( m_pItemDefFrom->item_name ) );
-
+	m_pWeaponFrom->SetWeapon(m_pItemDefFrom);
+	m_pWeaponTo->SetWeapon(m_pItemDefTo);
 
 	const char *key = engine->Key_LookupBinding("+use");
 	if (!key)
@@ -120,22 +268,4 @@ void CTFHudWeaponSwitch::UpdateStatus( void )
 	char hint[64];
 	Q_snprintf(hint, sizeof(hint), "Press '%s' to switch", key);
 	SetDialogVariable("hint", hint);
-
-	const char *pszTextureFrom = m_pItemDefFrom->image_inventory;
-
-	if ( m_pImageFrom )
-	{
-		char szImage[128];
-		Q_snprintf( szImage, sizeof( szImage ), "../%s", pszTextureFrom );
-		m_pImageFrom->SetImage( szImage );
-	}
-
-	const char *pszTextureTo = m_pItemDefTo->image_inventory;
-
-	if ( m_pImageTo )
-	{
-		char szImage[128];
-		Q_snprintf( szImage, sizeof( szImage ), "../%s", pszTextureTo );
-		m_pImageTo->SetImage( szImage );
-	}
 }
