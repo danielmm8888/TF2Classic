@@ -217,12 +217,15 @@ void CTFCueBuilder::Update(float frametime)
 //-----------------------------------------------------------------------------
 // Purpose: Event handler
 //-----------------------------------------------------------------------------
-void CTFCueBuilder::FireGameEvent(IGameEvent *event)
+void CTFCueBuilder::FireGameEvent( IGameEvent *event )
 {
-	const char *type = event->GetName();
-
-	if (!TFGameRules())
+	if ( !tf2c_cues_enabled.GetBool() )
 		return;
+
+	if ( !TFGameRules() )
+		return;
+
+	const char *type = event->GetName();
 
 	if (0 == Q_strcmp(type, "localplayer_changeteam"))
 	{
