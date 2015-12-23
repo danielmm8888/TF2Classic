@@ -104,8 +104,8 @@ void CTFAdvSlider::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	float fBorder = (fLabelWidth > 0.0 ? fLabelWidth : GetWide() / 2.0 + 20);
-	float fShift = 50.0;
+	float fBorder = (fLabelWidth > 0.0 ? fLabelWidth : GetWide() / 2.0 + XRES(6));
+	float fShift = XRES(16);
 
 	SetBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
 	pButton->SetPos(fBorder, 0);
