@@ -305,11 +305,18 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_CP )
 			{
-				pszGameTypeAbbreviation = "cp";
+				if ( TFGameRules()->IsInKothMode() )
+					pszGameTypeAbbreviation = "koth";
+				else
+					pszGameTypeAbbreviation = "cp";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ARENA )
 			{
 				pszGameTypeAbbreviation = "arena";
+			}
+			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ESCORT )
+			{
+				pszGameTypeAbbreviation = "payload";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_DM )
 			{

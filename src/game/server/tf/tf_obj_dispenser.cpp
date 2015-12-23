@@ -110,7 +110,6 @@ public:
 		AddSpawnFlags( SF_TRIGGER_ALLOW_CLIENTS );
 		InitTrigger();
 		SetSolid( SOLID_BBOX );
-		UTIL_SetSize(this, Vector(-70,-70,-70), Vector(70,70,70) );
 	}
 
 	virtual void StartTouch( CBaseEntity *pEntity )
@@ -235,7 +234,7 @@ bool CObjectDispenser::StartBuilding( CBaseEntity *pBuilder )
 void CObjectDispenser::SetModel( const char *pModel )
 {
 	BaseClass::SetModel( pModel );
-	UTIL_SetSize(this, DISPENSER_MINS, DISPENSER_MAXS);
+	UTIL_SetSize( this, DISPENSER_MINS, DISPENSER_MAXS );
 }
 
 //-----------------------------------------------------------------------------
@@ -265,7 +264,12 @@ void CObjectDispenser::OnGoActive( void )
 
 	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
 
-	m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
+	CDispenserTouchTrigger *pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
+	if ( pTriggerEnt )
+	{
+		UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
+		m_hTouchTrigger = pTriggerEnt;
+	}
 
 	BaseClass::OnGoActive();
 
@@ -852,18 +856,25 @@ void CObjectCartDispenser::OnGoActive( void )
 
 	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
 
+	CDispenserTouchTrigger *pTriggerEnt;
+
 	if ( m_szTriggerName != NULL_STRING )
 	{
-		CBaseEntity *pTriggerEnt = gEntList.FindEntityByName( NULL, m_szTriggerName );
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( gEntList.FindEntityByName( NULL, m_szTriggerName ) );
 		if ( pTriggerEnt )
-		{
+		{	
 			pTriggerEnt->SetOwnerEntity( this );
-			m_hTouchTrigger = gEntList.FindEntityByName( NULL, m_szTriggerName );
+			m_hTouchTrigger = pTriggerEnt;
 		}
 	}
 	else
 	{
-		m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
+		if ( pTriggerEnt )
+		{
+			UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
+			m_hTouchTrigger = pTriggerEnt;
+		}
 	}
 
 	EmitSound( "Building_Dispenser.Idle" );

@@ -159,6 +159,31 @@ bool CTFLoadoutPanel::Init()
 	for (int i = 0; i < INVENTORY_ROWNUM; i++){
 		m_RawIDPos.AddToTail(0);
 	}
+
+
+	for (int iClassIndex = 0; iClassIndex < TF_CLASS_COUNT_ALL; iClassIndex++)
+	{
+		if (pszClassModels[iClassIndex][0] != '\0')
+			modelinfo->FindOrLoadModel(pszClassModels[iClassIndex]);
+		for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+			{
+				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_WPN_TYPE_MELEE && iPreset == 0)))
+				{
+					char pModel[64];
+					Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
+					if (!Q_strcmp(pModel, ""))
+						Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+					if (pModel[0] != '\0')
+						modelinfo->FindOrLoadModel(pModel);
+					//if (pItemData->image_inventory != '\0')
+					//	PrecacheMaterial(pItemData->image_inventory);
+				}
+			}
+	}
+
 	return true;
 }
 
@@ -179,7 +204,7 @@ void CTFLoadoutPanel::PerformLayout()
 			CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
 			m_pWeaponButton->SetSize(XRES(PANEL_WIDE), YRES(PANEL_TALL));
 			m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
-			m_pWeaponButton->SetBorderVisible(false);
+			m_pWeaponButton->SetBorderVisible(true);
 			m_pWeaponButton->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 			char szCommand[64];
 			Q_snprintf(szCommand, sizeof(szCommand), "%s%i", GetTFInventory()->GetSlotName(iSlot), iPreset);
@@ -215,6 +240,7 @@ void CTFLoadoutPanel::SetCurrentClass(int iClass)
 		return;
 
 	iCurrentClass = iClass; 	
+	ResetRows();
 	DefaultLayout(); 
 };
 
@@ -323,6 +349,19 @@ void CTFLoadoutPanel::SideRow(int iRow, int iDir)
 	DefaultLayout();
 }
 
+void CTFLoadoutPanel::ResetRows()
+{
+	for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+	{
+		m_RawIDPos[iSlot] = 0;
+		for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+		{
+			CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+			m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
+		}
+	}
+}
+
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
 	int iWeapon = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
@@ -338,8 +377,8 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 			iSlot = pItemData->item_slot;
 		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
-		if (pModel != '\0')
-			m_pClassModelPanel->SetMergeMDL(pModel, NULL, iCurrentSkin);
+		if (pModel[0] != '\0')
+			m_pClassModelPanel->SetMergeMDL(pModel, NULL, 0);
 	}
 	else
 	{
@@ -383,7 +422,7 @@ void CTFLoadoutPanel::OnThink()
 
 void CTFLoadoutPanel::SetModelClass(int iClass)
 {
-	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), iCurrentSkin);
+	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), 0);
 }
 
 void CTFLoadoutPanel::UpdateModelPanels()
@@ -434,6 +473,7 @@ void CTFLoadoutPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
 
+	/*
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pLocalPlayer && pLocalPlayer->GetTeamNumber() >= TF_TEAM_RED)
 	{
@@ -443,6 +483,7 @@ void CTFLoadoutPanel::DefaultLayout()
 	{
 		iCurrentSkin = 0;
 	}
+	*/
 
 	UpdateModelPanels();
 
@@ -469,7 +510,14 @@ void CTFLoadoutPanel::DefaultLayout()
 					m_pWeaponButton->SetItemDefinition(pItemData);
 					
 					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
-					m_pWeaponButton->SetBorderVisible((iPreset == iWeaponPreset));
+					if (iPreset == iWeaponPreset)
+					{
+						m_pWeaponButton->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
+					}
+					else
+					{
+						m_pWeaponButton->SetBorderByString("AdvRoundedButtonDisabled", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
+					}
 					m_pWeaponButton->GetButton()->SetSelected((iPreset == iWeaponPreset));
 
 					if (iPreset == iWeaponPreset)

@@ -35,7 +35,6 @@ using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-
 DECLARE_HUDELEMENT( CTFHudWeaponAmmo );
 
 //-----------------------------------------------------------------------------
@@ -120,14 +119,21 @@ bool CTFHudWeaponAmmo::ShouldDraw( void )
 		return false;
 	}
 
-	CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
+	C_TFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 
 	if ( !pWeapon )
 	{
 		return false;
 	}
 
-	if ( pWeapon->GetWeaponID() == TF_WEAPON_MEDIGUN || pWeapon->GetWeaponID() == TF_WEAPON_BONESAW )
+	if ( !pWeapon->UsesPrimaryAmmo() && !tf2c_ammobucket.GetBool() )
+	{
+		return false;
+	}
+
+	CHudElement *pMedicCharge = GET_NAMED_HUDELEMENT( CHudElement, CHudMedicChargeMeter );
+
+	if ( pMedicCharge && pMedicCharge->ShouldDraw() )
 	{
 		return false;
 	}

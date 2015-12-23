@@ -21,7 +21,17 @@ extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, ClientEntityHandle_t hEntity, int iItemID )
 {
 	// Get the weapon information.
-	CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( iWeaponID );;
+	CTFWeaponInfo *pWeaponInfo = NULL;
+	switch ( iWeaponID )
+	{
+	case TF_WEAPON_GRENADE_PIPEBOMB:
+	case TF_WEAPON_GRENADE_DEMOMAN:
+		pWeaponInfo = GetTFWeaponInfo( TF_WEAPON_PIPEBOMBLAUNCHER );
+		break;
+	default:
+		pWeaponInfo = GetTFWeaponInfo( iWeaponID );
+		break;
+	}
 
 	bool bIsPlayer = false;
 	if ( hEntity.Get() )
