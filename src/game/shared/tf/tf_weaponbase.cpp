@@ -1041,7 +1041,7 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 		if ( flCritChance == 0.0f )
 			return false;
 
-		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE-1 ) < ( TF_DAMAGE_CRIT_CHANCE * flCritChance ) * WEAPON_RANDOM_RANGE );
+		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE-1 ) < ( flCritChance ) * WEAPON_RANDOM_RANGE );
 	}
 }
 
