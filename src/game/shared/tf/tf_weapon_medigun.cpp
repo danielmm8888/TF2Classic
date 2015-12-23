@@ -689,16 +689,14 @@ void CWeaponMedigun::AddCharge( float flAmount )
 	if ( !flChargeRate ) // Can't earn uber.
 		return;
 
+	float flNewLevel = min( m_flChargeLevel + flAmount, 1.0 );
+
 #ifdef GAME_DLL
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 	CTFPlayer *pHealingTarget = ToTFPlayer( m_hHealingTarget );
-#endif
 
-	float flNewLevel = min( m_flChargeLevel + flAmount, 1.0 );
-
-	if ( flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
+	if ( !m_bChargeRelease && flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
 	{
-#ifdef GAME_DLL
 		if ( pPlayer )
 		{
 			pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEREADY );
@@ -708,8 +706,8 @@ void CWeaponMedigun::AddCharge( float flAmount )
 		{
 			pHealingTarget->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEREADY );
 		}
-#endif
 	}
+#endif
 
 	m_flChargeLevel = flNewLevel;
 }
