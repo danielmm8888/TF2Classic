@@ -27,7 +27,7 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual const char *GetPowerupModel( void ) { return "models/class_menu/random_class_icon.mdl"; }
+	virtual const char *GetPowerupModel( void ) { return "models/items/powerup_uber.mdl"; }
 	virtual const char *GetPickupSound( void ) { return "HealthKit.Touch"; }
 
 	virtual int	GetEffectDuration( void ) { return 15; }
