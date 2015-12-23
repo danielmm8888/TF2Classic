@@ -70,6 +70,7 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 {
 	Show();
 
+	/*
 	char pModel[64];
 	Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
 	if (!Q_strcmp(pModel, ""))
@@ -80,6 +81,7 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 		m_pClassModelPanel->SetVisible(true);
 		m_pClassModelPanel->Update();
 	}
+	*/
 
 	if (m_pTitle)
 	{
