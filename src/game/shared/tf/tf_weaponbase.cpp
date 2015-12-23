@@ -991,10 +991,10 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 	if ( !tf_weapon_criticals.GetBool() )
 		return false;
 
-	float flPlayerCritMult = pPlayer->GetCritMult();
-
 	if ( !CanFireCriticalShot() )
 		return false;
+
+	float flPlayerCritMult = pPlayer->GetCritMult();
 
 	if ( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_bUseRapidFireCrits )
 	{
@@ -1006,7 +1006,14 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 		m_flLastCritCheckTime = gpGlobals->curtime;
 
 		// get the total crit chance (ratio of total shots fired we want to be crits)
-		float flTotalCritChance = clamp( TF_DAMAGE_CRIT_CHANCE_RAPID * flPlayerCritMult, 0.01f, 0.99f );
+		float flTotalCritChance = TF_DAMAGE_CRIT_CHANCE_RAPID * flPlayerCritMult;
+		CALL_ATTRIB_HOOK_FLOAT( flTotalCritChance, mult_crit_chance );
+
+		// If the chance is 0, just bail.
+		if ( flTotalCritChance == 0.0f )
+			return false;
+
+		flTotalCritChance = clamp( flTotalCritChance, 0.01f, 0.99f );
 		// get the fixed amount of time that we start firing crit shots for	
 		float flCritDuration = TF_DAMAGE_CRIT_DURATION_RAPID;
 		// calculate the amount of time, on average, that we want to NOT fire crit shots for in order to achive the total crit chance we want
@@ -1027,6 +1034,13 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 	else
 	{
 		// single-shot weapon, just use random pct per shot
+		float flCritChance = TF_DAMAGE_CRIT_CHANCE * flPlayerCritMult;
+		CALL_ATTRIB_HOOK_FLOAT( flCritChance, mult_crit_chance );
+
+		// If the chance is 0, just bail.
+		if ( flCritChance == 0.0f )
+			return false;
+
 		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE-1 ) < ( TF_DAMAGE_CRIT_CHANCE * flPlayerCritMult ) * WEAPON_RANDOM_RANGE );
 	}
 }

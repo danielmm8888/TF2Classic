@@ -397,5 +397,12 @@ bool CTFWeaponBaseMelee::CalcIsAttackCriticalHelper( void )
 
 	float flPlayerCritMult = pPlayer->GetCritMult();
 
+	float flCritChance = TF_DAMAGE_CRIT_CHANCE_MELEE * flPlayerCritMult;
+	CALL_ATTRIB_HOOK_FLOAT( flCritChance, mult_crit_chance );
+
+	// If the chance is 0, just bail.
+	if ( flCritChance == 0.0f )
+		return false;
+
 	return ( RandomInt( 0, WEAPON_RANDOM_RANGE-1 ) <= ( TF_DAMAGE_CRIT_CHANCE_MELEE * flPlayerCritMult ) * WEAPON_RANDOM_RANGE );
 }
