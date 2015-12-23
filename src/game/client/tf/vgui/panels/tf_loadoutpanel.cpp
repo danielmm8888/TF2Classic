@@ -364,7 +364,7 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
 		if (pModel[0] != '\0')
-			m_pClassModelPanel->SetMergeMDL(pModel, NULL, iCurrentSkin);
+			m_pClassModelPanel->SetMergeMDL(pModel, NULL, 0);
 	}
 	else
 	{
@@ -408,7 +408,7 @@ void CTFLoadoutPanel::OnThink()
 
 void CTFLoadoutPanel::SetModelClass(int iClass)
 {
-	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), iCurrentSkin);
+	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), 0);
 }
 
 void CTFLoadoutPanel::UpdateModelPanels()
@@ -459,6 +459,7 @@ void CTFLoadoutPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
 
+	/*
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pLocalPlayer && pLocalPlayer->GetTeamNumber() >= TF_TEAM_RED)
 	{
@@ -468,6 +469,7 @@ void CTFLoadoutPanel::DefaultLayout()
 	{
 		iCurrentSkin = 0;
 	}
+	*/
 
 	UpdateModelPanels();
 

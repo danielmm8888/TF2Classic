@@ -48,12 +48,13 @@ void CTFAdvItemButton::Init()
 
 void CTFAdvItemButton::PerformLayout()
 {
-	BaseClass::PerformLayout();
-
 	int inset = YRES(45);
 	int wide = GetWide() - inset;
 	SetImageSize(wide, wide);
 	SetImageInset(inset / 2, -1 * wide / 5);
+	SetShouldScaleImage(true);
+
+	BaseClass::PerformLayout();
 };
 
 //-----------------------------------------------------------------------------
