@@ -46,7 +46,7 @@
 		"font_lodef"	"HudFontSmall"
 		"xpos"			"72"
 		"xpos_lodef"	"100"
-		"ypos"			"26"
+		"ypos"			"29"
 		"ypos_lodef"	"30"
 		"zpos"			"2"
 		"wide"			"175"

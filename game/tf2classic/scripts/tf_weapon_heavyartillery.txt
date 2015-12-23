@@ -39,7 +39,7 @@ WeaponData
 	// Max of 16 per category (ie. max 16 "single_shot" sounds).
 	SoundData
 	{
-		"single_shot"		"Weapon_Shotgun.Single"
+		"single_shot"		"Weapon_HeavyArtillery.Single"
 		"empty"			"Weapon_Shotgun.ClipEmpty"
 		"reload"		"Weapon_Shotgun.WorldReload"
 		"burst"			"Weapon_Shotgun.SingleCrit"

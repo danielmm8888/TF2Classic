@@ -1585,6 +1585,20 @@ Scheme
 				"additive"	"0"
 			}
 		}
+		"ScoreboardTeamNameNew"
+		{
+			"1"
+			{
+				"name"		"TF2 Secondary"
+				"tall"		"14"
+				"tall_hidef"	"24"
+				"tall_lodef"	"24"
+				"weight"	"500"
+				"range"		"0x0000 0x007F"	//	Basic Latin
+				"antialias" "1"
+				"additive"	"0"
+			}
+		}
 		"ScoreboardTeamNameLarge"
 		{
 			"1"
@@ -1600,6 +1614,18 @@ Scheme
 			}
 		}
 
+		"ScoreboardTeamScoreNew"
+ 		{
+			"1"
+			{
+				"name"		"TF2"
+				"tall"		"36"
+				"tall_hidef"	"48"
+				"weight"	"500"
+				"additive"	"0"
+				"antialias" "1"
+			}
+		}
 		"ScoreboardTeamScore"
 		{
 			"1"
@@ -4487,6 +4513,17 @@ Scheme
 			"backgroundtype"		"2"
 			
 			"image"					"main_menu/button_rounded_depressed"
+			"src_corner_height"		"15"				// pixels inside the image
+			"src_corner_width"		"15"
+			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional
+			"draw_corner_height" 	"3"	
+		}
+		AdvRoundedButtonDisabled
+		{
+			"bordertype"			"scalable_image"
+			"backgroundtype"		"2"		
+			
+			"image"					"main_menu/button_disabled"
 			"src_corner_height"		"15"				// pixels inside the image
 			"src_corner_width"		"15"
 			"draw_corner_width"		"3"				// screen size of the corners ( and sides ), proportional

@@ -32,7 +32,7 @@
 		"PDA1"		"0"
 		"PDA2"		"0"
 	}
-	"demoman"
+	"Demoman"
 	{
 		"Primary"		"0"
 		"Secondary"		"0"
