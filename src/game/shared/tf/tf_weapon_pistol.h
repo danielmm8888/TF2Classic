@@ -14,7 +14,6 @@
 #ifdef CLIENT_DLL
 #define CTFPistol C_TFPistol
 #define CTFPistol_Scout C_TFPistol_Scout
-#define CTFSixShooter C_TFSixShooter
 #endif
 
 // The faster the player fires, the more inaccurate he becomes
@@ -61,16 +60,5 @@ public:
 
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_PISTOL_SCOUT; }
 };
-
-class CTFSixShooter : public CTFPistol
-{
-public:
-	DECLARE_CLASS(CTFSixShooter, CTFPistol);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SIXSHOOTER; }
-};
-
 
 #endif // TF_WEAPON_PISTOL_H

@@ -10,6 +10,7 @@ const char *g_AnimsSlots[] =
 {
 	"primary",
 	"secondary",
+	"secondary2",
 	"melee",
 	"grenade",
 	"building",
@@ -407,7 +408,7 @@ public:
 		{
 			if ( Q_strcmp( pszAnimSlot, "FORCE_NOT_USED" ) != 0 )
 			{
-				pItem->anim_slot = UTIL_StringFieldToInt( pszAnimSlot, g_AnimsSlots, 8 );
+				pItem->anim_slot = UTIL_StringFieldToInt( pszAnimSlot, g_AnimsSlots, ARRAYSIZE( g_AnimsSlots ) );
 			}
 			else
 			{

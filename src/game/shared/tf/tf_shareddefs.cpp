@@ -203,7 +203,7 @@ static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
 	"tf_weapon_shotgun_primary",	// Spy
 	"tf_weapon_shotgun_primary",	// Engineer
 	"tf_weapon_shotgun_primary",	// Civilian
-	"tf_weapon_shotgun_primary",	// Mercenary
+	"tf_weapon_shotgun_soldier",	// Mercenary
 
 	"tf_weapon_pistol",				// Base weapon to translate
 	NULL,
@@ -258,7 +258,7 @@ static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
 	"tf_weapon_fireaxe",			// Pyro
 	"tf_weapon_knife",				// Spy
 	"tf_weapon_wrench",				// Engineer
-	"tf_weapon_crowbar",			// Civilian
+	"tf_weapon_umbrella",			// Civilian
 	"tf_weapon_crowbar",			// Mercenary
 
 	"tf_weapon_throwable",			// Base weapon to translate
@@ -365,20 +365,10 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_INVIS",
 	"TF_WEAPON_FLAG", // ADD NEW WEAPONS AFTER THIS
 	"TF_WEAPON_SMG_SCOUT",
-	"TF_WEAPON_ROCKETLAUNCHERBETA",
-	"TF_WEAPON_CYCLOPS",
-	"TF_WEAPON_OVERHEALER",
-	"TF_WEAPON_FISHWHACKER",
-	"TF_WEAPON_SHOTGUN_MEDIC",
 	"TF_WEAPON_HUNTERRIFLE",
 	"TF_WEAPON_UMBRELLA",
-	"TF_WEAPON_KRITZKRIEG",
-	"TF_WEAPON_UBERSAW",
 	"TF_WEAPON_FLAREGUN",
 	"TF_WEAPON_HAMMERFISTS",
-	"TF_WEAPON_STENGUN",
-	"TF_WEAPON_DOUBLEBARREL",
-	"TF_WEAPON_SIXSHOOTER",
 	"TF_WEAPON_CHAINSAW",
 	"TF_WEAPON_HEAVYARTILLERY",
 
@@ -443,20 +433,10 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_INVIS
 	DMG_GENERIC,	// TF_WEAPON_FLAG // ADD NEW WEAPONS AFTER THIS
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
-	DMG_BULLET,		// TF_WEAPON_OVERHEALER,
-	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC,
 	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE,
 	DMG_CLUB, // TF_WEAPON_UMBRELLA,
-	DMG_BULLET,		// TF_WEAPON_KRITZ,
-	DMG_SLASH,		// TF_WEAPON_UBERSAW,
 	DMG_IGNITE,		// TF_WEAPON_FLAREGUN,
 	DMG_CLUB,		// TF_WEAPON_HAMMERFISTS,
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_STENGUN,
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_DOUBLEBARREL,
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SIXSHOOTER,
 	DMG_SLASH,		// TF_WEAPON_CHAINSAW,
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_HEAVYARTILLERY,
 
@@ -504,8 +484,6 @@ int g_iProjectileWeapons[] =
 	TF_WEAPON_SYRINGEGUN_MEDIC,
 	TF_WEAPON_NAILGUN,
 	TF_WEAPON_TRANQ,
-	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_CYCLOPS,
 	TF_WEAPON_FLAREGUN,
 };
 

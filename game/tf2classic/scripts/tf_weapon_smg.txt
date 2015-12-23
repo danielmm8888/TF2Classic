@@ -14,14 +14,14 @@ WeaponData
 	"Spread"		"0.025"
 	"TimeIdle"		"10.0"
 	"TimeIdleEmpty"		"1.0"
-	"TimeFireDelay"		"0.08"
+	"TimeFireDelay"		"0.1"
 	"ProjectileType"	"projectile_bullet"
 	"BrassModel"		"models/weapons/shells/shell_pistol.mdl"
 	"UseRapidFireCrits"	"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
-	"MaxAmmo"		"100"
-	"SpawnAmmo"		"100"
+	"MaxAmmo"		"75"
+	"SpawnAmmo"		"75"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"

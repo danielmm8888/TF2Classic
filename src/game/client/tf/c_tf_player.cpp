@@ -3670,18 +3670,13 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
 	{
-		char chParticleName[128];
-		int iParticleID = this->m_Shared.GetRespawnParticleID();
-		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
-		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN);
-		if (pEffect)
-		{
-			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
-			int index = ((C_BasePlayer *) this)->entindex();
-			Color clr = tf_PR->GetPlayerColor(index);
-			Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
-			pEffect->SetControlPoint(9, vec);
-		}
+		char szParticleName[128];
+		int iParticleID = m_Shared.GetRespawnParticleID();
+		Q_snprintf( szParticleName, sizeof( szParticleName ), "dm_respawn_%02d", iParticleID );
+
+		CNewParticleEffect *pEffect = ParticleProp()->Create( szParticleName, PATTACH_ABSORIGIN );
+
+		m_Shared.SetParticleToMercColor( pEffect );
 	}
 
 	UpdateVisibility();

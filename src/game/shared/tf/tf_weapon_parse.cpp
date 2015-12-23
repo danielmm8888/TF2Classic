@@ -58,6 +58,9 @@ CTFWeaponInfo::CTFWeaponInfo()
 	m_szExplosionWaterEffect[0] = '\0';
 
 	m_iWeaponType = TF_WPN_TYPE_PRIMARY;
+
+	m_iMaxAmmo = 0;
+	m_iSpawnAmmo = 0;
 }
 
 CTFWeaponInfo::~CTFWeaponInfo()
@@ -86,8 +89,6 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bDrawCrosshair		= pKeyValuesData->GetInt( "DrawCrosshair", 1 ) > 0;
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iAmmoPerShot			= pKeyValuesData->GetInt( "AmmoPerShot", 1 );
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bUseRapidFireCrits	= ( pKeyValuesData->GetInt( "UseRapidFireCrits", 0 ) != 0 );
-	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo				= pKeyValuesData->GetInt( "MaxAmmo", 0 );
-	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iSpawnAmmo			= pKeyValuesData->GetInt( "SpawnAmmo", 0 );
 
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile = TF_PROJECTILE_NONE;
 	const char *pszProjectileType = pKeyValuesData->GetString( "ProjectileType", "projectile_none" );
@@ -253,4 +254,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	}
 
 	m_bDontDrop = ( pKeyValuesData->GetInt( "DontDrop", 0 ) > 0 );
+
+	m_iMaxAmmo = pKeyValuesData->GetInt( "MaxAmmo", 0 );
+	m_iSpawnAmmo = pKeyValuesData->GetInt( "SpawnAmmo", 0 );
 }

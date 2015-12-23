@@ -115,6 +115,9 @@ void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
 					value = 1.0f - value;
 					value *= 100.0f;
 					break;
+				case ATTRIB_FORMAT_ADDITIVE_PERCENTAGE:
+					value *= 100.0f;
+					break;
 				}
 
 				wchar_t floatstr[32];

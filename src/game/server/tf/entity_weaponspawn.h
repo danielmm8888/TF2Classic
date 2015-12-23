@@ -25,6 +25,7 @@ public:
 
 	void	Spawn( void );
 	void	Precache( void );
+	virtual bool KeyValue( const char *szKeyName, const char *szValue );
 	virtual CBaseEntity* Respawn( void );
 	virtual void	Materialize( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
@@ -32,12 +33,14 @@ public:
 	float	GetRespawnDelay( void );
 
 	int		m_nWeaponID;
+	int		m_nItemID;
 	int		m_iRespawnTime;
 
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
 
 private:
+	EconItemDefinition *m_pItemDef;
 	CTFWeaponInfo *m_pWeaponInfo;
 };
 

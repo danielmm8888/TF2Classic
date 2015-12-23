@@ -280,12 +280,14 @@ void CTFNotificationManager::OnServerlistCheckCompleted(const char* pMessage)
 
 void CTFNotificationManager::UpdateServerlistInfo()
 {	
-	if (steamapicontext->SteamMatchmakingServers() && steamapicontext->SteamMatchmakingServers()->IsRefreshing(hRequest))
+	ISteamMatchmakingServers *pMatchmaking = steamapicontext->SteamMatchmakingServers();
+
+	if ( !pMatchmaking || pMatchmaking->IsRefreshing( hRequest ) )
 		return;
 
 	MatchMakingKeyValuePair_t *pFilters;
 	int nFilters = GetServerFilters(&pFilters);
-	hRequest = steamapicontext->SteamMatchmakingServers()->RequestInternetServerList(engine->GetAppID(), &pFilters, nFilters, this);
+	hRequest = pMatchmaking->RequestInternetServerList( engine->GetAppID(), &pFilters, nFilters, this );
 }
 
 gameserveritem_t CTFNotificationManager::GetServerInfo(int index) 

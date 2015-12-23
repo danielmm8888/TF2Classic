@@ -99,17 +99,4 @@ public:
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_SHOTGUN_PYRO; }
 };
 
-class CTFDoubleBarrel : public CTFShotgun
-{
-public:
-	DECLARE_CLASS(CTFDoubleBarrel, CTFShotgun);
-	DECLARE_NETWORKCLASS();
-	DECLARE_PREDICTABLE();
-
-	CTFDoubleBarrel();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_DOUBLEBARREL; }
-};
-
-
 #endif // TF_WEAPON_SHOTGUN_H

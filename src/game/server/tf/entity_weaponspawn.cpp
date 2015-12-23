@@ -19,15 +19,58 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+/*
+Old FGD info.
+
+16 : "Sniper rifle ( Primary )"
+17 : "Minigun ( Primary )"
+21 : "Rocket launcher ( Primary )"
+22 : "Pipebomb launcher ( Primary )"
+24 : "Flamethrower ( Primary )"
+67 : "Sten Gun ( Primary )"
+71 : "Heavy Artillery ( Primary )"
+68 : "Double barrel shotgun ( Primary )"
+12 : "Shotgun ( Secondary )"
+18 : "SMG ( Secondary )"
+37 : "Pistol ( Secondary )"
+69 : "Six Shooter ( Secondary )"
+5 : "Crowbar ( Melee )"
+*/
+
+struct WeaponTranslation_t
+{
+	int iWeaponID;
+	int iItemID;
+};
+
+// This is a temporary translation table from weapon IDs to Econ Item IDs.
+// We need to eventually remove this once all DM maps are updated.
+static WeaponTranslation_t g_aWeaponTranslations[] =
+{
+	{ 5, 9010 },
+	{ 12, 10 },
+	{ 15, 13 },
+	{ 16, 14 },
+	{ 17, 15 },
+	{ 18, 16 },
+	{ 21, 18 },
+	{ 22, 19 },
+	{ 24, 21 },
+	{ 37, 22 },
+	{ 67, 9011 },
+	{ 68, 9012 },
+	{ 69, 9013 },
+	{ 71, 9014 }
+};
+
 extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
 
-// We don't have a proper sound yet, so we're using this
-#define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
 //#define RESPAWN_PARTICLE "particlename"
 
 BEGIN_DATADESC(CWeaponSpawner)
 
 	DEFINE_KEYFIELD( m_nWeaponID, FIELD_INTEGER, "WeaponNumber" ),
+	DEFINE_KEYFIELD( m_nItemID, FIELD_INTEGER, "itemid" ),
 	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
 
 END_DATADESC()
@@ -42,8 +85,10 @@ LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
 
 CWeaponSpawner::CWeaponSpawner()
 {
-	m_nWeaponID = TF_WEAPON_SHOTGUN_SOLDIER;
+	m_nWeaponID = TF_WEAPON_NONE;
+	m_nItemID = -1;
 	m_iRespawnTime = 10;
+	m_pItemDef = NULL;
 }
 
 
@@ -52,17 +97,24 @@ CWeaponSpawner::CWeaponSpawner()
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Spawn(void)
 {
-	m_pWeaponInfo = GetTFWeaponInfo( m_nWeaponID );
-	if ( !m_pWeaponInfo )
+	// Damn it. We need both item definition and weapon script data for spawners to work properly.
+	m_pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
+	if ( !m_pItemDef )
 	{
-		Warning( "tf_weaponspawner has incorrect weapon ID %d\n", m_nWeaponID );
+		Warning( "tf_weaponspawner has incorrect item ID %d.\n", m_nWeaponID );
 		UTIL_Remove( this );
 		return;
 	}
 
+	const char *pszClassname = TranslateWeaponEntForClass( m_pItemDef->item_class, TF_CLASS_MERCENARY );
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszClassname );
+	m_pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+
+	Assert( m_pWeaponInfo );
+
 	Precache();
 
-	SetModel( m_pWeaponInfo->szWorldModel );
+	SetModel( m_pItemDef->model_world );
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
@@ -82,10 +134,38 @@ float CWeaponSpawner::GetRespawnDelay( void )
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Precache(void)
 {
-	PrecacheScriptSound( TF_HEALTHKIT_PICKUP_SOUND );
+	PrecacheModel( m_pItemDef->model_world );
 	//PrecacheParticleSystem( RESPAWN_PARTICLE );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CWeaponSpawner::KeyValue( const char *szKeyName, const char *szValue )
+{
+	if ( FStrEq( szKeyName, "WeaponNumber" ) )
+	{
+		Warning( "tf_weaponspawner is using obsolete keyvalue \"WeaponNumber\"! Remove it and use the new key \"itemid\" (item ID from schema).\n" );
+
+		int iInputID = atoi( szValue );
+
+		if ( iInputID == 0 )
+			return true;
+
+		for ( int i = 0; i < ARRAYSIZE( g_aWeaponTranslations ); i++ )
+		{
+			if ( g_aWeaponTranslations[i].iWeaponID == iInputID )
+			{
+				Warning( "Weapon ID %d corresponds to item ID %d.\n", iInputID, g_aWeaponTranslations[i].iItemID );
+				m_nItemID = g_aWeaponTranslations[i].iItemID;
+			}
+		}
+
+		return true;
+	}
+
+	return BaseClass::KeyValue( szKeyName, szValue );
+}
 
 //-----------------------------------------------------------------------------
 // Purpose:  Override to get rid of EF_NODRAW
@@ -129,9 +209,9 @@ void CWeaponSpawner::EndTouch( CBaseEntity *pOther )
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 		int iCurrentWeaponID = pTFPlayer->m_Shared.GetDesiredWeaponIndex();
-		if ( iCurrentWeaponID == m_nWeaponID )
+		if ( iCurrentWeaponID == m_nItemID )
 		{
-			pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+			pTFPlayer->m_Shared.SetDesiredWeaponIndex( -1 );
 		}
 	}
 
@@ -150,24 +230,19 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	{
 #ifndef DM_WEAPON_BUCKET
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( m_pWeaponInfo->iSlot );
-		const char *pszWeaponName = WeaponIdToClassname( m_nWeaponID );
+		const char *pszWeaponName = m_pItemDef->item_class;
 		int iAmmoType = m_pWeaponInfo->iAmmoType;
-		int iAmmoCount = m_pWeaponInfo->m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iSpawnAmmo;
 
 		if ( pWeapon )
 		{
-			if ( pWeapon->GetWeaponID() == m_nWeaponID )
+			if ( pWeapon->GetItemID() == m_nItemID )
 			{
-				// Weapon spawners give 50% ammo.
-				if ( pTFPlayer->GiveAmmo( iAmmoCount, iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
+				if ( pTFPlayer->GiveAmmo( pWeapon->GetInitialAmmo(), iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
 			}
 			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
 			(pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL) )
 			{
-				// Spawn a weapon model. - OLD
-				//pTFPlayer->DropFakeWeapon(pWeapon);
-
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );
 
@@ -182,7 +257,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			}
 			else
 			{
-				pTFPlayer->m_Shared.SetDesiredWeaponIndex( m_nWeaponID );
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( m_nItemID );
 			}
 		}
 #else
@@ -198,12 +273,13 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( !pWeapon )
 		{
-			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName );
+			CEconItemView econItem( m_nItemID );
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName, 0, &econItem );
 			if ( pNewWeapon )
 			{
-				pPlayer->SetAmmoCount( iAmmoCount, iAmmoType );
+				pPlayer->SetAmmoCount( pNewWeapon->GetInitialAmmo(), iAmmoType );
 				pNewWeapon->DefaultTouch( pPlayer );
-				pTFPlayer->m_Shared.SetDesiredWeaponIndex( TF_WEAPON_NONE );
+				pTFPlayer->m_Shared.SetDesiredWeaponIndex( -1 );
 				bSuccess = true;
 			}
 		}
