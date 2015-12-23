@@ -186,12 +186,14 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual acttable_t *ActivityList( int &iActivityCount );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
-	static acttable_t m_acttableSecondary2[];
 	static acttable_t m_acttableMelee[];
 	static acttable_t m_acttableBuilding[];
 	static acttable_t m_acttablePDA[];
 	static acttable_t m_acttableItem1[];
 	static acttable_t m_acttableItem2[];
+	static acttable_t m_acttableMeleeAllClass[];
+	static acttable_t m_acttableSecondary2[];
+	static acttable_t m_acttablePrimary2[];
 
 #ifdef GAME_DLL
 	virtual void	AddAssociatedObject( CBaseObject *pObject ) { }
