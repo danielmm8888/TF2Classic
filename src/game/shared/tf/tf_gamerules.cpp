@@ -521,27 +521,17 @@ void CTFGameRulesProxy::InputSetRedKothClockActive(inputdata_t &inputdata)
 	if ( TFGameRules() && TFGameRules()->GetRedKothRoundTimer() )
 	{
 		TFGameRules()->GetRedKothRoundTimer()->InputEnable( inputdata );
-		TFGameRules()->GetRedKothRoundTimer()->SetShowInHud( true );
 
 		if ( TFGameRules()->GetBlueKothRoundTimer() )
-		{
-			TFGameRules()->GetBlueKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetBlueKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->IsFourTeamGame() )
 		{
 			if ( TFGameRules()->GetGreenKothRoundTimer() )
-			{
-				TFGameRules()->GetGreenKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetGreenKothRoundTimer()->InputDisable( inputdata );
-			}
 
 			if ( TFGameRules()->GetYellowKothRoundTimer() )
-			{
-				TFGameRules()->GetYellowKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetYellowKothRoundTimer()->InputDisable( inputdata );
-			}
 		}
 	}
 }
@@ -554,27 +544,17 @@ void CTFGameRulesProxy::InputSetBlueKothClockActive( inputdata_t &inputdata )
 	if ( TFGameRules() && TFGameRules()->GetBlueKothRoundTimer() )
 	{
 		TFGameRules()->GetBlueKothRoundTimer()->InputEnable( inputdata );
-		TFGameRules()->GetBlueKothRoundTimer()->SetShowInHud( true );
 
 		if ( TFGameRules()->GetRedKothRoundTimer() )
-		{
-			TFGameRules()->GetRedKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetRedKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->IsFourTeamGame() )
 		{
 			if ( TFGameRules()->GetGreenKothRoundTimer() )
-			{
-				TFGameRules()->GetGreenKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetGreenKothRoundTimer()->InputDisable( inputdata );
-			}
 
 			if ( TFGameRules()->GetYellowKothRoundTimer() )
-			{
-				TFGameRules()->GetYellowKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetYellowKothRoundTimer()->InputDisable( inputdata );
-			}
 		}
 	}
 }
@@ -593,25 +573,15 @@ void CTFGameRulesProxy::InputSetGreenKothClockActive(inputdata_t &inputdata)
 	if ( TFGameRules() && TFGameRules()->GetGreenKothRoundTimer() )
 	{
 		TFGameRules()->GetGreenKothRoundTimer()->InputEnable( inputdata );
-		TFGameRules()->GetGreenKothRoundTimer()->SetShowInHud( true );
 
 		if ( TFGameRules()->GetRedKothRoundTimer() )
-		{
-			TFGameRules()->GetRedKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetRedKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->GetBlueKothRoundTimer() )
-		{
-			TFGameRules()->GetBlueKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetBlueKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->GetYellowKothRoundTimer() )
-		{
-			TFGameRules()->GetYellowKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetYellowKothRoundTimer()->InputDisable( inputdata );
-		}
 	}
 }
 
@@ -629,25 +599,15 @@ void CTFGameRulesProxy::InputSetYellowKothClockActive( inputdata_t &inputdata )
 	if ( TFGameRules() && TFGameRules()->GetYellowKothRoundTimer() )
 	{
 		TFGameRules()->GetYellowKothRoundTimer()->InputEnable( inputdata );
-		TFGameRules()->GetYellowKothRoundTimer()->SetShowInHud( true );
 
 		if ( TFGameRules()->GetRedKothRoundTimer() )
-		{
-			TFGameRules()->GetRedKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetRedKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->GetBlueKothRoundTimer() )
-		{
-			TFGameRules()->GetBlueKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetBlueKothRoundTimer()->InputDisable( inputdata );
-		}
 
 		if ( TFGameRules()->GetGreenKothRoundTimer() )
-		{
-			TFGameRules()->GetGreenKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetGreenKothRoundTimer()->InputDisable( inputdata );
-		}
 	}
 }
 
@@ -932,6 +892,7 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 		if ( TFGameRules()->GetBlueKothRoundTimer() )
 		{
 			TFGameRules()->GetBlueKothRoundTimer()->SetName( MAKE_STRING( "zz_blue_koth_timer" ) );
+			TFGameRules()->GetBlueKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetBlueKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetBlueKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetBlueKothRoundTimer()->ChangeTeam( TF_TEAM_BLUE );
@@ -942,6 +903,7 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 		if ( TFGameRules()->GetRedKothRoundTimer() )
 		{
 			TFGameRules()->GetRedKothRoundTimer()->SetName( MAKE_STRING( "zz_red_koth_timer" ) );
+			TFGameRules()->GetRedKothRoundTimer()->SetShowInHud( false );
 			TFGameRules()->GetRedKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetRedKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
 			TFGameRules()->GetRedKothRoundTimer()->ChangeTeam( TF_TEAM_RED );
@@ -954,6 +916,7 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 			if ( TFGameRules()->GetGreenKothRoundTimer() )
 			{
 				TFGameRules()->GetGreenKothRoundTimer()->SetName( MAKE_STRING( "zz_green_koth_timer" ) );
+				TFGameRules()->GetGreenKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetGreenKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 				TFGameRules()->GetGreenKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
 				TFGameRules()->GetGreenKothRoundTimer()->ChangeTeam( TF_TEAM_GREEN );
@@ -964,6 +927,7 @@ void CKothLogic::InputRoundSpawn( inputdata_t &inputdata )
 			if ( TFGameRules()->GetYellowKothRoundTimer() )
 			{
 				TFGameRules()->GetYellowKothRoundTimer()->SetName( MAKE_STRING( "zz_yellow_koth_timer" ) );
+				TFGameRules()->GetYellowKothRoundTimer()->SetShowInHud( false );
 				TFGameRules()->GetYellowKothRoundTimer()->AcceptInput( "SetTime", NULL, NULL, sVariant, 0 );
 				TFGameRules()->GetYellowKothRoundTimer()->AcceptInput( "Pause", NULL, NULL, sVariant, 0 );
 				TFGameRules()->GetYellowKothRoundTimer()->ChangeTeam( TF_TEAM_RED );
