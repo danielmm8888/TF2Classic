@@ -394,9 +394,6 @@ void CBaseObject::Spawn( void )
 		AddEffects( EF_NODRAW );
 	}
 
-	if ( GetBuilder() == NULL )
-		InitializeMapPlacedObject();
-
 	// assume valid placement
 	m_bServerOverridePlacement = true;
 }
@@ -833,6 +830,9 @@ CTFPlayer *CBaseObject::GetOwner()
 void CBaseObject::Activate( void )
 {
 	BaseClass::Activate();
+
+	if ( GetBuilder() == NULL )
+		InitializeMapPlacedObject();
 	
 	// This only ever gets called if a building is spawned in a non-standard way.
 	// So just go through all contruction phases rapidly.
