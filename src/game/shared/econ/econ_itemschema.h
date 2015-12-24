@@ -215,7 +215,7 @@ public:
 //-----------------------------------------------------------------------------
 class CEconItemSchema : public CAutoGameSystemPerFrame, public CGameEventListener
 {
-	friend CEconSchemaParser;
+	friend class CEconSchemaParser;
 public:
 	CEconItemSchema();
 	~CEconItemSchema();
