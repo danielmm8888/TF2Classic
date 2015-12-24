@@ -10,13 +10,15 @@ const char *g_AnimsSlots[] =
 {
 	"primary",
 	"secondary",
-	"secondary2",
 	"melee",
 	"grenade",
 	"building",
 	"pda",
 	"item1",
-	"item2"
+	"item2",
+	"MELEE_ALLCLASS",
+	"secondary2",
+	"primary2",
 };
 
 const char *g_LoadoutSlots[] =

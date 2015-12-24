@@ -594,7 +594,10 @@ void CTFFlameThrower::SecondaryAttack()
 #ifdef GAME_DLL
 void CTFFlameThrower::DeflectEntity( CBaseEntity *pEntity, CTFPlayer *pAttacker, Vector &vecDir )
 {
-	if ( pEntity->GetTeamNumber() == pAttacker->GetTeamNumber() )
+	if ( !TFGameRules() )
+		return;
+
+	if ( ( pEntity->GetTeamNumber() == pAttacker->GetTeamNumber() ) && !TFGameRules()->IsDeathmatch() )
 		return;
 
 	pEntity->Deflected( pAttacker, vecDir );

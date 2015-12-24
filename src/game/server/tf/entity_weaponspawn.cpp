@@ -57,6 +57,7 @@ static WeaponTranslation_t g_aWeaponTranslations[] =
 	{ 22, 19 },
 	{ 24, 21 },
 	{ 37, 22 },
+	{ 65, 39 },
 	{ 67, 9011 },
 	{ 68, 9012 },
 	{ 69, 9013 },

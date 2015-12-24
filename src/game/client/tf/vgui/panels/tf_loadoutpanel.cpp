@@ -464,7 +464,7 @@ void CTFLoadoutPanel::UpdateModelPanels()
 		m_pRGBPanel->SetVisible(false);
 
 		SetModelClass(iClassIndex);
-		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iCurrentSlot);
+		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(iClassIndex, iCurrentSlot);
 		SetModelWeapon(iClassIndex, iCurrentSlot, iWeaponPreset);
 	}
 }
@@ -509,7 +509,7 @@ void CTFLoadoutPanel::DefaultLayout()
 					m_pWeaponButton->SetVisible(true);
 					m_pWeaponButton->SetItemDefinition(pItemData);
 					
-					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
+					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(iClassIndex, iSlot);
 					if (iPreset == iWeaponPreset)
 					{
 						m_pWeaponButton->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
@@ -564,11 +564,7 @@ void CTFLoadoutPanel::GameLayout()
 
 void CTFLoadoutPanel::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 {
-	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
-	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iPreset);
-	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
-
+	GetTFInventory()->SetWeaponPreset(iClass, iSlot, iPreset);
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pPlayer)
 	{
