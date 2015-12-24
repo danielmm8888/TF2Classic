@@ -463,7 +463,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 		m_flDamage = m_flFullDamage;
 		// Save this entity as enemy, they will take 100% damage.
 		m_hEnemy = pOther;
-		Detonate();
+		Explode( &pTrace, GetDamageType() );
 	}
 
 	// Train hack!

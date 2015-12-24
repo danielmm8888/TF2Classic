@@ -1796,6 +1796,34 @@ void CTFGameRules::InitTeams( void )
 	ResetFilePlayerClassInfoDatabase();
 }
 
+// Skips players except for the specified one.
+class CTraceFilterHitPlayer : public CTraceFilterSimple
+{
+public:
+	DECLARE_CLASS( CTraceFilterIgnorePlayers, CTraceFilterSimple );
+
+	CTraceFilterHitPlayer( const IHandleEntity *passentity, IHandleEntity *pHitEntity, int collisionGroup )
+		: CTraceFilterSimple( passentity, collisionGroup )
+	{
+		m_pHitEntity = pHitEntity;
+	}
+
+	virtual bool ShouldHitEntity( IHandleEntity *pServerEntity, int contentsMask )
+	{
+		CBaseEntity *pEntity = EntityFromEntityHandle( pServerEntity );
+
+		if ( !pEntity )
+			return false;
+
+		if ( pEntity->IsPlayer() && pEntity != m_pHitEntity )
+			return false;
+
+		return BaseClass::ShouldHitEntity( pServerEntity, contentsMask );
+	}
+
+private:
+	const IHandleEntity *m_pHitEntity;
+};
 
 ConVar tf_fixedup_damage_radius ( "tf_fixedup_damage_radius", "1", FCVAR_DEVELOPMENTONLY );
 //-----------------------------------------------------------------------------
@@ -1849,7 +1877,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 		// Check that the explosion can 'see' this entity, trace through players.
 		vecSpot = pEntity->BodyTarget( vecSrc, false );
-		CTraceFilterIgnorePlayers filter( info.GetInflictor(), COLLISION_GROUP_PROJECTILE );
+		CTraceFilterHitPlayer filter( info.GetInflictor(), pEntity, COLLISION_GROUP_PROJECTILE );
 		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filter, &tr );
 
 		if ( tr.fraction != 1.0 && tr.m_pEnt != pEntity )
