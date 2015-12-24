@@ -79,6 +79,13 @@ struct BobState_t
 	float m_flLateralBob;
 };
 
+typedef struct
+{
+	Activity actBaseAct;
+	Activity actTargetAct;
+	int		iWeaponRole;
+} viewmodel_acttable_t;
+
 #ifdef CLIENT_DLL
 float CalcViewModelBobHelper( CBasePlayer *player, BobState_t *pBobState );
 void AddViewModelBobHelper( Vector &origin, QAngle &angles, BobState_t *pBobState );
@@ -184,16 +191,17 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int GetActivityWeaponRole( void );
 
 	virtual acttable_t *ActivityList( int &iActivityCount );
-	static acttable_t m_acttablePrimary[];
-	static acttable_t m_acttableSecondary[];
-	static acttable_t m_acttableMelee[];
-	static acttable_t m_acttableBuilding[];
-	static acttable_t m_acttablePDA[];
-	static acttable_t m_acttableItem1[];
-	static acttable_t m_acttableItem2[];
-	static acttable_t m_acttableMeleeAllClass[];
-	static acttable_t m_acttableSecondary2[];
-	static acttable_t m_acttablePrimary2[];
+	static acttable_t s_acttablePrimary[];
+	static acttable_t s_acttableSecondary[];
+	static acttable_t s_acttableMelee[];
+	static acttable_t s_acttableBuilding[];
+	static acttable_t s_acttablePDA[];
+	static acttable_t s_acttableItem1[];
+	static acttable_t s_acttableItem2[];
+	static acttable_t s_acttableMeleeAllClass[];
+	static acttable_t s_acttableSecondary2[];
+	static acttable_t s_acttablePrimary2[];
+	static viewmodel_acttable_t s_viewmodelacttable[];
 
 #ifdef GAME_DLL
 	virtual void	AddAssociatedObject( CBaseObject *pObject ) { }
