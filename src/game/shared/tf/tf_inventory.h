@@ -31,6 +31,7 @@ class CTFInventory
 {
 public:
 	CTFInventory();
+	~CTFInventory();
 
 	int GetWeapon(int iClass, int iSlot, int iNum);
 	int GetItem( int iClass, int iSlot, int iNum );
@@ -38,20 +39,22 @@ public:
 	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEcon = 0, bool HudCheck = 0);
 
 #if defined( CLIENT_DLL )
-	KeyValues* GetInventory(IBaseFileSystem *pFileSystem);
-	void SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory);
-	int GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot);
-	int GetWeaponPreset(IBaseFileSystem *pFileSystem, int iClass, int iSlot);
-	char* GetWeaponBucket(int iWeapon, int iTeam);
+	int GetWeaponPreset(int iClass, int iSlot);
+	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
 	const char* GetSlotName(int iSlot);
-	CHudTexture *FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz);
 #endif
-
 
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const int Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
 	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
+
+#if defined( CLIENT_DLL )
+	void LoadInventory();
+	void ResetInventory();
+	void SaveInventory();
+	KeyValues* m_pInventory;
+#endif
 };
 
 CTFInventory *GetTFInventory();

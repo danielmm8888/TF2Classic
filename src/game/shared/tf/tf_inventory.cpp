@@ -23,7 +23,18 @@ CTFInventory *GetTFInventory()
 
 CTFInventory::CTFInventory()
 {
+#if defined( CLIENT_DLL )
+	m_pInventory = NULL;
+	LoadInventory();
+#endif
 };
+
+CTFInventory::~CTFInventory()
+{
+#if defined( CLIENT_DLL )
+	m_pInventory->deleteThis();
+#endif
+}
 
 int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
 {
@@ -92,69 +103,90 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEc
 };
 
 #if defined( CLIENT_DLL )
+void CTFInventory::LoadInventory()
+{
+	bool bExist = filesystem->FileExists("scripts/tf_inventory.txt", "MOD");
+	if (bExist)
+	{
+		if (!m_pInventory)
+		{
+			m_pInventory = new KeyValues("Inventory");
+		}
+		m_pInventory->LoadFromFile(filesystem, "scripts/tf_inventory.txt");
+	}
+	else
+	{
+		ResetInventory();
+	}
+};
+
+void CTFInventory::SaveInventory()
+{
+	m_pInventory->SaveToFile(filesystem, "scripts/tf_inventory.txt");
+};
+
+void CTFInventory::ResetInventory()
+{
+	if (m_pInventory)
+	{
+		m_pInventory->deleteThis();
+	}
+	m_pInventory = new KeyValues("Inventory");
+	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++)
+	{
+		KeyValues *pClassInv = new KeyValues(g_aPlayerClassNames_NonLocalized[i]);
+		for (int j = 0; j < INVENTORY_SLOTS; j++)
+		{
+			pClassInv->SetInt(g_aPlayerSlotNames[j], 0);
+		}
+		m_pInventory->AddSubKey(pClassInv);
+	}
+	SaveInventory();
+}
+
+int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
+{
+	KeyValues *pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	if (!pClass)	//cannot find class node
+	{	
+		ResetInventory();
+		return 0;
+	}
+	int iPreset = pClass->GetInt(g_aPlayerSlotNames[iSlot], -1);
+	if (iPreset == -1)	//cannot find slot node
+	{
+		ResetInventory();
+		return 0;
+	}
+	return iPreset;
+};
+
+void CTFInventory::SetWeaponPreset(int iClass, int iSlot, int iPreset)
+{
+	KeyValues* pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	if (!pClass)	//cannot find class node
+	{
+		ResetInventory();
+		pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	}
+	pClass->SetInt(GetSlotName(iSlot), iPreset);
+	SaveInventory();
+}
+
 const char* CTFInventory::GetSlotName(int iSlot)
 {
 	return g_aPlayerSlotNames[iSlot];
 };
 
-CHudTexture *CTFInventory::FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
-{
-	int idx = list.Find(psz);
-	if (idx == list.InvalidIndex())
-		return NULL;
-
-	return list[idx];
-};
-
-KeyValues* CTFInventory::GetInventory(IBaseFileSystem *pFileSystem)
-{
-	KeyValues *pInv = new KeyValues("Inventory");
-	pInv->LoadFromFile(pFileSystem, "scripts/tf_inventory.txt");
-	return pInv;
-};
-
-void CTFInventory::SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory)
-{
-	pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
-};
-
-char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
-{
-	if (iWeapon == TF_WEAPON_BUILDER) //shit but works
-		return "sprites/bucket_sapper";
-
-	CTFWeaponInfo* pWeaponInfo = GetTFWeaponInfo(iWeapon);
-	if (!pWeaponInfo)
-		return "";
-	CHudTexture *pHudTexture = (iTeam == TF_TEAM_RED ? pWeaponInfo->iconInactive : pWeaponInfo->iconActive);
-	if (!pHudTexture)
-		return "";
-	return pHudTexture->szTextureFile;
-};
-
-int CTFInventory::GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
-{
-	KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pSub)
-		return 0;
-	const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
-	return iPreset;
-};
-
-int CTFInventory::GetWeaponPreset(IBaseFileSystem *pFileSystem, int iClass, int iSlot)
-{
-	return GetLocalPreset(GetInventory(pFileSystem), iClass, iSlot);
-};
-#endif
-
 const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
 {
-	"Primary",
-	"Secondary",
-	"Melee",
-	"PDA1",
-	"PDA2"
+	"primary",
+	"secondary",
+	"melee",
+	"pda1",
+	"pda2"
 };
+#endif
 
 // Legacy array, used when we're forced to use old method of giving out weapons.
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
