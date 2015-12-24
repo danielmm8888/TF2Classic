@@ -928,6 +928,7 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 
 	pPlayer->TeamFortress_SetSpeed();
 	pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_FLAGCAPTURED );
+	pPlayer->RemoveGlowEffect();
 	
 	// Output.
 	m_outputOnCapture.FireOutput( this, this );
@@ -986,6 +987,8 @@ void CCaptureFlag::Drop( CTFPlayer *pPlayer, bool bVisible,  bool bThrown /*= fa
 	pPlayer->TeamFortress_SetSpeed();
 
 #ifdef GAME_DLL
+
+	pPlayer->RemoveGlowEffect();
 
 	if ( bThrown )
 	{
