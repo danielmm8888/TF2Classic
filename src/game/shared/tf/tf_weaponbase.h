@@ -40,6 +40,7 @@
 #define MAX_TRACER_NAME		128
 
 CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
+CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass );
 
 class CTFPlayer;
 class CBaseObject;

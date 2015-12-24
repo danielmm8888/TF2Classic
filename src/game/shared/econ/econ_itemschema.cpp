@@ -6,21 +6,6 @@
 #include "script_parser.h"
 #include "activitylist.h"
 
-const char *g_AnimsSlots[] =
-{
-	"primary",
-	"secondary",
-	"melee",
-	"grenade",
-	"building",
-	"pda",
-	"item1",
-	"item2",
-	"MELEE_ALLCLASS",
-	"secondary2",
-	"primary2",
-};
-
 const char *g_LoadoutSlots[] =
 {
 	"primary",
@@ -402,7 +387,7 @@ public:
 		
 		if ( pszLoadoutSlot[0] )
 		{
-			pItem->item_slot = UTIL_StringFieldToInt( pszLoadoutSlot, g_LoadoutSlots, 8 );
+			pItem->item_slot = UTIL_StringFieldToInt( pszLoadoutSlot, g_LoadoutSlots, TF_LOADOUT_SLOT_COUNT );
 		}
 
 		const char *pszAnimSlot = pData->GetString( "anim_slot" );
@@ -410,7 +395,7 @@ public:
 		{
 			if ( Q_strcmp( pszAnimSlot, "FORCE_NOT_USED" ) != 0 )
 			{
-				pItem->anim_slot = UTIL_StringFieldToInt( pszAnimSlot, g_AnimsSlots, ARRAYSIZE( g_AnimsSlots ) );
+				pItem->anim_slot = UTIL_StringFieldToInt( pszAnimSlot, g_AnimSlots, TF_WPN_TYPE_COUNT );
 			}
 			else
 			{

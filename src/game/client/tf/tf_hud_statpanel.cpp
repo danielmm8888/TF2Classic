@@ -611,7 +611,7 @@ void CTFStatPanel::FireGameEvent( IGameEvent * event )
 
 	if ( Q_strcmp( "player_spawn", pEventName ) == 0 )
 	{
-		Msg( "got player_spawn event\n" );
+		//Msg( "got player_spawn event\n" );
 		int iUserID = event->GetInt( "userid" );
 		if ( !C_TFPlayer::GetLocalTFPlayer() || ( C_TFPlayer::GetLocalTFPlayer()->GetUserID() != iUserID ) )
 			return;

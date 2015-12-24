@@ -3254,3 +3254,23 @@ CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
 	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>(GetFileWeaponInfoFromHandle(hWpnInfo));
 	return pWeaponInfo;
 }
+
+CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass )
+{
+	// Get the weapon information.
+	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+
+	if ( !pItemDef )
+		return NULL;
+
+	const char *pszClassname = TranslateWeaponEntForClass( pItemDef->item_class, iClass );
+
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszClassname );
+	if ( hWpnInfo == GetInvalidWeaponInfoHandle() )
+	{
+		return NULL;
+	}
+
+	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+	return pWeaponInfo;
+}
