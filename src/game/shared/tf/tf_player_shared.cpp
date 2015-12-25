@@ -804,8 +804,6 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		float fTotalHealAmount = 0.0f;
 		for ( int i = 0; i < m_aHealers.Count(); i++ )
 		{
-			Assert( m_aHealers[i].pPlayer );
-
 			// Dispensers don't heal above 100%
 			if ( bHasFullHealth && m_aHealers[i].bDispenserHeal )
 			{
@@ -853,8 +851,7 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 			// split up total healing based on the amount each healer contributes
 			for ( int i = 0; i < m_aHealers.Count(); i++ )
 			{
-				Assert( m_aHealers[i].pPlayer );
-				if ( m_aHealers[i].pPlayer.IsValid () )
+				if ( m_aHealers[i].pPlayer.IsValid() )
 				{
 					CTFPlayer *pPlayer = static_cast<CTFPlayer *>( static_cast<CBaseEntity *>( m_aHealers[i].pPlayer ) );
 					if ( IsAlly( pPlayer ) )

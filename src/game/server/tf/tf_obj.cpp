@@ -571,11 +571,28 @@ void CBaseObject::SpawnControlPanels()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose: Called in case was not built by a player but placed by a mapper.
 //-----------------------------------------------------------------------------
 void CBaseObject::InitializeMapPlacedObject( void )
 {
 	m_bWasMapPlaced = true;
+
+	if ( ( GetObjectFlags() & OF_IS_CART_OBJECT ) == 0 )
+		SpawnControlPanels();
+
+	// Spawn with full healh.
+	SetHealth( GetMaxHealth() );
+
+	// Go active.
+	FinishedBuilding();
+
+	// Add it to team.
+	CTFTeam *pTFTeam = GetGlobalTFTeam( GetTeamNumber() );
+
+	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
+	{
+		pTFTeam->AddObject( this );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -833,15 +850,6 @@ void CBaseObject::Activate( void )
 
 	if ( GetBuilder() == NULL )
 		InitializeMapPlacedObject();
-	
-	// This only ever gets called if a building is spawned in a non-standard way.
-	// So just go through all contruction phases rapidly.
-	StartPlacement( NULL );
-	StartBuilding( NULL );
-	SetHealth( GetMaxHealth() );
-	FinishedBuilding();
-
-	Assert( 0 );
 }
 
 
@@ -1391,7 +1399,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 
 	// Add this object to the team's list (because we couldn't add it during
 	// placement mode)
-	if ( !IsRedeploying() && pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
+	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
 	{
 		pTFTeam->AddObject( this );
 	}

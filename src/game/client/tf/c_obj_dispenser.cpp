@@ -284,3 +284,7 @@ void CDispenserControlPanel::OnTickActive( C_BaseObject *pObj, C_TFPlayer *pLoca
 
 	m_pAmmoProgress->SetProgress( flMetal );
 }
+
+
+IMPLEMENT_CLIENTCLASS_DT( C_ObjectCartDispenser, DT_ObjectCartDispenser, CObjectCartDispenser )
+END_RECV_TABLE()
