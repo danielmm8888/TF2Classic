@@ -513,8 +513,19 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 
 	bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( pHitEntity ) );
 
+	// HACK: Prevents stickies from sticking to blades in Sawmill. Need to find a way that is not as silly.
+	CBaseEntity *pParent = pHitEntity->GetMoveParent();
+
+	if ( pParent )
+	{
+		if ( pParent->NameMatches( "sawmovelinear01" ) || pParent->NameMatches( "sawmovelinear01" ) )
+		{
+			bIsDynamicProp = false;
+		}
+	}
+
 	// Pipebombs stick to the world when they touch it
-	if ( pHitEntity && ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
+	if ( ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
 	{
 		m_bTouched = true;
 		VPhysicsGetObject()->EnableMotion( false );
