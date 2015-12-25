@@ -112,6 +112,7 @@ private:
 	bool m_bIsUpgrading;
 
 	EHANDLE m_hTouchTrigger;
+	string_t m_szTriggerName;
 
 	DECLARE_DATADESC();
 };
@@ -124,7 +125,6 @@ class CObjectCartDispenser : public CObjectDispenser
 public:
 
 	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
-	virtual void	OnGoActive( void );	
 	virtual void	Spawn( void );
 	virtual bool	CanBeUpgraded( CTFPlayer *pPlayer ) { return false; }
 	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName ) { return; }
@@ -132,15 +132,7 @@ public:
 
 private:
 
-	CUtlVector< EHANDLE >	m_hTouchingEntities;
-
 	CNetworkVar( int, m_iAmmoMetal );
-
-	float m_flNextAmmoDispense;
-
-	EHANDLE m_hTouchTrigger;
-
-	string_t m_szTriggerName;
 
 };
 

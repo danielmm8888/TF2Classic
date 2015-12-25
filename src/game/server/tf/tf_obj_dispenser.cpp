@@ -74,6 +74,7 @@ IMPLEMENT_SERVERCLASS_ST( CObjectDispenser, DT_ObjectDispenser )
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectDispenser )
+	DEFINE_KEYFIELD( m_szTriggerName, FIELD_STRING, "touch_trigger" ),
 	DEFINE_THINKFUNC( RefillThink ),
 	DEFINE_THINKFUNC( DispenseThink ),
 END_DATADESC()
@@ -264,16 +265,31 @@ void CObjectDispenser::OnGoActive( void )
 
 	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
 
-	CDispenserTouchTrigger *pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
-	if ( pTriggerEnt )
+	CDispenserTouchTrigger *pTriggerEnt;
+
+	if ( m_szTriggerName != NULL_STRING )
 	{
-		UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
-		m_hTouchTrigger = pTriggerEnt;
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( gEntList.FindEntityByName( NULL, m_szTriggerName ) );
+		if ( pTriggerEnt )
+		{	
+			pTriggerEnt->SetOwnerEntity( this );
+			m_hTouchTrigger = pTriggerEnt;
+		}
+	}
+	else
+	{
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
+		if ( pTriggerEnt )
+		{
+			UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
+			m_hTouchTrigger = pTriggerEnt;
+		}
 	}
 
 	BaseClass::OnGoActive();
 
-	EmitSound( "Building_Dispenser.Idle" );
+	if ( !( GetObjectFlags() & OF_IS_CART_OBJECT ) )
+		EmitSound( "Building_Dispenser.Idle" );
 }
 
 //-----------------------------------------------------------------------------
@@ -731,8 +747,10 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 {
-	if ( !HasSpawnFlags( SF_IGNORE_LOS ) && !pTarget->FVisible( this, MASK_BLOCKLOS ) )
-		return false;
+	return true;
+
+//	if ( !HasSpawnFlags( SF_IGNORE_LOS ) && !pTarget->FVisible( this, MASK_BLOCKLOS ) )
+//		return false;
 
 	if ( pTarget->IsPlayer() && pTarget->IsAlive() )
 	{
@@ -825,7 +843,7 @@ void CObjectCartDispenser::Spawn( void )
 	AddFlag( FL_OBJECT ); 
 	SetViewOffset( WorldSpaceCenter() - GetAbsOrigin() );
 
-	if (!VPhysicsGetObject())
+	if ( !VPhysicsGetObject() )
 	{
 		VPhysicsInitStatic();
 	}
@@ -840,42 +858,4 @@ void CObjectCartDispenser::Spawn( void )
 	SetModel( "" );
 
 	m_iAmmoMetal = 0;
-}
-
-//-----------------------------------------------------------------------------
-// 
-//-----------------------------------------------------------------------------
-void CObjectCartDispenser::OnGoActive( void )
-{
-	// Put some ammo in the Dispenser
-	m_iAmmoMetal = 25;
-
-	// Begin thinking
-	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 3, REFILL_CONTEXT );
-	SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
-
-	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
-
-	CDispenserTouchTrigger *pTriggerEnt;
-
-	if ( m_szTriggerName != NULL_STRING )
-	{
-		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( gEntList.FindEntityByName( NULL, m_szTriggerName ) );
-		if ( pTriggerEnt )
-		{	
-			pTriggerEnt->SetOwnerEntity( this );
-			m_hTouchTrigger = pTriggerEnt;
-		}
-	}
-	else
-	{
-		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
-		if ( pTriggerEnt )
-		{
-			UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
-			m_hTouchTrigger = pTriggerEnt;
-		}
-	}
-
-	EmitSound( "Building_Dispenser.Idle" );
 }

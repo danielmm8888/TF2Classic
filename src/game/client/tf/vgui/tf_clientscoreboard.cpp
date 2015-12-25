@@ -579,7 +579,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList( void )
 			}
 			else
 			{
-				pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 128 ) );
+				pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 64 ) );
 			}
 
 			pKeyValues->deleteThis();
