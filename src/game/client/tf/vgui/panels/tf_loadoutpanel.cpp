@@ -65,31 +65,11 @@ public:
 		Q_strncpy(sTemp.szWorldModel, pKeyValuesData->GetString("playermodel", ""), sizeof(sTemp.szWorldModel));
 		Q_strncpy(sTemp.szPrintName, pKeyValuesData->GetString("printname", ""), sizeof(sTemp.szPrintName));
 		const char *pszWeaponType = pKeyValuesData->GetString("WeaponType");
-		sTemp.m_iWeaponType = 0;
-		if (!Q_strcmp(pszWeaponType, "primary"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_PRIMARY;
-		}
-		else if (!Q_strcmp(pszWeaponType, "secondary"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_SECONDARY;
-		}
-		else if (!Q_strcmp(pszWeaponType, "melee"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_MELEE;
-		}
-		else if (!Q_strcmp(pszWeaponType, "grenade"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_GRENADE;
-		}
-		else if (!Q_strcmp(pszWeaponType, "building"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_BUILDING;
-		}
-		else if (!Q_strcmp(pszWeaponType, "pda"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_PDA;
-		}
+
+		int iType = UTIL_StringFieldToInt( pszWeaponType, g_AnimSlots, TF_WPN_TYPE_COUNT );
+
+		sTemp.m_iWeaponType = iType >= 0 ? iType : TF_WPN_TYPE_PRIMARY;
+
 		for (KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
 		{
 			if (!Q_stricmp(pData->GetName(), "TextureData"))
@@ -110,9 +90,9 @@ public:
 		m_WeaponInfoDatabase.Insert(szFileWithoutEXT, sTemp);
 	};
 
-	_WeaponData GetTFWeaponInfo(const char *name)
+	_WeaponData *GetTFWeaponInfo(const char *name)
 	{
-		return m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
+		return &m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
 	}
 
 private:
@@ -372,9 +352,18 @@ void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 		Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
 		if (!Q_strcmp(pModel, ""))
 			Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+
 		int iSlot = pItemData->anim_slot;
-		if (iSlot == -1)
-			iSlot = pItemData->item_slot;
+		if (iSlot < 0)
+		{
+			// Fall back to script file data.
+			const char *pszClassname = TranslateWeaponEntForClass( pItemData->item_class, iClass );
+			_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
+			Assert( pWeaponInfo );
+
+			iSlot = pWeaponInfo->m_iWeaponType;
+		}
+
 		m_pClassModelPanel->SetAnimationIndex(iSlot);
 		m_pClassModelPanel->ClearMergeMDLs();
 		if (pModel[0] != '\0')

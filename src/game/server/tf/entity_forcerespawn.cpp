@@ -51,7 +51,7 @@ void CTFForceRespawn::ForceRespawn( bool bSwitchTeams )
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 		if ( pPlayer )
 		{
-			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->RemoveAllOwnedEntitiesFromWorld();
 
 			// Ignore players who aren't on an active team
 			if ( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE )

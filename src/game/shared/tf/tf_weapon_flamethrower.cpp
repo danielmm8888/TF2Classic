@@ -611,11 +611,23 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 
 	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
 	{
-		// Push enemy players.
-		pVictim->SetGroundEntity( NULL );
-		pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
-		//pTFPlayer->SetLocalVelocity( vecPushDir * 500 );
-		pVictim->EmitSound( "TFPlayer.AirBlastImpact" );
+		// Don't push players if they're too far off to the side. Ignore Z.
+		Vector vecVictimDir = pVictim->WorldSpaceCenter() - pAttacker->WorldSpaceCenter();
+
+		Vector vecVictimDir2D( vecVictimDir.x, vecVictimDir.y, 0.0f );
+		VectorNormalize( vecVictimDir2D );
+
+		Vector vecDir2D( vecDir.x, vecDir.y, 0.0f );
+		VectorNormalize( vecDir2D );
+
+		float flDot = DotProduct( vecDir2D, vecVictimDir2D );
+		if ( flDot >= 0.8 )
+		{
+			// Push enemy players.
+			pVictim->SetGroundEntity( NULL );
+			pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
+			pVictim->EmitSound( "TFPlayer.AirBlastImpact" );
+		}
 	}
 	else if ( pVictim->InSameTeam( pAttacker ) )
 	{
@@ -1011,6 +1023,8 @@ void CTFFlameThrower::HitTargetThink( void )
 #endif
 
 #ifdef GAME_DLL
+
+IMPLEMENT_AUTO_LIST( ITFFlameEntityAutoList );
 
 LINK_ENTITY_TO_CLASS( tf_flame, CTFFlameEntity );
 
