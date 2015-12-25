@@ -244,7 +244,7 @@ enum
 	TF_WPN_TYPE_PDA,
 	TF_WPN_TYPE_ITEM1,
 	TF_WPN_TYPE_ITEM2,
-	TF_WPN_TYPE_MELEE_ALLCLASS,
+	TF_WPN_TYPE_MELEE_ALLCLASS, // In live tf2 this is equal to 10, however keep it at 8 just in case it screws something else up
 	TF_WPN_TYPE_SECONDARY2,
 	TF_WPN_TYPE_PRIMARY2,
 };
