@@ -518,7 +518,7 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 
 	if ( pParent )
 	{
-		if ( pParent->NameMatches( "sawmovelinear01" ) || pParent->NameMatches( "sawmovelinear01" ) )
+		if ( pParent->NameMatches( "sawmovelinear01" ) || pParent->NameMatches( "sawmovelinear02" ) )
 		{
 			bIsDynamicProp = false;
 		}
