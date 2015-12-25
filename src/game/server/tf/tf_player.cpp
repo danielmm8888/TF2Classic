@@ -102,11 +102,11 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout." );
 
 
-ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables the Civilian and Mercenary in normal gameplay." );
-ConVar tf2c_disable_new_weapons( "tf2c_disable_new_weapons", "0", FCVAR_NOTIFY, "Disables all new weapons and forces players to use the stock loadout." );
+ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
+ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_NOTIFY, "Disables all new weapons as well as Econ Item System and forces players to use the stock loadout." );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -1172,7 +1172,7 @@ void CTFPlayer::GiveDefaultItems()
 	// Give weapons.
 	if ( tf2c_random_weapons.GetBool() )
 		ManageRandomWeapons( pData );
-	else if ( tf2c_disable_new_weapons.GetBool() )
+	else if ( tf2c_legacy_weapons.GetBool() )
 		ManageRegularWeaponsLegacy( pData );
 	else
 		ManageRegularWeapons( pData );
