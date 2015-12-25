@@ -52,6 +52,8 @@
 #include "econ_wearable.h"
 #include "tf_dropped_weapon.h"
 #include "econ_itemschema.h"
+#include "baseprojectile.h"
+#include "tf_weapon_flamethrower.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -2091,7 +2093,7 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 	if ( iNewTeam == iOldTeam )
 		return;
 
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iNewTeam );
@@ -2147,7 +2149,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	if ( iTeamNum == iOldTeam )
 		return;
 
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iTeamNum );
@@ -4935,7 +4937,7 @@ void CTFPlayer::DisplayLocalItemStatus( CTFGoal *pGoal )
 // Called when the player disconnects from the server.
 void CTFPlayer::TeamFortress_ClientDisconnected( void )
 {
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 	m_OnDeath.FireOutput(this, this);
 	RemoveAllWeapons();
@@ -4943,79 +4945,54 @@ void CTFPlayer::TeamFortress_ClientDisconnected( void )
 
 //=========================================================================
 // Removes everything this player has (buildings, grenades, etc.) from the world
-void CTFPlayer::TeamFortress_RemoveEverythingFromWorld( bool bSilent /* = true */ )
+void CTFPlayer::RemoveAllOwnedEntitiesFromWorld( bool bSilent /* = true */ )
 {
-	TeamFortress_RemoveRockets();
-	TeamFortress_RemovePipebombs();
-	TeamFortress_RemoveFlames();
+	RemoveOwnedProjectiles();
 	
 	// Destroy any buildables - this should replace TeamFortress_RemoveBuildings
-	RemoveAllObjects(bSilent);
+	RemoveAllObjects( bSilent );
 }
 
 //=========================================================================
-// Removes all rockets the player has fired into the world
-// (this prevents a team kill cheat where players would fire rockets 
-// then change teams to kill their own team)
-void CTFPlayer::TeamFortress_RemoveRockets( void )
+// Removes all projectiles player has fired into the world.
+void CTFPlayer::RemoveOwnedProjectiles( void )
 {
-	RemoveOwnedEnt( "tf_projectile_rocket" );
-	RemoveOwnedEnt( "tf_projectile_sentryrocket" );
-	//RemoveOwnedEnt( "tf_weapon_flamerocket" );
-}
-
-//=========================================================================
-// Removes all pipebombs from the world
-void CTFPlayer::TeamFortress_RemovePipebombs( void )
-{
-	CTFPlayerClass *pClass = GetPlayerClass();
-	if ( pClass && pClass->GetClassIndex() == TF_CLASS_DEMOMAN )
+	for ( int i = 0; i < IBaseProjectileAutoList::AutoList().Count(); i++ )
 	{
-		RemoveOwnedEnt( "tf_projectile_pipe", true );
-	}
-}
+		CBaseProjectile *pProjectile = static_cast<CBaseProjectile *>( IBaseProjectileAutoList::AutoList()[i] );
 
-//=========================================================================
-// Removes all flames from the world
-void CTFPlayer::TeamFortress_RemoveFlames( void )
-{
-	CTFPlayerClass *pClass = GetPlayerClass();
-	if ( pClass && pClass->GetClassIndex() == TF_CLASS_PYRO )
-	{
-		RemoveOwnedEnt( "tf_flame" );
-	}
-}
+		// If the player owns this entity, remove it.
+		bool bOwner = ( pProjectile->GetOwnerEntity() == this );
 
-
-//=========================================================================
-// Remove all of an ent owned by this player
-void CTFPlayer::RemoveOwnedEnt( char *pEntName, bool bGrenade )
-{
-	CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, pEntName );
-	while ( pEnt )
-	{
-		// if the player owns this entity, remove it
-		bool bOwner = (pEnt->GetOwnerEntity() == this);
-
-		if ( !bOwner && bGrenade )
+		if ( !bOwner )
 		{
-			CBaseGrenade *pGrenade = dynamic_cast<CBaseGrenade*>(pEnt);
-			Assert( pGrenade );
+			// Might be a grenade.
+			CBaseGrenade *pGrenade = dynamic_cast<CBaseGrenade *>( pProjectile );
 			if ( pGrenade )
 			{
-				bOwner = (pGrenade->GetThrower() == this);
+				bOwner = ( pGrenade->GetThrower() == this );
 			}
 		}
 
 		if ( bOwner )
 		{
-			pEnt->SetThink( &BaseClass::SUB_Remove );
-			pEnt->SetNextThink( gpGlobals->curtime );
-			pEnt->SetTouch( NULL );
-			pEnt->AddEffects( EF_NODRAW );
+			pProjectile->SetThink( &BaseClass::SUB_Remove );
+			pProjectile->SetNextThink( gpGlobals->curtime );
+			pProjectile->SetTouch( NULL );
+			pProjectile->AddEffects( EF_NODRAW );
 		}
+	}
 
-		pEnt = gEntList.FindEntityByClassname( pEnt, pEntName );
+	// Remove flames.
+	for ( int i = 0; i < ITFFlameEntityAutoList::AutoList().Count(); i++ )
+	{
+		CTFFlameEntity *pFlame = static_cast<CTFFlameEntity *>( ITFFlameEntityAutoList::AutoList()[i] );
+
+		if ( pFlame->GetAttacker() == this )
+		{
+			pFlame->SetThink( &BaseClass::SUB_Remove );
+			pFlame->SetNextThink( gpGlobals->curtime );
+		}
 	}
 }
 
@@ -5615,7 +5592,7 @@ void CTFPlayer::ForceRespawn( void )
 	if ( GetPlayerClass()->GetClassIndex() != iDesiredClass )
 	{
 		// clean up any pipebombs/buildings in the world (no explosions)
-		TeamFortress_RemoveEverythingFromWorld();
+		RemoveAllOwnedEntitiesFromWorld();
 
 		GetPlayerClass()->Init( iDesiredClass );
 

@@ -10,15 +10,14 @@
 #endif
 
 #include "cbase.h"
+#include "baseprojectile.h"
 #include "tf_shareddefs.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
-	#include "c_baseanimating.h"
 	#include "tempent.h"
 // Server specific.
 #else
-	#include "baseanimating.h"
 	#include "iscorer.h"
 #endif
 
@@ -42,14 +41,14 @@ CTFBaseProjectile
 //
 // Generic projectile
 //
-class CTFBaseProjectile : public CBaseAnimating
+class CTFBaseProjectile : public CBaseProjectile
 #if !defined( CLIENT_DLL )
 	, public IScorer
 #endif
 {
 public:
 
-	DECLARE_CLASS( CTFBaseProjectile, CBaseAnimating );
+	DECLARE_CLASS( CTFBaseProjectile, CBaseProjectile );
 	DECLARE_NETWORKCLASS();
 
 	CTFBaseProjectile();

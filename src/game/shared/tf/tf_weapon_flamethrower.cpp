@@ -1024,6 +1024,8 @@ void CTFFlameThrower::HitTargetThink( void )
 
 #ifdef GAME_DLL
 
+IMPLEMENT_AUTO_LIST( ITFFlameEntityAutoList );
+
 LINK_ENTITY_TO_CLASS( tf_flame, CTFFlameEntity );
 
 //-----------------------------------------------------------------------------

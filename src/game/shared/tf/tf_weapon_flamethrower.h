@@ -151,8 +151,9 @@ public:
 };
 
 #ifdef GAME_DLL
+DECLARE_AUTO_LIST( ITFFlameEntityAutoList );
 
-class CTFFlameEntity : public CBaseEntity
+class CTFFlameEntity : public CBaseEntity, public ITFFlameEntityAutoList
 {
 	DECLARE_CLASS( CTFFlameEntity, CBaseEntity );
 public:
@@ -164,6 +165,7 @@ public:
 
 	void FlameThink( void );
 	void CheckCollision( CBaseEntity *pOther, bool *pbHitWorld );
+	CBaseEntity *GetAttacker( void ) { return m_hAttacker.Get(); }
 private:
 	void OnCollide( CBaseEntity *pOther );
 	void SetHitTarget( void );

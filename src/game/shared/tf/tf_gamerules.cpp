@@ -1739,7 +1739,7 @@ void CTFGameRules::SetupOnStalemateStart( void )
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 		if ( pPlayer )
 		{
-			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->RemoveAllOwnedEntitiesFromWorld();
 		}
 	}
 
@@ -3852,7 +3852,7 @@ void CTFGameRules::RoundRespawn( void )
 
 		if ( pPlayer )
 		{
-			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->RemoveAllOwnedEntitiesFromWorld();
 			pPlayer->m_Shared.SetKillstreak(0);
 		}
 	}
@@ -4013,7 +4013,7 @@ void CTFGameRules::HandleSwitchTeams( void )
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 		if ( pPlayer )
 		{
-			pPlayer->TeamFortress_RemoveEverythingFromWorld();
+			pPlayer->RemoveAllOwnedEntitiesFromWorld();
 
 			// Ignore players who aren't on an active team
 			if ( pPlayer->GetTeamNumber() != TF_TEAM_RED && pPlayer->GetTeamNumber() != TF_TEAM_BLUE )
