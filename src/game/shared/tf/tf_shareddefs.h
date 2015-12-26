@@ -1063,6 +1063,7 @@ class CObjectInfo
 {
 public:
 	CObjectInfo( char *pObjectName );	
+	CObjectInfo( const CObjectInfo& obj ) {}
 	~CObjectInfo();
 
 	// This is initialized by the code and matched with a section in objects.txt
