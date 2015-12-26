@@ -3668,7 +3668,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		LoadInventory();
 	}
 
-	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
+	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED && ( !IsLocalPlayer() || !InFirstPersonView() ) )
 	{
 		char szParticleName[128];
 		int iParticleID = m_Shared.GetRespawnParticleID();
@@ -3683,7 +3683,6 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
-
 }
 
 //-----------------------------------------------------------------------------
