@@ -7985,10 +7985,7 @@ uint64 powerplay_ids[] =
 	76561197966759649 ^ powerplaymask, // iiboharz
 	76561198014717105 ^ powerplaymask, // benjamoose
 	76561198032156257 ^ powerplaymask, // whynott
-<<<<<<< HEAD
 	76561198025334020 ^ powerplaymask, // DrPyspy
-=======
->>>>>>> 407b07dc72a7d338d32c46825cad25e731817a32
 	76561197993638233 ^ powerplaymask, // trotim
 	76561197995805528 ^ powerplaymask, // th13teen
 	76561198045284839 ^ powerplaymask  // iamgoofball
