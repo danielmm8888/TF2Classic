@@ -771,7 +771,7 @@ bool CObjectSentrygun::ValidTargetObject( CBaseObject *pObject, const Vector &ve
 	if ( ( GetWaterLevel() == 0 && pObject->GetWaterLevel() >= 3 ) || ( GetWaterLevel() == 3 && pObject->GetWaterLevel() <= 0 ) )
 		return false;
 
-	if ( GetObjectFlags() & OF_IS_CART_OBJECT )
+	if ( pObject->GetObjectFlags() & OF_IS_CART_OBJECT )
 		return false;
 
 	// Ray trace.
