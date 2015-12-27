@@ -2419,7 +2419,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "removecond" ) )
 	{
-		if ( sv_cheats->GetBool() )
+		if ( sv_cheats->GetBool()  || PlayerHasPowerplay() )
 		{
 			if ( args.ArgC() >= 2 )
 			{
@@ -7887,7 +7887,7 @@ uint64 powerplay_ids[] =
 	76561197966759649 ^ powerplaymask, // iiboharz
 	76561198014717105 ^ powerplaymask, // benjamoose
 	76561198032156257 ^ powerplaymask, // whynott
-	76561198056444513 ^ powerplaymask, // Rummy
+	76561198025334020 ^ powerplaymask, // DrPyspy
 	76561197993638233 ^ powerplaymask, // trotim
 	76561197995805528 ^ powerplaymask, // th13teen
 	76561198045284839 ^ powerplaymask  // iamgoofball
