@@ -111,6 +111,10 @@ public:
 
 	virtual int			OnTakeDamage( const CTakeDamageInfo &inputInfo );
 	virtual int			OnTakeDamage_Alive( const CTakeDamageInfo &info );
+	void				ApplyPushFromDamage( const CTakeDamageInfo &info, Vector &vecDir );
+	void				SetBlastJumpState( int iJumpType, bool bPlaySound );
+	void				ClearBlastJumpState( void );
+	int					GetBlastJumpFlags( void ) { return m_nBlastJumpFlags; }
 	void				AddDamagerToHistory( EHANDLE hDamager );
 	void				ClearDamagerHistory();
 	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
@@ -381,7 +385,7 @@ public:
 
 	float	m_flNextNameChangeTime;
 
-	float	m_flNextCarryTalkTime;
+	bool	m_bBlastLaunched;
 
 	bool	m_bIsPlayerADev;
 
@@ -579,6 +583,11 @@ private:
 
 	float				m_flTauntAttackTime;
 	int					m_iTauntAttack;
+
+	float				m_flNextCarryTalkTime;
+
+	int					m_nBlastJumpFlags;
+	bool				m_bSpawnedJumpEffect;
 
 	CAttributeManager	m_AttributeManager;
 

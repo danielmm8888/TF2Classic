@@ -84,7 +84,8 @@ ConVar tf_weapon_ragdoll_velocity_max( "tf_weapon_ragdoll_velocity_max", "150", 
 ConVar tf_weapon_ragdoll_maxspeed( "tf_weapon_ragdoll_maxspeed", "300", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_damageforcescale_other( "tf_damageforcescale_other", "6.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
-ConVar tf_damageforcescale_self_soldier( "tf_damageforcescale_self_soldier", "10.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_damageforcescale_self_soldier_rj( "tf_damageforcescale_self_soldier_rj", "10.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_damageforcescale_self_soldier_badrj( "tf_damageforcescale_self_soldier_badrj", "5.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_damagescale_self_soldier( "tf_damagescale_self_soldier", "0.60", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_damage_lineardist( "tf_damage_lineardist", "0", FCVAR_DEVELOPMENTONLY );
@@ -417,14 +418,18 @@ CTFPlayer::CTFPlayer()
 
 	ClearTauntAttack();
 
+	m_nBlastJumpFlags = 0;
+	m_bBlastLaunched = false;
+
 	m_WeaponPresetPrimary.RemoveAll();
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
 
-	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++){
-		m_WeaponPresetPrimary.AddToTail(0);
-		m_WeaponPresetSecondary.AddToTail(0);
-		m_WeaponPresetMelee.AddToTail(0);
+	for ( int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++ )
+	{
+		m_WeaponPresetPrimary.AddToTail( 0 );
+		m_WeaponPresetSecondary.AddToTail( 0 );
+		m_WeaponPresetMelee.AddToTail( 0 );
 	}
 
 	m_bIsPlayerADev = false;
@@ -481,11 +486,22 @@ void CTFPlayer::TFPlayerThink()
 		}
 	}
 
-	if (TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime)
+	// Disabled until we get fool_L and foot_R attachments.
+#if 0
+	// Add rocket trail if we haven't already.
+	if ( !m_bSpawnedJumpEffect && ( m_nBlastJumpFlags & ( TF_JUMP_ROCKET | TF_JUMP_STICKY ) ) && IsAlive() )
 	{
-		if ( (gpGlobals->curtime > m_flSpawnProtectTime) || (m_nButtons & IN_ATTACK) )
+		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_L" );
+		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_R" );
+		m_bSpawnedJumpEffect = true;
+	}
+#endif
+
+	if ( TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime )
+	{
+		if ( ( gpGlobals->curtime > m_flSpawnProtectTime ) || ( m_nButtons & IN_ATTACK ) )
 		{
-			RemoveFlag(FL_GODMODE);
+			RemoveFlag( FL_GODMODE );
 			m_nRenderFX = kRenderFxNone;
 			RemoveEffects( EF_ITEM_BLINK );
 			GetViewModel()->m_nRenderFX = kRenderFxNone;
@@ -768,6 +784,7 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "blood_impact_red_01" );
 	PrecacheParticleSystem( "water_playerdive" );
 	PrecacheParticleSystem( "water_playeremerge" );
+	PrecacheParticleSystem( "rocketjump_smoke" );
 					 
 	BaseClass::Precache();
 }
@@ -1012,6 +1029,8 @@ void CTFPlayer::Spawn()
 
 	m_bIsIdle = false;
 	m_flPowerPlayTime = 0.0;
+
+	m_nBlastJumpFlags = 0;
 
 	// This makes the surrounding box always the same size as the standing collision box
 	// helps with parts of the hitboxes that extend out of the crouching hitbox, eg with the
@@ -3355,12 +3374,27 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket and we're in mid-air, scale down the damage
-	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) )
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) || IsPlayerClass( TF_CLASS_DEMOMAN ) )
 	{
 		if ( ( info.GetDamageType() & DMG_BLAST ) && info.GetAttacker() == this && GetGroundEntity() == NULL )
 		{
-			float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
+			float flDamage = info.GetDamage();
+			int iJumpType = 0;
+
+			if ( !IsPlayerClass( TF_CLASS_DEMOMAN ) )
+			{
+				flDamage *= tf_damagescale_self_soldier.GetFloat();
+				iJumpType = TF_JUMP_ROCKET;
+			}
+			else
+			{
+				iJumpType = TF_JUMP_STICKY;
+			}
+
 			info.SetDamage( flDamage );
+
+			// Set blast jumping state. It will be cleared once we land.
+			SetBlastJumpState( iJumpType, false );
 		}
 	}
 
@@ -3806,14 +3840,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
 
-#if 0
-	// Hit by tranq
-	if ( info.GetDamageType() & DMG_PARALYZE )
-	{
-		m_Shared.AddCond( TF_COND_SLOWED, 4.0f );
-	}
-#endif
-
 	bool bIgniting = false;
 
 	if ( m_takedamage != DAMAGE_EVENTS_ONLY )
@@ -3835,47 +3861,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	if ( !pAttacker )
 		return 0;
 
-	if ( ( info.GetDamageType() & DMG_PREVENT_PHYSICS_FORCE ) == 0 )
-	{
-		if ( info.GetInflictor() && ( GetMoveType() == MOVETYPE_WALK ) && 
-		   ( !pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) ) && 
-		   ( !m_Shared.InCond( TF_COND_DISGUISED ) ) )	
-		{
-			Vector vecForce;
-			vecForce.Init();
-			if ( info.GetAttacker() == this )
-			{
-				if (IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY))
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_self_soldier.GetFloat() );
-				}
-				else
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), DAMAGE_FORCE_SCALE_SELF );
-				}
-			}
-			else
-			{
-				// Sentryguns push a lot harder
-				if ( (info.GetDamageType() & DMG_BULLET) && info.GetInflictor()->IsBaseObject() )
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), 16 );
-				}
-				else
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_other.GetFloat() );
-
-					if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-					{
-						// Heavies take less push from non sentryguns
-						vecForce *= 0.5;
-					}
-				}
-			}
-
-			ApplyAbsVelocityImpulse( vecForce );
-		}
-	}
+	ApplyPushFromDamage( info, vecDir );
 
 	if ( bIgniting )
 	{
@@ -3941,6 +3927,142 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	// Done.
 	return 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector &vecDir )
+{
+	CBaseEntity *pAttacker = info.GetAttacker();
+
+	if ( info.GetDamageType() & DMG_PREVENT_PHYSICS_FORCE )
+		return;
+
+	if( !info.GetInflictor() ||
+		( GetMoveType() != MOVETYPE_WALK ) ||
+		( pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) ) ||
+		( m_Shared.InCond( TF_COND_DISGUISED ) ) )
+		return;
+
+	Vector vecForce;
+	vecForce.Init();
+	if ( pAttacker == this )
+	{
+		if ( ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) ) && ( info.GetDamageType() & DMG_BLAST ) )
+		{
+			// Since soldier only takes reduced self-damage while in mid-air we have to accomodate for that.
+			float flScale = 1.0f;
+
+			if ( GetFlags() & FL_ONGROUND )
+			{
+				flScale = tf_damageforcescale_self_soldier_badrj.GetFloat();
+				SetBlastJumpState( TF_JUMP_ROCKET, false );
+			}
+			else
+			{
+				// If we're in mid-air then the code in OnTakeDamage should have already set blast jumping state.
+				flScale = tf_damageforcescale_self_soldier_rj.GetFloat();
+			}
+
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), flScale );
+		}
+		else
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), DAMAGE_FORCE_SCALE_SELF );
+		}
+	}
+	else
+	{
+		// Sentryguns push a lot harder
+		if ( ( info.GetDamageType() & DMG_BULLET ) && info.GetInflictor()->IsBaseObject() )
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), 16 );
+		}
+		else
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_other.GetFloat() );
+
+			if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
+			{
+				// Heavies take less push from non sentryguns
+				vecForce *= 0.5;
+			}
+		}
+
+		if ( info.GetDamageType() & DMG_BLAST )
+		{
+			m_bBlastLaunched = true;
+		}
+	}
+
+	ApplyAbsVelocityImpulse( vecForce );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::SetBlastJumpState( int iJumpType, bool bPlaySound )
+{
+	m_nBlastJumpFlags |= iJumpType;
+
+	const char *pszEventName = NULL;
+
+	switch ( iJumpType )
+	{
+	case TF_JUMP_ROCKET:
+		pszEventName = "rocket_jump";
+		break;
+	case TF_JUMP_STICKY:
+		pszEventName = "sticky_jump";
+		break;
+	}
+
+	if ( pszEventName )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( pszEventName );
+
+		if ( event )
+		{
+			event->SetInt( "userid", GetUserID() );
+			event->SetBool( "playsound", bPlaySound );
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
+	m_Shared.AddCond( TF_COND_BLASTJUMPING );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::ClearBlastJumpState( void )
+{
+	const char *pszEventName = NULL;
+
+	if ( m_nBlastJumpFlags & TF_JUMP_ROCKET )
+	{
+		pszEventName = "rocket_jump_landed";
+	}
+	else if ( m_nBlastJumpFlags & TF_JUMP_STICKY )
+	{
+		pszEventName = "sticky_jump_landed";
+	}
+
+	if ( pszEventName )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( pszEventName );
+
+		if ( event )
+		{
+			event->SetInt( "userid", GetUserID() );
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
+	m_nBlastJumpFlags = 0;
+	m_bSpawnedJumpEffect = false;
+	m_Shared.RemoveCond( TF_COND_BLASTJUMPING );
 }
 
 //-----------------------------------------------------------------------------

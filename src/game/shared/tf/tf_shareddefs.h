@@ -838,6 +838,10 @@ enum
 	TF_DMG_BUILDING_CARRIED, // 36
 };
 
+#define TF_JUMP_ROCKET	( 1 << 0 )
+#define TF_JUMP_STICKY	( 1 << 1 )
+#define TF_JUMP_OTHER	( 1 << 2 )
+
 enum
 {
 	TF_COLLISIONGROUP_GRENADES = LAST_SHARED_COLLISION_GROUP,
