@@ -7850,7 +7850,6 @@ uint64 powerplay_ids[] =
 	76561198029219422 ^ powerplaymask, // MrModezPineapple
 	76561198112766514 ^ powerplaymask, // PistonMiner
 	76561198053356818 ^ powerplaymask, // Nicknine
-	76561198011507712 ^ powerplaymask, // Rage
 	76561197970945736 ^ powerplaymask, // MacD11
 	76561198005690007 ^ powerplaymask, // OneFourth
 	76561198006774758 ^ powerplaymask, // FissionMetroid
@@ -7864,7 +7863,6 @@ uint64 powerplay_ids[] =
 	76561197966759649 ^ powerplaymask, // iiboharz
 	76561198014717105 ^ powerplaymask, // benjamoose
 	76561198032156257 ^ powerplaymask, // whynott
-	76561198056444513 ^ powerplaymask, // Rummy
 	76561197993638233 ^ powerplaymask, // trotim
 	76561197995805528 ^ powerplaymask, // th13teen
 	76561198045284839 ^ powerplaymask  // iamgoofball
