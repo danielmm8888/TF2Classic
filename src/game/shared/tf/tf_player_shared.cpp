@@ -2009,10 +2009,9 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 
 		if ( m_hCritEffectHost.Get() )
 		{
-			// Ugh, why did Valve choose to use "blu" instead of "blue" here?..
+			int iTeamNum = m_pOuter->GetTeamNumber();
 			char szEffectName[128];
-			C_TFTeam *pTeam = dynamic_cast<C_TFTeam *>( m_pOuter->GetTeam() );
-			const char *pszTeamName = !TFGameRules()->IsDeathmatch() ? pTeam->Get_Name() : "dm";
+			const char *pszTeamName = !TFGameRules()->IsDeathmatch() ? g_aTeamNamesShort[iTeamNum] : "dm";
 
 
 			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s", pszTeamName );
