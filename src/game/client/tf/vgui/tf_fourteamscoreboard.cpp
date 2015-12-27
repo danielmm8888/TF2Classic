@@ -212,7 +212,7 @@ void CTFFourTeamScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerList
 	}
 
 	pPlayerList->AddColumnToSection(0, "name", "", 0, m_iNameWidth);
-	pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
+	//pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
 	pPlayerList->AddColumnToSection(0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth);
 	pPlayerList->AddColumnToSection(0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth);
 	pPlayerList->AddColumnToSection(0, "score", "", 0, m_iScoreWidth);
@@ -474,6 +474,9 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerList()
 			
 			int itemID = pPlayerList->AddItem( 0, pKeyValues );
 			Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+			if ( !tf_PR->IsAlive( playerIndex ) )
+				clr.SetColor( clr.r(), clr.g(), clr.b(), clr.a() / 2 );
+
 			pPlayerList->SetItemFgColor( itemID, clr );
 
 			if ( iSelectedPlayerIndex == playerIndex )

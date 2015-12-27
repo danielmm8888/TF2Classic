@@ -929,7 +929,7 @@ void CTFHudObjectiveStatus::Think()
 				int iActiveTimer = ObjectiveResource()->GetTimerToShowInHUD();
 
 				pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( iActiveTimer ) );
-				bDisplayTimer = ( iActiveTimer != 0 && pTimer && !pTimer->IsDormant() );
+				bDisplayTimer = ( iActiveTimer != 0 && pTimer && !pTimer->IsDormant() && pTimer->ShowInHud() );
 
 				if ( bDisplayTimer )
 					m_pTimePanel->SetTimerIndex( iActiveTimer );

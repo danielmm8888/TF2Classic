@@ -111,6 +111,10 @@ public:
 
 	virtual int			OnTakeDamage( const CTakeDamageInfo &inputInfo );
 	virtual int			OnTakeDamage_Alive( const CTakeDamageInfo &info );
+	void				ApplyPushFromDamage( const CTakeDamageInfo &info, Vector &vecDir );
+	void				SetBlastJumpState( int iJumpType, bool bPlaySound );
+	void				ClearBlastJumpState( void );
+	int					GetBlastJumpFlags( void ) { return m_nBlastJumpFlags; }
 	void				AddDamagerToHistory( EHANDLE hDamager );
 	void				ClearDamagerHistory();
 	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
@@ -183,7 +187,6 @@ public:
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );
 
 	// Utility.
-	void				RemoveOwnedEnt( char *pEntName, bool bGrenade = false );
 	void				UpdateModel( void );
 	void				UpdateSkin( int iTeam );
 
@@ -220,10 +223,8 @@ public:
 	EHANDLE TeamFortress_GetDisguiseTarget( int nTeam, int nClass );
 
 	void TeamFortress_ClientDisconnected();
-	void TeamFortress_RemoveEverythingFromWorld( bool bSilent = true );
-	void TeamFortress_RemoveRockets();
-	void TeamFortress_RemovePipebombs();
-	void TeamFortress_RemoveFlames();
+	void RemoveAllOwnedEntitiesFromWorld( bool bSilent = true );
+	void RemoveOwnedProjectiles( void );
 
 	CTFTeamSpawn *GetSpawnPoint( void ){ return m_pSpawnPoint; }
 		
@@ -384,7 +385,7 @@ public:
 
 	float	m_flNextNameChangeTime;
 
-	float	m_flNextCarryTalkTime;
+	bool	m_bBlastLaunched;
 
 	bool	m_bIsPlayerADev;
 
@@ -582,6 +583,11 @@ private:
 
 	float				m_flTauntAttackTime;
 	int					m_iTauntAttack;
+
+	float				m_flNextCarryTalkTime;
+
+	int					m_nBlastJumpFlags;
+	bool				m_bSpawnedJumpEffect;
 
 	CAttributeManager	m_AttributeManager;
 

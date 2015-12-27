@@ -3668,7 +3668,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		LoadInventory();
 	}
 
-	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
+	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED && ( !IsLocalPlayer() || !InFirstPersonView() ) )
 	{
 		char szParticleName[128];
 		int iParticleID = m_Shared.GetRespawnParticleID();
@@ -3683,7 +3683,6 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -3861,7 +3860,7 @@ Vector C_TFPlayer::GetChaseCamViewOffset( CBaseEntity *target )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ValidateModelIndex( void )
 {
-	if ( m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) && IsEnemyPlayer() && GetGroundEntity() )
+	if ( m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) && IsEnemyPlayer() && GetGroundEntity() && IsDucked() )
 	{
 		m_nModelIndex = modelinfo->GetModelIndex( "models/buildables/dispenser_light.mdl" );
 

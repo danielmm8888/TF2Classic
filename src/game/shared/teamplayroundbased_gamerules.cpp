@@ -2160,11 +2160,10 @@ void CTeamplayRoundBasedRules::State_Think_STALEMATE( void )
 		}
 	}
 
-	int iAliveTeam = pAliveTeams.Head()->GetTeamNumber();
-
-	if ( pAliveTeams.Count() == 1 && iAliveTeam )
+	if ( pAliveTeams.Count() == 1 )
 	{
 		// The live team has won. 
+		int iAliveTeam = pAliveTeams[0]->GetTeamNumber();
 		bool bMasterHandled = false;
 		if ( !m_bForceMapReset )
 		{
@@ -2183,10 +2182,10 @@ void CTeamplayRoundBasedRules::State_Think_STALEMATE( void )
 
 		if ( !bMasterHandled )
 		{
-			SetWinningTeam( pAliveTeams.Head()->GetTeamNumber(), WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
+			SetWinningTeam( iAliveTeam, WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
 		}
 	}
-	else if ( ( iAliveTeam == TEAM_UNASSIGNED ) || 
+	else if ( pAliveTeams.IsEmpty() ||
 			  ( m_hStalemateTimer && TimerMayExpire() && m_hStalemateTimer->GetTimeRemaining() <= 0 ) )
 	{
 		bool bFullReset = true;

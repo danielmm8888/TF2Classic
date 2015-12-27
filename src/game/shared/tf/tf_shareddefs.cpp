@@ -35,8 +35,8 @@ const char *g_aTeamNamesShort[TF_TEAM_COUNT] =
 
 const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
 {
-	"",
-	"",
+	"red",
+	"red",
 	"red",
 	"blue",
 	"green",
@@ -50,9 +50,7 @@ const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/
 		return "dm";
 	}
 
-	int index = clamp( iTeam, FIRST_GAME_TEAM, TF_TEAM_COUNT - 1 );
-
-	return g_aTeamParticleNames[index];
+	return g_aTeamParticleNames[iTeam];
 }
 
 const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/ )
@@ -158,6 +156,24 @@ const char *g_aGameTypeNames[] =
 	"#Gametype_MVM",
 	"#Gametype_DM",
 	"#Gametype_VIP",
+};
+
+//-----------------------------------------------------------------------------
+// Weapon Types
+//-----------------------------------------------------------------------------
+const char *g_AnimSlots[] =
+{
+	"primary",
+	"secondary",
+	"melee",
+	"grenade",
+	"building",
+	"pda",
+	"item1",
+	"item2",
+	"MELEE_ALLCLASS",
+	"secondary2",
+	"primary2",
 };
 
 //-----------------------------------------------------------------------------

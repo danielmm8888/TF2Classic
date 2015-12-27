@@ -122,7 +122,7 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 	{
 		pText = g_pVGuiLocalize->Find(m_pWeapon->GetWpnData().szPrintName);
 		const CHudTexture *pTexture = pWeapon->GetSpriteInactive(); // red team
-		if (pTexture)
+		if ( pTexture )
 		{
 			char szImage[64];
 			Q_snprintf(szImage, sizeof(szImage), "../%s", pTexture->szTextureFile);
@@ -131,11 +131,11 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
 	}
 	m_pWeaponName->SetText(pText);
-	if (ID != -1)
+	if ( ID != -1 )
 	{
 		char szSlotID[8];
-		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
-		m_pSlotID->SetText(szSlotID);
+		Q_snprintf( szSlotID, sizeof(szSlotID), "%d", m_ID + 1 );
+		m_pSlotID->SetText( szSlotID );
 	}
 	else
 	{
@@ -161,11 +161,11 @@ void CItemModelPanel::SetWeapon(EconItemDefinition *pItemDefinition, int iBorder
 	}
 
 	m_pWeaponName->SetText(pText);
-	if (ID != -1)
+	if ( ID != -1 )
 	{
 		char szSlotID[8];
-		itoa(m_ID + 1, szSlotID, sizeof(szSlotID));
-		m_pSlotID->SetText(szSlotID);
+		Q_snprintf( szSlotID, sizeof(szSlotID), "%d", m_ID + 1 );
+		m_pSlotID->SetText( szSlotID );
 	}
 	else
 	{

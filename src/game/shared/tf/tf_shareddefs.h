@@ -244,10 +244,13 @@ enum
 	TF_WPN_TYPE_PDA,
 	TF_WPN_TYPE_ITEM1,
 	TF_WPN_TYPE_ITEM2,
-	TF_WPN_TYPE_MELEE_ALLCLASS,
+	TF_WPN_TYPE_MELEE_ALLCLASS, // In live tf2 this is equal to 10, however keep it at 8 just in case it screws something else up
 	TF_WPN_TYPE_SECONDARY2,
 	TF_WPN_TYPE_PRIMARY2,
+	TF_WPN_TYPE_COUNT
 };
+
+extern const char *g_AnimSlots[];
 
 //-----------------------------------------------------------------------------
 // Loadout slots
@@ -263,6 +266,7 @@ enum
 	TF_LOADOUT_SLOT_HAT,
 	TF_LOADOUT_SLOT_MISC,
 	TF_LOADOUT_SLOT_ACTION,
+	TF_LOADOUT_SLOT_COUNT
 };
 
 extern const char *g_aAmmoNames[];
@@ -833,6 +837,10 @@ enum
 	TF_DMG_TELEFRAG, // 16
 	TF_DMG_BUILDING_CARRIED, // 36
 };
+
+#define TF_JUMP_ROCKET	( 1 << 0 )
+#define TF_JUMP_STICKY	( 1 << 1 )
+#define TF_JUMP_OTHER	( 1 << 2 )
 
 enum
 {

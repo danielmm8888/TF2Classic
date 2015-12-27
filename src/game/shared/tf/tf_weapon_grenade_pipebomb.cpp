@@ -463,7 +463,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 		m_flDamage = m_flFullDamage;
 		// Save this entity as enemy, they will take 100% damage.
 		m_hEnemy = pOther;
-		Detonate();
+		Explode( &pTrace, GetDamageType() );
 	}
 
 	// Train hack!
@@ -513,8 +513,19 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 
 	bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( pHitEntity ) );
 
+	// HACK: Prevents stickies from sticking to blades in Sawmill. Need to find a way that is not as silly.
+	CBaseEntity *pParent = pHitEntity->GetMoveParent();
+
+	if ( pParent )
+	{
+		if ( pParent->NameMatches( "sawmovelinear01" ) || pParent->NameMatches( "sawmovelinear02" ) )
+		{
+			bIsDynamicProp = false;
+		}
+	}
+
 	// Pipebombs stick to the world when they touch it
-	if ( pHitEntity && ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
+	if ( ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
 	{
 		m_bTouched = true;
 		VPhysicsGetObject()->EnableMotion( false );
@@ -614,13 +625,13 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
 {
-	Vector vecPushSrc = pDeflectedBy->WorldSpaceCenter();
-	Vector vecPushDir = GetAbsOrigin() - vecPushSrc;
-	VectorNormalize( vecPushDir );
-
 	if ( GetType() == TF_GL_MODE_REMOTE_DETONATE )
 	{
 		// This is kind of lame.
+		Vector vecPushSrc = pDeflectedBy->WorldSpaceCenter();
+		Vector vecPushDir = GetAbsOrigin() - vecPushSrc;
+		VectorNormalize( vecPushDir );
+
 		CTakeDamageInfo info( pDeflectedBy, pDeflectedBy, 100, DMG_BLAST );
 		CalculateExplosiveDamageForce( &info, vecPushDir, vecPushSrc );
 		TakeDamage( info );

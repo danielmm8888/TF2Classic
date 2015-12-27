@@ -155,12 +155,13 @@ void CTFNotificationManager::OnHTTPRequestCompleted(HTTPRequestCompleted_t *Call
 
 	if (CallResult->m_eStatusCode == 200)
 	{
+		char result[256];
 		uint32 iBodysize;
 		m_SteamHTTP->GetHTTPResponseBodySize(CallResult->m_hRequest, &iBodysize);
-		uint8 iBodybuffer[128];
-		m_SteamHTTP->GetHTTPResponseBodyData(CallResult->m_hRequest, iBodybuffer, iBodysize);
-		char result[128];
-		Q_strncpy(result, (char*)iBodybuffer, iBodysize + 1);
+		uint8 iBodybuffer[256];
+		int size = (iBodysize > sizeof(result) ? sizeof(result) : iBodysize);	//cap the buffer size
+		m_SteamHTTP->GetHTTPResponseBodyData(CallResult->m_hRequest, iBodybuffer, size);
+		Q_strncpy(result, (char*)iBodybuffer, size);
 
 		switch (iRequestType)
 		{

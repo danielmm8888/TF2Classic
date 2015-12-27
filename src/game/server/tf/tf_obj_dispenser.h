@@ -48,6 +48,7 @@ public:
 	virtual void	DetonateObject( void );
 	virtual void	OnGoActive( void );	
 	virtual bool	StartBuilding( CBaseEntity *pBuilder );
+	virtual void	InitializeMapPlacedObject( void );
 	virtual int		DrawDebugTextOverlays(void) ;
 	virtual void	SetModel( const char *pModel );
 
@@ -112,6 +113,7 @@ private:
 	bool m_bIsUpgrading;
 
 	EHANDLE m_hTouchTrigger;
+	string_t m_szTriggerName;
 
 	DECLARE_DATADESC();
 };
@@ -122,25 +124,18 @@ class CObjectCartDispenser : public CObjectDispenser
 	DECLARE_DATADESC();
 
 public:
+	DECLARE_SERVERCLASS();
 
 	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
-	virtual void	OnGoActive( void );	
 	virtual void	Spawn( void );
 	virtual bool	CanBeUpgraded( CTFPlayer *pPlayer ) { return false; }
 	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName ) { return; }
-	virtual void	SetModel( const char *pModel ) { return; }
+	virtual void	SetModel( const char *pModel );
+	virtual void	OnGoActive( void );
 
 private:
 
-	CUtlVector< EHANDLE >	m_hTouchingEntities;
-
 	CNetworkVar( int, m_iAmmoMetal );
-
-	float m_flNextAmmoDispense;
-
-	EHANDLE m_hTouchTrigger;
-
-	string_t m_szTriggerName;
 
 };
 

@@ -107,9 +107,8 @@ void CWeaponSpawner::Spawn(void)
 		return;
 	}
 
-	const char *pszClassname = TranslateWeaponEntForClass( m_pItemDef->item_class, TF_CLASS_MERCENARY );
-	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszClassname );
-	m_pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+	// Only merc can use weapon spawners so it's safe use him for translation.
+	m_pWeaponInfo = GetTFWeaponInfoForItem( m_nItemID, TF_CLASS_MERCENARY );
 
 	Assert( m_pWeaponInfo );
 

@@ -251,8 +251,8 @@ void CTFClientScoreBoardDialog::InitPlayerList( SectionedListPanel *pPlayerList 
 	pPlayerList->AddColumnToSection( 0, "dominating", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth );
 	//pPlayerList->AddColumnToSection( 0, "status", "", SectionedListPanel::COLUMN_IMAGE | SectionedListPanel::COLUMN_CENTER, m_iStatusWidth );
 	pPlayerList->AddColumnToSection( 0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth );
-	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
 	pPlayerList->AddColumnToSection( 0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth );
+	pPlayerList->AddColumnToSection( 0, "score", "#TF_Scoreboard_Score", SectionedListPanel::COLUMN_RIGHT, m_iScoreWidth );
 	pPlayerList->AddColumnToSection( 0, "ping", "#TF_Scoreboard_Ping", SectionedListPanel::COLUMN_RIGHT, m_iPingWidth );
 }
 
@@ -579,7 +579,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerList( void )
 			}
 			else
 			{
-				pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 128 ) );
+				pPlayerList->SetItemBgColor( itemID, Color( 0, 0, 0, 64 ) );
 			}
 
 			pKeyValues->deleteThis();

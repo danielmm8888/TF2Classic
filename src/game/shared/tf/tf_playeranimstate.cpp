@@ -165,7 +165,6 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 	}
 	else if ( GetTFPlayer()->m_Shared.IsCarryingObject() )
 	{
-		// TODO: Port hauling animations from live TF2.
 		int actCount = ARRAYSIZE( m_acttableBuildingDeployed );
 		for ( int i = 0; i < actCount; i++ )
 		{

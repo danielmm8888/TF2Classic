@@ -11,10 +11,6 @@
 #include "activitylist.h"
 #include "tf_gamerules.h"
 
-#define IF_ELEMENT_FOUND(dict, str)						\
-		unsigned int index = dict.Find(str);			\
-		if (index < dict.Count())		
-
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -149,37 +145,11 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 
 	const char *pszWeaponType = pKeyValuesData->GetString( "WeaponType" );
 
-	if ( !Q_strcmp( pszWeaponType, "primary" ) )
+	int iType = UTIL_StringFieldToInt( pszWeaponType, g_AnimSlots, TF_WPN_TYPE_COUNT );
+
+	if ( iType >= 0 )
 	{
-		m_iWeaponType = TF_WPN_TYPE_PRIMARY;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "secondary" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_SECONDARY;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "melee" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_MELEE;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "grenade" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_GRENADE;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "building" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_BUILDING;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "pda" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_PDA;
-	}
-	else if (!Q_strcmp(pszWeaponType, "item1"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM1;
-	}
-	else if (!Q_strcmp(pszWeaponType, "item2"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM2;
+		m_iWeaponType = iType;
 	}
 
 	// Grenade data.

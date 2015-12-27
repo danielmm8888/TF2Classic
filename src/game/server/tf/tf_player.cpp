@@ -52,6 +52,8 @@
 #include "econ_wearable.h"
 #include "tf_dropped_weapon.h"
 #include "econ_itemschema.h"
+#include "baseprojectile.h"
+#include "tf_weapon_flamethrower.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -82,7 +84,8 @@ ConVar tf_weapon_ragdoll_velocity_max( "tf_weapon_ragdoll_velocity_max", "150", 
 ConVar tf_weapon_ragdoll_maxspeed( "tf_weapon_ragdoll_maxspeed", "300", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_damageforcescale_other( "tf_damageforcescale_other", "6.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
-ConVar tf_damageforcescale_self_soldier( "tf_damageforcescale_self_soldier", "10.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_damageforcescale_self_soldier_rj( "tf_damageforcescale_self_soldier_rj", "10.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+ConVar tf_damageforcescale_self_soldier_badrj( "tf_damageforcescale_self_soldier_badrj", "5.0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_damagescale_self_soldier( "tf_damagescale_self_soldier", "0.60", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_damage_lineardist( "tf_damage_lineardist", "0", FCVAR_DEVELOPMENTONLY );
@@ -102,11 +105,11 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout." );
 
 
-ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables the Civilian and Mercenary in normal gameplay." );
-ConVar tf2c_disable_new_weapons( "tf2c_disable_new_weapons", "0", FCVAR_NOTIFY, "Disables all new weapons and forces players to use the stock loadout." );
+ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
+ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_NOTIFY, "Disables all new weapons as well as Econ Item System and forces players to use the stock loadout." );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -415,14 +418,18 @@ CTFPlayer::CTFPlayer()
 
 	ClearTauntAttack();
 
+	m_nBlastJumpFlags = 0;
+	m_bBlastLaunched = false;
+
 	m_WeaponPresetPrimary.RemoveAll();
 	m_WeaponPresetSecondary.RemoveAll();
 	m_WeaponPresetMelee.RemoveAll();
 
-	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++){
-		m_WeaponPresetPrimary.AddToTail(0);
-		m_WeaponPresetSecondary.AddToTail(0);
-		m_WeaponPresetMelee.AddToTail(0);
+	for ( int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++ )
+	{
+		m_WeaponPresetPrimary.AddToTail( 0 );
+		m_WeaponPresetSecondary.AddToTail( 0 );
+		m_WeaponPresetMelee.AddToTail( 0 );
 	}
 
 	m_bIsPlayerADev = false;
@@ -479,11 +486,22 @@ void CTFPlayer::TFPlayerThink()
 		}
 	}
 
-	if (TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime)
+	// Disabled until we get fool_L and foot_R attachments.
+#if 0
+	// Add rocket trail if we haven't already.
+	if ( !m_bSpawnedJumpEffect && ( m_nBlastJumpFlags & ( TF_JUMP_ROCKET | TF_JUMP_STICKY ) ) && IsAlive() )
 	{
-		if ( (gpGlobals->curtime > m_flSpawnProtectTime) || (m_nButtons & IN_ATTACK) )
+		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_L" );
+		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_R" );
+		m_bSpawnedJumpEffect = true;
+	}
+#endif
+
+	if ( TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime )
+	{
+		if ( ( gpGlobals->curtime > m_flSpawnProtectTime ) || ( m_nButtons & IN_ATTACK ) )
 		{
-			RemoveFlag(FL_GODMODE);
+			RemoveFlag( FL_GODMODE );
 			m_nRenderFX = kRenderFxNone;
 			RemoveEffects( EF_ITEM_BLINK );
 			GetViewModel()->m_nRenderFX = kRenderFxNone;
@@ -766,6 +784,7 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "blood_impact_red_01" );
 	PrecacheParticleSystem( "water_playerdive" );
 	PrecacheParticleSystem( "water_playeremerge" );
+	PrecacheParticleSystem( "rocketjump_smoke" );
 					 
 	BaseClass::Precache();
 }
@@ -1011,6 +1030,8 @@ void CTFPlayer::Spawn()
 	m_bIsIdle = false;
 	m_flPowerPlayTime = 0.0;
 
+	m_nBlastJumpFlags = 0;
+
 	// This makes the surrounding box always the same size as the standing collision box
 	// helps with parts of the hitboxes that extend out of the crouching hitbox, eg with the
 	// heavyweapons guy
@@ -1172,7 +1193,7 @@ void CTFPlayer::GiveDefaultItems()
 	// Give weapons.
 	if ( tf2c_random_weapons.GetBool() )
 		ManageRandomWeapons( pData );
-	else if ( tf2c_disable_new_weapons.GetBool() )
+	else if ( tf2c_legacy_weapons.GetBool() )
 		ManageRegularWeaponsLegacy( pData );
 	else
 		ManageRegularWeapons( pData );
@@ -2091,7 +2112,7 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 	if ( iNewTeam == iOldTeam )
 		return;
 
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iNewTeam );
@@ -2147,7 +2168,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	if ( iTeamNum == iOldTeam )
 		return;
 
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 
 	BaseClass::ChangeTeam( iTeamNum );
@@ -3353,12 +3374,27 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket and we're in mid-air, scale down the damage
-	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) )
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) || IsPlayerClass( TF_CLASS_DEMOMAN ) )
 	{
 		if ( ( info.GetDamageType() & DMG_BLAST ) && info.GetAttacker() == this && GetGroundEntity() == NULL )
 		{
-			float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
+			float flDamage = info.GetDamage();
+			int iJumpType = 0;
+
+			if ( !IsPlayerClass( TF_CLASS_DEMOMAN ) )
+			{
+				flDamage *= tf_damagescale_self_soldier.GetFloat();
+				iJumpType = TF_JUMP_ROCKET;
+			}
+			else
+			{
+				iJumpType = TF_JUMP_STICKY;
+			}
+
 			info.SetDamage( flDamage );
+
+			// Set blast jumping state. It will be cleared once we land.
+			SetBlastJumpState( iJumpType, false );
 		}
 	}
 
@@ -3804,14 +3840,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
 
-#if 0
-	// Hit by tranq
-	if ( info.GetDamageType() & DMG_PARALYZE )
-	{
-		m_Shared.AddCond( TF_COND_SLOWED, 4.0f );
-	}
-#endif
-
 	bool bIgniting = false;
 
 	if ( m_takedamage != DAMAGE_EVENTS_ONLY )
@@ -3833,47 +3861,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	if ( !pAttacker )
 		return 0;
 
-	if ( ( info.GetDamageType() & DMG_PREVENT_PHYSICS_FORCE ) == 0 )
-	{
-		if ( info.GetInflictor() && ( GetMoveType() == MOVETYPE_WALK ) && 
-		   ( !pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) ) && 
-		   ( !m_Shared.InCond( TF_COND_DISGUISED ) ) )	
-		{
-			Vector vecForce;
-			vecForce.Init();
-			if ( info.GetAttacker() == this )
-			{
-				if (IsPlayerClass(TF_CLASS_SOLDIER) || IsPlayerClass(TF_CLASS_MERCENARY))
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_self_soldier.GetFloat() );
-				}
-				else
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), DAMAGE_FORCE_SCALE_SELF );
-				}
-			}
-			else
-			{
-				// Sentryguns push a lot harder
-				if ( (info.GetDamageType() & DMG_BULLET) && info.GetInflictor()->IsBaseObject() )
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), 16 );
-				}
-				else
-				{
-					vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_other.GetFloat() );
-
-					if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
-					{
-						// Heavies take less push from non sentryguns
-						vecForce *= 0.5;
-					}
-				}
-			}
-
-			ApplyAbsVelocityImpulse( vecForce );
-		}
-	}
+	ApplyPushFromDamage( info, vecDir );
 
 	if ( bIgniting )
 	{
@@ -3939,6 +3927,142 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	// Done.
 	return 1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::ApplyPushFromDamage( const CTakeDamageInfo &info, Vector &vecDir )
+{
+	CBaseEntity *pAttacker = info.GetAttacker();
+
+	if ( info.GetDamageType() & DMG_PREVENT_PHYSICS_FORCE )
+		return;
+
+	if( !info.GetInflictor() ||
+		( GetMoveType() != MOVETYPE_WALK ) ||
+		( pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) ) ||
+		( m_Shared.InCond( TF_COND_DISGUISED ) ) )
+		return;
+
+	Vector vecForce;
+	vecForce.Init();
+	if ( pAttacker == this )
+	{
+		if ( ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) ) && ( info.GetDamageType() & DMG_BLAST ) )
+		{
+			// Since soldier only takes reduced self-damage while in mid-air we have to accomodate for that.
+			float flScale = 1.0f;
+
+			if ( GetFlags() & FL_ONGROUND )
+			{
+				flScale = tf_damageforcescale_self_soldier_badrj.GetFloat();
+				SetBlastJumpState( TF_JUMP_ROCKET, false );
+			}
+			else
+			{
+				// If we're in mid-air then the code in OnTakeDamage should have already set blast jumping state.
+				flScale = tf_damageforcescale_self_soldier_rj.GetFloat();
+			}
+
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), flScale );
+		}
+		else
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), DAMAGE_FORCE_SCALE_SELF );
+		}
+	}
+	else
+	{
+		// Sentryguns push a lot harder
+		if ( ( info.GetDamageType() & DMG_BULLET ) && info.GetInflictor()->IsBaseObject() )
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), 16 );
+		}
+		else
+		{
+			vecForce = vecDir * -DamageForce( WorldAlignSize(), info.GetDamage(), tf_damageforcescale_other.GetFloat() );
+
+			if ( IsPlayerClass( TF_CLASS_HEAVYWEAPONS ) )
+			{
+				// Heavies take less push from non sentryguns
+				vecForce *= 0.5;
+			}
+		}
+
+		if ( info.GetDamageType() & DMG_BLAST )
+		{
+			m_bBlastLaunched = true;
+		}
+	}
+
+	ApplyAbsVelocityImpulse( vecForce );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::SetBlastJumpState( int iJumpType, bool bPlaySound )
+{
+	m_nBlastJumpFlags |= iJumpType;
+
+	const char *pszEventName = NULL;
+
+	switch ( iJumpType )
+	{
+	case TF_JUMP_ROCKET:
+		pszEventName = "rocket_jump";
+		break;
+	case TF_JUMP_STICKY:
+		pszEventName = "sticky_jump";
+		break;
+	}
+
+	if ( pszEventName )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( pszEventName );
+
+		if ( event )
+		{
+			event->SetInt( "userid", GetUserID() );
+			event->SetBool( "playsound", bPlaySound );
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
+	m_Shared.AddCond( TF_COND_BLASTJUMPING );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::ClearBlastJumpState( void )
+{
+	const char *pszEventName = NULL;
+
+	if ( m_nBlastJumpFlags & TF_JUMP_ROCKET )
+	{
+		pszEventName = "rocket_jump_landed";
+	}
+	else if ( m_nBlastJumpFlags & TF_JUMP_STICKY )
+	{
+		pszEventName = "sticky_jump_landed";
+	}
+
+	if ( pszEventName )
+	{
+		IGameEvent *event = gameeventmanager->CreateEvent( pszEventName );
+
+		if ( event )
+		{
+			event->SetInt( "userid", GetUserID() );
+			gameeventmanager->FireEvent( event );
+		}
+	}
+
+	m_nBlastJumpFlags = 0;
+	m_bSpawnedJumpEffect = false;
+	m_Shared.RemoveCond( TF_COND_BLASTJUMPING );
 }
 
 //-----------------------------------------------------------------------------
@@ -4935,7 +5059,7 @@ void CTFPlayer::DisplayLocalItemStatus( CTFGoal *pGoal )
 // Called when the player disconnects from the server.
 void CTFPlayer::TeamFortress_ClientDisconnected( void )
 {
-	TeamFortress_RemoveEverythingFromWorld( false );
+	RemoveAllOwnedEntitiesFromWorld( false );
 	RemoveNemesisRelationships();
 	m_OnDeath.FireOutput(this, this);
 	RemoveAllWeapons();
@@ -4943,79 +5067,54 @@ void CTFPlayer::TeamFortress_ClientDisconnected( void )
 
 //=========================================================================
 // Removes everything this player has (buildings, grenades, etc.) from the world
-void CTFPlayer::TeamFortress_RemoveEverythingFromWorld( bool bSilent /* = true */ )
+void CTFPlayer::RemoveAllOwnedEntitiesFromWorld( bool bSilent /* = true */ )
 {
-	TeamFortress_RemoveRockets();
-	TeamFortress_RemovePipebombs();
-	TeamFortress_RemoveFlames();
+	RemoveOwnedProjectiles();
 	
 	// Destroy any buildables - this should replace TeamFortress_RemoveBuildings
-	RemoveAllObjects(bSilent);
+	RemoveAllObjects( bSilent );
 }
 
 //=========================================================================
-// Removes all rockets the player has fired into the world
-// (this prevents a team kill cheat where players would fire rockets 
-// then change teams to kill their own team)
-void CTFPlayer::TeamFortress_RemoveRockets( void )
+// Removes all projectiles player has fired into the world.
+void CTFPlayer::RemoveOwnedProjectiles( void )
 {
-	RemoveOwnedEnt( "tf_projectile_rocket" );
-	RemoveOwnedEnt( "tf_projectile_sentryrocket" );
-	//RemoveOwnedEnt( "tf_weapon_flamerocket" );
-}
-
-//=========================================================================
-// Removes all pipebombs from the world
-void CTFPlayer::TeamFortress_RemovePipebombs( void )
-{
-	CTFPlayerClass *pClass = GetPlayerClass();
-	if ( pClass && pClass->GetClassIndex() == TF_CLASS_DEMOMAN )
+	for ( int i = 0; i < IBaseProjectileAutoList::AutoList().Count(); i++ )
 	{
-		RemoveOwnedEnt( "tf_projectile_pipe", true );
-	}
-}
+		CBaseProjectile *pProjectile = static_cast<CBaseProjectile *>( IBaseProjectileAutoList::AutoList()[i] );
 
-//=========================================================================
-// Removes all flames from the world
-void CTFPlayer::TeamFortress_RemoveFlames( void )
-{
-	CTFPlayerClass *pClass = GetPlayerClass();
-	if ( pClass && pClass->GetClassIndex() == TF_CLASS_PYRO )
-	{
-		RemoveOwnedEnt( "tf_flame" );
-	}
-}
+		// If the player owns this entity, remove it.
+		bool bOwner = ( pProjectile->GetOwnerEntity() == this );
 
-
-//=========================================================================
-// Remove all of an ent owned by this player
-void CTFPlayer::RemoveOwnedEnt( char *pEntName, bool bGrenade )
-{
-	CBaseEntity *pEnt = gEntList.FindEntityByClassname( NULL, pEntName );
-	while ( pEnt )
-	{
-		// if the player owns this entity, remove it
-		bool bOwner = (pEnt->GetOwnerEntity() == this);
-
-		if ( !bOwner && bGrenade )
+		if ( !bOwner )
 		{
-			CBaseGrenade *pGrenade = dynamic_cast<CBaseGrenade*>(pEnt);
-			Assert( pGrenade );
+			// Might be a grenade.
+			CBaseGrenade *pGrenade = dynamic_cast<CBaseGrenade *>( pProjectile );
 			if ( pGrenade )
 			{
-				bOwner = (pGrenade->GetThrower() == this);
+				bOwner = ( pGrenade->GetThrower() == this );
 			}
 		}
 
 		if ( bOwner )
 		{
-			pEnt->SetThink( &BaseClass::SUB_Remove );
-			pEnt->SetNextThink( gpGlobals->curtime );
-			pEnt->SetTouch( NULL );
-			pEnt->AddEffects( EF_NODRAW );
+			pProjectile->SetThink( &BaseClass::SUB_Remove );
+			pProjectile->SetNextThink( gpGlobals->curtime );
+			pProjectile->SetTouch( NULL );
+			pProjectile->AddEffects( EF_NODRAW );
 		}
+	}
 
-		pEnt = gEntList.FindEntityByClassname( pEnt, pEntName );
+	// Remove flames.
+	for ( int i = 0; i < ITFFlameEntityAutoList::AutoList().Count(); i++ )
+	{
+		CTFFlameEntity *pFlame = static_cast<CTFFlameEntity *>( ITFFlameEntityAutoList::AutoList()[i] );
+
+		if ( pFlame->GetAttacker() == this )
+		{
+			pFlame->SetThink( &BaseClass::SUB_Remove );
+			pFlame->SetNextThink( gpGlobals->curtime );
+		}
 	}
 }
 
@@ -5615,7 +5714,7 @@ void CTFPlayer::ForceRespawn( void )
 	if ( GetPlayerClass()->GetClassIndex() != iDesiredClass )
 	{
 		// clean up any pipebombs/buildings in the world (no explosions)
-		TeamFortress_RemoveEverythingFromWorld();
+		RemoveAllOwnedEntitiesFromWorld();
 
 		GetPlayerClass()->Init( iDesiredClass );
 
@@ -7873,7 +7972,6 @@ uint64 powerplay_ids[] =
 	76561198029219422 ^ powerplaymask, // MrModezPineapple
 	76561198112766514 ^ powerplaymask, // PistonMiner
 	76561198053356818 ^ powerplaymask, // Nicknine
-	76561198011507712 ^ powerplaymask, // Rage
 	76561197970945736 ^ powerplaymask, // MacD11
 	76561198005690007 ^ powerplaymask, // OneFourth
 	76561198006774758 ^ powerplaymask, // FissionMetroid
@@ -7887,7 +7985,10 @@ uint64 powerplay_ids[] =
 	76561197966759649 ^ powerplaymask, // iiboharz
 	76561198014717105 ^ powerplaymask, // benjamoose
 	76561198032156257 ^ powerplaymask, // whynott
+<<<<<<< HEAD
 	76561198025334020 ^ powerplaymask, // DrPyspy
+=======
+>>>>>>> 407b07dc72a7d338d32c46825cad25e731817a32
 	76561197993638233 ^ powerplaymask, // trotim
 	76561197995805528 ^ powerplaymask, // th13teen
 	76561198045284839 ^ powerplaymask  // iamgoofball
