@@ -861,9 +861,9 @@ enum
 #define SENTRYGUN_EYE_OFFSET_LEVEL_1	Vector( 0, 0, 32 )
 #define SENTRYGUN_EYE_OFFSET_LEVEL_2	Vector( 0, 0, 40 )
 #define SENTRYGUN_EYE_OFFSET_LEVEL_3	Vector( 0, 0, 46 )
-#define SENTRYGUN_MAX_SHELLS_1			100
-#define SENTRYGUN_MAX_SHELLS_2			120
-#define SENTRYGUN_MAX_SHELLS_3			144
+#define SENTRYGUN_MAX_SHELLS_1			150
+#define SENTRYGUN_MAX_SHELLS_2			200
+#define SENTRYGUN_MAX_SHELLS_3			200
 #define SENTRYGUN_MAX_ROCKETS			20
 
 // Dispenser's maximum carrying capability
@@ -1066,7 +1066,8 @@ class CHudTexture;
 class CObjectInfo
 {
 public:
-	CObjectInfo( char *pObjectName );	
+	CObjectInfo( char *pObjectName );
+	CObjectInfo( const CObjectInfo& obj ) {}
 	~CObjectInfo();
 
 	// This is initialized by the code and matched with a section in objects.txt
