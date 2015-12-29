@@ -64,6 +64,7 @@ static void RecvProxy_FlagStatus( const CRecvProxyData *pData, void *pStruct, vo
 	if ( pFlag )
 	{
 		pFlag->UpdateGlowEffect();
+		pFlag->m_nFlagStatus = pData->m_Value.m_Int;
 	}
 }
 

@@ -217,6 +217,8 @@ public:
 	void			Reset( void );
 	void			ResetMessage( void );
 
+	CNetworkVar( int,	m_nFlagStatus );
+
 	int					m_nUseTrailEffect;
 	bool				m_bVisibleWhenDisabled;
 	string_t			m_szHudIcon;
@@ -230,7 +232,6 @@ private:
 	CNetworkVar( bool,	m_bDisabled );	// Enabled/Disabled?
 	CNetworkVar( int,	m_nGameType );	// Type of game this flag will be used for.
 
-	CNetworkVar( int,	m_nFlagStatus );
 	CNetworkVar( float,	m_flResetTime );		// Time until the flag is placed back at spawn.
 	CNetworkVar( float, m_flMaxResetTime );		// Time the flag takes to return in the current mode
 	CNetworkVar( float, m_flNeutralTime );	// Time until the flag becomes neutral (used for the invade gametype)
