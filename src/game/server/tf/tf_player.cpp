@@ -6938,7 +6938,11 @@ void CTFPlayer::Taunt( void )
 	// Check to see if we are on the ground.
 	if ( GetGroundEntity() == NULL )
 		return;
-
+		
+	// Can't taunt while cloaked.
+	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
+		return;
+		
 	// Can't taunt while disguised.
 	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 		return;
