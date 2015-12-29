@@ -365,7 +365,7 @@ int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
 	}
 
 	// This is only used by TF2 VM type.
-	if ( vm->GetViewModelType() != vm->VMTYPE_TF2 )
+	if ( vm->GetViewModelType() != VMTYPE_TF2 )
 		return iActivity;
 
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
@@ -412,9 +412,13 @@ void CTFWeaponBase::SetViewModel()
 
 	Assert( vm->ViewModelIndex() == m_nViewModelIndex );
 
-	vm->SetViewModelType( vm->VMTYPE_NONE );
+	vm->SetViewModelType( VMTYPE_NONE );
 
-	vm->SetWeaponModel( GetViewModel( m_nViewModelIndex ), this );
+	const char *pszModelName = GetViewModel( m_nViewModelIndex );
+
+	m_iViewModelIndex = modelinfo->GetModelIndex( pszModelName );
+
+	vm->SetWeaponModel( pszModelName, this );
 
 #ifdef CLIENT_DLL
 	UpdateViewModel();
@@ -431,17 +435,15 @@ void CTFWeaponBase::UpdateViewModel(void)
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel(m_nViewModelIndex, false ) );
 	if ( vm == NULL )
 		return;
-	
-	GetViewModel( m_nViewModelIndex );
 
 	int vmType = vm->GetViewModelType();
 	const char *pszModel = NULL;
 
-	if ( vmType == vm->VMTYPE_L4D )
+	if ( vmType == VMTYPE_L4D )
 	{
 		pszModel = pTFPlayer->GetPlayerClass()->GetHandModelName();
 	}
-	else if (vmType == vm->VMTYPE_TF2)
+	else if (vmType == VMTYPE_TF2)
 	{
 		if ( HasItemDefinition() )
 		{
@@ -467,40 +469,22 @@ void CTFWeaponBase::UpdateViewModel(void)
 const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if (!pPlayer)
+	if ( !pPlayer )
 		return vModel;
 
-	CBaseAnimating *pTemp = new CBaseAnimating();
-	if (!pTemp)
-		return vModel;
+	EconItemDefinition *pStatic = m_Item.GetStaticData();
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-
-	pTemp->SetModel( vModel );
-
-	if ( pTemp->LookupAttachment("l4d") > 0 )
+	if ( pStatic )
 	{
-		pTemp->Remove();
+		int iType = pStatic->attach_to_hands;
 
+		CTFViewModel *vm = dynamic_cast<CTFViewModel *>( pPlayer->GetViewModel( m_nViewModelIndex ) );
 		if ( vm )
-			vm->SetViewModelType( vm->VMTYPE_L4D );
+			vm->SetViewModelType( iType );
 
-		return vModel;
+		if ( iType == VMTYPE_TF2 )
+			return pPlayer->GetPlayerClass()->GetHandModelName();
 	}
-	else if ( pTemp->SelectWeightedSequence( ACT_VM_IDLE ) == -1 )
-	{
-		pTemp->Remove();
-
-		if ( vm )
-			vm->SetViewModelType( vm->VMTYPE_TF2 );
-
-		return pPlayer->GetPlayerClass()->GetHandModelName();
-	}
-
-	pTemp->Remove();
-
-	if (vm)
-		vm->SetViewModelType(vm->VMTYPE_HL2);
 
 	return vModel;
 }
@@ -516,10 +500,9 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 	{
 		pszModelName = m_Item.GetPlayerDisplayModel();
 	}
-
-	if ( !pszModelName || !pszModelName[0] )
+	else
 	{
-		pszModelName = GetTFWpnData().szViewModel;
+		pszModelName = BaseClass::GetViewModel( iViewModel );
 	}
 
 	return DetermineViewModelType( pszModelName );
@@ -530,26 +513,13 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetWorldModel( void ) const
 {
-	const char *pszModelName = NULL;
-
 	// Use model from item schema we have an item ID.
 	if ( HasItemDefinition() )
 	{
-		pszModelName = m_Item.GetWorldDisplayModel();
-
-		// Assuming it's same c_model for both 1st person and 3rd person view.
-		if ( !pszModelName || !pszModelName[0] )
-		{
-			pszModelName = m_Item.GetPlayerDisplayModel();
-		}
+		return m_Item.GetWorldDisplayModel();
 	}
 
-	if ( !pszModelName || !pszModelName[0] )
-	{
-		return BaseClass::GetWorldModel();
-	}
-
-	return pszModelName;
+	return BaseClass::GetWorldModel();
 }
 
 #ifdef DM_WEAPON_BUCKET
@@ -639,10 +609,6 @@ bool CTFWeaponBase::Deploy( void )
 
 	if ( bDeploy )
 	{
-		// Make sure viewmodel index is correct since deathmatch uses alt viewmodels.
-		// May also help custom weapons in the future.
-		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel() );
-
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.

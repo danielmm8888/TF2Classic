@@ -6,19 +6,6 @@
 #include "script_parser.h"
 #include "activitylist.h"
 
-const char *g_LoadoutSlots[] =
-{
-	"primary",
-	"secondary",
-	"melee",
-	"pda",
-	"pda2",
-	"building",
-	"head",
-	"misc",
-	"action",
-};
-
 const char *g_TeamVisualSections[TF_TEAM_COUNT] =
 {
 	"visuals",			// TEAM_UNASSIGNED
@@ -412,6 +399,8 @@ public:
 
 		GET_STRING(pItem, pData, model_player);
 		GET_STRING(pItem, pData, model_world);
+
+		GET_INT(pItem, pData, attach_to_hands );
 		
 		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{

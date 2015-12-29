@@ -150,7 +150,7 @@ bool CTFLoadoutPanel::Init()
 			{
 				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
 				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
-				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_WPN_TYPE_MELEE && iPreset == 0)))
+				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_LOADOUT_SLOT_MELEE && iPreset == 0)))
 				{
 					char pModel[64];
 					Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
@@ -277,14 +277,14 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 		const char* szText;
 		char strText[40];
 
-		for (int iType = TF_WPN_TYPE_PRIMARY; iType <= TF_WPN_TYPE_MELEE; iType++)
+		for (int iSlot = TF_LOADOUT_SLOT_PRIMARY; iSlot <= TF_LOADOUT_SLOT_MELEE; iSlot++)
 		{
-			szText = GetTFInventory()->GetSlotName(iType);
+			szText = GetTFInventory()->GetSlotName(iSlot);
 			Q_strncpy(strText, command, Q_strlen(szText) + 1);
 			if (!Q_strcmp(strText, szText))
 			{
 				Q_snprintf(buffer, sizeof(buffer), command + Q_strlen(szText));
-				SetSlotAndPreset(iType, atoi(buffer));
+				SetSlotAndPreset(iSlot, atoi(buffer));
 				return;
 			}
 		}
@@ -491,9 +491,16 @@ void CTFLoadoutPanel::DefaultLayout()
 			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 			{
 				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+
+				// If Spy is selected show building slot in position 2 .
+				if ( iClassIndex == TF_CLASS_SPY && iSlot == TF_LOADOUT_SLOT_SECONDARY )
+				{
+					iWeapon = GetTFInventory()->GetItem( iClassIndex, TF_LOADOUT_SLOT_BUILDING, iPreset );
+				}
+
 				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
 				CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
-				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_WPN_TYPE_MELEE && iPreset == 0)))
+				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_LOADOUT_SLOT_MELEE && iPreset == 0)))
 				{
 					m_pWeaponButton->SetVisible(true);
 					m_pWeaponButton->SetItemDefinition(pItemData);

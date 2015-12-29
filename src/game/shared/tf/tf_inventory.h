@@ -20,7 +20,6 @@
 #include "c_tf_player.h"
 #endif
 
-#define INVENTORY_SLOTS			5
 #define INVENTORY_WEAPONS		5
 #define INVENTORY_WEAPONS_COUNT	500
 #define INVENTORY_COLNUM		5
@@ -33,10 +32,10 @@ public:
 	CTFInventory();
 	~CTFInventory();
 
-	int GetWeapon(int iClass, int iSlot, int iNum);
-	int GetItem( int iClass, int iSlot, int iNum );
-	bool CheckValidSlot(int iClass, int iSlot, bool bEcon = 0, bool HudCheck = 0);
-	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEcon = 0, bool HudCheck = 0);
+	int GetWeapon(int iClass, int iSlot);
+	int GetItem(int iClass, int iSlot, int iNum);
+	bool CheckValidSlot(int iClass, int iSlot, bool bHudCheck = false);
+	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck = false);
 
 #if defined( CLIENT_DLL )
 	int GetWeaponPreset(int iClass, int iSlot);
@@ -45,9 +44,8 @@ public:
 #endif
 
 private:
-	static const int Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
-	static const int Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS];
-	static const char *g_aPlayerSlotNames[INVENTORY_SLOTS];
+	static const int Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT];
+	static const int Items[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT][INVENTORY_WEAPONS];
 
 #if defined( CLIENT_DLL )
 	void LoadInventory();

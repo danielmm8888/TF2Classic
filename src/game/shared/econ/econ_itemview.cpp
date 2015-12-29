@@ -65,13 +65,20 @@ EconItemDefinition *CEconItemView::GetStaticData( void ) const
 const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 {
 	EconItemDefinition *pStatic = GetStaticData();
+	const char *pszModelName = NULL;
 
 	if ( pStatic )
 	{
-		return pStatic->model_world;
+		pszModelName = pStatic->model_world;
+
+		// Assuming we're using same model for both 1st person and 3rd person view.
+		if ( !pszModelName[0] && pStatic->attach_to_hands == 1 )
+		{
+			pszModelName = pStatic->model_player;
+		}
 	}
 
-	return NULL;
+	return pszModelName;
 }
 
 const char *CEconItemView::GetPlayerDisplayModel() const

@@ -212,6 +212,7 @@ public:
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	virtual bool		Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon );
 	virtual CBaseCombatWeapon *Weapon_GetSlot( int slot ) const;
+	CEconEntity			*GetEntityForLoadoutSlot( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );

@@ -44,6 +44,7 @@ CTFViewModel::CTFViewModel() : m_LagAnglesHistory("CPredictedViewModel::m_LagAng
 #else
 CTFViewModel::CTFViewModel()
 {
+	m_iViewModelType = VMTYPE_NONE;
 }
 #endif
 

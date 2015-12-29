@@ -173,7 +173,20 @@ const char *g_AnimSlots[] =
 	"item2",
 	"MELEE_ALLCLASS",
 	"secondary2",
-	"primary2",
+	"primary2"
+};
+
+const char *g_LoadoutSlots[] =
+{
+	"primary",
+	"secondary",
+	"melee",
+	"pda",
+	"pda2",
+	"building",
+	"head",
+	"misc",
+	"action"
 };
 
 //-----------------------------------------------------------------------------

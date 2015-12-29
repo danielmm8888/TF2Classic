@@ -251,6 +251,7 @@ enum
 };
 
 extern const char *g_AnimSlots[];
+extern const char *g_LoadoutSlots[];
 
 //-----------------------------------------------------------------------------
 // Loadout slots

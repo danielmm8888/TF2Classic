@@ -175,7 +175,7 @@ public:
 		image_inventory_size_h = 0;
 		CLEAR_STR(model_player);
 		CLEAR_STR(model_world);
-		attach_to_hands = false;
+		attach_to_hands = 0;
 	}
 
 	EconItemVisuals *GetVisuals( int iTeamNum = TEAM_UNASSIGNED );
@@ -205,7 +205,7 @@ public:
 	char model_player[128];
 	char model_world[128];
 	CUtlDict< const char*, unsigned short > model_player_per_class;
-	bool attach_to_hands;
+	int attach_to_hands;
 	CUtlVector<CEconItemAttribute> attributes;
 	EconItemVisuals visual[TF_TEAM_COUNT];
 };

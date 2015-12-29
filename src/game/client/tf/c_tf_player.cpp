@@ -1780,11 +1780,15 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		UpdateWearables();
 	}
 
-	if ( GetActiveTFWeapon() && ( ( !m_hOldActiveWeapon.Get() 
-		|| m_hOldActiveWeapon.Get() && m_hOldActiveWeapon.Get() != GetActiveTFWeapon() )
-		|| m_iOldPlayerClass != m_PlayerClass.GetClassIndex() ) )
+	CTFWeaponBase *pActiveWpn = GetActiveTFWeapon();
+	if ( pActiveWpn )
 	{
-		GetActiveTFWeapon()->UpdateViewModel();
+		if ( m_hOldActiveWeapon.Get() == NULL ||
+			pActiveWpn != m_hOldActiveWeapon.Get() ||
+			m_iOldPlayerClass != m_PlayerClass.GetClassIndex() )
+		{
+			pActiveWpn->SetViewModel();
+		}
 	}
 
 	// Check for full health and remove decals.
@@ -3906,24 +3910,24 @@ void C_TFPlayer::Simulate( void )
 	BaseClass::BaseClass::Simulate();
 }
 
-void C_TFPlayer::LoadInventory(void)
+void C_TFPlayer::LoadInventory( void )
 {
-	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
+	for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
 	{
-		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+		for ( int iSlot = 0; iSlot < TF_LOADOUT_SLOT_COUNT; iSlot++ )
 		{
-			int iPreset = GetTFInventory()->GetWeaponPreset(iClass, iSlot);
+			int iPreset = GetTFInventory()->GetWeaponPreset( iClass, iSlot );
 			char szCmd[64];
-			Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset);
-			engine->ExecuteClientCmd(szCmd);
+			Q_snprintf( szCmd, sizeof( szCmd ), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset );
+			engine->ExecuteClientCmd( szCmd );
 		}
 	}
 }
 
-void C_TFPlayer::EditInventory(int iSlot, int iWeapon)
-{	
+void C_TFPlayer::EditInventory( int iSlot, int iWeapon )
+{
 	int iClass = GetPlayerClass()->GetClassIndex();
-	GetTFInventory()->SetWeaponPreset(iClass, iSlot, iWeapon);
+	GetTFInventory()->SetWeaponPreset( iClass, iSlot, iWeapon );
 }
 
 //-----------------------------------------------------------------------------

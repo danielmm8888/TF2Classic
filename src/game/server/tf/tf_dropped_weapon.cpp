@@ -114,7 +114,7 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 		SetThink( NULL );
 
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->Weapon_GetSlot( m_pWeaponInfo->iSlot );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->GetEntityForLoadoutSlot( m_Item.GetStaticData()->item_slot );
 		const char *pszWeaponName = m_Item.GetEntityName();
 		int iAmmoType = m_pWeaponInfo->iAmmoType;
 

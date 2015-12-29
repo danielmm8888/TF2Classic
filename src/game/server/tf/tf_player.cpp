@@ -109,7 +109,8 @@ ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes pla
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
-ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_NOTIFY, "Disables all new weapons as well as Econ Item System and forces players to use the stock loadout." );
+ConVar tf2c_force_stock_weapons( "tf2c_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
+ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_DEVELOPMENTONLY, "Disables all new weapons as well as Econ Item System." );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -420,17 +421,9 @@ CTFPlayer::CTFPlayer()
 
 	m_nBlastJumpFlags = 0;
 	m_bBlastLaunched = false;
+	m_bSpawnedJumpEffect = false;
 
-	m_WeaponPresetPrimary.RemoveAll();
-	m_WeaponPresetSecondary.RemoveAll();
-	m_WeaponPresetMelee.RemoveAll();
-
-	for ( int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++ )
-	{
-		m_WeaponPresetPrimary.AddToTail( 0 );
-		m_WeaponPresetSecondary.AddToTail( 0 );
-		m_WeaponPresetMelee.AddToTail( 0 );
-	}
+	memset( m_WeaponPreset, 0, TF_CLASS_COUNT * TF_LOADOUT_SLOT_COUNT );
 
 	m_bIsPlayerADev = false;
 }
@@ -906,7 +899,10 @@ void CTFPlayer::InitialSpawn( void )
 
 	m_bIsPlayerADev = PlayerHasPowerplay();
 
-	UpdatePlayerColor();
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		UpdatePlayerColor();
+	}
 
 	StateEnter( TF_STATE_WELCOME );
 }
@@ -1127,7 +1123,10 @@ void CTFPlayer::InitClass( void )
 	GiveDefaultItems();
 
 	// Update player's color.
-	UpdatePlayerColor();
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		UpdatePlayerColor();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1237,10 +1236,12 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 {
 	if ( pData->m_aBuildable[0] != OBJ_LAST )
 	{
+		int iItemID = GetLoadoutItem( GetPlayerClass()->GetClassIndex(), TF_LOADOUT_SLOT_BUILDING );
 		CTFWeaponBase *pBuilder = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
 		// Give the player a new builder weapon when they switch between engy and spy
-		if ( pBuilder && !GetPlayerClass()->CanBuildObject( pBuilder->GetSubType() ) )
+		if ( pBuilder && 
+			( !GetPlayerClass()->CanBuildObject( pBuilder->GetSubType() ) || pBuilder->GetItemID() != iItemID )  )
 		{
 			Weapon_Detach( pBuilder );
 			UTIL_Remove( pBuilder );
@@ -1260,11 +1261,11 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		}
 		else
 		{
-			pBuilder = (CTFWeaponBase *)GiveNamedItem( "tf_weapon_builder" );
+			CEconItemView econItem( iItemID );
+			pBuilder = (CTFWeaponBase *)GiveNamedItem( "tf_weapon_builder", pData->m_aBuildable[0], &econItem );
 
 			if ( pBuilder )
 			{
-				pBuilder->SetSubType( pData->m_aBuildable[0] );
 				pBuilder->DefaultTouch( this );				
 			}
 		}
@@ -1294,10 +1295,10 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
 	// Seriously, Valve, relying on m_hMyWeapons to be in certain order is stupid.
 
-	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
+	for ( int iSlot = 0; iSlot < TF_PLAYER_WEAPON_COUNT; ++iSlot )
 	{
-		// Give us a custom weapon from the inventory.
-		int iItemID = GetTFInventory()->GetItem(GetPlayerClass()->GetClassIndex(), iWeapon, GetWeaponPreset(iWeapon));
+		// Give us a weapon from the inventory.
+		int iItemID = GetLoadoutItem( GetPlayerClass()->GetClassIndex(), iSlot );
 
 		// HACK: Bat ID is zero so we need to check if current class is scout
 		if ( iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT )
@@ -1312,7 +1313,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 			const char *pszWeaponName = pItemInfo->item_class;
 
-			CTFWeaponBase *pWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
+			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetEntityForLoadoutSlot( iSlot );
 
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetItemID() != iItemID )
@@ -1350,7 +1351,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		else
 		{
 			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)Weapon_GetSlot( iWeapon );
+			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)Weapon_GetSlot( iSlot );
 
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
@@ -1387,7 +1388,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		int iWeaponID = GetTFInventory()->GetWeapon( GetPlayerClass()->GetClassIndex(), iWeapon, 0 );
+		int iWeaponID = GetTFInventory()->GetWeapon( GetPlayerClass()->GetClassIndex(), iWeapon );
 
 		if ( iWeaponID != TF_WEAPON_NONE )
 		{
@@ -1538,45 +1539,14 @@ void CTFPlayer::ManageGrenades( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset( int iSlotNum )
+int CTFPlayer::GetLoadoutItem( int iClass, int iSlot )
 {
-	int iClass = GetPlayerClass()->GetClassIndex();
+	int iPreset = m_WeaponPreset[iClass][iSlot];
 
-	if ( iSlotNum == 0 )
-	{
-		return m_WeaponPresetPrimary[iClass];
-	}
-	else if ( iSlotNum == 1 )
-	{
-		return m_WeaponPresetSecondary[iClass];
-	}
-	else if ( iSlotNum == 2 )
-	{
-		return m_WeaponPresetMelee[iClass];
-	}
+	if ( tf2c_force_stock_weapons.GetBool() )
+		iPreset = 0;
 
-	return 0;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Get preset from the vector
-//-----------------------------------------------------------------------------
-int CTFPlayer::GetWeaponPreset( int iClass, int iSlotNum )
-{
-	if ( iSlotNum == 0 )
-	{
-		return m_WeaponPresetPrimary[iClass];
-	}
-	else if ( iSlotNum == 1 )
-	{
-		return m_WeaponPresetSecondary[iClass];
-	}
-	else if ( iSlotNum == 2 )
-	{
-		return m_WeaponPresetMelee[iClass];
-	}
-
-	return 0;
+	return GetTFInventory()->GetItem( iClass, iSlot, iPreset );
 }
 
 //-----------------------------------------------------------------------------
@@ -1586,21 +1556,13 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 {
 	int iClass = GetPlayerClass()->GetClassIndex();
 
-	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum, true ) )
+	if ( !GetTFInventory()->CheckValidSlot( iClass, iSlotNum ) )
 		return;
 
-	if ( iSlotNum == 0 )
-	{
-		m_WeaponPresetPrimary[iClass] = iPresetNum;
-	}
-	else if ( iSlotNum == 1 )
-	{
-		m_WeaponPresetSecondary[iClass] = iPresetNum;
-	}
-	else if ( iSlotNum == 2 )
-	{
-		m_WeaponPresetMelee[iClass] = iPresetNum;
-	}
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
+		return;
+
+	m_WeaponPreset[iClass][iSlotNum] = iPresetNum;
 }
 
 //-----------------------------------------------------------------------------
@@ -1608,21 +1570,13 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPresetNum )
 {
-	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum, true ) )
+	if ( !GetTFInventory()->CheckValidSlot( iClass, iSlotNum ) )
 		return;
 
-	if ( iSlotNum == 0 )
-	{
-		m_WeaponPresetPrimary[iClass] = iPresetNum;
-	}
-	else if ( iSlotNum == 1 )
-	{
-		m_WeaponPresetSecondary[iClass] = iPresetNum;
-	}
-	else if ( iSlotNum == 2 )
-	{
-		m_WeaponPresetMelee[iClass] = iPresetNum;
-	}
+	if ( !GetTFInventory()->CheckValidWeapon( iClass, iSlotNum, iPresetNum ) )
+		return;
+
+	m_WeaponPreset[iClass][iSlotNum] = iPresetNum;
 }
 
 //-----------------------------------------------------------------------------
@@ -6938,11 +6892,11 @@ void CTFPlayer::Taunt( void )
 	// Check to see if we are on the ground.
 	if ( GetGroundEntity() == NULL )
 		return;
-		
+
 	// Can't taunt while cloaked.
 	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 		return;
-		
+
 	// Can't taunt while disguised.
 	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 		return;

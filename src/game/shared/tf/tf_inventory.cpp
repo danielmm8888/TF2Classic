@@ -36,9 +36,9 @@ CTFInventory::~CTFInventory()
 #endif
 }
 
-int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
+int CTFInventory::GetWeapon(int iClass, int iSlot)
 {
-	return Weapons[iClass][iSlot][iNum];
+	return Weapons[iClass][iSlot];
 };
 
 int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
@@ -46,58 +46,45 @@ int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
 	return Items[iClass][iSlot][iNum];
 };
 
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bEcon, bool HudCheck)
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
 {
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
-	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+
+	int iCount = (bHudCheck ? INVENTORY_COLNUM : TF_LOADOUT_SLOT_COUNT);
+
+	// Array bounds check.
 	if (iSlot >= iCount || iSlot < 0)
 		return false;
+
 	bool bWeapon = false;
-	for (int i = 0; i < iCount; i++) //if there's at least one weapon in slot
+
+	// Check if there's at least one weapon in this slot.
+	for (int i = 0; i < iCount; i++)
 	{
-		if (!bEcon)
+		if ( Items[iClass][iSlot][i] )
 		{
-			if (Weapons[iClass][iSlot][i])
-			{
-				bWeapon = true;
-				break;
-			}
-		}
-		else
-		{
-			if (Items[iClass][iSlot][i])
-			{
-				bWeapon = true;
-				break;
-			}
+			bWeapon = true;
+			break;
 		}
 	}
 	return bWeapon;
 };
 
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bEcon, bool HudCheck)
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
 {
 	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
 		return false;
 
-	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	int iCount = (bHudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
 
 	// Array bounds check.
 	if (iWeapon >= iCount || iWeapon < 0)
 		return false;
 
 	// Don't allow switching if this class has no weapon at this position.
-	if (!bEcon)
-	{
-		if (!Weapons[iClass][iSlot][iWeapon])
-			return false;
-	}
-	else
-	{
-		if (!Items[iClass][iSlot][iWeapon])
-			return false;
-	}
+	if ( !Items[iClass][iSlot][iWeapon] )
+		return false;
 
 	return true;
 };
@@ -131,16 +118,19 @@ void CTFInventory::ResetInventory()
 	{
 		m_pInventory->deleteThis();
 	}
+
 	m_pInventory = new KeyValues("Inventory");
+
 	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++)
 	{
 		KeyValues *pClassInv = new KeyValues(g_aPlayerClassNames_NonLocalized[i]);
-		for (int j = 0; j < INVENTORY_SLOTS; j++)
+		for (int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++)
 		{
-			pClassInv->SetInt(g_aPlayerSlotNames[j], 0);
+			pClassInv->SetInt( g_LoadoutSlots[j], 0 );
 		}
 		m_pInventory->AddSubKey(pClassInv);
 	}
+
 	SaveInventory();
 }
 
@@ -152,7 +142,7 @@ int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
 		ResetInventory();
 		return 0;
 	}
-	int iPreset = pClass->GetInt(g_aPlayerSlotNames[iSlot], -1);
+	int iPreset = pClass->GetInt(g_LoadoutSlots[iSlot], -1);
 	if (iPreset == -1)	//cannot find slot node
 	{
 		ResetInventory();
@@ -175,161 +165,79 @@ void CTFInventory::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 
 const char* CTFInventory::GetSlotName(int iSlot)
 {
-	return g_aPlayerSlotNames[iSlot];
+	return g_LoadoutSlots[iSlot];
 };
 
-const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
-{
-	"primary",
-	"secondary",
-	"melee",
-	"pda1",
-	"pda2"
-};
 #endif
 
 // Legacy array, used when we're forced to use old method of giving out weapons.
-const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
+const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT] =
 {
 	{
 
 	},
 	{
-		{
-			TF_WEAPON_SCATTERGUN
-		},
-		{
-			TF_WEAPON_PISTOL_SCOUT
-		},
-		{
-			TF_WEAPON_BAT
-		}
+		TF_WEAPON_SCATTERGUN,
+		TF_WEAPON_PISTOL_SCOUT,
+		TF_WEAPON_BAT
 	},
 	{
-		{
-			TF_WEAPON_SNIPERRIFLE
-		},
-		{
-			TF_WEAPON_SMG
-		},
-		{
-			TF_WEAPON_CLUB
-		}
+		TF_WEAPON_SNIPERRIFLE,
+		TF_WEAPON_SMG,
+		TF_WEAPON_CLUB
 	},
 	{
-		{
-			TF_WEAPON_ROCKETLAUNCHER,
-		},
-		{
-			TF_WEAPON_SHOTGUN_SOLDIER
-		},
-		{
-			TF_WEAPON_SHOVEL
-		}
+		TF_WEAPON_ROCKETLAUNCHER,
+		TF_WEAPON_SHOTGUN_SOLDIER,
+		TF_WEAPON_SHOVEL
 	},
 	{
-		{
-			TF_WEAPON_GRENADELAUNCHER
-		},
-		{
-			TF_WEAPON_PIPEBOMBLAUNCHER
-		},
-		{
-			TF_WEAPON_BOTTLE
-		}
+		TF_WEAPON_GRENADELAUNCHER,
+		TF_WEAPON_PIPEBOMBLAUNCHER,
+		TF_WEAPON_BOTTLE
 	},
 	{
-		{
-			TF_WEAPON_SYRINGEGUN_MEDIC
-		},
-		{
-			TF_WEAPON_MEDIGUN
-		},
-		{
-			TF_WEAPON_BONESAW
-		}
+		TF_WEAPON_SYRINGEGUN_MEDIC,
+		TF_WEAPON_MEDIGUN,
+		TF_WEAPON_BONESAW
 	},
 	{
-		{
-			TF_WEAPON_MINIGUN
-		},
-		{
-			TF_WEAPON_SHOTGUN_HWG
-		},
-		{
-			TF_WEAPON_FISTS
-		}
+		TF_WEAPON_MINIGUN,
+		TF_WEAPON_SHOTGUN_HWG,
+		TF_WEAPON_FISTS
 	},
 	{
-		{
-			TF_WEAPON_FLAMETHROWER
-		},
-		{
-			TF_WEAPON_SHOTGUN_PYRO
-		},
-		{
-			TF_WEAPON_FIREAXE
-		}
+		TF_WEAPON_FLAMETHROWER,
+		TF_WEAPON_SHOTGUN_PYRO,
+		TF_WEAPON_FIREAXE
 	},
 	{
-		{
-			TF_WEAPON_REVOLVER
-		},
-		{
-
-		},
-		{
-			TF_WEAPON_KNIFE
-		},
-		{
-			TF_WEAPON_PDA_SPY
-		},
-		{
-			TF_WEAPON_INVIS
-		}
+		TF_WEAPON_REVOLVER,
+		TF_WEAPON_NONE,
+		TF_WEAPON_KNIFE,
+		TF_WEAPON_PDA_SPY,
+		TF_WEAPON_INVIS
 	},
 	{
-		{
-			TF_WEAPON_SHOTGUN_PRIMARY
-		},
-		{
-			TF_WEAPON_PISTOL
-		},
-		{
-			TF_WEAPON_WRENCH
-		},
-		{
-			TF_WEAPON_PDA_ENGINEER_BUILD
-		},
-		{
-			TF_WEAPON_PDA_ENGINEER_DESTROY
-		}
+		TF_WEAPON_SHOTGUN_PRIMARY,
+		TF_WEAPON_PISTOL,
+		TF_WEAPON_WRENCH,
+		TF_WEAPON_PDA_ENGINEER_BUILD,
+		TF_WEAPON_PDA_ENGINEER_DESTROY
 	},
 	{
-		{
-
-		},
-		{
-
-		},
-		{
-			TF_WEAPON_UMBRELLA
-		}
+		TF_WEAPON_NONE,
+		TF_WEAPON_NONE,
+		TF_WEAPON_UMBRELLA
 	},
 	{
-		{
-
-		},
-		{
-			TF_WEAPON_PISTOL
-		},
-		{
-			TF_WEAPON_CROWBAR
-		}
+		TF_WEAPON_NONE,
+		TF_WEAPON_PISTOL,
+		TF_WEAPON_CROWBAR
 	}
 };
 
-const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
+const int CTFInventory::Items[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT][INVENTORY_WEAPONS] =
 {
 	{ // Unassigned
 
@@ -416,7 +324,7 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 			24, 9009
 		},
 		{
-			735					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
+
 		},
 		{
 			4
@@ -426,6 +334,9 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 		},
 		{
 			30
+		},
+		{
+			735
 		}
 	},
 	{ // Engineer
@@ -443,6 +354,9 @@ const int CTFInventory::Items[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEA
 		},
 		{
 			26
+		},
+		{
+			28
 		}
 	},
 	{ // Civilian

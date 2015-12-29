@@ -3556,6 +3556,28 @@ CTFWeaponBase *CTFPlayer::Weapon_GetWeaponByType( int iType )
 
 }
 
+CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
+{
+	if ( iSlot >= TF_LOADOUT_SLOT_HAT )
+	{
+		// Not fully supporting cosmetics yet.
+		return NULL;
+	}
+
+	for ( int i = 0; i < WeaponCount(); i++ )
+	{
+		CBaseCombatWeapon *pWeapon = GetWeapon( i );
+		EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
+
+		if ( pStatic && pStatic->item_slot == iSlot )
+		{
+			return pWeapon;
+		}
+	}
+
+	return NULL;
+}
+
 void CTFPlayer::PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force )
 {
 #ifdef CLIENT_DLL

@@ -372,14 +372,32 @@ void C_TFWeaponBuilder::UpdateViewModel( void )
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
 	if ( vm == NULL )
 		return;
-	
-	GetViewModel( m_nViewModelIndex );
 
 	int vmType = vm->GetViewModelType();
-	if ( vmType == vm->VMTYPE_L4D )
-		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
-	else if (vmType == vm->VMTYPE_TF2)
-		vm->UpdateViewmodelAddon( GetObjectInfo( m_iObjectType )->m_pViewModel );
+	const char *pszModel = NULL;
+
+	if ( vmType == VMTYPE_L4D )
+	{
+		pszModel = pTFPlayer->GetPlayerClass()->GetHandModelName();
+	}
+	else if ( vmType == VMTYPE_TF2 )
+	{
+		if ( HasItemDefinition() )
+		{
+			pszModel = GetObjectInfo( m_iObjectType )->m_pViewModel;
+		}
+		else
+		{
+			pszModel = GetTFWpnData().szViewModel;
+		}
+	}
+
+	if ( pszModel && pszModel[0] != '\0' )
+	{
+		vm->UpdateViewmodelAddon( pszModel );
+	}
 	else
+	{
 		vm->RemoveViewmodelAddon();
+	}
 }

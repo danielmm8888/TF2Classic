@@ -126,12 +126,11 @@ public:
 	CTFWeaponBase		*GetActiveTFWeapon( void ) const;
 	bool				IsActiveTFWeapon(int iWeaponID);
 
-	int GetWeaponPreset(int iSlotNum);
-	int GetWeaponPreset(int iClass, int iSlotNum);
-	void HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
-	void HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
+	int					GetLoadoutItem( int iClass, int iSlot );
+	void				HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
+	void				HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
 
-	CBaseEntity *GiveNamedItem( const char *pszName, int iSubType = NULL, CEconItemView* pItem = NULL );
+	CBaseEntity			*GiveNamedItem( const char *pszName, int iSubType = 0, CEconItemView* pItem = NULL );
 
 	void				SaveMe( void );
 
@@ -436,6 +435,7 @@ public:
 	CWeaponMedigun		*GetMedigun( void );
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
+	CEconEntity			*GetEntityForLoadoutSlot( int iSlot );
 
 	float	m_flSpawnProtectTime;
 
@@ -536,9 +536,7 @@ private:
 	CNetworkQAngle( m_angEyeAngles );					// Copied from EyeAngles() so we can send it to the client.
 
 	CTFPlayerClass		m_PlayerClass;
-	CUtlVector<int> m_WeaponPresetPrimary;
-	CUtlVector<int> m_WeaponPresetSecondary;
-	CUtlVector<int> m_WeaponPresetMelee;
+	int					m_WeaponPreset[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT];
 
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.

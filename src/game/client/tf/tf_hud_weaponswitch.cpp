@@ -130,7 +130,9 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 		}
 		m_pWeaponImage->SetBounds(XRES(4), -1 * (GetTall() / 10.0) + XRES(4), (GetWide() * 1.5) - XRES(8), (GetWide() * 0.75) - XRES(8));
 	}
+
 	m_pWeaponName->SetText(pText);
+
 	if ( ID != -1 )
 	{
 		char szSlotID[8];
@@ -141,6 +143,7 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 	{
 		m_pSlotID->SetText("");
 	}
+
 	PerformLayout();
 }
 
@@ -211,13 +214,12 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 	int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
 	if (iWeaponTo != -1)
 	{
-
 		m_pItemDefTo = GetItemSchema()->GetItemDefinition( iWeaponTo );
 
 		if ( !m_pItemDefTo )
 			return false;
 
-		C_TFWeaponBase *pWeaponFrom = (C_TFWeaponBase *)pLocalTFPlayer->Weapon_GetSlot( m_pItemDefTo->item_slot );
+		C_EconEntity *pWeaponFrom = pLocalTFPlayer->GetEntityForLoadoutSlot( m_pItemDefTo->item_slot );
 		if (!pWeaponFrom)
 			return false;
 
