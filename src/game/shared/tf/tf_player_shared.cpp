@@ -257,6 +257,7 @@ CTFPlayerShared::CTFPlayerShared()
 	memset( m_pCritEffects, 0, sizeof( m_pCritEffects ) );
 #else
 	memset( m_flChargeOffTime, 0, sizeof( m_flChargeOffTime ) );
+	memset( m_bChargeSounds, 0, sizeof( m_bChargeSounds ) );
 #endif
 }
 
@@ -1088,8 +1089,18 @@ void CTFPlayerShared::OnDisguiseChanged( void )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::OnAddInvulnerable( void )
 {
-#ifdef CLIENT_DLL
+#ifndef CLIENT_DLL
+	// Stock uber removes negative conditions.
+	if ( InCond( TF_COND_BURNING ) )
+	{
+		RemoveCond( TF_COND_BURNING );
+	}
 
+	if ( InCond( TF_COND_SLOWED ) )
+	{
+		RemoveCond( TF_COND_SLOWED );
+	}
+#else
 	if ( m_pOuter->IsLocalPlayer() )
 	{
 		char *pEffectName = NULL;
@@ -2233,26 +2244,17 @@ void CTFPlayerShared::SetChargeEffect( medigun_charge_types chargeType, bool bSh
 		// Charge on.
 		AddCond( chargeEffect.condition_enable );
 
-		// Stock uber removes negative conditions.
-		if ( chargeType == TF_CHARGE_INVULNERABLE )
-		{
-			if ( InCond( TF_COND_BURNING ) )
-			{
-				RemoveCond( TF_COND_BURNING );
-			}
-
-			if ( InCond( TF_COND_SLOWED ) )
-			{
-				RemoveCond( TF_COND_SLOWED );
-			}
-		}
-
 		CSingleUserRecipientFilter filter( m_pOuter );
 		m_pOuter->EmitSound( filter, m_pOuter->entindex(), chargeEffect.sound_enable );
+		m_bChargeSounds[chargeType] = true;
 	}
 	else
 	{
-		m_pOuter->StopSound( chargeEffect.sound_enable );
+		if ( m_bChargeSounds[chargeType] )
+		{
+			m_pOuter->StopSound( chargeEffect.sound_enable );
+			m_bChargeSounds[chargeType] = false;
+		}
 
 		if ( m_flChargeOffTime[chargeType] == 0.0f )
 		{
@@ -2315,6 +2317,13 @@ void CTFPlayerShared::TestAndExpireChargeEffect( medigun_charge_types chargeType
 
 			RemoveCond( g_MedigunEffects[chargeType].condition_enable );
 		}
+	}
+	else if ( m_bChargeSounds[chargeType] )
+	{
+		// If we're still playing charge sound but not actually charged, stop the sound.
+		// This can happen if player respawns while crit boosted.
+		m_pOuter->StopSound( g_MedigunEffects[chargeType].sound_enable );
+		m_bChargeSounds[chargeType] = false;
 	}
 }
 

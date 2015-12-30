@@ -309,9 +309,16 @@ void CWeaponMedigun::UpdateOnRemove( void )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
+	m_bChargeRelease = false;
 	m_bHolstered = true;
 
-#ifdef CLIENT_DLL
+#ifndef CLIENT_DLL
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		pOwner->m_Shared.RecalculateChargeEffects( true );
+	}
+#else
 	if ( m_bPlayingSound )
 	{
 		m_bPlayingSound = false;
@@ -321,8 +328,6 @@ void CWeaponMedigun::UpdateOnRemove( void )
 	UpdateEffects();
 	ManageChargeEffect();
 #endif
-
-
 
 	BaseClass::UpdateOnRemove();
 }
