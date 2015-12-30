@@ -1243,9 +1243,11 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		if ( pBuilder && 
 			( !GetPlayerClass()->CanBuildObject( pBuilder->GetSubType() ) || pBuilder->GetItemID() != iItemID )  )
 		{
+			if ( pBuilder == GetActiveWeapon() )
+				pBuilder->Holster();
+
 			Weapon_Detach( pBuilder );
 			UTIL_Remove( pBuilder );
-
 			pBuilder = NULL;
 		}
 		
@@ -1293,15 +1295,13 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 {
-	// Seriously, Valve, relying on m_hMyWeapons to be in certain order is stupid.
-
 	for ( int iSlot = 0; iSlot < TF_PLAYER_WEAPON_COUNT; ++iSlot )
 	{
 		// Give us a weapon from the inventory.
-		int iItemID = GetLoadoutItem( GetPlayerClass()->GetClassIndex(), iSlot );
+		int iItemID = GetLoadoutItem( m_PlayerClass.GetClassIndex(), iSlot );
 
 		// HACK: Bat ID is zero so we need to check if current class is scout
-		if ( iItemID > 0 || GetPlayerClass()->GetClassIndex() == TF_CLASS_SCOUT )
+		if ( iItemID > 0 || m_PlayerClass.GetClassIndex() == TF_CLASS_SCOUT )
 		{
 			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
 
@@ -1351,13 +1351,12 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		else
 		{
 			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)Weapon_GetSlot( iSlot );
+			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)GetEntityForLoadoutSlot( iSlot );
 
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
 			{
 				Weapon_Detach( pCarriedWeapon );
-				GetViewModel( pCarriedWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
 				UTIL_Remove( pCarriedWeapon );
 			}
 		}
@@ -1388,7 +1387,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 {
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
-		int iWeaponID = GetTFInventory()->GetWeapon( GetPlayerClass()->GetClassIndex(), iWeapon );
+		int iWeaponID = GetTFInventory()->GetWeapon( m_PlayerClass.GetClassIndex(), iWeapon );
 
 		if ( iWeaponID != TF_WEAPON_NONE )
 		{
@@ -1554,7 +1553,7 @@ int CTFPlayer::GetLoadoutItem( int iClass, int iSlot )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_WeaponPreset( int iSlotNum, int iPresetNum )
 {
-	int iClass = GetPlayerClass()->GetClassIndex();
+	int iClass = m_PlayerClass.GetClassIndex();
 
 	if ( !GetTFInventory()->CheckValidSlot( iClass, iSlotNum ) )
 		return;
@@ -1584,7 +1583,7 @@ void CTFPlayer::HandleCommand_WeaponPreset( int iClass, int iSlotNum, int iPrese
 //-----------------------------------------------------------------------------
 CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconItemView* pItem )
 {
-	const char *pszEntName = TranslateWeaponEntForClass( pszName, GetPlayerClass()->GetClassIndex() );
+	const char *pszEntName = TranslateWeaponEntForClass( pszName, m_PlayerClass.GetClassIndex() );
 
 	// If I already own this type don't create one
 	if ( Weapon_OwnsThisType( pszEntName ) )
@@ -7829,8 +7828,8 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", 
 		return;
 
 	int iItemID = atoi( args[1] );
-	EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
-	if ( !pItemInfo )
+	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+	if ( !pItemDef )
 		return;
 
 	CEconItemView econItem( iItemID );
@@ -7850,8 +7849,8 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", 
 		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
 
 		pWearable->SetItem( econItem );
-		CBaseEntity::PrecacheModel( pItemInfo->model_player );
-		pWearable->SetModel( pItemInfo->model_player );
+		CBaseEntity::PrecacheModel( pItemDef->model_player );
+		pWearable->SetModel( pItemDef->model_player );
 
 		pPlayer->EquipWearable( pWearable );
 	}
@@ -7859,7 +7858,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", 
 	{
 		const char *pszWeaponName = econItem.GetEntityName();
 
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->Weapon_GetSlot( pItemInfo->item_slot );
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetEntityForLoadoutSlot( pItemDef->item_slot );
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 		if ( pWeapon && pWeapon->GetItemID() != iItemID )
 		{

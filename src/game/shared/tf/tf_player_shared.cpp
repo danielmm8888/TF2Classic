@@ -3567,6 +3567,9 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 	for ( int i = 0; i < WeaponCount(); i++ )
 	{
 		CBaseCombatWeapon *pWeapon = GetWeapon( i );
+		if ( !pWeapon )
+			continue;
+
 		EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
 
 		if ( pStatic && pStatic->item_slot == iSlot )

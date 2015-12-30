@@ -157,6 +157,7 @@ public:
 	EconItemDefinition()
 	{
 		CLEAR_STR(name);
+		used_by_classes = 0;
 		show_in_armory = false;
 		CLEAR_STR(item_class);
 		CLEAR_STR(item_type_name);
@@ -185,7 +186,7 @@ public:
 	char name[128];
 	CUtlDict< bool, unsigned short > capabilities;
 	CUtlDict< bool, unsigned short > tags;
-	CUtlDict< bool, unsigned short > used_by_classes;
+	int used_by_classes;
 	bool show_in_armory;
 	char item_class[128];
 	char item_type_name[128];

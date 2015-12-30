@@ -48,10 +48,10 @@ int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
 
 bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
 		return false;
 
-	int iCount = (bHudCheck ? INVENTORY_COLNUM : TF_LOADOUT_SLOT_COUNT);
+	int iCount = (bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT);
 
 	// Array bounds check.
 	if (iSlot >= iCount || iSlot < 0)
@@ -73,10 +73,10 @@ bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= fals
 
 bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
 		return false;
 
-	int iCount = (bHudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
+	int iCount = (bHudCheck ? INVENTORY_COLNUM : INVENTORY_WEAPONS);
 
 	// Array bounds check.
 	if (iWeapon >= iCount || iWeapon < 0)

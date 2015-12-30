@@ -15,7 +15,6 @@ using namespace vgui;
 
 #define PANEL_WIDE 110
 #define PANEL_TALL 70
-#define TF_WEAPON_SAPPER "TF_WEAPON_SAPPER"
 
 static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 {

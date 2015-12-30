@@ -418,7 +418,16 @@ public:
 			}
 			else if ( !Q_stricmp( pSubData->GetName(), "used_by_classes" ) )
 			{
-				GET_VALUES_FAST_BOOL( pItem->used_by_classes, pSubData );
+				for ( KeyValues *pClassData = pSubData->GetFirstSubKey(); pClassData != NULL; pClassData = pClassData->GetNextKey() )
+				{
+					const char *pszClass = pClassData->GetName();
+					int iClass = UTIL_StringFieldToInt( pszClass, g_aPlayerClassNames_NonLocalized, TF_CLASS_COUNT_ALL );
+
+					if ( iClass != -1 )
+					{
+						pItem->used_by_classes |= ( 1 << iClass );
+					}
+				}
 			}
 			else if ( !Q_stricmp( pSubData->GetName(), "attributes" ) )
 			{
