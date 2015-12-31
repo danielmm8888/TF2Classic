@@ -693,6 +693,7 @@ void CTFWeaponBase::OnActiveStateChanged( int iOldState )
 void CTFWeaponBase::UpdateOnRemove( void )
 {
 	//RemoveExtraWearables();
+
 	BaseClass::UpdateOnRemove();
 }
 

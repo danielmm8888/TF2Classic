@@ -3507,8 +3507,8 @@ bool C_TFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 	{
 		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			if ( !( contentsMask & CONTENTS_REDTEAM ) )
-				return true;
+			// Collide with everyone in deathmatch.
+			return BaseClass::ShouldCollide( collisionGroup, contentsMask );
 		}
 
 		switch( GetTeamNumber() )
