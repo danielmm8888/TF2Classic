@@ -7814,7 +7814,7 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	}
 }
 
-CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\n", FCVAR_NONE )
+CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nFormat: <id> <classname> <attribute1> <value1> <attribute2> <value2> ... <attributeN> <valueN>", FCVAR_NONE )
 {
 	if ( args.ArgC() < 2 )
 		return;
@@ -7836,7 +7836,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\n"
 	bool bAddedAttributes = false;
 
 	// Additonal params are attributes.
-	for ( int i = 2; i + 1 < args.ArgC(); i += 2 )
+	for ( int i = 3; i + 1 < args.ArgC(); i += 2 )
 	{
 		int iAttribIndex = atoi( args[i] );
 		float flValue = V_atof( args[i + 1] );
@@ -7871,7 +7871,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\n"
 	}
 	else
 	{
-		const char *pszWeaponName = econItem.GetEntityName();
+		const char *pszWeaponName = args.ArgC() > 2 ? args[2] : pItemDef->item_class;
 
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetEntityForLoadoutSlot( pItemDef->item_slot );
 		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
