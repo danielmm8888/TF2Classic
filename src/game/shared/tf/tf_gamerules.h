@@ -53,6 +53,24 @@ extern ConVar	fraglimit;
 
 extern Vector g_TFClassViewVectors[];
 
+#ifdef GAME_DLL
+class CTFRadiusDamageInfo
+{
+public:
+	CTFRadiusDamageInfo();
+
+	void	ApplyToEntity( CBaseEntity *pEntity );
+
+public:
+	CTakeDamageInfo info;
+	Vector m_vecSrc;
+	float m_flRadius;
+	float m_flSelfDamageRadius;
+	int m_iClassIgnore;
+	CBaseEntity *m_pEntityIgnore;
+};
+#endif
+
 class CTFGameRulesProxy : public CTeamplayRoundBasedRulesProxy
 {
 public:
@@ -354,6 +372,7 @@ public:
 
 	virtual void ClientDisconnected( edict_t *pClient );
 
+	void	RadiusDamage( CTFRadiusDamageInfo &radiusInfo );
 	virtual void  RadiusDamage( const CTakeDamageInfo &info, const Vector &vecSrc, float flRadius, int iClassIgnore, CBaseEntity *pEntityIgnore );
 
 	virtual float FlPlayerFallDamage( CBasePlayer *pPlayer );

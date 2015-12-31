@@ -172,7 +172,7 @@ static CViewVectors g_TFViewVectors(
 	Vector( 0, 0, 14 )		//VEC_DEAD_VIEWHEIGHT (m_vDeadViewHeight) dead view height
 );							
 
-Vector g_TFClassViewVectors[12] =
+Vector g_TFClassViewVectors[TF_CLASS_COUNT_ALL] =
 {
 	Vector( 0, 0, 72 ),		// TF_CLASS_UNDEFINED
 
@@ -1825,7 +1825,208 @@ private:
 	const IHandleEntity *m_pHitEntity;
 };
 
-ConVar tf_fixedup_damage_radius ( "tf_fixedup_damage_radius", "1", FCVAR_DEVELOPMENTONLY );
+CTFRadiusDamageInfo::CTFRadiusDamageInfo()
+{
+	m_flRadius = 0.0f;
+	m_iClassIgnore = CLASS_NONE;
+	m_pEntityIgnore = NULL;
+	m_flSelfDamageRadius = 0.0f;
+}
+
+ConVar tf_fixedup_damage_radius( "tf_fixedup_damage_radius", "1", FCVAR_DEVELOPMENTONLY );
+
+void CTFRadiusDamageInfo::ApplyToEntity( CBaseEntity *pEntity )
+{
+	const int MASK_RADIUS_DAMAGE = MASK_SHOT&( ~CONTENTS_HITBOX );
+	trace_t		tr;
+	float		falloff;
+	Vector		vecSpot;
+
+	if ( info.GetDamageType() & DMG_RADIUS_MAX )
+		falloff = 0.0;
+	else if ( info.GetDamageType() & DMG_HALF_FALLOFF )
+		falloff = 0.5;
+	else if ( m_flRadius )
+		falloff = info.GetDamage() / m_flRadius;
+	else
+		falloff = 1.0;
+
+	CBaseEntity *pInflictor = info.GetInflictor();
+
+	//	float flHalfRadiusSqr = Square( flRadius / 2.0f );
+
+	// This value is used to scale damage when the explosion is blocked by some other object.
+	float flBlockedDamagePercent = 0.0f;
+
+	// Check that the explosion can 'see' this entity, trace through players.
+	vecSpot = pEntity->BodyTarget( m_vecSrc, false );
+	CTraceFilterHitPlayer filter( info.GetInflictor(), pEntity, COLLISION_GROUP_PROJECTILE );
+	UTIL_TraceLine( m_vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filter, &tr );
+
+	if ( tr.fraction != 1.0 && tr.m_pEnt != pEntity )
+		return;
+
+	// Adjust the damage - apply falloff.
+	float flAdjustedDamage = 0.0f;
+
+	float flDistanceToEntity;
+
+	// Rockets store the ent they hit as the enemy and have already
+	// dealt full damage to them by this time
+	if ( pInflictor && ( pEntity == pInflictor->GetEnemy() ) )
+	{
+		// Full damage, we hit this entity directly
+		flDistanceToEntity = 0;
+	}
+	else if ( pEntity->IsPlayer() )
+	{
+		// Use whichever is closer, absorigin or worldspacecenter
+		float flToWorldSpaceCenter = ( m_vecSrc - pEntity->WorldSpaceCenter() ).Length();
+		float flToOrigin = ( m_vecSrc - pEntity->GetAbsOrigin() ).Length();
+
+		flDistanceToEntity = min( flToWorldSpaceCenter, flToOrigin );
+	}
+	else
+	{
+		flDistanceToEntity = ( m_vecSrc - tr.endpos ).Length();
+	}
+
+	if ( tf_fixedup_damage_radius.GetBool() )
+	{
+		flAdjustedDamage = RemapValClamped( flDistanceToEntity, 0, m_flRadius, info.GetDamage(), info.GetDamage() * falloff );
+	}
+	else
+	{
+		flAdjustedDamage = flDistanceToEntity * falloff;
+		flAdjustedDamage = info.GetDamage() - flAdjustedDamage;
+	}
+
+	// Take a little less damage from yourself
+	if ( tr.m_pEnt == info.GetAttacker() )
+	{
+		flAdjustedDamage = flAdjustedDamage * 0.75;
+	}
+
+	if ( flAdjustedDamage <= 0 )
+		return;
+
+	// the explosion can 'see' this entity, so hurt them!
+	if ( tr.startsolid )
+	{
+		// if we're stuck inside them, fixup the position and distance
+		tr.endpos = m_vecSrc;
+		tr.fraction = 0.0;
+	}
+
+	CTakeDamageInfo adjustedInfo = info;
+	//Msg("%s: Blocked damage: %f percent (in:%f  out:%f)\n", pEntity->GetClassname(), flBlockedDamagePercent * 100, flAdjustedDamage, flAdjustedDamage - (flAdjustedDamage * flBlockedDamagePercent) );
+	adjustedInfo.SetDamage( flAdjustedDamage - ( flAdjustedDamage * flBlockedDamagePercent ) );
+
+	// Now make a consideration for skill level!
+	if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() && pEntity->IsNPC() )
+	{
+		// An explosion set off by the player is harming an NPC. Adjust damage accordingly.
+		adjustedInfo.AdjustPlayerDamageInflictedForSkillLevel();
+	}
+
+	Vector dir = vecSpot - m_vecSrc;
+	VectorNormalize( dir );
+
+	// If we don't have a damage force, manufacture one
+	if ( adjustedInfo.GetDamagePosition() == vec3_origin || adjustedInfo.GetDamageForce() == vec3_origin )
+	{
+		CalculateExplosiveDamageForce( &adjustedInfo, dir, m_vecSrc );
+	}
+	else
+	{
+		// Assume the force passed in is the maximum force. Decay it based on falloff.
+		float flForce = adjustedInfo.GetDamageForce().Length() * falloff;
+		adjustedInfo.SetDamageForce( dir * flForce );
+		adjustedInfo.SetDamagePosition( m_vecSrc );
+	}
+
+	if ( tr.fraction != 1.0 && pEntity == tr.m_pEnt )
+	{
+		ClearMultiDamage();
+		pEntity->DispatchTraceAttack( adjustedInfo, dir, &tr );
+		ApplyMultiDamage();
+	}
+	else
+	{
+		pEntity->TakeDamage( adjustedInfo );
+	}
+
+	// Now hit all triggers along the way that respond to damage... 
+	pEntity->TraceAttackToTriggers( adjustedInfo, m_vecSrc, tr.endpos, dir );
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::RadiusDamage( CTFRadiusDamageInfo &radiusInfo )
+{
+	CTakeDamageInfo &info = radiusInfo.info;
+	CBaseEntity *pAttacker = info.GetAttacker();
+
+	CBaseEntity *pEntity = NULL;
+	for ( CEntitySphereQuery sphere( radiusInfo.m_vecSrc, radiusInfo.m_flRadius ); ( pEntity = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
+	{
+		if ( pEntity == radiusInfo.m_pEntityIgnore )
+			continue;
+
+		if ( pEntity->m_takedamage == DAMAGE_NO )
+			continue;
+
+		// UNDONE: this should check a damage mask, not an ignore
+		if ( radiusInfo.m_iClassIgnore != CLASS_NONE && pEntity->Classify() == radiusInfo.m_iClassIgnore )
+		{
+			continue;
+		}
+
+		// Skip the attacker as we'll handle him separately.
+		if ( pEntity == pAttacker && radiusInfo.m_flSelfDamageRadius != 0.0f )
+			continue;
+
+		// Checking distance from source because Valve were apparently too lazy to fix the engine function.
+		Vector vecHitPoint;
+		pEntity->CollisionProp()->CalcNearestPoint( radiusInfo.m_vecSrc, &vecHitPoint );
+		Vector vecDir = vecHitPoint - radiusInfo.m_vecSrc;
+
+		if ( vecDir.LengthSqr() > ( radiusInfo.m_flRadius * radiusInfo.m_flRadius ) )
+			continue;
+
+		radiusInfo.ApplyToEntity( pEntity );
+	}
+
+	// For attacker, radius and damage need to be consistent so custom weapons don't screw up rocket jumping.
+	if ( radiusInfo.m_flSelfDamageRadius != 0.0f )
+	{
+		if ( pAttacker )
+		{
+			// Get stock damage.
+			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+			if ( pWeapon )
+			{
+				info.SetDamage( (float)pWeapon->GetTFWpnData().GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nDamage );
+			}
+
+			// Use stock radius.
+			radiusInfo.m_flRadius = radiusInfo.m_flSelfDamageRadius;
+
+			Vector vecHitPoint;
+			pAttacker->CollisionProp()->CalcNearestPoint( radiusInfo.m_vecSrc, &vecHitPoint );
+			Vector vecDir = vecHitPoint - radiusInfo.m_vecSrc;
+
+			if ( vecDir.LengthSqr() <= ( radiusInfo.m_flRadius * radiusInfo.m_flRadius ) )
+			{
+				radiusInfo.ApplyToEntity( pAttacker );
+			}
+		}
+	}
+}
+
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : &info - 
@@ -1836,146 +2037,14 @@ ConVar tf_fixedup_damage_radius ( "tf_fixedup_damage_radius", "1", FCVAR_DEVELOP
 //-----------------------------------------------------------------------------
 void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecSrcIn, float flRadius, int iClassIgnore, CBaseEntity *pEntityIgnore )
 {
-	const int MASK_RADIUS_DAMAGE = MASK_SHOT&(~CONTENTS_HITBOX);
-	CBaseEntity *pEntity = NULL;
-	trace_t		tr;
-	float		falloff;
-	Vector		vecSpot;
+	CTFRadiusDamageInfo radiusInfo;
+	radiusInfo.info = info;
+	radiusInfo.m_vecSrc = vecSrcIn;
+	radiusInfo.m_flRadius = flRadius;
+	radiusInfo.m_iClassIgnore = iClassIgnore;
+	radiusInfo.m_pEntityIgnore = pEntityIgnore;
 
-	Vector vecSrc = vecSrcIn;
-
-	if ( info.GetDamageType() & DMG_RADIUS_MAX )
-		falloff = 0.0;
-	else if ( info.GetDamageType() & DMG_HALF_FALLOFF )
-		falloff = 0.5;
-	else if ( flRadius )
-		falloff = info.GetDamage() / flRadius;
-	else
-		falloff = 1.0;
-
-	CBaseEntity *pInflictor = info.GetInflictor();
-	
-//	float flHalfRadiusSqr = Square( flRadius / 2.0f );
-
-	// iterate on all entities in the vicinity.
-	for ( CEntitySphereQuery sphere( vecSrc, flRadius ); (pEntity = sphere.GetCurrentEntity()) != NULL; sphere.NextEntity() )
-	{
-		// This value is used to scale damage when the explosion is blocked by some other object.
-		float flBlockedDamagePercent = 0.0f;
-
-		if ( pEntity == pEntityIgnore )
-			continue;
-
-		if ( pEntity->m_takedamage == DAMAGE_NO )
-			continue;
-
-		// UNDONE: this should check a damage mask, not an ignore
-		if ( iClassIgnore != CLASS_NONE && pEntity->Classify() == iClassIgnore )
-		{// houndeyes don't hurt other houndeyes with their attack
-			continue;
-		}
-
-		// Check that the explosion can 'see' this entity, trace through players.
-		vecSpot = pEntity->BodyTarget( vecSrc, false );
-		CTraceFilterHitPlayer filter( info.GetInflictor(), pEntity, COLLISION_GROUP_PROJECTILE );
-		UTIL_TraceLine( vecSrc, vecSpot, MASK_RADIUS_DAMAGE, &filter, &tr );
-
-		if ( tr.fraction != 1.0 && tr.m_pEnt != pEntity )
-			continue;
-
-		// Adjust the damage - apply falloff.
-		float flAdjustedDamage = 0.0f;
-
-		float flDistanceToEntity;
-
-		// Rockets store the ent they hit as the enemy and have already
-		// dealt full damage to them by this time
-		if ( pInflictor && ( pEntity == pInflictor->GetEnemy() ) )
-		{
-			// Full damage, we hit this entity directly
-			flDistanceToEntity = 0;
-		}
-		else if ( pEntity->IsPlayer() )
-		{
-			// Use whichever is closer, absorigin or worldspacecenter
-			float flToWorldSpaceCenter = ( vecSrc - pEntity->WorldSpaceCenter() ).Length();
-			float flToOrigin = ( vecSrc - pEntity->GetAbsOrigin() ).Length();
-
-			flDistanceToEntity = min( flToWorldSpaceCenter, flToOrigin );
-		}
-		else
-		{
-			flDistanceToEntity = ( vecSrc - tr.endpos ).Length();
-		}
-
-		if ( tf_fixedup_damage_radius.GetBool() )
-		{
-			flAdjustedDamage = RemapValClamped( flDistanceToEntity, 0, flRadius, info.GetDamage(), info.GetDamage() * falloff );
-		}
-		else
-		{
-			flAdjustedDamage = flDistanceToEntity * falloff;
-			flAdjustedDamage = info.GetDamage() - flAdjustedDamage;
-		}
-		
-		// Take a little less damage from yourself
-		if ( tr.m_pEnt == info.GetAttacker())
-		{
-			flAdjustedDamage = flAdjustedDamage * 0.75;
-		}
-	
-		if ( flAdjustedDamage <= 0 )
-			continue;
-
-		// the explosion can 'see' this entity, so hurt them!
-		if (tr.startsolid)
-		{
-			// if we're stuck inside them, fixup the position and distance
-			tr.endpos = vecSrc;
-			tr.fraction = 0.0;
-		}
-		
-		CTakeDamageInfo adjustedInfo = info;
-		//Msg("%s: Blocked damage: %f percent (in:%f  out:%f)\n", pEntity->GetClassname(), flBlockedDamagePercent * 100, flAdjustedDamage, flAdjustedDamage - (flAdjustedDamage * flBlockedDamagePercent) );
-		adjustedInfo.SetDamage( flAdjustedDamage - (flAdjustedDamage * flBlockedDamagePercent) );
-
-		// Now make a consideration for skill level!
-		if( info.GetAttacker() && info.GetAttacker()->IsPlayer() && pEntity->IsNPC() )
-		{
-			// An explosion set off by the player is harming an NPC. Adjust damage accordingly.
-			adjustedInfo.AdjustPlayerDamageInflictedForSkillLevel();
-		}
-
-		Vector dir = vecSpot - vecSrc;
-		VectorNormalize( dir );
-
-		// If we don't have a damage force, manufacture one
-		if ( adjustedInfo.GetDamagePosition() == vec3_origin || adjustedInfo.GetDamageForce() == vec3_origin )
-		{
-			CalculateExplosiveDamageForce( &adjustedInfo, dir, vecSrc );
-		}
-		else
-		{
-			// Assume the force passed in is the maximum force. Decay it based on falloff.
-			float flForce = adjustedInfo.GetDamageForce().Length() * falloff;
-			adjustedInfo.SetDamageForce( dir * flForce );
-			adjustedInfo.SetDamagePosition( vecSrc );
-		}
-
-		if ( tr.fraction != 1.0 && pEntity == tr.m_pEnt )
-		{
-			ClearMultiDamage( );
-			pEntity->DispatchTraceAttack( adjustedInfo, dir, &tr );
-			ApplyMultiDamage();
-		}
-		else
-		{
-			pEntity->TakeDamage( adjustedInfo );
-		}
-
-		// Now hit all triggers along the way that respond to damage... 
-		pEntity->TraceAttackToTriggers( adjustedInfo, vecSrc, tr.endpos, dir );
-	}
+	RadiusDamage( radiusInfo );
 }
 
 	// --------------------------------------------------------------------------------------------------- //
