@@ -3,7 +3,7 @@ WeaponData
 	// Attributes Base.
 	"printname"		"#TF_Weapon_Revolver"
 	"BuiltRightHanded"	"0"
-	"weight"		"3"
+	"weight"		"2"
 	"WeaponType"		"secondary"
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		

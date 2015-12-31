@@ -42,7 +42,7 @@ WeaponData
 		"single_shot"		"Weapon_HeavyArtillery.Single"
 		"empty"			"Weapon_Shotgun.ClipEmpty"
 		"reload"		"Weapon_Shotgun.WorldReload"
-		"burst"			"Weapon_Shotgun.SingleCrit"
+		"burst"			"Weapon_HeavyArtillery.SingleCrit"
 	}
 
 	// Weapon Sprite data is loaded by the Client DLL.
