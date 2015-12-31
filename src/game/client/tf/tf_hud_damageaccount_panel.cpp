@@ -179,18 +179,22 @@ bool CDamageAccountPanel::ShouldDraw( void )
 void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pPlayer && pPlayer->IsAlive() && pPlayer->GetUserID() == event->GetInt( "attacker" ) ) // Did we shoot the guy?
+	if ( pPlayer && pPlayer->IsAlive() ) 
 	{
-		int iAttacker = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
-		int iVictim = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+		int iAttacker = event->GetInt( "attacker" );
+		int iVictim = event->GetInt( "userid" );
 		int iDmgAmount = event->GetInt( "damageamount" );
+
+		// Did we shoot the guy?
+		if ( iAttacker != pPlayer->GetUserID() )
+			return;
 
 		// No self-damage notifications.
 		if ( iAttacker == iVictim )
 			return;
 
 		// Currently only supporting players.
-		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByIndex( iVictim ) );
+		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByUserId( iVictim ) );
 
 		if ( !pVictim )
 			return;
