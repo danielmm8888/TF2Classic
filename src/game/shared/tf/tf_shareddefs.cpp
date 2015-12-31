@@ -393,7 +393,6 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_DISPENSER",
 	"TF_WEAPON_INVIS",
 	"TF_WEAPON_FLAG", // ADD NEW WEAPONS AFTER THIS
-	"TF_WEAPON_SMG_SCOUT",
 	"TF_WEAPON_HUNTERRIFLE",
 	"TF_WEAPON_UMBRELLA",
 	"TF_WEAPON_FLAREGUN",
@@ -461,7 +460,6 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_DISPENSER
 	DMG_GENERIC,	// TF_WEAPON_INVIS
 	DMG_GENERIC,	// TF_WEAPON_FLAG // ADD NEW WEAPONS AFTER THIS
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
 	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE,
 	DMG_CLUB, // TF_WEAPON_UMBRELLA,
 	DMG_IGNITE,		// TF_WEAPON_FLAREGUN,
@@ -475,7 +473,7 @@ int g_aWeaponDamageTypes[] =
 };
 
 // Spread pattern for tf_use_fixed_weaponspreads.
-const Vector g_vecFixedWpnSpreadPellets[]
+const Vector g_vecFixedWpnSpreadPellets[] =
 {
 	Vector( 0, 0, 0 ),
 	Vector( 1, 0, 0 ),
