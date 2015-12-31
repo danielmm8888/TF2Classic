@@ -193,6 +193,10 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		if ( iAttacker == iVictim )
 			return;
 
+		// Don't show anything if no damage was done.
+		if ( iDmgAmount == 0 )
+			return;
+
 		// Currently only supporting players.
 		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByUserId( iVictim ) );
 
