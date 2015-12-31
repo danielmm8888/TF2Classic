@@ -201,6 +201,13 @@ bool CTFWeaponBuilder::Holster( CBaseCombatWeapon *pSwitchingTo )
 
 	StopPlacement();
 
+	// Make sure hauling status is cleared.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		pOwner->m_Shared.SetCarriedObject( NULL );
+	}
+
 	return BaseClass::Holster(pSwitchingTo);
 }
 
@@ -519,12 +526,6 @@ void CTFWeaponBuilder::StopPlacement( void )
 {
 	if ( m_hObjectBeingBuilt )
 	{
-		// Make sure we clear out carrying status on player.
-		if ( m_hObjectBeingBuilt->IsBeingCarried() )
-		{
-			m_hObjectBeingBuilt->DropCarriedObject( GetTFPlayerOwner() );
-		}
-
 		m_hObjectBeingBuilt->StopPlacement();
 		m_hObjectBeingBuilt = NULL;
 	}

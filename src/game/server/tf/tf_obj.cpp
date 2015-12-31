@@ -889,6 +889,12 @@ void CBaseObject::DestroyObject( void )
 {
 	TRACE_OBJECT( UTIL_VarArgs( "%0.2f CBaseObject::DestroyObject %p:%s\n", gpGlobals->curtime, this, GetClassname() ) );
 
+
+	if ( m_bCarried )
+	{
+		DropCarriedObject( GetBuilder() );
+	}
+
 	if ( GetBuilder() )
 	{
 		GetBuilder()->OwnedObjectDestroyed( this );

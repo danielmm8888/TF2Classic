@@ -1285,6 +1285,9 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		if ( pWpn == NULL )
 			return;
 
+		if ( pWpn == GetActiveWeapon() )
+			pWpn->Holster();
+
 		Weapon_Detach( pWpn );
 		UTIL_Remove( pWpn );
 	}
@@ -1356,6 +1359,9 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
 			{
+				if ( pCarriedWeapon == GetActiveWeapon() )
+					pCarriedWeapon->Holster();
+
 				Weapon_Detach( pCarriedWeapon );
 				UTIL_Remove( pCarriedWeapon );
 			}
@@ -2337,8 +2343,8 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( IsAlive() && ( GetHudClassAutoKill() == true ) && bShouldNotRespawn == false )
 	{
 		CommitSuicide( false, true );
-		if (GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER)
-			RemoveAllObjects(false);
+		if ( GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER )
+			RemoveAllObjects( false );
 	}
 }
 
@@ -4219,7 +4225,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		}
 	}
 
-	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.IsCarryingObject() )
+	if ( IsPlayerClass( TF_CLASS_ENGINEER ) && m_Shared.GetCarriedObject() )
 	{
 		// Blow it up at our position.
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
