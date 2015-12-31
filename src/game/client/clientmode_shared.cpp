@@ -1077,8 +1077,8 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 				}
 				else
 				{
-#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
-					if ( TFGameRules() && TFGameRules()->IsDeathmatch() && pTeam->GetTeamNumber() == TF_TEAM_RED )
+#ifdef TF_CLASSIC_CLIENT
+					if ( TFGameRules() && TFGameRules()->IsDeathmatch() && team == TF_TEAM_RED )
 					{
 						g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#TF_Joined_DM" ), 1, wszPlayerName );
 					}
