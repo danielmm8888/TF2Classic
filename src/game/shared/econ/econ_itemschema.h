@@ -109,6 +109,12 @@ public:
 		CLEAR_STR( attribute_class );
 		value = 0;
 	}
+	CEconItemAttribute( int iIndex, float flValue )
+	{
+		m_iAttributeDefinitionIndex = iIndex;
+		CLEAR_STR( attribute_class );
+		value = flValue;
+	}
 
 public:
 	CNetworkVar( int, m_iAttributeDefinitionIndex );

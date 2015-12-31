@@ -7807,7 +7807,7 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	}
 }
 
-CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", FCVAR_NONE )
+CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\n", FCVAR_NONE )
 {
 	if ( args.ArgC() < 2 )
 		return;
@@ -7825,6 +7825,22 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.", 
 		return;
 
 	CEconItemView econItem( iItemID );
+
+	bool bAddedAttributes = false;
+
+	// Additonal params are attributes.
+	for ( int i = 2; i + 1 < args.ArgC(); i += 2 )
+	{
+		int iAttribIndex = atoi( args[i] );
+		float flValue = V_atof( args[i + 1] );
+
+		CEconItemAttribute econAttribute( iAttribIndex, flValue );
+
+		bAddedAttributes = econItem.AddAttribute( &econAttribute );
+	}
+
+	if ( bAddedAttributes )
+		econItem.SkipBaseAttributes( true );
 
 	bool bCosmetic = econItem.IsCosmetic();
 	if ( bCosmetic )

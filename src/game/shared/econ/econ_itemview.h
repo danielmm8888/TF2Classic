@@ -43,6 +43,8 @@ public:
 	bool HasCapability( const char* name );
 	bool HasTag( const char* name );
 
+	bool AddAttribute( CEconItemAttribute *pAttribute );
+	void SkipBaseAttributes( bool bSkip );
 	CEconItemAttribute *IterateAttributes( string_t strClass );
 
 	void SetItemDefIndex( int iItemID ) { m_iItemDefinitionIndex = iItemID; }

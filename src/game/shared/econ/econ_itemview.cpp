@@ -206,6 +206,25 @@ bool CEconItemView::HasTag( const char* name )
 	return result;
 }
 
+bool CEconItemView::AddAttribute( CEconItemAttribute *pAttribute )
+{
+	// Make sure this attribute exists.
+	EconAttributeDefinition *pAttribDef = pAttribute->GetStaticData();
+
+	if ( pAttribDef )
+	{
+		m_AttributeList.AddToTail( *pAttribute );
+		return true;
+	}
+
+	return false;
+}
+
+void CEconItemView::SkipBaseAttributes( bool bSkip )
+{
+	m_bOnlyIterateItemViewAttributes = bSkip;
+}
+
 CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.
