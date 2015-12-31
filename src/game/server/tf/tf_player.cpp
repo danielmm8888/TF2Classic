@@ -3046,14 +3046,6 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 
 				bool bCritical = true;
 
-				// TF2C
-				// if doing headshots with hunter rifle, only do double damage
-				if (pWpn->GetWeaponID() == TF_WEAPON_HUNTERRIFLE)
-				{
-					float flDamage = floor(info.GetDamage() * 0.6667);
-					info_modified.SetDamage(flDamage);
-				}
-
 				if ( pWpn && !pWpn->CanFireCriticalShot( true ) )
 				{
 					bCritical = false;
