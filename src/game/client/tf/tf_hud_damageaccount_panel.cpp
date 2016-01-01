@@ -240,7 +240,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 
 		// Don't show the numbers if we can't see the victim.
 		trace_t tr;
-		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), CONTENTS_SOLID|CONTENTS_MOVEABLE, NULL, COLLISION_GROUP_NONE, &tr );
+		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), MASK_VISIBLE, NULL, COLLISION_GROUP_NONE, &tr );
 		if ( tr.fraction != 1.0f )
 			return;
 

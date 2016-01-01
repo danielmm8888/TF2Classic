@@ -55,7 +55,6 @@ void CTFDroppedWeapon::Spawn( void )
 
 void CTFDroppedWeapon::RemovalThink( void )
 {
-	// Remove entity after 15 seconds
 	if ( gpGlobals->curtime > m_flRemoveTime )
 		UTIL_Remove( this );
 
