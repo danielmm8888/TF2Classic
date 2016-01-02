@@ -145,7 +145,7 @@ LINK_ENTITY_TO_CLASS( tf_weapon_base, CTFWeaponBase );
 #if !defined( CLIENT_DLL )
 
 BEGIN_DATADESC( CTFWeaponBase )
-//DEFINE_FUNCTION( FallThink )
+DEFINE_THINKFUNC( FallThink )
 END_DATADESC()
 
 // Client specific

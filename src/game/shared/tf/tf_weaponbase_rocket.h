@@ -10,13 +10,10 @@
 #endif
 
 #include "cbase.h"
+#include "baseprojectile.h"
 #include "tf_shareddefs.h"
-// Client specific.
-#ifdef CLIENT_DLL
-#include "c_baseanimating.h"
+#ifndef CLIENT_DLL
 // Server specific.
-#else
-#include "baseanimating.h"
 #include "smoke_trail.h"
 #endif
 
@@ -30,7 +27,7 @@
 //
 // TF Base Rocket.
 //
-class CTFBaseRocket : public CBaseAnimating
+class CTFBaseRocket : public CBaseProjectile
 {
 
 //=============================================================================
