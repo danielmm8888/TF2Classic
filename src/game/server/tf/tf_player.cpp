@@ -1319,7 +1319,7 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 		if ( pWeapon->IsWeapon( TF_WEAPON_BUILDER ) )
 			continue;
 
-		EconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
+		CEconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
 
 		if ( pItemDef )
 		{
@@ -1361,7 +1361,7 @@ void CTFPlayer::ValidateWearables( void )
 		if ( !pWearable )
 			continue;
 
-		EconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
+		CEconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
 
 		if ( pItemDef )
 		{
@@ -1397,7 +1397,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 		if ( pItem )
 		{
-			EconItemDefinition* pItemDef = pItem->GetStaticData();
+			CEconItemDefinition* pItemDef = pItem->GetStaticData();
 			Assert( pItemDef );
 			const char *pszClassname = pItemDef->item_class;
 
@@ -2561,7 +2561,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			if ( pWeapon && pWeapon->HasItemDefinition() )
 			{
 				CEconItemView *econItem = pWeapon->GetItem();
-				EconItemDefinition *itemdef = econItem->GetStaticData();
+				CEconItemDefinition *itemdef = econItem->GetStaticData();
 
 				if ( itemdef )
 				{
@@ -7883,7 +7883,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		return;
 
 	int iItemID = atoi( args[1] );
-	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
 	if ( !pItemDef )
 		return;
 

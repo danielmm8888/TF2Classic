@@ -193,7 +193,7 @@ void CTFHudWeaponAmmo::OnThink()
 		if ( tf2c_ammobucket.GetBool() && pWeapon && m_pWeaponBucket )
 		{
 			int iItemID = pWeapon->GetItemID();
-			EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition( iItemID );
+			CEconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition( iItemID );
 			if ( pItemDefinition )
 			{
 				char szImage[128];

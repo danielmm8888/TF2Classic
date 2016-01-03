@@ -154,10 +154,10 @@ public:
 	//CUtlDict< EconItemStyle*, unsigned short > styles;
 };
 
-class EconItemDefinition
+class CEconItemDefinition
 {
 public:
-	EconItemDefinition()
+	CEconItemDefinition()
 	{
 		CLEAR_STR(name);
 		used_by_classes = 0;
@@ -181,6 +181,7 @@ public:
 		CLEAR_STR(model_player);
 		CLEAR_STR(model_world);
 		attach_to_hands = 0;
+		act_as_wearable = false;
 	}
 
 	EconItemVisuals *GetVisuals( int iTeamNum = TEAM_UNASSIGNED );
@@ -212,6 +213,7 @@ public:
 	char model_world[128];
 	CUtlDict< const char*, unsigned short > model_player_per_class;
 	int attach_to_hands;
+	bool act_as_wearable;
 	CUtlVector<CEconItemAttribute> attributes;
 	EconItemVisuals visual[TF_TEAM_COUNT];
 };
@@ -230,7 +232,7 @@ public:
 	bool Init( void );
 	void Precache( void );
 
-	EconItemDefinition* GetItemDefinition(int id);
+	CEconItemDefinition* GetItemDefinition(int id);
 	EconAttributeDefinition *GetAttributeDefinition( int id );
 	EconAttributeDefinition *GetAttributeDefinitionByName(const char* name);
 	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);
@@ -241,7 +243,7 @@ protected:
 	CUtlDict< EconQuality, unsigned short >			m_Qualities;
 	CUtlDict< EconColor, unsigned short >			m_Colors;
 	CUtlDict< KeyValues *, unsigned short >			m_PrefabsValues;
-	CUtlMap< int, EconItemDefinition * >			m_Items;
+	CUtlMap< int, CEconItemDefinition * >			m_Items;
 	CUtlMap< int, EconAttributeDefinition * >		m_Attributes;
 
 private:

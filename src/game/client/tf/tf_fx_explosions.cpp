@@ -102,7 +102,7 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 	// Allow schema to override explosion sound.
 	if ( iItemID >= 0 )
 	{
-		EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+		CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
 		if ( pItemDef && pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1][0] != '\0' )
 		{
 			pszSound = pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1];

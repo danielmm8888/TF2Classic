@@ -120,9 +120,9 @@ bool CTFLoadoutPanel::Init()
 {
 	BaseClass::Init();
 
-	iCurrentClass = TF_CLASS_SCOUT;
-	iCurrentSlot = TF_WPN_TYPE_PRIMARY;
-	iCurrentPreset = 0;
+	m_iCurrentClass = TF_CLASS_SCOUT;
+	m_iCurrentSlot = TF_WPN_TYPE_PRIMARY;
+	m_iCurrentPreset = 0;
 	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
 	m_pGameModelPanel = new CModelPanel(this, "gamemodelpanel");
 	m_pWeaponSetPanel = new CTFWeaponSetPanel(this, "weaponsetpanel");
@@ -150,7 +150,7 @@ bool CTFLoadoutPanel::Init()
 			{
 				CEconItemView *pItem = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
 
-				EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+				CEconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
 
 				if (pItemData)
 				{
@@ -219,10 +219,10 @@ void CTFLoadoutPanel::PerformLayout()
 
 void CTFLoadoutPanel::SetCurrentClass(int iClass)
 {
-	if (iCurrentClass == iClass)
+	if (m_iCurrentClass == iClass)
 		return;
 
-	iCurrentClass = iClass; 	
+	m_iCurrentClass = iClass;
 	ResetRows();
 	DefaultLayout(); 
 };
@@ -312,7 +312,7 @@ void CTFLoadoutPanel::SetSlotAndPreset(int iSlot, int iPreset)
 {
 	SetCurrentSlot(iSlot);
 	SetCurrentPreset(iPreset);
-	SetWeaponPreset(iCurrentClass, iCurrentSlot, iCurrentPreset);
+	SetWeaponPreset(m_iCurrentClass, m_iCurrentSlot, m_iCurrentPreset);
 }
 
 void CTFLoadoutPanel::SideRow(int iRow, int iDir)
@@ -348,7 +348,7 @@ void CTFLoadoutPanel::ResetRows()
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
 	CEconItemView *pItem = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
-	EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+	CEconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
 
 	if (pItemData)
 	{
@@ -420,7 +420,7 @@ void CTFLoadoutPanel::SetModelClass(int iClass)
 
 void CTFLoadoutPanel::UpdateModelPanels()
 {
-	int iClassIndex = iCurrentClass;
+	int iClassIndex = m_iCurrentClass;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
@@ -457,8 +457,8 @@ void CTFLoadoutPanel::UpdateModelPanels()
 		m_pRGBPanel->SetVisible(false);
 
 		SetModelClass(iClassIndex);
-		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(iClassIndex, iCurrentSlot);
-		SetModelWeapon(iClassIndex, iCurrentSlot, iWeaponPreset);
+		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(iClassIndex, m_iCurrentSlot);
+		SetModelWeapon(iClassIndex, m_iCurrentSlot, iWeaponPreset);
 	}
 }
 
@@ -470,17 +470,17 @@ void CTFLoadoutPanel::DefaultLayout()
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pLocalPlayer && pLocalPlayer->GetTeamNumber() >= TF_TEAM_RED)
 	{
-		iCurrentSkin = pLocalPlayer->GetTeamNumber() - 2;
+		m_iCurrentSkin = pLocalPlayer->GetTeamNumber() - 2;
 	}
 	else
 	{
-		iCurrentSkin = 0;
+		m_iCurrentSkin = 0;
 	}
 	*/
 
 	UpdateModelPanels();
 
-	int iClassIndex = iCurrentClass;
+	int iClassIndex = m_iCurrentClass;
 	SetDialogVariable("classname", g_pVGuiLocalize->Find(g_aPlayerClassNames[iClassIndex]));
 
 	if (iClassIndex != TF_CLASS_MERCENARY)
@@ -502,7 +502,7 @@ void CTFLoadoutPanel::DefaultLayout()
 					pItem = GetTFInventory()->GetItem( iClassIndex, TF_LOADOUT_SLOT_BUILDING, iPreset );
 				}
 
-				EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+				CEconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
 				CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
 
 				if (pItemData)
@@ -570,7 +570,7 @@ void CTFLoadoutPanel::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 	if (pPlayer)
 	{
 		char szCmd[64];
-		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d", iSlot, iPreset); //; tf2c_weaponset_show 0
+		Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d", iClass, iSlot, iPreset); //; tf2c_weaponset_show 0
 		engine->ExecuteClientCmd(szCmd);
 	}
 

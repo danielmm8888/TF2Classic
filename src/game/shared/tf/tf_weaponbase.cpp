@@ -200,10 +200,10 @@ CTFWeaponBase::CTFWeaponBase()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::Spawn()
 {
+	GetAttributeContainer()->InitializeAttributes( this );
+
 	// Base class spawn.
 	BaseClass::Spawn();
-
-	GetAttributeContainer()->InitializeAttributes( this );
 
 	// Set this here to allow players to shoot dropped weapons.
 	SetCollisionGroup( COLLISION_GROUP_WEAPON );
@@ -474,7 +474,7 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 	if ( !pPlayer )
 		return vModel;
 
-	EconItemDefinition *pStatic = m_Item.GetStaticData();
+	CEconItemDefinition *pStatic = m_Item.GetStaticData();
 
 	if ( pStatic )
 	{
@@ -3227,7 +3227,7 @@ CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
 CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass )
 {
 	// Get the weapon information.
-	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
 
 	if ( !pItemDef )
 		return NULL;

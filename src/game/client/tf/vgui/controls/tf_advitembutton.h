@@ -27,10 +27,10 @@ public:
 	void Init();
 	void PerformLayout();
 	void SendAnimation(MouseState flag);
-	void SetItemDefinition(EconItemDefinition *pItemData);
+	void SetItemDefinition(CEconItemDefinition *pItemData);
 
 protected:
-	EconItemDefinition *pItemDefinition;
+	CEconItemDefinition *pItemDefinition;
 };
 
 

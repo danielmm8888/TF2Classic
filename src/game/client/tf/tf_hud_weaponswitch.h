@@ -28,7 +28,7 @@ public:
 	virtual void PerformLayout();
 
 	virtual void SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle = -1, int ID = -1);
-	virtual void SetWeapon(EconItemDefinition *pItemDefinition, int iBorderStyle = -1, int ID = -1);
+	virtual void SetWeapon(CEconItemDefinition *pItemDefinition, int iBorderStyle = -1, int ID = -1);
 
 private:
 	C_BaseCombatWeapon	*m_pWeapon;
@@ -64,8 +64,8 @@ public:
 private:
 	
 	void UpdateStatus( void );
-	EconItemDefinition *m_pItemDefFrom;
-	EconItemDefinition *m_pItemDefTo;
+	CEconItemDefinition *m_pItemDefFrom;
+	CEconItemDefinition *m_pItemDefTo;
 
 private:
 	CItemModelPanel *m_pWeaponFrom;

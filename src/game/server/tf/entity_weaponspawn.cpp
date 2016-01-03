@@ -98,7 +98,7 @@ CWeaponSpawner::CWeaponSpawner()
 void CWeaponSpawner::Spawn(void)
 {
 	// Damn it. We need both item definition and weapon script data for spawners to work properly.
-	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
+	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
 	if ( !pItemDef )
 	{
 		Warning( "tf_weaponspawner has incorrect item ID %d.\n", m_nWeaponID );

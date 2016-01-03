@@ -3580,7 +3580,7 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 		if ( !pWeapon )
 			continue;
 
-		EconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
+		CEconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
 
 		if ( pItemDef && pItemDef->item_slot == iSlot )
 		{
@@ -3605,7 +3605,7 @@ CEconWearable *CTFPlayer::GetWearableForLoadoutSlot( int iSlot )
 		if ( !pWearable )
 			continue;
 
-		EconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
+		CEconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
 
 		if ( pItemDef && pItemDef->item_slot == iSlot )
 		{

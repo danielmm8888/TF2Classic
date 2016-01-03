@@ -25,7 +25,7 @@ struct wearableanimplayback_t
 	int iStub;
 };
 
-class EconItemDefinition;
+class CEconItemDefinition;
 
 //-----------------------------------------------------------------------------
 // Purpose: BaseCombatWeapon is derived from this in live tf2.

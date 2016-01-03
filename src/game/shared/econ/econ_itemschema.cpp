@@ -209,7 +209,7 @@ public:
 			if ( !Q_stricmp( pSubData->GetName(), "default" ) )
 				continue;
 
-			EconItemDefinition *Item = new EconItemDefinition;
+			CEconItemDefinition *Item = new CEconItemDefinition;
 			int index = atoi( pSubData->GetName() );
 
 			if ( ParseItemRec( pSubData, Item ) )
@@ -252,7 +252,7 @@ public:
 		}
 	};
 
-	bool ParseVisuals( KeyValues *pData, EconItemDefinition* pItem, int iIndex )
+	bool ParseVisuals( KeyValues *pData, CEconItemDefinition* pItem, int iIndex )
 	{
 		EconItemVisuals *pVisuals = &pItem->visual[iIndex];
 
@@ -338,7 +338,7 @@ public:
 		return true;
 	}
 
-	bool ParseItemRec(KeyValues *pData, EconItemDefinition* pItem)
+	bool ParseItemRec(KeyValues *pData, CEconItemDefinition* pItem)
 	{
 		char prefab[64];
 		Q_snprintf( prefab, sizeof( prefab ), pData->GetString( "prefab" ) );	//check if there's prefab for prefab.. PREFABSEPTION
@@ -522,7 +522,7 @@ void CEconItemSchema::Precache( void )
 	// Precache everything from schema.
 	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
 	{
-		EconItemDefinition *pItem = m_Items[i];
+		CEconItemDefinition *pItem = m_Items[i];
 
 		// Precache models.
 		if ( pItem->model_world[0] )
@@ -555,7 +555,7 @@ void CEconItemSchema::Precache( void )
 void ShowItemDef(const CCommand &args)
 {
 	int ID = atoi(args[1]);
-	EconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
+	CEconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
 	if (itemdef)
 	{
 		Msg("ItemID %s:\nname %s\nitem_class %s\nitem_type_name %s\n", 
@@ -592,9 +592,9 @@ ConCommand itemdef("itemdef", ShowItemDef);
 #endif
 
 
-EconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
+CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 {
-	EconItemDefinition *itemdef = NULL;
+	CEconItemDefinition *itemdef = NULL;
 	FIND_ELEMENT( m_Items, id, itemdef );
 	return itemdef;
 }
@@ -692,10 +692,10 @@ EconItemVisuals::EconItemVisuals()
 
 
 //-----------------------------------------------------------------------------
-// EconItemDefinition
+// CEconItemDefinition
 //-----------------------------------------------------------------------------
 
-EconItemVisuals *EconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
+EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
 {
 	if ( iTeamNum >= FIRST_GAME_TEAM && iTeamNum < TF_TEAM_COUNT )
 	{
@@ -705,7 +705,7 @@ EconItemVisuals *EconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNE
 	return &visual[TEAM_UNASSIGNED];
 }
 
-CEconItemAttribute *EconItemDefinition::IterateAttributes( string_t strClass )
+CEconItemAttribute *CEconItemDefinition::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.
 	for ( int i = 0; i < attributes.Count(); i++ )

@@ -48,7 +48,7 @@ bool CTFInventory::Init( void )
 	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
 	{
 		int iItemID = GetItemSchema()->m_Items.Key( i );
-		EconItemDefinition *pItemDef = GetItemSchema()->m_Items.Element( i );
+		CEconItemDefinition *pItemDef = GetItemSchema()->m_Items.Element( i );
 
 		if ( pItemDef->item_slot == -1 )
 			continue;

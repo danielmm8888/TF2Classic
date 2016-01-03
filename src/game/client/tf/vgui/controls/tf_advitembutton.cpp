@@ -84,7 +84,7 @@ void CTFAdvItemButton::SendAnimation(MouseState flag)
 	}
 }
 
-void CTFAdvItemButton::SetItemDefinition(EconItemDefinition *pItemData)
+void CTFAdvItemButton::SetItemDefinition(CEconItemDefinition *pItemData)
 {
 	pItemDefinition = pItemData;
 

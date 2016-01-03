@@ -3211,7 +3211,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
 		if ( pWeapon )
 		{
-			EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
+			CEconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
 			if ( pStatic && pStatic->item_iconname[0] != '\0' )
 			{
 				killer_weapon_name = pStatic->item_iconname;

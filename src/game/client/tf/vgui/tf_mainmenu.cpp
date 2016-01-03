@@ -326,7 +326,7 @@ void CTFMainMenu::HideToolTip()
 	dynamic_cast<CTFToolTipPanel*>(GetMenuPanel(TOOLTIP_MENU))->HideToolTip();
 }
 
-void CTFMainMenu::ShowItemToolTip(EconItemDefinition *pItemData)
+void CTFMainMenu::ShowItemToolTip(CEconItemDefinition *pItemData)
 {
 	dynamic_cast<CTFItemToolTipPanel*>(GetMenuPanel(ITEMTOOLTIP_MENU))->ShowToolTip(pItemData);
 }

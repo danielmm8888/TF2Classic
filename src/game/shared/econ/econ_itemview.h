@@ -30,7 +30,7 @@ public:
 	CEconItemView();
 	CEconItemView( int iItemID );
 
-	EconItemDefinition *GetStaticData( void ) const;
+	CEconItemDefinition *GetStaticData( void ) const;
 
 	const char* GetWorldDisplayModel( int iClass = 0 ) const;
 	const char* GetPlayerDisplayModel( void ) const;

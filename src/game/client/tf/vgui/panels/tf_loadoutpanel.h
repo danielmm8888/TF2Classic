@@ -33,8 +33,8 @@ public:
 	void GameLayout();
 	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
 	void SetCurrentClass(int iClass);
-	void SetCurrentSlot(int iSlot) { iCurrentSlot = iSlot; };
-	void SetCurrentPreset(int iPreset) { iCurrentPreset = iPreset; };
+	void SetCurrentSlot(int iSlot) { m_iCurrentSlot = iSlot; };
+	void SetCurrentPreset(int iPreset) { m_iCurrentPreset = iPreset; };
 	void SetModelWeapon(int iClass, int iSlot, int iPreset);
 	void SetModelClass(int iClass);
 	void SetSlotAndPreset(int iSlot, int iPreset);
@@ -50,10 +50,10 @@ private:
 	CUtlVector<CTFAdvItemButton*> m_pSlideButtons;
 	CUtlVector<int> m_RawIDPos;
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
-	int	iCurrentClass;
-	int	iCurrentSlot;
-	int	iCurrentPreset;
-	int iCurrentSkin;
+	int	m_iCurrentClass;
+	int	m_iCurrentSlot;
+	int	m_iCurrentPreset;
+	int m_iCurrentSkin;
 };
 
 //-----------------------------------------------------------------------------

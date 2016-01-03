@@ -108,7 +108,7 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 	m_iBorderStyle = iBorderStyle;
 
 	int iItemID = m_pWeapon->GetItemID();
-	EconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
+	CEconItemDefinition *pItemDefinition = GetItemSchema()->GetItemDefinition(iItemID);
 	wchar_t *pText = NULL;
 	if (pItemDefinition)
 	{
@@ -147,7 +147,7 @@ void CItemModelPanel::SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle, i
 	PerformLayout();
 }
 
-void CItemModelPanel::SetWeapon(EconItemDefinition *pItemDefinition, int iBorderStyle, int ID)
+void CItemModelPanel::SetWeapon(CEconItemDefinition *pItemDefinition, int iBorderStyle, int ID)
 {
 	m_pWeapon = NULL;
 	m_ID = ID;

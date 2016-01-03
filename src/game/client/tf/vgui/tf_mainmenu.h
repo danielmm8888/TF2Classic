@@ -61,7 +61,7 @@ public:
 	virtual void SetStats(CUtlVector<ClassStats_t> &vecClassStats);
 	virtual void ShowToolTip(char* sText);
 	virtual void HideToolTip();
-	virtual void ShowItemToolTip(EconItemDefinition *pItemData);
+	virtual void ShowItemToolTip(CEconItemDefinition *pItemData);
 	virtual void HideItemToolTip();
 	virtual void OnNotificationUpdate();
 	virtual void SetServerlistSize(int size);

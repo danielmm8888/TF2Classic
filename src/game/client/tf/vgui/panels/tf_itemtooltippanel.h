@@ -21,7 +21,7 @@ public:
 	void ApplySchemeSettings(vgui::IScheme *pScheme);
 	void Show();
 	void Hide();
-	void ShowToolTip(EconItemDefinition *pItemData);
+	void ShowToolTip(CEconItemDefinition *pItemData);
 	void HideToolTip();
 
 private:

@@ -64,7 +64,7 @@ CEconItemView::CEconItemView( int iItemID )
 	m_iItemDefinitionIndex = iItemID;
 }
 
-EconItemDefinition *CEconItemView::GetStaticData( void ) const
+CEconItemDefinition *CEconItemView::GetStaticData( void ) const
 {
 	if ( m_iItemDefinitionIndex < 0 )
 		return NULL;
@@ -74,7 +74,7 @@ EconItemDefinition *CEconItemView::GetStaticData( void ) const
 
 const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 	const char *pszModelName = NULL;
 
 	if ( pStatic )
@@ -93,7 +93,7 @@ const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 
 const char *CEconItemView::GetPlayerDisplayModel() const
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -105,7 +105,7 @@ const char *CEconItemView::GetPlayerDisplayModel() const
 
 const char* CEconItemView::GetEntityName()
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -118,7 +118,7 @@ const char* CEconItemView::GetEntityName()
 bool CEconItemView::IsCosmetic()
 {
 	bool result = false;
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -130,7 +130,7 @@ bool CEconItemView::IsCosmetic()
 
 int CEconItemView::GetAnimationSlot( void )
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -142,7 +142,7 @@ int CEconItemView::GetAnimationSlot( void )
 
 Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOriginalActivity )
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -160,7 +160,7 @@ Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOrigin
 
 const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *name )
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -179,7 +179,7 @@ const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *nam
 
 const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) const
 {
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -193,7 +193,7 @@ const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) 
 bool CEconItemView::HasCapability( const char* name )
 {
 	bool result = false;
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -206,7 +206,7 @@ bool CEconItemView::HasCapability( const char* name )
 bool CEconItemView::HasTag( const char* name )
 {
 	bool result = false;
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
@@ -255,7 +255,7 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 		}
 	}
 
-	EconItemDefinition *pStatic = GetStaticData();
+	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic && !m_bOnlyIterateItemViewAttributes )
 	{

@@ -66,7 +66,7 @@ void CTFItemToolTipPanel::PerformLayout()
 };
 
 
-void CTFItemToolTipPanel::ShowToolTip(EconItemDefinition *pItemData)
+void CTFItemToolTipPanel::ShowToolTip(CEconItemDefinition *pItemData)
 {
 	Show();
 
