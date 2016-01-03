@@ -1105,10 +1105,10 @@
 			"item_name"	"#TF_Weapon_Crowbar"
 			"item_slot"	"melee"
 			"anim_slot"	"melee"
-			"item_quality"	"unique"
-			"propername"	"1"
-			"min_ilevel"	"5"
-			"max_ilevel"	"5"
+			"item_quality"	"normal"
+			"baseitem"	"1"
+			"min_ilevel"	"1"
+			"max_ilevel"	"1"
 			"image_inventory"	"backpack/weapons/w_models/w_crowbar_red"
 			"image_inventory_size_w"		"128"
 			"image_inventory_size_h"		"82"
@@ -1138,6 +1138,7 @@
 			"item_class"	"tf_weapon_nailgun"
 			"craft_class"	"weapon"
 			"craft_material_type"	"weapon"
+			"show_in_armory"	"1"
 			"item_type_name"	"#TF_Weapon_Nailgun"
 			"item_name"	"#TF_Weapon_Nailgun"
 			"item_slot"	"primary"
@@ -1175,6 +1176,7 @@
 			"item_class"	"tf_weapon_tranq"
 			"craft_class"	"weapon"
 			"craft_material_type"	"weapon"
+			"show_in_armory"	"1"
 			"item_type_name"	"#TF_Weapon_Tranq"
 			"item_name"	"#TF_Weapon_Tranq"
 			"item_slot"	"primary"
@@ -1668,6 +1670,7 @@
 			"used_by_classes"
 			{
 				"engineer"	"1"
+				"mercenary"	"1"
 			}
 			"mouse_pressed_sound"	"ui/item_light_gun_pickup.wav"
 			"drop_sound"		"ui/item_light_gun_drop.wav"
@@ -2093,12 +2096,62 @@
 			"prefab"	"valve weapon_flaregun"
 			"first_sale_date"	"2011/04/14"
 		}
+		"133"
+		{
+			"name"			"The Gunboats"
+			"prefab"	"valve"
+			"first_sale_date"	"2010/09/29"
+			"item_class"		"tf_wearable"
+			"craft_class"	"weapon"
+			"craft_material_type"	"weapon"
+			"loadondemand" "1"
+			"capabilities"
+			{
+				"nameable"		"1"
+				"can_gift_wrap" 	"1"
+			}
+			"show_in_armory"	"1"
+			"item_type_name" 	"#TF_Wearable_Boots"
+			"item_name"		"#TF_Unique_Blast_Boots"
+			"item_slot"		"secondary"
+			"equip_region"	"feet"
+			"anim_slot"		"FORCE_NOT_USED"
+			"item_quality"		"unique"
+			"propername"	"1"
+			"min_ilevel"		"10"
+			"max_ilevel"		"10"
+			"image_inventory"	"backpack/weapons/c_models/c_rocketboots_soldier"
+			"image_inventory_size_w"		"128"
+			"image_inventory_size_h"		"82"
+			"model_player"		"models/weapons/c_models/c_rocketboots_soldier.mdl"
+			"act_as_wearable" "1"
+			"used_by_classes"
+			{
+				"soldier"	"1"
+			}
+			"attributes"
+			{
+				"rocket jump damage reduction"
+				{
+					"attribute_class"	"rocket_jump_dmg_reduction"
+					"value" "0.4"
+				}
+				"allowed in medieval mode"
+				{
+					"attribute_class"	"allowed_in_medieval_mode"
+					"value"	"1"
+				}
+			}
+			"mouse_pressed_sound"	"ui/item_metal_weapon_pickup.wav"
+			"drop_sound"		"ui/item_metal_weapon_drop.wav"
+		}
 		
 		
 		"9001"
 		{
 			"name" "Valve Rocket Launcher"
 			"prefab" "weapon_rocketlauncher"
+			"baseitem"	"0"
 			"attributes"
 			{
 				"damage bonus"
@@ -2143,44 +2196,6 @@
 			"name"	"TF_WEAPON_NAILGUN"
 			"first_sale_date"	"2010/09/29"
 			"prefab"	"weapon_nailgun"
-		}
-		"9003"
-		{
-			"name"	"SMG (Scout)"
-			"capabilities"
-			{
-				"nameable"		"1"
-			}
-			"tags"
-			{
-				"can_deal_damage"			"1"
-				"can_deal_mvm_penetration_damage"	"1"
-				"can_deal_long_distance_damage"	"1"
-			}
-			"item_class"	"tf_weapon_smg_scout"
-			"craft_class"	"weapon"
-			"craft_material_type"	"weapon"
-			"show_in_armory"	"1"
-			"item_type_name"	"#TF_Weapon_SMG"
-			"item_name"	"#TF_Weapon_SMG"
-			"propername"	"1"
-			"item_slot"	"secondary"
-			"item_quality"	"unique"
-			"baseitem" "1"
-			"min_ilevel"	"1"
-			"max_ilevel"	"1"
-			"image_inventory"	"backpack/weapons/w_models/w_smg"
-			"image_inventory_size_w"		"128"
-			"image_inventory_size_h"		"82"
-			"model_world"	"models/weapons/w_models/w_stengun.mdl"
-			"model_player"	"models/weapons/v_models/v_stengun_merc.mdl"
-			"attach_to_hands"	"2"
-			"used_by_classes"
-			{
-				"sniper"	"1"
-			}
-			"mouse_pressed_sound"	"ui/item_light_gun_pickup.wav"
-			"drop_sound"		"ui/item_light_gun_drop.wav"
 		}
 		"9004"
 		{
