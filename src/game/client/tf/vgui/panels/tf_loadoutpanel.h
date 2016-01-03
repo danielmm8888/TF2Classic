@@ -34,8 +34,10 @@ public:
 	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
 	void SetCurrentClass(int iClass);
 	void SetCurrentSlot(int iSlot) { m_iCurrentSlot = iSlot; };
+	int  GetAnimSlot( CEconItemDefinition *pItemDef, int iClass );
+	const char *GetWeaponModel( CEconItemDefinition *pItemDef );
 	void SetCurrentPreset(int iPreset) { m_iCurrentPreset = iPreset; };
-	void SetModelWeapon(int iClass, int iSlot, int iPreset);
+	void UpdateModelWeapons( void );
 	void SetModelClass(int iClass);
 	void SetSlotAndPreset(int iSlot, int iPreset);
 	void SideRow(int iRow, int iDir);

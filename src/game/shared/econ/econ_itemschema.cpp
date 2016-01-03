@@ -402,6 +402,7 @@ public:
 		GET_STRING(pItem, pData, model_world);
 
 		GET_INT(pItem, pData, attach_to_hands );
+		GET_BOOL(pItem, pData, act_as_wearable );
 		
 		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{

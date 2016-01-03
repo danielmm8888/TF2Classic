@@ -345,39 +345,80 @@ void CTFLoadoutPanel::ResetRows()
 	}
 }
 
-void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
+int CTFLoadoutPanel::GetAnimSlot( CEconItemDefinition *pItemDef, int iClass )
 {
-	CEconItemView *pItem = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
-	CEconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
-
-	if (pItemData)
+	int iSlot = pItemDef->anim_slot;
+	if ( iSlot == -1 )
 	{
-		char pModel[64];
-		Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
-		if (!Q_strcmp(pModel, ""))
-			Q_snprintf(pModel, sizeof(pModel), pItemData->model_player);
+		// Fall back to script file data.
+		const char *pszClassname = TranslateWeaponEntForClass( pItemDef->item_class, iClass );
+		_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
+		Assert( pWeaponInfo );
 
-		int iSlot = pItemData->anim_slot;
-		if (iSlot < 0)
+		iSlot = pWeaponInfo->m_iWeaponType;
+	}
+
+	return iSlot;
+}
+
+const char *CTFLoadoutPanel::GetWeaponModel( CEconItemDefinition *pItemDef )
+{
+	const char *pszModel = pItemDef->model_world;
+
+	if ( pszModel[0] == '\0' && ( pItemDef->attach_to_hands == 1 || pItemDef->act_as_wearable ) )
+	{
+		pszModel = pItemDef->model_player;
+	}
+
+	return pszModel;
+}
+
+void CTFLoadoutPanel::UpdateModelWeapons( void )
+{
+	m_pClassModelPanel->ClearMergeMDLs();
+
+	// Get active weapon info.
+	int iPreset = GetTFInventory()->GetWeaponPreset( m_iCurrentClass, m_iCurrentSlot );
+	CEconItemView *pActiveItem = GetTFInventory()->GetItem( m_iCurrentClass, m_iCurrentSlot, iPreset );
+	Assert( pActiveItem );
+	CEconItemDefinition *pActiveItemDef = pActiveItem->GetStaticData();
+
+	int iAnimSlot = GetAnimSlot( pActiveItemDef, m_iCurrentClass );
+	
+	for ( int i = 0; i < INVENTORY_ROWNUM; i++ )
+	{
+		int iWeapon = GetTFInventory()->GetWeaponPreset( m_iCurrentClass, i );
+		CEconItemView *pItem = GetTFInventory()->GetItem( m_iCurrentClass, i, iWeapon );
+		CEconItemDefinition *pItemDef = pItem ? pItem->GetStaticData() : NULL;
+
+		if ( !pItemDef )
+			continue;
+
+		if ( iAnimSlot < 0 )
 		{
-			// Fall back to script file data.
-			const char *pszClassname = TranslateWeaponEntForClass( pItemData->item_class, iClass );
-			_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
-			Assert( pWeaponInfo );
-
-			iSlot = pWeaponInfo->m_iWeaponType;
+			// Active weapon has no animation, try this one.
+			int iAltSlot = GetAnimSlot( pItemDef, m_iCurrentClass );
+			if ( iAltSlot >= 0 )
+			{
+				pActiveItem = pItem;
+				iAnimSlot = iAltSlot;
+			}
 		}
 
-		m_pClassModelPanel->SetAnimationIndex(iSlot);
-		m_pClassModelPanel->ClearMergeMDLs();
-		if (pModel[0] != '\0')
-			m_pClassModelPanel->SetMergeMDL(pModel, NULL, 0);
+		// If this is the active weapon or it's a wearable, add its model.
+		if ( pItem == pActiveItem || pItemDef->act_as_wearable )
+		{
+			const char *pszModel = GetWeaponModel( pItemDef );
+			if ( pszModel[0] != '\0' )
+			{
+				m_pClassModelPanel->SetMergeMDL( pszModel, NULL, 0 );
+			}
+		}
 	}
-	else
-	{
-		m_pClassModelPanel->SetAnimationIndex(iSlot);
-		m_pClassModelPanel->ClearMergeMDLs();
-	}
+
+	// Set the animation.
+	m_pClassModelPanel->SetAnimationIndex( iAnimSlot >= 0 ? iAnimSlot : TF_WPN_TYPE_PRIMARY );
+
 	m_pClassModelPanel->Update();
 }
 
@@ -457,8 +498,7 @@ void CTFLoadoutPanel::UpdateModelPanels()
 		m_pRGBPanel->SetVisible(false);
 
 		SetModelClass(iClassIndex);
-		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(iClassIndex, m_iCurrentSlot);
-		SetModelWeapon(iClassIndex, m_iCurrentSlot, iWeaponPreset);
+		UpdateModelWeapons();
 	}
 }
 
