@@ -5,9 +5,6 @@
 #pragma once
 #endif
 
-#include "igamesystem.h"
-#include "GameEventListener.h"
-
 class CEconSchemaParser;
 
 enum
@@ -172,6 +169,7 @@ public:
 		item_slot = -1;
 		anim_slot = -1;
 		CLEAR_STR(item_quality);
+		baseitem = false;
 		propername = false;
 		CLEAR_STR(item_logname);
 		CLEAR_STR(item_iconname);
@@ -201,6 +199,7 @@ public:
 	int  item_slot;
 	int  anim_slot;
 	char item_quality[128];
+	bool baseitem;
 	bool propername;
 	char item_logname[128];
 	char item_iconname[128];
@@ -220,22 +219,16 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CEconItemSchema : public CAutoGameSystemPerFrame, public CGameEventListener
+class CEconItemSchema
 {
 	friend class CEconSchemaParser;
+	friend class CTFInventory;
 public:
 	CEconItemSchema();
 	~CEconItemSchema();
 
-	// Methods of IGameSystem
-	virtual bool Init();
-	virtual char const *Name() { return "CEconItemSchema"; }
-	// Gets called each frame
-	virtual void Update(float frametime);
-	virtual void LevelInitPreEntity( void );
-
-	// Methods of CGameEventListener
-	virtual void FireGameEvent(IGameEvent *event);
+	bool Init( void );
+	void Precache( void );
 
 	EconItemDefinition* GetItemDefinition(int id);
 	EconAttributeDefinition *GetAttributeDefinition( int id );
@@ -243,7 +236,7 @@ public:
 	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);
 	int GetAttributeIndex( const char *classname );
 
-private:
+protected:
 	CUtlDict< int, unsigned short >					m_GameInfo;
 	CUtlDict< EconQuality, unsigned short >			m_Qualities;
 	CUtlDict< EconColor, unsigned short >			m_Colors;
@@ -251,6 +244,7 @@ private:
 	CUtlMap< int, EconItemDefinition * >			m_Items;
 	CUtlMap< int, EconAttributeDefinition * >		m_Attributes;
 
+private:
 	bool m_bInited;
 };
 

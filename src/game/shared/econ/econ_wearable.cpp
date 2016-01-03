@@ -26,7 +26,13 @@ LINK_ENTITY_TO_CLASS( econ_wearable, CEconWearable )
 
 void CEconWearable::Spawn( void )
 {
+	GetAttributeContainer()->InitializeAttributes( this );
+
+	Precache();
+	SetModel( m_Item.GetPlayerDisplayModel() );
+
 	BaseClass::Spawn();
+
 	AddEffects( EF_BONEMERGE );
 	AddEffects( EF_BONEMERGE_FASTCULL );
 	SetCollisionGroup( COLLISION_GROUP_WEAPON );
@@ -61,7 +67,7 @@ int CEconWearable::GetSkin( void )
 
 void CEconWearable::UpdateWearableBodyGroups( CBasePlayer *pPlayer )
 {
-	EconItemVisuals *visual = m_Item.GetStaticData()->GetVisuals( GetTeamNumber() );
+	EconItemVisuals *visual = GetItem()->GetStaticData()->GetVisuals( GetTeamNumber() );
  	for ( unsigned int i = 0; i < visual->player_bodygroups.Count(); i++ )
 	{
 		const char *szBodyGroupName = visual->player_bodygroups.GetElementName(i);
@@ -82,6 +88,18 @@ void CEconWearable::SetParticle(const char* name)
 	Q_snprintf(m_ParticleName.GetForModify(), PARTICLE_MODIFY_STRING_SIZE, name);
 #else
 	Q_snprintf(m_ParticleName, PARTICLE_MODIFY_STRING_SIZE, name);
+#endif
+}
+
+void CEconWearable::GiveTo( CBaseEntity *pEntity )
+{
+#ifdef GAME_DLL
+	CBasePlayer *pPlayer = ToBasePlayer( pEntity );
+
+	if ( pPlayer )
+	{
+		pPlayer->EquipWearable( this );
+	}
 #endif
 }
 

@@ -10,14 +10,13 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-
-IMPLEMENT_NETWORKCLASS_ALIASED( EconEntity, DT_EconEntity )
-
 #ifdef CLIENT_DLL
 EXTERN_RECV_TABLE( DT_ScriptCreatedItem )
 #else
 EXTERN_SEND_TABLE( DT_ScriptCreatedItem )
 #endif
+
+IMPLEMENT_NETWORKCLASS_ALIASED( EconEntity, DT_EconEntity )
 
 BEGIN_NETWORK_TABLE( CEconEntity, DT_EconEntity )
 #ifdef CLIENT_DLL
@@ -38,7 +37,6 @@ END_PREDICTION_DATA()
 CEconEntity::CEconEntity()
 {
 	m_pAttributes = this;
-	m_Item.SetItemDefIndex( -1 );
 }
 
 #ifdef CLIENT_DLL
@@ -60,7 +58,6 @@ void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
 void CEconEntity::SetItem( CEconItemView &newItem )
 {
 	m_Item = newItem;
-	m_AttributeManager.InitializeAttributes( this );
 }
 
 CEconItemView *CEconEntity::GetItem( void )
@@ -79,6 +76,13 @@ bool CEconEntity::HasItemDefinition( void ) const
 int CEconEntity::GetItemID( void )
 {
 	return m_Item.GetItemDefIndex();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Derived classes need to override this.
+//-----------------------------------------------------------------------------
+void CEconEntity::GiveTo( CBaseEntity *pEntity )
+{
 }
 
 //-----------------------------------------------------------------------------

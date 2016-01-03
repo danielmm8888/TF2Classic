@@ -178,7 +178,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		}
 
 		CTakeDamageInfo info( this, pAttacker, m_hLauncher, GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
-		info.SetReportedPosition( GetScorer()->GetAbsOrigin() );
+		info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
 		pPlayer->TakeDamage( info );
 		
 		CPVSFilter filter( vecOrigin );

@@ -67,6 +67,8 @@ END_NETWORK_TABLE()
 
 #ifdef GAME_DLL
 static string_t s_iszTrainName;
+static string_t s_iszSawBlade01;
+static string_t s_iszSawBlade02;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -79,6 +81,8 @@ CTFGrenadePipebombProjectile::CTFGrenadePipebombProjectile()
 	m_flChargeTime = 0.0f;
 #ifdef GAME_DLL
 	s_iszTrainName  = AllocPooledString( "models/props_vehicles/train_enginecar.mdl" );
+	s_iszSawBlade01 = AllocPooledString( "sawmovelinear01" );
+	s_iszSawBlade02 = AllocPooledString( "sawmovelinear02" );
 #endif
 }
 
@@ -518,7 +522,7 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 
 	if ( pParent )
 	{
-		if ( pParent->NameMatches( "sawmovelinear01" ) || pParent->NameMatches( "sawmovelinear02" ) )
+		if ( pParent->NameMatches( s_iszSawBlade01 ) || pParent->NameMatches( s_iszSawBlade02 ) )
 		{
 			bIsDynamicProp = false;
 		}

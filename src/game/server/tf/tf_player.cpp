@@ -105,7 +105,7 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout." );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY, "Makes players spawn with random loadout." );
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
@@ -1174,6 +1174,19 @@ void CTFPlayer::SendOffHandViewModelActivity( Activity activity )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFPlayer::ItemsMatch( CEconItemView *pItem1, CEconItemView *pItem2, CTFWeaponBase *pWeapon )
+{
+	if ( pItem1 && pItem2 )
+	{
+		return ( pItem1->GetItemDefIndex() == pItem2->GetItemDefIndex() );
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Set the player up with the default weapons, ammo, etc.
 //-----------------------------------------------------------------------------
 void CTFPlayer::GiveDefaultItems()
@@ -1236,12 +1249,11 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 {
 	if ( pData->m_aBuildable[0] != OBJ_LAST )
 	{
-		int iItemID = GetLoadoutItem( GetPlayerClass()->GetClassIndex(), TF_LOADOUT_SLOT_BUILDING );
+		CEconItemView *pItem = GetLoadoutItem( GetPlayerClass()->GetClassIndex(), TF_LOADOUT_SLOT_BUILDING );
 		CTFWeaponBase *pBuilder = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
 		// Give the player a new builder weapon when they switch between engy and spy
-		if ( pBuilder && 
-			( !GetPlayerClass()->CanBuildObject( pBuilder->GetSubType() ) || pBuilder->GetItemID() != iItemID )  )
+		if ( pBuilder && !ItemsMatch( pBuilder->GetItem(), pItem, pBuilder ) )
 		{
 			if ( pBuilder == GetActiveWeapon() )
 				pBuilder->Holster();
@@ -1263,8 +1275,7 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		}
 		else
 		{
-			CEconItemView econItem( iItemID );
-			pBuilder = (CTFWeaponBase *)GiveNamedItem( "tf_weapon_builder", pData->m_aBuildable[0], &econItem );
+			pBuilder = (CTFWeaponBase *)GiveNamedItem( "tf_weapon_builder", pData->m_aBuildable[0], pItem );
 
 			if ( pBuilder )
 			{
@@ -1296,41 +1307,35 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
+void CTFPlayer::ValidateWeapons( bool bRegenerate )
 {
-	for ( int iSlot = 0; iSlot < TF_PLAYER_WEAPON_COUNT; ++iSlot )
+	for ( int i = 0; i < WeaponCount(); i++ )
 	{
-		// Give us a weapon from the inventory.
-		int iItemID = GetLoadoutItem( m_PlayerClass.GetClassIndex(), iSlot );
+		CTFWeaponBase *pWeapon = static_cast<CTFWeaponBase *>( GetWeapon( i ) );
+		if ( !pWeapon )
+			continue;
 
-		// HACK: Bat ID is zero so we need to check if current class is scout
-		if ( iItemID > 0 || m_PlayerClass.GetClassIndex() == TF_CLASS_SCOUT )
+		// Skip builder as we'll handle it separately.
+		if ( pWeapon->IsWeapon( TF_WEAPON_BUILDER ) )
+			continue;
+
+		EconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
+
+		if ( pItemDef )
 		{
-			EconItemDefinition* pItemInfo = GetItemSchema()->GetItemDefinition( iItemID );
+			CEconItemView *pLoadoutItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), pItemDef->item_slot );
 
-			if ( !pItemInfo )
+			if ( !ItemsMatch( pWeapon->GetItem(), pLoadoutItem, pWeapon ) )
 			{
-				Warning( "Item %d does not exist! Check Items array in TFInventory.\n", iItemID );
-				continue;
-			}
-
-			const char *pszWeaponName = pItemInfo->item_class;
-
-			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetEntityForLoadoutSlot( iSlot );
-
-			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-			if ( pWeapon && pWeapon->GetItemID() != iItemID )
-			{
+				// If this is not a weapon we're supposed to have in this loudout slot then nuke it.
+				// Either changed class or changed loadout.
 				if ( pWeapon == GetActiveWeapon() )
 					pWeapon->Holster();
 
 				Weapon_Detach( pWeapon );
 				UTIL_Remove( pWeapon );
-				pWeapon = NULL;
 			}
-
-			// Otherwise give it ammo.
-			if ( pWeapon )
+			else if ( bRegenerate )
 			{
 				pWeapon->ChangeTeam( GetTeamNumber() );
 				pWeapon->GiveDefaultAmmo();
@@ -1340,30 +1345,67 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 					pWeapon->WeaponReset();
 				}
 			}
-			else
-			{
-				CEconItemView econItem( iItemID );
-				pWeapon = (CTFWeaponBase *)GiveNamedItem( pszWeaponName, 0, &econItem );
+		}
+	}
+}
 
-				if ( pWeapon )
-				{
-					pWeapon->DefaultTouch( this );
-				}
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ValidateWearables( void )
+{
+	for ( int i = 0; i < GetNumWearables(); i++ )
+	{
+		CEconWearable *pWearable = GetWearable( i );
+
+		if ( !pWearable )
+			continue;
+
+		EconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
+
+		if ( pItemDef )
+		{
+			CEconItemView *pLoadoutItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), pItemDef->item_slot );
+
+			if ( pWearable->GetItemID() != pLoadoutItem->GetItemDefIndex() )
+			{
+				// Not supposed to carry this wearable, nuke it.
+				RemoveWearable( pWearable );
 			}
 		}
-		else
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
+{
+	ValidateWeapons( true );
+	ValidateWearables();
+
+	for ( int iSlot = 0; iSlot < TF_PLAYER_WEAPON_COUNT; ++iSlot )
+	{
+		if ( GetEntityForLoadoutSlot( iSlot ) != NULL )
 		{
-			//I shouldn't have any weapons in this slot, so get rid of it
-			CTFWeaponBase *pCarriedWeapon = (CTFWeaponBase *)GetEntityForLoadoutSlot( iSlot );
+			// Nothing to do here.
+			continue;
+		}
 
-			//Don't nuke builders since they will be nuked if we don't need them later.
-			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
+		// Give us an item from the inventory.
+		CEconItemView *pItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), iSlot );
+
+		if ( pItem )
+		{
+			EconItemDefinition* pItemDef = pItem->GetStaticData();
+			Assert( pItemDef );
+			const char *pszClassname = pItemDef->item_class;
+
+			CEconEntity *pEntity = dynamic_cast<CEconEntity *>( GiveNamedItem( pszClassname, 0, pItem ) );
+
+			if ( pEntity )
 			{
-				if ( pCarriedWeapon == GetActiveWeapon() )
-					pCarriedWeapon->Holster();
-
-				Weapon_Detach( pCarriedWeapon );
-				UTIL_Remove( pCarriedWeapon );
+				pEntity->GiveTo( this );
 			}
 		}
 	}
@@ -1544,7 +1586,7 @@ void CTFPlayer::ManageGrenades( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 // Purpose: Get preset from the vector
 //-----------------------------------------------------------------------------
-int CTFPlayer::GetLoadoutItem( int iClass, int iSlot )
+CEconItemView *CTFPlayer::GetLoadoutItem( int iClass, int iSlot )
 {
 	int iPreset = m_WeaponPreset[iClass][iSlot];
 
@@ -1595,35 +1637,38 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconI
 	if ( Weapon_OwnsThisType( pszEntName ) )
 		return NULL;
 
-	EHANDLE pent;
-
-	pent = CreateEntityByName( pszEntName );
-	if ( pent == NULL )
+	CBaseEntity* pEntity = CreateEntityByName( pszEntName );
+	
+	if ( pEntity == NULL )
 	{
 		Msg( "NULL Ent in GiveNamedItem!\n" );
 		return NULL;
 	}
 
-	pent->SetLocalOrigin( GetLocalOrigin() );
-	pent->AddSpawnFlags( SF_NORESPAWN );
+	CEconEntity *pEcon = dynamic_cast<CEconEntity *>( pEntity );
+	if ( pEcon && pItem )
+	{
+		pEcon->SetItem( *pItem );
+	}
 
-	CBaseCombatWeapon *pWeapon = dynamic_cast<CBaseCombatWeapon*>( (CBaseEntity*)pent );
+	pEntity->SetLocalOrigin( GetLocalOrigin() );
+	pEntity->AddSpawnFlags( SF_NORESPAWN );
+
+	CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
 	if ( pWeapon )
 	{
 		pWeapon->SetSubType( iSubType );
-		if ( pItem )
-			pWeapon->SetItem( *pItem );
 	}
 
-	DispatchSpawn( pent );
-	pent->Activate();
+	DispatchSpawn( pEntity );
+	pEntity->Activate();
 
-	if ( pent != NULL && !( pent->IsMarkedForDeletion() ) )
+	if ( pEntity != NULL && !( pEntity->IsMarkedForDeletion() ) )
 	{
-		pent->Touch( this );
+		pEntity->Touch( this );
 	}
 
-	return pent;
+	return pEntity;
 }
 
 
@@ -3789,21 +3834,32 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	g_vecAttackDir = vecDir;
 
 	// Do the damage.
+	// NOTE: None of the damage modifiers used here should affect the knockback force.
 	m_bitsDamageType |= info.GetDamageType();
+	float flDamage = info.GetDamage();
 
-	bool bIgniting = false;
+	if ( flDamage == 0.0f )
+		return 0;
+
+	// Self-damage modifiers.
+	if ( info.GetAttacker() == this )
+	{
+		if ( ( info.GetDamageType() & DMG_BLAST ) && !info.GetDamagedOtherPlayers() )
+		{
+			CALL_ATTRIB_HOOK_FLOAT( flDamage, rocket_jump_dmg_reduction );
+		}
+	}
+
 	int iOldHealth = m_iHealth;
+	bool bIgniting = false;
 
 	if ( m_takedamage != DAMAGE_EVENTS_ONLY )
 	{
 		// Start burning if we took ignition damage
 		bIgniting = ( ( info.GetDamageType() & DMG_IGNITE ) && ( GetWaterLevel() < WL_Waist ) );
 
-		if ( info.GetDamage() == 0.0f )
-			return 0;
-
 		// Take damage - round to the nearest integer.
-		m_iHealth -= ( info.GetDamage() + 0.5f );
+		m_iHealth -= ( flDamage + 0.5f );
 	}
 
 	m_flLastDamageTime = gpGlobals->curtime;
@@ -7861,7 +7917,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 			}
 		}
 
-		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
+		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "tf_wearable" );
 
 		pWearable->SetItem( econItem );
 		CBaseEntity::PrecacheModel( pItemDef->model_player );

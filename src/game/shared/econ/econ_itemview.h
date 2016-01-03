@@ -27,8 +27,8 @@ class CEconItemView
 public:
 	DECLARE_CLASS_NOBASE( CEconItemView );
 	DECLARE_EMBEDDED_NETWORKVAR();
-	CEconItemView() {}
-	CEconItemView( int m_ItemID ){ SetItemDefIndex(m_ItemID); }
+	CEconItemView();
+	CEconItemView( int iItemID );
 
 	EconItemDefinition *GetStaticData( void ) const;
 

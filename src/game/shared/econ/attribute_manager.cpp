@@ -171,7 +171,7 @@ float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity
 	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
 		return flValue;
 
-	m_bParsingMyself = true;
+	m_bParsingMyself = true;;
 
 	// This should only ever be used by econ entities.
 	CEconEntity *pEconEnt = assert_cast<CEconEntity *>( m_hOuter.Get() );

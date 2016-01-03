@@ -145,11 +145,14 @@ bool CTFLoadoutPanel::Init()
 		if (pszClassModels[iClassIndex][0] != '\0')
 			modelinfo->FindOrLoadModel(pszClassModels[iClassIndex]);
 		for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+		{
 			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 			{
-				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
-				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
-				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_LOADOUT_SLOT_MELEE && iPreset == 0)))
+				CEconItemView *pItem = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+
+				EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+
+				if (pItemData)
 				{
 					char pModel[64];
 					Q_snprintf(pModel, sizeof(pModel), pItemData->model_world);
@@ -161,6 +164,7 @@ bool CTFLoadoutPanel::Init()
 					//	PrecacheMaterial(pItemData->image_inventory);
 				}
 			}
+		}
 	}
 
 	return true;
@@ -343,8 +347,9 @@ void CTFLoadoutPanel::ResetRows()
 
 void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
 {
-	int iWeapon = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
-	EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+	CEconItemView *pItem = GetTFInventory()->GetItem(iClass, iSlot, iPreset);
+	EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+
 	if (pItemData)
 	{
 		char pModel[64];
@@ -489,17 +494,18 @@ void CTFLoadoutPanel::DefaultLayout()
 			CTFAdvItemButton *m_pSlideButtonR = m_pSlideButtons[(iSlot * 2) + 1];
 			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 			{
-				int iWeapon = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+				CEconItemView *pItem = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
 
 				// If Spy is selected show building slot in position 2 .
 				if ( iClassIndex == TF_CLASS_SPY && iSlot == TF_LOADOUT_SLOT_SECONDARY )
 				{
-					iWeapon = GetTFInventory()->GetItem( iClassIndex, TF_LOADOUT_SLOT_BUILDING, iPreset );
+					pItem = GetTFInventory()->GetItem( iClassIndex, TF_LOADOUT_SLOT_BUILDING, iPreset );
 				}
 
-				EconItemDefinition *pItemData = GetItemSchema()->GetItemDefinition(iWeapon);
+				EconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
 				CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
-				if (pItemData && (iWeapon > 0 || (iClassIndex == TF_CLASS_SCOUT && iSlot == TF_LOADOUT_SLOT_MELEE && iPreset == 0)))
+
+				if (pItemData)
 				{
 					m_pWeaponButton->SetVisible(true);
 					m_pWeaponButton->SetItemDefinition(pItemData);

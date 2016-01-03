@@ -126,7 +126,7 @@ public:
 	CTFWeaponBase		*GetActiveTFWeapon( void ) const;
 	bool				IsActiveTFWeapon(int iWeaponID);
 
-	int					GetLoadoutItem( int iClass, int iSlot );
+	CEconItemView		*GetLoadoutItem( int iClass, int iSlot );
 	void				HandleCommand_WeaponPreset(int iSlotNum, int iPresetNum);
 	void				HandleCommand_WeaponPreset(int iClass, int iSlotNum, int iPresetNum);
 
@@ -398,6 +398,9 @@ public:
 	virtual bool Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex = 0 );
 	virtual void Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarget , const Vector *pVelocity );
 
+	bool				ItemsMatch( CEconItemView *pItem1, CEconItemView *pItem2, CTFWeaponBase *pWeapon );
+	void				ValidateWeapons( bool bRegenerate );
+	void				ValidateWearables( void );
 	void				ManageRegularWeapons( TFPlayerClassData_t *pData );
 	void				ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData );
 	void				ManageRandomWeapons( TFPlayerClassData_t *pData );
@@ -436,6 +439,7 @@ public:
 	CTFWeaponBase		*Weapon_OwnsThisID( int iWeaponID );
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	CEconEntity			*GetEntityForLoadoutSlot( int iSlot );
+	CEconWearable		*GetWearableForLoadoutSlot( int iSlot );
 
 	float	m_flSpawnProtectTime;
 

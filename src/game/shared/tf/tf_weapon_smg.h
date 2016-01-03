@@ -14,7 +14,6 @@
 #ifdef CLIENT_DLL
 #define CTFSMG C_TFSMG
 #define CTFSMG_Primary C_TFSMG_Primary
-#define CTFSMG_Scout C_TFSMG_Scout
 #endif
 
 //=============================================================================

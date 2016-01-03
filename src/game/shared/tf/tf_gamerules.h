@@ -59,7 +59,7 @@ class CTFRadiusDamageInfo
 public:
 	CTFRadiusDamageInfo();
 
-	void	ApplyToEntity( CBaseEntity *pEntity );
+	bool	ApplyToEntity( CBaseEntity *pEntity );
 
 public:
 	CTakeDamageInfo info;

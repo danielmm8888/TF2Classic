@@ -10,23 +10,27 @@
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
 
-CTFInventory *pTFInventory = NULL;
+static CTFInventory g_TFInventory;
 
 CTFInventory *GetTFInventory()
 {
-	if (NULL == pTFInventory)
-	{
-		pTFInventory = new CTFInventory();
-	}
-	return pTFInventory;
+	return &g_TFInventory;
 }
 
-CTFInventory::CTFInventory()
+CTFInventory::CTFInventory() : CAutoGameSystemPerFrame( "CTFInventory" )
 {
-#if defined( CLIENT_DLL )
+#ifdef CLIENT_DLL
 	m_pInventory = NULL;
-	LoadInventory();
 #endif
+
+	// Generate dummy base items.
+	for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
+	{
+		for ( int iSlot = 0; iSlot < TF_LOADOUT_SLOT_COUNT; iSlot++ )
+		{
+			m_Items[iClass][iSlot].AddToTail( NULL );
+		}
+	}
 };
 
 CTFInventory::~CTFInventory()
@@ -36,14 +40,71 @@ CTFInventory::~CTFInventory()
 #endif
 }
 
+bool CTFInventory::Init( void )
+{
+	GetItemSchema()->Init();
+
+	// Generate item list.
+	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
+	{
+		int iItemID = GetItemSchema()->m_Items.Key( i );
+		EconItemDefinition *pItemDef = GetItemSchema()->m_Items.Element( i );
+
+		if ( pItemDef->item_slot == -1 )
+			continue;
+
+		// Add it to each class that uses it.
+		for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
+		{
+			if ( pItemDef->used_by_classes & ( 1 << iClass ) )
+			{
+				// Show it if it's either base item or has show_in_armory flag.
+				int iSlot = pItemDef->item_slot;
+
+				if ( pItemDef->baseitem )
+				{
+					CEconItemView *pBaseItem = m_Items[iClass][iSlot][0];
+					if ( pBaseItem != NULL )
+					{
+						Warning( "Duplicate base item %d for class %s in slot %s!\n", iItemID, g_aPlayerClassNames_NonLocalized[iClass], g_LoadoutSlots[iSlot] );
+						delete pBaseItem;
+					}
+
+					m_Items[iClass][iSlot][0] = new CEconItemView( iItemID );
+				}
+				else if ( pItemDef->show_in_armory )
+				{
+					CEconItemView *pNewItem = new CEconItemView( iItemID );
+					m_Items[iClass][iSlot].AddToTail( pNewItem );
+				}
+			}
+		}
+	}
+
+
+#if defined( CLIENT_DLL )
+	LoadInventory();
+#endif
+
+	return true;
+}
+
+void CTFInventory::LevelInitPreEntity( void )
+{
+	GetItemSchema()->Precache();
+}
+
 int CTFInventory::GetWeapon(int iClass, int iSlot)
 {
 	return Weapons[iClass][iSlot];
 };
 
-int CTFInventory::GetItem(int iClass, int iSlot, int iNum)
+CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 {
-	return Items[iClass][iSlot][iNum];
+	if ( CheckValidWeapon( iClass, iSlot, iNum ) == false )
+		return NULL;
+
+	return m_Items[iClass][iSlot][iNum];
 };
 
 bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
@@ -54,21 +115,14 @@ bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= fals
 	int iCount = (bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT);
 
 	// Array bounds check.
-	if (iSlot >= iCount || iSlot < 0)
+	if ( iSlot >= iCount || iSlot < 0 )
 		return false;
 
-	bool bWeapon = false;
+	// Slot must contain a base item.
+	if ( m_Items[iClass][iSlot][0] == NULL )
+		return false;
 
-	// Check if there's at least one weapon in this slot.
-	for (int i = 0; i < iCount; i++)
-	{
-		if ( Items[iClass][iSlot][i] )
-		{
-			bWeapon = true;
-			break;
-		}
-	}
-	return bWeapon;
+	return true;
 };
 
 bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
@@ -76,14 +130,14 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHu
 	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
 		return false;
 
-	int iCount = (bHudCheck ? INVENTORY_COLNUM : INVENTORY_WEAPONS);
+	int iCount = ( bHudCheck ? INVENTORY_COLNUM : m_Items[iClass][iSlot].Count() );
 
 	// Array bounds check.
-	if (iWeapon >= iCount || iWeapon < 0)
+	if ( iWeapon >= iCount || iWeapon < 0 )
 		return false;
 
 	// Don't allow switching if this class has no weapon at this position.
-	if ( !Items[iClass][iSlot][iWeapon] )
+	if ( m_Items[iClass][iSlot][iWeapon] == NULL )
 		return false;
 
 	return true;
@@ -148,6 +202,10 @@ int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
 		ResetInventory();
 		return 0;
 	}
+
+	if ( CheckValidWeapon( iClass, iSlot, iPreset ) == false )
+		return 0;
+
 	return iPreset;
 };
 
@@ -234,151 +292,5 @@ const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT] =
 		TF_WEAPON_NONE,
 		TF_WEAPON_PISTOL,
 		TF_WEAPON_CROWBAR
-	}
-};
-
-const int CTFInventory::Items[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT][INVENTORY_WEAPONS] =
-{
-	{ // Unassigned
-
-	},
-	{ // Scout
-		{
-			13, 9002
-		},
-		{
-			23, 9003
-		},
-		{
-			0
-		}
-	},
-	{ // Sniper
-		{
-			14, 9007
-		},
-		{
-			16
-		},
-		{
-			3, 9008
-		}
-	},
-	{ // Soldier
-		{
-			18, 9004
-		},
-		{
-			10
-		},
-		{
-			6
-		}
-	},
-	{ // Demoman
-		{
-			19, 9005
-		},
-		{
-			20
-		},
-		{
-			1
-		}
-	},
-	{ // Medic
-		{
-			17
-		},
-		{
-			29, 35, 9006
-		},
-		{
-			8, 37
-		}
-	},
-	{ // Heavy
-		{
-			15
-		},
-		{
-			11
-		},
-		{
-			5
-		}
-	},
-	{ // Pyro
-		{
-			21
-		},
-		{
-			12, 39
-		},
-		{
-			2
-		}
-	},
-	{ // Spy
-		{
-			24, 9009
-		},
-		{
-
-		},
-		{
-			4
-		},
-		{
-			27
-		},
-		{
-			30
-		},
-		{
-			735
-		}
-	},
-	{ // Engineer
-		{
-			9
-		},
-		{
-			22
-		},
-		{
-			7
-		},
-		{
-			25
-		},
-		{
-			26
-		},
-		{
-			28
-		}
-	},
-	{ // Civilian
-		{
-
-		},
-		{
-
-		},
-		{
-			//TF_WEAPON_UMBRELLA
-		}
-	},
-	{ // Mercenary
-		{
-
-		},
-		{
-			22
-		},
-		{
-			9010
-		}
 	}
 };

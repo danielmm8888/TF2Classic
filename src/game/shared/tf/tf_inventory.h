@@ -12,6 +12,7 @@
 
 #include "cbase.h"
 //#include "server_class.h"
+#include "igamesystem.h"
 #include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
 #include "tf_weapon_parse.h"
@@ -26,14 +27,19 @@
 #define INVENTORY_ROWNUM		3
 #define INVENTORY_VECTOR_NUM	INVENTORY_COLNUM * INVENTORY_ROWNUM
 
-class CTFInventory
+class CTFInventory : public CAutoGameSystemPerFrame
 {
 public:
 	CTFInventory();
 	~CTFInventory();
 
+	virtual char const *Name() { return "CTFInventory"; }
+
+	virtual bool Init( void );
+	virtual void LevelInitPreEntity( void );
+
 	int GetWeapon(int iClass, int iSlot);
-	int GetItem(int iClass, int iSlot, int iNum);
+	CEconItemView *GetItem(int iClass, int iSlot, int iNum);
 	bool CheckValidSlot(int iClass, int iSlot, bool bHudCheck = false);
 	bool CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck = false);
 
@@ -45,7 +51,7 @@ public:
 
 private:
 	static const int Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT];
-	static const int Items[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT][INVENTORY_WEAPONS];
+	CUtlVector<CEconItemView *> m_Items[TF_CLASS_COUNT_ALL][TF_LOADOUT_SLOT_COUNT];
 
 #if defined( CLIENT_DLL )
 	void LoadInventory();

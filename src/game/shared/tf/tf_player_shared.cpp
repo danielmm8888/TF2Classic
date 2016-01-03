@@ -16,6 +16,7 @@
 #include "tf_weapon_pipebomblauncher.h"
 #include "in_buttons.h"
 #include "tf_viewmodel.h"
+#include "econ_wearable.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -3569,8 +3570,8 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 {
 	if ( iSlot >= TF_LOADOUT_SLOT_HAT )
 	{
-		// Not fully supporting cosmetics yet.
-		return NULL;
+		// Weapons don't get equipped in cosmetic slots.
+		return GetWearableForLoadoutSlot( iSlot );
 	}
 
 	for ( int i = 0; i < WeaponCount(); i++ )
@@ -3579,11 +3580,36 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 		if ( !pWeapon )
 			continue;
 
-		EconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
+		EconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
 
-		if ( pStatic && pStatic->item_slot == iSlot )
+		if ( pItemDef && pItemDef->item_slot == iSlot )
 		{
 			return pWeapon;
+		}
+	}
+
+	// Wearable?
+	CEconWearable *pWearable = GetWearableForLoadoutSlot( iSlot );
+	if ( pWearable )
+		return pWearable;
+
+	return NULL;
+}
+
+CEconWearable *CTFPlayer::GetWearableForLoadoutSlot( int iSlot )
+{
+	for ( int i = 0; i < GetNumWearables(); i++ )
+	{
+		CEconWearable *pWearable = GetWearable( i );
+
+		if ( !pWearable )
+			continue;
+
+		EconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
+
+		if ( pItemDef && pItemDef->item_slot == iSlot )
+		{
+			return pWearable;
 		}
 	}
 

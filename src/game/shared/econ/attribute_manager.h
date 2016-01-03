@@ -82,9 +82,6 @@ public:
 	CAttributeContainer();
 
 	float ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass );
-
-public:
-	CEconItemView m_Item;
 };
 
 #endif // ATTRIBUTE_MANAGER_H

@@ -37,6 +37,8 @@ public:
 	virtual int		GetSkin(void);
 	virtual void	SetParticle(const char* name);
 	virtual void	UpdateWearableBodyGroups( CBasePlayer *pPlayer );
+	virtual void	GiveTo( CBaseEntity *pEntity );
+
 #ifdef GAME_DLL
 	virtual void	Equip( CBasePlayer *pPlayer );
 	virtual void	UnEquip( CBasePlayer *pPlayer );

@@ -54,6 +54,16 @@ END_SEND_TABLE()
 			Q_snprintf(val, sizeof(val), map.Element(index))
 
 
+CEconItemView::CEconItemView()
+{
+	m_iItemDefinitionIndex = -1;
+}
+
+CEconItemView::CEconItemView( int iItemID )
+{
+	m_iItemDefinitionIndex = iItemID;
+}
+
 EconItemDefinition *CEconItemView::GetStaticData( void ) const
 {
 	if ( m_iItemDefinitionIndex < 0 )

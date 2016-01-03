@@ -40,7 +40,7 @@ public:
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
 
 private:
-	EconItemDefinition *m_pItemDef;
+	CEconItemView m_Item;
 	CTFWeaponInfo *m_pWeaponInfo;
 };
 

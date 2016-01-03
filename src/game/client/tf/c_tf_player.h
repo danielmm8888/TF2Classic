@@ -23,6 +23,7 @@
 #include "iinput.h"
 #include "tf_weapon_medigun.h"
 #include "ihasattributes.h"
+#include "econ_wearable.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -213,6 +214,7 @@ public:
 	virtual bool		Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon );
 	virtual CBaseCombatWeapon *Weapon_GetSlot( int slot ) const;
 	CEconEntity			*GetEntityForLoadoutSlot( int iSlot );
+	CEconWearable		*GetWearableForLoadoutSlot( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
 	virtual void		SetStepSoundTime( stepsoundtimes_t iStepSoundTime, bool bWalking );

@@ -89,7 +89,6 @@ CWeaponSpawner::CWeaponSpawner()
 	m_nWeaponID = TF_WEAPON_NONE;
 	m_nItemID = -1;
 	m_iRespawnTime = 10;
-	m_pItemDef = NULL;
 }
 
 
@@ -99,13 +98,15 @@ CWeaponSpawner::CWeaponSpawner()
 void CWeaponSpawner::Spawn(void)
 {
 	// Damn it. We need both item definition and weapon script data for spawners to work properly.
-	m_pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
-	if ( !m_pItemDef )
+	EconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
+	if ( !pItemDef )
 	{
 		Warning( "tf_weaponspawner has incorrect item ID %d.\n", m_nWeaponID );
 		UTIL_Remove( this );
 		return;
 	}
+
+	m_Item.SetItemDefIndex( m_nItemID );
 
 	// Only merc can use weapon spawners so it's safe use him for translation.
 	m_pWeaponInfo = GetTFWeaponInfoForItem( m_nItemID, TF_CLASS_MERCENARY );
@@ -114,7 +115,7 @@ void CWeaponSpawner::Spawn(void)
 
 	Precache();
 
-	SetModel( m_pItemDef->model_world );
+	SetModel( m_Item.GetWorldDisplayModel() );
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
@@ -134,7 +135,7 @@ float CWeaponSpawner::GetRespawnDelay( void )
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Precache(void)
 {
-	PrecacheModel( m_pItemDef->model_world );
+	PrecacheModel( m_Item.GetWorldDisplayModel() );
 	//PrecacheParticleSystem( RESPAWN_PARTICLE );
 }
 
@@ -145,12 +146,12 @@ bool CWeaponSpawner::KeyValue( const char *szKeyName, const char *szValue )
 {
 	if ( FStrEq( szKeyName, "WeaponNumber" ) )
 	{
-		Warning( "tf_weaponspawner is using obsolete keyvalue \"WeaponNumber\"! Remove it and use the new key \"itemid\" (item ID from schema).\n" );
-
 		int iInputID = atoi( szValue );
 
 		if ( iInputID == 0 )
 			return true;
+
+		Warning( "tf_weaponspawner is using obsolete keyvalue \"WeaponNumber\"! Remove it and use the new key \"itemid\" (item ID from schema).\n" );
 
 		for ( int i = 0; i < ARRAYSIZE( g_aWeaponTranslations ); i++ )
 		{
@@ -229,13 +230,13 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 #ifndef DM_WEAPON_BUCKET
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->GetEntityForLoadoutSlot( m_pItemDef->item_slot );
-		const char *pszWeaponName = m_pItemDef->item_class;
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->GetEntityForLoadoutSlot( m_Item.GetStaticData()->item_slot );
+		const char *pszWeaponName = m_Item.GetEntityName();
 		int iAmmoType = m_pWeaponInfo->iAmmoType;
 
 		if ( pWeapon )
 		{
-			if ( pWeapon->GetItemID() == m_nItemID )
+			if ( pTFPlayer->ItemsMatch( pWeapon->GetItem(), &m_Item, pWeapon ) )
 			{
 				if ( pTFPlayer->GiveAmmo( pWeapon->GetInitialAmmo(), iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
@@ -273,8 +274,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 
 		if ( !pWeapon )
 		{
-			CEconItemView econItem( m_nItemID );
-			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName, 0, &econItem );
+			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName, 0, &m_Item );
 			if ( pNewWeapon )
 			{
 				pPlayer->SetAmmoCount( pNewWeapon->GetInitialAmmo(), iAmmoType );

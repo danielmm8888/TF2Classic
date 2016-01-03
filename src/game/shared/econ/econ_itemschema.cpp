@@ -390,6 +390,7 @@ public:
 			}
 		}
 
+		GET_BOOL(pItem, pData, baseitem );
 		GET_INT(pItem, pData, min_ilevel);
 		GET_INT(pItem, pData, max_ilevel);
 
@@ -485,16 +486,12 @@ CEconSchemaParser g_EconSchemaParser;
 //-----------------------------------------------------------------------------
 // Purpose: constructor
 //-----------------------------------------------------------------------------
-CEconItemSchema::CEconItemSchema() : CAutoGameSystemPerFrame("CEconItemSchema")
+CEconItemSchema::CEconItemSchema()
 {
 	m_Items.SetLessFunc( schemaLessFunc );
 	m_Attributes.SetLessFunc( schemaLessFunc );
 
-	if (!filesystem)
-		return;
-
 	m_bInited = false;
-	Init();
 }
 
 CEconItemSchema::~CEconItemSchema()
@@ -504,7 +501,7 @@ CEconItemSchema::~CEconItemSchema()
 //-----------------------------------------------------------------------------
 // Purpose: Initializer
 //-----------------------------------------------------------------------------
-bool CEconItemSchema::Init()
+bool CEconItemSchema::Init( void )
 {
 	if (!m_bInited)
 	{
@@ -520,14 +517,10 @@ bool CEconItemSchema::Init()
 	return true;
 }
 
-void CEconItemSchema::Update(float frametime)
-{
-}
-
-void CEconItemSchema::LevelInitPreEntity( void )
+void CEconItemSchema::Precache( void )
 {
 	// Precache everything from schema.
-	FOR_EACH_MAP( m_Items, i )
+	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
 	{
 		EconItemDefinition *pItem = m_Items[i];
 
@@ -663,17 +656,6 @@ int CEconItemSchema::GetAttributeIndex( const char *name )
 	}
 
 	return -1;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Event handler
-//-----------------------------------------------------------------------------
-void CEconItemSchema::FireGameEvent(IGameEvent *event)
-{
-	//const char *type = event->GetName();
-
-	//if (!TFGameRules())
-	//	return;
 }
 
 

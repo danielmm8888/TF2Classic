@@ -59,6 +59,8 @@ public:
 	virtual bool HasItemDefinition() const;
 	virtual int GetItemID();
 
+	virtual void GiveTo( CBaseEntity *pEntity );
+
 	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
 	virtual CAttributeContainer *GetAttributeContainer() { return &m_AttributeManager; }
 	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
@@ -67,9 +69,11 @@ public:
 	virtual void UpdateOnRemove( void );
 
 protected:
-	CEconItemView m_Item;
-	CAttributeContainer m_AttributeManager;
 	EHANDLE m_hOldOwner;
+	CEconItemView m_Item;
+
+private:
+	CAttributeContainer m_AttributeManager;
 };
 
 #endif

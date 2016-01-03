@@ -203,6 +203,8 @@ void CTFWeaponBase::Spawn()
 	// Base class spawn.
 	BaseClass::Spawn();
 
+	GetAttributeContainer()->InitializeAttributes( this );
+
 	// Set this here to allow players to shoot dropped weapons.
 	SetCollisionGroup( COLLISION_GROUP_WEAPON );
 
@@ -657,7 +659,7 @@ void CTFWeaponBase::ReapplyProvision( void )
 	else
 	{
 		// Weapon not active, remove it from providers list.
-		m_AttributeManager.StopProvidingTo( GetOwner() );
+		GetAttributeContainer()->StopProvidingTo( GetOwner() );
 		m_hOldOwner = NULL;
 	}
 }
