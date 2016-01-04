@@ -36,7 +36,6 @@ public:
 	void SetCurrentSlot(int iSlot) { m_iCurrentSlot = iSlot; };
 	int  GetAnimSlot( CEconItemDefinition *pItemDef, int iClass );
 	const char *GetWeaponModel( CEconItemDefinition *pItemDef );
-	void SetCurrentPreset(int iPreset) { m_iCurrentPreset = iPreset; };
 	void UpdateModelWeapons( void );
 	void SetModelClass(int iClass);
 	void SetSlotAndPreset(int iSlot, int iPreset);
@@ -54,7 +53,6 @@ private:
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	m_iCurrentClass;
 	int	m_iCurrentSlot;
-	int	m_iCurrentPreset;
 	int m_iCurrentSkin;
 };
 

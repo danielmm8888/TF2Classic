@@ -390,7 +390,7 @@ public:
 			}
 		}
 
-		GET_BOOL(pItem, pData, baseitem );
+		GET_BOOL(pItem, pData, baseitem);
 		GET_INT(pItem, pData, min_ilevel);
 		GET_INT(pItem, pData, max_ilevel);
 
@@ -401,8 +401,8 @@ public:
 		GET_STRING(pItem, pData, model_player);
 		GET_STRING(pItem, pData, model_world);
 
-		GET_INT(pItem, pData, attach_to_hands );
-		GET_BOOL(pItem, pData, act_as_wearable );
+		GET_INT(pItem, pData, attach_to_hands);
+		GET_BOOL(pItem, pData, act_as_wearable);
 		
 		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{

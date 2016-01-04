@@ -515,7 +515,7 @@ const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 //-----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetWorldModel( void ) const
 {
-	// Use model from item schema we have an item ID.
+	// Use model from item schema if we have an item ID.
 	if ( HasItemDefinition() )
 	{
 		return m_Item.GetWorldDisplayModel();

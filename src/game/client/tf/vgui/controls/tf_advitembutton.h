@@ -28,9 +28,11 @@ public:
 	void PerformLayout();
 	void SendAnimation(MouseState flag);
 	void SetItemDefinition(CEconItemDefinition *pItemData);
+	void SetLoadoutSlot( int iSlot, int iPreset );
 
 protected:
-	CEconItemDefinition *pItemDefinition;
+	CEconItemDefinition *m_pItemDefinition;
+	int m_iLoadoutSlot;
 };
 
 

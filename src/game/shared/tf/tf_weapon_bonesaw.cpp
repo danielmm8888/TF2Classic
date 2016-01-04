@@ -58,7 +58,7 @@ void CTFBonesaw::UpdateChargePoseParam( void )
 	{
 		SetPoseParameter( "syringe_charge_level", pMedigun->GetChargeLevel() );
 
-		CTFViewModel *vm = dynamic_cast< CTFViewModel * >( pOwner->GetViewModel( m_nViewModelIndex ) );
+		CBaseViewModel *vm = pOwner->GetViewModel( m_nViewModelIndex );
 		if ( vm )
 			vm->SetPoseParameter( "syringe_charge_level", pMedigun->GetChargeLevel() );
 	}

@@ -12,6 +12,7 @@
 #include "basemodelpanel.h"
 #include "panels/tf_dialogpanelbase.h"
 #include "inputsystem/iinputsystem.h"
+#include "tf_inventory.h"
 
 using namespace vgui;
 
@@ -41,7 +42,8 @@ CTFAdvItemButton::~CTFAdvItemButton()
 void CTFAdvItemButton::Init()
 {
 	BaseClass::Init();
-	pItemDefinition = NULL;
+	m_pItemDefinition = NULL;
+	m_iLoadoutSlot = TF_LOADOUT_SLOT_PRIMARY;
 	pButton->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
 	pButton->SetTextInset(0, -10);
 }
@@ -66,15 +68,15 @@ void CTFAdvItemButton::SendAnimation(MouseState flag)
 	switch (flag)
 	{
 	case MOUSE_DEFAULT:
-		if (pItemDefinition)
-			MAINMENU_ROOT->ShowItemToolTip(pItemDefinition);
+		if ( m_pItemDefinition )
+			MAINMENU_ROOT->ShowItemToolTip( m_pItemDefinition );
 		break;
 	case MOUSE_ENTERED:
-		if (pItemDefinition)
-			MAINMENU_ROOT->ShowItemToolTip(pItemDefinition);
+		if ( m_pItemDefinition )
+			MAINMENU_ROOT->ShowItemToolTip( m_pItemDefinition );
 		break;
 	case MOUSE_EXITED:
-		if (pItemDefinition)
+		if ( m_pItemDefinition )
 			MAINMENU_ROOT->HideItemToolTip();
 		break;
 	case MOUSE_PRESSED:
@@ -86,7 +88,7 @@ void CTFAdvItemButton::SendAnimation(MouseState flag)
 
 void CTFAdvItemButton::SetItemDefinition(CEconItemDefinition *pItemData)
 {
-	pItemDefinition = pItemData;
+	m_pItemDefinition = pItemData;
 
 	char szIcon[128];
 	Q_snprintf(szIcon, sizeof(szIcon), "../%s_large", pItemData->image_inventory);
@@ -95,4 +97,13 @@ void CTFAdvItemButton::SetItemDefinition(CEconItemDefinition *pItemData)
 	char szWeaponName[32];
 	Q_snprintf(szWeaponName, sizeof(szWeaponName), "%s", pItemData->item_name);
 	SetText(szWeaponName);
+}
+
+void CTFAdvItemButton::SetLoadoutSlot( int iSlot, int iPreset )
+{
+	m_iLoadoutSlot = iSlot;
+
+	char szCommand[64];
+	Q_snprintf( szCommand, sizeof( szCommand ), "loadout %d %d", iSlot, iPreset );
+	SetCommandString( szCommand );
 }
