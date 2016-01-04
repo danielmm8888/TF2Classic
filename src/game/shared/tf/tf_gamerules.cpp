@@ -3037,7 +3037,7 @@ void CTFGameRules::CreateStandardEntities()
 //-----------------------------------------------------------------------------
 // Purpose: determine the class name of the weapon that got a kill
 //-----------------------------------------------------------------------------
-const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim )
+const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTFPlayer *pVictim, int &iOutputID )
 {
 	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
@@ -3078,24 +3078,20 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		if ( pWeapon )
 		{
 			killer_weapon_name = pWeapon->GetClassname();
+			iWeaponID = pWeapon->GetWeaponID();
 
 			if ( pInflictor && pInflictor != pScorer )
 			{
 				CTFBaseRocket *pRocket = dynamic_cast<CTFBaseRocket *>( pInflictor );
 
-				if ( pRocket )
+				if ( pRocket && pRocket->m_iDeflected )
 				{
-					iWeaponID = pRocket->GetWeaponID();
-
 					// Fire weapon deflects go here.
-					if ( pRocket->m_iDeflected )
+					switch ( pRocket->GetWeaponID() )
 					{
-						switch ( pRocket->GetWeaponID() )
-						{
-						case TF_WEAPON_FLAREGUN:
-							killer_weapon_name = "deflect_flare";
-							break;
-						}
+					case TF_WEAPON_FLAREGUN:
+						killer_weapon_name = "deflect_flare";
+						break;
 					}
 				}
 			}
@@ -3205,18 +3201,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
 	}
-	else if ( pScorer && iWeaponID )
+	else if ( iWeaponID )
 	{
-		// Look for weapon name in the schema.
-		CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
-		if ( pWeapon )
-		{
-			CEconItemDefinition *pStatic = pWeapon->GetItem()->GetStaticData();
-			if ( pStatic && pStatic->item_iconname[0] != '\0' )
-			{
-				killer_weapon_name = pStatic->item_iconname;
-			}
-		}
+		iOutputID = iWeaponID;
 	}
 
 	return killer_weapon_name;
@@ -3308,9 +3295,28 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	CBaseEntity *pKiller = info.GetAttacker();
 	CTFPlayer *pScorer = ToTFPlayer( GetDeathScorer( pKiller, pInflictor, pVictim ) );
 	CTFPlayer *pAssister = ToTFPlayer( GetAssister( pVictim, pScorer, pInflictor ) );
+	int iWeaponID = TF_WEAPON_NONE;
 
 	// Work out what killed the player, and send a message to all clients about it
-	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim );
+	const char *killer_weapon_name = GetKillingWeaponName( info, pTFPlayerVictim, iWeaponID );
+	const char *killer_weapon_log_name = NULL;
+
+	if ( iWeaponID && pScorer )
+	{
+		CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
+		if ( pWeapon )
+		{
+			CEconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
+			if ( pItemDef )
+			{
+				if ( pItemDef->item_iconname[0] )
+					killer_weapon_name = pItemDef->item_iconname;
+
+				if ( pItemDef->item_logname[0] )
+					killer_weapon_log_name = pItemDef->item_logname;
+			}
+		}
+	}
 
 	if ( pScorer )	// Is the killer a client?
 	{
@@ -3347,7 +3353,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		}
 
 		iDeathFlags |= TF_DEATH_FIRST_BLOOD;
-		ToTFPlayer( pScorer )->m_Shared.AddCond( TF_COND_CRITBOOSTED_FIRST_BLOOD, 5.0f );
+		pScorer->m_Shared.AddCond( TF_COND_CRITBOOSTED_FIRST_BLOOD, 5.0f );
 	}
 	// Feign death, purgatory death, australium death etc are all processed here.
 
@@ -3361,6 +3367,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		event->SetInt( "attacker", killer_ID );
 		event->SetInt( "assister", pAssister ? pAssister->GetUserID() : -1 );
 		event->SetString( "weapon", killer_weapon_name );
+		event->SetString( "weapon_logclassname", killer_weapon_log_name );
 		event->SetInt( "playerpenetratecount", info.GetPlayerPenetrationCount() );
 		event->SetInt( "damagebits", info.GetDamageType() );
 		event->SetInt( "customkill", info.GetDamageCustom() );

@@ -646,39 +646,7 @@ int GetWeaponFromDamage( const CTakeDamageInfo &info )
 	int iWeapon = TF_WEAPON_NONE;
 
 	// Work out what killed the player, and send a message to all clients about it
-	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
-
-	if ( !Q_strnicmp( killer_weapon_name, "tf_projectile", 13 ) )
-	{
-		for( int i = 0; i < ARRAYSIZE( g_szProjectileNames ); i++ )
-		{
-			if ( !Q_stricmp( &killer_weapon_name[ 3 ], g_szProjectileNames[ i ] ) )
-			{
-				iWeapon = g_iProjectileWeapons[ i ];
-				break;
-			}
-		}
-	}
-	else
-	{
-		int iLen = Q_strlen( killer_weapon_name );
-
-		// strip off _projectile from projectiles shot from other projectiles
-		if ( ( iLen < 256 ) && ( iLen > 11 ) && !Q_stricmp( &killer_weapon_name[ iLen - 11 ], "_projectile" ) )
-		{
-			char temp[ 256 ];
-			Q_strcpy( temp, killer_weapon_name );
-			temp[ iLen - 11 ] = 0;
-
-			// set the weapon used
-			iWeapon = GetWeaponId( temp );
-		}
-		else
-		{
-			// set the weapon used
-			iWeapon = GetWeaponId( killer_weapon_name );
-		}
-	}
+	TFGameRules()->GetKillingWeaponName( info, NULL, iWeapon );
 
 	return iWeapon;
 }
