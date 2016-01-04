@@ -7901,54 +7901,40 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		bAddedAttributes = econItem.AddAttribute( &econAttribute );
 	}
 
-	if ( bAddedAttributes )
-		econItem.SkipBaseAttributes( true );
+	econItem.SkipBaseAttributes( bAddedAttributes );
 
-	bool bCosmetic = econItem.IsCosmetic();
-	if ( bCosmetic )
+	// Nuke whatever we have in this slot.
+	CEconEntity *pEntity = pPlayer->GetEntityForLoadoutSlot( pItemDef->item_slot );
+
+	if ( pEntity )
 	{
-		for ( int i = 0; i < pPlayer->GetNumWearables(); i++ )
-		{
-			CEconWearable *pWearable = pPlayer->GetWearable( i );
-			if ( pWearable )
-			{
-				pPlayer->RemoveWearable( pWearable );
-			}
-		}
-
-		CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "tf_wearable" );
-
-		pWearable->SetItem( econItem );
-		CBaseEntity::PrecacheModel( pItemDef->model_player );
-		pWearable->SetModel( pItemDef->model_player );
-
-		pPlayer->EquipWearable( pWearable );
-	}
-	else
-	{
-		const char *pszWeaponName = args.ArgC() > 2 ? args[2] : pItemDef->item_class;
-
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pPlayer->GetEntityForLoadoutSlot( pItemDef->item_slot );
-		//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
-		if ( pWeapon && pWeapon->GetItemID() != iItemID )
+		CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
+		if ( pWeapon )
 		{
 			if ( pWeapon == pPlayer->GetActiveWeapon() )
 				pWeapon->Holster();
 
 			pPlayer->Weapon_Detach( pWeapon );
 			UTIL_Remove( pWeapon );
-			pWeapon = NULL;
 		}
-
-		if ( !pWeapon )
+		else if ( pEntity->IsWearable() )
 		{
-			pWeapon = (CTFWeaponBase *)pPlayer->GiveNamedItem( pszWeaponName, 0, &econItem );
-
-			if ( pWeapon )
-			{
-				pWeapon->DefaultTouch( pPlayer );
-			}
+			CEconWearable *pWearable = static_cast<CEconWearable *>( pEntity );
+			pPlayer->RemoveWearable( pWearable );
 		}
+		else
+		{
+			Assert( false );
+			UTIL_Remove( pEntity );
+		}
+	}
+
+	const char *pszClassname = args.ArgC() > 2 ? args[2] : pItemDef->item_class;
+	CEconEntity *pEconEnt = dynamic_cast<CEconEntity *>( pPlayer->GiveNamedItem( pszClassname, 0, &econItem ) );
+
+	if ( pEconEnt )
+	{
+		pEconEnt->GiveTo( pPlayer );
 	}
 }
 

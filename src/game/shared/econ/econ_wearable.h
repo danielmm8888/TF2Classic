@@ -34,6 +34,7 @@ class CEconWearable : public CEconEntity
 public:
 
 	virtual void			Spawn( void );
+	virtual bool			IsWearable( void ) { return true; }
 	virtual int				GetSkin(void);
 	virtual void			SetParticle(const char* name);
 	virtual void			UpdateWearableBodyGroups( CBasePlayer *pPlayer );
