@@ -5,11 +5,6 @@
 #pragma once
 #endif
 
-#include "tf_shareddefs.h"
-#include "igamesystem.h"
-#include "GameEventListener.h"
-#include "networkvar.h"
-
 #include "econ_itemschema.h"
 
 class CEconItemHandle

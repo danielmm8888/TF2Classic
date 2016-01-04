@@ -698,7 +698,7 @@ EconItemVisuals::EconItemVisuals()
 
 EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
 {
-	if ( iTeamNum >= FIRST_GAME_TEAM && iTeamNum < TF_TEAM_COUNT )
+	if ( iTeamNum > LAST_SHARED_TEAM && iTeamNum < TF_TEAM_COUNT )
 	{
 		return &visual[iTeamNum];
 	}

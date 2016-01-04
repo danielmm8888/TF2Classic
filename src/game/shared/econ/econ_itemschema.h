@@ -5,6 +5,8 @@
 #pragma once
 #endif
 
+#include "tf_shareddefs.h"
+
 class CEconSchemaParser;
 
 enum
