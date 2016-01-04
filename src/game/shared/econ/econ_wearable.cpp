@@ -140,4 +140,30 @@ void CEconWearable::OnDataChanged( DataUpdateType_t type )
 	}
 }
 
+ShadowType_t CEconWearable::ShadowCastType( void )
+{
+	if ( ShouldDraw() )
+	{
+		return SHADOWS_RENDER_TO_TEXTURE_DYNAMIC;
+	}
+
+	return SHADOWS_NONE;
+}
+
+bool CEconWearable::ShouldDraw( void )
+{
+	CBasePlayer *pOwner = ToBasePlayer( GetOwnerEntity() );
+
+	if ( !pOwner )
+		return false;
+
+	if ( !pOwner->ShouldDrawThisPlayer() )
+		return false;
+
+	if ( !pOwner->IsAlive() )
+		return false;
+
+	return BaseClass::ShouldDraw();
+}
+
 #endif

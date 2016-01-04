@@ -33,17 +33,19 @@ class CEconWearable : public CEconEntity
 
 public:
 
-	virtual void	Spawn( void );
-	virtual int		GetSkin(void);
-	virtual void	SetParticle(const char* name);
-	virtual void	UpdateWearableBodyGroups( CBasePlayer *pPlayer );
-	virtual void	GiveTo( CBaseEntity *pEntity );
+	virtual void			Spawn( void );
+	virtual int				GetSkin(void);
+	virtual void			SetParticle(const char* name);
+	virtual void			UpdateWearableBodyGroups( CBasePlayer *pPlayer );
+	virtual void			GiveTo( CBaseEntity *pEntity );
 
 #ifdef GAME_DLL
-	virtual void	Equip( CBasePlayer *pPlayer );
-	virtual void	UnEquip( CBasePlayer *pPlayer );
+	virtual void			Equip( CBasePlayer *pPlayer );
+	virtual void			UnEquip( CBasePlayer *pPlayer );
 #else
-	virtual void	OnDataChanged(DataUpdateType_t type);
+	virtual void			OnDataChanged(DataUpdateType_t type);
+	virtual	ShadowType_t	ShadowCastType( void );
+	virtual bool			ShouldDraw( void );
 #endif
 
 private:
