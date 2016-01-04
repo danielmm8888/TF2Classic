@@ -1327,7 +1327,7 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 
 			if ( !ItemsMatch( pWeapon->GetItem(), pLoadoutItem, pWeapon ) )
 			{
-				// If this is not a weapon we're supposed to have in this loudout slot then nuke it.
+				// If this is not a weapon we're supposed to have in this loadout slot then nuke it.
 				// Either changed class or changed loadout.
 				if ( pWeapon == GetActiveWeapon() )
 					pWeapon->Holster();
@@ -1367,7 +1367,7 @@ void CTFPlayer::ValidateWearables( void )
 		{
 			CEconItemView *pLoadoutItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), pItemDef->item_slot );
 
-			if ( pWearable->GetItemID() != pLoadoutItem->GetItemDefIndex() )
+			if ( !ItemsMatch( pWearable->GetItem(), pLoadoutItem, NULL ) )
 			{
 				// Not supposed to carry this wearable, nuke it.
 				RemoveWearable( pWearable );
@@ -1397,9 +1397,8 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 
 		if ( pItem )
 		{
-			CEconItemDefinition* pItemDef = pItem->GetStaticData();
-			Assert( pItemDef );
-			const char *pszClassname = pItemDef->item_class;
+			const char *pszClassname = pItem->GetEntityName();
+			Assert( pszClassname );
 
 			CEconEntity *pEntity = dynamic_cast<CEconEntity *>( GiveNamedItem( pszClassname, 0, pItem ) );
 
