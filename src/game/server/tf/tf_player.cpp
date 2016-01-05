@@ -2400,7 +2400,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 
 	if ( FStrEq( pcmd, "addcond" ) )
 	{
-		if ( sv_cheats->GetBool() || PlayerHasPowerplay() )
+		if ( sv_cheats->GetBool() )
 		{
 			if ( args.ArgC() >= 2 )
 			{
@@ -2440,7 +2440,7 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "removecond" ) )
 	{
-		if ( sv_cheats->GetBool()  || PlayerHasPowerplay() )
+		if ( sv_cheats->GetBool() )
 		{
 			if ( args.ArgC() >= 2 )
 			{
@@ -7899,7 +7899,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 	if ( !pPlayer )
 		return;
 
-	if ( !sv_cheats->GetBool() && !pPlayer->PlayerHasPowerplay() )
+	if ( !sv_cheats->GetBool() )
 		return;
 
 	int iItemID = atoi( args[1] );
