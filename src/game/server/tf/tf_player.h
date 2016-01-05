@@ -589,7 +589,7 @@ private:
 	float				m_flNextCarryTalkTime;
 
 	int					m_nBlastJumpFlags;
-	bool				m_bSpawnedJumpEffect;
+	bool				m_bJumpEffect;
 
 	CAttributeManager	m_AttributeManager;
 

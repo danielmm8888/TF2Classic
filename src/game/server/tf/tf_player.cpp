@@ -421,7 +421,7 @@ CTFPlayer::CTFPlayer()
 
 	m_nBlastJumpFlags = 0;
 	m_bBlastLaunched = false;
-	m_bSpawnedJumpEffect = false;
+	m_bJumpEffect = false;
 
 	memset( m_WeaponPreset, 0, TF_CLASS_COUNT * TF_LOADOUT_SLOT_COUNT );
 
@@ -479,16 +479,13 @@ void CTFPlayer::TFPlayerThink()
 		}
 	}
 
-	// Disabled until we get fool_L and foot_R attachments.
-#if 0
 	// Add rocket trail if we haven't already.
-	if ( !m_bSpawnedJumpEffect && ( m_nBlastJumpFlags & ( TF_JUMP_ROCKET | TF_JUMP_STICKY ) ) && IsAlive() )
+	if ( !m_bJumpEffect && ( m_nBlastJumpFlags & ( TF_JUMP_ROCKET | TF_JUMP_STICKY ) ) && IsAlive() )
 	{
 		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_L" );
 		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_R" );
-		m_bSpawnedJumpEffect = true;
+		m_bJumpEffect = true;
 	}
-#endif
 
 	if ( TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime )
 	{
@@ -4072,7 +4069,7 @@ void CTFPlayer::ClearBlastJumpState( void )
 	}
 
 	m_nBlastJumpFlags = 0;
-	m_bSpawnedJumpEffect = false;
+	m_bJumpEffect = false;
 	m_Shared.RemoveCond( TF_COND_BLASTJUMPING );
 }
 
