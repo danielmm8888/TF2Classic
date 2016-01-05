@@ -27,7 +27,7 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 
 #define TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC	600.0
 #define TF_WEAPON_HUNTERRIFLE_UNCHARGE_PER_SEC	20.0
-#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			40
+#define	TF_WEAPON_HUNTERRIFLE_DAMAGE			60
 #define TF_WEAPON_HUNTERRIFLE_RELOAD_TIME		1.0f
 #define TF_WEAPON_HUNTERRIFLE_ZOOM_TIME			0.3f
 #define TF_WEAPON_HUNTERRIFLE_SHOOT_TIME		0.15f
@@ -69,7 +69,7 @@ BEGIN_PREDICTION_DATA( CTFHunterRifle )
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_hunterrifle, CTFHunterRifle );
-PRECACHE_WEAPON_REGISTER(tf_weapon_hunterrifle);
+PRECACHE_WEAPON_REGISTER( tf_weapon_hunterrifle );
 
 //=============================================================================
 //
@@ -217,7 +217,9 @@ bool CTFHunterRifle::Reload(void)
 {
 	if ( BaseClass::Reload() == true )
 	{
-		ZoomOut();
+		if ( IsZoomed() )
+			ZoomOut();
+
 		if ( Clip1() > 0 )
 			m_iClip1 = 0;
 
@@ -296,11 +298,11 @@ void CTFHunterRifle::ItemPostFrame( void )
 //-----------------------------------------------------------------------------
 void CTFHunterRifle::Fire(CTFPlayer *pPlayer)
 {
-	if (m_flNextPrimaryAttack > gpGlobals->curtime)
+	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
 		return;
 
 	// Check the ammo.
-	if (Clip1() <= 0)
+	if ( Clip1() <= 0 )
 	{
 		HandleFireOnEmpty();
 		return;
@@ -309,15 +311,11 @@ void CTFHunterRifle::Fire(CTFPlayer *pPlayer)
 	// Fire the Hunter shot.
 	PrimaryAttack();
 
-	if (Clip1() <= 0)
+	if ( !IsZoomed() )
 	{
-		if (IsZoomed())
-			SetRezoom(false, 0.5f);	// just zoom out in 0.5 seconds
-		else
-			m_flNextSecondaryAttack = gpGlobals->curtime + SequenceDuration();
+		// Prevent primary fire preventing zooms
+		m_flNextSecondaryAttack = gpGlobals->curtime + SequenceDuration();
 	}
-	else if (Clip1() > 1)
-		m_flNextPrimaryAttack = gpGlobals->curtime + TF_WEAPON_HUNTERRIFLE_SHOOT_TIME;
 
 	m_flChargedSpread = TF_WEAPON_HUNTERRIFLE_SPREAD_MAX;
 }
@@ -403,7 +401,7 @@ bool CTFHunterRifle::IsZoomed( void )
 
 	if ( pPlayer )
 	{
-		return pPlayer->m_Shared.InCond(TF_COND_AIMING);
+		return pPlayer->m_Shared.InCond( TF_COND_AIMING );
 	}
 
 	return false;
@@ -450,7 +448,7 @@ void CTFHunterRifle::SetRezoom( bool bRezoom, float flDelay )
 //-----------------------------------------------------------------------------
 float CTFHunterRifle::GetProjectileDamage( void )
 {
-	return TF_WEAPON_HUNTERRIFLE_DAMAGE;
+	return BaseClass::GetProjectileDamage();
 }
 
 float CTFHunterRifle::GetWeaponSpread(void)

@@ -3094,6 +3094,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 			{
 				CTFWeaponBase *pWpn = pAttacker->GetActiveTFWeapon();
 
+				float flDamage = info_modified.GetDamage();
 				bool bCritical = true;
 
 				if ( pWpn && !pWpn->CanFireCriticalShot( true ) )
@@ -3110,8 +3111,11 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 					if ( pWpn )
 					{
 						pWpn->WeaponSound( BURST );
+						CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flDamage, headshot_damage_modify );
 					}
 				}
+
+				info_modified.SetDamage( flDamage );
 
 				break;
 			}

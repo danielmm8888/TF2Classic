@@ -8,11 +8,11 @@ WeaponData
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 	
 	// Attributes TF.
-	"Damage"		"4"
+	"Damage"		"50"
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
 	"Spread"		"0.5"
-	"TimeFireDelay"		"0.7"
+	"TimeFireDelay"		"1.5"
 	"TimeReload"		"1.5"
 	"ProjectileType"	"projectile_bullet"
 	"HasTeamSkins_Viewmodel"	"1"
