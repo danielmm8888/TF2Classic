@@ -2001,7 +2001,7 @@ void CTFGameRules::RadiusDamage( CTFRadiusDamageInfo &radiusInfo )
 
 		if ( radiusInfo.ApplyToEntity( pEntity ) )
 		{
-			if ( pEntity->IsPlayer() )
+			if ( pEntity->IsPlayer() && !pEntity->InSameTeam( pAttacker ) )
 			{
 				iPlayersDamaged++;
 			}
