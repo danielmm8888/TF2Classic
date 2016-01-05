@@ -259,6 +259,7 @@ int SendProxyArrayLength_PlayerObjects( const void *pStruct, int objectID )
 
 BEGIN_DATADESC( CTFPlayer )
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SpeakResponseConcept",	InputSpeakResponseConcept ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetForcedTauntCam", InputSetForcedTauntCam ),
 	DEFINE_OUTPUT( m_OnDeath, "OnDeath" ),
 END_DATADESC()
 extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
@@ -334,6 +335,8 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 
 	// Data that gets sent to all other players
 	SendPropDataTable( "tfnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
+
+	SendPropInt( SENDINFO( m_nForceTauntCam ), 2, SPROP_UNSIGNED ),
 
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
 
@@ -997,6 +1000,8 @@ void CTFPlayer::Spawn()
 			}
 		}
 	}
+
+	m_nForceTauntCam = 0;
 
 	CTF_GameStats.Event_PlayerSpawned( this );
 
@@ -4987,6 +4992,14 @@ void CTFPlayer::RemoveAllItems( bool removeSuit )
 	UpdateClientData();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Mapmaker input to force this player to speak a response rules concept
+//-----------------------------------------------------------------------------
+void CTFPlayer::InputSetForcedTauntCam( inputdata_t &inputdata )
+{
+	 m_nForceTauntCam = clamp( inputdata.value.Int(), 0, 1 );
+}
+
 void CTFPlayer::ClientHearVox( const char *pSentence )
 {
 	//TFTODO: implement this.
@@ -7641,11 +7654,15 @@ bool CTFPlayer::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const 
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Mapmaker input to force this NPC to speak a response rules concept
+// Purpose: Mapmaker input to force this player to speak a response rules concept
 //-----------------------------------------------------------------------------
 void CTFPlayer::InputSpeakResponseConcept( inputdata_t &inputdata )
 {
-	//Speak( STRING( inputdata.value.StringID() ) );
+	int iConcept = GetMPConceptIndexFromString( inputdata.value.String() );
+	if ( iConcept != MP_CONCEPT_NONE )
+	{
+		SpeakConceptIfAllowed( iConcept );
+	}
 }
 
 //-----------------------------------------------------------------------------

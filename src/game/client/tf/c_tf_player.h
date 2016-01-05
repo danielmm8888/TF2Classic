@@ -341,6 +341,8 @@ public:
 	int				m_iOldPlayerClass;	// Used to detect player class changes
 	bool			m_bIsDisplayingNemesisIcon;
 
+	int				m_nForceTauntCam;
+
 	int				m_iSpawnCounter;
 
 	bool			m_bSaveMeParity;

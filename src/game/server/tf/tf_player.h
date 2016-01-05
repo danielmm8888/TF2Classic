@@ -334,6 +334,7 @@ public:
 	void	SpeakWeaponFire( int iCustomConcept = MP_CONCEPT_NONE );
 	void	ClearWeaponFireScene( void );
 	void	InputSpeakResponseConcept( inputdata_t &inputdata );
+	void	InputSetForcedTauntCam( inputdata_t &inputdata );
 
 	virtual int DrawDebugTextOverlays( void );
 
@@ -590,6 +591,8 @@ private:
 
 	int					m_nBlastJumpFlags;
 	bool				m_bJumpEffect;
+
+	CNetworkVar( int, m_nForceTauntCam );
 
 	CAttributeManager	m_AttributeManager;
 

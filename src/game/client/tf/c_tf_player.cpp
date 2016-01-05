@@ -1510,6 +1510,8 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
 
+	RecvPropInt( RECVINFO( m_nForceTauntCam ) ),
+
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
 
 END_RECV_TABLE()
@@ -2402,6 +2404,7 @@ void C_TFPlayer::HandleTaunting( void )
 	if ( !m_bWasTaunting && (
 		m_Shared.InCond( TF_COND_TAUNTING ) ||
 		m_Shared.IsLoser() ||
+		m_nForceTauntCam || 
 		m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) ||
 		m_Shared.InCond( TF_COND_HALLOWEEN_GIANT ) ||
 		m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) ||
@@ -2419,6 +2422,7 @@ void C_TFPlayer::HandleTaunting( void )
 	if ( m_bWasTaunting && (
 		!m_Shared.InCond( TF_COND_TAUNTING ) &&
 		!m_Shared.IsLoser() && 
+		!m_nForceTauntCam &&
 		!m_Shared.InCond( TF_COND_PHASE ) &&
 		!m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) &&
 		!m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) &&
