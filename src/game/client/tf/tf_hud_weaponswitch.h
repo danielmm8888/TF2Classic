@@ -12,7 +12,7 @@
 #endif
 
 #include "tf_imagepanel.h"
-#include "econ_itemschema.h"
+#include "econ_item_schema.h"
 
 class CTFWeaponInfo;
 

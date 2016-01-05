@@ -1,13 +1,11 @@
-#ifndef ECON_ITEMSCHEMA_H
-#define ECON_ITEMSCHEMA_H
+#ifndef ECON_ITEM_SCHEMA_H
+#define ECON_ITEM_SCHEMA_H
 
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include "tf_shareddefs.h"
-
-class CEconSchemaParser;
 
 enum
 {
@@ -220,37 +218,4 @@ public:
 	EconItemVisuals visual[TF_TEAM_COUNT];
 };
 
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-class CEconItemSchema
-{
-	friend class CEconSchemaParser;
-	friend class CTFInventory;
-public:
-	CEconItemSchema();
-	~CEconItemSchema();
-
-	bool Init( void );
-	void Precache( void );
-
-	CEconItemDefinition* GetItemDefinition(int id);
-	EconAttributeDefinition *GetAttributeDefinition( int id );
-	EconAttributeDefinition *GetAttributeDefinitionByName(const char* name);
-	EconAttributeDefinition *GetAttributeDefinitionByClass(const char* name);
-	int GetAttributeIndex( const char *classname );
-
-protected:
-	CUtlDict< int, unsigned short >					m_GameInfo;
-	CUtlDict< EconQuality, unsigned short >			m_Qualities;
-	CUtlDict< EconColor, unsigned short >			m_Colors;
-	CUtlDict< KeyValues *, unsigned short >			m_PrefabsValues;
-	CUtlMap< int, CEconItemDefinition * >			m_Items;
-	CUtlMap< int, EconAttributeDefinition * >		m_Attributes;
-
-private:
-	bool m_bInited;
-};
-
-CEconItemSchema *GetItemSchema();
-#endif // TF_ECON_ITEMSCHEMA_H
+#endif // ECON_ITEM_SCHEMA_H

@@ -1,8 +1,5 @@
 #include "cbase.h"
-#include "econ/econ_itemschema.h"
-#include "tier3/tier3.h"
-#include "engine/IEngineSound.h"
-#include "soundenvelope.h"
+#include "econ_item_system.h"
 #include "script_parser.h"
 #include "activitylist.h"
 
@@ -62,7 +59,7 @@ CEconItemSchema *GetItemSchema()
 class CEconSchemaParser : public CScriptParser
 {
 public:
-	DECLARE_CLASS_GAMEROOT(CEconSchemaParser, CScriptParser);
+	DECLARE_CLASS_GAMEROOT( CEconSchemaParser, CScriptParser );
 
 #define GET_STRING(copyto, from, name)													\
 		if (from->GetString(#name, NULL))												\
@@ -99,32 +96,32 @@ public:
 
 #define GET_VALUES_FAST_BOOL(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())\
-		{													\
+				{													\
 			IF_ELEMENT_FOUND(dict, pKeyData->GetName())		\
-			{												\
+				{												\
 				dict.Element(index) = pKeyData->GetBool();	\
-			}												\
-			else											\
-			{												\
+				}												\
+						else											\
+				{												\
 				dict.Insert(pKeyData->GetName(), pKeyData->GetBool());\
-			}												\
-		}
+				}												\
+				}
 
 
 #define GET_VALUES_FAST_STRING(dict, keys)\
 		for (KeyValues *pKeyData = keys->GetFirstSubKey(); pKeyData != NULL; pKeyData = pKeyData->GetNextKey())	\
-		{													\
+				{													\
 			IF_ELEMENT_FOUND(dict, pKeyData->GetName())		\
-			{												\
+				{												\
 				Q_snprintf((char*)dict.Element(index), sizeof(dict.Element(index)), pKeyData->GetString());		\
-			}												\
-			else											\
-			{												\
+				}												\
+						else											\
+				{												\
 				dict.Insert(pKeyData->GetName(), strdup(pKeyData->GetString()));\
-			}												\
-		}	
+				}												\
+				}	
 
-	void Parse(KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT)
+	void Parse( KeyValues *pKeyValuesData, bool bWildcard, const char *szFileWithoutEXT )
 	{
 		KeyValues *pPrefabs = pKeyValuesData->FindKey( "prefabs" );
 		if ( pPrefabs )
@@ -163,47 +160,47 @@ public:
 		}
 	};
 
-	void ParseGameInfo(KeyValues *pKeyValuesData)
+	void ParseGameInfo( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
-			GetItemSchema()->m_GameInfo.Insert(pSubData->GetName(), pSubData->GetFloat());
-		}	
+			GetItemSchema()->m_GameInfo.Insert( pSubData->GetName(), pSubData->GetFloat() );
+		}
 	};
 
-	void ParseQualities(KeyValues *pKeyValuesData)
+	void ParseQualities( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			EconQuality Quality;
-			GET_INT((&Quality), pSubData, value);
-			GetItemSchema()->m_Qualities.Insert(pSubData->GetName(), Quality);
+			GET_INT( ( &Quality ), pSubData, value );
+			GetItemSchema()->m_Qualities.Insert( pSubData->GetName(), Quality );
 		}
 
 	};
 
-	void ParseColors(KeyValues *pKeyValuesData)
+	void ParseColors( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			EconColor ColorDesc;
-			GET_STRING((&ColorDesc), pSubData, color_name);
-			GetItemSchema()->m_Colors.Insert(pSubData->GetName(), ColorDesc);
+			GET_STRING( ( &ColorDesc ), pSubData, color_name );
+			GetItemSchema()->m_Colors.Insert( pSubData->GetName(), ColorDesc );
 		}
 	};
 
-	void ParsePrefabs(KeyValues *pKeyValuesData)
+	void ParsePrefabs( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			KeyValues *Values = pSubData->MakeCopy();
-			GetItemSchema()->m_PrefabsValues.Insert(pSubData->GetName(), Values);
+			GetItemSchema()->m_PrefabsValues.Insert( pSubData->GetName(), Values );
 		}
 	};
 
-	void ParseItems(KeyValues *pKeyValuesData)
+	void ParseItems( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			// Skip over default item, not sure why it's there.
 			if ( !Q_stricmp( pSubData->GetName(), "default" ) )
@@ -221,21 +218,21 @@ public:
 				delete Item;
 			}
 		}
-		for (unsigned int i = 0; i < GetItemSchema()->m_PrefabsValues.Count(); i++)
+		for ( unsigned int i = 0; i < GetItemSchema()->m_PrefabsValues.Count(); i++ )
 		{
 			GetItemSchema()->m_PrefabsValues[i]->deleteThis();
 		}
 		GetItemSchema()->m_PrefabsValues.RemoveAll();
 	};
 
-	void ParseAttributes(KeyValues *pKeyValuesData)
+	void ParseAttributes( KeyValues *pKeyValuesData )
 	{
-		for (KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey())
+		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			EconAttributeDefinition *pAttribute = new EconAttributeDefinition;
 			int index = V_atoi( pSubData->GetName() );
 
-			GET_STRING_DEFAULT( pAttribute, pSubData, name, (unnamed) );
+			GET_STRING_DEFAULT( pAttribute, pSubData, name, ( unnamed ) );
 			GET_STRING( pAttribute, pSubData, attribute_class );
 			GET_STRING( pAttribute, pSubData, description_string );
 
@@ -338,40 +335,40 @@ public:
 		return true;
 	}
 
-	bool ParseItemRec(KeyValues *pData, CEconItemDefinition* pItem)
+	bool ParseItemRec( KeyValues *pData, CEconItemDefinition* pItem )
 	{
 		char prefab[64];
 		Q_snprintf( prefab, sizeof( prefab ), pData->GetString( "prefab" ) );	//check if there's prefab for prefab.. PREFABSEPTION
-		
+
 		if ( prefab[0] != '\0' )
 		{
 			char * pch;
-			pch = strtok(prefab, " ");
-			while (pch != NULL)
+			pch = strtok( prefab, " " );
+			while ( pch != NULL )
 			{
 				KeyValues *pPrefabValues = NULL;
-				FIND_ELEMENT(GetItemSchema()->m_PrefabsValues, pch, pPrefabValues);
-				if (pPrefabValues)
+				FIND_ELEMENT( GetItemSchema()->m_PrefabsValues, pch, pPrefabValues );
+				if ( pPrefabValues )
 				{
-					ParseItemRec(pPrefabValues, pItem);
+					ParseItemRec( pPrefabValues, pItem );
 				}
-				pch = strtok(NULL, " ");
+				pch = strtok( NULL, " " );
 			}
 		}
 
-		GET_STRING(pItem, pData, name);
-		GET_BOOL(pItem, pData, show_in_armory);
+		GET_STRING( pItem, pData, name );
+		GET_BOOL( pItem, pData, show_in_armory );
 
-		GET_STRING(pItem, pData, item_class);
-		GET_STRING(pItem, pData, item_name);
-		GET_STRING(pItem, pData, item_description);
-		GET_STRING(pItem, pData, item_type_name);
-		GET_STRING(pItem, pData, item_quality);
-		GET_STRING(pItem, pData, item_logname);
-		GET_STRING(pItem, pData, item_iconname);
+		GET_STRING( pItem, pData, item_class );
+		GET_STRING( pItem, pData, item_name );
+		GET_STRING( pItem, pData, item_description );
+		GET_STRING( pItem, pData, item_type_name );
+		GET_STRING( pItem, pData, item_quality );
+		GET_STRING( pItem, pData, item_logname );
+		GET_STRING( pItem, pData, item_iconname );
 
 		const char *pszLoadoutSlot = pData->GetString( "item_slot" );
-		
+
 		if ( pszLoadoutSlot[0] )
 		{
 			pItem->item_slot = UTIL_StringFieldToInt( pszLoadoutSlot, g_LoadoutSlots, TF_LOADOUT_SLOT_COUNT );
@@ -390,20 +387,20 @@ public:
 			}
 		}
 
-		GET_BOOL(pItem, pData, baseitem);
-		GET_INT(pItem, pData, min_ilevel);
-		GET_INT(pItem, pData, max_ilevel);
+		GET_BOOL( pItem, pData, baseitem );
+		GET_INT( pItem, pData, min_ilevel );
+		GET_INT( pItem, pData, max_ilevel );
 
-		GET_STRING(pItem, pData, image_inventory);
-		GET_INT(pItem, pData, image_inventory_size_w);
-		GET_INT(pItem, pData, image_inventory_size_h);
+		GET_STRING( pItem, pData, image_inventory );
+		GET_INT( pItem, pData, image_inventory_size_w );
+		GET_INT( pItem, pData, image_inventory_size_h );
 
-		GET_STRING(pItem, pData, model_player);
-		GET_STRING(pItem, pData, model_world);
+		GET_STRING( pItem, pData, model_player );
+		GET_STRING( pItem, pData, model_world );
 
-		GET_INT(pItem, pData, attach_to_hands);
-		GET_BOOL(pItem, pData, act_as_wearable);
-		
+		GET_INT( pItem, pData, attach_to_hands );
+		GET_BOOL( pItem, pData, act_as_wearable );
+
 		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			if ( !Q_stricmp( pSubData->GetName(), "capabilities" ) )
@@ -504,13 +501,13 @@ CEconItemSchema::~CEconItemSchema()
 //-----------------------------------------------------------------------------
 bool CEconItemSchema::Init( void )
 {
-	if (!m_bInited)
+	if ( !m_bInited )
 	{
 		// Must register activities early so we can parse animation replacements.
 		ActivityList_Free();
 		ActivityList_RegisterSharedActivities();
 
-		g_EconSchemaParser.InitParser("scripts/items/items_game.txt", true, false);
+		g_EconSchemaParser.InitParser( "scripts/items/items_game.txt", true, false );
 
 		m_bInited = true;
 	}
@@ -521,7 +518,7 @@ bool CEconItemSchema::Init( void )
 void CEconItemSchema::Precache( void )
 {
 	// Precache everything from schema.
-	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
+	FOR_EACH_MAP( m_Items, i )
 	{
 		CEconItemDefinition *pItem = m_Items[i];
 
@@ -549,49 +546,6 @@ void CEconItemSchema::Precache( void )
 		}
 	}
 }
-
-#include <vgui/ILocalize.h>
-
-#if defined( CLIENT_DLL )
-void ShowItemDef(const CCommand &args)
-{
-	int ID = atoi(args[1]);
-	CEconItemDefinition *itemdef = GetItemSchema()->GetItemDefinition(ID);
-	if (itemdef)
-	{
-		Msg("ItemID %s:\nname %s\nitem_class %s\nitem_type_name %s\n", 
-			args[1], itemdef->name, itemdef->item_class, itemdef->item_type_name);
-
-		Msg("Attributes:\n");		
-		for ( int i = 0; i < itemdef->attributes.Count(); i++ )
-		{
-			CEconItemAttribute *pAttribute = &itemdef->attributes[i];
-			EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
-			if ( pStatic )
-			{
-				float value = pAttribute->value;
-				if ( pStatic->description_format == ATTRIB_FORMAT_PERCENTAGE || pStatic->description_format == ATTRIB_FORMAT_INVERTED_PERCENTAGE )
-				{
-					value *= 100;
-				}
-				wchar_t floatstr[32];
-				_snwprintf(floatstr, ARRAYSIZE(floatstr) - 1, L"%i", (int)value);
-
-				wchar_t attrib[32];
-				g_pVGuiLocalize->ConstructString(attrib, sizeof(attrib), g_pVGuiLocalize->Find(pStatic->description_string), 1, floatstr);
-
-				char attributename[32];
-				g_pVGuiLocalize->ConvertUnicodeToANSI(attrib, attributename, sizeof(attributename));
-
-				Msg("%s\n", attributename);
-			}
-		}
-		Msg("\n");
-	}
-}
-ConCommand itemdef("itemdef", ShowItemDef);
-#endif
-
 
 CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 {
@@ -625,7 +579,7 @@ EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByName( const ch
 	return NULL;
 }
 
-EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass(const char *classname)
+EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass( const char *classname )
 {
 	//unsigned int index = m_Attributes.Find(name);
 	//if (index < m_Attributes.Count())
@@ -657,68 +611,4 @@ int CEconItemSchema::GetAttributeIndex( const char *name )
 	}
 
 	return -1;
-}
-
-
-//-----------------------------------------------------------------------------
-// CEconItemAttribute
-//-----------------------------------------------------------------------------
-
-BEGIN_NETWORK_TABLE_NOBASE( CEconItemAttribute, DT_EconItemAttribute )
-#ifdef CLIENT_DLL
-	RecvPropInt( RECVINFO( m_iAttributeDefinitionIndex ) ),
-	RecvPropFloat( RECVINFO( value ) ),
-#else
-	SendPropInt( SENDINFO( m_iAttributeDefinitionIndex ) ),
-	SendPropFloat( SENDINFO( value ) ),
-#endif
-END_NETWORK_TABLE()
-
-EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
-{
-	return GetItemSchema()->GetAttributeDefinition( m_iAttributeDefinitionIndex );
-}
-
-
-//-----------------------------------------------------------------------------
-// EconItemVisuals
-//-----------------------------------------------------------------------------
-
-EconItemVisuals::EconItemVisuals()
-{
-	animation_replacement.SetLessFunc( schemaLessFunc );
-	memset( aWeaponSounds, 0, sizeof( aWeaponSounds ) );
-}
-
-
-
-//-----------------------------------------------------------------------------
-// CEconItemDefinition
-//-----------------------------------------------------------------------------
-
-EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
-{
-	if ( iTeamNum > LAST_SHARED_TEAM && iTeamNum < TF_TEAM_COUNT )
-	{
-		return &visual[iTeamNum];
-	}
-
-	return &visual[TEAM_UNASSIGNED];
-}
-
-CEconItemAttribute *CEconItemDefinition::IterateAttributes( string_t strClass )
-{
-	// Returning the first attribute found.
-	for ( int i = 0; i < attributes.Count(); i++ )
-	{
-		CEconItemAttribute *pAttribute = &attributes[i];
-		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
-
-		if ( strMyClass == strClass )
-		{
-			return pAttribute;
-		}
-	}
-
-	return NULL;
 }

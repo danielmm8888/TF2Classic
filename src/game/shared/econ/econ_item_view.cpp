@@ -1,5 +1,6 @@
 #include "cbase.h"
-#include "econ_itemview.h"
+#include "econ_item_view.h"
+#include "econ_item_system.h"
 #include "activitylist.h"
 
 #ifdef CLIENT_DLL

@@ -1,11 +1,11 @@
-#ifndef TF_ECON_ITEMVIEW_H
-#define TF_ECON_ITEMVIEW_H
+#ifndef TF_ECON_ITEM_VIEW_H
+#define TF_ECON_ITEM_VIEW_H
 
 #ifdef _WIN32
 #pragma once
 #endif
 
-#include "econ_itemschema.h"
+#include "econ_item_schema.h"
 
 class CEconItemHandle
 {
@@ -66,4 +66,4 @@ protected:
 	CUtlVector<CEconItemAttribute> m_AttributeList;
 };
 
-#endif // TF_ECON_ITEMVIEW_H
+#endif // TF_ECON_ITEM_VIEW_H

@@ -7,7 +7,7 @@
 #include "basemodelpanel.h"
 #include <vgui/ILocalize.h>
 #include "script_parser.h"
-#include "econ_itemview.h"
+#include "econ_item_view.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!

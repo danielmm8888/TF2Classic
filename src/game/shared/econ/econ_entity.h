@@ -10,14 +10,12 @@
 #pragma once
 #endif
 
-#include "cbase.h"
-
 #if defined( CLIENT_DLL )
 #define CEconEntity C_EconEntity
 #endif
 
 #include "ihasattributes.h"
-#include "econ_itemview.h"
+#include "econ_item_view.h"
 #include "attribute_manager.h"
 
 struct wearableanimplayback_t
@@ -25,12 +23,8 @@ struct wearableanimplayback_t
 	int iStub;
 };
 
-class CEconItemDefinition;
-
 //-----------------------------------------------------------------------------
 // Purpose: BaseCombatWeapon is derived from this in live tf2.
-//			The only actual use for it I've found so far is for the c_model
-//			activity translation. Need to do some more research into this.
 //-----------------------------------------------------------------------------
 class CEconEntity : public CBaseAnimating, public IHasAttributes
 {

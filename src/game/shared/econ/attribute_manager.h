@@ -5,8 +5,6 @@
 #pragma once
 #endif
 
-#include "econ_itemschema.h"
-#include "econ_itemview.h"
 #include "gamestringpool.h"
 
 // Client specific.

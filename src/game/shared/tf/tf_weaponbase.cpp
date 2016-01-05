@@ -11,7 +11,6 @@
 #include "tf_gamerules.h"
 #include "eventlist.h"
 #include "tf_viewmodel.h"
-#include "econ_itemschema.h"
 
 // Server specific.
 #if !defined( CLIENT_DLL )

@@ -28,6 +28,7 @@
 #include "tf_playeranimstate.h"
 #include "tf_weapon_parse.h"
 #include "npcevent.h"
+#include "econ_item_system.h"
 
 // Client specific.
 #if defined( CLIENT_DLL )

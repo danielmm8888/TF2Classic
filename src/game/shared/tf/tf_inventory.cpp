@@ -9,6 +9,7 @@
 #include "cbase.h"
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
+#include "econ_item_system.h"
 
 static CTFInventory g_TFInventory;
 

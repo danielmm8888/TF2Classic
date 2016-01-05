@@ -12,6 +12,7 @@
 #include "tf_weapon_parse.h"
 #include "c_basetempentity.h"
 #include "tier0/vprof.h"
+#include "econ_item_system.h"
 
 //--------------------------------------------------------------------------------------------------------------
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );

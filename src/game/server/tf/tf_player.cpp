@@ -51,7 +51,7 @@
 #include "tf_weaponbase.h"
 #include "econ_wearable.h"
 #include "tf_dropped_weapon.h"
-#include "econ_itemschema.h"
+#include "econ_item_schema.h"
 #include "baseprojectile.h"
 #include "tf_weapon_flamethrower.h"
 

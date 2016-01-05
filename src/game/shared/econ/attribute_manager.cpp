@@ -1,5 +1,6 @@
 #include "cbase.h"
 #include "attribute_manager.h"
+#include "econ_item_schema.h"
 
 #ifdef CLIENT_DLL
 #include "prediction.h"
