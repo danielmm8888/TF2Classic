@@ -7085,11 +7085,16 @@ void CTFPlayer::DoTauntAttack( void )
 
 		int count = UTIL_EntitiesInBox( pList, 256, mins, maxs, FL_CLIENT|FL_OBJECT );
 
+		if ( tf_debug_damage.GetBool() )
+		{
+			NDebugOverlay::Box( vecOrigin, -Vector( 24, 24, 24 ), Vector( 24, 24, 24 ), 0, 255, 0, 40, 10.0f );
+		}
+
 		for ( int i = 0; i < count; i++ )
 		{
 			CBaseEntity *pEntity = pList[i];
 
-			if ( !pEntity || pEntity == this || !pEntity->IsAlive() || InSameTeam( pEntity ) )
+			if ( pEntity == this || !pEntity->IsAlive() || InSameTeam( pEntity ) || !FVisible( pEntity, MASK_SOLID ) )
 				continue;
 
 			Vector vecDamagePos = WorldSpaceCenter();
@@ -7112,6 +7117,11 @@ void CTFPlayer::DoTauntAttack( void )
 
 		trace_t tr;
 		UTIL_TraceLine( vecSrc, vecEnd, MASK_SOLID|CONTENTS_HITBOX, this, COLLISION_GROUP_PLAYER, &tr );
+
+		if ( tf_debug_damage.GetBool() )
+		{
+			NDebugOverlay::Line( vecSrc, tr.endpos, 0, 255, 0, true, 10.0f );
+		}
 
 		if ( tr.fraction < 1.0f )
 		{

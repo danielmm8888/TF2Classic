@@ -10,7 +10,6 @@
 #pragma once
 #endif
 
-#include "cbase.h"
 #ifdef CLIENT_DLL
 #include "particles_new.h"
 #endif
