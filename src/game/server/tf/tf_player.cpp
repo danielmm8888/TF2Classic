@@ -5778,6 +5778,16 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 				GiveAmmo( 1000, TF_AMMO_METAL );
 				TakeHealth( 999, DMG_GENERIC );
 
+				// Refill clip in all weapons.
+				for ( int i = 0; i < WeaponCount(); i++ )
+				{
+					CBaseCombatWeapon *pWeapon = GetWeapon( i );
+					if ( !pWeapon )
+						continue;
+
+					pWeapon->GiveDefaultAmmo();
+				}
+
 				gEvilImpulse101 = false;
 			}
 		}
