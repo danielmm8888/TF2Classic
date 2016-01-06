@@ -263,8 +263,11 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 	if ( pProjectile )
 	{
 #ifdef GAME_DLL
+		int nMaxPipebombs = TF_WEAPON_PIPEBOMB_COUNT;
+		CALL_ATTRIB_HOOK_INT( nMaxPipebombs, add_max_pipebombs );
+
 		// If we've gone over the max pipebomb count, detonate the oldest
-		if ( m_Pipebombs.Count() >= TF_WEAPON_PIPEBOMB_COUNT )
+		if ( m_Pipebombs.Count() >= nMaxPipebombs )
 		{
 			CTFGrenadePipebombProjectile *pTemp = m_Pipebombs[0];
 			if ( pTemp )

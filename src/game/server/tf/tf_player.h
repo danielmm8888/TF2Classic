@@ -273,6 +273,7 @@ public:
 
 	void TeleportEffect( void );
 	void RemoveTeleportEffect( void );
+	bool IsAllowedToPickUpFlag( void );
 	bool HasTheFlag( void );
 
 	// Death & Ragdolls.

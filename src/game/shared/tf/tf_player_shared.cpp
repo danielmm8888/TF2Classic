@@ -3050,6 +3050,20 @@ bool CTFPlayer::HasTheFlag( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Are we allowed to pick the flag up?
+//-----------------------------------------------------------------------------
+bool CTFPlayer::IsAllowedToPickUpFlag( void )
+{
+	int bNotAllowedToPickUpFlag = 0;
+	CALL_ATTRIB_HOOK_INT( bNotAllowedToPickUpFlag, cannot_pick_up_intelligence );
+
+	if ( bNotAllowedToPickUpFlag > 0 )
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Return true if this player's allowed to build another one of the specified object
 //-----------------------------------------------------------------------------
 int CTFPlayer::CanBuild( int iObjectType, int iObjectMode )

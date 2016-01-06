@@ -594,8 +594,11 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 			return;
 		}
 	}
-
 #endif
+
+	// Check whether we have a weapon that's prohibiting us from picking the flag up
+	if ( !pPlayer->IsAllowedToPickUpFlag() )
+		return;
 
 	// Call into the base class pickup.
 	BaseClass::PickUp( pPlayer, false );

@@ -194,6 +194,7 @@ public:
 	bool			HasItem( void );					// Currently can have only one item at a time.
 	void			SetItem( C_TFItem *pItem );
 	C_TFItem		*GetItem( void );
+	bool			IsAllowedToPickUpFlag( void );
 	bool			HasTheFlag( void );
 	float			GetCritMult( void ) { return m_Shared.GetCritMult(); }
 

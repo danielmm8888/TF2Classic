@@ -178,13 +178,9 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_SYRINGE:
+	case TF_PROJECTILE_NAIL:
 		pProjectile = FireNail( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-		break;
-
-	case TF_PROJECTILE_NAIL:
-		pProjectile = FireNail(pPlayer, iProjectile);
-		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
 		break;
 
 	case TF_PROJECTILE_DART:
@@ -193,11 +189,13 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_PIPEBOMB:
+	case TF_PROJECTILE_CANNONBALL:
 		pProjectile = FirePipeBomb( pPlayer, false );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
 	case TF_PROJECTILE_PIPEBOMB_REMOTE:
+	case TF_PROJECTILE_PIPEBOMB_REMOTE_PRACTICE:
 		pProjectile = FirePipeBomb( pPlayer, true );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
@@ -205,6 +203,25 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 	case TF_PROJECTILE_FLARE:
 		pProjectile = FireFlare(pPlayer);
 		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
+		break;
+
+	case TF_PROJECTILE_JAR:
+	case TF_PROJECTILE_JAR_MILK:
+	case TF_PROJECTILE_CLEAVER:
+	case TF_PROJECTILE_THROWABLE:
+	case TF_PROJECTILE_FESTITIVE_URINE:
+	case TF_PROJECTILE_BREADMONSTER_JARATE:
+	case TF_PROJECTILE_BREADMONSTER_MADMILK:
+		// TO-DO: Implement 'grenade' support
+		break;
+
+	case TF_PROJECTILE_ARROW:
+	case TF_PROJECTILE_HEALING_BOLT:
+	case TF_PROJECTILE_BUILDING_REPAIR_BOLT:
+	case TF_PROJECTILE_FESTITIVE_ARROW:
+	case TF_PROJECTILE_FESTITIVE_HEALING_BOLT:
+	case TF_PROJECTILE_GRAPPLINGHOOK:
+		// TO-DO: Implement arrow support
 		break;
 
 	case TF_PROJECTILE_NONE:
