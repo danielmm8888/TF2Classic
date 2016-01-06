@@ -4999,6 +4999,24 @@ void CTFPlayer::RemoveAllItems( bool removeSuit )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFPlayer::RemoveAllWeapons( void )
+{
+	BaseClass::RemoveAllWeapons();
+
+	// Remove all wearables.
+	for ( int i = 0; i < GetNumWearables(); i++ )
+	{
+		CEconWearable *pWearable = GetWearable( i );
+		if ( !pWearable )
+			continue;
+
+		RemoveWearable( pWearable );
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Mapmaker input to force this player to speak a response rules concept
 //-----------------------------------------------------------------------------
 void CTFPlayer::InputSetForcedTauntCam( inputdata_t &inputdata )

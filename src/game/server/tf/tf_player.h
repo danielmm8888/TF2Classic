@@ -150,6 +150,7 @@ public:
 	void				SetNextChangeClassTime( float flTime ){ m_flNextChangeClassTime = flTime; }
 
 	virtual	void		RemoveAllItems( bool removeSuit );
+	virtual void		RemoveAllWeapons( void );
 
 	bool				DropCurrentWeapon( void );
 	void				DropFlag( void );
