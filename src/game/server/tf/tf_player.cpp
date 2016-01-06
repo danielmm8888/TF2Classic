@@ -259,6 +259,8 @@ int SendProxyArrayLength_PlayerObjects( const void *pStruct, int objectID )
 
 BEGIN_DATADESC( CTFPlayer )
 	DEFINE_INPUTFUNC( FIELD_STRING,	"SpeakResponseConcept",	InputSpeakResponseConcept ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"IgnitePlayer",	InputIgnitePlayer ),
+	DEFINE_INPUTFUNC( FIELD_VOID,	"ExtinguishPlayer",	InputExtinguishPlayer ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetForcedTauntCam", InputSetForcedTauntCam ),
 	DEFINE_OUTPUT( m_OnDeath, "OnDeath" ),
 END_DATADESC()
@@ -5045,6 +5047,27 @@ void CTFPlayer::InputSetForcedTauntCam( inputdata_t &inputdata )
 {
 	 m_nForceTauntCam = clamp( inputdata.value.Int(), 0, 1 );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: Ignite a player
+//-----------------------------------------------------------------------------
+void CTFPlayer::InputIgnitePlayer( inputdata_t &inputdata )
+{
+	m_Shared.Burn( NULL, NULL );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Extinguish a player
+//-----------------------------------------------------------------------------
+void CTFPlayer::InputExtinguishPlayer( inputdata_t &inputdata )
+{
+	if ( m_Shared.InCond( TF_COND_BURNING ) )
+	{
+		EmitSound( "TFPlayer.FlameOut" );
+		m_Shared.RemoveCond( TF_COND_BURNING );
+	}
+}
+
 
 void CTFPlayer::ClientHearVox( const char *pSentence )
 {

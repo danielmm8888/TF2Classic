@@ -335,8 +335,6 @@ public:
 	virtual void NoteSpokeVoiceCommand( const char *pszScenePlayed );
 	void	SpeakWeaponFire( int iCustomConcept = MP_CONCEPT_NONE );
 	void	ClearWeaponFireScene( void );
-	void	InputSpeakResponseConcept( inputdata_t &inputdata );
-	void	InputSetForcedTauntCam( inputdata_t &inputdata );
 
 	virtual int DrawDebugTextOverlays( void );
 
@@ -356,6 +354,12 @@ public:
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 	void UpdatePlayerColor( void );
+
+	// Entity inputs
+	void	InputIgnitePlayer( inputdata_t &inputdata );
+	void	InputExtinguishPlayer( inputdata_t &inputdata );
+	void	InputSpeakResponseConcept( inputdata_t &inputdata );
+	void	InputSetForcedTauntCam( inputdata_t &inputdata );
 
 public:
 
