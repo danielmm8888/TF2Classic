@@ -3339,16 +3339,18 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	if ( !IsAlive() )
 		return 0;
 
+	CBaseEntity *pAttacker = info.GetAttacker();
+	CBaseEntity *pInflictor = info.GetInflictor();
 	CTFWeaponBase *pWeapon = NULL;
 
 	if ( inputInfo.GetWeapon() )
 	{
 		pWeapon = dynamic_cast<CTFWeaponBase *>( inputInfo.GetWeapon() );
 	}
-	else if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
+	else if ( pAttacker && pAttacker->IsPlayer() )
 	{
 		// Assume that player used his currently active weapon.
-		pWeapon = ToTFPlayer( info.GetAttacker() )->GetActiveTFWeapon();
+		pWeapon = ToTFPlayer( pAttacker )->GetActiveTFWeapon();
 	}
 
 	int iHealthBefore = GetHealth();
@@ -3356,11 +3358,11 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	bool bDebug = tf_debug_damage.GetBool();
 	if ( bDebug )
 	{
-		Warning( "%s taking damage from %s, via %s. Damage: %.2f\n", GetDebugName(), info.GetInflictor() ? info.GetInflictor()->GetDebugName() : "Unknown Inflictor", info.GetAttacker() ? info.GetAttacker()->GetDebugName() : "Unknown Attacker", info.GetDamage() );
+		Warning( "%s taking damage from %s, via %s. Damage: %.2f\n", GetDebugName(), pInflictor ? pInflictor->GetDebugName() : "Unknown Inflictor", pAttacker ? pAttacker->GetDebugName() : "Unknown Attacker", info.GetDamage() );
 	}
 
 	// Make sure the player can take damage from the attacking entity
-	if (!g_pGameRules->FPlayerCanTakeDamage(this, info.GetAttacker(), info))
+	if ( !g_pGameRules->FPlayerCanTakeDamage( this, pAttacker, info ) )
 	{
 		if ( bDebug )
 		{
@@ -3369,7 +3371,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		return 0;
 	}
 
-	AddDamagerToHistory( info.GetAttacker() );
+	AddDamagerToHistory( pAttacker );
 
 	// keep track of amount of damage last sustained
 	m_lastDamageAmount = info.GetDamage();
@@ -3383,7 +3385,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	// if this is our own rocket and we're in mid-air, scale down the damage
 	if ( IsPlayerClass( TF_CLASS_SOLDIER ) || IsPlayerClass( TF_CLASS_MERCENARY ) || IsPlayerClass( TF_CLASS_DEMOMAN ) )
 	{
-		if ( ( info.GetDamageType() & DMG_BLAST ) && info.GetAttacker() == this && GetGroundEntity() == NULL )
+		if ( ( info.GetDamageType() & DMG_BLAST ) && pAttacker == this && GetGroundEntity() == NULL )
 		{
 			float flDamage = info.GetDamage();
 			int iJumpType = 0;
@@ -3400,8 +3402,11 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 			info.SetDamage( flDamage );
 
+			int iPlaySound = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iPlaySound, no_self_blast_dmg );
+
 			// Set blast jumping state. It will be cleared once we land.
-			SetBlastJumpState( iJumpType, false );
+			SetBlastJumpState( iJumpType, iPlaySound != 0 );
 		}
 	}
 
@@ -3421,7 +3426,6 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		bool bAllowDamage = false;
 
 		// check to see if our attacker is a trigger_hurt entity (and allow it to kill us even if we're invuln)
-		CBaseEntity *pAttacker = info.GetAttacker();
 		if ( pAttacker && pAttacker->IsSolidFlagSet( FSOLID_TRIGGER ) )
 		{
 			CTriggerHurt *pTrigger = dynamic_cast<CTriggerHurt *>( pAttacker );
@@ -3455,7 +3459,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// Handle on-hit effects.
-	if ( pWeapon && info.GetAttacker() != this )
+	if ( pWeapon && pAttacker != this )
 	{
 		int nCritOnCond = 0;
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nCritOnCond, or_crit_vs_playercond );
@@ -3480,7 +3484,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// If we're not damaging ourselves, apply randomness
-	if ( info.GetAttacker() != this && !(bitsDamage & (DMG_DROWN | DMG_FALL)) ) 
+	if ( pAttacker != this && !( bitsDamage & ( DMG_DROWN | DMG_FALL ) ) )
 	{
 		float flDamage = 0;
 		if ( bitsDamage & DMG_CRITICAL )
@@ -3493,7 +3497,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			flDamage = info.GetDamage() * TF_DAMAGE_CRIT_MULTIPLIER;
 
 			// Show the attacker, unless the target is a disguised spy
-			if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() && !m_Shared.InCond( TF_COND_DISGUISED ) )
+			if ( pAttacker && pAttacker->IsPlayer() && !m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				CEffectData	data;
 				data.m_nHitBox = GetParticleSystemIndex( "crit_text" );
@@ -3501,7 +3505,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 				data.m_vAngles = vec3_angle;
 				data.m_nEntIndex = 0;
 
-				CSingleUserRecipientFilter filter( (CBasePlayer*)info.GetAttacker() );
+				CSingleUserRecipientFilter filter( (CBasePlayer*)pAttacker );
 				te->DispatchEffect( filter, 0.0, data.m_vOrigin, "ParticleEffect", data );
 
 				EmitSound_t params;
@@ -3532,7 +3536,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 				if ( bitsDamage & DMG_USEDISTANCEMOD )
 				{
-					float flDistance = max( 1.0, (WorldSpaceCenter() - info.GetAttacker()->WorldSpaceCenter()).Length() );
+					float flDistance = max( 1.0, ( WorldSpaceCenter() - pAttacker->WorldSpaceCenter() ).Length() );
 					float flOptimalDistance = 512.0;
 
 					flCenter = RemapValClamped( flDistance / flOptimalDistance, 0.0, 2.0, 1.0, 0.0 );
@@ -3658,9 +3662,9 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	// add to the damage total for clients, which will be sent as a single
 	// message at the end of the frame
 	// todo: remove after combining shotgun blasts?
-	if ( info.GetInflictor() && info.GetInflictor()->edict() )
+	if ( info.GetInflictor() && pInflictor->edict() )
 	{
-		m_DmgOrigin = info.GetInflictor()->GetAbsOrigin();
+		m_DmgOrigin = pInflictor->GetAbsOrigin();
 	}
 
 	m_DmgTake += (int)info.GetDamage();
@@ -3836,10 +3840,14 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 {
 	// Grab the vector of the incoming attack. 
 	// (Pretend that the inflictor is a little lower than it really is, so the body will tend to fly upward a bit).
+	CBaseEntity *pAttacker = info.GetAttacker();
+	CBaseEntity *pInflictor = info.GetInflictor();
+	CBaseEntity *pWeapon = info.GetWeapon();
+
 	Vector vecDir = vec3_origin;
-	if ( info.GetInflictor() )
+	if ( pInflictor )
 	{
-		vecDir = info.GetInflictor()->WorldSpaceCenter() - Vector ( 0.0f, 0.0f, 10.0f ) - WorldSpaceCenter();
+		vecDir = pInflictor->WorldSpaceCenter() - Vector( 0.0f, 0.0f, 10.0f ) - WorldSpaceCenter();
 		VectorNormalize( vecDir );
 	}
 	g_vecAttackDir = vecDir;
@@ -3859,6 +3867,21 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		{
 			CALL_ATTRIB_HOOK_FLOAT( flDamage, rocket_jump_dmg_reduction );
 		}
+
+		if ( pWeapon )
+		{
+			int iNoSelfDmg = 0;
+			CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iNoSelfDmg, no_self_blast_dmg );
+
+			if ( iNoSelfDmg )
+			{
+				flDamage = 0.0f;
+			}
+			else
+			{
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flDamage, blast_dmg_to_self );
+			}
+		}
 	}
 
 	int iOldHealth = m_iHealth;
@@ -3876,7 +3899,6 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	m_flLastDamageTime = gpGlobals->curtime;
 
 	// Apply a damage force.
-	CBaseEntity *pAttacker = info.GetAttacker();
 	if ( !pAttacker )
 		return 0;
 
@@ -3884,8 +3906,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( bIgniting )
 	{
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
-		m_Shared.Burn( ToTFPlayer( pAttacker ), pWeapon );
+		CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( pWeapon );
+		m_Shared.Burn( ToTFPlayer( pAttacker ), pTFWeapon );
 	}
 
 	// Fire a global game event - "player_hurt"
