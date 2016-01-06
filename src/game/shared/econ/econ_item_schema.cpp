@@ -56,6 +56,16 @@ EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGN
 	return &visual[TEAM_UNASSIGNED];
 }
 
+int CEconItemDefinition::GetLoadoutSlot( int iClass /*= TF_CLASS_UNDEFINED*/ )
+{
+	if ( iClass && item_slot_per_class[iClass] != -1 )
+	{
+		return item_slot_per_class[iClass];
+	}
+
+	return item_slot;
+}
+
 CEconItemAttribute *CEconItemDefinition::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.

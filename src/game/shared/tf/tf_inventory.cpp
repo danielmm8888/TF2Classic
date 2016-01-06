@@ -60,7 +60,7 @@ bool CTFInventory::Init( void )
 			if ( pItemDef->used_by_classes & ( 1 << iClass ) )
 			{
 				// Show it if it's either base item or has show_in_armory flag.
-				int iSlot = pItemDef->item_slot;
+				int iSlot = pItemDef->GetLoadoutSlot( iClass );
 
 				if ( pItemDef->baseitem )
 				{

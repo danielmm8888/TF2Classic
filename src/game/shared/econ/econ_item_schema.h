@@ -161,6 +161,10 @@ public:
 	{
 		CLEAR_STR(name);
 		used_by_classes = 0;
+
+		for ( int i = 0; i < TF_CLASS_COUNT_ALL; i++ )
+			item_slot_per_class[i] = -1;
+
 		show_in_armory = false;
 		CLEAR_STR(item_class);
 		CLEAR_STR(item_type_name);
@@ -185,6 +189,7 @@ public:
 	}
 
 	EconItemVisuals *GetVisuals( int iTeamNum = TEAM_UNASSIGNED );
+	int GetLoadoutSlot( int iClass = TF_CLASS_UNDEFINED );
 	CEconItemAttribute *IterateAttributes( string_t strClass );
 
 public:
@@ -192,6 +197,7 @@ public:
 	CUtlDict< bool, unsigned short > capabilities;
 	CUtlDict< bool, unsigned short > tags;
 	int used_by_classes;
+	int item_slot_per_class[TF_CLASS_COUNT_ALL];
 	bool show_in_armory;
 	char item_class[128];
 	char item_type_name[128];

@@ -219,7 +219,7 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 		if ( !m_pItemDefTo )
 			return false;
 
-		C_EconEntity *pWeaponFrom = pLocalTFPlayer->GetEntityForLoadoutSlot( m_pItemDefTo->item_slot );
+		C_EconEntity *pWeaponFrom = pLocalTFPlayer->GetEntityForLoadoutSlot( m_pItemDefTo->GetLoadoutSlot( TF_CLASS_MERCENARY ) );
 		if (!pWeaponFrom)
 			return false;
 

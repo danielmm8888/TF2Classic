@@ -1311,6 +1311,8 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ValidateWeapons( bool bRegenerate )
 {
+	int iClass = m_PlayerClass.GetClassIndex();
+
 	for ( int i = 0; i < WeaponCount(); i++ )
 	{
 		CTFWeaponBase *pWeapon = static_cast<CTFWeaponBase *>( GetWeapon( i ) );
@@ -1325,7 +1327,8 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 
 		if ( pItemDef )
 		{
-			CEconItemView *pLoadoutItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), pItemDef->item_slot );
+			int iSlot = pItemDef->GetLoadoutSlot( iClass );
+			CEconItemView *pLoadoutItem = GetLoadoutItem( iClass, iSlot );
 
 			if ( !ItemsMatch( pWeapon->GetItem(), pLoadoutItem, pWeapon ) )
 			{
@@ -1356,6 +1359,8 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ValidateWearables( void )
 {
+	int iClass = m_PlayerClass.GetClassIndex();
+
 	for ( int i = 0; i < GetNumWearables(); i++ )
 	{
 		CEconWearable *pWearable = GetWearable( i );
@@ -1367,7 +1372,8 @@ void CTFPlayer::ValidateWearables( void )
 
 		if ( pItemDef )
 		{
-			CEconItemView *pLoadoutItem = GetLoadoutItem( m_PlayerClass.GetClassIndex(), pItemDef->item_slot );
+			int iSlot = pItemDef->GetLoadoutSlot( iClass );
+			CEconItemView *pLoadoutItem = GetLoadoutItem( iClass, iSlot );
 
 			if ( !ItemsMatch( pWearable->GetItem(), pLoadoutItem, NULL ) )
 			{
@@ -7907,16 +7913,13 @@ CON_COMMAND_F( give_weapon, "Give specified weapon.", FCVAR_CHEAT )
 	}
 }
 
-CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nFormat: <id> <classname> <attribute1> <value1> <attribute2> <value2> ... <attributeN> <valueN>", FCVAR_NONE )
+CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nFormat: <id> <classname> <attribute1> <value1> <attribute2> <value2> ... <attributeN> <valueN>", FCVAR_CHEAT )
 {
 	if ( args.ArgC() < 2 )
 		return;
 
 	CTFPlayer *pPlayer = ToTFPlayer( UTIL_GetCommandClient() );
 	if ( !pPlayer )
-		return;
-
-	if ( !sv_cheats->GetBool() )
 		return;
 
 	int iItemID = atoi( args[1] );
@@ -7942,7 +7945,9 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 	econItem.SkipBaseAttributes( bAddedAttributes );
 
 	// Nuke whatever we have in this slot.
-	CEconEntity *pEntity = pPlayer->GetEntityForLoadoutSlot( pItemDef->item_slot );
+	int iClass = pPlayer->GetPlayerClass()->GetClassIndex();
+	int iSlot = pItemDef->GetLoadoutSlot( iClass );
+	CEconEntity *pEntity = pPlayer->GetEntityForLoadoutSlot( iSlot );
 
 	if ( pEntity )
 	{

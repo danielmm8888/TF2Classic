@@ -425,6 +425,15 @@ public:
 					if ( iClass != -1 )
 					{
 						pItem->used_by_classes |= ( 1 << iClass );
+						const char *pszSlotname = pClassData->GetString();
+
+						if ( pszSlotname[0] != '1' )
+						{
+							int iSlot = UTIL_StringFieldToInt( pszSlotname, g_LoadoutSlots, TF_LOADOUT_SLOT_COUNT );
+							
+							if ( iSlot != -1 )
+								pItem->item_slot_per_class[iClass] = iSlot;
+						}
 					}
 				}
 			}

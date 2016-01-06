@@ -3592,6 +3592,8 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 		return GetWearableForLoadoutSlot( iSlot );
 	}
 
+	int iClass = m_PlayerClass.GetClassIndex();
+
 	for ( int i = 0; i < WeaponCount(); i++ )
 	{
 		CBaseCombatWeapon *pWeapon = GetWeapon( i );
@@ -3600,7 +3602,7 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 
 		CEconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
 
-		if ( pItemDef && pItemDef->item_slot == iSlot )
+		if ( pItemDef && pItemDef->GetLoadoutSlot( iClass ) == iSlot )
 		{
 			return pWeapon;
 		}
@@ -3616,6 +3618,8 @@ CEconEntity *CTFPlayer::GetEntityForLoadoutSlot( int iSlot )
 
 CEconWearable *CTFPlayer::GetWearableForLoadoutSlot( int iSlot )
 {
+	int iClass = m_PlayerClass.GetClassIndex();
+
 	for ( int i = 0; i < GetNumWearables(); i++ )
 	{
 		CEconWearable *pWearable = GetWearable( i );
@@ -3625,7 +3629,7 @@ CEconWearable *CTFPlayer::GetWearableForLoadoutSlot( int iSlot )
 
 		CEconItemDefinition *pItemDef = pWearable->GetItem()->GetStaticData();
 
-		if ( pItemDef && pItemDef->item_slot == iSlot )
+		if ( pItemDef && pItemDef->GetLoadoutSlot( iClass ) == iSlot )
 		{
 			return pWearable;
 		}
