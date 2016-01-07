@@ -934,9 +934,11 @@ void CTFWeaponBase::AbortReload( void )
 {
 	BaseClass::AbortReload();
 
-#ifndef CLIENT_DLL
-	StopWeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+	if ( !UsingViewModel() ) 
 #endif
+	StopWeaponSound( RELOAD );
+
 	m_iReloadMode.Set( TF_RELOAD_START );
 }
 
@@ -1013,9 +1015,10 @@ bool CTFWeaponBase::ReloadSingly( void )
 				UpdateReloadTimers( false );
 			}
 
-#ifndef CLIENT_DLL
-			WeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+			if ( !UsingViewModel() )
 #endif
+			WeaponSound( RELOAD );
 
 			// Next continue to reload shells?
 			m_iReloadMode.Set( TF_RELOADING_CONTINUE );
@@ -1126,10 +1129,11 @@ bool CTFWeaponBase::DefaultReload( int iClipSize1, int iClipSize2, int iActivity
 	if ( !( bReloadPrimary || bReloadSecondary )  )
 		return false;
 
-#ifndef CLIENT_DLL
 	// Play reload
-	WeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+	if ( !UsingViewModel() )
 #endif
+	WeaponSound( RELOAD );
 
 	// Play the player's reload animation
 	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );

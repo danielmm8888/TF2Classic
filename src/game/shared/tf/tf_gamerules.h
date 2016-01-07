@@ -165,6 +165,8 @@ public:
 
 	virtual const unsigned char *GetEncryptionKey( void ) { return (unsigned char *)"E2NcUkG2"; }
 
+	virtual bool	AllowThirdPersonCamera( void );
+
 	virtual float	GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers = true );
 
 	virtual bool	ShouldBalanceTeams( void );

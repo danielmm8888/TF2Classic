@@ -116,6 +116,8 @@ void CTFModeManager::LevelInit( const char *newmap )
 	{
 		voice_steal.SetValue( 1 );
 	}
+
+	g_ThirdPersonManager.Init();
 }
 
 void CTFModeManager::LevelShutdown( void )
@@ -233,10 +235,19 @@ void ClientModeTFNormal::OverrideView( CViewSetup *pSetup )
 	// Let the player override the view.
 	pPlayer->OverrideView( pSetup );
 
-	if ( ::input->CAM_IsThirdPerson() && !pPlayer->IsObserver() )
+	if ( ::input->CAM_IsThirdPerson() )
 	{
 		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
-		Vector cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
+		Vector cam_ofs_distance;
+
+		if ( g_ThirdPersonManager.IsOverridingThirdPerson() )
+		{
+			cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
+		}
+		else
+		{
+			cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
+		}
 
 		cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
 
