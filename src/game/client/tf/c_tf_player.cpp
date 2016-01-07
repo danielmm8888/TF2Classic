@@ -2377,7 +2377,7 @@ void C_TFPlayer::TurnOffTauntCam( void )
 
 	if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
 	{
-		g_ThirdPersonManager.SetDesiredCameraOffset( Vector( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP ) );
+		ThirdPersonSwitch( true );
 		return;
 	}
 
@@ -2465,7 +2465,15 @@ void C_TFPlayer::ThirdPersonSwitch( bool bThirdPerson )
 	{
 		if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
 		{
-			g_ThirdPersonManager.SetDesiredCameraOffset( Vector( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP ) );
+			Vector vecOffset( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP );
+
+			// Flip the angle if viewmodels are flipped.
+			if ( cl_flipviewmodels.GetBool() )
+			{
+				vecOffset.y *= -1.0f;
+			}
+
+			g_ThirdPersonManager.SetDesiredCameraOffset( vecOffset );
 		}
 	}
 }

@@ -647,6 +647,21 @@ void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+bool CTFWeaponBase::IsViewModelFlipped( void )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner )
+	{
+		return ( m_bFlipViewModel != pOwner->ShouldFlipViewModel() );
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFWeaponBase::ReapplyProvision( void )
 {
 	int iProvideOnActive = 0;

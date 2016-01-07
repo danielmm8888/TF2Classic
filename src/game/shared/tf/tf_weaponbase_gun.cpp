@@ -387,6 +387,12 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 	}
 
 #ifndef CLIENT_DLL
+	// If viewmodel is flipped fire from the other side.
+	if ( IsViewModelFlipped() )
+	{
+		vecOffset.y *= -1.0f;
+	}
+
 	// Offset actual start point
 	*vecSrc = vecShootPos + (vecForward * vecOffset.x) + (vecRight * vecOffset.y) + (vecUp * vecOffset.z);
 #else

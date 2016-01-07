@@ -2845,7 +2845,7 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	// keep track of their cl_autoreload value
 	pTFPlayer->SetAutoReload( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autoreload" ) ) > 0 );
 
-	pTFPlayer->SetFlipViewModel( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_flipviewmodel" ) ) > 0 );
+	pTFPlayer->SetFlipViewModel( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_flipviewmodels" ) ) > 0 );
 
 	// Keep track of their spawn particle.
 	pTFPlayer->m_Shared.SetRespawnParticleID( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmercparticle" ) ) );
