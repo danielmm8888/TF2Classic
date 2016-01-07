@@ -171,7 +171,7 @@ public:
 #endif
 	int		GetNumHealers( void ) { return m_nNumHealers; }
 
-	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon = NULL );
+	void	Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon = NULL, float flFlameDuration = -1.0f );
 
 	void	RecalculatePlayerBodygroups( void );
 

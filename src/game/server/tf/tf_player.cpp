@@ -5053,7 +5053,7 @@ void CTFPlayer::InputSetForcedTauntCam( inputdata_t &inputdata )
 //-----------------------------------------------------------------------------
 void CTFPlayer::InputIgnitePlayer( inputdata_t &inputdata )
 {
-	m_Shared.Burn( NULL, NULL );
+	m_Shared.Burn( ToTFPlayer( inputdata.pActivator ), NULL );
 }
 
 //-----------------------------------------------------------------------------
