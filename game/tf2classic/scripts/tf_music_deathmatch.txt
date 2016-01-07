@@ -10,7 +10,7 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_main_01.wav"
+			"wave" 		"#music/cues/dm_main_01.wav"
 			"volume"	"1.00"
 		}
 		
@@ -21,7 +21,7 @@
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_01.wav"
+				"wave_override"		"#music/cues/dm_orch_01.wav"
 				"volume_override"	"0.55"		
 			}
 		}		
@@ -37,7 +37,7 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_main_02.wav"
+			"wave" 		"#music/cues/dm_main_02.wav"
 			"volume"	"1.00"
 		}
 		
@@ -48,7 +48,7 @@
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_02.wav"
+				"wave_override"		"#music/cues/dm_orch_02.wav"
 				"volume_override"	"0.55"		
 			}
 		}
@@ -64,7 +64,7 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_main_03.wav"
+			"wave" 		"#music/cues/dm_main_03.wav"
 			"volume"	"1.00"
 		}
 		
@@ -75,7 +75,7 @@
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_03.wav"
+				"wave_override"		"#music/cues/dm_orch_03.wav"
 				"volume_override"	"0.60"		
 			}
 		}
@@ -91,7 +91,7 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_main_04.wav"
+			"wave" 		"#music/cues/dm_main_04.wav"
 			"volume"	"1.00"
 		}
 		
@@ -102,7 +102,7 @@
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_04.wav"
+				"wave_override"		"#music/cues/dm_orch_04.wav"
 				"volume_override"	"0.60"		
 			}
 		}
@@ -118,7 +118,7 @@
 		
 		"LAYER_MAIN"
 		{		
-			"wave" 		"music/cues/dm_main_05.wav"
+			"wave" 		"#music/cues/dm_main_05.wav"
 			"volume"	"1.00"
 		}
 		
@@ -129,7 +129,7 @@
 				
 			"MOOD_DANGER"
 			{	
-				"wave_override"		"music/cues/dm_orch_05.wav"
+				"wave_override"		"#music/cues/dm_orch_05.wav"
 				"volume_override"	"0.55"		
 			}
 		}
