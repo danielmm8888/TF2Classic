@@ -1188,7 +1188,18 @@ void CTFWeaponBase::SetReloadTimer( float flReloadTime )
 	if ( !pPlayer )
 		return;
 
-	float flTime = gpGlobals->curtime + flReloadTime;
+	float flModifiedTime = flReloadTime;
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, mult_reload_time );
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, mult_reload_time_hidden );
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, fast_reload );
+
+	CBaseViewModel *vm = pPlayer->GetViewModel( m_nViewModelIndex );
+	if ( vm )
+	{
+		vm->SetPlaybackRate( flReloadTime / flModifiedTime );
+	}
+
+	float flTime = gpGlobals->curtime + flModifiedTime;
 
 	// Set next player attack time (weapon independent).
 	pPlayer->m_flNextAttack = flTime;
