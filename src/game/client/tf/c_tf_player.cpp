@@ -2327,6 +2327,10 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;
 
+	// Already in third person?
+	if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+		return;
+
 	// Save the old view angles.
 	/*engine->GetViewAngles( m_angTauntEngViewAngles );
 	prediction->GetViewAngles( m_angTauntPredViewAngles );*/
@@ -2369,9 +2373,16 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );*/
 
 	g_ThirdPersonManager.SetOverridingThirdPerson( false );
+	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
+
+	if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+	{
+		g_ThirdPersonManager.SetDesiredCameraOffset( Vector( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP ) );
+		return;
+	}
+
 	::input->CAM_ToFirstPerson();
 	ThirdPersonSwitch( false );
-	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
 
 	// Reset the old view angles.
 	/*engine->SetViewAngles( m_angTauntEngViewAngles );
@@ -2439,6 +2450,22 @@ void C_TFPlayer::HandleTaunting( void )
 		if ( pLocalPlayer )
 		{
 			TurnOffTauntCam();
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void C_TFPlayer::ThirdPersonSwitch( bool bThirdPerson )
+{
+	BaseClass::ThirdPersonSwitch( bThirdPerson );
+
+	if ( bThirdPerson )
+	{
+		if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+		{
+			g_ThirdPersonManager.SetDesiredCameraOffset( Vector( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP ) );
 		}
 	}
 }

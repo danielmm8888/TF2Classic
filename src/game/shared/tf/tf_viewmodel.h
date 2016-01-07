@@ -86,6 +86,8 @@ public:
 	virtual	bool			GetAttachment( int number, Vector &origin, QAngle &angles );
 	virtual bool			GetAttachmentVelocity( int number, Vector &originVel, Quaternion &angleVel );
 
+	virtual void			FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options );
+
 #endif
 
 private:

@@ -128,6 +128,8 @@ public:
 	bool			StartGestureSceneEvent( CSceneEventInfo *info, CChoreoScene *scene, CChoreoEvent *event, CChoreoActor *actor, CBaseEntity *pTarget );
 	void			TurnOnTauntCam( void );
 	void			TurnOffTauntCam( void );
+	bool			InTauntCam( void ) { return m_bWasTaunting; }
+	virtual void	ThirdPersonSwitch( bool bThirdperson );
 
 	virtual void	InitPhonemeMappings();
 

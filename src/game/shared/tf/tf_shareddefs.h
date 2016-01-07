@@ -1244,4 +1244,8 @@ public:
 
 #define HUD_ALERT_SCRAMBLE_TEAMS 0
 
+#define TF_CAMERA_DIST 64
+#define TF_CAMERA_DIST_RIGHT 30
+#define TF_CAMERA_DIST_UP 0
+
 #endif // TF_SHAREDDEFS_H
