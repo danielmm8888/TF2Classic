@@ -318,6 +318,9 @@ public:
 	bool ShouldAutoReload( void ) { return m_bAutoReload; }
 	void SetAutoReload( bool bAutoReload ) { m_bAutoReload = bAutoReload; }
 
+	bool ShouldFlipViewModel( void ) { return m_bFlipViewModel; }
+	void SetFlipViewModel( bool bFlip ) { m_bFlipViewModel = bFlip; }
+
 	virtual void	ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet );
 
 	virtual bool CanHearAndReadChatFrom( CBasePlayer *pPlayer );
@@ -589,6 +592,7 @@ private:
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
 	bool				m_bAutoReload;
+	bool				m_bFlipViewModel;
 
 	float				m_flTauntAttackTime;
 	int					m_iTauntAttack;
