@@ -102,6 +102,8 @@
 	"SoldierTaunts"				"vo/taunts/soldier"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"SpyTaunts"				"vo/taunts/spy"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"Tf_music"				"misc/tf"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
+
+	"DMCues"					"music/cues/dm"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	
 	"Doors"					"doors/generic"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"PlayerAnimations"			"player/taunt"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
@@ -234,6 +236,7 @@
 	"SoldierTaunts"			"0.72"
 	"SpyTaunts"			"0.72"
 	"Tf_music"			"0.72"
+	"DMCues"			"0.72"
 	"All"				"0.01"
 }
 
