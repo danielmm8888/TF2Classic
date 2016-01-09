@@ -540,9 +540,12 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +		
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
+	float flDamageMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
+
 	CTFGrenadePipebombProjectile *pProjectile = CTFGrenadePipebombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity, 
 		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, GetTFWpnData(), bRemoteDetonate );
+		pPlayer, GetTFWpnData(), bRemoteDetonate, flDamageMult );
 
 
 	if ( pProjectile )

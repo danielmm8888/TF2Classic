@@ -13,6 +13,7 @@
 #include "c_tf_player.h"
 // Server specific.
 #else
+#include "ilagcompensationmanager.h"
 #include "tf_player.h"
 #include "tf_gamestats.h"
 #endif
@@ -57,6 +58,11 @@ void CTFKnife::PrimaryAttack( void )
 	// Set the weapon usage mode - primary, secondary.
 	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
 
+#if !defined (CLIENT_DLL)
+	// Move other players back to history positions based on local player's lag
+	lagcompensation->StartLagCompensation( pPlayer, pPlayer->GetCurrentCommand() );
+#endif
+
 	trace_t trace;
 	if ( DoSwingTrace( trace ) == true )
 	{
@@ -68,7 +74,7 @@ void CTFKnife::PrimaryAttack( void )
 			if ( pTarget && pTarget->GetTeamNumber() != pPlayer->GetTeamNumber() )
 			{
 				// Deal extra damage to players when stabbing them from behind
-				if ( IsBehindTarget( trace.m_pEnt ) )
+				if ( IsBehindAndFacingTarget( trace.m_pEnt ) )
 				{
 					// this will be a backstab, do the strong anim
 					m_iWeaponMode = TF_WEAPON_SECONDARY_MODE;
@@ -83,6 +89,10 @@ void CTFKnife::PrimaryAttack( void )
 #ifndef CLIENT_DLL
 	pPlayer->RemoveInvisibility();
 	pPlayer->RemoveDisguise();
+#endif
+
+#if !defined (CLIENT_DLL)
+	lagcompensation->FinishLagCompensation( pPlayer );
 #endif
 
 	// Swing the weapon.
@@ -109,11 +119,8 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 
 	if ( pOwner && pTarget->IsPlayer() )
 	{
-		// This counts as a backstab if:
-		// a ) we are behind the target player
-		// or b) we were behind this target player when we started the stab
-		if ( IsBehindTarget( pTarget ) ||
-			( m_iWeaponMode == TF_WEAPON_SECONDARY_MODE && m_hBackstabVictim.Get() == pTarget ) )
+		// Since Swing and Smack are done in the same frame now we don't need to run additional checks anymore.
+		if ( m_iWeaponMode == TF_WEAPON_SECONDARY_MODE && m_hBackstabVictim.Get() == pTarget )
 		{
 			// this will be a backstab, do the strong anim.
 			// Do twice the target's health so that random modification will still kill him.
@@ -121,10 +128,6 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 
 			// Declare a backstab.
 			iCustomDamage = TF_DMG_CUSTOM_BACKSTAB;
-		}
-		else
-		{
-			m_bCurrentAttackIsCrit = pOwner->m_Shared.IsCritBoosted();
 		}
 	}
 
@@ -135,13 +138,13 @@ float CTFKnife::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-bool CTFKnife::IsBehindTarget( CBaseEntity *pTarget )
+bool CTFKnife::IsBehindAndFacingTarget( CBaseEntity *pTarget )
 {
 	Assert( pTarget );
 
 	// Get the forward view vector of the target, ignore Z
 	Vector vecVictimForward;
-	AngleVectors( pTarget->EyeAngles(), &vecVictimForward, NULL, NULL );
+	AngleVectors( pTarget->EyeAngles(), &vecVictimForward );
 	vecVictimForward.z = 0.0f;
 	vecVictimForward.NormalizeInPlace();
 
@@ -151,9 +154,21 @@ bool CTFKnife::IsBehindTarget( CBaseEntity *pTarget )
 	vecToTarget.z = 0.0f;
 	vecToTarget.NormalizeInPlace();
 
-	float flDot = DotProduct( vecVictimForward, vecToTarget );
+	// Get a forward vector of the attacker.
+	Vector vecOwnerForward;
+	AngleVectors( GetOwner()->EyeAngles(), &vecOwnerForward );
+	vecOwnerForward.z = 0.0f;
+	vecOwnerForward.NormalizeInPlace();
 
-	return ( flDot > -0.1 );
+	float flDotOwner = DotProduct( vecOwnerForward, vecToTarget );
+	float flDotVictim = DotProduct( vecVictimForward, vecToTarget );
+
+	// Make sure they're actually facing the target.
+	// This needs to be done because lag compensation can place target slightly behind the attacker.
+	if ( flDotOwner > 0.5 )
+		return ( flDotVictim > -0.1 );
+
+	return false;
 }
 
 //-----------------------------------------------------------------------------
