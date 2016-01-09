@@ -2845,6 +2845,8 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	// keep track of their cl_autoreload value
 	pTFPlayer->SetAutoReload( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_autoreload" ) ) > 0 );
 
+	pTFPlayer->SetFlipViewModel( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "cl_flipviewmodels" ) ) > 0 );
+
 	// Keep track of their spawn particle.
 	pTFPlayer->m_Shared.SetRespawnParticleID( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_setmercparticle" ) ) );
 
@@ -2852,6 +2854,88 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	int iFov = atoi( pszFov );
 	iFov = clamp( iFov, 75, MAX_FOV );
 	pTFPlayer->SetDefaultFOV( iFov );
+}
+
+static const char *g_aTaggedConVars[] =
+{
+	"tf_birthday",
+	"birthday",
+
+	"mp_fadetoblack",
+	"fadetoblack",
+
+	"mp_friendlyfire",
+	"friendlyfire",
+
+	"tf_weapon_criticals",
+	"nocrits",
+
+	"tf_damage_disablespread",
+	"dmgspread",
+
+	"tf_use_fixed_weaponspreads",
+	"nospread",
+
+	"mp_highlander",
+	"highlander",
+
+	"mp_disable_respawn_times",
+	"norespawntime",
+
+	"mp_respawntimes",
+	"respawntimes",
+
+	"mp_stalemate_enable",
+	"suddendeath",
+
+	"tf_gamemode_arena",
+	"arena",
+
+	"tf_gamemode_cp",
+	"cp",
+
+	"tf_gamemode_ctf",
+	"ctf",
+
+	"tf_gamemode_sd",
+	"sd",
+
+	"tf_gamemode_rd",
+	"rd",
+
+	"tf_gamemode_payload",
+	"payload",
+
+	"tf_gamemode_mvm",
+	"mvm",
+
+	"tf_gamemode_passtime",
+	"passtime",
+
+	"tf_gamemode_dm",
+	"dm",
+
+	"tf2c_allow_thirdperson",
+	"thirdperson",
+};
+
+//-----------------------------------------------------------------------------
+// Purpose: Tags
+//-----------------------------------------------------------------------------
+void CTFGameRules::GetTaggedConVarList( KeyValues *pCvarTagList )
+{
+	COMPILE_TIME_ASSERT( ARRAYSIZE( g_aTaggedConVars ) % 2 == 0 );
+
+	BaseClass::GetTaggedConVarList( pCvarTagList );
+
+	for ( int i = 0; i < ARRAYSIZE( g_aTaggedConVars ); i += 2 )
+	{
+		KeyValues *pKeyValue = new KeyValues( g_aTaggedConVars[i] );
+		pKeyValue->SetString( "convar", g_aTaggedConVars[i] );
+		pKeyValue->SetString( "tag", g_aTaggedConVars[i+1] );
+
+		pCvarTagList->AddSubKey( pKeyValue );
+	}
 }
 
 //-----------------------------------------------------------------------------

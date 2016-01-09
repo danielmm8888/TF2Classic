@@ -152,6 +152,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
 	virtual void Equip( CBaseCombatCharacter *pOwner );
+	bool IsViewModelFlipped( void );
 
 	virtual void ReapplyProvision( void );
 	virtual void OnActiveStateChanged( int iOldState );

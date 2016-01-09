@@ -42,6 +42,8 @@ public:
 #ifdef CLIENT_DLL
 	virtual void OnPreDataChanged( DataUpdateType_t );
 	virtual void OnDataChanged( DataUpdateType_t );
+	virtual void FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options );
+	virtual bool OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options );
 #endif
 
 	virtual int TranslateViewmodelHandActivity( int iActivity ) { return iActivity; }

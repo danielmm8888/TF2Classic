@@ -387,6 +387,12 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 	}
 
 #ifndef CLIENT_DLL
+	// If viewmodel is flipped fire from the other side.
+	if ( IsViewModelFlipped() )
+	{
+		vecOffset.y *= -1.0f;
+	}
+
 	// Offset actual start point
 	*vecSrc = vecShootPos + (vecForward * vecOffset.x) + (vecRight * vecOffset.y) + (vecUp * vecOffset.z);
 #else
@@ -534,9 +540,12 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +		
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
+	float flDamageMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
+
 	CTFGrenadePipebombProjectile *pProjectile = CTFGrenadePipebombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity, 
 		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, GetTFWpnData(), bRemoteDetonate );
+		pPlayer, GetTFWpnData(), bRemoteDetonate, flDamageMult );
 
 
 	if ( pProjectile )
