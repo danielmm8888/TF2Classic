@@ -109,7 +109,7 @@ ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY | FCVAR_DEV
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
-ConVar tf2c_force_stock_weapons( "tf2c_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
+ConVar tf2c_force_stock_weapons( "tf2c_force_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
 ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_DEVELOPMENTONLY, "Disables all new weapons as well as Econ Item System." );
 
 // -------------------------------------------------------------------------------- //
