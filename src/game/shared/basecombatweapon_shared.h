@@ -474,7 +474,7 @@ public:
 
 	virtual bool			OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options ) 
 	{ 
-#if defined USES_ECON_ITEMS
+#if defined ( USES_ECON_ITEMS ) || defined ( TF_CLASSIC_CLIENT )
 		return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
 #else
 		return false; 
