@@ -89,6 +89,8 @@
 
 	"FreezeCam"				"/freeze_cam"		""			""				""			""			"65"		"0"		"1"		"100"	"40"
 	"WinSounds"				"misc/your_team"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"DMCues"				"music/cues/dm"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
+	"DMWinPanel"			"music/dm_winpanel"	 ""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"FlagWarnings"				"vo/intel"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"CaptureWarnings"				"vo/announcer_last"	""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"PlayerVoice"				"?VoiceSfx"		""			""				""			""			"65"		"0"		"1"		"100"	"40"
@@ -102,8 +104,6 @@
 	"SoldierTaunts"				"vo/taunts/soldier"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"SpyTaunts"				"vo/taunts/spy"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"Tf_music"				"misc/tf"			""			""				""			""			"65"		"0"		"0"		"100"	"40"
-
-	"DMCues"					"music/cues/dm"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	
 	"Doors"					"doors/generic"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
 	"PlayerAnimations"			"player/taunt"		""			""				""			""			"65"		"0"		"0"		"100"	"40"
@@ -223,6 +223,8 @@
 
 	"FreezeCam"			"0.72"
 	"WinSounds"			"0.72"
+	"DMCues"			"0.72"
+	"DMWinPanel"			"0.72"
 	"FlagWarnings"			"0.72"
 	"CaptureWarnings"			"0.72"
 	"PlayerVoice"			"0.72"
@@ -236,7 +238,6 @@
 	"SoldierTaunts"			"0.72"
 	"SpyTaunts"			"0.72"
 	"Tf_music"			"0.72"
-	"DMCues"			"0.72"
 	"All"				"0.01"
 }
 
