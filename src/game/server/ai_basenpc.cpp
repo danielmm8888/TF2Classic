@@ -13009,15 +13009,19 @@ void CAI_BaseNPC::TestPlayerPushing( CBaseEntity *pEntity )
 		return;
 
 #ifdef TF_CLASSIC
+	// Don't give way to spectators.
+	if ( !pEntity->IsAlive() )
+		return;
+
 	// Don't give way to enemy players.
-	if ( !InSameTeam( pEntity ) )
+	if ( GetTeamNumber() != pEntity->GetTeamNumber() )
 		return;
 #endif
 
 	// Heuristic for determining if the player is pushing me away
 	CBasePlayer *pPlayer = ToBasePlayer( pEntity );
-	// Added IsAlive() check - don't move away from spectators. (Nicknine)
-	if ( pPlayer && !( pPlayer->GetFlags() & FL_NOTARGET ) && pPlayer->IsAlive() )
+
+	if ( pPlayer && !( pPlayer->GetFlags() & FL_NOTARGET ) )
 	{
 		if ( (pPlayer->m_nButtons & (IN_FORWARD|IN_BACK|IN_MOVELEFT|IN_MOVERIGHT)) || 
 			 pPlayer->GetAbsVelocity().AsVector2D().LengthSqr() > 50*50 )
@@ -14490,7 +14494,9 @@ void CAI_BaseNPC::ChangeTeam( int iTeamNum )
 
 	if ( !pTeam )
 	{
-		Warning( "CAI_BaseNPC::ChangeTeam( %d ) - invalid team index.\n", iTeamNum );
+		//Warning( "CAI_BaseNPC::ChangeTeam( %d ) - invalid team index.\n", iTeamNum );
+		// Just change team number.
+		BaseClass::ChangeTeam( iTeamNum );
 		return;
 	}
 
@@ -14971,7 +14977,7 @@ void CAI_BaseNPC::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	if ( !hDamager || (!hDamager->IsPlayer() && !hDamager->IsNPC()) || hDamager->GetTeam() == GetTeam() )
+	if ( !hDamager || (!hDamager->IsPlayer() && !hDamager->IsNPC()) || hDamager->GetTeamNumber() != GetTeamNumber() )
 		return;
 
 	// If this damager is different from the most recent damager, shift the

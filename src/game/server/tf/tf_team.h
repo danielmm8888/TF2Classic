@@ -60,8 +60,6 @@ public:
 	void			SetRole( int iTeamRole ) { m_iRole = iTeamRole; }
 	int				GetRole( void ) { return m_iRole; }
 
-	void			GetOpposingTFTeamList( CUtlVector<CTFTeam *> *pTeamList );
-
 	int				GetWeapon( int iIndex );
 	bool			HasWeapon( int iWeapon );
 	int				GetNumWeapons( void );

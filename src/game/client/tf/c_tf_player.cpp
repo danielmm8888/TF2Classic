@@ -1380,14 +1380,6 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 						pTeam = "blue";
 						break;
 
-					case TF_TEAM_GREEN:
-						pTeam = "green";
-						break;
-
-					case TF_TEAM_YELLOW:
-						pTeam = "yellow";
-						break;
-
 					case TEAM_SPECTATOR:
 						pTeam = "spectate";
 						break;
@@ -1701,16 +1693,10 @@ bool C_TFPlayer::IsEnemyPlayer( void )
 	switch( pLocalPlayer->GetTeamNumber() )
 	{
 	case TF_TEAM_RED:
-		return (GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_GREEN || GetTeamNumber() == TF_TEAM_YELLOW);
+		return ( GetTeamNumber() == TF_TEAM_BLUE );
 
 	case TF_TEAM_BLUE:
-		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_GREEN || GetTeamNumber() == TF_TEAM_YELLOW);
-
-	case TF_TEAM_GREEN:
-		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_YELLOW);
-
-	case TF_TEAM_YELLOW:
-		return (GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE || GetTeamNumber() == TF_TEAM_GREEN);
+		return ( GetTeamNumber() == TF_TEAM_RED );
 
 	default:
 		break;
@@ -2804,33 +2790,23 @@ void C_TFPlayer::GetTeamColor( Color &color )
 {
 	color[3] = 255;
 
-	switch (GetTeamNumber())
+	if ( GetTeamNumber() == TF_TEAM_RED )
 	{
-		case TF_TEAM_RED:
-			color[0] = 159;
-			color[1] = 55;
-			color[2] = 34;
-			break;
-		case TF_TEAM_BLUE:
-			color[0] = 76;
-			color[1] = 109;
-			color[2] = 129;
-			break;
-		case TF_TEAM_GREEN:
-			color[0] = 59;
-			color[1] = 120;
-			color[2] = 55;
-			break;
-		case TF_TEAM_YELLOW:
-			color[0] = 145;
-			color[1] = 145;
-			color[2] = 55;
-			break;
-		default:
-			color[0] = 255;
-			color[1] = 255;
-			color[2] = 255;
-			break;
+		color[0] = 159;
+		color[1] = 55;
+		color[2] = 34;
+	}
+	else if ( GetTeamNumber() == TF_TEAM_BLUE )
+	{
+		color[0] = 76;
+		color[1] = 109;
+		color[2] = 129;
+	}
+	else
+	{
+		color[0] = 255;
+		color[1] = 255;
+		color[2] = 255;
 	}
 }
 
@@ -3010,16 +2986,6 @@ bool C_TFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 
 		case TF_TEAM_BLUE:
 			if ( !( contentsMask & CONTENTS_BLUETEAM ) )
-				return false;
-			break;
-
-		case TF_TEAM_GREEN:
-			if ( !(contentsMask & CONTENTS_GREENTEAM ) )
-				return false;
-			break;
-
-		case TF_TEAM_YELLOW:
-			if ( !(contentsMask & CONTENTS_YELLOWTEAM ) )
 				return false;
 			break;
 		}

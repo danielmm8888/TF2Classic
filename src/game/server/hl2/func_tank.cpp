@@ -2470,9 +2470,10 @@ LINK_ENTITY_TO_CLASS( func_tank, CFuncTankGun );
 //-----------------------------------------------------------------------------
 void CFuncTankGun::Fire( int bulletCount, const Vector &barrelEnd, const Vector &forward, CBaseEntity *pAttacker, bool bIgnoreSpread )
 {
-	//SecobMod__Information: This is required so that tracers show up for mounted guns.
-	IPredictionSystem::SuppressHostEvents( NULL );
-	/**/
+#ifdef TF_CLASSIC
+	// Since this code only runs on server we have to make sure tracers show up for firing player.
+	CDisablePredictionFiltering disabler;
+#endif
 
 	int i;
 

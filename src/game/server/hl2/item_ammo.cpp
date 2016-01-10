@@ -35,7 +35,7 @@ bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound =
 	{
 		int iMaxAmmo = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[i];
 
-		if ( pPlayer->GiveAmmo( ceil( iMaxAmmo * flCount ), i, true ) )
+		if ( pTFPlayer->GiveAmmo( ceil( iMaxAmmo * flCount ), i, true ) )
 		{
 			bSuccess = true;
 		}
@@ -81,49 +81,49 @@ public:
 LINK_ENTITY_TO_CLASS( lf_item, CLFItem );
 
 #define LF_ITEM_CLASS( entityName, className, powerupSize, powerupModel )	\
-	class C##className : public CLFItem										\
+	class className : public CLFItem										\
 	{																		\
 	public:																	\
-		DECLARE_CLASS( C##className, CLFItem );								\
+		DECLARE_CLASS( className, CLFItem );								\
 		powerupsize_t GetPowerupSize( void ) { return powerupSize; }		\
-		virtual const char *GetPowerupModel( void ) { return powerupModel; }	\
+		const char *GetPowerupModel( void ) { return powerupModel; }		\
 	};																		\
-	LINK_ENTITY_TO_CLASS( ##entityName, C##className );	
+	LINK_ENTITY_TO_CLASS( entityName, className );	
 
 
-LF_ITEM_CLASS( item_ammo_pistol, Item_BoxSRounds, POWERUP_SMALL, "models/items/boxsrounds.mdl" );
+LF_ITEM_CLASS( item_ammo_pistol, CItem_BoxSRounds, POWERUP_SMALL, "models/items/boxsrounds.mdl" );
 LINK_ENTITY_TO_CLASS( item_box_srounds, CItem_BoxSRounds );
 
-LF_ITEM_CLASS( item_ammo_pistol_large, Item_LargeBoxSRounds, POWERUP_MEDIUM, "models/items/boxsrounds.mdl" );
+LF_ITEM_CLASS( item_ammo_pistol_large, CItem_LargeBoxSRounds, POWERUP_MEDIUM, "models/items/boxsrounds.mdl" );
 LINK_ENTITY_TO_CLASS( item_large_box_srounds, CItem_LargeBoxSRounds );
 
-LF_ITEM_CLASS( item_ammo_smg1, Item_BoxMRounds, POWERUP_SMALL, "models/items/boxmrounds.mdl" );
+LF_ITEM_CLASS( item_ammo_smg1, CItem_BoxMRounds, POWERUP_SMALL, "models/items/boxmrounds.mdl" );
 LINK_ENTITY_TO_CLASS( item_box_mrounds, CItem_BoxMRounds );
 
-LF_ITEM_CLASS( item_ammo_smg1_large, Item_LargeBoxMRounds, POWERUP_MEDIUM, "models/items/boxmrounds.mdl" );
+LF_ITEM_CLASS( item_ammo_smg1_large, CItem_LargeBoxMRounds, POWERUP_MEDIUM, "models/items/boxmrounds.mdl" );
 LINK_ENTITY_TO_CLASS( item_large_box_mrounds, CItem_LargeBoxMRounds );
 
-LF_ITEM_CLASS( item_ammo_ar2, Item_BoxLRounds, POWERUP_MEDIUM, "models/items/combine_rifle_cartridge01.mdl" );
+LF_ITEM_CLASS( item_ammo_ar2, CItem_BoxLRounds, POWERUP_MEDIUM, "models/items/combine_rifle_cartridge01.mdl" );
 LINK_ENTITY_TO_CLASS( item_box_lrounds, CItem_BoxLRounds );
 
-LF_ITEM_CLASS( item_ammo_ar2_large, Item_LargeBoxLRounds, POWERUP_FULL, "models/items/combine_rifle_cartridge01.mdl" );
+LF_ITEM_CLASS( item_ammo_ar2_large, CItem_LargeBoxLRounds, POWERUP_FULL, "models/items/combine_rifle_cartridge01.mdl" );
 LINK_ENTITY_TO_CLASS( item_large_box_lrounds, CItem_LargeBoxLRounds );
 
-LF_ITEM_CLASS( item_ammo_357, Item_Box357Rounds, POWERUP_MEDIUM, "models/items/357ammo.mdl" );
+LF_ITEM_CLASS( item_ammo_357, CItem_Box357Rounds, POWERUP_MEDIUM, "models/items/357ammo.mdl" );
 
-LF_ITEM_CLASS( item_ammo_357_large, Item_LargeBox357Rounds, POWERUP_MEDIUM, "models/items/357ammobox.mdl" );
+LF_ITEM_CLASS( item_ammo_357_large, CItem_LargeBox357Rounds, POWERUP_MEDIUM, "models/items/357ammobox.mdl" );
 
-LF_ITEM_CLASS( item_ammo_crossbow, Item_BoxXbowRounds, POWERUP_MEDIUM, "models/items/crossbowrounds.mdl" );
+LF_ITEM_CLASS( item_ammo_crossbow, CItem_BoxXbowRounds, POWERUP_MEDIUM, "models/items/crossbowrounds.mdl" );
 
-LF_ITEM_CLASS( item_rpg_round, Item_RPG_Round, POWERUP_SMALL, "models/weapons/w_missile_closed.mdl" );
+LF_ITEM_CLASS( item_rpg_round, CItem_RPG_Round, POWERUP_SMALL, "models/weapons/w_missile_closed.mdl" );
 LINK_ENTITY_TO_CLASS( item_ml_grenade, CItem_RPG_Round );
 
-LF_ITEM_CLASS( item_ammo_smg1_grenade, Item_AR2_Grenade, POWERUP_SMALL, "models/items/ar2_grenade.mdl" );
+LF_ITEM_CLASS( item_ammo_smg1_grenade, CItem_AR2_Grenade, POWERUP_SMALL, "models/items/ar2_grenade.mdl" );
 LINK_ENTITY_TO_CLASS( item_ar2_grenade, CItem_AR2_Grenade );
 
-LF_ITEM_CLASS( item_box_buckshot, Item_BoxBuckshot, POWERUP_MEDIUM, "models/items/boxbuckshot.mdl" );
+LF_ITEM_CLASS( item_box_buckshot, CItem_BoxBuckshot, POWERUP_MEDIUM, "models/items/boxbuckshot.mdl" );
 
-LF_ITEM_CLASS( item_ammo_ar2_altfire, Item_AR2AltFireRound, POWERUP_SMALL, "models/items/combine_rifle_ammo01.mdl" );
+LF_ITEM_CLASS( item_ammo_ar2_altfire, CItem_AR2AltFireRound, POWERUP_SMALL, "models/items/combine_rifle_ammo01.mdl" );
 
 #else
 

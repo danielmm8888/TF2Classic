@@ -447,7 +447,7 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 		if ( killer > 0 )
 		{
-			if ( killer <= gpGlobals->maxClients )
+			if ( IsPlayerIndex( killer ) )
 			{
 				killer_name = g_PR->GetPlayerName( killer );
 			}
@@ -459,9 +459,14 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 			}
 		}
 
+		if ( !killer_name )
+		{
+			killer_name = "";
+		}
+
 		if ( victim > 0 )
 		{
-			if ( victim <= gpGlobals->maxClients )
+			if ( IsPlayerIndex( victim ) )
 			{
 				victim_name = g_PR->GetPlayerName( victim );
 			}
@@ -471,11 +476,6 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 				GetLocalizedNPCName( victim_classname, nameBuf, sizeof(nameBuf) );
 				victim_name = nameBuf;
 			}
-		}
-
-		if ( !killer_name )
-		{
-			killer_name = "";
 		}
 
 		if ( !victim_name )
@@ -505,12 +505,12 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 
 		if ( killer > 0 )
 		{
-			m_DeathNotices[iMsg].Killer.iTeam = killer <= gpGlobals->maxClients ? g_PR->GetTeam( killer ) : killer_team;
+			m_DeathNotices[iMsg].Killer.iTeam = IsPlayerIndex( killer ) ? g_PR->GetTeam( killer ) : killer_team;
 		}
 
 		if ( victim > 0 )
 		{
-			m_DeathNotices[iMsg].Victim.iTeam = victim <= gpGlobals->maxClients ? g_PR->GetTeam( victim ) : victim_team;
+			m_DeathNotices[iMsg].Victim.iTeam = IsPlayerIndex( victim ) ? g_PR->GetTeam( victim ) : victim_team;
 		}
 
 		Q_strncpy( m_DeathNotices[iMsg].Killer.szName, killer_name, ARRAYSIZE( m_DeathNotices[iMsg].Killer.szName ) );

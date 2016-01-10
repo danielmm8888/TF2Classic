@@ -59,11 +59,7 @@ LINK_ENTITY_TO_CLASS( team_manager, CTeam );
 //-----------------------------------------------------------------------------
 CTeam *GetGlobalTeam( int iIndex )
 {
-#ifdef TF_CLASSIC
-	if ( iIndex < 0 || iIndex >= g_Teams.Count() )
-#else
 	if ( iIndex < 0 || iIndex >= GetNumberOfTeams() )
-#endif
 		return NULL;
 
 	return g_Teams[ iIndex ];
@@ -74,11 +70,7 @@ CTeam *GetGlobalTeam( int iIndex )
 //-----------------------------------------------------------------------------
 int GetNumberOfTeams( void )
 {
-#ifdef TF_CLASSIC
-	return min( g_Teams.Count(), 4 );
-#else
 	return g_Teams.Size();
-#endif
 }
 
 //-----------------------------------------------------------------------------

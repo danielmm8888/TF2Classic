@@ -805,60 +805,48 @@ void CTFFlameEntity::FlameThink( void )
 		if ( !pAttacker )
 			return;
 
-		CUtlVector<CTFTeam *> pTeamList;
-		CTFTeam *pTeam = pAttacker->GetTFTeam();
-		if ( pTeam )
-			pTeam->GetOpposingTFTeamList(&pTeamList);
-		else
+		CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
+		if ( !pTeam )
 			return;
-
-		//CTFTeam *pTeam = pAttacker->GetOpposingTFTeam();
-		//if ( !pTeam )
-		//	return;
 	
 		bool bHitWorld = false;
 
-		for (int i = 0; i < pTeamList.Size(); i++)
+		// check collision against all enemy players
+		for ( int iPlayer = 0; iPlayer < pTeam->GetNumPlayers(); iPlayer++ )
 		{
-			if (pTeamList[i])
+			CBasePlayer *pPlayer = pTeam->GetPlayer( iPlayer );
+			// Is this player connected, alive, and an enemy?
+			if ( pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive() )
 			{
-				// check collision against all enemy players
-				for (int iPlayer = 0; iPlayer < pTeamList[i]->GetNumPlayers(); iPlayer++)
-				{
-					CBasePlayer *pPlayer = pTeamList[i]->GetPlayer(iPlayer);
-					// Is this player connected, alive, and an enemy?
-					if (pPlayer && pPlayer->IsConnected() && pPlayer->IsAlive())
-					{
-						CheckCollision(pPlayer, &bHitWorld);
-						if (bHitWorld)
-							return;
-					}
-				}
+				CheckCollision( pPlayer, &bHitWorld );
+				if ( bHitWorld )
+					return;
+			}
+		}
 
-				// check collision against all enemy objects
-				for (int iObject = 0; iObject < pTeamList[i]->GetNumObjects(); iObject++)
-				{
-					CBaseObject *pObject = pTeamList[i]->GetObject(iObject);
-					if (pObject)
-					{
-						CheckCollision(pObject, &bHitWorld);
-						if (bHitWorld)
-							return;
-					}
-				}
+		// check collision against all enemy objects
+		for ( int iObject = 0; iObject < pTeam->GetNumObjects(); iObject++ )
+		{
+			CBaseObject *pObject = pTeam->GetObject( iObject );
+			if ( pObject )
+			{
+				CheckCollision( pObject, &bHitWorld );
+				if ( bHitWorld )
+					return;
+			}
+		}
 
-				// check collision against all enemy NPCs
-				for (int iNPC = 0; iNPC < pTeamList[i]->GetNumNPCs(); iNPC++)
-				{
-					CAI_BaseNPC *pNPC = pTeamList[i]->GetNPC(iNPC);
-					// Is this NPC alive and an enemy?
-					if (pNPC && pNPC->IsAlive())
-					{
-						CheckCollision(pNPC, &bHitWorld);
-						if (bHitWorld)
-							return;
-					}
-				}
+		// check collision against all enemy NPCs
+		CAI_BaseNPC **ppAIs = g_AI_Manager.AccessAIs();
+		for ( int iNPC = 0; iNPC < g_AI_Manager.NumAIs(); iNPC++ )
+		{
+			CAI_BaseNPC *pNPC = ppAIs[iNPC];
+			// Is this NPC alive and an enemy?
+			if ( pNPC && pNPC->IsAlive() && pNPC->GetTeamNumber() != pAttacker->GetTeamNumber() )
+			{
+				CheckCollision( pNPC, &bHitWorld );
+				if ( bHitWorld )
+					return;
 			}
 		}
 	}

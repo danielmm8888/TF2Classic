@@ -52,7 +52,7 @@ DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 #endif
 
-ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | FCVAR_CHEAT /*| FCVAR_DEVELOPMENTONLY*/, "Render rocket radius." );
+ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Render rocket radius." );
 
 //=============================================================================
 //
@@ -266,30 +266,12 @@ unsigned int CTFBaseRocket::PhysicsSolidMaskForEntity( void ) const
 	if ( m_bCollideWithTeammates == false )
 	{
 		// Only collide with the other team
-
-		switch (GetTeamNumber())
-		{
-			case TF_TEAM_RED:
-				teamContents = CONTENTS_BLUETEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
-				break;
-
-			case TF_TEAM_BLUE:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
-				break;
-
-			case TF_TEAM_GREEN:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_YELLOWTEAM;
-				break;
-
-			case TF_TEAM_YELLOW:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_GREENTEAM;
-				break;
-		}
+		teamContents = ( GetTeamNumber() == TF_TEAM_RED ) ? CONTENTS_BLUETEAM : CONTENTS_REDTEAM;
 	}
 	else
 	{
 		// Collide with both teams
-		teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
+		teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM;
 	}
 
 	return BaseClass::PhysicsSolidMaskForEntity() | teamContents;

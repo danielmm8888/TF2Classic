@@ -26,9 +26,14 @@ enum
 {
 	TF_TEAM_RED = LAST_SHARED_TEAM+1,
 	TF_TEAM_BLUE,
-	TF_TEAM_GREEN,
-	TF_TEAM_YELLOW,
 	TF_TEAM_COUNT
+};
+
+// Extra teams, only used as indexes, these are not real player teams.
+enum
+{
+	TF_TEAM_GREEN = TF_TEAM_COUNT,
+	TF_TEAM_YELLOW,
 };
 
 #define TF_TEAM_AUTOASSIGN (TF_TEAM_COUNT + 1 )
@@ -44,8 +49,6 @@ extern color32 g_aTeamSkinColors[TF_TEAM_COUNT];
 
 #define CONTENTS_REDTEAM	CONTENTS_TEAM1
 #define CONTENTS_BLUETEAM	CONTENTS_TEAM2
-#define CONTENTS_GREENTEAM	CONTENTS_UNUSED
-#define CONTENTS_YELLOWTEAM	CONTENTS_UNUSED6
 			
 // Team roles
 enum 

@@ -2764,7 +2764,7 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 
 		if ( bTeamOverride )
 		{
-			if ( InSameTeam( pTarget ) )
+			if ( pTarget->GetTeamNumber() == GetTeamNumber() )
 			{
 				// We always like teammates.
 				return D_LI;

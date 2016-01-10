@@ -1220,6 +1220,22 @@ void CTFPlayer::ManageTeamWeapons( TFPlayerClassData_t *pData )
 	if ( !pTeam )
 		return;
 
+	// Remove any weapons that we're not supposed to carry.
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( i );
+
+		if ( pWeapon )
+		{
+			if ( pWeapon->GetWeaponID() >= TF_WEAPON_PHYSCANNON && !pTeam->HasWeapon( pWeapon->GetWeaponID() ) )
+			{
+				// Not supposed to be carrying this weapon, nuke it.
+				Weapon_Detach( pWeapon );
+				UTIL_Remove( pWeapon );
+			}
+		}
+	}
+
 	int numWeapons = pTeam->GetNumWeapons();
 	for ( int i = 0; i < numWeapons; i++ )
 	{
@@ -1252,22 +1268,6 @@ void CTFPlayer::ManageTeamWeapons( TFPlayerClassData_t *pData )
 			}
 		}
 	}
-
-	// Remove any weapons that we're not supposed to carry.
-	for ( int i = 0; i < MAX_WEAPONS; i++ )
-	{
-		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( i );
-
-		if ( pWeapon )
-		{
-			if ( pWeapon->GetWeaponID() >= TF_WEAPON_PHYSCANNON && !pTeam->HasWeapon( pWeapon->GetWeaponID() ) )
-			{
-				// Not supposed to be carrying this weapon, nuke it.
-				Weapon_Detach( pWeapon );
-				UTIL_Remove( pWeapon );
-			}
-		}
-	}
 }
 
 CBaseEntity *FindPlayerStart( const char *pszClassName );
@@ -1278,9 +1278,9 @@ CBaseEntity *FindPlayerStart( const char *pszClassName );
 CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 {
 	// If we have a temp spawn point set up then use that.
-	if ( m_hTempSpawnSpot )
+	if ( m_hTempSpawnSpot.Get() != NULL )
 	{
-		return ( m_hTempSpawnSpot.Get() );
+		return m_hTempSpawnSpot.Get();
 	}
 
 	CBaseEntity *pSpot = g_pLastSpawnPoints[ GetTeamNumber() ];
@@ -1290,8 +1290,6 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	{
 	case TF_TEAM_RED:
 	case TF_TEAM_BLUE:
-	case TF_TEAM_GREEN:
-	case TF_TEAM_YELLOW:
 		{
 			pSpawnPointName = "info_player_teamspawn";
 			if ( SelectSpawnSpot( pSpawnPointName, pSpot ) )
@@ -2823,7 +2821,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// if this is our own rocket, scale down the damage
-	if ( IsPlayerClass( TF_CLASS_SOLDIER ) && info.GetAttacker() == this ) 
+	if ( IsPlayerClass( TF_CLASS_SOLDIER ) && info.GetAttacker() == this && ( info.GetDamageType() & DMG_BLAST ) ) 
 	{
 		float flDamage = info.GetDamage() * tf_damagescale_self_soldier.GetFloat();
 		info.SetDamage( flDamage );
@@ -3149,16 +3147,6 @@ bool CTFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 
 		case TF_TEAM_BLUE:
 			if ( !( contentsMask & CONTENTS_BLUETEAM ) )
-				return false;
-			break;
-
-		case TF_TEAM_GREEN:
-			if ( !(contentsMask & CONTENTS_GREENTEAM ) )
-				return false;
-			break;
-
-		case TF_TEAM_YELLOW:
-			if ( !(contentsMask & CONTENTS_YELLOWTEAM ) )
 				return false;
 			break;
 		}
@@ -5160,10 +5148,12 @@ CTFTeam *CTFPlayer::GetOpposingTFTeam( void )
 	{
 		return TFTeamMgr()->GetTeam( TF_TEAM_BLUE );
 	}
-	else
+	else if ( iTeam == TF_TEAM_BLUE )
 	{
 		return TFTeamMgr()->GetTeam( TF_TEAM_RED );
 	}
+
+	return NULL;
 }
 
 //-----------------------------------------------------------------------------

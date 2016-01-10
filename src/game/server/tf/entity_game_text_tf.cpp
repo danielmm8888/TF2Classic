@@ -56,28 +56,11 @@ void CTFHudNotify::Display( CBaseEntity *pActivator )
 	{
 	case TF_TEAM_RED:
 		filter.RemoveRecipientsByTeam( GetGlobalTeam(TF_TEAM_BLUE) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_GREEN) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_YELLOW) );
 		break;
 
 	case TF_TEAM_BLUE:
 		filter.RemoveRecipientsByTeam( GetGlobalTeam(TF_TEAM_RED) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_GREEN) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_YELLOW) );
 		break;
-
-	case TF_TEAM_GREEN:
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_RED) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_BLUE) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_YELLOW) );
-		break;
-
-	case TF_TEAM_YELLOW:
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_RED) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_BLUE) );
-		filter.RemoveRecipientsByTeam(GetGlobalTeam(TF_TEAM_GREEN) );
-		break;
-
 	}
 
 	TFGameRules()->SendHudNotification( filter, STRING(m_iszMessage), STRING(m_iszIcon), m_iBackgroundTeam );

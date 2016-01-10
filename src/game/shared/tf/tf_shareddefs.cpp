@@ -18,9 +18,7 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Unassigned",
 	"Spectator",
 	"Red",
-	"Blue",
-	"Green",
-	"Yellow"
+	"Blue"
 };
 
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
@@ -28,9 +26,7 @@ color32 g_aTeamColors[TF_TEAM_COUNT] =
 	{ 0, 0, 0, 0 }, // Unassigned
 	{ 0, 0, 0, 0 }, // Spectator
 	{ 255, 0, 0, 0 }, // Red
-	{ 0, 0, 255, 0 }, // Blue
-	{ 0, 255, 0, 0 }, // Green
-	{ 255, 255, 0, 0 } // Yellow
+	{ 0, 0, 255, 0 } // Blue
 };
 
 //-----------------------------------------------------------------------------
