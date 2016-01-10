@@ -6,6 +6,7 @@
 
 #include "cbase.h"
 #include "econ_entity.h"
+#include "eventlist.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -40,6 +41,7 @@ CEconEntity::CEconEntity()
 }
 
 #ifdef CLIENT_DLL
+
 void CEconEntity::OnPreDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnPreDataChanged( updateType );
@@ -53,6 +55,26 @@ void CEconEntity::OnDataChanged( DataUpdateType_t updateType )
 
 	m_AttributeManager.OnDataChanged( updateType );
 }
+
+void CEconEntity::FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options )
+{
+	if ( event == AE_CL_BODYGROUP_SET_VALUE_CMODEL_WPN )
+	{
+		
+	}
+	else
+		BaseClass::FireEvent( origin, angles, event, options );
+}
+
+bool CEconEntity::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options )
+{
+	if ( event == AE_CL_BODYGROUP_SET_VALUE_CMODEL_WPN )
+	{
+		return true;
+	}
+	return false;
+}
+
 #endif
 
 void CEconEntity::SetItem( CEconItemView &newItem )

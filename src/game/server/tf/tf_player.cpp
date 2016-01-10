@@ -109,7 +109,7 @@ ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY | FCVAR_DEV
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
-ConVar tf2c_force_stock_weapons( "tf2c_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
+ConVar tf2c_force_stock_weapons( "tf2c_force_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
 ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_DEVELOPMENTONLY, "Disables all new weapons as well as Econ Item System." );
 
 // -------------------------------------------------------------------------------- //
@@ -3481,6 +3481,15 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 		}
 
+		int nCritWhileAirborne = 0;
+		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nCritWhileAirborne, crit_while_airborne );
+
+		if (nCritWhileAirborne && ToTFPlayer(pAttacker)->m_Shared.InCond(TF_COND_BLASTJUMPING))
+		{
+			bitsDamage |= DMG_CRITICAL;
+			info.AddDamageType( DMG_CRITICAL );
+		}
+		
 		// Notify the damaging weapon.
 		pWeapon->ApplyOnHitAttributes( this, info );
 	}

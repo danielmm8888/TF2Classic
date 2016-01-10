@@ -345,6 +345,7 @@ public:
 
 	virtual const char *GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer );
 	void ClientSettingsChanged( CBasePlayer *pPlayer );
+	virtual void GetTaggedConVarList( KeyValues *pCvarTagList );
 	void ChangePlayerName( CTFPlayer *pPlayer, const char *pszNewName );
 
 	virtual VoiceCommandMenuItem_t *VoiceCommand( CBaseMultiplayerPlayer *pPlayer, int iMenu, int iItem ); 
