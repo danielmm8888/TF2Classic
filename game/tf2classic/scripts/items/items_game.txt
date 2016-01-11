@@ -2127,7 +2127,8 @@
 			"act_as_wearable" "1"
 			"used_by_classes"
 			{
-				"soldier"	"1"
+				"soldier"	"secondary"
+				"demoman"	"primary"
 			}
 			"attributes"
 			{
@@ -2348,7 +2349,7 @@
 			"model_player"	"models/weapons/v_models/v_overhealer_medic.mdl"
 			"used_by_classes"
 			{
-				"medic"	"1"
+				//"medic"	"1"
 			}
 			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
 			"drop_sound"		"ui/item_heavy_gun_drop.wav"
@@ -2455,6 +2456,7 @@
 			"craft_material_type"	"weapon"
 			"item_logname"	"fishwhacker"
 			"item_iconname"	"fishwhacker"
+			"show_in_armory"	"1"
 			"item_type_name"	"#TF_Weapon_Club"
 			"item_name"	"#TF_Weapon_Fishwhacker"
 			"item_slot"	"melee"

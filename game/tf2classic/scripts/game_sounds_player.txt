@@ -535,7 +535,7 @@
 {
 	"channel"	"CHAN_STATIC"
 	"volume"	"1"
-	"soundlevel"  	"SNDLVL_65dB"
+	"soundlevel"  	"SNDLVL_85dB"
 	"wave"		"player/spy_cloak.wav"
 }
 
@@ -543,7 +543,7 @@
 {
 	"channel"	"CHAN_STATIC"
 	"volume"	"1"
-	"soundlevel"  	"SNDLVL_65dB"
+	"soundlevel"  	"SNDLVL_85dB"
 	"wave"		"player/spy_Uncloak.wav"
 }
 
