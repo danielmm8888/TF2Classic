@@ -2882,7 +2882,7 @@ static const char *g_aTaggedConVars[] =
 	"mp_disable_respawn_times",
 	"norespawntime",
 
-	"mp_respawntimes",
+	"mp_respawnwavetime",
 	"respawntimes",
 
 	"mp_stalemate_enable",
