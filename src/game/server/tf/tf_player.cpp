@@ -3484,7 +3484,9 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		int nCritWhileAirborne = 0;
 		CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nCritWhileAirborne, crit_while_airborne );
 
-		if (nCritWhileAirborne && ToTFPlayer(pAttacker)->m_Shared.InCond(TF_COND_BLASTJUMPING))
+		CTFPlayer *pTFAttacker = ToTFPlayer( pAttacker );
+
+		if ( nCritWhileAirborne && pTFAttacker && pTFAttacker->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
 		{
 			bitsDamage |= DMG_CRITICAL;
 			info.AddDamageType( DMG_CRITICAL );

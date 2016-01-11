@@ -105,6 +105,22 @@ void FindHullIntersection( const Vector &vecSrc, trace_t &tr, const Vector &mins
 	}
 }
 
+#ifdef CLIENT_DLL
+void RecvProxy_Sequence( const CRecvProxyData *pData, void *pStruct, void *pOut );
+
+void RecvProxy_WeaponSequence( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	C_TFWeaponBase *pWeapon = (C_TFWeaponBase *)pStruct;
+
+	// Weapons carried by other players have different models on server and client
+	// so we should ignore sequence changes in such case.
+	if ( pWeapon->UsingViewModel() )
+	{
+		RecvProxy_Sequence( pData, pStruct, pOut );
+	}
+}
+#endif
+
 //=============================================================================
 //
 // TFWeaponBase tables.
@@ -119,6 +135,8 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	RecvPropBool( RECVINFO( m_bResetParity ) ), 
 	RecvPropBool( RECVINFO( m_bReloadedThroughAnimEvent ) ),
 	RecvPropTime( RECVINFO( m_flLastFireTime ) ),
+
+	RecvPropInt( RECVINFO( m_nSequence ), 0, RecvProxy_WeaponSequence ),
 // Server specific.
 #else
 	SendPropBool( SENDINFO( m_bLowered ) ),
@@ -126,6 +144,9 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
 	SendPropTime( SENDINFO( m_flLastFireTime ) ),
+
+	SendPropExclude( "DT_BaseAnimating", "m_nSequence" ),
+	SendPropInt( SENDINFO( m_nSequence ), ANIMATION_SEQUENCE_BITS, SPROP_UNSIGNED ),
 #endif
 END_NETWORK_TABLE()
 
@@ -3127,25 +3148,6 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	}
 
 	return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CTFWeaponBase::UpdateClientSideAnimation( void )
-{
-	// Weapon model for other players is different on server and client which
-	// messes with client side animation causing error spam.
-	// This fix is not completely reliable, you're still going to get asserts
-	// but at least this stops error spam.
-	C_BasePlayer *pOwner = GetPlayerOwner();
-
-	if ( pOwner && ( !pOwner->IsLocalPlayer() || C_BasePlayer::ShouldDrawLocalPlayer() ) )
-	{
-		SetSequence( 0 );
-	}
-
-	BaseClass::UpdateClientSideAnimation();
 }
 
 //-----------------------------------------------------------------------------
