@@ -580,7 +580,7 @@ void CBaseObject::InitializeMapPlacedObject( void )
 	if ( ( GetObjectFlags() & OF_IS_CART_OBJECT ) == 0 )
 		SpawnControlPanels();
 
-	// Spawn with full healh.
+	// Spawn with full health.
 	SetHealth( GetMaxHealth() );
 
 	// Go active.
@@ -592,6 +592,30 @@ void CBaseObject::InitializeMapPlacedObject( void )
 	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
 	{
 		pTFTeam->AddObject( this );
+	}
+
+	// Set the skin
+	switch ( GetTeamNumber() )
+	{
+	case TF_TEAM_RED:
+		m_nSkin = 0;
+		break;
+
+	case TF_TEAM_BLUE:
+		m_nSkin = 1;
+		break;
+
+	case TF_TEAM_GREEN:
+		m_nSkin = 2;
+		break;
+
+	case TF_TEAM_YELLOW:
+		m_nSkin = 3;
+		break;
+
+	default:
+		m_nSkin = 1;
+		break;
 	}
 }
 
@@ -966,28 +990,27 @@ void CBaseObject::StartPlacement( CTFPlayer *pPlayer )
 	m_vecBuildMaxs -= GetAbsOrigin();
 
 	// Set the skin
-
-	switch (GetTeamNumber())
+	switch ( GetTeamNumber() )
 	{
-		case TF_TEAM_RED:
-			m_nSkin = 0;
-			break;
+	case TF_TEAM_RED:
+		m_nSkin = 0;
+		break;
 
-		case TF_TEAM_BLUE:
-			m_nSkin = 1;
-			break;
+	case TF_TEAM_BLUE:
+		m_nSkin = 1;
+		break;
 
-		case TF_TEAM_GREEN:
-			m_nSkin = 2;
-			break;
+	case TF_TEAM_GREEN:
+		m_nSkin = 2;
+		break;
 
-		case TF_TEAM_YELLOW:
-			m_nSkin = 3;
-			break;
+	case TF_TEAM_YELLOW:
+		m_nSkin = 3;
+		break;
 
-		default:
-			m_nSkin = 1;
-			break;
+	default:
+		m_nSkin = 1;
+		break;
 	}
 }
 
@@ -2621,6 +2644,12 @@ void CBaseObject::AttachObjectToObject( CBaseEntity *pEntity, int iPoint, Vector
 	if ( m_hBuiltOnEntity.Get() )
 	{
 		// Parent ourselves to the object
+		CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating *>( pEntity );
+		if ( pAnimating && pAnimating->LookupBone( "weapon_bone" ) > 0 )
+		{
+			FollowEntity( m_hBuiltOnEntity.Get(), true );
+		}
+
 		int iAttachment = 0;
 		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>( pEntity );
 		Assert( pBPInterface );

@@ -12,6 +12,12 @@
 
 #include "tf_obj_baseupgrade_shared.h"
 
+enum SapperModel_t
+{
+	SAPPER_MODEL_PLACED = 0,
+	SAPPER_MODEL_PLACEMENT
+};
+
 // ------------------------------------------------------------------------ //
 // Sapper upgrade
 // ------------------------------------------------------------------------ //
@@ -30,6 +36,7 @@ public:
 	virtual bool	IsHostileUpgrade( void ) { return true; }
 	virtual void	FinishedBuilding( void );
 	virtual void	SetupAttachedVersion( void );
+	const char		*GetSapperModelName( SapperModel_t iModelType );
 	virtual void	DetachObjectFromObject( void );
 	virtual void	UpdateOnRemove( void );
 	virtual void	OnGoActive( void );

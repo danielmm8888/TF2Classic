@@ -261,6 +261,7 @@ void CObjectDispenser::OnGoActive( void )
 		return;
 	*/
 	SetModel( DISPENSER_MODEL_LEVEL_1 );
+	CreateBuildPoints();
 
 	if ( !m_bCarryDeploy )
 	{

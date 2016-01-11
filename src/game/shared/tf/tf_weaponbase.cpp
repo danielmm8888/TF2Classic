@@ -272,12 +272,6 @@ void CTFWeaponBase::Precache()
 
 	const CTFWeaponInfo *pTFInfo = &GetTFWpnData();
 
-	// Precache the DM viewmodel (if we have one)
-	if (pTFInfo->m_szViewModelDM[0] != '\0')
-	{
-		PrecacheModel(pTFInfo->m_szViewModelDM);
-	}
-
 	if ( pTFInfo->m_szExplosionSound && pTFInfo->m_szExplosionSound[0] )
 	{
 		CBaseEntity::PrecacheScriptSound( pTFInfo->m_szExplosionSound );
