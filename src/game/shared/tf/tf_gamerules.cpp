@@ -3408,27 +3408,26 @@ CBaseEntity *CTFGameRules::GetRecentDamager( CBaseEntity *pVictim, int iDamager,
 {
 	Assert( iDamager < MAX_DAMAGER_HISTORY );
 
-	CTFPlayer *pTFVictim = ToTFPlayer( pVictim );
-	if ( pTFVictim )
-	{
-		DamagerHistory_t &damagerHistory = pTFVictim->GetDamagerHistory( iDamager );
-		if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
-		{
-			return damagerHistory.hDamager.Get();
-		}
+	DamagerHistory_t *pDamagerHistory = NULL;
 
-		return NULL;
+	if ( pVictim->IsPlayer() )
+	{
+		CTFPlayer *pTFVictim = ToTFPlayer( pVictim );
+		pDamagerHistory = &pTFVictim->GetDamagerHistory( iDamager );
+	}
+	else if ( pVictim->IsNPC() )
+	{
+		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pVictim );
+		pDamagerHistory = &pNPC->GetDamagerHistory( iDamager );
 	}
 
-	CAI_BaseNPC *pNPC = pVictim->MyNPCPointer();
-	if ( pNPC )
+	if ( pDamagerHistory )
 	{
-		DamagerHistory_t &damagerHistory = pNPC->GetDamagerHistory( iDamager );
-		if ( ( NULL != damagerHistory.hDamager ) && ( gpGlobals->curtime - damagerHistory.flTimeDamage <= flMaxElapsed ) )
+		if ( ( pDamagerHistory->hDamager.Get() != NULL ) && ( gpGlobals->curtime - pDamagerHistory->flTimeDamage <= flMaxElapsed ) )
 		{
-			return damagerHistory.hDamager.Get();
+			return pDamagerHistory->hDamager.Get();
 		}
-		
+
 		return NULL;
 	}
 
