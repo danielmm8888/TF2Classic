@@ -225,18 +225,26 @@ void CTFFlameThrower::ItemPostFrame()
 		return;
 
 	int iAmmo = pOwner->GetAmmoCount( m_iPrimaryAmmoType );
+	bool bFired = false;
 
-	if ( ( pOwner->m_nButtons & IN_ATTACK2 ) &&
-		iAmmo >= TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK &&
-		m_flNextSecondaryAttack <= gpGlobals->curtime )
+	if ( ( pOwner->m_nButtons & IN_ATTACK2 ) && m_flNextSecondaryAttack <= gpGlobals->curtime )
 	{
-		SecondaryAttack();
+		float flAmmoPerSecondaryAttack = TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK;
+		CALL_ATTRIB_HOOK_FLOAT( flAmmoPerSecondaryAttack, mult_airblast_cost );
+
+		if ( iAmmo >= flAmmoPerSecondaryAttack )
+		{
+			SecondaryAttack();
+			bFired = true;
+		}
 	}
 	else if ( ( pOwner->m_nButtons & IN_ATTACK ) && iAmmo > 0 && m_iWeaponState != FT_STATE_AIRBLASTING )
 	{
 		PrimaryAttack();
+		bFired = true;
 	}
-	else
+
+	if ( !bFired )
 	{
 		if ( m_iWeaponState > FT_STATE_IDLE )
 		{
@@ -585,7 +593,10 @@ void CTFFlameThrower::SecondaryAttack()
 	lagcompensation->FinishLagCompensation( pOwner );
 #endif
 
-	pOwner->RemoveAmmo( TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK, m_iPrimaryAmmoType );
+	float flAmmoPerSecondaryAttack = TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK;
+	CALL_ATTRIB_HOOK_FLOAT( flAmmoPerSecondaryAttack, mult_airblast_cost );
+
+	pOwner->RemoveAmmo( flAmmoPerSecondaryAttack, m_iPrimaryAmmoType );
 
 	// Don't allow firing immediately after airblasting.
 	m_flNextPrimaryAttack = m_flNextSecondaryAttack = gpGlobals->curtime + 0.75f;
