@@ -625,16 +625,29 @@ bool CTFWeaponBase::Deploy( void )
 
 	if ( bDeploy )
 	{
+		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
+		if ( !pPlayer )
+			return false;
+
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.
 		float flDeployTime = 0.5f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flDeployTime, mult_deploy_time );
+		CALL_ATTRIB_HOOK_FLOAT( flDeployTime, mult_single_wep_deploy_time );
+
+		if ( pPlayer->GetLastWeapon() )
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer->GetLastWeapon(), flDeployTime, mult_switch_from_wep_deploy_time );
+
+		if ( pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
+			CALL_ATTRIB_HOOK_FLOAT( flDeployTime, mult_rocketjump_deploy_time );
+
+		if ( pPlayer->m_Shared.GetNumHealers() == 0 )
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flDeployTime, mod_medic_healed_deploy_time );
+
 		m_flNextPrimaryAttack = max( flOriginalPrimaryAttack, gpGlobals->curtime + flDeployTime );
 		m_flNextSecondaryAttack = max( flOriginalSecondaryAttack, gpGlobals->curtime + flDeployTime );
 
-		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-		if (!pPlayer)
-			return false;
 
 		pPlayer->SetNextAttack( m_flNextPrimaryAttack );
 	}
