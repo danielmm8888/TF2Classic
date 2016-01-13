@@ -455,7 +455,11 @@ void CTFFlameThrower::PrimaryAttack()
 	// per frame, depending on how constants are tuned, so keep an accumulator so we can expend fractional amounts of ammo per shot.)
 	// Note we do this only on server and network it to client.  If we predict it on client, it can get slightly out of sync w/server
 	// and cause ammo pickup indicators to appear
-	m_flAmmoUseRemainder += TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK * flFiringInterval;
+	
+	float flAmmoPerSecond = TF_FLAMETHROWER_AMMO_PER_SECOND_PRIMARY_ATTACK;
+	CALL_ATTRIB_HOOK_FLOAT( flAmmoPerSecond, mult_flame_ammopersec );
+
+	m_flAmmoUseRemainder += flAmmoPerSecond * flFiringInterval;
 	// take the integer portion of the ammo use accumulator and subtract it from player's ammo count; any fractional amount of ammo use
 	// remains and will get used in the next shot
 	int iAmmoToSubtract = (int) m_flAmmoUseRemainder;
