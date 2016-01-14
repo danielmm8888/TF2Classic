@@ -5866,11 +5866,7 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 	{
 		if ( m_iObserverMode == OBS_MODE_IN_EYE )
 		{
-			m_iObserverMode = OBS_MODE_CHASE;
-			SetObserverTarget(m_hObserverTarget);
-			SetMoveType(MOVETYPE_OBSERVER);
-			CheckObserverSettings();
-			//ForceObserverMode( OBS_MODE_CHASE ); // We'll leave this in in case something screws up
+			ForceObserverMode( OBS_MODE_CHASE );
 		}
 	}
 

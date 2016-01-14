@@ -22,9 +22,9 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-static ConVar	sk_suitcharger( "sk_suitcharger","0" );
-static ConVar	sk_suitcharger_citadel( "sk_suitcharger_citadel","0" );
-static ConVar	sk_suitcharger_citadel_maxarmor( "sk_suitcharger_citadel_maxarmor","0" );
+static ConVar	sk_suitcharger( "sk_suitcharger","30" );
+static ConVar	sk_suitcharger_citadel( "sk_suitcharger_citadel","200" );
+static ConVar	sk_suitcharger_citadel_maxarmor( "sk_suitcharger_citadel_maxarmor","200" );
 
 #define SF_CITADEL_RECHARGER	0x2000
 #define SF_KLEINER_RECHARGER	0x4000 // Gives only 25 health

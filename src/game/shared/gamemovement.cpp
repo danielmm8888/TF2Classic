@@ -4605,9 +4605,6 @@ void CGameMovement::PlayerMove( void )
 
 	m_nOnLadder = 0;
 
-#ifdef TF_CLASSIC_CLIENT
-	if ( !player->IsLocalPlayer() || !CBasePlayer::ShouldDrawLocalPlayer() )
-#endif
 	player->UpdateStepSound( player->m_pSurfaceData, mv->GetAbsOrigin(), mv->m_vecVelocity );
 
 	UpdateDuckJumpEyeOffset();

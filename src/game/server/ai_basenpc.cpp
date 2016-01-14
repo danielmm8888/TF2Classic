@@ -14977,7 +14977,7 @@ void CAI_BaseNPC::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	if ( !hDamager || (!hDamager->IsPlayer() && !hDamager->IsNPC()) || hDamager->GetTeamNumber() != GetTeamNumber() )
+	if ( !hDamager || ( !hDamager->IsPlayer() && !hDamager->IsNPC() ) || hDamager->GetTeamNumber() == GetTeamNumber() )
 		return;
 
 	// If this damager is different from the most recent damager, shift the

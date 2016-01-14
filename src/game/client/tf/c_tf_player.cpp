@@ -258,19 +258,19 @@ void C_TFRagdoll::Interp_Copy( C_BaseAnimatingOverlay *pSourceEntity )
 {
 	if ( !pSourceEntity )
 		return;
-	
+
 	VarMapping_t *pSrc = pSourceEntity->GetVarMapping();
 	VarMapping_t *pDest = GetVarMapping();
-    	
+
 	// Find all the VarMapEntry_t's that represent the same variable.
 	for ( int i = 0; i < pDest->m_Entries.Count(); i++ )
 	{
 		VarMapEntry_t *pDestEntry = &pDest->m_Entries[i];
 		const char *pszName = pDestEntry->watcher->GetDebugName();
-		for (int j = 0; j < pSrc->m_Entries.Count(); j++)
+		for ( int j = 0; j < pSrc->m_Entries.Count(); j++ )
 		{
 			VarMapEntry_t *pSrcEntry = &pSrc->m_Entries[j];
-			if (!Q_strcmp(pSrcEntry->watcher->GetDebugName(), pszName))
+			if ( !Q_strcmp( pSrcEntry->watcher->GetDebugName(), pszName ) )
 			{
 				pDestEntry->watcher->Copy( pSrcEntry->watcher );
 				break;
@@ -337,7 +337,7 @@ void C_TFRagdoll::ImpactTrace(trace_t *pTrace, int iDamageType, const char *pCus
 // Purpose: 
 // Input  :  - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::CreateTFRagdoll(void)
+void C_TFRagdoll::CreateTFRagdoll( void )
 {
 	// Get the player.
 	C_TFPlayer *pPlayer = NULL;
@@ -390,9 +390,9 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		{
 			// This is the local player, so set them in a default
 			// pose and slam their velocity, angles and origin
-			SetAbsOrigin(pPlayer->GetRenderOrigin());
-			SetAbsAngles(pPlayer->GetRenderAngles());
-			SetAbsVelocity(m_vecRagdollVelocity);
+			SetAbsOrigin( pPlayer->GetRenderOrigin() );
+			SetAbsAngles( pPlayer->GetRenderAngles() );
+			SetAbsVelocity( m_vecRagdollVelocity );
 
 			// Hack! Find a neutral standing pose or use the idle.
 			int iSeq = LookupSequence( "RagdollSpawn" );
