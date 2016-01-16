@@ -53,8 +53,8 @@ ConVar	obj_sapper_amount( "obj_sapper_amount", "25", FCVAR_NONE, "Amount of heal
 //-----------------------------------------------------------------------------
 CObjectSapper::CObjectSapper()
 {
-	m_iHealth = obj_sapper_health.GetInt();
-	SetMaxHealth( m_iHealth );
+	m_iHealth = GetBaseHealth();
+	SetMaxHealth( GetBaseHealth() );
 
 	UseClientSideAnimation();
 }
@@ -77,7 +77,7 @@ void CObjectSapper::Spawn()
 	SetModel( GetSapperModelName( SAPPER_MODEL_PLACEMENT ) );
 
 	m_takedamage = DAMAGE_YES;
-	m_iHealth = obj_sapper_health.GetInt();
+	m_iHealth = GetBaseHealth();
 
 	SetType( OBJ_ATTACHMENT_SAPPER );
 
@@ -258,3 +258,20 @@ int CObjectSapper::OnTakeDamage( const CTakeDamageInfo &info )
 
 	return BaseClass::OnTakeDamage( info );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CObjectSapper::GetBaseHealth( void )
+{
+	int iBaseHealth = obj_sapper_health.GetInt();
+
+	CTFPlayer *pPlayer = GetOwner();
+	if ( !pPlayer )
+		return iBaseHealth;
+
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iBaseHealth, mult_sapper_health );
+
+	return iBaseHealth;
+}
+

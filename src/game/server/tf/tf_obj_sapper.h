@@ -42,7 +42,7 @@ public:
 	virtual void	OnGoActive( void );
 
 	virtual void	SapperThink( void );
-
+	virtual int		GetBaseHealth( void );
 	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
 
 private:
