@@ -3332,6 +3332,11 @@ bool CTFPlayer::TryToPickupBuilding( void )
 	if ( IsActiveTFWeapon( TF_WEAPON_BUILDER ) )
 		return false;
 
+	int bCannotPickUpBuildings = 0;
+	CALL_ATTRIB_HOOK_INT( bCannotPickUpBuildings, cannot_pick_up_buildings );
+	if ( bCannotPickUpBuildings != 0 )
+		return false;
+
 	Vector vecForward; 
 	AngleVectors( EyeAngles(), &vecForward );
 	Vector vecSwingStart = Weapon_ShootPosition();
