@@ -357,8 +357,11 @@ void CObjectTeleporter::TeleporterTouch( CBaseEntity *pOther )
 
 	CTFPlayer *pPlayer = ToTFPlayer( pOther );
 
+	int bTwoWayTeleporter = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, bTwoWayTeleporter, bidirectional_teleport );
+
 	// is this an entrance and do we have an exit?
-	if ( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE )
+	if ( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE || bTwoWayTeleporter > 0 )
 	{		
 		if ( ( m_iState == TELEPORTER_STATE_READY ) )
 		{
