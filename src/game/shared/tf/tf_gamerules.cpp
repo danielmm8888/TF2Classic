@@ -1019,6 +1019,20 @@ void CKothLogic::InputSetYellowTimer( inputdata_t &inputdata )
 	}
 }
 
+class CHybridMap_CTF_CP : public CBaseEntity
+{
+public:
+	DECLARE_CLASS( CHybridMap_CTF_CP, CBaseEntity );
+	void	Spawn( void );
+};
+
+LINK_ENTITY_TO_CLASS( tf_logic_hybrid_ctf_cp, CHybridMap_CTF_CP );
+
+void CHybridMap_CTF_CP::Spawn( void )
+{
+	BaseClass::Spawn();
+}
+
 #endif
 
 // (We clamp ammo ourselves elsewhere).
@@ -1311,6 +1325,14 @@ void CTFGameRules::Activate()
 	{
 		// TODO: make a global pointer to this and access its settings
 		m_nGameType.Set( TF_GAMETYPE_VIP );
+		return;
+	}
+
+	CHybridMap_CTF_CP *pHybridEnt = dynamic_cast< CHybridMap_CTF_CP* > ( gEntList.FindEntityByClassname( NULL, "tf_logic_hybrid_ctf_cp" ) );
+	if ( pHybridEnt )
+	{
+		m_nGameType.Set( TF_GAMETYPE_CP );
+		m_bPlayingHybrid_CTF_CP = true;
 		return;
 	}
 

@@ -8052,6 +8052,13 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 	if ( pEconEnt )
 	{
 		pEconEnt->GiveTo( pPlayer );
+
+		CBaseCombatWeapon *pWeapon = pEconEnt->MyCombatWeaponPointer();
+		if ( pWeapon )
+		{
+			int iAmmo = pWeapon->GetPrimaryAmmoType();
+			pPlayer->SetAmmoCount( pPlayer->GetMaxAmmo( iAmmo ), iAmmo );
+		}
 	}
 }
 
