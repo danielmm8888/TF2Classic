@@ -2,7 +2,6 @@
 //
 // Purpose: Critical Damage: Crits for 30/15 seconds with a crit glow. 
 //			Crit glow effect would match the player’s merc color or be blue.
-//	  TODO: Add unique model and sound effect. Health kit assets as placeholder.
 //
 //=============================================================================//
 #include "cbase.h"
@@ -19,10 +18,10 @@
 
 //=============================================================================
 
-BEGIN_DATADESC(CTFPowerupCritdamage)
+BEGIN_DATADESC( CTFPowerupCritdamage )
 END_DATADESC()
 
-LINK_ENTITY_TO_CLASS(item_powerup_critdamage, CTFPowerupCritdamage);
+LINK_ENTITY_TO_CLASS( item_powerup_critdamage, CTFPowerupCritdamage );
 
 //=============================================================================
 
@@ -40,7 +39,7 @@ CTFPowerupCritdamage::CTFPowerupCritdamage()
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Spawn(void)
+void CTFPowerupCritdamage::Spawn( void )
 {
 	BaseClass::Spawn();
 }
@@ -48,7 +47,7 @@ void CTFPowerupCritdamage::Spawn(void)
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------
-void CTFPowerupCritdamage::Precache(void)
+void CTFPowerupCritdamage::Precache( void )
 {
 	BaseClass::Precache();
 }
@@ -56,7 +55,7 @@ void CTFPowerupCritdamage::Precache(void)
 //-----------------------------------------------------------------------------
 // Purpose: Touch function
 //-----------------------------------------------------------------------------
-bool CTFPowerupCritdamage::MyTouch(CBasePlayer *pPlayer)
+bool CTFPowerupCritdamage::MyTouch( CBasePlayer *pPlayer )
 {
-	return BaseClass::MyTouch(pPlayer);
+	return BaseClass::MyTouch( pPlayer );
 }

@@ -23,6 +23,7 @@ class CObjectTeleporter : public CBaseObject
 	DECLARE_CLASS( CObjectTeleporter, CBaseObject );
 
 public:
+	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
 	CObjectTeleporter();
@@ -50,7 +51,7 @@ public:
 	virtual void TeleporterReceive( CTFPlayer *pPlayer, float flDelay );
 	virtual void TeleporterSend( CTFPlayer *pPlayer );
 
-	CObjectTeleporter *CopyUpgradeStateToMatch( CObjectTeleporter *pObjToCopyTo, bool bCopyTo );
+	void CopyUpgradeStateToMatch( CObjectTeleporter *pMatch, bool bCopyFrom );
 
 	CObjectTeleporter *GetMatchingTeleporter( void );
 	CObjectTeleporter *FindMatch( void );	// Find the teleport partner to this object
@@ -60,6 +61,8 @@ public:
 	virtual bool Command_Repair( CTFPlayer *pActivator );
 
 	virtual bool CheckUpgradeOnHit( CTFPlayer *pPlayer );
+
+	virtual void InitializeMapPlacedObject( void );
 
 	bool IsMatchingTeleporterReady( void );
 
@@ -77,6 +80,8 @@ public:
 	virtual int GetBaseHealth( void );
 	virtual int	GetMaxUpgradeLevel( void );
 	virtual char *GetPlacementModel( void );
+
+	virtual void	MakeCarriedObject( CTFPlayer *pPlayer );
 
 protected:
 	CNetworkVar( int, m_iState );
@@ -102,7 +107,9 @@ protected:
 	int m_iBlurBodygroup;
 
 private:
-	DECLARE_DATADESC();
+	// Only used by hammer placed entities
+	int m_iTeleporterType;
+	string_t m_szMatchingTeleporterName;
 };
 
 #endif // TF_OBJ_TELEPORTER_H

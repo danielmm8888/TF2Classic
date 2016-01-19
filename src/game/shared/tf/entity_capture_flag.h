@@ -140,6 +140,8 @@ public:
 
 	void			FlagTouch( CBaseEntity *pOther );
 
+	const char		*GetTrailEffect( int iTeamNum, char *buf , size_t buflen );
+
 	bool			IsDisabled( void );
 	void			SetDisabled( bool bDisabled );
 
@@ -176,9 +178,12 @@ public:
 	}
 	bool			IsCaptured( void ){ return m_bCaptured; }
 
-	int				UpdateTransmitState();
+	int				UpdateTransmitState( void );
 
-	void			ManageSpriteTrail();
+	void			ManageSpriteTrail( void );
+
+	void			CreateReturnIcon( void );
+	void			DestroyReturnIcon( void );
 
 #else // CLIENT DLL Functions
 
@@ -195,7 +200,7 @@ public:
 	float			GetMaxResetTime() { return m_flMaxResetTime; }
 	float			GetReturnProgress( void );
 
-	void			EnableGlowEffect(void);
+	void			UpdateGlowEffect( void );
 
 #endif
 
@@ -212,6 +217,8 @@ public:
 	void			Reset( void );
 	void			ResetMessage( void );
 
+	CNetworkVar( int,	m_nFlagStatus );
+
 	int					m_nUseTrailEffect;
 	bool				m_bVisibleWhenDisabled;
 	string_t			m_szHudIcon;
@@ -225,7 +232,6 @@ private:
 	CNetworkVar( bool,	m_bDisabled );	// Enabled/Disabled?
 	CNetworkVar( int,	m_nGameType );	// Type of game this flag will be used for.
 
-	CNetworkVar( int,	m_nFlagStatus );
 	CNetworkVar( float,	m_flResetTime );		// Time until the flag is placed back at spawn.
 	CNetworkVar( float, m_flMaxResetTime );		// Time the flag takes to return in the current mode
 	CNetworkVar( float, m_flNeutralTime );	// Time until the flag becomes neutral (used for the invade gametype)
@@ -266,7 +272,7 @@ private:
 
 	int			m_nOldFlagStatus;
 
-	int			m_nPrevOwnerGlowIndex;
+	int			m_iGlowEffectHandle;
 
 #endif
 

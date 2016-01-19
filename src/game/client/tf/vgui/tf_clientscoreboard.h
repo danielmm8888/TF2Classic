@@ -72,6 +72,9 @@ private:
 	EditablePanel				*m_pLocalPlayerStatsPanel;
 	EditablePanel				*m_pLocalPlayerDuelStatsPanel;
 	CExLabel					*m_pSpectatorsInQueue;
+	CExLabel					*m_pServerTimeLeftValue;
+	vgui::HFont					m_hTimeLeftFont;
+	vgui::HFont					m_hTimeLeftNotSetFont;
 
 	int							m_iImageDead;
 	int							m_iImageDominated;

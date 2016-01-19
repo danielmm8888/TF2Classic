@@ -305,11 +305,18 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_CP )
 			{
-				pszGameTypeAbbreviation = "cp";
+				if ( TFGameRules()->IsInKothMode() )
+					pszGameTypeAbbreviation = "koth";
+				else
+					pszGameTypeAbbreviation = "cp";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ARENA )
 			{
 				pszGameTypeAbbreviation = "arena";
+			}
+			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_ESCORT )
+			{
+				pszGameTypeAbbreviation = "payload";
 			}
 			else if ( TFGameRules()->GetGameType() == TF_GAMETYPE_DM )
 			{
@@ -424,29 +431,58 @@ struct s_MapTypeInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	"ctf_2fort",	"2Fort",		"#Gametype_CTF",			"Valve",
-	"cp_dustbowl",	"Dustbowl",		"#Gametype_AttackDefense",	"Valve",
-	"cp_granary",	"Granary",		"#Gametype_CP",				"Valve",
-	"cp_well",		"Well",			"#Gametype_CP",				"Valve",
-	"cp_gravelpit",	"Gravel Pit",	"#Gametype_AttackDefense",	"Valve",
-	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",		"Valve",
-	"ctf_well",		"Well",			"#Gametype_CTF",			"Valve",
-	"pl_goldrush",	"Goldrush",		"#Gametype_Escort",			"Valve",
-	"cp_badlands",	"Badlands",		"#Gametype_CP",				"Valve",
+	"ctf_2fort",			"2Fort",			"#Gametype_CTF",				"Valve",
+	"cp_dustbowl",			"Dustbowl",			"#TF_AttackDefend",				"Valve",
+	"cp_granary",			"Granary",			"#Gametype_CP",					"Valve",
+	"cp_well",				"Well",				"#Gametype_CP",					"Valve",
+	"cp_foundry",			"Foundry",			"#Gametype_CP",					"Valve",
+	"cp_gravelpit",			"Gravel Pit"		"#TF_AttackDefend",				"Valve",
+	"tc_hydro",				"Hydro",			"#TF_TerritoryControl",			"Valve",
+	"ctf_well",				"Well",				"#Gametype_CTF",				"Valve",
+	"cp_badlands",			"Badlands",			"#Gametype_CP",					"Valve",
+	"pl_goldrush",			"Gold Rush",		"#Gametype_Escort",				"Valve",
+	"pl_badwater",			"Badwater Basin",	"#Gametype_Escort",				"Valve",
+	"plr_pipeline",			"Pipeline Rush",	"#Gametype_EscortRace",			"Valve",
+	"cp_gorge",				"Gold Gorge",		"#TF_AttackDefend",				"Valve",
+	"ctf_doublecross",		"Double Cross",		"#Gametype_CTF",				"Valve",
+	"pl_thundermountain",	"Thunder Mountain",	"#Gametype_Escort",				"Valve",
+	"tr_target",			"Target",			"#GameType_Training",			"Valve",
+	"tr_dustbowl",			"Dustbowl",			"#GameType_Training",			"Valve",
+	"cp_manor_event",		"Mann Manor",		"#TF_AttackDefend",				"Valve",
+	"cp_mountainlab",		"Mountain Lab",		"#TF_AttackDefend",				"Valve",
+	"cp_degrootkeep",		"DeGroot Keep",		"#TF_MedievalAttackDefend",		"Valve",
+	"pl_barnblitz",			"Barnblitz",		"#Gametype_Escort",				"Valve",
+	"pl_upward",			"Upward",			"#Gametype_EscortRace",			"Valve",
+	"plr_hightower",		"Hightower",		"#Gametype_EscortRace",			"Valve",
+	"koth_viaduct_event",	"Eyeaduct",			"#Gametype_Koth",				"Valve",
+	"koth_king",			"Kong King",		"#Gametype_Koth",				"Valve",
+	"koth_lakeside_event",	"Ghost Fort",		"#Gametype_Koth",				"Valve",
+	"plr_hightower_event",	"Helltower",		"#Gametype_EscortRace",			"Valve",
+	"rd_asteroid",			"Asteroid",			"#Gametype_RobotDestruction",	"Valve",
+	"pl_cactuscanyon",		"Cactus Canyon",	"#Gametype_Escort",				"Valve",
+	"sd_doomsday",			"Doomsday",			"#Gametype_SD",					"Valve",
+	"sd_doomsday_event",	"Carnival of Carnage", "#Gametype_SD",				"Valve",
+
+	"koth_nucleus",			"Nucleus",			"#Gametype_Koth",				"Valve",
+	"koth_sawmill",			"Sawmill (KOTH)",	"#Gametype_Koth",				"Valve",
+	"arena_sawmill",		"Sawmill (Arena)",	"#Gametype_Arena",				"Valve",
+	"cp_powerhouse",		"Powerhouse",		"#Gametype_CP",					"Valve",
+
+	"ctf_turbine",			"Turbine",			"#Gametype_CTF",				"Flobster",
 	//---------------------- TF2C maps ----------------------
 	"cp_furnace_rc",	"Furnace Creek",	"#Gametype_AttackDefense",		"YM, Nineaxis",
 	"cp_tidal_v4",		"Tidal",			"#Gametype_CP",					"Heyo",
-	"cp_amaranth_rc2",	"Amaranth",			"#Gametype_AttackDefense",		"Berry, TheoF114",
-	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, VALVe",
-	"ctf_push_a4",		"Push",				"#Gametype_CTF",				"DrPyspy",
-	"ctf_upstream_a1",	"Upstream",			"#Gametype_AttackDefense_CTF",	"iiboharz",
-	"cp_callous2",		"Callous",			"#Gametype_VIP",				"Berry",
+	"cp_amaranth",		"Amaranth",			"#Gametype_AttackDefense",		"Berry, TheoF114",
+	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, Valve",
 	"cp_cragg_a1",		"Cragg",			"#Gametype_CP_Domination",		"Berry",
 	"ctf_casbah",		"Casbah",			"#Gametype_CTF",				"MacD11",
-	"cp_warpath_a2",	"Warpath",			"#Gametype_CP",					"Suomimies55",
-	"ctf_avanti",		"Avanti",			"#Gametype_AttackDefense_CTF",	"Zorbos, MacD11",
-	"cp_avanti",		"Avanti",			"#Gametype_AttackDefense",		"Zorbos, MacD11",
 	"ctf_landfall_rc"	"Landfall",			"#Gametype_CTF",				"Dr. Spud",
+	"dm_wiseau"			"Wiseau",			"#Gametype_Deathmatch",			"MacD11, iiboharz",
+	"dm_grain"			"Grain",			"#Gametype_Deathmatch",			"Ms. Mudpie",
+	"dm_parley"			"Parley",			"#Gametype_Deathmatch",			"DrPyspy",
+	"dm_lumberyard"		"Lumberyard",		"#Gametype_Deathmatch",			"iiboharz, MacD11, Valve",
+	"dm_ravine"			"Ravine",			"#Gametype_Deathmatch",			"Snowshoe, Valve",
+	"dm_2fort"			"2Fort (DM)",		"#Gametype_Deathmatch",			"iiboharz, Valve",
 };
 
 static s_MapTypeInfo s_MapTypes[] = {

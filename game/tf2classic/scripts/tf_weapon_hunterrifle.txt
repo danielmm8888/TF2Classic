@@ -8,11 +8,11 @@ WeaponData
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 	
 	// Attributes TF.
-	"Damage"		"4"
+	"Damage"		"50"
 	"Range"			"8192"
 	"BulletsPerShot"	"1"
 	"Spread"		"0.5"
-	"TimeFireDelay"		"0.7"
+	"TimeFireDelay"		"1.5"
 	"TimeReload"		"1.5"
 	"ProjectileType"	"projectile_bullet"
 	"HasTeamSkins_Viewmodel"	"1"
@@ -46,13 +46,9 @@ WeaponData
 	// Max of 16 per category (ie. max 16 "single_shot" sounds).
 	SoundData
 	{
-		"single_shot"		"Weapon_HuntingRifle.Single"
-		"Open"		        "Weapon_HuntingRifle.OpenReload"
-                "Close"		        "Weapon_HuntingRifle.CloseReload"
-               "Instert"                "Weapon_HuntingRifle.InsertReload"
+		"single_shot"	"Weapon_HuntingRifle.Single"
 		"empty"			"Weapon_HuntingRifle.ClipEmpty"	
 		"burst"			"Weapon_huntingRifle.SingleCrit"
-                "Draw"                  "Weapon_HuntingRifle.Draw"
 	}
 
 	// Weapon Sprite data is loaded by the Client DLL.

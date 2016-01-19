@@ -20,6 +20,8 @@ WeaponData
 	"UseRapidFireCrits"	"1"
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
+	"MaxAmmo"		"75"
+	"SpawnAmmo"		"75"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"
@@ -32,6 +34,8 @@ WeaponData
 	"bucket_position"	"0"
 	"TracerEffect"		"bullet_pistol_tracer01"
 
+	"bucket_DM"		"2"
+	"bucket_position_DM"	"0"
 
 	// Muzzleflash
 	"MuzzleFlashModel"	"models/effects/muzzleflash/minigunmuzzle.mdl"

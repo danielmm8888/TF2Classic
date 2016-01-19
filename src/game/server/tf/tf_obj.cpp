@@ -82,6 +82,10 @@ BEGIN_DATADESC( CBaseObject )
 	DEFINE_KEYFIELD( m_iDefaultUpgrade, FIELD_INTEGER, "defaultupgrade" ),
 
 	// Inputs
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Show", InputShow ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Hide", InputHide ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Enable", InputEnable ),
+	DEFINE_INPUTFUNC( FIELD_INTEGER, "Disable", InputDisable ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "SetHealth", InputSetHealth ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "AddHealth", InputAddHealth ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER, "RemoveHealth", InputRemoveHealth ),
@@ -180,16 +184,19 @@ public:
 //-----------------------------------------------------------------------------
 CBaseObject::CBaseObject()
 {
-	m_iHealth = m_iMaxHealth = m_flHealth = 0;
+	m_iHealth = m_iMaxHealth = m_flHealth = m_iGoalHealth = 0;
 	m_flPercentageConstructed = 0;
 	m_bPlacing = false;
 	m_bBuilding = false;
+	m_bCarried = false;
+	m_bCarryDeploy = false;
 	m_Activity = ACT_INVALID;
 	m_bDisabled = false;
 	m_SolidToPlayers = SOLID_TO_PLAYER_USE_DEFAULT;
 	m_bPlacementOK = false;
 	m_aGibs.Purge();
 	m_iObjectMode = 0;
+	m_iDefaultUpgrade = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -265,8 +272,8 @@ bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 	{
 		return false;
 	}
-	
-	if ( !HasSpawnFlags( SF_OBJ_UPGRADABLE ) )
+
+	if ( IsPlacing() )
 	{
 		return false;
 	}
@@ -277,6 +284,11 @@ bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 	}
 
 	if ( IsUpgrading() )
+	{
+		return false;
+	}
+
+	if ( IsRedeploying() )
 	{
 		return false;
 	}
@@ -355,6 +367,7 @@ void CBaseObject::Spawn( void )
 	m_iKills = 0;
 
 	m_iUpgradeLevel = 1;
+	m_iGoalUpgradeLevel = 1;
 	m_iUpgradeMetal = 0;
 
 	m_iUpgradeMetalRequired = GetObjectInfo( ObjectType() )->m_UpgradeCost;
@@ -383,6 +396,58 @@ void CBaseObject::Spawn( void )
 
 	// assume valid placement
 	m_bServerOverridePlacement = true;
+}
+
+void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	if ( pPlayer )
+	{
+		m_bCarried = true;
+		m_bCarryDeploy = false;
+		DestroyScreens();
+		//FollowEntity( pPlayer, true );
+
+		// Save health amount building had before getting picked up. It will only heal back up to it.
+		m_iGoalHealth = GetHealth();
+
+		// Save current upgrade level and reset it. Building will automatically upgrade back once re-deployed.
+		m_iGoalUpgradeLevel = GetUpgradeLevel();
+		m_iUpgradeLevel = 1;
+
+		// Reset placement rotation.
+		m_iDesiredBuildRotations = 0;
+
+		SetModel( GetPlacementModel() );
+
+		pPlayer->m_Shared.SetCarriedObject( this );
+
+		//AddEffects( EF_NODRAW );
+		// StartPlacement already does this but better safe than sorry.
+		AddSolidFlags( FSOLID_NOT_SOLID );
+
+		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
+		if ( event )
+		{
+			event->SetInt( "userid", pPlayer->GetUserID() );
+			event->SetInt( "object", ObjectType() );
+			event->SetInt( "index", entindex() );	// object entity index
+			gameeventmanager->FireEvent( event, true );	// don't send to clients
+		}
+	}
+
+}
+
+void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	m_bCarried = false;
+	m_bCarryDeploy = true;
+
+	if ( pPlayer )
+	{
+		pPlayer->m_Shared.SetCarriedObject( NULL );
+	}
+
+	//StopFollowingEntity();
 }
 
 //-----------------------------------------------------------------------------
@@ -506,6 +571,55 @@ void CBaseObject::SpawnControlPanels()
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: Called in case was not built by a player but placed by a mapper.
+//-----------------------------------------------------------------------------
+void CBaseObject::InitializeMapPlacedObject( void )
+{
+	m_bWasMapPlaced = true;
+
+	if ( ( GetObjectFlags() & OF_IS_CART_OBJECT ) == 0 )
+		SpawnControlPanels();
+
+	// Spawn with full health.
+	SetHealth( GetMaxHealth() );
+
+	// Go active.
+	FinishedBuilding();
+
+	// Add it to team.
+	CTFTeam *pTFTeam = GetGlobalTFTeam( GetTeamNumber() );
+
+	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
+	{
+		pTFTeam->AddObject( this );
+	}
+
+	// Set the skin
+	switch ( GetTeamNumber() )
+	{
+	case TF_TEAM_RED:
+		m_nSkin = 0;
+		break;
+
+	case TF_TEAM_BLUE:
+		m_nSkin = 1;
+		break;
+
+	case TF_TEAM_GREEN:
+		m_nSkin = 2;
+		break;
+
+	case TF_TEAM_YELLOW:
+		m_nSkin = 3;
+		break;
+
+	default:
+		m_nSkin = 1;
+		break;
+	}
+}
+
+//-----------------------------------------------------------------------------
 // Handle commands sent from vgui panels on the client 
 //-----------------------------------------------------------------------------
 bool CBaseObject::ClientCommand( CTFPlayer *pSender, const CCommand &args )
@@ -556,13 +670,27 @@ void CBaseObject::BaseObjectThink( void )
 		UpgradeThink();
 		return;
 	}
+
+	if ( m_bCarryDeploy )
+	{
+		if ( m_iUpgradeLevel < m_iGoalUpgradeLevel )
+		{
+			// Keep upgrading until we hit our previous upgrade level.
+			StartUpgrading();
+		}
+		else
+		{
+			// Finished.
+			m_bCarryDeploy = false;
+		}
+	}
 }
 
-bool CBaseObject::UpdateAttachmentPlacement( void )
+bool CBaseObject::UpdateAttachmentPlacement( CBaseObject *pObject /*= NULL*/ )
 {
 	// See if we should snap to a build position
 	// finding one implies it is a valid position
-	if ( FindSnapToBuildPos() )
+	if ( FindSnapToBuildPos( pObject ) )
 	{
 		m_bPlacementOK = true;
 
@@ -630,7 +758,7 @@ bool CBaseObject::EstimateValidBuildPos( void )
 	//NDebugOverlay::Cross3D( vecBuildOrigin, 10, 255, 0, 0, false, 0.1 );
 
 	// Cannot build inside a nobuild brush
-	if ( PointInNoBuild( vecBuildOrigin ) )
+	if ( PointInNoBuild( vecBuildOrigin, this ) )
 		return false;
 
 	if ( PointInRespawnRoom( NULL, vecBuildOrigin ) )
@@ -693,104 +821,29 @@ void CBaseObject::StartUpgrading(void)
 	m_iUpgradeLevel++;
 
 	// more health
-	int iMaxHealth = GetMaxHealth();
-	SetMaxHealth( iMaxHealth * 1.2 );
-	SetHealth( iMaxHealth * 1.2 );
-
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
-
-	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType())->m_flUpgradeDuration;
-
-	RemoveAllGestures();
-}
-
-void CBaseObject::MakeCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
+	if ( !IsRedeploying() )
 	{
-		m_bCarried = true;
-		DestroyScreens();
-		FollowEntity( pPlayer, true );
-
-		SetModel( GetPlacementModel() );
-
-		pPlayer->m_Shared.SetCarriedObject( this );
-
-		AddEffects( EF_NODRAW );
-		AddEFlags( FSOLID_NOT_SOLID );
-
-		IGameEvent * event = gameeventmanager->CreateEvent( "player_carryobject" );
-		if (event)
-		{
-			event->SetInt( "userid", pPlayer->GetUserID() );
-			event->SetInt( "object", ObjectType() );
-			event->SetInt( "index", entindex() );	// object entity index
-			gameeventmanager->FireEvent(event, true);	// don't send to clients
-		}
+		int iMaxHealth = GetMaxHealth();
+		SetMaxHealth( iMaxHealth * 1.2 );
+		SetHealth( iMaxHealth * 1.2 );
 	}
 
-}
-
-void CBaseObject::DropCarriedObject( CTFPlayer *pPlayer )
-{
-	if ( pPlayer )
-		pPlayer->m_Shared.SetCarriedObject( NULL );
-
-	StopFollowingEntity();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Start building the object
-//-----------------------------------------------------------------------------
-bool CBaseObject::RedeployBuilding( CTFPlayer *pBuilder )
-{
-	DropCarriedObject( pBuilder );
-	((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
-	
-	m_bCarryDeploy = true;
-	m_bCarried = false;
-	m_flPercentageConstructed = 0;
-
-	m_nRenderMode = kRenderNormal; 
-	RemoveSolidFlags( FSOLID_NOT_SOLID );
-	RemoveEffects( EF_NODRAW );
-
-	// NOTE: We must spawn the control panels now, instead of during
-	// Spawn, because until placement is started, we don't actually know
-	// the position of the control panel because we don't know what it's
-	// been attached to (could be a vehicle which supplies a different
-	// place for the control panel)
-	// NOTE: We must also spawn it before FinishedBuilding can be called
-	SpawnControlPanels();
-
-	// Tell the object we've been built on that we exist
-	if ( IsBuiltOnAttachment() )
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
 	{
-		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>((CBaseEntity*)m_hBuiltOnEntity.Get());
-		Assert( pBPInterface );
-		pBPInterface->SetObjectOnBuildPoint( m_iBuiltOnPoint, this );
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
 	}
 
-	// Start the build animations
-	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
-
-	m_vecBuildOrigin = GetAbsOrigin();
-
-	int contents = UTIL_PointContents( m_vecBuildOrigin );
-	if ( contents & MASK_WATER )
-	{
-		SetWaterLevel( 3 );
-	}
-
-	// instantly play the build anim
-	DetermineAnimation();
-
-	return true;
+	m_flUpgradeCompleteTime = gpGlobals->curtime + GetObjectInfo( ObjectType() )->m_flUpgradeDuration;
 }
 
 void CBaseObject::FinishUpgrading( void )
 {
-	EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	// No ear raping for map placed buildings.
+	if ( !m_iDefaultUpgrade )
+	{
+		EmitSound( GetObjectInfo( ObjectType() )->m_pUpgradeSound );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -818,15 +871,9 @@ CTFPlayer *CBaseObject::GetOwner()
 void CBaseObject::Activate( void )
 {
 	BaseClass::Activate();
-	
-	// This only ever gets called if a building is spawned in a non-standard way.
-	// So just go through all contruction phases rapidly.
-	StartPlacement( NULL );
-	StartBuilding( NULL );
-	SetHealth( GetMaxHealth() );
-	FinishedBuilding();
 
-	Assert( 0 );
+	if ( GetBuilder() == NULL )
+		InitializeMapPlacedObject();
 }
 
 
@@ -866,6 +913,12 @@ void CBaseObject::DestroyObject( void )
 {
 	TRACE_OBJECT( UTIL_VarArgs( "%0.2f CBaseObject::DestroyObject %p:%s\n", gpGlobals->curtime, this, GetClassname() ) );
 
+
+	if ( m_bCarried )
+	{
+		DropCarriedObject( GetBuilder() );
+	}
+
 	if ( GetBuilder() )
 	{
 		GetBuilder()->OwnedObjectDestroyed( this );
@@ -897,7 +950,7 @@ float CBaseObject::GetTotalTime( void )
 {
 	float flBuildTime = GetObjectInfo( ObjectType() )->m_flBuildTime;
 
-	if (tf_fastbuild.GetInt())
+	if ( tf_fastbuild.GetInt() )
 		return ( min( 2.f, flBuildTime ) );
 
 	return flBuildTime;
@@ -937,28 +990,27 @@ void CBaseObject::StartPlacement( CTFPlayer *pPlayer )
 	m_vecBuildMaxs -= GetAbsOrigin();
 
 	// Set the skin
-
-	switch (GetTeamNumber())
+	switch ( GetTeamNumber() )
 	{
-		case TF_TEAM_RED:
-			m_nSkin = 0;
-			break;
+	case TF_TEAM_RED:
+		m_nSkin = 0;
+		break;
 
-		case TF_TEAM_BLUE:
-			m_nSkin = 1;
-			break;
+	case TF_TEAM_BLUE:
+		m_nSkin = 1;
+		break;
 
-		case TF_TEAM_GREEN:
-			m_nSkin = 2;
-			break;
+	case TF_TEAM_GREEN:
+		m_nSkin = 2;
+		break;
 
-		case TF_TEAM_YELLOW:
-			m_nSkin = 3;
-			break;
+	case TF_TEAM_YELLOW:
+		m_nSkin = 3;
+		break;
 
-		default:
-			m_nSkin = 1;
-			break;
+	default:
+		m_nSkin = 1;
+		break;
 	}
 }
 
@@ -973,7 +1025,7 @@ void CBaseObject::StopPlacement( void )
 //-----------------------------------------------------------------------------
 // Purpose: Find the nearest buildpoint on the specified entity
 //-----------------------------------------------------------------------------
-bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint )
+bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint, bool bIgnoreLOS /*= false*/ )
 {
 	bool bFoundPoint = false;
 
@@ -991,21 +1043,25 @@ bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBui
 			QAngle vecBPAngles;
 			if ( pBPInterface->GetBuildPoint(i, vecBPOrigin, vecBPAngles) )
 			{
-				// ignore build points outside our view
-				if ( !pBuilder->FInViewCone( vecBPOrigin ) )
-					continue;
+				// If set to ignore LOS, distance, etc, just pick the first point available.
+				if ( !bIgnoreLOS )
+				{
+					// ignore build points outside our view
+					if ( !pBuilder->FInViewCone( vecBPOrigin ) )
+						continue;
 
-				// Do a trace to make sure we don't place attachments through things (players, world, etc...)
-				Vector vecStart = pBuilder->EyePosition();
-				trace_t trace;
-				UTIL_TraceLine( vecStart, vecBPOrigin, MASK_SOLID, pBuilder, COLLISION_GROUP_NONE, &trace );
-				if ( trace.m_pEnt != pEntity && trace.fraction != 1.0 )
-					continue;
+					// Do a trace to make sure we don't place attachments through things (players, world, etc...)
+					Vector vecStart = pBuilder->EyePosition();
+					trace_t trace;
+					UTIL_TraceLine( vecStart, vecBPOrigin, MASK_SOLID, pBuilder, COLLISION_GROUP_NONE, &trace );
+					if ( trace.m_pEnt != pEntity && trace.fraction != 1.0 )
+						continue;
+				}
 
 				float flDist = (vecBPOrigin - pBuilder->GetAbsOrigin()).Length();
 
 				// if this is closer, or is the first one in our view, check it out
-				if ( flDist < min(flNearestPoint, pBPInterface->GetMaxSnapDistance( i )) )
+				if ( bIgnoreLOS || flDist < min(flNearestPoint, pBPInterface->GetMaxSnapDistance( i )) )
 				{
 					flNearestPoint = flDist;
 					vecNearestBuildPoint = vecBPOrigin;
@@ -1016,6 +1072,9 @@ bool CBaseObject::FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBui
 					SetAbsAngles( vecBPAngles );
 
 					bFoundPoint = true;
+
+					if ( bIgnoreLOS )
+						break;
 				}
 			}
 		}
@@ -1185,7 +1244,7 @@ bool CBaseObject::UpdatePlacement( void )
 //-----------------------------------------------------------------------------
 // Purpose: See if we should be snapping to a build position
 //-----------------------------------------------------------------------------
-bool CBaseObject::FindSnapToBuildPos( void )
+bool CBaseObject::FindSnapToBuildPos( CBaseObject *pObject /*= NULL*/ )
 {
 	if ( !MustBeBuiltOnAttachmentPoint() )
 		return false;
@@ -1209,42 +1268,57 @@ bool CBaseObject::FindSnapToBuildPos( void )
 	bool bHostileAttachment = IsHostileUpgrade();
 	int iMyTeam = GetTeamNumber();
 
-	int nTeamCount = TFTeamMgr()->GetTeamCount();
-	for ( int iTeam = FIRST_GAME_TEAM; iTeam < nTeamCount; ++iTeam )
+	// If we have an object specified then use that, don't search.
+	if ( pObject )
 	{
-		// Hostile attachments look for enemy objects only
-		if ( bHostileAttachment ) 
+		if ( !pObject->IsPlacing() )
 		{
-			if ( iTeam == iMyTeam )
+			if ( FindNearestBuildPoint( pObject, pPlayer, flNearestPoint, vecNearestBuildPoint, true ) )
+			{
+				bSnappedToPoint = true;
+				bShouldAttachToParent = true;
+			}
+		}
+	}
+	else
+	{
+		int nTeamCount = TFTeamMgr()->GetTeamCount();
+		for ( int iTeam = FIRST_GAME_TEAM; iTeam < nTeamCount; ++iTeam )
+		{
+			// Hostile attachments look for enemy objects only
+			if ( bHostileAttachment )
+			{
+				if ( iTeam == iMyTeam )
+				{
+					continue;
+				}
+			}
+			// Friendly attachments look for friendly objects only
+			else if ( iTeam != iMyTeam )
 			{
 				continue;
 			}
-		}
-		// Friendly attachments look for friendly objects only
-		else if ( iTeam != iMyTeam )
-		{
-			continue;
-		}
 
-		CTFTeam *pTeam = ( CTFTeam * )GetGlobalTeam( iTeam );
-		if ( !pTeam )
-			continue;
+			CTFTeam *pTeam = (CTFTeam *)GetGlobalTeam( iTeam );
+			if ( !pTeam )
+				continue;
 
-		// look for nearby buildpoints on other objects
-		for ( i = 0; i < pTeam->GetNumObjects(); i++ )
-		{
-			CBaseObject *pObject = pTeam->GetObject(i);
-			Assert( pObject );
-			if ( pObject && !pObject->IsPlacing() )
+			// look for nearby buildpoints on other objects
+			for ( i = 0; i < pTeam->GetNumObjects(); i++ )
 			{
-				if ( FindNearestBuildPoint( pObject, pPlayer, flNearestPoint, vecNearestBuildPoint ) )
+				CBaseObject *pTempObject = pTeam->GetObject( i );
+				Assert( pTempObject );
+				if ( pTempObject && !pTempObject->IsPlacing() )
 				{
-					bSnappedToPoint = true;
-					bShouldAttachToParent = true;
+					if ( FindNearestBuildPoint( pTempObject, pPlayer, flNearestPoint, vecNearestBuildPoint ) )
+					{
+						bSnappedToPoint = true;
+						bShouldAttachToParent = true;
+					}
 				}
 			}
 		}
-	}	
+	}
 
 	if ( !bSnappedToPoint )
 	{
@@ -1324,25 +1398,34 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	// Deduct the cost from the player
 	if ( pBuilder && pBuilder->IsPlayer() )
 	{
-		/*
-		if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
+		CTFPlayer *pTFBuilder = ToTFPlayer( pBuilder );
+
+		if ( IsRedeploying() )
 		{
+			pTFBuilder->SpeakConceptIfAllowed( MP_CONCEPT_REDEPLOY_BUILDING, GetResponseRulesModifier() );
+		}
+		else
+		{
+			/*
+			if ( ((CTFPlayer*)pBuilder)->IsPlayerClass( TF_CLASS_ENGINEER ) )
+			{
 			((CTFPlayer*)pBuilder)->HintMessage( HINT_ENGINEER_USE_WRENCH_ONOWN );
-		}
-		*/
+			}
+			*/
 
-		int iAmountPlayerPaidForMe = ((CTFPlayer*)pBuilder)->StartedBuildingObject( m_iObjectType );
-		if ( !iAmountPlayerPaidForMe )
-		{
-			// Player couldn't afford to pay for me, so abort
-			ClientPrint( (CBasePlayer*)pBuilder, HUD_PRINTCENTER, "Not enough resources.\n" );
-			StopPlacement();
-			return false;
-		}
+			int iAmountPlayerPaidForMe = pTFBuilder->StartedBuildingObject( m_iObjectType );
+			if ( !iAmountPlayerPaidForMe )
+			{
+				// Player couldn't afford to pay for me, so abort
+				ClientPrint( pTFBuilder, HUD_PRINTCENTER, "Not enough resources.\n" );
+				StopPlacement();
+				return false;
+			}
 
-		((CTFPlayer*)pBuilder)->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
+			pTFBuilder->SpeakConceptIfAllowed( MP_CONCEPT_BUILDING_OBJECT, GetResponseRulesModifier() );
+		}
 	}
-	
+
 	// Add this object to the team's list (because we couldn't add it during
 	// placement mode)
 	if ( pTFTeam && !pTFTeam->IsObjectOnTeam( this ) )
@@ -1352,7 +1435,11 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 
 	m_bPlacing = false;
 	m_bBuilding = true;
-	SetHealth( OBJECT_CONSTRUCTION_STARTINGHEALTH );
+
+	if ( !IsRedeploying() )
+	{
+		SetHealth( OBJECT_CONSTRUCTION_STARTINGHEALTH );
+	}
 	m_flPercentageConstructed = 0;
 
 	m_nRenderMode = kRenderNormal; 
@@ -1377,7 +1464,7 @@ bool CBaseObject::StartBuilding( CBaseEntity *pBuilder )
 	// Start the build animations
 	m_flTotalConstructionTime = m_flConstructionTimeLeft = GetTotalTime();
 
-	if ( pBuilder && pBuilder->IsPlayer() )
+	if ( !IsRedeploying() && pBuilder && pBuilder->IsPlayer() )
 	{
 		CTFPlayer *pTFBuilder = ToTFPlayer( pBuilder );
 		pTFBuilder->FinishedObject( this );
@@ -1841,7 +1928,9 @@ bool CBaseObject::Repair( float flHealth )
 		m_flPercentageConstructed = clamp( m_flPercentageConstructed, 0.0f, 1.0f );
 
 		// Increase health.
-		SetHealth( min( GetMaxHealth(), m_flHealth + flHealth ) );
+		// Only regenerate up to previous health while re-deploying.
+		int iMaxHealth = IsRedeploying() ? m_iGoalHealth : GetMaxHealth();
+		SetHealth( min( iMaxHealth, m_flHealth + flHealth ) );
 
 		// Return true if we're constructed now
 		if ( m_flConstructionTimeLeft <= 0.0f )
@@ -1895,7 +1984,11 @@ void CBaseObject::OnConstructionHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vec
 
 float CBaseObject::GetConstructionMultiplier( void )
 {
-	float flMultiplier = 1.5;
+	float flMultiplier = 1.0f;
+
+	// Re-deploy twice as fast.
+	if ( IsRedeploying() )
+		flMultiplier *= 2.0f;
 
 	// expire all the old 
 	int i = m_RepairerList.LastInorder();
@@ -1910,7 +2003,7 @@ float CBaseObject::GetConstructionMultiplier( void )
 		else
 		{
 			// Each player hitting it builds twice as fast
-			flMultiplier += 2.5;
+			flMultiplier *= 2.0;
 		}
 	}
 
@@ -2038,7 +2131,7 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 	// Find the killer & the scorer
 	CBaseEntity *pInflictor = info.GetInflictor();
 	CBaseEntity *pKiller = info.GetAttacker();
-	CBasePlayer *pScorer = TFGameRules()->GetDeathScorer( pKiller, pInflictor, this );
+	CTFPlayer *pScorer = ToTFPlayer( TFGameRules()->GetDeathScorer( pKiller, pInflictor, this ) );
 	CTFPlayer *pAssister = NULL;
 
 	// if this object has a sapper on it, and was not killed by the sapper (killed by damage other than crush, since sapper does crushing damage),
@@ -2058,9 +2151,28 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 	if ( pScorer && pInflictor != this )
 	{
 		IGameEvent * event = gameeventmanager->CreateEvent( "object_destroyed" );
+		int iWeaponID = TF_WEAPON_NONE;
 
 		// Work out what killed the player, and send a message to all clients about it
-		const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
+		const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL, iWeaponID );
+		const char *killer_weapon_log_name = NULL;
+
+		if ( iWeaponID && pScorer )
+		{
+			CTFWeaponBase *pWeapon = pScorer->Weapon_OwnsThisID( iWeaponID );
+			if ( pWeapon )
+			{
+				CEconItemDefinition *pItemDef = pWeapon->GetItem()->GetStaticData();
+				if ( pItemDef )
+				{
+					if ( pItemDef->item_iconname[0] )
+						killer_weapon_name = pItemDef->item_iconname;
+
+					if ( pItemDef->item_logname[0] )
+						killer_weapon_log_name = pItemDef->item_logname;
+				}
+			}
+		}
 
 		CTFPlayer *pTFPlayer = GetOwner();
 
@@ -2077,6 +2189,7 @@ void CBaseObject::Killed( const CTakeDamageInfo &info )
 			
 			event->SetInt( "attacker", pScorer->GetUserID() );	// attacker
 			event->SetString( "weapon", killer_weapon_name );
+			event->SetString( "weapon_logclassname", killer_weapon_log_name );
 			event->SetInt( "priority", 6 );		// HLTV event priority, not transmitted
 			event->SetInt( "objecttype", GetType() );
 			event->SetInt( "index", entindex() );	// object entity index
@@ -2214,6 +2327,42 @@ bool CBaseObject::ShowVGUIScreen( int panelIndex, bool bShow )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputShow( inputdata_t &inputdata )
+{
+	RemoveFlag( EF_NODRAW );
+	SetDisabled( false );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputHide( inputdata_t &inputdata )
+{
+	AddFlag( EF_NODRAW );
+	SetDisabled( true );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputEnable( inputdata_t &inputdata )
+{
+	SetDisabled( false );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CBaseObject::InputDisable( inputdata_t &inputdata )
+{
+	AddFlag( EF_NODRAW );
+	SetDisabled( true );
+}
+
+
+//-----------------------------------------------------------------------------
 // Purpose: Set the health of the object
 //-----------------------------------------------------------------------------
 void CBaseObject::InputSetHealth( inputdata_t &inputdata )
@@ -2302,10 +2451,6 @@ bool CBaseObject::InputWrenchHit( CTFPlayer *pPlayer, CTFWrench *pWrench, Vector
 				}
 			}
 		}
-	}
-	else if ( IsUpgrading() )
-	{
-		bDidWork = false;
 	}
 	else if ( IsBuilding() )
 	{
@@ -2499,6 +2644,12 @@ void CBaseObject::AttachObjectToObject( CBaseEntity *pEntity, int iPoint, Vector
 	if ( m_hBuiltOnEntity.Get() )
 	{
 		// Parent ourselves to the object
+		CBaseAnimating *pAnimating = dynamic_cast<CBaseAnimating *>( pEntity );
+		if ( pAnimating && pAnimating->LookupBone( "weapon_bone" ) > 0 )
+		{
+			FollowEntity( m_hBuiltOnEntity.Get(), true );
+		}
+
 		int iAttachment = 0;
 		IHasBuildPoints *pBPInterface = dynamic_cast<IHasBuildPoints*>( pEntity );
 		Assert( pBPInterface );

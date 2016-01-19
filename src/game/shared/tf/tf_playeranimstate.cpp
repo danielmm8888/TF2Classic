@@ -102,6 +102,48 @@ void CTFPlayerAnimState::ClearAnimationState( void )
 	BaseClass::ClearAnimationState();
 }
 
+acttable_t m_acttableLoserState[] = 
+{
+	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_LOSERSTATE,			false },
+	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_LOSERSTATE,			false },
+	{ ACT_MP_RUN,				ACT_MP_RUN_LOSERSTATE,				false },
+	{ ACT_MP_WALK,				ACT_MP_WALK_LOSERSTATE,				false },
+	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_LOSERSTATE,			false },
+	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_LOSERSTATE,		false },
+	{ ACT_MP_JUMP,				ACT_MP_JUMP_LOSERSTATE,				false },
+	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_LOSERSTATE,		false },
+	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_LOSERSTATE,		false },
+	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_LOSERSTATE,		false },
+	{ ACT_MP_SWIM,				ACT_MP_SWIM_LOSERSTATE,				false },
+	{ ACT_MP_DOUBLEJUMP,		ACT_MP_DOUBLEJUMP_LOSERSTATE,		false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_LOSERSTATE, false },
+};
+
+acttable_t m_acttableBuildingDeployed[] =
+{
+	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_BUILDING_DEPLOYED, false },
+	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_BUILDING_DEPLOYED, false },
+	{ ACT_MP_RUN, ACT_MP_RUN_BUILDING_DEPLOYED, false },
+	{ ACT_MP_WALK, ACT_MP_WALK_BUILDING_DEPLOYED, false },
+	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_BUILDING_DEPLOYED, false },
+	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_BUILDING_DEPLOYED, false },
+	{ ACT_MP_JUMP, ACT_MP_JUMP_BUILDING_DEPLOYED, false },
+	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_BUILDING_DEPLOYED, false },
+	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_BUILDING_DEPLOYED, false },
+	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_BUILDING_DEPLOYED, false },
+	{ ACT_MP_SWIM, ACT_MP_SWIM_BUILDING_DEPLOYED, false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE, ACT_MP_ATTACK_AIRWALK_BUILDING_DEPLOYED, false },
+
+	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED, false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_BUILDING_DEPLOYED, false },
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : actDesired - 
@@ -111,9 +153,34 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 {
 	Activity translateActivity = BaseClass::TranslateActivity( actDesired );
 
-	if ( GetTFPlayer()->GetActiveWeapon() )
+	if ( GetTFPlayer()->m_Shared.IsLoser() )
+	{
+		int actCount = ARRAYSIZE( m_acttableLoserState );
+		for ( int i = 0; i < actCount; i++ )
+		{
+			const acttable_t& act = m_acttableLoserState[i];
+			if ( actDesired == act.baseAct)
+				return (Activity)act.weaponAct;
+		}
+	}
+	else if ( GetTFPlayer()->m_Shared.IsCarryingObject() )
+	{
+		int actCount = ARRAYSIZE( m_acttableBuildingDeployed );
+		for ( int i = 0; i < actCount; i++ )
+		{
+			const acttable_t& act = m_acttableBuildingDeployed[i];
+			if ( actDesired == act.baseAct )
+				return (Activity)act.weaponAct;
+		}
+	}
+
+	CBaseCombatWeapon *pWeapon = GetTFPlayer()->GetActiveWeapon();
+	if ( pWeapon )
 	{
 		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
+
+		// Live TF2 does this but is doing this after the above call correct?
+		translateActivity = pWeapon->GetItem()->GetActivityOverride( GetTFPlayer()->GetTeamNumber(), translateActivity );
 	}
 
 	return translateActivity;
@@ -390,7 +457,14 @@ void CTFPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
 			m_bInAirWalk = false;
 
 			// Player the air dash gesture.
-			RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP );
+			if (GetBasePlayer()->GetFlags() & FL_DUCKING)
+			{
+				RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP_CROUCH );
+			}
+			else
+			{
+				RestartGesture( GESTURE_SLOT_JUMP, ACT_MP_DOUBLEJUMP );
+			}
 			break;
 		}
 	default:
@@ -412,6 +486,18 @@ void CTFPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData )
 		}
 	}
 #endif
+}
+
+void CTFPlayerAnimState::RestartGesture( int iGestureSlot, Activity iGestureActivity, bool bAutoKill )
+{
+	CBaseCombatWeapon *pWeapon = m_pTFPlayer->GetActiveWeapon();
+
+	if ( pWeapon )
+	{
+		iGestureActivity = pWeapon->GetItem()->GetActivityOverride( m_pTFPlayer->GetTeamNumber(), iGestureActivity );
+	}
+
+	BaseClass::RestartGesture( iGestureSlot, iGestureActivity, bAutoKill );
 }
 
 //-----------------------------------------------------------------------------
@@ -460,6 +546,11 @@ bool CTFPlayerAnimState::HandleMoving( Activity &idealActivity )
 		m_flHoldDeployedPoseUntilTime = 0.0;
 	}
 
+	if ( m_pTFPlayer->m_Shared.IsLoser() )
+	{
+		return BaseClass::HandleMoving( idealActivity );
+	}
+
 	if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIMING ) ) 
 	{
 		if ( flSpeed > MOVING_MINIMUM_SPEED )
@@ -493,7 +584,7 @@ bool CTFPlayerAnimState::HandleDucking( Activity &idealActivity )
 {
 	if (GetBasePlayer()->GetFlags() & FL_DUCKING)
 	{
-		if ( GetOuterXYSpeed() < MOVING_MINIMUM_SPEED )
+		if ( GetOuterXYSpeed() < MOVING_MINIMUM_SPEED || m_pTFPlayer->m_Shared.IsLoser() )
 		{
 			idealActivity = ACT_MP_CROUCH_IDLE;		
 			if ( m_pTFPlayer->m_Shared.InCond( TF_COND_AIMING ) || m_flHoldDeployedPoseUntilTime > gpGlobals->curtime )

@@ -54,6 +54,8 @@ public:
 	void RunCommand();
 	void GetGlobalPosition(Panel *pPanel);
 	void UpdateValue();
+	bool IsVertical() { return bVertical; };
+	int GetPanelWide() { return pBGBorder->GetWide(); };
 
 	CTFScrollButton *GetButton(){ return pButton; };
 
@@ -66,6 +68,8 @@ protected:
 	float			fMaxValue;
 	float			fLabelWidth;
 	float			fValue;
+	bool			bValueVisible;
+	bool			bVertical;
 };
 
 

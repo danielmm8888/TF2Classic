@@ -1,8 +1,7 @@
 #include "cbase.h"
 #include "tf_pausemenupanel.h"
 #include "controls/tf_advbutton.h"
-#include "tf_mainmenu.h"
-#include "tf_gamerules.h"
+#include "tf_notificationmanager.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -82,7 +81,7 @@ void CTFPauseMenuPanel::OnNotificationUpdate()
 {
 	if (m_pNotificationButton)
 	{
-		if (MAINMENU_ROOT->GetNotificationsCount() > 0)
+		if (GetNotificationManager()->GetNotificationsCount() > 0)
 		{
 			m_pNotificationButton->SetVisible(true);
 		}
@@ -91,7 +90,7 @@ void CTFPauseMenuPanel::OnNotificationUpdate()
 			m_pNotificationButton->SetVisible(false);
 		}
 
-		if (MAINMENU_ROOT->GetUnreadNotificationsCount() > 0)
+		if (GetNotificationManager()->GetUnreadNotificationsCount() > 0)
 		{
 			m_pNotificationButton->SetGlowing(true);
 		}
@@ -116,7 +115,7 @@ void CTFPauseMenuPanel::OnThink()
 void CTFPauseMenuPanel::Show()
 {
 	BaseClass::Show();
-	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.5f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE);
 };
 
 void CTFPauseMenuPanel::Hide()

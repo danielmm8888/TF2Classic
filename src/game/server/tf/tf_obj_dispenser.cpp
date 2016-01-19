@@ -74,6 +74,7 @@ IMPLEMENT_SERVERCLASS_ST( CObjectDispenser, DT_ObjectDispenser )
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CObjectDispenser )
+	DEFINE_KEYFIELD( m_szTriggerName, FIELD_STRING, "touch_trigger" ),
 	DEFINE_THINKFUNC( RefillThink ),
 	DEFINE_THINKFUNC( DispenseThink ),
 END_DATADESC()
@@ -109,8 +110,6 @@ public:
 		BaseClass::Spawn();
 		AddSpawnFlags( SF_TRIGGER_ALLOW_CLIENTS );
 		InitTrigger();
-		SetSolid( SOLID_BBOX );
-		UTIL_SetSize(this, Vector(-70,-70,-70), Vector(70,70,70) );
 	}
 
 	virtual void StartTouch( CBaseEntity *pEntity )
@@ -184,6 +183,42 @@ void CObjectDispenser::Spawn()
 	BaseClass::Spawn();
 }
 
+void CObjectDispenser::MakeCarriedObject( CTFPlayer *pPlayer )
+{
+	StopSound( "Building_Dispenser.Idle" );
+
+	// Remove our healing trigger.
+	if ( m_hTouchTrigger.Get() )
+	{
+		UTIL_Remove( m_hTouchTrigger );
+		m_hTouchTrigger = NULL;
+	}
+
+	// Stop healing everyone.
+	for ( int i = m_hTouchingEntities.Count() - 1; i >= 0; i-- )
+	{
+		EHANDLE hEnt = m_hTouchingEntities[i];
+
+		CBaseEntity *pOther = hEnt.Get();
+
+		if ( pOther )
+		{
+			EndTouch( pOther );
+		}
+	}
+
+	// Stop all thinking, we'll resume it once we get re-deployed.
+	SetContextThink( NULL, 0, DISPENSE_CONTEXT );
+	SetContextThink( NULL, 0, REFILL_CONTEXT );
+
+	BaseClass::MakeCarriedObject( pPlayer );
+}
+
+void CObjectDispenser::DropCarriedObject( CTFPlayer *pPlayer )
+{
+	BaseClass::DropCarriedObject( pPlayer );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Start building the object
 //-----------------------------------------------------------------------------
@@ -196,10 +231,20 @@ bool CObjectDispenser::StartBuilding( CBaseEntity *pBuilder )
 	return BaseClass::StartBuilding( pBuilder );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectDispenser::InitializeMapPlacedObject( void )
+{
+	// Must set model here so we can add control panels.
+	SetModel( DISPENSER_MODEL_LEVEL_1 );
+	BaseClass::InitializeMapPlacedObject();
+}
+
 void CObjectDispenser::SetModel( const char *pModel )
 {
 	BaseClass::SetModel( pModel );
-	UTIL_SetSize(this, DISPENSER_MINS, DISPENSER_MAXS);
+	UTIL_SetSize( this, DISPENSER_MINS, DISPENSER_MAXS );
 }
 
 //-----------------------------------------------------------------------------
@@ -216,9 +261,13 @@ void CObjectDispenser::OnGoActive( void )
 		return;
 	*/
 	SetModel( DISPENSER_MODEL_LEVEL_1 );
+	CreateBuildPoints();
 
-	// Put some ammo in the Dispenser
-	m_iAmmoMetal = 25;
+	if ( !m_bCarryDeploy )
+	{
+		// Put some ammo in the Dispenser
+		m_iAmmoMetal = 25;
+	}
 
 	// Begin thinking
 	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 3, REFILL_CONTEXT );
@@ -226,7 +275,27 @@ void CObjectDispenser::OnGoActive( void )
 
 	m_flNextAmmoDispense = gpGlobals->curtime + 0.5;
 
-	m_hTouchTrigger = CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this );
+	CDispenserTouchTrigger *pTriggerEnt;
+
+	if ( m_szTriggerName != NULL_STRING )
+	{
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( gEntList.FindEntityByName( NULL, m_szTriggerName ) );
+		if ( pTriggerEnt )
+		{	
+			pTriggerEnt->SetOwnerEntity( this );
+			m_hTouchTrigger = pTriggerEnt;
+		}
+	}
+	else
+	{
+		pTriggerEnt = dynamic_cast< CDispenserTouchTrigger* >( CBaseEntity::Create( "dispenser_touch_trigger", GetAbsOrigin(), vec3_angle, this ) );
+		if ( pTriggerEnt )
+		{
+			pTriggerEnt->SetSolid( SOLID_BBOX );
+			UTIL_SetSize( pTriggerEnt, Vector( -70,-70,-70 ), Vector( 70,70,70 ) );
+			m_hTouchTrigger = pTriggerEnt;
+		}
+	}
 
 	BaseClass::OnGoActive();
 
@@ -416,7 +485,7 @@ void CObjectDispenser::StartUpgrading( void )
 
 	BaseClass::StartUpgrading();
 
-	switch( GetUpgradeLevel() + 1 )
+	switch( GetUpgradeLevel() )
 	{
 	case 1:
 		SetModel( DISPENSER_MODEL_LEVEL_1_UPGRADE );
@@ -433,6 +502,9 @@ void CObjectDispenser::StartUpgrading( void )
 	}
 
 	m_bIsUpgrading = true;
+
+	// Start upgrade anim instantly
+	DetermineAnimation();
 }
 
 void CObjectDispenser::FinishUpgrading( void )
@@ -455,29 +527,35 @@ void CObjectDispenser::FinishUpgrading( void )
 
 	m_bIsUpgrading = false;
 
-	BaseClass::FinishUpgrading();
-
 	SetActivity( ACT_RESET );
+
+	BaseClass::FinishUpgrading();
 }
 
 bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
 {
 	int iTotalPickedUp = 0;
+	float flAmmoRate = g_flDispenserAmmoRates[GetUpgradeLevel() - 1];
 
 	// primary
-	int ammo = ceil(pPlayer->GetMaxAmmo(TF_AMMO_PRIMARY) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1]);
-	ammo;
-	int iPrimary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_PRIMARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
+	int iPrimary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_PRIMARY ) * flAmmoRate ), TF_AMMO_PRIMARY, false, TF_AMMO_SOURCE_DISPENSER );
 	iTotalPickedUp += iPrimary;
 
 	// secondary
-	int iSecondary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_SECONDARY ) * g_flDispenserAmmoRates[GetUpgradeLevel() - 1] ), TF_AMMO_PRIMARY );
+	int iSecondary = pPlayer->GiveAmmo( floor( pPlayer->GetMaxAmmo( TF_AMMO_SECONDARY ) * flAmmoRate ), TF_AMMO_SECONDARY, false, TF_AMMO_SOURCE_DISPENSER );
 	iTotalPickedUp += iSecondary;
 
-	// metal
-	int iMetal = pPlayer->GiveAmmo( min( m_iAmmoMetal, DISPENSER_DROP_METAL + 10 * ( GetUpgradeLevel() - 1 ) ), TF_AMMO_METAL );
-	m_iAmmoMetal -= iMetal;
+	// Cart dispenser has infinite metal.
+	int iMetalToGive = DISPENSER_DROP_METAL + 10 * ( GetUpgradeLevel() - 1 );
+
+	if ( ( GetObjectFlags() & OF_IS_CART_OBJECT ) == 0 )
+		iMetalToGive = min( m_iAmmoMetal, iMetalToGive );
+
+	int iMetal = pPlayer->GiveAmmo( iMetalToGive, TF_AMMO_METAL, false, TF_AMMO_SOURCE_DISPENSER );
 	iTotalPickedUp += iMetal;
+
+	if ( ( GetObjectFlags() & OF_IS_CART_OBJECT ) == 0 )
+		m_iAmmoMetal -= iMetal;
 
 	if ( iTotalPickedUp > 0 )
 	{
@@ -496,7 +574,12 @@ int CObjectDispenser::GetBaseHealth( void )
 
 float CObjectDispenser::GetDispenserRadius( void )
 {
-	return 64.0f;
+	float flRadius = 64.0f;
+
+	if ( GetOwner() )
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), flRadius, mult_dispenser_radius );
+
+	return flRadius;
 }
 
 float CObjectDispenser::GetHealRate( void )
@@ -506,19 +589,24 @@ float CObjectDispenser::GetHealRate( void )
 
 void CObjectDispenser::RefillThink( void )
 {
-	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
+	if ( GetObjectFlags() & OF_IS_CART_OBJECT )
+		return;
 
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
+		// Hit a refill time while disabled, so do the next refill ASAP.
+		SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 0.1, REFILL_CONTEXT );
 		return;
 	}
 
 	// Auto-refill half the amount as tfc, but twice as often
 	if ( m_iAmmoMetal < DISPENSER_MAX_METAL_AMMO )
 	{
-		m_iAmmoMetal = min( m_iAmmoMetal + DISPENSER_MAX_METAL_AMMO * 0.1, DISPENSER_MAX_METAL_AMMO );
+		m_iAmmoMetal = min( m_iAmmoMetal + DISPENSER_MAX_METAL_AMMO * ( 0.1 + 0.025 * ( GetUpgradeLevel() - 1 ) ), DISPENSER_MAX_METAL_AMMO );
 		EmitSound( "Building_Dispenser.GenerateMetal" );
 	}
+
+	SetContextThink( &CObjectDispenser::RefillThink, gpGlobals->curtime + 6, REFILL_CONTEXT );
 }
 
 //-----------------------------------------------------------------------------
@@ -526,7 +614,7 @@ void CObjectDispenser::RefillThink( void )
 //-----------------------------------------------------------------------------
 void CObjectDispenser::DispenseThink( void )
 {
-	if ( IsDisabled() )
+	if ( IsDisabled() || IsUpgrading() || IsRedeploying() )
 	{
 		// Don't heal or dispense ammo
 		SetContextThink( &CObjectDispenser::DispenseThink, gpGlobals->curtime + 0.1, DISPENSE_CONTEXT );
@@ -662,6 +750,7 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 
 	EHANDLE hOther = pOther;
 	bFound = m_hHealingTargets.FindAndRemove( hOther );
+	NetworkStateChanged();
 
 	if ( bFound )
 	{
@@ -679,7 +768,7 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 {
-	if ( !pTarget->FVisible( this, MASK_BLOCKLOS ) )
+	if ( !HasSpawnFlags( SF_IGNORE_LOS ) && !pTarget->FVisible( this, MASK_BLOCKLOS ) )
 		return false;
 
 	if ( pTarget->IsPlayer() && pTarget->IsAlive() )
@@ -690,7 +779,7 @@ bool CObjectDispenser::CouldHealTarget( CBaseEntity *pTarget )
 		int iTeam = GetTeamNumber();
 		int iPlayerTeam = pTFPlayer->GetTeamNumber();
 
-		if ( iPlayerTeam != iTeam && pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+		if ( iPlayerTeam != iTeam && pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && !HasSpawnFlags( SF_NO_DISGUISED_SPY_HEALING ) )
 		{
 			iPlayerTeam = pTFPlayer->m_Shared.GetDisguiseTeam();
 		}
@@ -714,6 +803,7 @@ void CObjectDispenser::AddHealingTarget( CBaseEntity *pOther )
 	// add to tail
 	EHANDLE hOther = pOther;
 	m_hHealingTargets.AddToTail( hOther );
+	NetworkStateChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -738,7 +828,7 @@ bool CObjectDispenser::IsHealingTarget( CBaseEntity *pTarget )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int CObjectDispenser::DrawDebugTextOverlays(void) 
+int CObjectDispenser::DrawDebugTextOverlays( void ) 
 {
 	int text_offset = BaseClass::DrawDebugTextOverlays();
 
@@ -752,4 +842,48 @@ int CObjectDispenser::DrawDebugTextOverlays(void)
 	return text_offset;
 }
 
+
+IMPLEMENT_SERVERCLASS_ST( CObjectCartDispenser, DT_ObjectCartDispenser )
+END_SEND_TABLE()
+
+BEGIN_DATADESC( CObjectCartDispenser )
+	DEFINE_KEYFIELD( m_szTriggerName, FIELD_STRING, "touch_trigger" ),
+END_DATADESC()
+
 LINK_ENTITY_TO_CLASS( mapobj_cart_dispenser, CObjectCartDispenser );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::Spawn( void )
+{
+	SetObjectFlags( OF_IS_CART_OBJECT );
+
+	m_takedamage = DAMAGE_NO;
+
+	m_iUpgradeLevel = 1;
+	m_iUpgradeMetal = 0;
+
+	AddFlag( FL_OBJECT ); 
+
+	m_iAmmoMetal = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::SetModel( const char *pModel )
+{
+	// Deliberately skip dispenser since it has some stuff we don't want.
+	CBaseObject::SetModel( pModel );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CObjectCartDispenser::OnGoActive( void )
+{
+	// Hacky: base class needs a model to init some things properly so we gotta clear it here.
+	BaseClass::OnGoActive();
+	SetModel( "" );
+}

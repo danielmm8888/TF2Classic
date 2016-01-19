@@ -9,6 +9,62 @@
 // Base Classes
 //
 
+@PointClass base(Targetname, Parentname, Angles) size(-2 -2 -2, 2 2 2) frustum(lightfov,nearz,farz,lightcolor,-1) = env_projectedtexture : 
+	"Projected texture entity."
+[
+	spawnflags(flags) =
+	[
+		1  : "Enabled"				: 1
+		2  : "Always Update (moving light)"	: 0
+	]
+
+	texturename(material)		: "Texture" : "effects/flashlight001" : "path/texture to be projected. Relative to main/materials/"
+	target(target_destination)	: "target" : : "target"	
+	lightfov(float)				: "FOV" : "90.0" : "FOV"
+	nearz(float)				: "NearZ" : "4.0" : "Near Z for projected texture"
+	farz(float)					: "FarZ" : "750.0" : "Far Z for projected texture"	
+	quadraticatten(float)		: "Quadratic attenuation" : "0.0" : "Quadratic attenuation"
+	linearatten(float)			: "Linear attenuation" : "100" : "Linear attenuation"
+	constantatten(float)		: "Constant attenuation" : "0.0" : "Constant attenuation"
+	shadowtatten(float)		: "Shadow attenuation" : "0.0" : "Shadow attenuation"
+	
+	enableshadows(Choices) : "Enable Shadows" : 0 : "Enables/disables shadows from this projected texture." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	shadowquality(Choices) : "Shadow Quality" : 1 : "Quality of shadows." =
+	[
+		0 : "Low"
+		1 : "High"
+	]
+	lightonlytarget(Choices) : "Light Only Target" : 0 : "Limit flashlight effect to only effect target entity." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightworld(Choices) : "Light World" : 1 : "Control whether flashlight effects static world geometry." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+	lightcolor(color255)		: "Light Color" : "255 255 255 200" : "Light Color RGB-Intensity"
+	colortransitiontime(float)	: "Color Transition Time" : "0.5" : "Amount of time it takes for a color change to occur."
+	cameraspace(integer)		: "Camera Space" : 0 : "Angles are interpreted as being relative to camera."
+
+	// Inputs
+	input TurnOn(void)		: "Turn on the texture"
+	input TurnOff(void)		: "Turn off the texture"
+	input AlwaysUpdateOn(void)	: "Turn on per frame updating (for moving lights)"
+	input AlwaysUpdateOff(void)	: "Turn off per frame updating (for moving lights)"
+	input SetFOV(float)		: "Set FOV"
+	input SpotlightTexture(string)		: "Set the spotlight texture"
+	input EnableShadows(bool)		: "Set the if shadows are enabled"
+	input LightColor(color255)		: "Change the light color/brightness"
+	input SetNearZ(float) 	: "Sets the near Z distance."
+	input SetFarZ(float) 	: "Sets the far Z distance."
+]
+
 @BaseClass = TeamNum
 [
 	TeamNum(choices) : "Team" : 0 : "Team" =
@@ -111,12 +167,16 @@
 	input AddYellowTeamScore(integer) : "Add to the YLW team score (can be a negative number)"
 	//input SetRequiredObserverTarget(string) : "Sets the given entity (by name) to be the required observer target for all spectators. Must be cleared to allow spectators to cycle through targets normally again."
 	//input SetStalemateOnTimelimit(bool) : "Determines whether mp_timelimit can end the match in the middle of a round."
-	//input SetRedKothClockActive(void) : "Set the RED team clock active for KOTH maps."
-	//input SetBlueKothClockActive(void) : "Set the BLU team clock active for KOTH maps."
-	//input SetCTFCaptureBonusTime(float) : "Set the length (in seconds) of team crit time for CTF captures. 0 = none"
-	//input PlayVORed(string) : "Play the given sound entry via the VO channel"
-	//input PlayVOBlue(string) : "Play the given sound entry via the VO channel"
-	//input PlayVO(string) : "Play the given sound entry via the VO channel"
+	input SetRedKothClockActive(void) : "Set the RED team clock active for KOTH maps."
+	input SetBlueKothClockActive(void) : "Set the BLU team clock active for KOTH maps."
+	input SetGreenKothClockActive(void) : "Set the GRN team clock active for KOTH maps."
+	input SetYellowKothClockActive(void) : "Set the YLW team clock active for KOTH maps."
+	input SetCTFCaptureBonusTime(float) : "Set the length (in seconds) of team crit time for CTF captures. 0 = none"
+	input PlayVORed(string) : "Play the given sound entry via the VO channel"
+	input PlayVOBlue(string) : "Play the given sound entry via the VO channel"
+	input PlayVOGreen(string) : "Play the given sound entry via the VO channel"
+	input PlayVOYellow(string) : "Play the given sound entry via the VO channel"
+	input PlayVO(string) : "Play the given sound entry via the VO channel"
 	//input HandleMapEvent(string) : "Handles map events. This will be different events for different maps."
 	//input SetCustomUpgradesFile(string) : "Specifies the path relative to the game directory to the upgrades file to be used."
 
@@ -374,11 +434,46 @@
 	output OnCapture(void) : "Sent when a flag is captured in this zone."
 ]
 
+@SolidClass base(Targetname, Parentname, EnableDisable, TeamNum) = func_flagdetectionzone :
+	"TF flag detection zone."
+[
+	alarm(choices) : "Alarm" : 0 : "Trigger bomb alarm." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	input Test( void ) : "Send OnStartTouchFlag & OnPickedUpFlag outputs if any player with flag is touching. Send OnEndTouchFlag & OnDroppedFlag outputs if no player with flag is touching."
+	
+	output OnStartTouchFlag(void) : "Sent when a flag or flag carrier first touches the zone."
+	output OnEndTouchFlag(void) : "Sent when a flag or flag carrier stops touching the zone."
+	output OnDroppedFlag(void) : "Sent when a flag is dropped in the zone."
+	output OnPickedUpFlag(void) : "Sent when a flag is picked up in the zone."
+]
+
 @SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nogrenades :
 	"Grenades protected area." []
 
-@SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nobuild :
-	"Engineer no-build area." []
+@SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_nobuild : "Engineer no-build area."
+[
+	AllowSentry(choices) : "Allow Sentries" : 0 : "Sentries are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	AllowDispenser(choices) : "Allow Dispensers" : 0 : "Dispensers are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	AllowTeleporters(choices) : "Allow Teleporters" : 0 : "Teleporters are allowed to be built in this volume" =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
 
 @SolidClass base(Targetname, TeamNum, EnableDisable, Toggle) = func_regenerate :
 	"Regeneration zone for players."
@@ -678,6 +773,11 @@
 		1 : "Yes"
 		0 : "No"
 	]
+	
+	team_startcap_2(integer) : "Number of RED players to start capping" : 1 
+	team_startcap_3(integer) : "Number of BLUE players to start capping" : 1 
+	team_startcap_4(integer) : "Number of GREEN players to start capping" : 1 
+	team_startcap_5(integer) : "Number of YELLOW players to start capping" : 1 
 
 	team_numcap_2(integer) : "Number of RED players to cap" : 1
 	team_numcap_3(integer) : "Number of BLUE players to cap" : 1
@@ -713,8 +813,78 @@
 	output OnBreakCap(void) : "Sent when either team break capture."
 	output OnEndCap(void)   : "Sent when either team end capture."
 
+	output OnNumCappersChanged(integer) : "Sent when the number of cappers changes, passes the value in int."
+	output OnNumCappersChanged2(integer) : "Sent when the number of cappers changes, passes the value in int (-1 for capture blocked)."
+	
 	// Inputs
 	input SetTeamCanCap(string) : "Set whether a specific team is allowed to capture this point. Format is: <team number> <(0/1)>. i.e. '2 0' would prevent RED from capturing this point, whereas '3 1' would allow BLUE to cap it."
+
+	input SetControlPoint(string) : "Assign area capture to the passed control point."
+	input CaptureCurrentCP(string) : "If we're being capped, forces the current point to capture."	
+]
+
+@PointClass base(Targetname, TeamNum, EnableDisable) = team_train_watcher :
+	"Entity that tracks the train progress through train escort maps"
+[
+	train_can_recede(choices) : "Can the train recede?" : 1 : "Used to hide the HUD countdown." = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+	
+	train_recede_time(integer) : "Train recede time (in seconds)" : 0 : "Length of time before the train begins to recede. 0 = use TF2 default setting of 30 seconds."
+	
+	handle_train_movement(choices) : "Handle train movement?" : 0 : "Should the train watcher handle all train movement?" = 
+	[
+		1 : "Yes"
+		0 : "No"
+	]
+	
+	speed_forward_modifier(float) : "Speed Forward Modifier" : 1 : "Applies the given modifier to all forward speeds. Only used if the watcher is handling the train movement. [0, 1]"
+	
+	env_spark_name(string) : "Train spark sprites" : "" : "Name of the env_spark entities used under the train for backward movement. They should all have the same entity name. Only used if the watcher is handling the train movement."
+	
+	train(target_destination) : "Train to watch."
+	start_node(target_destination) : "Node that the path starts at."
+	goal_node(target_destination) : "Node that the path ends at."
+	
+	linked_pathtrack_1(target_destination) : "Linked PathTrack 1"
+	linked_cp_1(target_destination) : "Linked CP 1"
+	
+	linked_pathtrack_2(target_destination) : "Linked PathTrack 2"
+	linked_cp_2(target_destination) : "Linked CP 2"
+	
+	linked_pathtrack_3(target_destination) : "Linked PathTrack 3"
+	linked_cp_3(target_destination) : "Linked CP 3"
+	
+	linked_pathtrack_4(target_destination) : "Linked PathTrack 4"
+	linked_cp_4(target_destination) : "Linked CP 4"
+	
+	linked_pathtrack_5(target_destination) : "Linked PathTrack 5"
+	linked_cp_5(target_destination) : "Linked CP 5"
+	
+	linked_pathtrack_6(target_destination) : "Linked PathTrack 6"
+	linked_cp_6(target_destination) : "Linked CP 6"
+	
+	linked_pathtrack_7(target_destination) : "Linked PathTrack 7"
+	linked_cp_7(target_destination) : "Linked CP 7"
+	
+	linked_pathtrack_8(target_destination) : "Linked PathTrack 8"
+	linked_cp_8(target_destination) : "Linked CP 8"
+		
+	hud_min_speed_level_1(float) : "Min Speed for Speed Level 1" : 30
+	hud_min_speed_level_2(float) : "Min Speed for Speed Level 2" : 60
+	hud_min_speed_level_3(float) : "Min Speed for Speed Level 3" : 90
+	
+	// Inputs
+	input SetNumTrainCappers(integer) : "Set Number of players capping the train"
+	input SetSpeedForwardModifier(float) : "Set the speed forward modifier. Only used if the watcher is handling the train movement. [0, 1]"
+	input SetTrainRecedeTime(integer) : "Set the number of seconds before the train starts to recede."
+	input SetTrainCanRecede(bool) : "Determines whether or not the train can recede."
+	input SetTrainRecedeTimeAndUpdate(integer) : "Set the number of seconds before the train starts to recede and update the current recede time."
+	
+	// Outputs
+	output OnTrainStartRecede(void)   : "Sent when the train should start receding"
 ]
 
 @PointClass base(Targetname) iconsprite("editor/game_text.vmt") = game_text_tf :
@@ -746,13 +916,288 @@
 	input Display(void) : "Display the message text."
 ]
 
+@BaseClass = BaseObject
+[
+	TeamNum(choices) : "Team" : 2 : "Team" =
+	[
+		2 : "Red"
+		3 : "Blue"
+		4 : "Green"
+		5 : "Yellow"
+	]
+	
+	// invuln
+	spawnflags(flags) =
+	[
+		2: "Invulnerable" : 0
+	]
+
+	// Inputs
+	input SetBuilder(string) : "Sets the builder of this object to the player given (from an output)"
+	input Show(void) : "Makes the building visible and tries to re-enable it."
+	input Hide(void) : "Makes the building invisible and disables it."
+	input SetHealth(integer) : "Sets a new value for the breakable's health. If the breakable's health reaches zero it will break."
+	input AddHealth(integer) : "Adds health to the breakable. If the breakable's health reaches zero it will break."
+	input RemoveHealth(integer) : "Removes health from the breakable. If the breakable's health reaches zero it will break."
+	input Enable(void) : "Enable this entity."
+	input Disable(void) : "Disable this entity."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/dispenser_light.mdl") = obj_dispenser : 
+	"TF2 Dispenser" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+	]
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/sentry3.mdl") = obj_sentrygun : 
+	"TF2 Sentrygun" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+	
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+		8: "Infinite Ammo" : 0
+	]
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject,Angles) studio("models/buildables/teleporter_light.mdl") = obj_teleporter : 
+	"TF2 Teleporter" 
+[
+	defaultupgrade(choices) : "Starting Upgrade Level" : 0 =
+	[
+		0 : "Level 1"
+		1 : "Level 2"
+		2 : "Level 3"	
+	]
+
+	spawnflags(flags) = 
+	[
+		4: "Upgradable" : 0
+	]
+
+	teleporterType(choices) : "Type" : 1 =
+	[
+		1 : "Entrance"
+		2 : "Exit"
+	]
+
+	matchingTeleporter(target_destination) : "Matching Teleporter" : : "The teleporter linked to this one."
+
+	// Outputs
+	output OnDestroyed(void) : "Fired when this entity is destroyed."
+]
+
+@PointClass base(Targetname,Parentname,BaseObject) iconsprite("editor/bullseye.vmt") = mapobj_cart_dispenser : 
+	"TF2 Dispenser" 
+[
+	spawnflags(flags) =
+	[
+		4: "Ignore line of sight check" : 1
+		8: "Don't heal disguised/stealthed spies" : 1
+	]
+	
+	touch_trigger(target_destination) : "Custom Touch Trigger"
+	
+	input FireHalloweenBonus(integer) : "Trigger bonus effect on players near this dispenser"
+	input SetDispenserLevel(integer) : "Set the dispenser level: 1, 2, or 3"
+	input Enable(void) : "Enable this entity."
+	input Disable(void) : "Disable this entity."
+]
+
 @PointClass base(Targetname) = tf_logic_deathmatch :
 	"Deathmatch mode entity. Use this to set the map to DM mode" []
+	
+	
+@PointClass base(Targetname,Parentname,BaseObject) iconsprite("editor/bullseye.vmt") = mapobj_cart_dispenser : 
+	"TF2 Dispenser" 
+[
+	spawnflags(flags) =
+	[
+		4: "Ignore line of sight check" : 1
+		8: "Don't heal disguised/stealthed spies" : 1
+	]
+	
+	touch_trigger(target_destination) : "Custom Touch Trigger"
+	
+	input FireHalloweenBonus(integer) : "Trigger bonus effect on players near this dispenser"
+	input SetDispenserLevel(integer) : "Set the dispenser level: 1, 2, or 3"
+	input Enable(void) : "Enable this entity."
+	input Disable(void) : "Disable this entity."
+]
+
+@SolidClass base(Parentname,Targetname,Trigger) = dispenser_touch_trigger : "Trigger for dispenser healing bounds"
+[
+]
+
+@PointClass base(Targetname,EnableDisable) = tf_logic_arena : 	"Arena Entity. This is used to detect an arena map and also to do round specific stuff."
+[	
+
+	CapEnableDelay(float) : "Capture Point Enable Time" : 0
+
+// Outputs
+	output OnArenaRoundStart(void)	: "Fired the moment an arena match starts"
+	output OnCapEnabled(void)	: "Fired when the specified time elapses and the cap becomes enabled"
+
+]
+
+@PointClass base(Targetname) = tf_logic_multiple_escort : "Multiple Escort Entity. This is used to detect a payload map with trains for both teams."
+[	
+]
+
+@PointClass base(Targetname) = tf_logic_koth : "King of the Hill Entity. This is used to detect a KOTH map."
+[	
+	timer_length(integer) : "Timer length (in seconds)" : 180 : "Initial timer length for each team."
+	unlock_point(integer) : "Unlock Point (in seconds)" : 30 : "Time to wait before unlocking the point in CP KOTH maps."
+
+	input SetRedTimer(integer)	:	"Set the time remaining for the RED timer."
+	input SetBlueTimer(integer)	:	"Set the time remaining for the BLUE timer."
+	input SetGreenTimer(integer)	:	"Set the time remaining for the GREEN timer."
+	input SetYellowTimer(integer)	:	"Set the time remaining for the YELLOW timer."
+
+	input AddRedTimer(integer)	:	"Add time to the RED timer."
+	input AddBlueTimer(integer)	:	"Add time to the BLUE timer."
+	input AddGreenTimer(integer)	:	"Add time to the GREEN timer."
+	input AddYellowTimer(integer)	:	"Add time to the YELLOW timer."
+
+]	
+	
+	
+@SolidClass base(Targetname) = func_nav_blocker : "A brush entity that can block nav areas touching its AABB." 
+[
+	input BlockNav(string) : "Starts blocking nav areas."
+	input UnblockNav(void) : "Stops blocking nav areas."
+
+	teamToBlock(choices) : "Team(s) to block" : -1 : "Block the nav for bots on this team" =
+	[
+		-1 : "Everyone"
+		2 : "Red"
+		3 : "Blue"
+	]
+	
+	affectsFlow(choices) : "Affects Flow?" : 0 : "Does this func_nav_blocker block flow in the level? Only func_nav_blockers with this enabled will cause flow recomputation on blocking/unblocking." =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+]
+
+@SolidClass base(Targetname) = func_nav_avoid : "Influence bots to avoid this region by increasing the pathfinding cost within it."
+[
+	tags(string) : "Tags" : "" : "A space delimited list of tags. A tag is a label with no spaces. If a TFBot has at least one matching tag, it will pay attention to this entity. Tags that are automatically set on TFBots include bomb_carrier, common, mission_sniper, mission_spy, mission_sentry_buster, or any class name." 
+
+	team(choices) : "Team" : -2 : "Which team will avoid this region" =
+	[
+		-2 : "Everyone"
+		2 : "Red"
+		3 : "Blue"
+	]
+
+	start_disabled(choices) : "Start Disabled" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	// Inputs
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+]
+
+@SolidClass base(Targetname) = func_nav_prefer : "Influence bots to prefer this region by decreasing the pathfinding cost within it."
+[
+	tags(string) : "Tags" : "" : "A space delimited list of tags. A tag is a label with no spaces. If a TFBot has at least one matching tag, it will pay attention to this entity. Tags that are automatically set on TFBots include bomb_carrier, common, mission_sniper, mission_spy, mission_sentry_buster, or any class name." 
+
+	team(choices) : "Team" : -2 : "Which team will prefer this region" =
+	[
+		-2 : "Everyone"
+		2 : "Red"
+		3 : "Blue"
+	]
+
+	start_disabled(choices) : "Start Disabled" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	// Inputs
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+]
+
+@SolidClass base(Trigger, Targetname) = func_nav_prerequisite : "A trigger volume that requires bots to do perform a task before they can move through it."
+[
+	Task(choices) : "Task" : 1 : "What must be done to move through this volume" =
+	[
+		1 : "Destroy Entity (Value = max range to attack from. -1 for no range restriction)"
+		2 : "Move to Entity"
+		3 : "Wait (Value = seconds to wait)"
+	]
+
+	Entity(target_destination) : "Task Entity" : : "The subject entity of the Task"
+
+	Value(float) : "Task Value" : 0 : "A Task-specific value"
+
+	start_disabled(choices) : "Start Disabled" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	// Inputs
+	input Enable(void) : "Enable"
+	input Disable(void) : "Disable"
+]
+
+@PointClass base(Item) studio("models/props_halloween/pumpkin_explode.mdl") = tf_pumpkin_bomb : "Pumpkin Bomb" []
+
+@PointClass base(Targetname,Studiomodel,Origin,Angles) studioprop() = tf_generic_bomb : "Generic Bomb"
+[
+	// Params
+	damage(float) : "Explosion Damage" : 50 : "Amount of damage to do when exploding."
+	radius(float) : "Explosion Radius" : 100 : "Explosion radius."
+	health(integer) : "Health" : 1 : "Health of the bomb."
+	explode_particle(string) : "Explosion Particle" : "" : "Name of the particle effect to play when exploding."
+	sound(sound) : "Explosion Sound" : "" : "Name of the sound effect to play when exploding."
+	friendlyfire(choices) : "Friendly Fire" : 0 =
+	[
+		0 : "Damage attacker and enemies"
+		1 : "Damage everyone"
+	]
+
+	// Inputs
+	input Detonate(void) : "Force detonation."
+
+	// Outputs
+	output OnDetonate(void) : "Fired when this bomb detonates."
+]
 	
 @PointClass base(Item) studio("models/items/medkit_large.mdl") = tf_weaponspawner :
 	"Entity that spawns the selected weapon. (This will only work in DM)"
 [
-	WeaponNumber(Choices) : "Weapon" : 0 =
+	WeaponNumber(Choices) : "Weapon (OBSOLETE)" : 0 =
 	[
 		15 : "Scattergun ( Primary )"
 		16 : "Sniper rifle ( Primary )"
@@ -761,12 +1206,29 @@
 		22 : "Pipebomb launcher ( Primary )"
 		24 : "Flamethrower ( Primary )"
 		67 : "Sten Gun ( Primary )"
+		71 : "Heavy Artillery ( Primary )"
 		68 : "Double barrel shotgun ( Primary )"
 		12 : "Shotgun ( Secondary )"
 		18 : "SMG ( Secondary )"
 		37 : "Pistol ( Secondary )"
 		69 : "Six Shooter ( Secondary )"
 		5 : "Crowbar ( Melee )"
+
+	itemid(Choices) : "Weapon" : 0 =
+	[
+		14 : "Sniper rifle ( Primary )"
+		15 : "Minigun ( Primary )"
+		18 : "Rocket launcher ( Primary )"
+		19 : "Pipebomb launcher ( Primary )"
+		21 : "Flamethrower ( Primary )"
+		9011 : "Sten Gun ( Primary )"
+		9014 : "Heavy Artillery ( Primary )"
+		9012 : "Double barrel shotgun ( Primary )"
+		10 : "Shotgun ( Secondary )"
+		16 : "SMG ( Secondary )"
+		22 : "Pistol ( Secondary )"
+		9013 : "Six Shooter ( Secondary )"
+		9010 : "Crowbar ( Melee )"
 	]
 	
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 10
@@ -847,13 +1309,271 @@
 @PointClass base(Item) studio("models/items/powerup_crit.mdl") = item_powerup_critdamage : "Powerup Crit" 
 [
 	ModelName(string)    : "Model override" : "models/items/powerup_crit.mdl"
-	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
 
-@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_shortuber : "Powerup uber" 
+@PointClass base(Item) studio("models/items/powerup_uber.mdl") = item_powerup_shortuber : "Powerup uber" 
 [
-	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
-	PickupSound(string)  : "Pickup sound" : "HealthKit.Touch"
+	ModelName(string)    : "Model override" : "models/items/powerup_uber.mdl"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
 	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
 ]
+
+@PointClass base(Item) studio("models/class_menu/random_class_icon.mdl") = item_powerup_ragemode : "Berserk mode" 
+[
+	ModelName(string)    : "Model override" : "models/class_menu/random_class_icon.mdl"
+	PickupSound(sound)  : "Pickup sound" : "HealthKit.Touch"
+	RespawnTime(integer) : "Respawn delay (in seconds)" : 30
+]
+
+@PointClass color(0 0 255) size(-1 -1 -64, 1 1 -8) sidelist(sides) iconsprite("editor/env_cubemap.vmt") = env_cubemap : 
+	"An entity that creates a sample point for the Cubic Environment Map."
+[
+	cubemapsize(choices) : "Cubemap Size" : 0 =
+	[
+		0 : "Default"
+		1 : "1x1"
+		2 : "2x2"
+		3 : "4x4"
+		4 : "8x8"
+		5 : "16x16"
+		6 : "32x32"
+		7 : "64x64"
+		8 : "128x128"
+		9 : "256x256"
+	]
+	sides(sidelist) : "Brush faces": : "(Optional) Brushes faces to directly attach to the env_cubemap. Press Pick then click on faces in the 3D View to select them. Use CTRL while clicking to add or remove from the selection."
+]
+
+@PointClass base(Targetname,Parentname,EnableDisable) sphere() iconsprite("editor/env_soundscape") line(255 255 255, targetname, position0) line(255 255 255, targetname, position1) line(255 255 255, targetname, position2) line(255 255 255, targetname, position3) line(255 255 255, targetname, position4) line(255 255 255, targetname, position5) line(255 255 255, targetname, position6) line(255 255 255, targetname, position7) = env_soundscape : 
+	"An entity to control sound in an area. The active soundscape at any time is the last one that had line-of-sight to the player, and was within the radius."
+[
+	radius(integer) : "Radius" : 128 : "If set to -1, then the player can hear the soundscape as long as he can see it (regardless of distance to it)."
+	soundscape(choices) : "Soundscape" : : "The name of the soundscape to use. Corresponds to an entry in the soundscapes*.txt file in the scripts directory." =
+	[
+		"tf2.general_ambient" : "tf2.general_ambient"
+		"tf2.respawn_room" : "tf2.respawn_room"
+		"2fort.Underground" : "2fort.Underground"
+		"2fort.Underground2" : "2fort.Underground2"
+		"2fort.OutdoorPond" : "2fort.OutdoorPond"
+		"2fort.OutdoorFort" : "2fort.OutdoorFort"
+		"2fort.Indoor" : "2fort.Indoor"
+		"Badlands.Inside" : "Badlands.Inside"
+		"Badlands.Outside" : "Badlands.Outside"
+		"Badlands.OutsideInterior" : "Badlands.OutsideInterior"
+		"barnblitz.inside" : "barnblitz.inside"
+		"barnblitz.outside" : "barnblitz.outside"
+		"CactusV.Inside" : "CactusV.Inside (Decoy)"
+		"CactusV.RespawnA" : "CactusV.RespawnA (Decoy)"
+		"CactusV.Outside" : "CactusV.Outside (Decoy)"
+		"Chariots.Inside" : "Chariots.Inside (Pipeline)"
+		"Chariots.Outside" : "Chariots.Outside (Pipeline)"
+		"Deathpit.Inside" : "Deathpit.Inside (Coaltown)"
+		"Deathpit.RespawnA" : "Deathpit.RespawnA (Coaltown)"
+		"Deathpit.Outside" : "Deathpit.Outside (Coaltown)"
+		"DoubleCross.Inside" : "DoubleCross.Inside"
+		"DoubleCross.Outside" : "DoubleCross.Outside"
+		"Dustbowl.Indoors" : "Dustbowl.Indoors"
+		"Dustbowl.Outdoors" : "Dustbowl.Outdoors"
+		"Egypt.Indoor" : "Egypt.Indoor"
+		"Egypt.Outdoor" : "Egypt.Outdoor"
+		"Goldrush.DeepInside" : "Goldrush.DeepInside"
+		"Goldrush.Outside" : "Goldrush.Outside"
+		"Goldrush.Inside" : "Goldrush.Inside"
+		"Gorge.Inside" : "Gorge.Inside"
+		"Gorge.Outside" : "Gorge.Outside"
+		"Granary.Outside" : "Granary.Outside"
+		"GravelPit.Outside" : "GravelPit.Outside"
+		"Halloween.Inside" : "Halloween.Inside"
+		"Halloween.Outside" : "Halloween.Outside"
+		"Halloween.Underworld" : "Halloween.Underworld"
+		"Halloween.hell" : "Halloween.hell"
+		"harbor.inside_blue_spawn_01" : "harbor.inside_blue_spawn_01 (Foundry)"
+		"harbor.inside_blue_hq" : "harbor.inside_blue_hq (Foundry)"
+		"harbor.indoor_blue_fuel" : "harbor.indoor_blue_fuel (Foundry)"
+		"harbor.outdoor_blue" : "harbor.outdoor_blue (Foundry)"
+		"harbor.inside_red_spawn_01" : "harbor.inside_red_spawn_01 (Foundry)"
+		"harbor.inside_red_hq" : "harbor.inside_red_hq (Foundry)"
+		"harbor.indoor_red_fuel" : "harbor.indoor_red_fuel (Foundry)"
+		"harbor.outdoor_red" : "harbor.outdoor_red (Foundry)"
+		"harbor.outdoor_central" : "harbor.outdoor_central (Foundry)"
+		"HighTower.Inside" : "HighTower.Inside"
+		"HighTower.Outside" : "HighTower.Outside"
+		"Hydro.Outside" : "Hydro.Outside"
+		"Lakeside.Cave" : "Lakeside.Cave"
+		"Lakeside.Inside" : "Lakeside.Inside"
+		"Lakeside.Lake" : "Lakeside.Lake"
+		"Lakeside.Outside" : "Lakeside.Outside"
+		"Lakeside.Temple" : "Lakeside.Temple"
+		"Lakeside.Wood" : "Lakeside.Wood"
+		"Lumberyard.Inside" : "Lumberyard.Inside"
+		"Lumberyard.Outside" : "Lumberyard.Outside"
+		"Mannworks.InsideCellars" : "Mannworks.InsideCellars"
+		"Mannworks.InsideWood" : "Mannworks.InsideWood"
+		"Mannworks.Outside" : "Mannworks.Outside"
+		"Mannworks.Respawn" : "Mannworks.Respawn"
+		"Medieval.Inside" : "Medieval.Inside"
+		"Medieval.Outside" : "Medieval.Outside"
+		"mountainlab.Bluspawn" : "mountainlab.Bluspawn"
+		"mountainlab.Cpoint" : "mountainlab.Cpoint"
+		"mountainlab.Inside" : "mountainlab.Inside"
+		"mountainlab.Outside1" : "mountainlab.Outside1"
+		"Nightfall.Cavern" : "Nightfall.Cavern"
+		"Nightfall.Indoors" : "Nightfall.Indoors"
+		"Nightfall.Outdoors" : "Nightfall.Outdoors"
+		"Nucleus.Inside" : "Nucleus.Inside"
+		"Nucleus.Outside" : "Nucleus.Outside"
+		"Ravine.Inside" : "Ravine.Inside"
+		"Ravine.Outside" : "Ravine.Outside"
+		"Rottenburg.Alcove" : "Rottenburg.Alcove"
+		"Rottenburg.Clearing" : "Rottenburg.Clearing"
+		"Rottenburg.Spawn" : "Rottenburg.Spawn"
+		"Rottenburg.Town" : "Rottenburg.Town"
+		"Sawmill.Inside" : "Sawmill.Inside"
+		"Sawmill.InsideNoLights" : "Sawmill.InsideNoLights"
+		"Sawmill.InsideWaterfall" : "Sawmill.InsideWaterfall"
+		"Sawmill.Outside" : "Sawmill.Outside"
+		"soho_generic" : "soho_generic (Kong King)"
+		"soho_indoor" : "soho_indoor (Kong King)"
+		"soho_square" : "soho_square (Kong King)"
+		"underground_soho" : "underground_soho (Kong King)"
+		"stormfront.Underground" : "stormfront.Underground (Coldfront)"
+		"stormfront.Outside" : "stormfront.Outside (Coldfront)"
+		"ThunderMountain.Inside" : "ThunderMountain.Inside"
+		"ThunderMountain.Outside" : "ThunderMountain.Outside"
+		"Upward.Inside" : "Upward.Inside"
+		"Upward.Outside" : "Upward.Outside"
+		"Viaduct.Inside" : "Viaduct.Inside"
+		"Viaduct.Outside" : "Viaduct.Outside"
+		"warehouse.inside_boilers" : "warehouse.inside_boilers (Mannhattan)"
+		"warehouse.inside_mainhall" : "warehouse.inside_mainhall (Mannhattan)"
+		"warehouse.inside_spawn_foyer" : "warehouse.inside_spawn_foyer (Mannhattan)"
+		"warehouse.inside_spawn_int" : "warehouse.inside_spawn_int (Mannhattan)"
+		"warehouse.outside" : "warehouse.outside"
+		"Well.DeepInside" : "Well.DeepInside"
+		"Well.Inside" : "Well.Inside"
+		"Well.Outside" : "Well.Outside"
+	]
+	position0(target_destination) : "Sound Position 0" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position1(target_destination) : "Sound Position 1" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position2(target_destination) : "Sound Position 2" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position3(target_destination) : "Sound Position 3" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position4(target_destination) : "Sound Position 4" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position5(target_destination) : "Sound Position 5" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position6(target_destination) : "Sound Position 6" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+	position7(target_destination) : "Sound Position 7" : "" : "A sound position that will be referenced inside the soundscape text file. Usually used to position a set of sounds within the world."
+
+	// Inputs
+	input Enable(void) : "Enable the soundscape."
+	input Disabled(void) : "Disable the soundscape."
+	input ToggleEnabled(void) : "Toggle the soundscape enabled state."
+
+	// Outputs
+	output OnPlay(void) : "Fired when this soundscape becomes the active one."
+]
+
+@PointClass base(Targetname, Angles) iconsprite("editor-abs/env_sun") color(255 0 0) = env_sun : 
+	"An entity to control & draw a sun effect in the sky."
+[
+	target(target_destination) : "Viewer entity" : : "Name of an entity used to determine where the sun is in the skybox. The sun should be lined up on a line from this entity to the env_sun entity."
+	
+	use_angles(choices) : "UseAngles" : 0 : "The old way to orient env_sun is to point it at a target. The new way is to specify the angles. If you use the new way, set this property to YES." = 
+	[
+		0 : "No"
+		1 : "Yes"
+	]
+
+	pitch(integer) : "Pitch" : 0
+
+	rendercolor(color255) : "Sun Color (R G B)" : "100 80 80"
+	overlaycolor(color255) : "Overlay Color (R G B)" : "0 0 0" : "A value of 0 0 0 will act the old way."
+	
+	size(integer) : "Size" : 16
+	overlaysize(integer) : "Overlay Size" : -1 : "A value of -1 means the overlay will act the old way."
+	
+	material(sprite) : "Material Name" : "sprites/light_glow02_add_noz" : "Material of the inner glow."
+	overlaymaterial(sprite) : "Overlay Material Name" : "sprites/light_glow02_add_noz" : "Material of the overlay glow."
+
+	HDRColorScale(float) : "HDR color scale." : "1.0" : "float value to multiply sprite color by when running in HDR mode."
+
+	// Inputs
+	input TurnOn(void) : "Enable sun rendering."
+	input TurnOff(void) : "Disable sun rendering."
+	input SetColor(color255) : "Change the sun's color. Format: <Red 0-255> <Green 0-255> <Blue 0-255>"
+]
+
+//-------------------------------------------------------------------------
+//
+// Vehicles.
+//
+//-------------------------------------------------------------------------
+@BaseClass base(Targetname, Origin, Global, prop_static_base) = BaseVehicle
+[
+	vehiclescript(string) : "Vehicle Script File" : "scripts/vehicles/jeep_test.txt"
+	actionScale(float) : "Scale of action input / framerate" : "1"
+
+	// Inputs
+	input Action(float) : "Set the speed of the action animation"
+
+	input TurnOn(void) : "Turn on: Start engine & enable throttle"
+	input TurnOff(void) : "Turn off: Stop engine, disable throttle, engage brakes."
+
+	input Lock(void) : "Prevent the player from entering or exiting the vehicle."
+	input Unlock(void) : "Re-allow the player to enter or exit the vehicle."
+]
+
+
+@BaseClass base(BaseVehicle) = BaseDriveableVehicle
+[
+	VehicleLocked(choices) : "Start locked" : 0 =
+	[
+		0 : "No"
+		1 : "Yes"
+	]	
+
+	// Outputs
+	output PlayerOn(void) : "Player entered the vehicle"
+	output PlayerOff(void) : "Player exited the vehicle"
+	
+	output PressedAttack(void) : "Player Pressed attack key"
+	output PressedAttack2(void) : "Player Pressed attack2 key"
+
+	output AttackAxis(string) : "State of attack button [0,1]"
+	output Attack2Axis(string) : "State of attack2 button [0,1]"
+	
+	// Inputs
+	input HandBrakeOn(void) : "Turns the handbrake on"
+	input HandBrakeOff(void): "Releases the handbrake"
+]
+
+@PointClass base(BaseVehicle) studioprop() = prop_vehicle :
+	"Studiomodel vehicle that can be driven via inputs."
+[
+	// Inputs
+	input Steer(float) : "Steer the vehicle +/-1"
+	input Throttle(float) : "Throttle +/-1"
+
+	spawnflags(flags) =
+	[
+		1 : "Always Think (Run physics every frame)" : 0
+	]
+]
+
+
+@PointClass base(BaseDriveableVehicle) studioprop() = prop_vehicle_driveable :
+	"Generic driveable studiomodel vehicle."
+[
+]
+
+@PointClass base(BaseDriveableVehicle) studioprop() = prop_vehicle_jeep :
+	"Driveable studiomodel jeep."
+[
+	smoke_particle(string)    : "Smoke particle" : ""
+	fire_particle(string)    : "Fire particle" : ""
+	vehicle_health(integer) : "Vehicle max health" : 100
+
+	input StartRemoveTauCannon(void) : "Start the tau removal sequence."
+	input FinishRemoveTauCannon(void) : "Finish the tau removal sequence."
+]
+

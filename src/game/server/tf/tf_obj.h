@@ -47,7 +47,6 @@ if ( object_verbose.GetInt() )									\
 #endif
 
 #define SF_OBJ_INVULNERABLE			0x0002
-#define SF_OBJ_UPGRADABLE			0x0004
 
 // ------------------------------------------------------------------------ //
 // Resupply object that's built by the player
@@ -84,7 +83,8 @@ public:
 
 	virtual int	GetObjectMode( void ) { return m_iObjectMode; }
 
-	virtual bool IsBeingCarried( void ) { return m_bCarried; }
+	bool			IsBeingCarried( void ) { return m_bCarried; }
+	bool			IsRedeploying( void ) { return m_bCarryDeploy; }
 
 	// Override this method per object to set your local stuff up.
 	virtual void	SetObjectMode( int iObjectMode )
@@ -97,19 +97,21 @@ public:
 	virtual int		GetMaxHealthForCurrentLevel( void );
 	virtual void	StartPlacement( CTFPlayer *pPlayer );
 	void			StopPlacement( void );
-	bool			FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint );
+	bool			FindNearestBuildPoint( CBaseEntity *pEntity, CBasePlayer *pBuilder, float &flNearestPoint, Vector &vecNearestBuildPoint, bool bIgnoreLOS = false );
 	bool			VerifyCorner( const Vector &vBottomCenter, float xOffset, float yOffset );
 	virtual float	GetNearbyObjectCheckRadius( void ) { return 30.0; }
 	bool			UpdatePlacement( void );
-	bool			UpdateAttachmentPlacement( void );
+	bool			UpdateAttachmentPlacement( CBaseObject *pObject = NULL );
 	bool			IsValidPlacement( void ) const;
 	bool			EstimateValidBuildPos( void );
 
 	bool			CalculatePlacementPos( void );
 	virtual bool	IsPlacementPosValid( void );
-	bool			FindSnapToBuildPos( void );
+	bool			FindSnapToBuildPos( CBaseObject *pObject = NULL );
 
 	void			ReattachChildren( void );
+
+	virtual void	InitializeMapPlacedObject( void );
 	
 	// I've finished building the specified object on the specified build point
 	virtual int		FindObjectOnBuildPoint( CBaseObject *pObject );
@@ -122,8 +124,6 @@ public:
 	bool			IsPlacing( void ) { return m_bPlacing; };
 	virtual bool	IsUpgrading( void ) const { return false; }
 	bool			MustBeBuiltOnAttachmentPoint( void ) const;
-
-	virtual bool	RedeployBuilding( CTFPlayer *pPlayer );
 
 	// Returns information about the various control panels
 	virtual void 	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName );
@@ -163,6 +163,10 @@ public:
 	virtual bool	IsHostileUpgrade( void )	{ return false; }	// Attaches to enemy buildings
 
 	// Inputs
+	void			InputShow( inputdata_t &inputdata );
+	void			InputHide( inputdata_t &inputdata );
+	void			InputEnable( inputdata_t &inputdata );
+	void			InputDisable( inputdata_t &inputdata );
 	void			InputSetHealth( inputdata_t &inputdata );
 	void			InputAddHealth( inputdata_t &inputdata );
 	void			InputRemoveHealth( inputdata_t &inputdata );
@@ -339,7 +343,8 @@ protected:
 	CNetworkVar( int, m_iUpgradeLevel );
 	CNetworkVar( int, m_iHighestUpgradeLevel );
 	CNetworkVar( int, m_iUpgradeMetal );
-	int		m_iDefaultUpgrade;
+	int		m_iGoalUpgradeLevel;		// Used when re-deploying
+	int		m_iDefaultUpgrade;			// Used for map-placed buildings
 
 	bool	m_bDying;
 
@@ -396,6 +401,7 @@ private:
 
 	CNetworkVar( float, m_flPercentageConstructed );	// Used to send to client
 	float	m_flHealth;					// Health during construction. Needed a float due to small increases in health.
+	int		m_iGoalHealth;				// Used when re-deploying
 
 	// Sapper on me
 	CNetworkVar( bool, m_bHasSapper );

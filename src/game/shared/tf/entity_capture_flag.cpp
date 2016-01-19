@@ -35,6 +35,7 @@ ConVar cl_flag_return_size( "cl_flag_return_size", "20", FCVAR_CHEAT );
 #include "func_respawnroom.h"
 #include "datacache/imdlcache.h"
 #include "func_respawnflag.h"
+#include "func_flagdetectionzone.h"
 
 extern ConVar tf_flag_caps_per_round;
 
@@ -55,6 +56,18 @@ static void RecvProxy_IsDisabled( const CRecvProxyData *pData, void *pStruct, vo
 		pFlag->SetDisabled( bIsDisabled ); 
 	}
 }
+
+static void RecvProxy_FlagStatus( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	CCaptureFlag *pFlag = (CCaptureFlag *) pStruct;
+
+	if ( pFlag )
+	{
+		pFlag->UpdateGlowEffect();
+		pFlag->m_nFlagStatus = pData->m_Value.m_Int;
+	}
+}
+
 
 #endif
 
@@ -78,7 +91,7 @@ BEGIN_NETWORK_TABLE( CCaptureFlag, DT_CaptureFlag )
 #else
 	RecvPropInt( RECVINFO( m_bDisabled ), 0, RecvProxy_IsDisabled ),
 	RecvPropInt( RECVINFO( m_nGameType ) ),
-	RecvPropInt( RECVINFO( m_nFlagStatus ) ),
+	RecvPropInt( RECVINFO( m_nFlagStatus ), 0, RecvProxy_FlagStatus ),
 	RecvPropTime( RECVINFO( m_flResetTime ) ),
 	RecvPropTime( RECVINFO( m_flNeutralTime ) ),
 	RecvPropTime( RECVINFO( m_flMaxResetTime ) ),
@@ -154,6 +167,20 @@ unsigned int CCaptureFlag::GetItemID( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CCaptureFlag::GetTrailEffect( int iTeamNum, char *buf , size_t buflen )
+{
+	const char *szTrailEffect = "flagtrail";
+	if ( m_szTrailEffect != NULL_STRING )
+		szTrailEffect = STRING( m_szTrailEffect );
+
+	Q_snprintf( buf, buflen, "effects/%s_%s.vmt", szTrailEffect, g_aTeamNamesShort[ iTeamNum ] );
+
+	return buf;
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Precache the model and sounds.
 //-----------------------------------------------------------------------------
 void CCaptureFlag::Precache( void )
@@ -212,15 +239,13 @@ void CCaptureFlag::Precache( void )
 	PrecacheParticleSystem(	"player_intel_trail_yellow" );
 
 
-	char tempChar[512];
-	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_red.vmt", m_szTrailEffect);
-	PrecacheModel(tempChar);
-	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_blu.vmt", m_szTrailEffect);
-	PrecacheModel(tempChar);
-	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_grn.vmt", m_szTrailEffect);
-	PrecacheModel(tempChar);
-	Q_snprintf(tempChar, sizeof(tempChar), "effects/%s_ylw.vmt", m_szTrailEffect);
-	PrecacheModel(tempChar);
+	// Team colored trail
+	char tempChar[ 512 ];
+	PrecacheModel( GetTrailEffect( TF_TEAM_RED, tempChar, sizeof( tempChar ) ) );
+	PrecacheModel( GetTrailEffect( TF_TEAM_BLUE, tempChar, sizeof( tempChar ) ) );
+	PrecacheModel( GetTrailEffect( TF_TEAM_GREEN, tempChar, sizeof( tempChar ) ) );
+	PrecacheModel( GetTrailEffect( TF_TEAM_YELLOW, tempChar, sizeof( tempChar ) ) );
+
 }
 
 #ifndef GAME_DLL
@@ -239,6 +264,7 @@ void CCaptureFlag::OnDataChanged( DataUpdateType_t updateType )
 {
 	if ( m_nOldFlagStatus != m_nFlagStatus )
 	{
+		UpdateGlowEffect();
 		IGameEvent *pEvent = gameeventmanager->CreateEvent( "flagstatus_update" );
 		if ( pEvent )
 		{
@@ -320,61 +346,16 @@ void CCaptureFlag::Spawn( void )
 #ifdef CLIENT_DLL
 
 // Manage glow effect
-void CCaptureFlag::EnableGlowEffect(void)
+void CCaptureFlag::UpdateGlowEffect( void )
 {
-	if (!g_GlowObjectManager.HasGlowEffect(this))
+	if ( !g_GlowObjectManager.HasGlowEffect( this ) )
 	{
-		switch (GetTeamNumber())
-		{
-		case TF_TEAM_BLUE:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.6f, 0.8f, 1.0f), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_RED:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.25f, 0.25f), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_GREEN:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.03f, 0.68f, 0), 1.0f, true, true, 0);
-			break;
-		case TF_TEAM_YELLOW:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(1.0f, 0.62f, 0), 1.0f, true, true, 0);
-			break;
-		default:
-			g_GlowObjectManager.RegisterGlowObject(this, Vector(0.76f, 0.76f, 0.76f), 1.0f, true, true, 0);
-			break;
-		}
+		m_iGlowEffectHandle = g_GlowObjectManager.RegisterGlowObject( this, Vector( 0.76f, 0.76f, 0.76f ) , 1.0f, true, true, 0 );
 	}
 
-	if (m_nFlagStatus == TF_FLAGINFO_STOLEN)
-	{
-		if (GetPrevOwner() && !g_GlowObjectManager.HasGlowEffect(GetPrevOwner()))
-		{
-			Vector vecColor;
-			switch (GetPrevOwner()->GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				vecColor = Vector(0.6f, 0.8f, 1.0f);
-				break;
-			case TF_TEAM_RED:
-				vecColor = Vector(1.0f, 0.25f, 0.25f);
-				break;
-			case TF_TEAM_GREEN:
-				vecColor = Vector(0.03f, 0.68f, 0);
-				break;
-			case TF_TEAM_YELLOW:
-				vecColor = Vector(1.0f, 0.62f, 0);
-				break;
-			default:
-				vecColor = Vector(0.76f, 0.76f, 0.76f);
-				break;
-			}
-			m_nPrevOwnerGlowIndex = g_GlowObjectManager.RegisterGlowObject(GetPrevOwner(), vecColor, 1.0f, true, true, 0);
-		}
-	}
-	else if (m_nPrevOwnerGlowIndex)
-	{
-		g_GlowObjectManager.UnregisterGlowObject(m_nPrevOwnerGlowIndex);
-		m_nPrevOwnerGlowIndex = 0;
-	}
+	Vector vecColor;
+	TFGameRules()->GetTeamGlowColor( GetTeamNumber(), vecColor.x, vecColor.y, vecColor.z );
+	g_GlowObjectManager.SetColor( m_iGlowEffectHandle, vecColor );
 
 }
 
@@ -508,11 +489,7 @@ void CCaptureFlag::ResetMessage( void )
 	// Output.
 	m_outputOnReturn.FireOutput( this, this );
 
-	if ( m_hReturnIcon.Get() )
-	{
-		UTIL_Remove( m_hReturnIcon );
-		m_hReturnIcon = NULL;
-	}
+	DestroyReturnIcon();
 #endif
 }
 
@@ -541,7 +518,7 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 		return;
 	}
 
-	if (pOther->GetTeamNumber() == GetTeamNumber())
+	if ( pOther->GetTeamNumber() == GetTeamNumber() )
 		m_outputOnTouchSameTeam.FireOutput(this, this);
 #endif
 
@@ -617,8 +594,11 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 			return;
 		}
 	}
-
 #endif
+
+	// Check whether we have a weapon that's prohibiting us from picking the flag up
+	if ( !pPlayer->IsAllowedToPickUpFlag() )
+		return;
 
 	// Call into the base class pickup.
 	BaseClass::PickUp( pPlayer, false );
@@ -628,6 +608,8 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 	pPlayer->TeamFortress_SetSpeed();
 
 #ifdef GAME_DLL
+
+	pPlayer->AddGlowEffect();
 	
 	// Update the parent to set the correct place on the model to attach the flag.
 	int iAttachment = pPlayer->LookupAttachment( "flag" );
@@ -741,7 +723,7 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 	// Output.
 	m_outputOnPickUp.FireOutput( this, this );
 
-	switch (pPlayer->GetTeamNumber())
+	switch ( pPlayer->GetTeamNumber() )
 	{
 	case TF_TEAM_RED:
 		m_outputOnPickUpTeam1.FireOutput( this, this );
@@ -760,14 +742,36 @@ void CCaptureFlag::PickUp( CTFPlayer *pPlayer, bool bInvisible )
 		break;
 	}
 
+	DestroyReturnIcon();
+
+	HandleFlagPickedUpInDetectionZone( pPlayer );
+
+#endif
+}
+
+#ifdef GAME_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CCaptureFlag::CreateReturnIcon( void )
+{
+	m_hReturnIcon = CBaseEntity::Create( "item_teamflag_return_icon", GetAbsOrigin() + Vector(0,0,cl_flag_return_height.GetFloat()), vec3_angle, this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CCaptureFlag::DestroyReturnIcon( void )
+{
 	if ( m_hReturnIcon.Get() )
 	{
 		UTIL_Remove( m_hReturnIcon );
 		m_hReturnIcon = NULL;
 	}
+}
 
 #endif
-}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -815,6 +819,12 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 					TFGameRules()->SendHudNotification( filter, HUD_NOTIFY_ENEMY_FLAG_CAPTURED );
 				}
 			}
+		}
+
+		// Give temp crit boost to capper's team.
+		if ( TFGameRules() )
+		{
+			TFGameRules()->HandleCTFCaptureBonus( pPlayer->GetTeamNumber() );
 		}
 
 		// Reward the player
@@ -912,6 +922,9 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 	ResetFlagReturnTime();
 	ResetFlagNeutralTime();
 
+	HandleFlagCapturedInDetectionZone( pPlayer );		
+	HandleFlagDroppedInDetectionZone( pPlayer );
+
 	// Reset the flag.
 	BaseClass::Drop( pPlayer, true );
 
@@ -919,6 +932,7 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 
 	pPlayer->TeamFortress_SetSpeed();
 	pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_FLAGCAPTURED );
+	pPlayer->RemoveGlowEffect();
 	
 	// Output.
 	m_outputOnCapture.FireOutput( this, this );
@@ -977,6 +991,8 @@ void CCaptureFlag::Drop( CTFPlayer *pPlayer, bool bVisible,  bool bThrown /*= fa
 	pPlayer->TeamFortress_SetSpeed();
 
 #ifdef GAME_DLL
+
+	pPlayer->RemoveGlowEffect();
 
 	if ( bThrown )
 	{
@@ -1077,7 +1093,9 @@ void CCaptureFlag::Drop( CTFPlayer *pPlayer, bool bVisible,  bool bThrown /*= fa
 	// Output.
 	m_outputOnDrop.FireOutput( this, this );
 
-	m_hReturnIcon = CBaseEntity::Create( "item_teamflag_return_icon", GetAbsOrigin() + Vector(0,0,cl_flag_return_height.GetFloat()), vec3_angle, this );
+	CreateReturnIcon();	
+
+	HandleFlagDroppedInDetectionZone( pPlayer );	
 
 	if ( PointInRespawnFlagZone( GetAbsOrigin() ) )
 	{
@@ -1220,13 +1238,13 @@ void CCaptureFlag::Think( void )
 //-----------------------------------------------------------------------------
 // Purpose: Handles the team colored trail sprites
 //-----------------------------------------------------------------------------
-void CCaptureFlag::ManageSpriteTrail()
+void CCaptureFlag::ManageSpriteTrail( void )
 {
-	if (m_nFlagStatus == TF_FLAGINFO_STOLEN)
+	if ( m_nFlagStatus == TF_FLAGINFO_STOLEN )
 	{
-		if ((m_nUseTrailEffect == 1 || m_nUseTrailEffect == 3))
+		if ( ( m_nUseTrailEffect == 1 || m_nUseTrailEffect == 3 ) )
 		{
-			if (GetPrevOwner() /*&& GetPrevOwner() != CBasePlayer::GetLocalPlayer() */)
+			if ( GetPrevOwner() /*&& GetPrevOwner() != CBasePlayer::GetLocalPlayer() */ )
 			{
 				char pEffectName[512];
 				CTFPlayer *pPlayer = ToTFPlayer(GetPrevOwner());
@@ -1236,33 +1254,16 @@ void CCaptureFlag::ManageSpriteTrail()
 					{
 						if ( m_pGlowTrail == NULL )
 						{
-							switch (pPlayer->GetTeamNumber())
-							{
-							case TF_TEAM_BLUE:
-								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_blu.vmt", m_szTrailEffect);
-								break;
-							case TF_TEAM_RED:
-								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_red.vmt", m_szTrailEffect);
-								break;
-							case TF_TEAM_GREEN:
-								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_grn.vmt", m_szTrailEffect);
-								break;
-							case TF_TEAM_YELLOW:
-								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_ylw.vmt", m_szTrailEffect);
-								break;
-							default:
-								Q_snprintf(pEffectName, sizeof(pEffectName), "effects/%s_blu.vmt", m_szTrailEffect);
-								break;
-							}
-							m_pGlowTrail = CSpriteTrail::SpriteTrailCreate(pEffectName, GetLocalOrigin(), false);
-							m_pGlowTrail->FollowEntity(this);
-							// Values extracted from live tf2 server.dll
-							m_pGlowTrail->SetTransparency(kRenderTransAlpha, -1, -1, -1, 96, 0);
-							m_pGlowTrail->SetStartWidth(32.0);
-							m_pGlowTrail->SetTextureResolution(0.010416667);
-							m_pGlowTrail->SetLifeTime(0.69999999);
-							m_pGlowTrail->SetTransmit(false);
-							m_pGlowTrail->SetParent(this);
+							GetTrailEffect( pPlayer->GetTeamNumber(), pEffectName, sizeof( pEffectName ) );
+							m_pGlowTrail = CSpriteTrail::SpriteTrailCreate( pEffectName, GetLocalOrigin(), false );
+							m_pGlowTrail->FollowEntity( this );
+							m_pGlowTrail->SetTransparency( kRenderTransAlpha, -1, -1, -1, 96, 0 );
+							m_pGlowTrail->SetBrightness( 96 );
+							m_pGlowTrail->SetStartWidth( 32.0 );
+							m_pGlowTrail->SetTextureResolution( 0.010416667 );
+							m_pGlowTrail->SetLifeTime( 0.69999999 );
+							m_pGlowTrail->SetTransmit( false );
+							m_pGlowTrail->SetParent( this );
 						}
 					}
 				}
@@ -1271,7 +1272,7 @@ void CCaptureFlag::ManageSpriteTrail()
 	}
 	else
 	{
-		if (m_pGlowTrail)
+		if ( m_pGlowTrail )
 		{
 			m_pGlowTrail->Remove();
 			m_pGlowTrail = NULL;
@@ -1371,9 +1372,7 @@ float CCaptureFlag::GetReturnProgress()
 void CCaptureFlag::Simulate( void )
 {
 	BaseClass::Simulate();
-
 	ManageTrailEffects();
-	EnableGlowEffect();
 }
 
 void CCaptureFlag::ManageTrailEffects( void )

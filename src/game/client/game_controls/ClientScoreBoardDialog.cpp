@@ -33,6 +33,10 @@
 
 #include "vgui_avatarimage.h"
 
+#ifdef TF_CLASSIC_CLIENT
+#include "tf_shareddefs.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -123,6 +127,10 @@ void CClientScoreBoardDialog::OnThink()
 		{
 			m_nCloseKey = BUTTON_CODE_INVALID;
 			gViewPortInterface->ShowPanel( PANEL_SCOREBOARD, false );
+#ifdef TF_CLASSIC_CLIENT
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, false );
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, false );
+#endif
 			GetClientVoiceMgr()->StopSquelchMode();
 		}
 	}

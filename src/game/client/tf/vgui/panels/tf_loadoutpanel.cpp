@@ -1,12 +1,13 @@
 #include "cbase.h"
 #include "tf_loadoutpanel.h"
 #include "tf_mainmenu.h"
-#include "controls/tf_advbutton.h"
+#include "controls/tf_advitembutton.h"
 #include "controls/tf_advmodelpanel.h"
 #include "tf_rgbpanel.h"
 #include "basemodelpanel.h"
 #include <vgui/ILocalize.h>
-#include "c_script_parser.h"
+#include "script_parser.h"
+#include "econ_item_view.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -14,7 +15,6 @@ using namespace vgui;
 
 #define PANEL_WIDE 110
 #define PANEL_TALL 70
-#define TF_WEAPON_SAPPER "TF_WEAPON_SAPPER"
 
 static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 {
@@ -30,6 +30,58 @@ static char* pszClassModels[TF_CLASS_COUNT_ALL] =
 	"models/player/engineer.mdl",
 	"",
 	"",
+};
+
+static int g_aClassLoadoutSlots[TF_CLASS_COUNT_ALL][INVENTORY_ROWNUM] =
+{
+	{
+		-1, -1, -1,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
+	{
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_BUILDING,
+		TF_LOADOUT_SLOT_MELEE
+	},
+	{
+		TF_LOADOUT_SLOT_PRIMARY,
+		TF_LOADOUT_SLOT_SECONDARY,
+		TF_LOADOUT_SLOT_MELEE,
+	},
 };
 
 struct _WeaponData
@@ -64,31 +116,11 @@ public:
 		Q_strncpy(sTemp.szWorldModel, pKeyValuesData->GetString("playermodel", ""), sizeof(sTemp.szWorldModel));
 		Q_strncpy(sTemp.szPrintName, pKeyValuesData->GetString("printname", ""), sizeof(sTemp.szPrintName));
 		const char *pszWeaponType = pKeyValuesData->GetString("WeaponType");
-		sTemp.m_iWeaponType = 0;
-		if (!Q_strcmp(pszWeaponType, "primary"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_PRIMARY;
-		}
-		else if (!Q_strcmp(pszWeaponType, "secondary"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_SECONDARY;
-		}
-		else if (!Q_strcmp(pszWeaponType, "melee"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_MELEE;
-		}
-		else if (!Q_strcmp(pszWeaponType, "grenade"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_GRENADE;
-		}
-		else if (!Q_strcmp(pszWeaponType, "building"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_BUILDING;
-		}
-		else if (!Q_strcmp(pszWeaponType, "pda"))
-		{
-			sTemp.m_iWeaponType = TF_WPN_TYPE_PDA;
-		}
+
+		int iType = UTIL_StringFieldToInt( pszWeaponType, g_AnimSlots, TF_WPN_TYPE_COUNT );
+
+		sTemp.m_iWeaponType = iType >= 0 ? iType : TF_WPN_TYPE_PRIMARY;
+
 		for (KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey())
 		{
 			if (!Q_stricmp(pData->GetName(), "TextureData"))
@@ -109,9 +141,9 @@ public:
 		m_WeaponInfoDatabase.Insert(szFileWithoutEXT, sTemp);
 	};
 
-	_WeaponData GetTFWeaponInfo(const char *name)
+	_WeaponData *GetTFWeaponInfo(const char *name)
 	{
-		return m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
+		return &m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
 	}
 
 private:
@@ -132,16 +164,16 @@ CTFLoadoutPanel::CTFLoadoutPanel(vgui::Panel* parent, const char *panelName) : C
 //-----------------------------------------------------------------------------
 CTFLoadoutPanel::~CTFLoadoutPanel()
 {
-
+	m_pWeaponIcons.RemoveAll();
+	m_pSlideButtons.RemoveAll();
 }
 
 bool CTFLoadoutPanel::Init()
 {
 	BaseClass::Init();
 
-	iCurrentClass = TF_CLASS_SCOUT;
-	iCurrentSlot = TF_WPN_TYPE_PRIMARY;
-	iCurrentPreset = 0;
+	m_iCurrentClass = TF_CLASS_SCOUT;
+	m_iCurrentSlot = TF_LOADOUT_SLOT_PRIMARY;
 	m_pClassModelPanel = new CTFAdvModelPanel(this, "classmodelpanel");
 	m_pGameModelPanel = new CModelPanel(this, "gamemodelpanel");
 	m_pWeaponSetPanel = new CTFWeaponSetPanel(this, "weaponsetpanel");
@@ -149,7 +181,38 @@ bool CTFLoadoutPanel::Init()
 	g_TFWeaponScriptParser.InitParser("scripts/tf_weapon_*.txt", true, false);
 
 	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
-		m_pWeaponIcons.AddToTail(new CTFAdvButton(m_pWeaponSetPanel, "WeaponIcons", "DUK"));
+		m_pWeaponIcons.AddToTail(new CTFAdvItemButton(m_pWeaponSetPanel, "WeaponIcons", "DUK"));
+	}
+	for (int i = 0; i < INVENTORY_ROWNUM * 2; i++){
+		m_pSlideButtons.AddToTail(new CTFAdvItemButton(m_pWeaponSetPanel, "SlideButton", "DUK"));
+	}
+	for (int i = 0; i < INVENTORY_ROWNUM; i++){
+		m_RawIDPos.AddToTail(0);
+	}
+
+
+	for (int iClassIndex = 0; iClassIndex < TF_CLASS_COUNT_ALL; iClassIndex++)
+	{
+		if (pszClassModels[iClassIndex][0] != '\0')
+			modelinfo->FindOrLoadModel(pszClassModels[iClassIndex]);
+
+		for (int iSlot = 0; iSlot < TF_LOADOUT_SLOT_HAT; iSlot++)
+		{
+			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+			{
+				CEconItemView *pItem = GetTFInventory()->GetItem(iClassIndex, iSlot, iPreset);
+
+				if ( pItem )
+				{
+					const char *pszWeaponModel = GetWeaponModel( pItem->GetStaticData() );
+
+					if ( pszWeaponModel[0] != '\0' )
+					{
+						modelinfo->FindOrLoadModel( pszWeaponModel );
+					}
+				}
+			}
+		}
 	}
 
 	return true;
@@ -165,25 +228,49 @@ void CTFLoadoutPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 void CTFLoadoutPanel::PerformLayout()
 {
 	BaseClass::PerformLayout();
+	for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+	{
+		for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+		{
+			CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+			m_pWeaponButton->SetSize(XRES(PANEL_WIDE), YRES(PANEL_TALL));
+			m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
+			m_pWeaponButton->SetBorderVisible(true);
+			m_pWeaponButton->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
+			m_pWeaponButton->SetLoadoutSlot( iSlot, iPreset );
+		}
 
-	for (int i = 0; i < INVENTORY_VECTOR_NUM; i++){
-		m_pWeaponIcons[i]->SetBounds(0, 0, toProportionalWide(PANEL_WIDE), toProportionalTall(PANEL_TALL));
-		m_pWeaponIcons[i]->SetBorderVisible(false);
-		m_pWeaponIcons[i]->SetImageInset(25, -5);
-		m_pWeaponIcons[i]->GetButton()->SetContentAlignment(CTFAdvButtonBase::GetAlignment("south"));
-		m_pWeaponIcons[i]->GetButton()->SetTextInset(0, -10);
-		m_pWeaponIcons[i]->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
+		CTFAdvItemButton *m_pSlideButtonL = m_pSlideButtons[iSlot * 2];
+		CTFAdvItemButton *m_pSlideButtonR = m_pSlideButtons[(iSlot * 2) + 1];
+
+		m_pSlideButtonL->SetSize(XRES(10), YRES(PANEL_TALL));
+		m_pSlideButtonL->SetPos(0, iSlot * YRES((PANEL_TALL + 5)));
+		m_pSlideButtonL->SetText("<");
+		m_pSlideButtonL->SetBorderVisible(true);
+		m_pSlideButtonL->SetBorderByString("AdvLeftButtonDefault", "AdvLeftButtonArmed", "AdvLeftButtonDepressed");
+		char szCommand[64];
+		Q_snprintf(szCommand, sizeof(szCommand), "SlideL%i", iSlot);
+		m_pSlideButtonL->SetCommandString(szCommand);
+		
+		m_pSlideButtonR->SetSize(XRES(10), YRES(PANEL_TALL));
+		m_pSlideButtonR->SetPos(m_pWeaponSetPanel->GetWide() - XRES(10), iSlot * YRES((PANEL_TALL + 5)));
+		m_pSlideButtonR->SetText(">");
+		m_pSlideButtonR->SetBorderVisible(true);
+		m_pSlideButtonR->SetBorderByString("AdvRightButtonDefault", "AdvRightButtonArmed", "AdvRightButtonDepressed");
+		Q_snprintf(szCommand, sizeof(szCommand), "SlideR%i", iSlot);
+		m_pSlideButtonR->SetCommandString(szCommand);
 	}
-	//DefaultLayout();
 };
 
 
 void CTFLoadoutPanel::SetCurrentClass(int iClass)
 {
-	if (iCurrentClass == iClass)
+	if (m_iCurrentClass == iClass)
 		return;
 
-	iCurrentClass = iClass; 	
+	m_iCurrentClass = iClass;
+	m_iCurrentSlot = g_aClassLoadoutSlots[iClass][0];
+	ResetRows();
 	DefaultLayout(); 
 };
 
@@ -236,73 +323,174 @@ void CTFLoadoutPanel::OnCommand(const char* command)
 	}
 	else
 	{
-		const char* szPrimary = GetTFInventory()->GetSlotName(TF_WPN_TYPE_PRIMARY);
-		const char* szSecondary = GetTFInventory()->GetSlotName(TF_WPN_TYPE_SECONDARY);
-		const char* szMelee = GetTFInventory()->GetSlotName(TF_WPN_TYPE_MELEE);
-		char strPrimary[40];
-		Q_strncpy(strPrimary, command, Q_strlen(szPrimary) + 1);
-		char strSecondary[40];
-		Q_strncpy(strSecondary, command, Q_strlen(szSecondary) + 1);
-		char strMelee[40];
-		Q_strncpy(strMelee, command, Q_strlen(szMelee) + 1);
 		char buffer[64];
-		bool bValid = false;
+		const char* szText;
+		char strText[40];
 
-		if (!Q_strcmp(strPrimary, szPrimary))
+		if ( !Q_strncmp( command, "loadout", 7 ) )
 		{
-			SetCurrentSlot(TF_WPN_TYPE_PRIMARY);
-			Q_snprintf(buffer, sizeof(buffer), command + Q_strlen(szPrimary));
-			bValid = true;
-		}
-		else if (!Q_strcmp(strSecondary, szSecondary))
-		{
-			SetCurrentSlot(TF_WPN_TYPE_SECONDARY);
-			Q_snprintf(buffer, sizeof(buffer), command + Q_strlen(szSecondary));
-			bValid = true;
-		}
-		else if (!Q_strcmp(strMelee, szMelee))
-		{
-			SetCurrentSlot(TF_WPN_TYPE_MELEE);
-			Q_snprintf(buffer, sizeof(buffer), command + Q_strlen(szMelee));
-			bValid = true;
+			const char *sChar = strchr( command, ' ' );
+			if ( sChar )
+			{
+				int iSlot = atoi( sChar + 1 );
+				sChar = strchr( sChar + 1, ' ' );
+				if ( sChar )
+				{
+					int iWeapon = atoi( sChar + 1 );
+					SetSlotAndPreset( iSlot, iWeapon );
+				}
+			}
+			return;
 		}
 
-		if (bValid)
+		for (int i = 0; i < 2; i++)
 		{
-			SetCurrentPreset(atoi(buffer));
-			SetWeaponPreset(iCurrentClass, iCurrentSlot, iCurrentPreset);
+			szText = (i == 0 ? "SlideL" : "SlideR");
+			Q_strncpy(strText, command, Q_strlen(szText) + 1);
+			if (!Q_strcmp(strText, szText))
+			{
+				Q_snprintf(buffer, sizeof(buffer), command + Q_strlen(szText));
+				SideRow(atoi(buffer), (i == 0 ? -1 : 1));
+				return;
+			}
 		}
-		else
+
+		BaseClass::OnCommand(command);
+	}
+}
+
+void CTFLoadoutPanel::SetSlotAndPreset(int iSlot, int iPreset)
+{
+	SetCurrentSlot(iSlot);
+	SetWeaponPreset(m_iCurrentClass, m_iCurrentSlot, iPreset);
+}
+
+void CTFLoadoutPanel::SideRow(int iRow, int iDir)
+{
+	m_RawIDPos[iRow] += iDir;
+
+	for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+	{
+		CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iRow + iPreset]; 
+		int _x, _y;
+		m_pWeaponButton->GetPos(_x, _y);
+		int x = (iPreset - m_RawIDPos[iRow]) * XRES((PANEL_WIDE + 10));
+		AnimationController::PublicValue_t p_AnimHover(x, _y);
+		vgui::GetAnimationController()->RunAnimationCommand(m_pWeaponButton, "Position", p_AnimHover, 0.0f, 0.1f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
+	}
+
+	DefaultLayout();
+}
+
+void CTFLoadoutPanel::ResetRows()
+{
+	for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+	{
+		m_RawIDPos[iSlot] = 0;
+		for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
 		{
-			BaseClass::OnCommand(command);
+			CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
+			m_pWeaponButton->SetPos(iPreset * XRES((PANEL_WIDE + 10)), iSlot * YRES((PANEL_TALL + 5)));
 		}
 	}
 }
 
-void CTFLoadoutPanel::SetModelWeapon(int iClass, int iSlot, int iPreset)
+int CTFLoadoutPanel::GetAnimSlot( CEconItemDefinition *pItemDef, int iClass )
 {
-	int iWeapon = GetTFInventory()->GetWeapon(iClass, iSlot, iPreset);
-	if (iWeapon)
+	if ( !pItemDef )
+		return -1;
+
+	int iSlot = pItemDef->anim_slot;
+	if ( iSlot == -1 )
 	{
-		_WeaponData pData;
-		if (iWeapon == TF_WEAPON_BUILDER && iClass == TF_CLASS_SPY)
-		{
-			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
-		}
-		else
-		{
-			pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
-		}
-		m_pClassModelPanel->SetAnimationIndex(pData.m_iWeaponType);
-		m_pClassModelPanel->ClearMergeMDLs();
-		if (pData.szWorldModel[0] != '\0')
-			m_pClassModelPanel->SetMergeMDL(pData.szWorldModel, NULL, iCurrentSkin);
+		// Fall back to script file data.
+		const char *pszClassname = TranslateWeaponEntForClass( pItemDef->item_class, iClass );
+		_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
+		Assert( pWeaponInfo );
+
+		iSlot = pWeaponInfo->m_iWeaponType;
 	}
-	else
+
+	return iSlot;
+}
+
+const char *CTFLoadoutPanel::GetWeaponModel( CEconItemDefinition *pItemDef )
+{
+	if ( !pItemDef )
+		return "";
+
+	if ( pItemDef->act_as_wearable )
 	{
-		m_pClassModelPanel->SetAnimationIndex(iSlot);
-		m_pClassModelPanel->ClearMergeMDLs();
+		return pItemDef->model_player;
 	}
+
+	const char *pszModel = pItemDef->model_world;
+
+	if ( pszModel[0] == '\0' && pItemDef->attach_to_hands == 1 )
+	{
+		pszModel = pItemDef->model_player;
+	}
+
+	return pszModel;
+}
+
+void CTFLoadoutPanel::UpdateModelWeapons( void )
+{
+	m_pClassModelPanel->ClearMergeMDLs();
+	int iAnimationIndex = -1;
+
+	// Get active weapon info.
+	int iPreset = GetTFInventory()->GetWeaponPreset( m_iCurrentClass, m_iCurrentSlot );
+	CEconItemView *pActiveItem = GetTFInventory()->GetItem( m_iCurrentClass, m_iCurrentSlot, iPreset );
+	Assert( pActiveItem );
+
+	if ( pActiveItem )
+	{
+		iAnimationIndex = GetAnimSlot( pActiveItem->GetStaticData(), m_iCurrentClass );
+
+		// Can't be an active weapon without animation.
+		if ( iAnimationIndex < 0 )
+			pActiveItem = NULL;
+	}
+	
+	for ( int iRow = 0; iRow < INVENTORY_ROWNUM; iRow++ )
+	{
+		int iSlot = g_aClassLoadoutSlots[m_iCurrentClass][iRow];
+		if ( iSlot == -1 )
+			continue;
+
+		int iWeapon = GetTFInventory()->GetWeaponPreset( m_iCurrentClass, iSlot );
+		CEconItemView *pItem = GetTFInventory()->GetItem( m_iCurrentClass, iSlot, iWeapon );
+		CEconItemDefinition *pItemDef = pItem ? pItem->GetStaticData() : NULL;
+
+		if ( !pItemDef )
+			continue;
+
+		if ( !pActiveItem )
+		{
+			// No active weapon, try this one.
+			int iAnimSlot = GetAnimSlot( pItemDef, m_iCurrentClass );
+			if ( iAnimSlot >= 0 )
+			{
+				pActiveItem = pItem;
+				iAnimationIndex = iAnimSlot;
+			}
+		}
+
+		// If this is the active weapon or it's a wearable, add its model.
+		if ( pItem == pActiveItem || pItemDef->act_as_wearable )
+		{
+			const char *pszModel = GetWeaponModel( pItemDef );
+			if ( pszModel[0] != '\0' )
+			{
+				m_pClassModelPanel->SetMergeMDL( pszModel, NULL, 0 );
+			}
+		}
+	}
+
+	// Set the animation.
+	m_pClassModelPanel->SetAnimationIndex( iAnimationIndex >= 0 ? iAnimationIndex : TF_WPN_TYPE_PRIMARY );
+
 	m_pClassModelPanel->Update();
 }
 
@@ -340,17 +528,12 @@ void CTFLoadoutPanel::OnThink()
 
 void CTFLoadoutPanel::SetModelClass(int iClass)
 {
-	int len = Q_strlen(pszClassModels[iClass]) + 1;
-	char *pAlloced = new char[len];
-	Assert(pAlloced);
-	Q_strncpy(pAlloced, pszClassModels[iClass], len);
-	m_pClassModelPanel->m_BMPResData.m_pszModelName = pAlloced;
-	m_pClassModelPanel->m_BMPResData.m_nSkin = iCurrentSkin;
+	m_pClassModelPanel->SetModelName(strdup(pszClassModels[iClass]), 0);
 }
 
 void CTFLoadoutPanel::UpdateModelPanels()
 {
-	int iClassIndex = iCurrentClass;
+	int iClassIndex = m_iCurrentClass;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
@@ -387,8 +570,7 @@ void CTFLoadoutPanel::UpdateModelPanels()
 		m_pRGBPanel->SetVisible(false);
 
 		SetModelClass(iClassIndex);
-		int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iCurrentSlot);
-		SetModelWeapon(iClassIndex, iCurrentSlot, iWeaponPreset);
+		UpdateModelWeapons();
 	}
 }
 
@@ -396,70 +578,94 @@ void CTFLoadoutPanel::DefaultLayout()
 {
 	BaseClass::DefaultLayout();
 
+	/*
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pLocalPlayer && pLocalPlayer->GetTeamNumber() >= TF_TEAM_RED)
 	{
-		iCurrentSkin = pLocalPlayer->GetTeamNumber() - 2;
+		m_iCurrentSkin = pLocalPlayer->GetTeamNumber() - 2;
 	}
 	else
 	{
-		iCurrentSkin = 0;
+		m_iCurrentSkin = 0;
 	}
+	*/
 
 	UpdateModelPanels();
 
-	int iClassIndex = iCurrentClass;
-	SetDialogVariable("classname", g_pVGuiLocalize->Find(g_aPlayerClassNames[iClassIndex]));
+	int iClassIndex = m_iCurrentClass;
+	SetDialogVariable( "classname", g_pVGuiLocalize->Find( g_aPlayerClassNames[iClassIndex] ) );
 
 	if (iClassIndex != TF_CLASS_MERCENARY)
 	{
-		int iColCount = 0;
-		for (int iSlot = 0; iSlot < INVENTORY_ROWNUM; iSlot++)
+		for ( int iRow = 0; iRow < INVENTORY_ROWNUM; iRow++ )
 		{
-			int iCols = 0;
-			for (int iPreset = 0; iPreset < INVENTORY_COLNUM; iPreset++)
+			int iColumnCount = 0;
+			int iPresetID = 0;
+			int iPos = m_RawIDPos[iRow];
+			CTFAdvItemButton *m_pSlideButtonL = m_pSlideButtons[iRow * 2];
+			CTFAdvItemButton *m_pSlideButtonR = m_pSlideButtons[( iRow * 2 ) + 1];
+			int iSlot = g_aClassLoadoutSlots[iClassIndex][iRow];
+
+			for ( int iColumn = 0; iColumn < INVENTORY_COLNUM; iColumn++ )
 			{
-				int iWeapon = GetTFInventory()->GetWeapon(iClassIndex, iSlot, iPreset);
-				CTFAdvButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iSlot + iPreset];
-				if (iWeapon > 0)
+				CTFAdvItemButton *m_pWeaponButton = m_pWeaponIcons[INVENTORY_COLNUM * iRow + iColumn];
+				CEconItemView *pItem = NULL;
+
+				if ( iSlot != -1 )
 				{
-					iCols++;
-					if (iCols > iColCount) iColCount = iCols;
+					pItem = GetTFInventory()->GetItem( iClassIndex, iSlot, iColumn );
+				}
+
+				CEconItemDefinition *pItemData = pItem ? pItem->GetStaticData() : NULL;
+
+				if (pItemData)
+				{
 					m_pWeaponButton->SetVisible(true);
-					m_pWeaponButton->SetPos(iPreset * toProportionalWide(PANEL_WIDE + 10), iSlot * toProportionalTall(PANEL_TALL + 5));
-
-					int iWeapon = GetTFInventory()->GetWeapon(iCurrentClass, iSlot, iPreset);
-
-					_WeaponData pData;
-					if (iWeapon == TF_WEAPON_BUILDER && iCurrentClass == TF_CLASS_SPY)
+					m_pWeaponButton->SetItemDefinition(pItemData);
+					m_pWeaponButton->SetLoadoutSlot( iSlot, iColumn );
+					
+					int iWeaponPreset = GetTFInventory()->GetWeaponPreset( iClassIndex, iSlot );
+					if ( iColumn == iWeaponPreset )
 					{
-						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(TF_WEAPON_SAPPER);
+						m_pWeaponButton->SetBorderByString("AdvRoundedButtonDefault", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 					}
 					else
 					{
-						pData = g_TFWeaponScriptParser.GetTFWeaponInfo(WeaponIdToAlias(iWeapon));
+						m_pWeaponButton->SetBorderByString("AdvRoundedButtonDisabled", "AdvRoundedButtonArmed", "AdvRoundedButtonDepressed");
 					}
+					m_pWeaponButton->GetButton()->SetSelected( ( iColumn == iWeaponPreset ) );
 
-					char szIcon[64];
-					Q_snprintf(szIcon, sizeof(szIcon), "../%s", (iCurrentSkin == 1 ? pData.iconActive : pData.iconInactive));
-					m_pWeaponButton->SetImage(szIcon);
-
-					char szWeaponName[32];
-					Q_snprintf(szWeaponName, sizeof(szWeaponName), "#%s", pData.szPrintName);
-					m_pWeaponButton->SetText(szWeaponName);
-
-					int iWeaponPreset = GetTFInventory()->GetWeaponPreset(filesystem, iClassIndex, iSlot);
-					m_pWeaponButton->SetBorderVisible((iPreset == iWeaponPreset));
-					m_pWeaponButton->GetButton()->SetSelected((iPreset == iWeaponPreset));
-
-					char szCommand[64];
-					Q_snprintf(szCommand, sizeof(szCommand), "%s%i", GetTFInventory()->GetSlotName(iSlot), iPreset);
-					m_pWeaponButton->SetCommandString(szCommand);
+					if ( iColumn == iWeaponPreset )
+						iPresetID = iColumn;
+					iColumnCount++;
 				}
 				else
 				{
-					m_pWeaponButton->SetVisible(0);
+					m_pWeaponButton->SetVisible(false);
 				}
+			}
+			if (iColumnCount > 2)
+			{
+				if (iPos == 0)	//left
+				{
+					m_pSlideButtonL->SetVisible(false);
+					m_pSlideButtonR->SetVisible(true);
+				}
+				else if (iPos == iColumnCount - 2)	//right
+				{
+					m_pSlideButtonL->SetVisible(true);
+					m_pSlideButtonR->SetVisible(false);
+				}
+				else  //middle
+				{
+					m_pSlideButtonL->SetVisible(true);
+					m_pSlideButtonR->SetVisible(true);
+				}
+			}
+			else
+			{
+				m_pSlideButtonL->SetVisible(false);
+				m_pSlideButtonR->SetVisible(false);
 			}
 		}
 	}
@@ -473,16 +679,12 @@ void CTFLoadoutPanel::GameLayout()
 
 void CTFLoadoutPanel::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 {
-	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
-	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iPreset);
-	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
-
+	GetTFInventory()->SetWeaponPreset(iClass, iSlot, iPreset);
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if (pPlayer)
 	{
 		char szCmd[64];
-		Q_snprintf(szCmd, sizeof(szCmd), "weaponpreset %d %d", iSlot, iPreset); //; tf2c_weaponset_show 0
+		Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d", iClass, iSlot, iPreset); //; tf2c_weaponset_show 0
 		engine->ExecuteClientCmd(szCmd);
 	}
 

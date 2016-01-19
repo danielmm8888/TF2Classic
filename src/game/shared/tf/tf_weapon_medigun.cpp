@@ -31,6 +31,57 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+const char *g_pszMedigunHealSounds[TF_MEDIGUN_COUNT] =
+{
+	"WeaponMedigun.Healing",
+	"WeaponMedigun.Healing",
+	"Weapon_Quick_Fix.Healing",
+	"WeaponMedigun_Vaccinator.Healing",
+	"WeaponMedigun.Healing"
+};
+
+typedef struct
+{
+	const char *fullcharge;
+	const char *beam;
+	const char *beam_invlun;
+}
+MedigunParticles_t;
+
+MedigunParticles_t g_MedigunParticles[TF_MEDIGUN_COUNT] =
+{
+	// Stock
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Kritzkrieg
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"kritz_beam_%s",
+		"kritz_beam_%s_invun"
+	},
+	// Quick-Fix
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Vaccinator
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"medicgun_beam_%s",
+		"medicgun_beam_%s_invun"
+	},
+	// Overhealer
+	{
+		"medicgun_invulnstatus_fullcharge_%s",
+		"overhealer_%s_beam",
+		"overhealer_%s_beam"
+	},
+};
+
 // Buff ranges
 ConVar weapon_medigun_damage_modifier( "weapon_medigun_damage_modifier", "1.5", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Scales the damage a player does while being healed with the medigun." );
 ConVar weapon_medigun_construction_rate( "weapon_medigun_construction_rate", "10", FCVAR_CHEAT | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY, "Constructing object health healed per second by the medigun." );
@@ -44,8 +95,6 @@ ConVar tf_medigun_autoheal( "tf_medigun_autoheal", "0", FCVAR_CLIENTDLL | FCVAR_
 #if !defined (CLIENT_DLL)
 ConVar tf_medigun_lagcomp(  "tf_medigun_lagcomp", "1", FCVAR_DEVELOPMENTONLY );
 #endif
-
-static const char *s_pszMedigunHealTargetThink = "MedigunHealTargetThink";
 
 #ifdef CLIENT_DLL
 //-----------------------------------------------------------------------------
@@ -70,7 +119,7 @@ IMPLEMENT_NETWORKCLASS_ALIASED( WeaponMedigun, DT_WeaponMedigun )
 
 BEGIN_NETWORK_TABLE( CWeaponMedigun, DT_WeaponMedigun )
 #if !defined( CLIENT_DLL )
-	SendPropFloat( SENDINFO(m_flChargeLevel), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+	SendPropFloat( SENDINFO( m_flChargeLevel ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 	SendPropEHandle( SENDINFO( m_hHealingTarget ) ),
 	SendPropBool( SENDINFO( m_bHealing ) ),
 	SendPropBool( SENDINFO( m_bAttacking ) ),
@@ -174,21 +223,27 @@ void CWeaponMedigun::WeaponReset( void )
 void CWeaponMedigun::Precache()
 {
 	BaseClass::Precache();
+
+	int iType = GetMedigunType();
+
+	PrecacheScriptSound( g_pszMedigunHealSounds[iType] );
+
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
-	PrecacheScriptSound( "WeaponMedigun.Healing" );
 	PrecacheScriptSound( "WeaponMedigun.Charged" );
-	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_blue" );
-	PrecacheParticleSystem( "medicgun_invulnstatus_fullcharge_red" );
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_green");
-	PrecacheParticleSystem("medicgun_invulnstatus_fullcharge_yellow");
-	PrecacheParticleSystem( "medicgun_beam_red_invun" );
-	PrecacheParticleSystem( "medicgun_beam_red" );
-	PrecacheParticleSystem( "medicgun_beam_blue_invun" );
-	PrecacheParticleSystem( "medicgun_beam_blue" );
-	PrecacheParticleSystem("medicgun_beam_green_invun");
-	PrecacheParticleSystem("medicgun_beam_green");
-	PrecacheParticleSystem("medicgun_beam_yellow_invun");
-	PrecacheParticleSystem("medicgun_beam_yellow");
+
+	for ( int i = TF_TEAM_RED; i < TF_TEAM_COUNT; i++ )
+	{
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].fullcharge, i ) );
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam, i ) );
+		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam_invlun, i ) );
+	}
+
+	// Precache charge sounds.
+	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )
+	{
+		PrecacheScriptSound( g_MedigunEffects[i].sound_enable );
+		PrecacheScriptSound( g_MedigunEffects[i].sound_disable );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -204,8 +259,7 @@ bool CWeaponMedigun::Deploy( void )
 		CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 		if ( m_bChargeRelease && pOwner )
 		{
-			pOwner->m_Shared.RecalculateInvuln();
-			pOwner->m_Shared.RecalculateCrits();
+			pOwner->m_Shared.RecalculateChargeEffects();
 		}
 #endif
 
@@ -236,8 +290,7 @@ bool CWeaponMedigun::Holster( CBaseCombatWeapon *pSwitchingTo )
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( pOwner )
 	{
-		pOwner->m_Shared.RecalculateInvuln( true );
-		pOwner->m_Shared.RecalculateCrits(true);
+		pOwner->m_Shared.RecalculateChargeEffects( true );
 	}
 #endif
 
@@ -256,8 +309,16 @@ void CWeaponMedigun::UpdateOnRemove( void )
 {
 	RemoveHealingTarget( true );
 	m_bAttacking = false;
+	m_bChargeRelease = false;
+	m_bHolstered = true;
 
-#ifdef CLIENT_DLL
+#ifndef CLIENT_DLL
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		pOwner->m_Shared.RecalculateChargeEffects( true );
+	}
+#else
 	if ( m_bPlayingSound )
 	{
 		m_bPlayingSound = false;
@@ -265,9 +326,8 @@ void CWeaponMedigun::UpdateOnRemove( void )
 	}
 
 	UpdateEffects();
+	ManageChargeEffect();
 #endif
-
-
 
 	BaseClass::UpdateOnRemove();
 }
@@ -293,7 +353,47 @@ float CWeaponMedigun::GetStickRange( void )
 //-----------------------------------------------------------------------------
 float CWeaponMedigun::GetHealRate( void )
 {
-	return (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+	float flHealRate = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+	CALL_ATTRIB_HOOK_FLOAT( flHealRate, mult_medigun_healrate );
+	return flHealRate;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CWeaponMedigun::GetMedigunType( void )
+{
+	int iType = 0;
+	CALL_ATTRIB_HOOK_INT( iType, set_weapon_mode );
+
+	if ( iType >= 0 && iType < TF_MEDIGUN_COUNT )
+		return iType;
+
+	AssertMsg( 0, "Invalid medigun type!\n" );
+	return TF_MEDIGUN_STOCK;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+medigun_charge_types CWeaponMedigun::GetChargeType( void )
+{
+	int iChargeType = TF_CHARGE_INVULNERABLE;
+	CALL_ATTRIB_HOOK_INT( iChargeType, set_charge_type );
+
+	if ( iChargeType > TF_CHARGE_NONE && iChargeType < TF_CHARGE_COUNT )
+		return (medigun_charge_types)iChargeType;
+
+	AssertMsg( 0, "Invalid charge type!\n" );
+	return TF_CHARGE_NONE;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CWeaponMedigun::GetHealSound( void )
+{
+	return g_pszMedigunHealSounds[GetMedigunType()];
 }
 
 //-----------------------------------------------------------------------------
@@ -520,8 +620,7 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 				pTFPlayer->m_Shared.Heal( pOwner, GetHealRate() );
 			}
 
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
-			pTFPlayer->m_Shared.RecalculateCrits(false);
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 		}
 
 		if ( m_flReleaseStartedAt && m_flReleaseStartedAt < (gpGlobals->curtime + 0.2) )
@@ -545,10 +644,17 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 				{
 					float flChargeAmount = gpGlobals->frametime / weapon_medigun_charge_rate.GetFloat();
 
-					// Reduced charge for healing fully healed guys
-					if ( pNewTarget->GetHealth() >= iBoostMax && ( TFGameRules() && !TFGameRules()->InSetup() ) )
+					CALL_ATTRIB_HOOK_FLOAT( flChargeAmount, mult_medigun_uberchargerate );
+
+					if ( TFGameRules() && TFGameRules()->InSetup() )
 					{
-						flChargeAmount *= 0.5;
+						// Build charge at triple rate during setup
+						flChargeAmount *= 3.0f;
+					}
+					else if ( pNewTarget->GetHealth() >= iBoostMax )
+					{
+						// Reduced charge for healing fully healed guys
+						flChargeAmount *= 0.5f;
 					}
 
 					int iTotalHealers = pTFPlayer->m_Shared.GetNumHealers();
@@ -581,13 +687,35 @@ bool CWeaponMedigun::FindAndHealTargets( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponMedigun::AddCharge(void)
+void CWeaponMedigun::AddCharge( float flAmount )
 {
-	float flNewLevel = min(m_flChargeLevel + 0.25, 1.0);
+	float flChargeRate = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flChargeRate, mult_medigun_uberchargerate );
+	if ( !flChargeRate ) // Can't earn uber.
+		return;
+
+	float flNewLevel = min( m_flChargeLevel + flAmount, 1.0 );
+
+#ifdef GAME_DLL
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	CTFPlayer *pHealingTarget = ToTFPlayer( m_hHealingTarget );
+
+	if ( !m_bChargeRelease && flNewLevel >= 1.0 && m_flChargeLevel < 1.0 )
+	{
+		if ( pPlayer )
+		{
+			pPlayer->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEREADY );
+		}
+
+		if ( pHealingTarget )
+		{
+			pHealingTarget->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEREADY );
+		}
+	}
+#endif
+
 	m_flChargeLevel = flNewLevel;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -627,8 +755,7 @@ void CWeaponMedigun::DrainCharge( void )
 			}
 			*/
 
-			pOwner->m_Shared.RecalculateInvuln();
-			pOwner->m_Shared.RecalculateCrits();
+			pOwner->m_Shared.RecalculateChargeEffects();
 #endif
 		}
 	}
@@ -744,8 +871,7 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 			CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 			CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
 			pTFPlayer->m_Shared.StopHealing( pOwner );
-			pTFPlayer->m_Shared.RecalculateInvuln( false );
-			pTFPlayer->m_Shared.RecalculateCrits( false );
+			pTFPlayer->m_Shared.RecalculateChargeEffects( false );
 
 			pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_STOPPEDHEALING, pTFPlayer->IsAlive() ? "healtarget:alive" : "healtarget:dead" );
 			pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_STOPPEDHEALING );
@@ -870,16 +996,14 @@ void CWeaponMedigun::SecondaryAttack( void )
 
 #ifdef GAME_DLL
 	CTF_GameStats.Event_PlayerInvulnerable( pOwner );
-	pOwner->m_Shared.RecalculateInvuln();
-	pOwner->m_Shared.RecalculateCrits();
+	pOwner->m_Shared.RecalculateChargeEffects();
 
 	pOwner->SpeakConceptIfAllowed( MP_CONCEPT_MEDIC_CHARGEDEPLOYED );
 
 	if ( m_hHealingTarget && m_hHealingTarget->IsPlayer() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer( m_hHealingTarget );
-		pTFPlayer->m_Shared.RecalculateInvuln();
-		pTFPlayer->m_Shared.RecalculateCrits();
+		pTFPlayer->m_Shared.RecalculateChargeEffects();
 		pTFPlayer->SpeakConceptIfAllowed( MP_CONCEPT_HEALTARGET_CHARGEDEPLOYED );
 	}
 
@@ -921,7 +1045,7 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 {
 	if ( bStopHealingSound )
 	{
-		StopSound( "WeaponMedigun.Healing" );
+		StopSound( GetHealSound() );
 	}
 
 	if ( bStopNoTargetSound )
@@ -935,19 +1059,6 @@ void CWeaponMedigun::StopHealSound( bool bStopHealingSound, bool bStopNoTargetSo
 //-----------------------------------------------------------------------------
 void CWeaponMedigun::ManageChargeEffect( void )
 {
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
-
-	if ( pLocalPlayer == NULL )
-		return;
-
-	if ( pLocalPlayer == GetTFPlayerOwner() )
-	{
-		pEffectOwner = pLocalPlayer->GetViewModel();
-		if ( !pEffectOwner )
-			return;
-	}
-
 	bool bOwnerTaunting = false;
 
 	if ( GetTFPlayerOwner() && GetTFPlayerOwner()->m_Shared.InCond( TF_COND_TAUNTING ) == true )
@@ -957,30 +1068,14 @@ void CWeaponMedigun::ManageChargeEffect( void )
 
 	if ( GetTFPlayerOwner() && bOwnerTaunting == false && m_bHolstered == false && ( m_flChargeLevel >= 1.0f || m_bChargeRelease == true ) )
 	{
-		if ( m_pChargeEffect == NULL )
-		{
-			char *pszEffectName = NULL;
+		C_BaseEntity *pEffectOwner = GetWeaponForEffect();
 
-			switch( GetTFPlayerOwner()->GetTeamNumber() )
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_blue";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_red";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_invulnstatus_fullcharge_yellow";
-				break;
-			default:
-				pszEffectName = "";
-				break;
-			}
+		if ( pEffectOwner && m_pChargeEffect == NULL )
+		{
+			const char *pszEffectName = ConstructTeamParticle( g_MedigunParticles[GetMedigunType()].fullcharge, GetTFPlayerOwner()->GetTeamNumber() );
 
 			m_pChargeEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
+			m_hChargeEffectHost = pEffectOwner;
 		}
 
 		if ( m_pChargedSound == NULL )
@@ -995,9 +1090,16 @@ void CWeaponMedigun::ManageChargeEffect( void )
 	}
 	else
 	{
+		C_BaseEntity *pEffectOwner = m_hChargeEffectHost.Get();
+
 		if ( m_pChargeEffect != NULL )
 		{
-			pEffectOwner->ParticleProp()->StopEmission( m_pChargeEffect );
+			if ( pEffectOwner )
+			{
+				pEffectOwner->ParticleProp()->StopEmission( m_pChargeEffect );
+				m_hChargeEffectHost = NULL;
+			}
+
 			m_pChargeEffect = NULL;
 		}
 
@@ -1086,7 +1188,7 @@ void CWeaponMedigun::ClientThink()
 		{
 			m_bPlayingSound = true;
 			CLocalPlayerFilter filter;
-			EmitSound( filter, entindex(), "WeaponMedigun.Healing" );
+			EmitSound( filter, entindex(), GetHealSound() );
 		}
 	}
 
@@ -1106,26 +1208,19 @@ void CWeaponMedigun::UpdateEffects( void )
 	if ( !pFiringPlayer )
 		return;
 
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	C_BaseEntity *pEffectOwner = this;
-	if ( pLocalPlayer == pFiringPlayer )
-	{
-		pEffectOwner = pLocalPlayer->GetViewModel();
-		if ( !pEffectOwner )
-			return;
-	}
+	C_BaseEntity *pEffectOwner = m_hHealingTargetEffect.hOwner.Get();
 
 	// Remove all the effects
-	if ( pEffectOwner )
+	if ( m_hHealingTargetEffect.pEffect && pEffectOwner )
 	{
 		pEffectOwner->ParticleProp()->StopEmission( m_hHealingTargetEffect.pEffect );
 	}
-	else
-	{
-		m_hHealingTargetEffect.pEffect->StopEmission();
-	}
+
+	m_hHealingTargetEffect.hOwner = NULL;
 	m_hHealingTargetEffect.pTarget = NULL;
 	m_hHealingTargetEffect.pEffect = NULL;
+
+	pEffectOwner = GetWeaponForEffect();
 
 	// Don't add targets if the medic is dead
 	if ( !pEffectOwner || pFiringPlayer->IsPlayerDead() || !pFiringPlayer->IsPlayerClass( TF_CLASS_MEDIC ) )
@@ -1138,54 +1233,13 @@ void CWeaponMedigun::UpdateEffects( void )
 		if ( m_hHealingTargetEffect.pTarget == m_hHealingTarget )
 			return;
 
-		const char *pszEffectName;
-		if (m_bChargeRelease)
-		{
-			switch (GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue_invun";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red_invun";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green_invun";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow_invun";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			}
-		}
-		else
-		{
-			switch (GetTeamNumber())
-			{
-			case TF_TEAM_BLUE:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			case TF_TEAM_RED:
-				pszEffectName = "medicgun_beam_red";
-				break;
-			case TF_TEAM_GREEN:
-				pszEffectName = "medicgun_beam_green";
-				break;
-			case TF_TEAM_YELLOW:
-				pszEffectName = "medicgun_beam_yellow";
-				break;
-			default:
-				pszEffectName = "medicgun_beam_blue";
-				break;
-			}
-		}
-
+		const char *pszFormat = IsReleasingCharge() ? g_MedigunParticles[GetMedigunType()].beam_invlun : g_MedigunParticles[GetMedigunType()].beam;
+		const char *pszEffectName = ConstructTeamParticle( pszFormat, GetTeamNumber() );
 
 		CNewParticleEffect *pEffect = pEffectOwner->ParticleProp()->Create( pszEffectName, PATTACH_POINT_FOLLOW, "muzzle" );
 		pEffectOwner->ParticleProp()->AddControlPoint( pEffect, 1, m_hHealingTarget, PATTACH_ABSORIGIN_FOLLOW, NULL, Vector(0,0,50) );
 
+		m_hHealingTargetEffect.hOwner = pEffectOwner;
 		m_hHealingTargetEffect.pTarget = m_hHealingTarget;
 		m_hHealingTargetEffect.pEffect = pEffect;
 	}

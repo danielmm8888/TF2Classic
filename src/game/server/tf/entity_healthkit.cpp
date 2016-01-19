@@ -21,6 +21,7 @@
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
 
 extern ConVar tf_max_health_boost;
+extern ConVar tf2c_dm_max_health_boost;
 
 LINK_ENTITY_TO_CLASS( item_healthkit_full, CHealthKit );
 LINK_ENTITY_TO_CLASS( item_healthkit_small, CHealthKitSmall );
@@ -65,7 +66,7 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 	{
 		if (GetPowerupSize() == POWERUP_TINY) // TF2C tiny medkit, overheals. can't pick up if hp would exceed max
 		{
-			if (pPlayer->GetHealth() < pPlayer->GetMaxHealth() * (tf_max_health_boost.GetFloat() - PackRatios[GetPowerupSize()]))
+			if (pPlayer->GetHealth() < pPlayer->GetMaxHealth() * (tf2c_dm_max_health_boost.GetFloat() - PackRatios[GetPowerupSize()]))
 			{
 				if (pPlayer->TakeHealth(ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_IGNORE_MAXHEALTH))
 				{

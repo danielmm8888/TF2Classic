@@ -17,23 +17,31 @@
 class CWeaponSpawner : public CTFPowerup
 {
 public:
-	DECLARE_CLASS(CWeaponSpawner, CTFPowerup);
+	DECLARE_CLASS( CWeaponSpawner, CTFPowerup );
 	DECLARE_DATADESC();
 	DECLARE_SERVERCLASS();
 
 	CWeaponSpawner();
 
-	void	Spawn(void);
-	void	Precache(void);
-	bool	MyTouch(CBasePlayer *pPlayer);
-	void	EndTouch(CBaseEntity *pOther);
-	float	GetRespawnDelay(void);
+	void	Spawn( void );
+	void	Precache( void );
+	virtual bool KeyValue( const char *szKeyName, const char *szValue );
+	virtual CBaseEntity* Respawn( void );
+	virtual void	Materialize( void );
+	bool	MyTouch( CBasePlayer *pPlayer );
+	void	EndTouch( CBaseEntity *pOther );
+	float	GetRespawnDelay( void );
 
-	int		m_iWeaponNumber;
+	int		m_nWeaponID;
+	int		m_nItemID;
 	int		m_iRespawnTime;
 
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
+
 private:
-	CTFWeaponInfo *pWeaponInfo;
+	CEconItemView m_Item;
+	CTFWeaponInfo *m_pWeaponInfo;
 };
 
 #endif // ENTITY_HEALTHKIT_H

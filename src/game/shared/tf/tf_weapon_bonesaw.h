@@ -31,6 +31,12 @@ public:
 	CTFBonesaw() {}
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_BONESAW; }
 
+#ifdef CLIENT_DLL
+	virtual void		OnDataChanged( DataUpdateType_t updateType );
+	virtual bool		Deploy( void );
+	void				UpdateChargePoseParam( void );
+#endif
+
 private:
 
 	CTFBonesaw( const CTFBonesaw & ) {}

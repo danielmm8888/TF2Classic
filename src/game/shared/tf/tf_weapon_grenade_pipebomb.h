@@ -45,7 +45,6 @@ public:
 	bool		m_bPulsed;
 	float		m_flFullDamage;
 
-	CNetworkHandle( CBaseEntity, m_hLauncher );
 	virtual void	UpdateOnRemove( void );
 
 
@@ -54,6 +53,7 @@ public:
 
 	virtual void OnDataChanged( DataUpdateType_t updateType );
 	virtual const char *GetTrailParticleName( void );
+	virtual void CreateTrails( void );
 	virtual int DrawModel( int flags );
 	virtual void	Simulate( void );
 
@@ -63,7 +63,7 @@ public:
 
 	// Creation.
 	static CTFGrenadePipebombProjectile *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		                                         const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate );
+		                                         const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate, float flDamageMult );
 
 	// Overrides.
 	virtual void	Spawn();
@@ -73,8 +73,6 @@ public:
 	virtual void	Detonate();
 	virtual void	Fizzle();
 
-	virtual void	SetLauncher( CBaseEntity *pLauncher ) { m_hLauncher = pLauncher; }
-
 	void			SetPipebombMode( bool bRemoteDetonate );
 
 	virtual void	PipebombTouch( CBaseEntity *pOther );
@@ -83,6 +81,8 @@ public:
 	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
 
 	virtual CBaseEntity		*GetEnemy( void )			{ return m_hEnemy; }
+
+	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
 
 private:
 

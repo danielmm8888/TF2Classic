@@ -4,7 +4,7 @@ WeaponData
 	"printname"		"#TF_Weapon_Nailgun"
 	"BuiltRightHanded"	"0"
 	"weight"		"4"
-	"WeaponType"		"item2"
+	"WeaponType"		"primary"
 		
 	// Attributes TF.
 	"Damage"		"12"
@@ -41,7 +41,7 @@ WeaponData
 
 	SoundData
 	{
-		"reload"		"Weapon_NailGun.Single"
+		"reload"		"Weapon_NailGun.Reload"
 		"empty"			"Weapon_NailGun.ClipEmpty"	
 		"single_shot"		"Weapon_NailGun.Single"
 		"burst"			"Weapon_NailGun.SingleCrit"

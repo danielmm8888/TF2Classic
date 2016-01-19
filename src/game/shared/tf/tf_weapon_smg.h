@@ -13,7 +13,7 @@
 // Client specific.
 #ifdef CLIENT_DLL
 #define CTFSMG C_TFSMG
-#define CTFSMG_Scout C_TFSMG_Scout
+#define CTFSMG_Primary C_TFSMG_Primary
 #endif
 
 //=============================================================================
@@ -43,14 +43,12 @@ private:
 	CTFSMG( const CTFSMG & ) {}
 };
 
-class CTFSMG_Scout : public CTFSMG
+class CTFSMG_Primary : public CTFSMG
 {
 public:
-	DECLARE_CLASS(CTFSMG_Scout, CTFSMG);
+	DECLARE_CLASS( CTFSMG_Primary, CTFSMG );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
-
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_SMG_SCOUT; }
 };
 
 #endif // TF_WEAPON_SMG_H

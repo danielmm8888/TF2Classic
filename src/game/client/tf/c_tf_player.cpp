@@ -48,7 +48,6 @@
 #include "tf_hud_statpanel.h"
 #include "input.h"
 #include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "tf_weapon_pipebomblauncher.h"
 #include "tf_hud_mediccallers.h"
 #include "in_main.h"
@@ -87,57 +86,22 @@ ConVar cl_autoreload( "cl_autoreload", "1",  FCVAR_USERINFO | FCVAR_ARCHIVE, "Wh
 ConVar tf2c_model_muzzleflash("tf2c_model_muzzleflash", "0", FCVAR_ARCHIVE, "Use the tf2 beta model based muzzleflash");
 ConVar tf2c_muzzlelight("tf2c_muzzlelight", "0", FCVAR_ARCHIVE, "Enable dynamic lights for muzzleflashes and the flamethrower");
 
-static void OnMercColorChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
+static void OnMercParticleChange( IConVar *var, const char *pOldValue, float flOldValue )
 {
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalPlayer)
+	if ( !pLocalPlayer )
 		return;
 
-	char szCommand[64];
-	int iRed = 0, iGreen = 0, iBlue = 0;
-	ConVar *pColorRed = cvar->FindVar("tf2c_setmerccolor_r");
-	ConVar *pColorGreen = cvar->FindVar("tf2c_setmerccolor_g");
-	ConVar *pColorBlue = cvar->FindVar("tf2c_setmerccolor_b");
-	if (pColorRed) iRed = pColorRed->GetInt();
-	if (pColorGreen) iGreen = pColorGreen->GetInt();
-	if (pColorBlue) iBlue = pColorBlue->GetInt();
-	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmerccolor %i %i %i", iRed, iGreen, iBlue);
-	engine->ExecuteClientCmd(szCommand);
+	ConVar *pCvar = (ConVar *)var;
+
+	pLocalPlayer->m_Shared.SetRespawnParticleID( pCvar->GetInt() );
 }
-static void OnMercParticleChange(IConVar *var = NULL, const char *pOldValue = 0, float flOldValue = 0)
-{
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalPlayer)
-		return;
-	char szCommand[64];
-	int iRespawnParticleID = 0;
-	ConVar *pRespawnParticle = cvar->FindVar("tf2c_setmercparticle");
-	if (pRespawnParticle) iRespawnParticleID = pRespawnParticle->GetInt();
-	Q_snprintf(szCommand, sizeof(szCommand), "tf2c_setmercparticle %i", iRespawnParticleID);
-	engine->ServerCmd(szCommand);
-}
-ConVar tf2c_setmerccolor_r("tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE, "Sets merc color's red channel value", OnMercColorChange);
-ConVar tf2c_setmerccolor_g("tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE, "Sets merc color's green channel value", OnMercColorChange);
-ConVar tf2c_setmerccolor_b("tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE, "Sets merc color's blue channel value", OnMercColorChange);
-ConVar tf2c_setmercparticle("tf2c_setmercparticle", "0", FCVAR_ARCHIVE, "Sets merc's respawn particle index", OnMercParticleChange);
-// Moved to the server
-/*
-void tf2c_setmerccolor_f(const CCommand& args)
-{
-	if (args.ArgC() < 4)
-	{
-		Msg("Format: tf2c_setmerccolor r g b\n");
-		return;
-	}
-	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	
-	if (!pPlayer)
-		return;
-	pPlayer->m_flPlayerColor[0] = min(atoi(args.Arg(1)), 255) / 255.0f;
-	pPlayer->m_flPlayerColor[1] = min(atoi(args.Arg(2)), 255) / 255.0f;
-	pPlayer->m_flPlayerColor[2] = min(atoi(args.Arg(3)), 255) / 255.0f;
-}
-ConCommand tf2c_setmerccolor("tf2c_setmerccolor", tf2c_setmerccolor_f, "Sets the color of the mercenary.\nFormat: tf2c_setmerccolor r g b\n", 0); */
+
+ConVar tf2c_setmerccolor_r( "tf2c_setmerccolor_r", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's red channel value", true, 0, true, 255 );
+ConVar tf2c_setmerccolor_g( "tf2c_setmerccolor_g", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's green channel value", true, 0, true, 255 );
+ConVar tf2c_setmerccolor_b( "tf2c_setmerccolor_b", "0", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc color's blue channel value", true, 0, true, 255 );
+ConVar tf2c_setmercparticle( "tf2c_setmercparticle", "1", FCVAR_ARCHIVE | FCVAR_USERINFO, "Sets merc's respawn particle index", OnMercParticleChange );
+
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
 
@@ -422,7 +386,7 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		int nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
 		SetModelIndex( nModelIndex );	
 
-		if (TFGameRules()->IsDeathmatch())
+		if ( TFGameRules()->IsDeathmatch() )
 		{
 			m_nSkin = 8;
 		}
@@ -1114,30 +1078,35 @@ public:
 			Hype Mode: 50 2 50
 		*/
 
-		if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_CRITBOOSTED) )
+		if ( pPlayer && pPlayer->m_Shared.IsCritBoosted() )
 		{
-			switch ( pPlayer->GetTeamNumber() )
+			if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 			{
-			case TF_TEAM_RED:
-				vecColor = Vector(94, 8, 5);
-				break;
-			case TF_TEAM_BLUE:
-				vecColor = Vector(6, 21, 80);
-				break;
-			case TF_TEAM_GREEN:
-				vecColor = Vector(1, 28, 9);
-				break;
-			case TF_TEAM_YELLOW:
-				vecColor = Vector(28, 28, 9);
-				break;
+				Vector critColor = pPlayer->m_vecPlayerColor;
+				critColor *= 255;
+				critColor *= 0.30;
+				vecColor = critColor;
 			}
-		}
-		else if ( pPlayer && pPlayer->m_Shared.InCond(TF_COND_POWERUP_CRITDAMAGE) )
-		{
-			Vector critColor = pPlayer->m_vecPlayerColor;
-			critColor *= 255;
-			critColor *= 0.30;
-			vecColor = critColor;
+			else if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ||
+				pPlayer->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ||
+				pPlayer->GetTeamNumber() == pPlayer->m_Shared.GetDisguiseTeam() )
+			{
+				switch ( pPlayer->GetTeamNumber() )
+				{
+				case TF_TEAM_RED:
+					vecColor = Vector( 94, 8, 5 );
+					break;
+				case TF_TEAM_BLUE:
+					vecColor = Vector( 6, 21, 80 );
+					break;
+				case TF_TEAM_GREEN:
+					vecColor = Vector( 1, 28, 9 );
+					break;
+				case TF_TEAM_YELLOW:
+					vecColor = Vector( 28, 28, 9 );
+					break;
+				}
+			}
 		}
 
 		m_pResult->SetVecValue( vecColor.Base(), 3 );
@@ -1153,75 +1122,84 @@ EXPOSE_INTERFACE(CProxyModelGlowColor, IMaterialProxy, "ModelGlowColor" IMATERIA
 class CProxyItemTintColor : public CResultProxy
 {
 public:
-	void OnBind(void *pC_BaseEntity)
+	void OnBind( void *pC_BaseEntity )
 	{
-		Assert(m_pResult);
+		Assert( m_pResult );
 
 		if ( !pC_BaseEntity )
 		{
-			m_pResult->SetVecValue(1, 1, 1);
+			m_pResult->SetVecValue( 1, 1, 1 );
 			return;
 		}
 
-		C_BaseEntity *pEntity = BindArgToEntity(pC_BaseEntity);
-		if (!pEntity)
+		C_BaseEntity *pEntity = BindArgToEntity( pC_BaseEntity );
+		if ( !pEntity )
 			return;
 
 		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel*>(pEntity);
-		if (pPanelModel)
+		if ( pPanelModel )
 		{
-			m_pResult->SetVecValue(pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z);
+			m_pResult->SetVecValue( pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z );
 			return;
 		}
 
 		C_TFPlayer *pPlayer = null;
 
 		C_TFRagdoll *pRagdoll = dynamic_cast< C_TFRagdoll* >(pEntity);
-		if (pRagdoll)
+		if ( pRagdoll )
 		{
 			EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
-			pPlayer = dynamic_cast<C_TFPlayer*>(hPlayer.Get());
+			pPlayer = ToTFPlayer( hPlayer.Get() );
 		}
 
-		C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
-		if (pWeapon)
+		if ( !pPlayer )
 		{
-			pPlayer = (C_TFPlayer*)pWeapon->GetOwner();
-		}
-
-		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
-		if (pVMAddon)
-		{
-			if (pVMAddon->m_viewmodel.Get())
+			C_TFWeaponBase *pWeapon = dynamic_cast< C_TFWeaponBase* >(pEntity);
+			if ( pWeapon )
 			{
-				pPlayer = (C_TFPlayer*)pVMAddon->m_viewmodel.Get()->GetOwner();
+				pPlayer = ToTFPlayer( pWeapon->GetOwner() );
 			}
 		}
 
-		C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
-		if (pVM)
+		if ( !pPlayer && TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			pPlayer = (C_TFPlayer*)pVM->GetOwner();
-		}
-
-		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
-		{
-			C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj*>(pEntity);
-			if (pGrenade)
+			C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
+			if ( pVMAddon )
 			{
-				pPlayer = ToTFPlayer(pGrenade->GetThrower());
+				if ( pVMAddon->m_viewmodel.Get() )
+				{
+					pPlayer = ToTFPlayer( pVMAddon->m_viewmodel.Get()->GetOwner() );
+				}
+			}
+
+			if ( !pPlayer )
+			{
+				C_BaseViewModel *pVM = dynamic_cast< C_BaseViewModel* >(pEntity);
+				if ( !pPlayer && pVM )
+				{
+					pPlayer = ToTFPlayer( pVM->GetOwner() );
+				}
+			}
+
+			if ( !pPlayer )
+			{
+				C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj*>(pEntity);
+				if ( pGrenade )
+				{
+					pPlayer = ToTFPlayer( pGrenade->GetThrower() );
+				}
 			}
 		}
 
-		if (!pPlayer)
+		if ( !pPlayer )
 		{
-			pPlayer = dynamic_cast< C_TFPlayer* >(pEntity);
+			pPlayer = ToTFPlayer( pEntity );
 		}
 
 		// Final check to see if it's a player
-		if (pPlayer)
+		if ( pPlayer )
 		{
-			m_pResult->SetVecValue(pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z);
+			m_pResult->SetVecValue( pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z );
 			return;
 		}
 
@@ -1523,12 +1501,16 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropEHandle( RECVINFO( m_hRagdoll ) ),
 	RecvPropDataTable( RECVINFO_DT( m_PlayerClass ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerClassShared ) ),
 	RecvPropDataTable( RECVINFO_DT( m_Shared ), 0, &REFERENCE_RECV_TABLE( DT_TFPlayerShared ) ),
-	RecvPropEHandle( RECVINFO(m_hItem ) ),
+	RecvPropDataTable( RECVINFO_DT( m_AttributeManager ), 0, &REFERENCE_RECV_TABLE( DT_AttributeManager ) ),
 
-	RecvPropVector(RECVINFO(m_vecPlayerColor)),
+	RecvPropEHandle( RECVINFO( m_hItem ) ),
+
+	RecvPropVector( RECVINFO( m_vecPlayerColor ) ),
 
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
+
+	RecvPropInt( RECVINFO( m_nForceTauntCam ) ),
 
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
 
@@ -1556,6 +1538,8 @@ END_PREDICTION_DATA()
 C_TFPlayer::C_TFPlayer() : 
 	m_iv_angEyeAngles( "C_TFPlayer::m_iv_angEyeAngles" )
 {
+	m_pAttributes = this;
+
 	m_PlayerAnimState = CreateTFPlayerAnimState( this );
 	m_Shared.Init( this );
 
@@ -1634,6 +1618,8 @@ void C_TFPlayer::UpdateOnRemove( void )
 	ParticleProp()->StopParticlesInvolving( this );
 
 	m_Shared.RemoveAllCond( this );
+
+	m_Shared.UpdateCritBoostEffect( true );
 
 	if ( IsLocalPlayer() )
 	{
@@ -1722,7 +1708,7 @@ void C_TFPlayer::SetDormant( bool bDormant )
 	// If I'm burning, stop the burning sounds
 	if ( !IsDormant() && bDormant )
 	{
-		if ( m_pBurningSound) 
+		if ( m_pBurningSound ) 
 		{
 			StopBurningSound();
 		}
@@ -1730,6 +1716,8 @@ void C_TFPlayer::SetDormant( bool bDormant )
 		{
 			ShowNemesisIcon( false );
 		}
+		// Kill crit effects.
+		m_Shared.UpdateCritBoostEffect( true );
 	}
 
 	if ( IsDormant() && !bDormant )
@@ -1761,6 +1749,7 @@ void C_TFPlayer::OnPreDataChanged( DataUpdateType_t updateType )
 	m_bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
 	m_iOldDisguiseTeam = m_Shared.GetDisguiseTeam();
 	m_iOldDisguiseClass = m_Shared.GetDisguiseClass();
+	m_hOldActiveWeapon.Set( GetActiveTFWeapon() );
 
 	m_Shared.OnPreDataChanged();
 }
@@ -1773,7 +1762,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	// C_BaseEntity assumes we're networking the entity's angles, so pretend that it
 	// networked the same value we already have.
 	SetNetworkAngles( GetLocalAngles() );
-	
+
 	BaseClass::OnDataChanged( updateType );
 
 	if ( updateType == DATA_UPDATE_CREATED )
@@ -1788,6 +1777,19 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 		{
 			InitInvulnerableMaterial();
 			m_bUpdatePartyHat = true;
+		}
+
+		UpdateWearables();
+	}
+
+	CTFWeaponBase *pActiveWpn = GetActiveTFWeapon();
+	if ( pActiveWpn )
+	{
+		if ( m_hOldActiveWeapon.Get() == NULL ||
+			pActiveWpn != m_hOldActiveWeapon.Get() ||
+			m_iOldPlayerClass != m_PlayerClass.GetClassIndex() )
+		{
+			pActiveWpn->SetViewModel();
 		}
 	}
 
@@ -2048,52 +2050,62 @@ void C_TFPlayer::StopBurningSound( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFPlayer::OnAddTeleported( void )
+void C_TFPlayer::GetGlowEffectColor( float *r, float *g, float *b )
 {
-	if ( !m_pTeleporterEffect && !m_Shared.InCond( TF_COND_STEALTHED ) )
+	switch ( GetTeamNumber() )
 	{
-		char *pEffect = NULL;
-
-		int iTeam = GetTeamNumber();
-		if ( IsPlayerClass( TF_CLASS_SPY ) && m_Shared.InCond( TF_COND_DISGUISED ) )
-		{
-			iTeam = m_Shared.GetDisguiseTeam();
-		}
-
-		switch( iTeam )
-		{
-		case TF_TEAM_RED:
-			pEffect = "player_recent_teleport_red";
-			break;
 		case TF_TEAM_BLUE:
-			pEffect = "player_recent_teleport_blue";
+			*r = 0.49f; *g = 0.66f; *b = 0.7699971f;
 			break;
-		case TF_TEAM_GREEN:
-			pEffect = "player_recent_teleport_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pEffect = "player_recent_teleport_yellow";
-			break;
-		default:
-			break;
-		}
 
-		if ( pEffect )
-		{
-			m_pTeleporterEffect = ParticleProp()->Create( pEffect, PATTACH_ABSORIGIN_FOLLOW );
-		}
+		case TF_TEAM_RED:
+			*r = 0.74f; *g = 0.23f; *b = 0.23f;
+			break;
+
+		case TF_TEAM_GREEN:
+			*r = 0.03f; *g = 0.68f; *b = 0;
+			break;
+
+		case TF_TEAM_YELLOW:
+			*r = 1.0f; *g = 0.62f; *b = 0;
+			break;
+
+		default:
+			*r = 0.76f; *g = 0.76f; *b = 0.76f;
+			break;
 	}
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void C_TFPlayer::OnRemoveTeleported( void )
+void C_TFPlayer::UpdateRecentlyTeleportedEffect( void )
 {
-	if ( m_pTeleporterEffect )
+	if ( m_Shared.ShouldShowRecentlyTeleported() )
 	{
-		ParticleProp()->StopEmission( m_pTeleporterEffect );
-		m_pTeleporterEffect = NULL;
+		if ( !m_pTeleporterEffect )
+		{
+			int iTeam = GetTeamNumber();
+			if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+			{
+				iTeam = m_Shared.GetDisguiseTeam();
+			}
+
+			const char *pszEffect = ConstructTeamParticle( "player_recent_teleport_%s", iTeam );
+
+			if ( pszEffect )
+			{
+				m_pTeleporterEffect = ParticleProp()->Create( pszEffect, PATTACH_ABSORIGIN_FOLLOW );
+			}
+		}
+	}
+	else
+	{
+		if ( m_pTeleporterEffect )
+		{
+			ParticleProp()->StopEmission( m_pTeleporterEffect );
+			m_pTeleporterEffect = NULL;
+		}
 	}
 }
 
@@ -2112,12 +2124,6 @@ void C_TFPlayer::OnPlayerClassChange( void )
 		char szCommand[128];
 		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
 		engine->ExecuteClientCmd(szCommand);
-
-		if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		{
-			OnMercColorChange();
-			OnMercParticleChange();
-		}
 	}
 }
 
@@ -2272,29 +2278,10 @@ void C_TFPlayer::ShowNemesisIcon( bool bShow )
 {
 	if ( bShow )
 	{
-		const char *pszEffect = NULL;
-		switch ( GetTeamNumber() )
-		{
-		case TF_TEAM_RED:
-			pszEffect = "particle_nemesis_red";
-			break;
-		case TF_TEAM_BLUE:
-			pszEffect = "particle_nemesis_blue";
-			break;
-		case TF_TEAM_GREEN:
-			pszEffect = "particle_nemesis_green";
-			break;
-		case TF_TEAM_YELLOW:
-			pszEffect = "particle_nemesis_yellow";
-			break;
-		default:
-			return;	// shouldn't get called if we're not on a team; bail out if it does
-		}
-		if (TFGameRules()->IsDeathmatch())
-			pszEffect = "particle_nemesis_dm";
+		const char *pszEffect = ConstructTeamParticle( "particle_nemesis_%s", GetTeamNumber(), true );
 
 		m_Shared.SetParticleToMercColor(
-			ParticleProp()->Create(pszEffect, PATTACH_POINT_FOLLOW, "head")
+			ParticleProp()->Create( pszEffect, PATTACH_POINT_FOLLOW, "head" )
 		);
 	}
 	else
@@ -2324,7 +2311,7 @@ static Vector TF_TAUNTCAM_HULL_MAX( 9.0f, 9.0f, 9.0f );
 
 static ConVar tf_tauntcam_yaw( "tf_tauntcam_yaw", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 static ConVar tf_tauntcam_pitch( "tf_tauntcam_pitch", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
-static ConVar tf_tauntcam_dist( "tf_tauntcam_dist", "110", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
+static ConVar tf_tauntcam_dist( "tf_tauntcam_dist", "150", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 
 ConVar setcamerathird("setcamerathird", "0", 0);
 
@@ -2340,6 +2327,10 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;
 
+	// Already in third person?
+	if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+		return;
+
 	// Save the old view angles.
 	/*engine->GetViewAngles( m_angTauntEngViewAngles );
 	prediction->GetViewAngles( m_angTauntPredViewAngles );*/
@@ -2353,7 +2344,7 @@ void C_TFPlayer::TurnOnTauntCam( void )
 
 	QAngle vecCameraOffset( tf_tauntcam_pitch.GetFloat(), tf_tauntcam_yaw.GetFloat(), tf_tauntcam_dist.GetFloat() );
 
-	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( cam_idealdist.GetFloat(), cam_idealdistright.GetFloat(), cam_idealdistup.GetFloat() ) );
+	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( tf_tauntcam_dist.GetFloat(), 0.0f, 0.0f ) );
 	g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	::input->CAM_ToThirdPerson();
 	ThirdPersonSwitch( true );
@@ -2364,6 +2355,8 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2380,9 +2373,16 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );*/
 
 	g_ThirdPersonManager.SetOverridingThirdPerson( false );
+	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
+
+	if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+	{
+		ThirdPersonSwitch( true );
+		return;
+	}
+
 	::input->CAM_ToFirstPerson();
 	ThirdPersonSwitch( false );
-	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
 
 	// Reset the old view angles.
 	/*engine->SetViewAngles( m_angTauntEngViewAngles );
@@ -2400,6 +2400,8 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2410,7 +2412,14 @@ void C_TFPlayer::HandleTaunting( void )
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// Clear the taunt slot.
-	if ( !m_bWasTaunting && m_Shared.InCond( TF_COND_TAUNTING ) )
+	if ( !m_bWasTaunting && (
+		m_Shared.InCond( TF_COND_TAUNTING ) ||
+		m_Shared.IsLoser() ||
+		m_nForceTauntCam || 
+		m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_GIANT ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) ||
+		m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
 		m_bWasTaunting = true;
 
@@ -2421,7 +2430,16 @@ void C_TFPlayer::HandleTaunting( void )
 		}
 	}
 
-	if ( m_bWasTaunting && !m_Shared.InCond( TF_COND_TAUNTING ) )
+	if ( m_bWasTaunting && (
+		!m_Shared.InCond( TF_COND_TAUNTING ) &&
+		!m_Shared.IsLoser() && 
+		!m_nForceTauntCam &&
+		!m_Shared.InCond( TF_COND_PHASE ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_BOMB_HEAD ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_THRILLER ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_GIANT ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) &&
+		!m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
 		m_bWasTaunting = false;
 
@@ -2434,6 +2452,49 @@ void C_TFPlayer::HandleTaunting( void )
 			TurnOffTauntCam();
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void C_TFPlayer::ThirdPersonSwitch( bool bThirdPerson )
+{
+	BaseClass::ThirdPersonSwitch( bThirdPerson );
+
+	if ( bThirdPerson )
+	{
+		if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+		{
+			Vector vecOffset( TF_CAMERA_DIST, TF_CAMERA_DIST_RIGHT, TF_CAMERA_DIST_UP );
+
+			// Flip the angle if viewmodels are flipped.
+			if ( cl_flipviewmodels.GetBool() )
+			{
+				vecOffset.y *= -1.0f;
+			}
+
+			g_ThirdPersonManager.SetDesiredCameraOffset( vecOffset );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::CanLightCigarette( void )
+{
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	// Start smoke if we're not invisible or disguised
+	if ( IsPlayerClass( TF_CLASS_SPY ) && IsAlive() &&									// only on spy model
+		( !m_Shared.InCond( TF_COND_DISGUISED ) || !IsEnemyPlayer() ) &&	// disguise doesn't show for teammates
+		GetPercentInvisible() <= 0 &&										// don't start if invis
+		( pLocalPlayer != this ) && 										// don't show to local player
+		!m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) &&				// don't show if we're a dispenser
+		!( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == this ) )	// not if we're spectating this player first person
+		return true;
+
+	return false;
 }
 
 void C_TFPlayer::ClientThink()
@@ -2453,16 +2514,8 @@ void C_TFPlayer::ClientThink()
 	// Clear our healer, it'll be reset by the medigun client think if we're being healed
 	m_hHealer = NULL;
 
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	// Ugh, this check is getting ugly
-
-	// Start smoke if we're not invisible or disguised
-	if ( IsPlayerClass( TF_CLASS_SPY ) && IsAlive() &&									// only on spy model
-		( !m_Shared.InCond( TF_COND_DISGUISED ) || !IsEnemyPlayer() ) &&	// disguise doesn't show for teammates
-		GetPercentInvisible() <= 0 &&										// don't start if invis
-		( pLocalPlayer != this ) && 										// don't show to local player
-		!( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == this ) )	// not if we're spectating this player first person
+	if ( CanLightCigarette() )
 	{
 		if ( !m_bCigaretteSmokeActive )
 		{
@@ -2628,7 +2681,7 @@ extern ConVar cl_sidespeed;
 void C_TFPlayer::AvoidPlayers( CUserCmd *pCmd )
 {
 	// Turn off the avoid player code.
-	if ( !tf_avoidteammates.GetBool() )
+	if ( !tf_avoidteammates.GetBool() || !tf_avoidteammates_pushaway.GetBool() )
 		return;
 
 	// Don't test if the player doesn't exist or is dead.
@@ -2906,7 +2959,7 @@ bool C_TFPlayer::CreateMove( float flInputSampleTime, CUserCmd *pCmd )
 		// Re-add IN_ATTACK2 if player is Demoman with sticky launcher. This is done so they can detonate stickies while taunting.
 		if ( (nOldButtons & IN_ATTACK2) && IsPlayerClass( TF_CLASS_DEMOMAN ) )
 		{
-			CTFPipebombLauncher *pWeapon = dynamic_cast < CTFPipebombLauncher*>( Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER ) );
+			C_TFWeaponBase *pWeapon = Weapon_OwnsThisID( TF_WEAPON_PIPEBOMBLAUNCHER );
 			if ( pWeapon )
 			{
 				pCmd->buttons |= IN_ATTACK2;
@@ -3493,8 +3546,8 @@ bool C_TFPlayer::ShouldCollide( int collisionGroup, int contentsMask ) const
 	{
 		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			if ( !( contentsMask & CONTENTS_REDTEAM ) )
-				return true;
+			// Collide with everyone in deathmatch.
+			return BaseClass::ShouldCollide( collisionGroup, contentsMask );
 		}
 
 		switch( GetTeamNumber() )
@@ -3571,18 +3624,20 @@ int C_TFPlayer::GetSkin()
 			break;
 	}
 
+	if ( TFGameRules()->IsDeathmatch() )
+		nSkin = 8;
+
 	// 3 and 4 are invulnerable
 	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
 	{
 		nSkin += 2;
+		if ( TFGameRules()->IsDeathmatch() )
+			nSkin = 9;
 	}
 	else if ( m_Shared.InCond( TF_COND_DISGUISED ) && !IsEnemyPlayer() )
 	{
 		nSkin += 4 + ( ( m_Shared.GetDisguiseClass() - TF_FIRST_NORMAL_CLASS ) * 2 );
 	}
-
-	if (TFGameRules()->IsDeathmatch())
-		nSkin = 8;
 
 	return nSkin;
 }
@@ -3639,7 +3694,6 @@ void C_TFPlayer::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ClientPlayerRespawn( void )
 {
-	SetClientSideGlowEnabled(true);
 	if ( IsLocalPlayer() )
 	{
 		// Dod called these, not sure why
@@ -3647,10 +3701,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		//ResetLatched();
 
 		// Reset the camera.
-		if ( m_bWasTaunting )
-		{
-			TurnOffTauntCam();
-		}
+		HandleTaunting();
 
 		ResetToneMapping(1.0);
 
@@ -3660,27 +3711,21 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		LoadInventory();
 	}
 
-	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED )
+	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED && ( !IsLocalPlayer() || !InFirstPersonView() ) )
 	{
-		char chParticleName[128];
-		int iParticleID = this->m_Shared.GetRespawnParticleID();
-		Q_snprintf(chParticleName, sizeof(chParticleName), "dm_respawn_%02d", iParticleID);
-		CNewParticleEffect *pEffect = ParticleProp()->Create(chParticleName, PATTACH_ABSORIGIN);
-		if (pEffect)
-		{
-			C_TF_PlayerResource *tf_PR = dynamic_cast<C_TF_PlayerResource *>(g_PR);
-			int index = ((C_BasePlayer *) this)->entindex();
-			Color clr = tf_PR->GetPlayerColor(index);
-			Vector vec = Vector(clr.r() / 255.0f, clr.g() / 255.0f, clr.b() / 255.0f);
-			pEffect->SetControlPoint(9, vec);
-		}
+		char szParticleName[128];
+		int iParticleID = m_Shared.GetRespawnParticleID();
+		Q_snprintf( szParticleName, sizeof( szParticleName ), "dm_respawn_%02d", iParticleID );
+
+		CNewParticleEffect *pEffect = ParticleProp()->Create( szParticleName, PATTACH_ABSORIGIN );
+
+		m_Shared.SetParticleToMercColor( pEffect );
 	}
 
 	UpdateVisibility();
 
 	m_hFirstGib = NULL;
 	m_hSpawnedGibs.Purge();
-
 }
 
 //-----------------------------------------------------------------------------
@@ -3765,8 +3810,8 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );
 
-		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pViewmodel);
-		if (pVMAddon)
+		C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>( pViewmodel );
+		if ( pVMAddon )
 			ret = pVMAddon->DrawOverriddenViewmodel( flags );
 		else
 			ret = pViewmodel->DrawOverriddenViewmodel( flags );
@@ -3858,7 +3903,14 @@ Vector C_TFPlayer::GetChaseCamViewOffset( CBaseEntity *target )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::ValidateModelIndex( void )
 {
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+	if ( m_Shared.InCond( TF_COND_DISGUISED_AS_DISPENSER ) && IsEnemyPlayer() && GetGroundEntity() && IsDucked() )
+	{
+		m_nModelIndex = modelinfo->GetModelIndex( "models/buildables/dispenser_light.mdl" );
+
+		if ( GetLocalPlayer() != this )
+			SetAbsAngles( vec3_angle );
+	}
+	else if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
 	{
 		TFPlayerClassData_t *pData = GetPlayerClassData( m_Shared.GetDisguiseClass() );
 		m_nModelIndex = modelinfo->GetModelIndex( pData->GetModelName() );
@@ -3886,7 +3938,7 @@ void C_TFPlayer::ValidateModelIndex( void )
 void C_TFPlayer::Simulate( void )
 {
 	//Frame updates
-	if ( this == C_BasePlayer::GetLocalPlayer() )
+	if ( IsLocalPlayer() )
 	{
 		//Update the flashlight
 		Flashlight();
@@ -3897,50 +3949,25 @@ void C_TFPlayer::Simulate( void )
 	BaseClass::BaseClass::Simulate();
 }
 
-void C_TFPlayer::LoadInventory(void)
+void C_TFPlayer::LoadInventory( void )
 {
-	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
-	for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
+	for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
 	{
-		for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
+		for ( int iSlot = 0; iSlot < TF_LOADOUT_SLOT_COUNT; iSlot++ )
 		{
-			int iPreset = GetTFInventory()->GetLocalPreset(pInventoryKeys, iClass, iSlot);
+			int iPreset = GetTFInventory()->GetWeaponPreset( iClass, iSlot );
 			char szCmd[64];
-			Q_snprintf(szCmd, sizeof(szCmd), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset);
-			engine->ExecuteClientCmd(szCmd);
+			Q_snprintf( szCmd, sizeof( szCmd ), "weaponpresetclass %d %d %d;", iClass, iSlot, iPreset );
+			engine->ExecuteClientCmd( szCmd );
 		}
 	}
 }
 
-void C_TFPlayer::EditInventory(int iSlot, int iWeapon)
+void C_TFPlayer::EditInventory( int iSlot, int iWeapon )
 {
-	KeyValues* pInventoryKeys = GetTFInventory()->GetInventory(filesystem);
 	int iClass = GetPlayerClass()->GetClassIndex();
-	KeyValues* pClass = pInventoryKeys->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	pClass->SetInt(GetTFInventory()->GetSlotName(iSlot), iWeapon);
-	GetTFInventory()->SetInventory(filesystem, pInventoryKeys);
+	GetTFInventory()->SetWeaponPreset( iClass, iSlot, iWeapon );
 }
-
-/*
-void C_TFPlayer::SaveInventory(void)
-{
-//KeyValues* pInventory = new KeyValues("Inventory");
-KeyValues* pInventory = Inventory->GetInventory(filesystem);
-//for (int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++)
-//{
-//KeyValues* pClass = new KeyValues(g_aPlayerClassNames_NonLocalized[iClass]);
-
-pInventory->AddSubKey(pClass);
-for (int iSlot = 0; iSlot < INVENTORY_SLOTS; iSlot++)
-{
-int iPreset = Inventory->GetWeaponPreset(this, iClass, iSlot);
-pClass->SetInt(Inventory->GetSlotName(iSlot), iPreset);
-}
-//}
-Inventory->SetInventory(filesystem, pInventory);
-pInventory->deleteThis();
-}
-*/
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -3988,8 +4015,12 @@ void C_TFPlayer::FireEvent( const Vector& origin, const QAngle& angles, int even
 // Shadows
 
 ConVar cl_blobbyshadows( "cl_blobbyshadows", "0", FCVAR_CLIENTDLL );
+extern ConVar tf2c_disable_player_shadows;
 ShadowType_t C_TFPlayer::ShadowCastType( void ) 
 {
+	if ( tf2c_disable_player_shadows.GetBool() )
+		return SHADOWS_NONE;
+
 	// Removed the GetPercentInvisible - should be taken care off in BindProxy now.
 	if ( !IsVisible() /*|| GetPercentInvisible() > 0.0f*/ )
 		return SHADOWS_NONE;
@@ -4081,6 +4112,7 @@ bool C_TFPlayer::IsNemesisOfLocalPlayer()
 	return false;
 }
 
+extern ConVar tf_tournament_hide_domination_icons;
 //-----------------------------------------------------------------------------
 // Purpose: Returns whether we should show the nemesis icon for this player
 //-----------------------------------------------------------------------------
@@ -4092,7 +4124,8 @@ bool C_TFPlayer::ShouldShowNemesisIcon()
 	{
 		bool bStealthed = m_Shared.InCond( TF_COND_STEALTHED );
 		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
-		if ( IsAlive() && !bStealthed && !bDisguised )
+		bool bTournamentHide = TFGameRules()->IsInTournamentMode() && tf_tournament_hide_domination_icons.GetBool();
+		if ( IsAlive() && !bStealthed && !bDisguised && !bTournamentHide )
 			return true;
 	}
 	return false;
@@ -4262,6 +4295,45 @@ static ConCommand tf_crashclient( "tf_crashclient", cc_tf_crashclient, "Crashes 
 void C_TFPlayer::ForceUpdateObjectHudState( void )
 {
 	m_bUpdateObjectHudState = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns whether the weapon passed in would occupy a slot already occupied by the carrier
+// Input  : *pWeapon - weapon to test for
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool C_TFPlayer::Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon )
+{
+	if ( pWeapon == NULL )
+		return false;
+
+	//Check to see if there's a resident weapon already in this slot
+	if ( Weapon_GetSlot( pWeapon->GetSlot() ) == NULL )
+		return false;
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Returns the weapon (if any) in the requested slot
+// Input  : slot - which slot to poll
+//-----------------------------------------------------------------------------
+CBaseCombatWeapon *C_TFPlayer::Weapon_GetSlot( int slot ) const
+{
+	int	targetSlot = slot;
+
+	// Check for that slot being occupied already
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		if ( GetWeapon(i) != NULL )
+		{
+			// If the slots match, it's already occupied
+			if ( GetWeapon(i)->GetSlot() == targetSlot )
+				return GetWeapon(i);
+		}
+	}
+
+	return NULL;
 }
 
 #include "c_obj_sentrygun.h"

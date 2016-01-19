@@ -2129,6 +2129,81 @@ void CTeamplayRoundBasedRules::State_Think_STALEMATE( void )
 		return;
 	}
 
+#if defined ( TF_CLASSIC )
+	// If a game has more than 2 active teams, the old function won't work.
+	// Which is why we had to replace it with this one.
+	CUtlVector< CTeam* > pAliveTeams;
+
+	// If a team is fully killed, the other team has won
+	for ( int i = LAST_SHARED_TEAM+1; i < GetNumberOfTeams(); i++ )
+	{
+		CTeam *pTeam = GetGlobalTeam(i);
+		Assert( pTeam );
+
+		int iPlayers = pTeam->GetNumPlayers();
+		if ( iPlayers )
+		{
+			bool bFoundLiveOne = false;
+			for ( int player = 0; player < iPlayers; player++ )
+			{
+				if ( pTeam->GetPlayer(player) && pTeam->GetPlayer(player)->IsAlive() )
+				{
+					bFoundLiveOne = true;
+					break;
+				}
+			}
+
+			if ( bFoundLiveOne && pTeam )
+			{
+				pAliveTeams.AddToTail( pTeam );
+			}
+		}
+	}
+
+	if ( pAliveTeams.Count() == 1 )
+	{
+		// The live team has won. 
+		int iAliveTeam = pAliveTeams[0]->GetTeamNumber();
+		bool bMasterHandled = false;
+		if ( !m_bForceMapReset )
+		{
+			// We're not resetting the map, so give the winners control
+			// of all the points that were in play this round.
+			// Find the control point master.
+			CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
+			if ( pMaster )
+			{
+				variant_t sVariant;
+				sVariant.SetInt( iAliveTeam );
+				pMaster->AcceptInput( "SetWinnerAndForceCaps", NULL, NULL, sVariant, 0 );
+				bMasterHandled = true;
+			}
+		}
+
+		if ( !bMasterHandled )
+		{
+			SetWinningTeam( iAliveTeam, WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
+		}
+	}
+	else if ( pAliveTeams.IsEmpty() ||
+			  ( m_hStalemateTimer && TimerMayExpire() && m_hStalemateTimer->GetTimeRemaining() <= 0 ) )
+	{
+		bool bFullReset = true;
+
+		CTeamControlPointMaster *pMaster = g_hControlPointMasters.Count() ? g_hControlPointMasters[0] : NULL;
+
+		if ( pMaster && pMaster->PlayingMiniRounds() )
+		{
+			// we don't need to do a full map reset for maps with mini-rounds
+			bFullReset = false;
+		}
+
+		// Both teams are dead. Pure stalemate.
+		SetWinningTeam( TEAM_UNASSIGNED, WINREASON_STALEMATE, bFullReset, false );
+	}
+
+
+#else
 	int iDeadTeam = TEAM_UNASSIGNED;
 	int iAliveTeam = TEAM_UNASSIGNED;
 
@@ -2206,6 +2281,7 @@ void CTeamplayRoundBasedRules::State_Think_STALEMATE( void )
 		// Both teams are dead. Pure stalemate.
 		SetWinningTeam( TEAM_UNASSIGNED, WINREASON_STALEMATE, bFullReset, false );
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -3002,6 +3078,14 @@ void CTeamplayRoundBasedRules::CheckRespawnWaves( void )
 //-----------------------------------------------------------------------------
 void CTeamplayRoundBasedRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 {
+#ifdef TF_CLASSIC
+	// No team balancing in DM since everybody should be on RED.
+	if ( IsDeathmatch() )
+	{
+		return;
+	}
+#endif
+
 	if ( mp_autoteambalance.GetBool() == false || ( IsInArenaMode() == true && tf_arena_use_queue.GetBool() == true ) )
 	{
 		return;

@@ -149,6 +149,7 @@ enumeration "NPCState"
 criterion "ConceptPlayerTaunt" "Concept" "TLK_PLAYER_TAUNT" "required"
 criterion "ConceptPlayerThanks" "Concept" "TLK_PLAYER_THANKS" "required"
 criterion "ConceptPlayerMedic" "Concept" "TLK_PLAYER_MEDIC" required
+criterion "ConceptPlayerAskForBall" "Concept" "TLK_PLAYER_ASK_FOR_BALL" required
 criterion "ConceptPlayerHelp" "Concept" "TLK_PLAYER_HELP" required
 criterion "ConceptPlayerGo" "Concept"  "TLK_PLAYER_GO" required
 criterion "ConceptPlayerMoveUp" "Concept" "TLK_PLAYER_MOVEUP" required
@@ -180,6 +181,21 @@ criterion "ConceptCapBlocked" "Concept" "TLK_CAPTURE_BLOCKED" required
 criterion "ConceptMedicChargeDeployed" "Concept" "TLK_MEDIC_CHARGEDEPLOYED" required
 criterion "ConceptMedicChargeStopped" "Concept" "TLK_HEALTARGET_STOPPEDHEALING" required 
 
+criterion "ConceptEngineerPickupBuilding" "Concept" "TLK_PICKUP_BUILDING" required 
+criterion "ConceptEngineerDeployBuilding" "Concept" "TLK_REDEPLOY_BUILDING" required 
+criterion "ConceptEngineerCarryingBuilding" "Concept" "TLK_CARRYING_BUILDING" required 
+
+
+
+
+criterion "ConceptScoutBallGrab" "Concept" "TLK_GRAB_BALL" required 
+
+// Force weight to 2 so that this matches all classes
+criterion "ConceptPlayerTaunt2" "Concept" "TLK_PLAYER_TAUNT2" required
+
+criterion "ConceptPlayerShowItemTaunt" "Concept" "TLK_PLAYER_SHOW_ITEM_TAUNT" required
+
+criterion "ConceptPlayerHoldTaunt" "Concept" "TLK_PLAYER_HOLDTAUNT" required
 
 //Auto fire concepts
 criterion "ConceptPlayerCapturedPoint" "Concept" "TLK_CAPTURED_POINT" required
@@ -197,6 +213,45 @@ criterion "ConceptPlayerDead" "Concept" "TLK_DEAD" required
 criterion "ConceptPlayerGrabbedIntelligence" "Concept" "TLK_FLAGPICKUP" required          
 criterion "ConceptPlayerCapturedIntelligence" "Concept" "TLK_FLAGCAPTURED" required          
 
+//cart stuff
+criterion "ConceptCartMovingForward" "Concept" "TLK_CART_MOVING_FORWARD" required          
+criterion "ConceptCartMovingStopped" "Concept" "TLK_CART_STOP" required          
+criterion "ConceptCartMovingBackward" "Concept" "TLK_CART_MOVING_BACKWARD" required          
+
+criterion "ConceptAteFood" "Concept" "TLK_ATE_FOOD" required          
+
+//scout pack
+criterion "ConceptDoubleJump" "Concept" "TLK_DOUBLE_JUMP" required
+criterion "ConceptDodging" "Concept" "TLK_DODGING" required
+criterion "ConceptDodgeShot" "Concept" "TLK_DODGE_SHOT" required
+criterion "ConceptGrabBall" "Concept" "TLK_GRAB_BALL" required
+criterion "ConceptRegenBall" "Concept" "TLK_REGEN_BALL" required
+criterion "ConceptDeflected" "Concept" "TLK_DEFLECTED" required
+criterion "ConceptBallMissed" "Concept" "TLK_BALL_MISSED" required
+criterion "ConceptStunned" "Concept" "TLK_STUNNED" required
+criterion "ConceptStunnedTarget" "Concept" "TLK_STUNNED_TARGET" required
+criterion "ConceptTired" "Concept" "TLK_TIRED" required
+criterion "ConceptBatBall" "Concept" "TLK_BAT_BALL" required
+criterion "IsDoubleJumping" "DoubleJumping" "1" required
+criterion "ConceptAchievementAward" "Concept" "TLK_ACHIEVEMENT_AWARD" required
+// Custom stuff
+criterion "IsNotDoubleJumping" "DoubleJumping" "0" required // Needed to stop Scout saying double jump lines when he lands.
+
+// spy / sniper pack
+criterion "ConceptJarateLaunch" "Concept" "TLK_JARATE_LAUNCH" required
+criterion "ConceptJarateHit" "Concept" "TLK_JARATE_HIT" required
+
+// Item Taunts
+criterion "ConceptTauntReplay" "Concept" "TLK_TAUNT_REPLAY" required
+criterion "ConceptTauntLaugh" "Concept" "TLK_TAUNT_LAUGH" required
+criterion "ConceptTauntHeroicPose" "Concept" "TLK_TAUNT_HEROIC_POSE" required
+criterion "ConceptTauntPyroArmageddon" "Concept" "TLK_TAUNT_PYRO_ARMAGEDDON" required
+criterion "ConceptTauntGuitarRiff" "Concept" "TLK_TAUNT_GUITAR_RIFF" required
+criterion "ConceptTauntEurekaTeleport" "Concept" "TLK_TAUNT_EUREKA_EFFECT" required
+
+criterion "IsOnOffense" "teamrole" "offense" required
+criterion "IsOnDefense" "teamrole" "defense" required
+
 
 // Expressions
 criterion "ConceptPlayerExpression" "Concept" "TLK_PLAYER_EXPRESSION" required
@@ -205,17 +260,20 @@ criterion "ConceptPlayerExpression" "Concept" "TLK_PLAYER_EXPRESSION" required
 criterion "ConceptPlayerLostPoint" "Concept" "TLK_LOST_CONTROL_POINT'" required
 
 
+criterion "IsSapper" "objtype" "sapper" required
 criterion "IsSentryGun" "objtype" "sentrygun" required
-criterion "IsTeleporterEntrance" "objtype" "teleporter_entrance" required
-criterion "IsTeleporterExit" "objtype" "teleporter_exit" required
+criterion "IsTeleporter" "objtype" "teleporter" required
 criterion "IsDispenser" "objtype" "dispenser" required
 criterion "IsDisguised" "disguised" "1" required
+criterion "IsNotDisguised" "disguised" "!=1" required
 criterion "IsWeaponPrimary" "weaponmode" "primary" required
 criterion "IsWeaponSecondary" "weaponmode" "secondary" required
 criterion "IsWeaponMelee" "weaponmode" "melee" required
+criterion "IsNotWeaponMelee" "weaponmode" "!=melee" required
 criterion "IsWeaponBuilding" "weaponmode" "building" required
 criterion "IsWeaponPda" "weaponmode" "pda" required
-
+criterion "IsCloaked" "cloaked" "1" required
+criterion "IsNotCloaked" "cloaked" "!=1" required
 
 criterion "IsOnScout" "crosshair_on" "Scout" "required"
 criterion "IsOnSniper" "crosshair_on" "Sniper" "required"
@@ -227,9 +285,13 @@ criterion "IsOnPyro" "crosshair_on" "Pyro" "required"
 criterion "IsOnSpy" "crosshair_on" "Spy" "required"
 criterion "IsOnEngineer" "crosshair_on" "Engineer" "required"
 
+// Custom not on Heavy
+criterion "IsNotOnHeavy" "crosshair_on" "!=Heavy" "required"
+
 criterion "IsDominated" "domination" "dominated" "required" 
 criterion "IsRevenge" "domination" "revenge" "required" 
 criterion "IsHeadShot" "customdeath" "headshot" "required" 
+
 
 
 criterion "ConceptKilledPlayer" "Concept" "TLK_KILLED_PLAYER" required
@@ -278,11 +340,15 @@ criterion "IsNotVictimEngineer" "victimclass" "!=Engineer" "required" weight 0
     
 
 
+criterion "2PercentChance"   "randomnum"               "=>98"   required
+criterion "5PercentChance"   "randomnum"               "=>95"   required
 criterion "10PercentChance"  "randomnum"               ">90"   required
 criterion "20PercentChance"  "randomnum"               ">80"   required
 criterion "30PercentChance"  "randomnum"               ">70"   required
+criterion "40PercentChance"  "randomnum"               ">60"   required
 criterion "50PercentChance"  "randomnum"               ">50"   required
 criterion "75PercentChance"  "randomnum"               ">25"   required
+criterion "100PercentChance"  "randomnum"               ">0"   required weight 100
 criterion "IsARecentKill"  "recentkills"               ">0"   required
 criterion "IsManyRecentKills"  "recentkills"               ">1"   required
 criterion "IsVeryManyRecentKills"  "recentkills"               ">3"   required
@@ -291,14 +357,12 @@ criterion "IsInvulnerable"  "invulnerable"               "1"   required weight 1
 criterion "IsOnFriendlyControlPoint"  "OnFriendlyControlPoint"	"1"   required
 criterion "IsOnCappableControlPoint"  "OnCappableControlPoint"	"1"   required
 
+criterion "WeaponIsLaserPointer" "playerweapon" "tf_weapon_laser_pointer" "required"
 criterion "WeaponIsMinigun" "playerweapon" "tf_weapon_minigun" "required"
 criterion "WeaponIsShotgun" "playerweapon" "tf_weapon_shotgun_secondary" "required"
 criterion "WeaponIsShotgunSoldier" "playerweapon" "tf_weapon_shotgun_soldier" "required"
 criterion "WeaponIsShotgunHwg" "playerweapon" "tf_weapon_shotgun_hwg" "required"
 criterion "WeaponIsShotgunPyro" "playerweapon" "tf_weapon_shotgun_pyro" "required"
-
-
-
 criterion "WeaponIsFists" "playerweapon" "tf_weapon_fists" "required"
 criterion "WeaponIsFlamethrower" "playerweapon" "tf_weapon_flamethrower" "required"
 criterion "WeaponIsAxe" "playerweapon" "tf_weapon_fireaxe" "required"
@@ -310,10 +374,14 @@ criterion "WeaponIsPistol" "playerweapon" "tf_weapon_pistol" "required"
 criterion "WeaponIsBuild" "playerweapon" "tf_weapon_builder" "required"
 criterion "WeaponIsWrench" "playerweapon" "tf_weapon_wrench" "required"
 criterion "WeaponIsScattergun" "playerweapon" "tf_weapon_scattergun" "required"
+criterion "WeaponIsScattergunDouble" "item_name" "The Force-a-Nature" "required" weight 10
+criterion "WeaponIsScattergunDoubleFestive" "item_name" "Festive Force-a-Nature" "required" weight 10
 criterion "WeaponIsPistolScout" "playerweapon" "tf_weapon_pistol_scout" "required"
 criterion "WeaponIsBat" "playerweapon" "tf_weapon_bat" "required"
+criterion "WeaponIsWoodBat" "playerweapon" "tf_weapon_bat_wood" "required"
 criterion "WeaponIsSniperrifle" "playerweapon" "tf_weapon_sniperrifle" "required"
 criterion "WeaponIsSMG" "playerweapon" "tf_weapon_smg" "required"
+criterion "WeaponIsSMGScout" "playerweapon" "tf_weapon_smg_scout" "required"
 criterion "WeaponIsClub" "playerweapon" "tf_weapon_club" "required"
 criterion "WeaponIsRevolver" "playerweapon" "tf_weapon_revolver" "required"
 criterion "WeaponIsKnife" "playerweapon" "tf_weapon_knife" "required"
@@ -323,43 +391,280 @@ criterion "WeaponIsBottle" "playerweapon" "tf_weapon_bottle" "required"
 criterion "WeaponIsSpyPDA" "playerweapon" "tf_weapon_pda_spy" "required"
 criterion "WeaponIsRocket" "playerweapon" "tf_weapon_rocketlauncher" "required"
 criterion "WeaponIsShovel" "playerweapon" "tf_weapon_shovel" "required"
+criterion "WeaponIsFlaregun" "playerweapon" "tf_weapon_flaregun" "required"
+// Lunchbox modified to fire for Sandvich only, so we don't share lines.
+criterion "WeaponIsSandvich" "item_name" "The Sandvich" "required"
+criterion "WeaponIsRobotSandvich" "item_name" "The Robo-Sandvich" "required"
+criterion "WeaponIsFestiveSandvich" "item_name" "Festive Sandvich" "required"
+criterion "WeaponIsLunchboxDrink" "playerweapon" "tf_weapon_lunchbox_drink" "required"
+criterion "WeaponIsGloves" "item_type_name" "#TF_Weapon_Gloves" "required" weight 10
+criterion "WeaponIsKritzkrieg" "item_name" "The Kritzkrieg" "required" weight 10
+criterion "WeaponIsBow" "item_type_name" "#TF_Weapon_CompoundBow" "required" weight 10
+criterion "WeaponIsEqualizer" "item_name" "The Equalizer" "required" weight 10
+criterion "WeaponIsEscapePlan" "item_name" "The Escape Plan" "required" weight 10
+criterion "WeaponIsDirectHit" "item_name" "The Direct Hit" "required" weight 10
+criterion "WeaponIsBeggarsBazooka" "item_name" "The Beggar's Bazooka" "required" weight 10
+criterion "WeaponIsBanner" "item_name" "The Buff Banner" "required" weight 10
+criterion "WeaponIsFestiveBanner" "item_name" "Festive Buff Banner" "required" weight 10
+// Former "sword is Eyelander" equivalency
+//criterion "WeaponIsSword" "item_name" "The Eyelander" "required" weight 10
+// If valve add a new sword (and it uses the same tf_weapon_sword class) it will inherit the Eyelander taunt by default
+criterion "WeaponIsSword" "playerweapon" "tf_weapon_sword" "required" weight 10
+criterion "WeaponIsDefender" "item_name" "The Scottish Resistance" "required" weight 10
+criterion "WeaponIsUbersaw" "item_name" "The Ubersaw" "required" weight 10
+criterion "WeaponIsFestiveUbersaw" "item_name" "Festive Ubersaw" "required" weight 10
+criterion "WeaponIsFrontierJustice" "item_name" "The Frontier Justice" "required" weight 10
+criterion "WeaponIsFestiveFrontierJustice" "item_name" "Festive Frontier Justice" "required" weight 10
+criterion "WeaponIsRobotArm" "item_name" "The Gunslinger" "required" weight 10
+criterion "WeaponIsGoldenWrench" "item_name" "Golden Wrench" "required" weight 10
+criterion "WeaponIsGoldenFryingPan" "item_name" "Gold Frying Pan" "required" weight 10
+criterion "WeaponIsShortstop" "item_name" "The Shortstop" "required" weight 10
+criterion "WeaponIsMadMilk" "item_name" "Mad Milk" "required" weight 10
+criterion "WeaponIsSDCleaver" "item_name" "The Flying Guillotine" "required" weight 10
+criterion "WeaponIsHolyMackerel" "item_name" "The Holy Mackerel" "required" weight 10
+criterion "WeaponIsFestiveHolyMackerel" "item_name" "Festive Holy Mackerel" "required" weight 10
+criterion "WeaponIsUnarmedCombat" "item_name" "Unarmed Combat" "required" weight 10
+criterion "WeaponIsKatana" "playerweapon" "tf_weapon_katana" "required" weight 10
+criterion "WeaponIsSashimono" "item_name" "The Concheror" "required" weight 10
+criterion "WeaponIsSaxxy" "item_name" "Saxxy" "required" weight 10
+// Custom added criterion
+criterion "WeaponIsBenja" "item_name" "The Dalokohs Bar" "required" weight 10
+criterion "WeaponIsFishcake" "item_name" "Fishcake" "required" weight 10
+criterion "WeaponIsSteak" "item_name" "The Buffalo Steak Sandvich" "required" weight 10 // Not actually used for the auto-eat response. Used for distinction in the taunts.
+criterion "WeaponIsPainTrain" "item_name" "The Pain Train" "required" weight 10
+criterion "WeaponIsNotPainTrain" "item_name" "!=The Pain Train" "required" weight 10
+criterion "WeaponIsFryingPan" "item_name" "Frying Pan" "required" weight 10
+criterion "WeaponIsNotFryingPan" "item_name" "!=Frying Pan" "required" weight 10
+criterion "WeaponIsNotScattergunDouble" "item_name" "!=The Force-a-Nature" "required" weight 10
+criterion "WeaponIsNotAxe" "item_name" "!=The Scotsman's Skullcutter" "required" weight 10 // Exclude the Skullcutter - has horrible clipping issues with the Eyelander taunt. Maybe give it a different taunt later.
+criterion "WeaponClassIsNotAxe" "playerweapon" "!=tf_weapon_sword" "required" weight 10
+criterion "WeaponIsCaber" "playerweapon" "tf_weapon_stickbomb" "required" weight 10
+criterion "WeaponIsMetalFists" "item_name" "Fists of Steel" "required" weight 10
+// BUG: These loadout criterions are read in from the Steam Cloud
+// As such, if the server loses connection to Steam, the responses bug out a bit.
+criterion "WeaponIsNotVanillaPrimary" "loadout_slot_primary" "" "required" weight 10
+criterion "WeaponIsNotVanillaSecondary" "loadout_slot_secondary" "" "required" weight 10
+criterion "WeaponIsNotVanillaMelee" "loadout_slot_melee" "" "required" weight 10
+criterion "LoadoutIsDrink" "loadout_slot_secondary" "!=Crit-a-Cola" "required" weight 10
+criterion "LoadoutIsCritDrink" "loadout_slot_secondary" "Crit-a-Cola" "required" weight 10
+criterion "LoadoutIsNotRobotArm" "loadout_slot_melee" "!=The Gunslinger" "required" weight 10
+criterion "WeaponIsJarate" "item_name" "Jarate" "required" weight 10
+criterion "WeaponIsBasher" "item_name" "The Boston basher" "required" weight 10
+criterion "WeaponIsCandy" "item_name" "The Candy Cane" "required" weight 10
+criterion "WeaponIsMace" "item_name" "Sun-on-a-Stick" "required" weight 10
+criterion "WeaponIsNotBasher" "item_name" "!=The Boston basher" "required" weight 10
+criterion "WeaponIsNotCandy" "item_name" "!=The Candy Cane" "required" weight 10
+criterion "WeaponIsNotMace" "item_name" "!=Sun-on-a-Stick" "required" weight 10
+criterion "WeaponIsNotFish" "item_name" "!=The Holy Mackerel" "required" weight 10
+criterion "WeaponIsNotGunbai" "item_name" "!=The Fan O'War" "required" weight 10
+criterion "WeaponIsShiv" "item_name" "The Tribalman's Shiv" "required" weight 10
+criterion "WeaponIsGunbai" "item_name" "The Fan O'War" "required" weight 10
+criterion "WeaponIsNotMediGun" "playerweapon" "!=tf_weapon_medigun" "required" weight 10
+criterion "WeaponIsSodaPopper" "item_name" "The Soda Popper" "required" weight 10
+criterion "WeaponIsAtomizer" "item_name" "The Atomizer" "required" weight 10
+criterion "WeaponIsBazaarBargain" "item_name" "The Bazaar Bargain" "required" weight 10
+criterion "WeaponIsCowMangler" "item_name" "The Cow Mangler 5000" "required" weight 10
+criterion "WeaponIsNotTaggedMinigun" "item_name" "!=Upgradeable TF_WEAPON_MINIGUN" "required" weight 10
+criterion "WeaponIsNotTaggedRifle" "item_name" "!=Upgradeable TF_WEAPON_SNIPERRIFLE" "required" weight 10
+criterion "WeaponIsNotTaggedSMG" "item_name" "!=Upgradeable TF_WEAPON_SMG" "required" weight 10
+criterion "WeaponIsNotTaggedKukri" "item_name" "!=Upgradeable TF_WEAPON_CLUB" "required" weight 10
+criterion "WeaponIsNotTaggedMedigun" "item_name" "!=Upgradeable TF_WEAPON_MEDIGUN" "required" weight 10
+criterion "WeaponIsNotSaxxy" "item_name" "!=Saxxy" "required" weight 10
+criterion "WeaponIsTRBlade" "item_name" "Three-Rune Blade" "required" weight 10
+criterion "WeaponIsNotTRBlade" "item_name" "!=Three-Rune Blade" "required" weight 10
+criterion "WeaponIsBackup" "item_name" "The Battalion's Backup" "required" weight 10
+criterion "WeaponIsHealArrow" "playerweapon" "tf_weapon_crossbow" "required" weight 10
+criterion "WeaponIsNotTomislav" "item_name" "!=Tomislav" "required" weight 10
+criterion "WeaponIsNotRobotArm" "item_name" "!=The Gunslinger" "required" weight 10
+criterion "WeaponIsRayGun" "item_name" "The Righteous Bison" "required" weight 10
+criterion "WeaponIsHippocrates" "item_name" "The Solemn Vow" "required" weight 10
+criterion "WeaponIsSharpDresser" "item_name" "The Sharp Dresser" "required" weight 10
+criterion "WeaponIsEurekaEffect" "item_name" "The Eureka Effect" "required" weight 10
+criterion "WeaponIsThirdDegree" "item_name" "The Third Degree" "required" weight 10
+criterion "WeaponIsPomson" "item_name" "The Pomson 6000" "required" weight 10
+criterion "WeaponIsManmelter" "item_name" "The Manmelter" "required" weight 10
+criterion "WeaponIsWrapAssassin" "item_name" "The Wrap Assassin" "required" weight 10
+criterion "WeaponIsSpycicle" "item_name" "The Spy-cicle" "required" weight 10
+criterion "WeaponIsRainblower" "item_name" "The Rainblower" "required" weight 10
+criterion "WeaponIsScorchShot" "item_name" "The Scorch Shot" "required" weight 10
+criterion "WeaponIsLollichop" "item_name" "The Lollichop" "required" weight 10
+criterion "WeaponIsPEPBrawlerBlaster" "playerweapon" "tf_weapon_pep_brawler_blaster" "required" weight 10
+criterion "WeaponIsHandgunScoutSecondary" "playerweapon" "tf_weapon_handgun_scout_secondary" "required" weight 10
+criterion "WeaponIsAnnihilator" "item_name" "The Neon Annihilator" "required" weight 10
+criterion "WeaponIsPromoAnnihilator" "item_name" "Promo Neon Annihilator" "required" weight 10
+criterion "WeaponIsLooseCannon" "item_name" "The Loose Cannon" "required" weight 10
+criterion "WeaponIsRescueRanger" "item_name" "The Rescue Ranger" "required" weight 10
+criterion "WeaponIsShortCircuit" "item_name" "The Short Circuit" "required" weight 10
+criterion "WeaponIsScotsmansSkullcutter" "item_name" "The Scotsman's Skullcutter" "required" weight 10
+criterion "WeaponIsClassicSniperrifle" "playerweapon" "tf_weapon_sniperrifle_classic" "required"
+criterion "WeaponIsRocketLauncherAirStrike" "playerweapon" "tf_weapon_rocketlauncher_airstrike" "required"
+criterion "WeaponIsMutatedMilk" "item_name" "Mutated Milk" "required" weight 10
 
+//Custom healed concept and critical hit
+criterion "IsBeingHealed" "beinghealed" "1" "required"
+criterion "IsNotBeingHealed" "beinghealed" "!=1" "required"
+criterion "IsCritical" "damagecritical" "1" "required"
+criterion "IsNotDominating" "IsDominating" "!=1" "required" weight 0
+
+
+criterion "IsCrossHairEnemy" "crosshair_enemy" "Yes" "required" 
+criterion "IsNotCrossHairEnemy" "crosshair_enemy" "!=Yes" "required" 
+
+criterion "WeaponIsMiniSentrygun" "customdeath" "minisentrygun" "required"
+// Custom criterion to stop yeehaw lines when swinging with Gunslinger + getting a mini sentry kill at the same-ish time.
+criterion "WeaponIsNotMiniSentrygun" "customdeath" "!=minisentrygun" "required"
 criterion "WeaponIsSentrygun" "customdeath" "sentrygun" "required"
 criterion "WeaponIsNotSentrygun" "customdeath" "" "required"
+criterion "WeaponIsNotSentry" "customdeath" "none" "required"
 
-// New weapons
-criterion "WeaponIsNailgun" "playerweapon" "tf_weapon_nailgun" "required"
-criterion "WeaponIsSMGScout" "playerweapon" "tf_weapon_smg_scout" "required"
-criterion "WeaponIsCrowbar" "playerweapon" "tf_weapon_crowbar" "required"
-criterion "WeaponIsTranq" "playerweapon" "tf_weapon_tranq" "required"
-criterion "WeaponIsFlag" "playerweapon" "tf_weapon_flag" "required"
-criterion "WeaponIsCaltrop" "playerweapon" "tf_weapon_grenade_caltrop" "required"
-criterion "WeaponIsConcussion" "playerweapon" "tf_weapon_grenade_concussion" "required"
-criterion "WeaponIsEMP" "playerweapon" "tf_weapon_grenade_emp" "required"
-criterion "WeaponIsGasGrenade" "playerweapon" "tf_weapon_grenade_gas" "required"
-criterion "WeaponIsHealGrenade" "playerweapon" "tf_weapon_grenade_heal" "required"
-criterion "WeaponIsMirv" "playerweapon" "tf_weapon_grenade_mirv" "required"
-criterion "WeaponIsNailGrenade" "playerweapon" "tf_weapon_grenade_nail" "required"
-criterion "WeaponIsNapalm" "playerweapon" "tf_weapon_grenade_napalm" "required"
-criterion "WeaponIsFragGrenade" "playerweapon" "tf_weapon_grenade_normal" "required"
-criterion "WeaponIsSmokeBomb" "playerweapon" "tf_weapon_grenade_smoke_bomb" "required"
-criterion "WeaponIsPipe" "playerweapon" "tf_weapon_pipe" "required"
-criterion "WeaponIsBetaRPG" "playerweapon" "tf_weapon_rocketlauncherbeta" "required"
-criterion "WeaponIsCyclops" "playerweapon" "tf_weapon_cyclops" "required"
-criterion "WeaponIsFishwhacker" "playerweapon" "tf_weapon_fishwhacker" "required"
-
+// Custom criterion to check if not scoped in, we do not want the lines to mix
+criterion "Unzoomed" "sniperzoomed" "!=1" "required"
 criterion "DeployedContext" "sniperzoomed" "1" "required"
 criterion "ConceptFireWeapon" "Concept" "TLK_FIREWEAPON" required
 criterion "ConceptFireMinigun" "Concept" "TLK_FIREMINIGUN" required
 criterion "ConceptWindMinigun" "Concept" "TLK_WINDMINIGUN" required
 criterion "LowHealthContext" "playerhealthfrac" "<0.25" required
+// Custom stuff
+criterion "CaberHealthContext" "playerhealthfrac" ">0.429" required
+criterion "BonkHealthContext" "playerhealthfrac" "<0.641" required
+criterion "NotLowHealth" "playerhealthfrac" ">0.5" required
+// End custom
 criterion "SuperHighHealthContext" "playerhealthfrac" ">1.400" required
+criterion "GameRulesInWinState" "GameRound" "5" required
+criterion "PlayerLostPreviousRound" "LostRound" "1" required
+criterion "PlayerOnWinningTeam" "OnWinningTeam" "1" required
+criterion "PlayerOnLosingTeam" "OnWinningTeam" "0" required
+
+criterion "IsRedTeam" "OnRedTeam" "1" required
+criterion "IsBlueTeam" "OnRedTeam" "0" required
 
 criterion "IsFiringMinigun" "minigunfiretime" ">0.0" required
 criterion "TimeFiringMinigunShort" "minigunfiretime" ">4.0,<=8.0" required
 criterion "TimeFiringMinigunLong" "minigunfiretime" ">8.0,<=15.0" required
 criterion "TimeFiringMinigunReallyLong" "minigunfiretime" ">15.0" required
 criterion "ConceptFireMinigunTalk" "Concept" "TLK_MINIGUN_FIREWEAPON" "required"
+Criterion "NotDefendOnThePointSpeech" "worldDefendOnThePointSpeech" "!=1" "required" weight 0
+
+criterion "IsAprilFoolsTaunt" "IsAprilFoolsTaunt" "1" "required" weight 100
+criterion "IsHalloweenTaunt" "IsHalloweenTaunt" "1" "required" weight 100
+criterion "IsRobotCostume" "IsRobotCostume" "1" "required" weight 100
+criterion "IsFairyHeavy" "IsFairyHeavy" "1" "required" weight 100
+criterion "IsDemowolf" "IsDemowolf" "1" "required" weight 100
+criterion "IsFrankenHeavy" "IsFrankenHeavy" "1" "required" weight 100
+
+criterion "IsMedicDoubleFace" "IsMedicDoubleFace" "1" "required" weight 100
+criterion "IsMedicBirdHead" "IsMedicBirdHead" "1" "required" weight 100
+criterion "IsHeavyBirdHead" "IsHeavyBirdHead" "1" "required" weight 100
+criterion "IsSoldierBirdHead" "IsSoldierBirdHead" "1" "required" weight 100
+criterion "IsSniperBirdHead" "IsSniperBirdHead" "1" "required" weight 100
+criterion "IsSoldierMaggotHat" "IsSoldierMaggotHat" "1" "required" weight 100
+criterion "IsSoldierWizardHat" "IsSoldierWizardHat" "1" "required" weight 100
+criterion "IsUnicornHead" "IsUnicornHead" "1" "required" weight 100
+criterion "IsMedicZombieBird" "IsMedicZombieBird" "1" "required" weight 100
+criterion "IsHauntedHat" "IsHauntedHat" "1" "required" weight 100
+
+criterion "HasTaunt2Item_TauntEnablerTest" "loadout_slot_action" "Taunt Enabler Test" "required"
+
+
+criterion "ConceptRequestDuel" "Concept" "TLK_REQUEST_DUEL" required
+criterion "ConceptDuelRejected" "Concept" "TLK_DUEL_WAS_REJECTED" required
+criterion "ConceptIAcceptDuel" "Concept" "TLK_ACCEPT_DUEL" required
+criterion "ConceptDuelAccepted" "Concept" "TLK_DUEL_WAS_ACCEPTED" required
+
+
+
+
+criterion "DuelTargetIsScout" "dueltargetclass" "Scout" required
+criterion "DuelTargetIsSniper" "dueltargetclass" "Sniper" required
+criterion "DuelTargetIsSoldier" "dueltargetclass" "Soldier" required
+criterion "DuelTargetIsDemoman" "dueltargetclass" "Demoman" required
+criterion "DuelTargetIsMedic" "dueltargetclass" "Medic" required
+criterion "DuelTargetIsHeavy" "dueltargetclass" "Heavy" required
+criterion "DuelTargetIsPyro" "dueltargetclass" "Pyro" required
+criterion "DuelTargetIsSpy" "dueltargetclass" "Spy" required
+criterion "DuelTargetIsEngineer" "dueltargetclass" "Engineer" required
+
+
+criterion "ConceptRocketDestroyed" "Concept" "TLK_ROCKET_DESTOYED" required 
+
+// MvM criterion
+criterion "IsMvMDefender" "IsMvMDefender" "1" required
+criterion "ConceptMvMBombDropped" "Concept" "TLK_MVM_BOMB_DROPPED" required  
+criterion "ConceptMvMBombCarrierUpgrade1" "Concept" "TLK_MVM_BOMB_CARRIER_UPGRADE1" required  
+criterion "ConceptMvMBombCarrierUpgrade2" "Concept" "TLK_MVM_BOMB_CARRIER_UPGRADE2" required  
+criterion "ConceptMvMBombCarrierUpgrade3" "Concept" "TLK_MVM_BOMB_CARRIER_UPGRADE3" required  
+criterion "ConceptMvMDefenderDied" "Concept" "TLK_MVM_DEFENDER_DIED" required  
+criterion "ConceptMvMFirstBombPickup" "Concept" "TLK_MVM_FIRST_BOMB_PICKUP" required  
+criterion "ConceptMvMBombPickup" "Concept" "TLK_MVM_BOMB_PICKUP" required 
+criterion "ConceptMvMSentryBuster" "Concept" "TLK_MVM_SENTRY_BUSTER" required 
+criterion "ConceptMvMSentryBusterDown" "Concept" "TLK_MVM_SENTRY_BUSTER_DOWN" required 
+criterion "ConceptMvMSniperCallout" "Concept" "TLK_MVM_SNIPER_CALLOUT" required 
+criterion "ConceptMvMLastManStanding" "Concept" "TLK_MVM_LAST_MAN_STANDING" required 
+criterion "ConceptMvMEncourageMoney" "Concept" "TLK_MVM_ENCOURAGE_MONEY" required 
+criterion "ConceptMvMMoneyPickup" "Concept" "TLK_MVM_MONEY_PICKUP" required 
+criterion "ConceptMvMEncourageUpgrade" "Concept" "TLK_MVM_ENCOURAGE_UPGRADE" required 
+criterion "ConceptMvMUpgradeComplete" "Concept" "TLK_MVM_UPGRADE_COMPLETE" required 
+criterion "ConceptMvMGiantCallout" "Concept" "TLK_MVM_GIANT_CALLOUT" required 
+criterion "ConceptMvMGiantHasBomb" "Concept" "TLK_MVM_GIANT_HAS_BOMB" required 
+criterion "ConceptMvMGiantKilled" "Concept" "TLK_MVM_GIANT_KILLED" required 
+criterion "ConceptMvMGiantKilledTeammate" "Concept" "TLK_MVM_GIANT_KILLED_TEAMMATE" required 
+criterion "ConceptMvMSappedRobot" "Concept" "TLK_MVM_SAPPED_ROBOT" required 
+criterion "ConceptMvMCloseCall" "Concept" "TLK_MVM_CLOSE_CALL" required 
+criterion "ConceptMvMTankCallout" "Concept" "TLK_MVM_TANK_CALLOUT" required 
+criterion "ConceptMvMTankDead" "Concept" "TLK_MVM_TANK_DEAD" required 
+criterion "ConceptMvMTankDeploying" "Concept" "TLK_MVM_TANK_DEPLOYING" required 
+criterion "ConceptMvMAttackTheTank" "Concept" "TLK_MVM_ATTACK_THE_TANK" required 
+criterion "ConceptMvMTaunt" "Concept" "TLK_MVM_TAUNT" required 
+criterion "ConceptMvMWaveStart" "Concept" "TLK_MVM_WAVE_START" required 
+criterion "ConceptMvMWaveWin" "Concept" "TLK_MVM_WAVE_WIN" required 
+criterion "ConceptMvMWaveLose" "Concept" "TLK_MVM_WAVE_LOSE" required 
+criterion "ConceptMvMDeployRage" "Concept" "TLK_MVM_DEPLOY_RAGE" required 
+
+//A Tale of Two Cities Update
+criterion "ConceptMannhattanGateAttack" "Concept" "TLK_MANNHATTAN_GATE_ATK" required
+criterion "ConceptMannhattanGateTake" "Concept" "TLK_MANNHATTAN_GATE_TAKE" required
+criterion "ConceptMvMResurrected" "Concept" "TLK_RESURRECTED" required
+criterion "ConceptMvMMedicShield" "Concept" "TLK_MEDIC_HEAL_SHIELD" required
+criterion "ConceptMvMLootCommon" "Concept" "TLK_MVM_LOOT_COMMON" required
+criterion "ConceptMvMLootRare" "Concept" "TLK_MVM_LOOT_RARE" required
+criterion "ConceptMvMLootUltraRare" "Concept" "TLK_MVM_LOOT_ULTRARARE" required
+
+// Halloween 2013
+criterion "ConceptPlayerCastFireball" "Concept" "TLK_PLAYER_CAST_FIREBALL" required 
+criterion "ConceptPlayerCastMerasmusZap" "Concept" "TLK_PLAYER_CAST_MERASMUS_ZAP" required  
+criterion "ConceptPlayerCastSelfHeal" "Concept" "TLK_PLAYER_CAST_SELF_HEAL" required  
+criterion "ConceptPlayerCastMirv" "Concept" "TLK_PLAYER_CAST_MIRV" required  
+criterion "ConceptPlayerCastBlastJump" "Concept" "TLK_PLAYER_CAST_BLAST_JUMP" required  
+criterion "ConceptPlayerCastStealth" "Concept" "TLK_PLAYER_CAST_STEALTH" required  
+criterion "ConceptPlayerCastTeleport" "Concept" "TLK_PLAYER_CAST_TELEPORT" required  
+criterion "ConceptPlayerCastBombHeadCurse" "Concept" "TLK_PLAYER_CAST_BOMB_HEAD_CURSE" required  
+criterion "ConceptPlayerCastLightningBall" "Concept" "TLK_PLAYER_CAST_LIGHTNING_BALL" required  
+criterion "ConceptPlayerCastMovementBuff" "Concept" "TLK_PLAYER_CAST_MOVEMENT_BUFF" required  
+criterion "ConceptPlayerCastMonoculous" "Concept" "TLK_PLAYER_CAST_MONOCULOUS" required  
+criterion "ConceptPlayerCastMeteorSwarm" "Concept" "TLK_PLAYER_CAST_METEOR_SWARM" required  
+criterion "ConceptPlayerCastSkeletonHorde" "Concept" "TLK_PLAYER_CAST_SKELETON_HORDE" required  
+
+criterion "ConceptPlayerSpellFireball" "Concept" "TLK_PLAYER_SPELL_FIREBALL" required 
+criterion "ConceptPlayerSpellMerasmusZap" "Concept" "TLK_PLAYER_SPELL_MERASMUS_ZAP" required  
+criterion "ConceptPlayerSpellSelfHeal" "Concept" "TLK_PLAYER_SPELL_SELF_HEAL" required  
+criterion "ConceptPlayerSpellMirv" "Concept" "TLK_PLAYER_SPELL_MIRV" required  
+criterion "ConceptPlayerSpellBlastJump" "Concept" "TLK_PLAYER_SPELL_BLAST_JUMP" required  
+criterion "ConceptPlayerSpellStealth" "Concept" "TLK_PLAYER_SPELL_STEALTH" required  
+criterion "ConceptPlayerSpellTeleport" "Concept" "TLK_PLAYER_SPELL_TELEPORT" required  
+criterion "ConceptPlayerSpellLightningBall" "Concept" "TLK_PLAYER_SPELL_LIGHTNING_BALL" required  
+criterion "ConceptPlayerSpellMovementBuff" "Concept" "TLK_PLAYER_SPELL_MOVEMENT_BUFF" required  
+criterion "ConceptPlayerSpellMonoculous" "Concept" "TLK_PLAYER_SPELL_MONOCULOUS" required  
+criterion "ConceptPlayerSpellMeteorSwarm" "Concept" "TLK_PLAYER_SPELL_METEOR_SWARM" required  
+criterion "ConceptPlayerSpellSkeletonHorde" "Concept" "TLK_PLAYER_SPELL_SKELETON_HORDE" required  
+
+criterion "ConceptPlayerSpellPickupCommon" "Concept" "TLK_PLAYER_SPELL_PICKUP_COMMON" required  
+criterion "ConceptPlayerSpellPickupRare" "Concept" "TLK_PLAYER_SPELL_PICKUP_RARE" required 
+criterion "ConceptPlayerHelltowerMidnight" "Concept" "TLK_PLAYER_HELLTOWER_MIDNIGHT" required  
+criterion "ConceptPlayerSkeletonKingAppear" "Concept" "TLK_PLAYER_SKELETON_KING_APPEAR" required
+
+criterion "IsMapHelltower" "map" "plr_hightower_event" required
+criterion "IsInHell"	"IsInHell"	"1" required
+criterion "IsNotInHell"	"IsInHell"	"0" required
 
 // Test rules
 #include "talker/tf.txt"
@@ -372,3 +677,14 @@ criterion "ConceptFireMinigunTalk" "Concept" "TLK_MINIGUN_FIREWEAPON" "required"
 #include "talker/Medic.txt"
 #include "talker/Pyro.txt"
 #include "talker/Spy.txt"
+#include "talker/events.txt"
+#include "talker/Heavy_auto.txt"
+#include "talker/Scout_auto.txt"
+#include "talker/Engineer_auto.txt"
+#include "talker/Sniper_auto.txt"
+#include "talker/Soldier_auto.txt"
+#include "talker/Demoman_auto.txt"
+#include "talker/Medic_auto.txt"
+#include "talker/Pyro_auto.txt"
+#include "talker/Spy_auto.txt"
+

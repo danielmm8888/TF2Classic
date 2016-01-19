@@ -57,22 +57,27 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( tf_weapon_pistol_scout, CTFPistol_Scout );
 PRECACHE_WEAPON_REGISTER( tf_weapon_pistol_scout );
 
-//============================
-
-IMPLEMENT_NETWORKCLASS_ALIASED(TFSixShooter, DT_WeaponSixShooter)
-
-BEGIN_NETWORK_TABLE(CTFSixShooter, DT_WeaponSixShooter)
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA(CTFSixShooter)
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS(tf_weapon_sixshooter, CTFSixShooter);
-PRECACHE_WEAPON_REGISTER(tf_weapon_sixshooter);
 //=============================================================================
 //
 // Weapon Pistol functions.
 //
+
+acttable_t CTFPistol::m_acttable[] =
+{
+	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_SECONDARY2, false },
+	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_SECONDARY2, false },
+	{ ACT_MP_RUN, ACT_MP_RUN_SECONDARY2, false },
+	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_SECONDARY2, false },
+	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_SECONDARY2, false },
+	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_SECONDARY2, false },
+	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_SECONDARY2, false },
+	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_SECONDARY2, false },
+	{ ACT_MP_SWIM, ACT_MP_SWIM_SECONDARY2, false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_SECONDARY2, false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_SECONDARY2, false },
+};
+
+IMPLEMENT_DM_ACTTABLE( CTFPistol );
 
 //-----------------------------------------------------------------------------
 // Purpose:

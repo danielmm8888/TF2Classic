@@ -53,6 +53,8 @@ void CTFAdvSlider::Init()
 	fLabelWidth = 0.0;
 	fValue = -1.0;
 	m_bBorderVisible = false;
+	bVertical = false;
+	bValueVisible = true;
 	m_bShowInt = true;
 }
 
@@ -63,6 +65,8 @@ void CTFAdvSlider::ApplySettings(KeyValues *inResourceData)
 {
 	BaseClass::ApplySettings(inResourceData);
 
+	bVertical = inResourceData->GetBool("vertical", false);
+	bValueVisible = inResourceData->GetBool("value_visible", true);
 	fMinValue = inResourceData->GetFloat("minvalue", 0.0);
 	fMaxValue = inResourceData->GetFloat("maxvalue", 100.0);
 	fLabelWidth = inResourceData->GetFloat("labelWidth", 0.0);
@@ -100,8 +104,8 @@ void CTFAdvSlider::PerformLayout()
 {
 	BaseClass::PerformLayout();
 
-	float fBorder = (fLabelWidth > 0.0 ? fLabelWidth : GetWide() / 2.0 + 20);
-	float fShift = 50.0;
+	float fBorder = (fLabelWidth > 0.0 ? fLabelWidth : GetWide() / 2.0 + XRES(6));
+	float fShift = XRES(16);
 
 	SetBorder(GETSCHEME()->GetBorder(EMPTY_STRING));
 	pButton->SetPos(fBorder, 0);
@@ -125,7 +129,7 @@ void CTFAdvSlider::PerformLayout()
 	//pTitleLabel->SetFont(GetFont());
 	pTitleLabel->SetContentAlignment(vgui::Label::a_west);
 	
-	pValueLabel->SetVisible(true);
+	pValueLabel->SetVisible(bValueVisible);
 	pValueLabel->SetPos(GetWide() - fShift, 0);
 	pValueLabel->SetZPos(3);
 	pValueLabel->SetWide(fShift);
@@ -198,7 +202,12 @@ float CTFAdvSlider::GetPercentage()
 	pButton->GetPos(scroll_x, scroll_y); //scroll local pos
 
 	//Msg("Percentage: %f%%\n", pers * 100.0);
-	float pers = (float)(scroll_x - _x) / (float)mx;
+	float pers;
+	if (!bVertical)
+		pers = (float)(scroll_x - _x) / (float)mx;
+	else
+		pers = (float)(scroll_y- _y) / (float)mx;
+
 	return pers;
 }
 
@@ -214,12 +223,18 @@ void CTFAdvSlider::SetPercentage()
 	int x = 0, y = 0;
 	int ix = 0, iy = 0;
 	int mx = pBGBorder->GetWide() - pButton->GetWide();  //max local xpos
+	int my = pBGBorder->GetTall() - pButton->GetTall();  //max local xpos
 	pBGBorder->GetPos(_x, _y);
 	surface()->SurfaceGetCursorPos(x, y); //cursor global pos
 	GetParent()->ScreenToLocal(x, y);//cursor global to local
 	GetPos(ix, iy); //control global pos
 
-	float fPerc = (float)(x - ix - _x - pButton->GetWide() / 2) / (float)mx;
+	float fPerc;
+	if (!bVertical)
+		fPerc = (float)(x - ix - _x - pButton->GetWide() / 2) / (float)mx;
+	else
+		fPerc = (float)(y - iy - _y - pButton->GetTall() / 2) / (float)my;
+
 	SetPercentage(fPerc);
 }
 
@@ -227,10 +242,15 @@ void CTFAdvSlider::SetPercentage(float fPerc)
 {
 	int _x = 0, _y = 0;
 	int scroll_x = 0, scroll_y = 0;
-	int mx = pBGBorder->GetWide() - pButton->GetWide();  //max local xpos
+	int	mx = pBGBorder->GetWide() - pButton->GetWide();  //max local xpos
+	int my = pBGBorder->GetTall() - pButton->GetTall();  //max local xpos
 	pBGBorder->GetPos(_x, _y);
 	pButton->GetPos(scroll_x, scroll_y); //scroll local pos
-	float fPos = min(max(0.0, fPerc), 1.0) * (float)mx + (float)_x;
+	float fPos;
+	if (!bVertical)
+		fPos = min(max(0.0, fPerc), 1.0) * (float)mx + (float)_x;
+	else
+		fPos = min(max(0.0, fPerc), 1.0) * (float)my + (float)_y;
 
 	fValue = min(max(0.0, fPerc), 1.0) * (fMaxValue - fMinValue) + fMinValue;
 	char sValue[30];
@@ -243,8 +263,16 @@ void CTFAdvSlider::SetPercentage(float fPerc)
 		Q_snprintf(sValue, sizeof(sValue), "%2.1f", fValue);
 	}
 	pValueLabel->SetText(sValue);
-	AnimationController::PublicValue_t p_AnimHover(fPos, scroll_y);
-	vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.05f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
+	if (!bVertical)
+	{
+		AnimationController::PublicValue_t p_AnimHover(fPos, scroll_y);
+		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.05f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
+	}
+	else
+	{
+		AnimationController::PublicValue_t p_AnimHover(scroll_x, fPos);
+		vgui::GetAnimationController()->RunAnimationCommand(pButton, "Position", p_AnimHover, 0.0f, 0.05f, vgui::AnimationController::INTERPOLATOR_LINEAR, NULL);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -306,8 +334,10 @@ void CTFScrollButton::PerformLayout()
 
 	SetText(EMPTY_STRING);
 	SetZPos(3);
-	SetWide(toProportionalWide(8));  //scroll wide
-	SetTall(m_pParent->GetTall());
+	if (!m_pParent->IsVertical())
+		SetSize(XRES(8), m_pParent->GetTall());  //scroll wide
+	else
+		SetSize(m_pParent->GetPanelWide(), YRES(8));  //scroll wide	
 	SetArmedSound("ui/buttonrollover.wav");
 	SetDepressedSound("ui/buttonclick.wav");
 	SetReleasedSound("ui/buttonclickrelease.wav");

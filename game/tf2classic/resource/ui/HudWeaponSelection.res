@@ -1,23 +1,105 @@
 "Resource/UI/HudWeaponSelection.res"
 {
-	"ActiveWeapon"
+	"modelpanel0"
 	{
-		"ControlName"	"CTFImagePanel"
-		"fieldName"		"ActiveWeapon"
-		"xpos"			"0"
-		"ypos"			"0"
-		"zpos"			"0"		
-		"wide"			"160"
-		"tall"			"80"
-		"visible"		"0"
-		"enabled"		"1"
-		"enabled"		"1"
-		"image"			"../hud/weapon_bucket_select_black"
-		"scaleImage"	"1"
-		"teambg_1"		"../hud/weapon_bucket_select_black"
-		"teambg_2"		"../hud/weapon_bucket_select_red"
-		"teambg_3"		"../hud/weapon_bucket_select_blue"	
-		"teambg_4"		"../hud/weapon_bucket_select_green"
-		"teambg_5"		"../hud/weapon_bucket_select_yellow"		
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel0"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
+	}
+	"modelpanel1"
+	{
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel1"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
+	}
+	"modelpanel2"
+	{
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel2"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
+	}
+	"modelpanel3"
+	{
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel3"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
+	}
+	"modelpanel4"
+	{
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel4"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
+	}
+	"modelpanel5"
+	{
+		"ControlName"	"CItemModelPanel"
+		"fieldName"		"modelpanel5"
+		"bgcolor_override"		"0 0 0 0"
+		"PaintBackgroundType"	"2"
+		"paintborder"	"1"
+		"name_only"		"1"
+		"model_ypos"	"5"
+		"standard_text_color"	"1"
+
+		"itemmodelpanel"
+		{
+			"use_item_rendertarget" "0"
+			"allow_rot"				"0"
+		}
 	}
 }

@@ -32,6 +32,9 @@ RecvPropVector( RECVINFO( m_vInitialVelocity ) ),
 RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
 RecvPropQAngles( RECVINFO_NAME( m_angNetworkAngles, m_angRotation ) ),
 
+RecvPropInt( RECVINFO( m_iDeflected ) ),
+RecvPropEHandle( RECVINFO( m_hLauncher ) ),
+
 // Server specific.
 #else
 SendPropVector( SENDINFO( m_vInitialVelocity ), 12 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/	),
@@ -42,13 +45,15 @@ SendPropExclude( "DT_BaseEntity", "m_angRotation" ),
 SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_INTEGRAL|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
 SendPropQAngles	(SENDINFO(m_angRotation), 6, SPROP_CHANGES_OFTEN, SendProxy_Angles ),
 
+SendPropInt( SENDINFO( m_iDeflected ), 4, SPROP_UNSIGNED ),
+SendPropEHandle( SENDINFO( m_hLauncher ) ),
 #endif
 END_NETWORK_TABLE()
 
 // Server specific.
 #ifdef GAME_DLL
 BEGIN_DATADESC( CTFBaseRocket )
-DEFINE_FUNCTION( RocketTouch ),
+DEFINE_ENTITYFUNC( RocketTouch ),
 DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 #endif
@@ -66,11 +71,14 @@ ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | F
 CTFBaseRocket::CTFBaseRocket()
 {
 	m_vInitialVelocity.Init();
+	m_iDeflected = 0;
+	m_hLauncher = NULL;
 
 // Client specific.
 #ifdef CLIENT_DLL
 
 	m_flSpawnTime = 0.0f;
+	m_iOldTeamNum = TEAM_UNASSIGNED;
 		
 // Server specific.
 #else
@@ -149,6 +157,16 @@ void CTFBaseRocket::Spawn( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFBaseRocket::OnPreDataChanged( DataUpdateType_t updateType )
+{
+	BaseClass::OnPreDataChanged( updateType );
+
+	m_iOldTeamNum = m_iTeamNum;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFBaseRocket::PostDataUpdate( DataUpdateType_t type )
 {
 	// Pass through to the base class.
@@ -202,15 +220,15 @@ int CTFBaseRocket::DrawModel( int flags )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &vecOrigin, 
+CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin, 
 									  const QAngle &vecAngles, CBaseEntity *pOwner )
 {
-	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::Create( pszClassname, vecOrigin, vecAngles, pOwner ) );
+	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::CreateNoSpawn( pszClassname, vecOrigin, vecAngles, pOwner ) );
 	if ( !pRocket )
 		return NULL;
 
-	// Initialize the owner.
-	pRocket->SetOwnerEntity( pOwner );
+	// Set firing weapon.
+	pRocket->SetLauncher( pWeapon );
 
 	// Spawn.
 	pRocket->Spawn();
@@ -219,7 +237,10 @@ CTFBaseRocket *CTFBaseRocket::Create( const char *pszClassname, const Vector &ve
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-	Vector vecVelocity = vecForward * 1100.0f;
+	float flVelocity = 1100.0f;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+
+	Vector vecVelocity = vecForward * flVelocity;
 	pRocket->SetAbsVelocity( vecVelocity );	
 	pRocket->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
@@ -309,6 +330,17 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	AddSolidFlags( FSOLID_NOT_SOLID );
 	m_takedamage = DAMAGE_NO;
 
+	// Figure out Econ ID.
+	int iItemID = -1;
+	if ( m_hLauncher.Get() )
+	{
+		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( m_hLauncher.Get() );
+		if ( pWeapon )
+		{
+			iItemID = pWeapon->GetItemID();
+		}
+	}
+
 	// Pull out a bit.
 	if ( pTrace->fraction != 1.0 )
 	{
@@ -318,7 +350,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	// Play explosion sound and effect.
 	Vector vecOrigin = GetAbsOrigin();
 	CPVSFilter filter( vecOrigin );
-	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex() );
+	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex(), iItemID );
 	CSoundEnt::InsertSound ( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
 
 	// Damage.
@@ -329,9 +361,15 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		pAttacker = pScorerInterface->GetScorer();
 	}
 
-	CTakeDamageInfo info( this, pAttacker, vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
 	float flRadius = GetRadius();
-	RadiusDamage( info, vecOrigin, flRadius, CLASS_NONE, NULL );
+
+	CTFRadiusDamageInfo radiusInfo;
+	radiusInfo.info.Set( this, pAttacker, m_hLauncher, vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
+	radiusInfo.m_vecSrc = vecOrigin;
+	radiusInfo.m_flRadius = flRadius;
+	radiusInfo.m_flSelfDamageRadius = 121.0f; // Original rocket radius?
+
+	TFGameRules()->RadiusDamage( radiusInfo );
 
 	// Debug!
 	if ( tf_rocket_show_radius.GetBool() )
@@ -347,6 +385,16 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 
 	// Remove the rocket.
 	UTIL_Remove( this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+float CTFBaseRocket::GetRadius( void )
+{
+	float flRadius = TF_ROCKET_RADIUS;
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_hLauncher.Get(), flRadius, mult_explosion_radius );
+	return flRadius;
 }
 
 //-----------------------------------------------------------------------------
@@ -399,6 +447,22 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 
 		lastEdge = edge;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Increment deflects counter
+//-----------------------------------------------------------------------------
+void CTFBaseRocket::IncremenentDeflected( void )
+{
+	m_iDeflected++;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFBaseRocket::SetLauncher( CBaseEntity *pLauncher )
+{ 
+	m_hLauncher = pLauncher;
 }
 
 void CTFBaseRocket::FlyThink( void )

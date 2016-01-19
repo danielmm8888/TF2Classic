@@ -17,6 +17,8 @@
 #include "ilagcompensationmanager.h"
 #endif
 
+ConVar tf_use_fixed_weaponspreads( "tf_use_fixed_weaponspreads", "0", FCVAR_NOTIFY|FCVAR_REPLICATED, "If set to 1, weapons that fire multiple pellets per shot will use a non-random pellet distribution." );
+
 // Client specific.
 #ifdef CLIENT_DLL
 
@@ -112,21 +114,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 					 int iWeapon, int iMode, int iSeed, float flSpread, float flDamage /* = -1.0f */, bool bCritical /* = false*/ )
 {
 	// Get the weapon information.
-	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
-	if ( !pszWeaponAlias )
-	{
-		DevMsg( 1, "FX_FireBullets: weapon alias for ID %i not found\n", iWeapon );
-		return;
-	}
-
-	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszWeaponAlias );
-	if ( hWpnInfo == GetInvalidWeaponInfoHandle() )
-	{
-		DevMsg( 1, "FX_FireBullets: LookupWeaponInfoSlot failed for weapon %s\n", pszWeaponAlias );
-		return;
-	}
-
-	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+	CTFWeaponInfo *pWeaponInfo = GetTFWeaponInfo( iWeapon );
 	if( !pWeaponInfo )
 		return;
 
@@ -145,11 +133,10 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	bDoEffects = true;
 
 	// The minigun has custom sound & animation code to deal with its windup/down.
-	if ( !pPlayer->IsLocalPlayer() 
-		&& iWeapon != TF_WEAPON_MINIGUN )
+	if ( pPlayer->ShouldDrawThisPlayer() && iWeapon != TF_WEAPON_MINIGUN )
 	{
 		// Fire the animation event.
-		if ( pPlayer && !pPlayer->IsDormant() )
+		if ( !pPlayer->IsDormant() )
 		{
 			if ( iMode == TF_WEAPON_PRIMARY_MODE )
 			{
@@ -206,6 +193,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	// Setup the bullet damage type & roll for crit.
 	int	nDamageType	= DMG_GENERIC;
 	int nCustomDamageType = TF_DMG_CUSTOM_NONE;
+	bool bBuckshot = false;
 	CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 	if ( pWeapon )
 	{
@@ -216,6 +204,7 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 		}
 
 		nCustomDamageType = pWeapon->GetCustomDamageType();
+		bBuckshot = ( nDamageType & DMG_BUCKSHOT ) != 0;
 	}
 
 	if ( iWeapon != TF_WEAPON_MINIGUN )
@@ -227,14 +216,56 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	ClearMultiDamage();
 
 	int nBulletsPerShot = pWeaponInfo->GetWeaponData( iMode ).m_nBulletsPerShot;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, nBulletsPerShot, mult_bullets_per_shot );
+
+	// Only shotguns should get fixed spread pattern.
+	bool bFixedSpread = false;
+
+	if ( bBuckshot && nBulletsPerShot > 1 )
+	{
+		bFixedSpread = tf_use_fixed_weaponspreads.GetBool();
+	}
+
 	for ( int iBullet = 0; iBullet < nBulletsPerShot; ++iBullet )
 	{
 		// Initialize random system with this seed.
 		RandomSeed( iSeed );	
 
-		// Get circular gaussian spread.
-		float x = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
-		float y = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+		float x = 0.0f;
+		float y = 0.0f;
+
+		// Determine if the first bullet should be perfectly accurate.
+		bool bPerfectAccuracy = false;
+
+		if ( pWeapon && iBullet == 0 )
+		{
+			float flFireInterval = gpGlobals->curtime - pWeapon->GetLastFireTime();
+			if ( nBulletsPerShot == 1 )
+				bPerfectAccuracy = flFireInterval > 1.25f;
+			else
+				bPerfectAccuracy = flFireInterval > 0.25f;
+		}
+
+		// See if we're using pre-determined spread pattern.
+		if ( bFixedSpread )
+		{
+			int iIndex = iBullet;
+			while ( iIndex > 9 )
+			{
+				iIndex -= 10;
+			}
+
+			x = 0.5f * g_vecFixedWpnSpreadPellets[iIndex].x;
+			y = 0.5f * g_vecFixedWpnSpreadPellets[iIndex].y;
+		}
+
+		// Apply random spread if none of the above conditions are true.
+		if ( !bPerfectAccuracy && !bFixedSpread )
+		{
+			// Get circular gaussian spread.
+			x = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+			y = RandomFloat( -0.5, 0.5 ) + RandomFloat( -0.5, 0.5 );
+		}
 
 		// Initialize the varialbe firing information.
 		fireInfo.m_vecDirShooting = vecShootForward + ( x *  flSpread * vecShootRight ) + ( y * flSpread * vecShootUp );

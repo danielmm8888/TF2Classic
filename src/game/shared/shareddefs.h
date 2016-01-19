@@ -228,7 +228,7 @@ enum CastVote
 //Since this is decided by the gamerules (and it can be whatever number as long as its less than MAX_PLAYERS).
 #if defined( CSTRIKE_DLL )
 	#define MAX_PLAYERS				65  // Absolute max players supported
-#elif defined ( TF_CLASSIC_CLIENT ) || defined ( TF_CLASSIC )
+#elif defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
 	#define MAX_PLAYERS				128 
 #else
 	#define MAX_PLAYERS				33  // Absolute max players supported
@@ -236,7 +236,11 @@ enum CastVote
 
 #define MAX_PLACE_NAME_LENGTH		18
 
+#if defined ( TF_CLASSIC ) || defined ( TF_CLASSIC_CLIENT )
+#define MAX_FOV						100
+#else
 #define MAX_FOV						90
+#endif
 
 //===================================================================================================================
 // Team Defines

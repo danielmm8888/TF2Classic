@@ -17,7 +17,6 @@
 class CHudMenuEngyBuild;
 class CHudMenuEngyDestroy;
 class CHudMenuSpyDisguise;
-class CHudMenuWeaponSet;
 class CTFFreezePanel;
 
 #if defined( _X360 )
@@ -40,7 +39,11 @@ public:
 	virtual void	InitViewport();
 	virtual void	Shutdown();
 
+	virtual void	OverrideView( CViewSetup *pSetup );
+
 //	virtual int		KeyInput( int down, ButtonCode_t keynum, const char *pszCurrentBinding );
+
+	virtual bool	DoPostScreenSpaceEffects( const CViewSetup *pSetup );
 
 	virtual float	GetViewModelFOV( void );
 	virtual bool	ShouldDrawViewModel();
@@ -64,7 +67,6 @@ private:
 	CHudMenuEngyBuild *m_pMenuEngyBuild;
 	CHudMenuEngyDestroy *m_pMenuEngyDestroy;
 	CHudMenuSpyDisguise *m_pMenuSpyDisguise;
-	CHudMenuWeaponSet *m_pMenuWeaponSet;
 	CTFFreezePanel		*m_pFreezePanel;
 	IGameUI			*m_pGameUI;
 

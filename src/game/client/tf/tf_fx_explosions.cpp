@@ -12,17 +12,18 @@
 #include "tf_weapon_parse.h"
 #include "c_basetempentity.h"
 #include "tier0/vprof.h"
+#include "econ_item_system.h"
 
 //--------------------------------------------------------------------------------------------------------------
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, ClientEntityHandle_t hEntity )
+void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, ClientEntityHandle_t hEntity, int iItemID )
 {
 	// Get the weapon information.
 	CTFWeaponInfo *pWeaponInfo = NULL;
-	switch( iWeaponID )
+	switch ( iWeaponID )
 	{
 	case TF_WEAPON_GRENADE_PIPEBOMB:
 	case TF_WEAPON_GRENADE_DEMOMAN:
@@ -98,6 +99,16 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 			pszSound = pWeaponInfo->m_szExplosionSound;
 		}
 	}
+
+	// Allow schema to override explosion sound.
+	if ( iItemID >= 0 )
+	{
+		CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+		if ( pItemDef && pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1][0] != '\0' )
+		{
+			pszSound = pItemDef->GetVisuals()->aWeaponSounds[SPECIAL1];
+		}
+	}
 	
 	CLocalPlayerFilter filter;
 	C_BaseEntity::EmitSound( filter, SOUND_FROM_WORLD, pszSound, &vecOrigin );
@@ -124,6 +135,7 @@ public:
 	Vector		m_vecOrigin;
 	Vector		m_vecNormal;
 	int			m_iWeaponID;
+	int			m_iItemID;
 	ClientEntityHandle_t m_hEntity;
 };
 
@@ -135,6 +147,7 @@ C_TETFExplosion::C_TETFExplosion( void )
 	m_vecOrigin.Init();
 	m_vecNormal.Init();
 	m_iWeaponID = TF_WEAPON_NONE;
+	m_iItemID = -1;
 	m_hEntity = INVALID_EHANDLE_INDEX;
 }
 
@@ -145,7 +158,7 @@ void C_TETFExplosion::PostDataUpdate( DataUpdateType_t updateType )
 {
 	VPROF( "C_TETFExplosion::PostDataUpdate" );
 
-	TFExplosionCallback( m_vecOrigin, m_vecNormal, m_iWeaponID, m_hEntity );
+	TFExplosionCallback( m_vecOrigin, m_vecNormal, m_iWeaponID, m_hEntity, m_iItemID );
 }
 
 static void RecvProxy_ExplosionEntIndex( const CRecvProxyData *pData, void *pStruct, void *pOut )
@@ -160,6 +173,7 @@ IMPLEMENT_CLIENTCLASS_EVENT_DT( C_TETFExplosion, DT_TETFExplosion, CTETFExplosio
 	RecvPropFloat( RECVINFO( m_vecOrigin[2] ) ),
 	RecvPropVector( RECVINFO( m_vecNormal ) ),
 	RecvPropInt( RECVINFO( m_iWeaponID ) ),
+	RecvPropInt( RECVINFO( m_iItemID ) ),
 	RecvPropInt( "entindex", 0, SIZEOF_IGNORE, 0, RecvProxy_ExplosionEntIndex ),
 END_RECV_TABLE()
 

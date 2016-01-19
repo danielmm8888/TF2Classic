@@ -13,6 +13,8 @@
 #include "vgui/ILocalize.h"
 #include "vgui/ISurface.h"
 #include <vgui_controls/Panel.h>
+#include <vgui_controls/EditablePanel.h>
+#include "tf_spectatorgui.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -20,18 +22,30 @@
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CDisguiseStatus : public CHudElement, public vgui::Panel
+class CDisguiseStatus : public CHudElement, public vgui::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( CDisguiseStatus, vgui::Panel );
+	DECLARE_CLASS_SIMPLE( CDisguiseStatus, vgui::EditablePanel );
 
 public:
 	CDisguiseStatus( const char *pElementName );
 	void			Init( void );
 	virtual void	ApplySchemeSettings( vgui::IScheme *scheme );
 	virtual void	Paint( void );
+	virtual bool	ShouldDraw( void );
+	void			HideStatus( void );
+	void			ShowAndUpdateStatus( void );
+	void			CheckWeapon( void );
 
 private:
 	CPanelAnimationVar( vgui::HFont, m_hFont, "TextFont", "TargetID" );
+	CTFImagePanel		*m_pDisguiseStatusBG;
+	vgui::Label			*m_pDisguiseNameLabel;
+	vgui::Label			*m_pWeaponNameLabel;
+	CTFSpectatorGUIHealth	*m_pTargetHealth;
+	//CEmbeddedItemModelPanel *m_pItemModelPanel;
+	
+	bool				m_bVisible;
+	int					m_iCurrentDisguiseTeam;
 };
 
 DECLARE_HUDELEMENT( CDisguiseStatus );
@@ -47,7 +61,10 @@ CDisguiseStatus::CDisguiseStatus( const char *pElementName ) :
 	vgui::Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
 
+	m_pTargetHealth = new CTFSpectatorGUIHealth( this, "SpectatorGUIHealth" );
+
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
+	m_iCurrentDisguiseTeam = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -55,107 +72,158 @@ CDisguiseStatus::CDisguiseStatus( const char *pElementName ) :
 //-----------------------------------------------------------------------------
 void CDisguiseStatus::Init( void )
 {
+	HideStatus();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Hide all elements
+//-----------------------------------------------------------------------------
+void CDisguiseStatus::HideStatus( void )
+{
+	if ( m_pDisguiseStatusBG )
+		m_pDisguiseStatusBG->SetVisible( false );
+
+	if ( m_pDisguiseNameLabel )
+		m_pDisguiseNameLabel->SetVisible( false );
+
+	if ( m_pWeaponNameLabel )
+		m_pWeaponNameLabel->SetVisible( false );
+
+	if ( m_pTargetHealth )
+		m_pTargetHealth->SetVisible( false );
+
+	m_bVisible = false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CDisguiseStatus::ShouldDraw( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer )
+		return false;
+
+	if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+	{
+		if ( !m_bVisible || m_iCurrentDisguiseTeam != pPlayer->m_Shared.GetDisguiseTeam() )
+			ShowAndUpdateStatus();
+
+		return true;
+	}
+	else 
+	{
+		HideStatus();
+		return false;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CDisguiseStatus::ApplySchemeSettings( vgui::IScheme *scheme )
 {
 	BaseClass::ApplySchemeSettings( scheme );
+	LoadControlSettings( "resource/UI/DisguiseStatusPanel.res" );
+
+	m_pTargetHealth = dynamic_cast< CTFSpectatorGUIHealth *>( FindChildByName( "SpectatorGUIHealth" ) );
+	//m_pItemModelPanel = dynamic_cast< CEmbeddedItemModelPanel *>( FindChildByName( "CEmbeddedItemModelPanel" ) );
+	m_pDisguiseStatusBG = dynamic_cast< CTFImagePanel * >( FindChildByName( "DisguiseStatusBG" ) );
+	m_pDisguiseNameLabel = dynamic_cast< vgui::Label *>( FindChildByName( "DisguiseNameLabel" ) );
+	m_pWeaponNameLabel = dynamic_cast< vgui::Label *>( FindChildByName( "WeaponNameLabel" ) );
 
 	SetPaintBackgroundEnabled( false );
+
+	HideStatus();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Draw function for the element
+// Purpose: 
 //-----------------------------------------------------------------------------
-void CDisguiseStatus::Paint()
+void CDisguiseStatus::CheckWeapon( void )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	if ( !pPlayer )
 		return;
 
-#ifdef _X360
-	// We don't print anything on the xbox when we're fully disguised
-	if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISING ) )
+	//TODO: Properly get the econ weapon name instead of the regular script wep. name
+	CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
+	if ( pWeaponInfo )
+	{
+		SetDialogVariable( "weaponname", g_pVGuiLocalize->Find( pWeaponInfo->szPrintName ) );
+	}
+
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CDisguiseStatus::ShowAndUpdateStatus( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer )
 		return;
-#endif
 
+	m_iCurrentDisguiseTeam = pPlayer->m_Shared.GetDisguiseTeam();
 
-	int xpos = 0;
-	int ypos = 0;
-
-	#define MAX_DISGUISE_STATUS_LENGTH	128
-
-	wchar_t szStatus[MAX_DISGUISE_STATUS_LENGTH];
-	szStatus[0] = '\0';
-
-	wchar_t *pszTemplate = NULL;
-	int nDisguiseClass = TF_CLASS_UNDEFINED, nDisguiseTeam = TEAM_UNASSIGNED;
-	if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISING ) )
+	if ( m_pDisguiseStatusBG )
 	{
-		pszTemplate = g_pVGuiLocalize->Find( "#TF_Spy_Disguising" );
-		nDisguiseClass = pPlayer->m_Shared.GetDesiredDisguiseClass();
-		nDisguiseTeam = pPlayer->m_Shared.GetDesiredDisguiseTeam();
-	}
-	else if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
-	{
-		pszTemplate = g_pVGuiLocalize->Find( "#TF_Spy_Disguised_as" );
-		nDisguiseClass = pPlayer->m_Shared.GetDisguiseClass();
-		nDisguiseTeam = pPlayer->m_Shared.GetDisguiseTeam();
+		m_pDisguiseStatusBG->SetVisible( true );
+
+		// This isn't how live tf2 does it, they simply call UpdateBGImage, however I'm not sure what exactly
+		// they're doing.
+		m_pDisguiseStatusBG->SetBGImage( m_iCurrentDisguiseTeam );
+		//m_pDisguiseStatusBG->UpdateBGImage();
 	}
 
-	wchar_t *pszClassName = g_pVGuiLocalize->Find( GetPlayerClassData( nDisguiseClass )->m_szLocalizableName );
-
-	wchar_t *pszTeamName = NULL;
-
-	switch (nDisguiseTeam)
+	if ( m_pDisguiseNameLabel )
 	{
-		case TF_TEAM_RED:
-			pszTeamName = g_pVGuiLocalize->Find("#TF_Spy_Disguise_Team_Red");
-			break;
-		case TF_TEAM_BLUE:
-			pszTeamName = g_pVGuiLocalize->Find("#TF_Spy_Disguise_Team_Blue");
-			break;
-		case TF_TEAM_GREEN:
-			pszTeamName = g_pVGuiLocalize->Find("#TF_Spy_Disguise_Team_Green");
-			break;
-		case TF_TEAM_YELLOW:
-			pszTeamName = g_pVGuiLocalize->Find("#TF_Spy_Disguise_Team_Yellow");
-			break;
+		m_pDisguiseNameLabel->SetVisible( true );
+		CBasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
+		if ( pDisguiseTarget )
+			SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
 	}
 
-	if ( pszTemplate && pszClassName && pszTeamName )
+	if ( m_pWeaponNameLabel )
 	{
-		wcsncpy( szStatus, pszTemplate, MAX_DISGUISE_STATUS_LENGTH );
-
-		g_pVGuiLocalize->ConstructString( szStatus, MAX_DISGUISE_STATUS_LENGTH*sizeof(wchar_t), pszTemplate,
-			2,
-			pszTeamName,
-			pszClassName );	
+		m_pWeaponNameLabel->SetVisible( true );
+		CheckWeapon();
 	}
 
-	if ( szStatus[0] != '\0' )
+	if ( m_pTargetHealth )
 	{
-		vgui::surface()->DrawSetTextFont( m_hFont );
-
-		Color cPlayerColor;
-
-		if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
-		{
-			cPlayerColor = g_PR->GetTeamColor( pPlayer->m_Shared.GetDisguiseTeam() );
-		}
-		else
-		{
-			cPlayerColor = g_PR->GetTeamColor( pPlayer->GetTeamNumber() );
-		}
-
-		// draw a black dropshadow ( the default one looks horrible )
-		vgui::surface()->DrawSetTextPos( xpos+1, ypos+1 );
-		vgui::surface()->DrawSetTextColor( Color(0,0,0,255) );
-		vgui::surface()->DrawPrintText( szStatus, wcslen(szStatus) );		
-
-		vgui::surface()->DrawSetTextPos( xpos, ypos );
-		vgui::surface()->DrawSetTextColor( cPlayerColor );
-		vgui::surface()->DrawPrintText( szStatus, wcslen(szStatus) );
+		m_pTargetHealth->SetVisible( true );
+		m_pTargetHealth->SetHealth( pPlayer->m_Shared.GetDisguiseHealth(), pPlayer->m_Shared.GetDisguiseMaxHealth(), pPlayer->m_Shared.GetDisguiseMaxBuffedHealth() );
 	}
+
+	m_bVisible = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Draw function for the element
+//-----------------------------------------------------------------------------
+void CDisguiseStatus::Paint( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer )
+		return;
+
+	// We don't print anything until we're fully disguised
+	if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+		return;
+
+	CBasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
+	if ( pDisguiseTarget )
+	{
+		SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
+	}
+
+	CheckWeapon();
+	
+	if ( m_pTargetHealth )
+		m_pTargetHealth->SetHealth( pPlayer->m_Shared.GetDisguiseHealth(), pPlayer->m_Shared.GetDisguiseMaxHealth(), pPlayer->m_Shared.GetDisguiseMaxBuffedHealth() );
 }

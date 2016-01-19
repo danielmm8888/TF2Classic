@@ -44,6 +44,7 @@ CTFViewModel::CTFViewModel() : m_LagAnglesHistory("CPredictedViewModel::m_LagAng
 #else
 CTFViewModel::CTFViewModel()
 {
+	m_iViewModelType = VMTYPE_NONE;
 }
 #endif
 
@@ -93,7 +94,8 @@ void CTFViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *wea
 	BaseClass::SetWeaponModel( modelname, weapon );
 
 #ifdef CLIENT_DLL
-	RemoveViewmodelAddon();
+	if ( !modelname )
+		RemoveViewmodelAddon();
 #endif
 }
 
@@ -103,42 +105,46 @@ void CTFViewModel::SetWeaponModel( const char *modelname, CBaseCombatWeapon *wea
 //-----------------------------------------------------------------------------
 void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 {
-	C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-	
-	if ( pEnt && pEnt->GetModelIndex() == modelinfo->GetModelIndex(pszModelname) )
+	C_ViewmodelAttachmentModel *pAddon = m_hViewmodelAddon.Get();
+
+	if ( pAddon )
 	{
-		pEnt->m_nSkin = GetSkin();
-		if ( C_BasePlayer::GetLocalPlayer() != GetOwner() ) // Spectator fix
+		if ( pAddon->GetModelIndex() == modelinfo->GetModelIndex( pszModelname ) )
 		{
-			pEnt->SetParent(this);
-			pEnt->AddEffects(EF_BONEMERGE);
-			pEnt->UpdateVisibility();
-			pEnt->SetViewmodel(this);
+			pAddon->m_nSkin = GetSkin();
+
+			if ( C_BasePlayer::GetLocalPlayer() != GetOwner() ) // Spectator fix
+			{
+				pAddon->FollowEntity( this );
+				pAddon->m_nRenderFX = m_nRenderFX;
+				pAddon->UpdateVisibility();
+				pAddon->SetViewmodel( this );
+			}
+			return; // we already have the correct add-on
 		}
-		return; // we already have the correct add-on
+		else
+		{
+			RemoveViewmodelAddon();
+		}
 	}
-	else if ( pEnt )
+
+	pAddon = new class C_ViewmodelAttachmentModel;
+	if ( !pAddon )
+		return;
+
+	if ( pAddon->InitializeAsClientEntity( pszModelname, RENDER_GROUP_VIEW_MODEL_TRANSLUCENT ) == false )
 	{
-		RemoveViewmodelAddon();
+		pAddon->Release();
+		return;
 	}
 
-	pEnt = new class C_ViewmodelAttachmentModel;
-	if (!pEnt)
-		return;
-
-	if (pEnt->InitializeAsClientEntity(pszModelname, RENDER_GROUP_VIEW_MODEL_TRANSLUCENT) == false)
-		return;
-
-	m_viewmodelAddon = pEnt;
-	V_strncpy(m_viewmodelAddonName, pszModelname, sizeof(m_viewmodelAddonName));
-	pEnt->m_nSkin = GetSkin();
-	pEnt->SetParent(this);
-	pEnt->AddEffects(EF_BONEMERGE);
-	pEnt->SetLocalOrigin(vec3_origin);
-	pEnt->UpdatePartitionListEntry();
-	pEnt->CollisionProp()->MarkPartitionHandleDirty();
-	pEnt->UpdateVisibility();
-	pEnt->SetViewmodel(this);
+	m_hViewmodelAddon = pAddon;
+	pAddon->m_nSkin = GetSkin();
+	pAddon->FollowEntity( this );
+	pAddon->UpdatePartitionListEntry();
+	pAddon->CollisionProp()->MarkPartitionHandleDirty();
+	pAddon->UpdateVisibility();
+	pAddon->SetViewmodel( this );
 }
 
 //-----------------------------------------------------------------------------
@@ -146,87 +152,86 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 //-----------------------------------------------------------------------------
 void CTFViewModel::RemoveViewmodelAddon( void )
 {
-	if (m_viewmodelAddon)
+	if ( m_hViewmodelAddon.Get() )
 	{
-		m_viewmodelAddon->SetModel("");
-		m_viewmodelAddon->Remove();
+		m_hViewmodelAddon->SetModel( "" );
+		m_hViewmodelAddon->Remove();
 	}
-	V_strncpy(m_viewmodelAddonName, "", sizeof(m_viewmodelAddonName));
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int	CTFViewModel::LookupAttachment(const char *pAttachmentName)
+int	CTFViewModel::LookupAttachment( const char *pAttachmentName )
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-		if (pEnt)
-			return pEnt->LookupAttachment(pAttachmentName);
+		C_ViewmodelAttachmentModel *pEnt = m_hViewmodelAddon.Get();
+		if ( pEnt )
+			return pEnt->LookupAttachment( pAttachmentName );
 	}
 
-	return BaseClass::LookupAttachment(pAttachmentName);
+	return BaseClass::LookupAttachment( pAttachmentName );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFViewModel::GetAttachment(int number, matrix3x4_t &matrix)
+bool CTFViewModel::GetAttachment( int number, matrix3x4_t &matrix )
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-		if (pEnt)
-			return pEnt->GetAttachment(number, matrix);
+		C_ViewmodelAttachmentModel *pEnt = m_hViewmodelAddon.Get();
+		if ( pEnt )
+			return pEnt->GetAttachment( number, matrix );
 	}
 
-	return BaseClass::GetAttachment(number, matrix);
+	return BaseClass::GetAttachment( number, matrix );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFViewModel::GetAttachment(int number, Vector &origin)
+bool CTFViewModel::GetAttachment( int number, Vector &origin )
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-		if (pEnt)
-			return pEnt->GetAttachment(number, origin);
+		C_ViewmodelAttachmentModel *pEnt = m_hViewmodelAddon.Get();
+		if ( pEnt )
+			return pEnt->GetAttachment( number, origin );
 	}
 
-	return BaseClass::GetAttachment(number, origin);
+	return BaseClass::GetAttachment( number, origin );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFViewModel::GetAttachment(int number, Vector &origin, QAngle &angles)
+bool CTFViewModel::GetAttachment( int number, Vector &origin, QAngle &angles )
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-		if (pEnt)
-			return pEnt->GetAttachment(number, origin, angles);
+		C_ViewmodelAttachmentModel *pEnt = m_hViewmodelAddon.Get();
+		if ( pEnt )
+			return pEnt->GetAttachment( number, origin, angles );
 	}
 
-	return BaseClass::GetAttachment(number, origin, angles);
+	return BaseClass::GetAttachment( number, origin, angles );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFViewModel::GetAttachmentVelocity(int number, Vector &originVel, Quaternion &angleVel)
+bool CTFViewModel::GetAttachmentVelocity( int number, Vector &originVel, Quaternion &angleVel )
 {
 	if ( GetViewModelType() == VMTYPE_TF2 )
 	{
-		C_ViewmodelAttachmentModel *pEnt = m_viewmodelAddon.Get();
-		if (pEnt)
-			return pEnt->GetAttachmentVelocity(number, originVel, angleVel);
+		C_ViewmodelAttachmentModel *pEnt = m_hViewmodelAddon.Get();
+		if ( pEnt )
+			return pEnt->GetAttachmentVelocity( number, originVel, angleVel );
 	}
 
-	return BaseClass::GetAttachmentVelocity(number, originVel, angleVel);
+	return BaseClass::GetAttachmentVelocity( number, originVel, angleVel );
 }
 
 #endif
@@ -300,8 +305,8 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 	AngleVectors(eyeAngles, &forward, &right, &up);
 	vecNewOrigin += forward*v_viewmodel_offset_x.GetFloat() + right*v_viewmodel_offset_y.GetFloat() + up*v_viewmodel_offset_z.GetFloat();
 
-	if (owner->GetActiveWeapon())
-		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
+//	if ( owner->GetActiveWeapon() )
+//		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
 
 	BaseClass::CalcViewModelView( owner, vecNewOrigin, vecNewAngles );
 
@@ -366,7 +371,7 @@ void CTFViewModel::StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quatern
 
 		Assert( iBarrelBone != -1 );
 
-		if ( iBarrelBone != -1 )
+		if ( iBarrelBone != -1 && ( hdr->boneFlags( iBarrelBone ) & boneMask ) )
 		{
 			RadianEuler a;
 			QuaternionAngles( q[iBarrelBone], a );
@@ -427,6 +432,20 @@ int CTFViewModel::GetSkin()
 	}
 
 	return nSkin;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose
+//-----------------------------------------------------------------------------
+void CTFViewModel::FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options )
+{
+	// Don't process animevents if it's not drawn.
+	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+
+	if ( pOwner->ShouldDrawThisPlayer() )
+		return;
+
+	BaseClass::FireEvent( origin, angles, event, options );
 }
 
 //-----------------------------------------------------------------------------

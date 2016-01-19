@@ -226,14 +226,16 @@
 	{
 		"ControlName"	"CExLabel"
 		"fieldName"		"TeamMenuAuto"
-		"xpos"			"c-276"
+		"xpos"			"c-280" [$WIN32] 
+		"xpos"			"c-276" [$X360]
 		"xpos_lodef"			"c-255"
 		"xpos_hidef"			"c-260"
 		"ypos"			"55"
 		"ypos_lodef"			"72"
 		"ypos_hidef"			"65"
 		"zpos"			"1"
-		"wide"			"94"
+		"wide"			"102" [$WIN32] 
+		"wide"			"94" [$X360]
 		"tall"			"24"
 		"autoResize"	"0"
 		"pinCorner"		"0"
@@ -663,5 +665,108 @@
 			"icon"		"#GameUI_Icons_A_BUTTON"	
 		}
 	}	
+	
+	"HighlanderLabel" [$WIN32] 
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"HighlanderLabel"
+		"xpos"			"c-150"
+		"ypos"			"100"
+		"zpos"			"6"
+		"wide"			"105"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"labelText"		"#TF_Highlander_Mode"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"font"			"CapPlayerFont"
+		"fgcolor"		"HudOffWhite"
+		"centerwrap"	"1"
+	}
+	
+	"HighlanderLabelShadow" [$WIN32] 
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"HighlanderLabelShadow"
+		"xpos"			"c-149"
+		"ypos"			"101"
+		"zpos"			"6"
+		"wide"			"105"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"labelText"		"#TF_Highlander_Mode"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"font"			"CapPlayerFont"
+		"fgcolor"		"black"
+		"centerwrap"	"1"
+	}
+	
+	"TeamsFullLabel" [$WIN32] 
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"TeamsFullLabel"
+		"xpos"			"c-150"
+		"ypos"			"135"
+		"zpos"			"6"
+		"wide"			"105"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"labelText"		"#TF_Teams_Full"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"font"			"CapPlayerFont"
+		"fgcolor"		"HudOffWhite"
+		"centerwrap"	"1"
+	}
+	
+	"TeamsFullLabelShadow" [$WIN32] 
+	{
+		"ControlName"	"CExLabel"
+		"fieldName"		"TeamsFullLabelShadow"
+		"xpos"			"c-149"
+		"ypos"			"136"
+		"zpos"			"6"
+		"wide"			"105"
+		"tall"			"35"
+		"autoResize"	"0"
+		"pinCorner"		"0"
+		"visible"		"0"
+		"enabled"		"1"
+		"labelText"		"#TF_Teams_Full"
+		"textAlignment"	"west"
+		"dulltext"		"0"
+		"brighttext"	"0"
+		"font"			"CapPlayerFont"
+		"fgcolor"		"black"
+		"centerwrap"	"1"
+	}
+
+	"TeamsFullArrow" [$WIN32]
+	{
+		"ControlName"	"CTFImagePanel"
+		"fieldName"		"TeamsFullArrow"
+		"xpos"			"c-118"
+		"ypos"			"165"
+		"zpos"			"6"
+		"wide"			"40"
+		"tall"			"40"
+		"visible"		"0"
+		"enabled"		"1"
+		"image"			"../HUD/arrow_big_down"
+		"scaleImage"	"1"	
+	}
 }
 

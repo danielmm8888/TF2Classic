@@ -46,10 +46,10 @@ void CTFHudBetaStamp::PerformLayout(void)
 {
 	BaseClass::PerformLayout();
 
-	SetBounds(0, 0, toProportionalWide(100), toProportionalWide(100));
+	SetBounds(0, 0, XRES(100), XRES(100));
 
 	m_pBetaImage->SetVisible(true);
-	m_pBetaImage->SetBounds(toProportionalWide(15), 0, toProportionalWide(60), toProportionalWide(60));
+	m_pBetaImage->SetBounds(XRES(15), 0, XRES(60), XRES(60));
 	m_pBetaImage->SetShouldScaleImage(true);
 	m_pBetaImage->SetImage("../vgui/main_menu/beta_stamp");
 	m_pBetaImage->SetDrawColor(Color(200, 0, 20, 180));

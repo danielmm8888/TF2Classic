@@ -21,7 +21,8 @@ WeaponData
 	"UseRapidFireCrits"	"1"
 	"TracerEffect"		"bullet_pistol_tracer01"
 	"HasTeamSkins_Viewmodel"	"1"
-	"MaxAmmo"		"36"
+	"MaxAmmo"		"200"
+	"SpawnAmmo"		"200"
 
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_SECONDARY"
@@ -32,6 +33,9 @@ WeaponData
 	// Buckets.
 	"bucket"		"1"
 	"bucket_position"	"0"
+
+	"bucket_DM"		"1"
+	"bucket_position_DM"	"0"
 
 	// Animation.
 	"viewmodel"		"models/weapons/v_models/v_pistol_engineer.mdl"

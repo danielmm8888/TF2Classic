@@ -49,6 +49,7 @@ static int iRemapIndexToClass[TF_CLASS_MENU_BUTTONS] =
 	TF_CLASS_SPY,
 	0,
 	0,
+	0,
 	TF_CLASS_RANDOM
 };
 
@@ -417,23 +418,20 @@ Panel *CTFClassMenu::CreateControlByName( const char *controlName )
 //-----------------------------------------------------------------------------
 void CTFClassMenu::OnShowPage( const char *pagename )
 {
-	for (int i = 0; i < GetChildCount(); i++)
+	for ( int i = 0; i < TF_CLASS_MENU_BUTTONS; i++ )
 	{
-		CImageMouseOverButton<CTFClassInfoPanel> *button = dynamic_cast<CImageMouseOverButton<CTFClassInfoPanel> *>(GetChild(i));
-		if (button)
+		CImageMouseOverButton<CTFClassInfoPanel> *pButton = m_pClassButtons[i];
+
+		if ( pButton )
 		{
-			int iClass = iRemapIndexToClass[GetChildCount() - TF_CLASS_COUNT_ALL - i - 1];
-			CLocalPlayerFilter filter;
-			if (iClass < sizeof(pszHoverupSound))
+			if ( pButton == g_lastButton )
 			{
-				if (button == g_lastButton)
-				{
-					C_BaseEntity::EmitSound(filter, SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
-				}
-				else
-				{
-					C_BaseEntity::StopSound(SOUND_FROM_UI_PANEL, pszHoverupSound[iClass]);
-				}
+				CLocalPlayerFilter filter;
+				C_BaseEntity::EmitSound( filter, SOUND_FROM_UI_PANEL, pszHoverupSound[i] );
+			}
+			else
+			{
+				C_BaseEntity::StopSound( SOUND_FROM_UI_PANEL, pszHoverupSound[i] );
 			}
 		}
 	}

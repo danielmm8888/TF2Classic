@@ -6,9 +6,6 @@
 
 #include "cbase.h"
 #include "tf_weaponbase_melee.h"
-#include "tf_weapon_ubersaw.h"
-#include "tf_weapon_medigun.h"
-#include "tf_weapon_kritzkrieg.h"
 #include "effect_dispatch_data.h"
 #include "tf_gamerules.h"
 
@@ -39,7 +36,7 @@ LINK_ENTITY_TO_CLASS( tf_weaponbase_melee, CTFWeaponBaseMelee );
 // Server specific.
 #if !defined( CLIENT_DLL ) 
 BEGIN_DATADESC( CTFWeaponBaseMelee )
-DEFINE_FUNCTION( Smack )
+DEFINE_THINKFUNC( Smack )
 END_DATADESC()
 #endif
 
@@ -47,7 +44,7 @@ END_DATADESC()
 ConVar tf_meleeattackforcescale( "tf_meleeattackforcescale", "80.0", FCVAR_CHEAT | FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY );
 #endif
 
-ConVar tf_weapon_criticals_melee( "tf_weapon_criticals_melee", "2", FCVAR_NOTIFY | FCVAR_REPLICATED, "Controls random crits for melee weapons.\n0 - Melee weapons do not randomly crit. \n1 - Melee weapons can randomly crit only if tf_weapon_criticals is also enabled. \n2 - Melee weapons can always randomly crit regardless of the tf_weapon_criticals setting.", true, 0, true, 2 );
+ConVar tf_weapon_criticals_melee( "tf_weapon_criticals_melee", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Controls random crits for melee weapons.\n0 - Melee weapons do not randomly crit. \n1 - Melee weapons can randomly crit only if tf_weapon_criticals is also enabled. \n2 - Melee weapons can always randomly crit regardless of the tf_weapon_criticals setting.", true, 0, true, 2 );
 extern ConVar tf_weapon_criticals;
 
 //=============================================================================
@@ -107,6 +104,17 @@ void CTFWeaponBaseMelee::Spawn()
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+bool CTFWeaponBaseMelee::CanHolster( void ) const
+{
+	if ( GetTFPlayerOwner()->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
+		return false;
+
+	return BaseClass::CanHolster();
+}
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
 bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	m_flSmackTime = -1.0f;
@@ -114,6 +122,7 @@ bool CTFWeaponBaseMelee::Holster( CBaseCombatWeapon *pSwitchingTo )
 	{
 		GetPlayerOwner()->m_flNextAttack = gpGlobals->curtime + 0.5;
 	}
+		
 	return BaseClass::Holster( pSwitchingTo );
 }
 
@@ -178,7 +187,10 @@ void CTFWeaponBaseMelee::Swing( CTFPlayer *pPlayer )
 	DoViewModelAnimation();
 
 	// Set next attack times.
-	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	float flFireDelay = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	CALL_ATTRIB_HOOK_FLOAT( flFireDelay, mult_postfiredelay );
+
+	m_flNextPrimaryAttack = gpGlobals->curtime + flFireDelay;
 
 	SetWeaponIdleTime( m_flNextPrimaryAttack + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeIdleEmpty );
 	
@@ -201,7 +213,7 @@ void CTFWeaponBaseMelee::DoViewModelAnimation( void )
 {
 	Activity act = ( m_iWeaponMode == TF_WEAPON_PRIMARY_MODE ) ? ACT_VM_HITCENTER : ACT_VM_SWINGHARD;
 
-	if (IsCurrentAttackACritical())
+	if ( IsCurrentAttackACritical() )
 		act = ACT_VM_SWINGHARD;
 
 	SendWeaponAnim( act );
@@ -324,24 +336,7 @@ void CTFWeaponBaseMelee::Smack( void )
 			// TODO: Not removing the old critical path yet, but the new custom damage is marking criticals as well for melee now.
 			iDmgType |= DMG_CRITICAL;
 		}
-		CTFWeaponBase *pWpn = pPlayer->GetActiveTFWeapon();
-		CTFUbersaw *pUbersaw = dynamic_cast<CTFUbersaw*>(pWpn);
-		CWeaponMedigun *pMedigun = static_cast<CWeaponMedigun*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_MEDIGUN));
-		if (pMedigun && pUbersaw)
-		{
-			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
-			{
-				pMedigun->AddCharge();
-			}
-		}
-		CWeaponKritzkrieg *pKritzkrieg = static_cast<CWeaponKritzkrieg*>(pPlayer->Weapon_OwnsThisID(TF_WEAPON_KRITZKRIEG));
-		if (pKritzkrieg && pUbersaw)
-		{
-			if(trace.m_pEnt->IsPlayer() && trace.m_pEnt->GetTeamNumber() != pPlayer->GetTeamNumber())
-			{
-				pKritzkrieg->AddCharge();
-			}
-		}
+
 		CTakeDamageInfo info( pPlayer, pPlayer, flDamage, iDmgType, iCustomDamage );
 		CalculateMeleeDamageForce( &info, vecForward, vecSwingEnd, 1.0f / flDamage * tf_meleeattackforcescale.GetFloat() );
 		trace.m_pEnt->DispatchTraceAttack( info, vecForward, &trace ); 
@@ -371,7 +366,11 @@ void CTFWeaponBaseMelee::Smack( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponBaseMelee::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
 {
-	return static_cast<float>( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage );
+	float flDamage = (float)m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_nDamage;
+
+	CALL_ATTRIB_HOOK_FLOAT( flDamage, mult_dmg );
+
+	return flDamage;
 }
 
 void CTFWeaponBaseMelee::OnEntityHit( CBaseEntity *pEntity )
@@ -388,15 +387,22 @@ bool CTFWeaponBaseMelee::CalcIsAttackCriticalHelper( void )
 	if ( !pPlayer )
 		return false;
 
-	int iShouldCrit = tf_weapon_criticals_melee.GetInt();
+	int nCvarValue = tf_weapon_criticals_melee.GetInt();
 
-	if ( iShouldCrit == 0 )
+	if ( nCvarValue == 0 )
 		return false;
 
-	if ( iShouldCrit == 1 && !tf_weapon_criticals.GetBool() )
+	if ( nCvarValue == 1 && !tf_weapon_criticals.GetBool() )
 		return false;
 
 	float flPlayerCritMult = pPlayer->GetCritMult();
 
-	return ( RandomInt( 0, WEAPON_RANDOM_RANGE-1 ) <= ( TF_DAMAGE_CRIT_CHANCE_MELEE * flPlayerCritMult ) * WEAPON_RANDOM_RANGE );
+	float flCritChance = TF_DAMAGE_CRIT_CHANCE_MELEE * flPlayerCritMult;
+	CALL_ATTRIB_HOOK_FLOAT( flCritChance, mult_crit_chance );
+
+	// If the chance is 0, just bail.
+	if ( flCritChance == 0.0f )
+		return false;
+
+	return ( RandomInt( 0, WEAPON_RANDOM_RANGE-1 ) <= flCritChance * WEAPON_RANDOM_RANGE );
 }

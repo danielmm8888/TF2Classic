@@ -17,6 +17,8 @@
 #include <vgui/IVGui.h>
 #include <KeyValues.h>
 #include <filesystem.h>
+#include "iclientmode.h"
+#include <vgui_controls/AnimationController.h>
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"
@@ -254,7 +256,14 @@ CTFTeamMenu::CTFTeamMenu( IViewPort *pViewPort ) : CTeamMenu( pViewPort )
 	m_pRedTeamButton = new CTFTeamButton( this, "teambutton1" );
 	m_pAutoTeamButton = new CTFTeamButton( this, "teambutton2" );
 	m_pSpecTeamButton = new CTFTeamButton( this, "teambutton3" );
-	m_pSpecLabel = new CExLabel(this, "TeamMenuSpectate", "");
+	m_pSpecLabel = new CExLabel( this, "TeamMenuSpectate", "" );
+
+	m_pHighlanderLabel = new CExLabel( this, "HighlanderLabel", "" );
+	m_pHighlanderLabelShadow = new CExLabel( this, "HighlanderLabelShadow", "" );
+	m_pTeamFullLabel = new CExLabel( this, "TeamsFullLabel", "" );
+	m_pTeamFullLabelShadow = new CExLabel( this, "TeamsFullLabelShadow", "" );
+
+	m_pTeamsFullArrow = new CTFImagePanel( this, "TeamsFullArrow" );
 
 #ifdef _X360
 	m_pFooter = new CTFFooter( this, "Footer" );
@@ -299,6 +308,7 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 
 	if ( !C_TFPlayer::GetLocalTFPlayer() )
 		return;
+
 	if ( !gameuifuncs || !gViewPortInterface || !engine )
 		return;
 
@@ -306,11 +316,11 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 	{
 		if (TFGameRules()->IsFourTeamGame())
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSELECT, true);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSELECT, true );
 		}
 		else if (TFGameRules()->IsDeathmatch())
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHTEAMSELECT, true);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHTEAMSELECT, true );
 		}
 		else
 		{
@@ -352,25 +362,25 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 				if (IsConsole())
 				{
 					m_pBlueTeamButton->OnCursorEntered();
-					m_pBlueTeamButton->SetDefaultAnimation("enter_enabled");
+					m_pBlueTeamButton->SetDefaultAnimation( "enter_enabled" );
 				}
-				GetFocusNavGroup().SetCurrentFocus(m_pBlueTeamButton->GetVPanel(), m_pBlueTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pBlueTeamButton->GetVPanel(), m_pBlueTeamButton->GetVPanel() );
 				break;
 
 			case TF_TEAM_RED:
 				if (IsConsole())
 				{
 					m_pRedTeamButton->OnCursorEntered();
-					m_pRedTeamButton->SetDefaultAnimation("enter_enabled");
+					m_pRedTeamButton->SetDefaultAnimation( "enter_enabled" );
 				}
-				GetFocusNavGroup().SetCurrentFocus(m_pRedTeamButton->GetVPanel(), m_pRedTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pRedTeamButton->GetVPanel(), m_pRedTeamButton->GetVPanel() );
 				break;
 
 			default:
-				if (IsConsole())
+				if ( IsConsole() )
 				{
 					m_pAutoTeamButton->OnCursorEntered();
-					m_pAutoTeamButton->SetDefaultAnimation("enter_enabled");
+					m_pAutoTeamButton->SetDefaultAnimation( "enter_enabled" );
 				}
 				GetFocusNavGroup().SetCurrentFocus(m_pAutoTeamButton->GetVPanel(), m_pAutoTeamButton->GetVPanel());
 				break;
@@ -379,18 +389,20 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 	}
 	else
 	{
-		if (TFGameRules()->IsFourTeamGame())
+		if ( TFGameRules()->IsFourTeamGame() )
 		{
-			gViewPortInterface->ShowPanel(PANEL_FOURTEAMSELECT, false);
+			gViewPortInterface->ShowPanel( PANEL_FOURTEAMSELECT, false );
 		}
-		else if (TFGameRules()->IsDeathmatch())
+		else if ( TFGameRules()->IsDeathmatch() )
 		{
-			gViewPortInterface->ShowPanel(PANEL_DEATHMATCHTEAMSELECT, false);
+			gViewPortInterface->ShowPanel( PANEL_DEATHMATCHTEAMSELECT, false );
 		}
 		else
 		{
-			SetVisible(false);
-			SetMouseInputEnabled(false);
+			SetHighlanderTeamsFullPanels( false );
+
+			SetVisible( false );
+			SetMouseInputEnabled( false );
 
 			if (IsConsole())
 			{
@@ -402,6 +414,38 @@ void CTFTeamMenu::ShowPanel( bool bShow )
 				}
 			}
 		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFTeamMenu::SetHighlanderTeamsFullPanels( bool bEnabled )
+{
+	C_Team *pRed = GetGlobalTeam( TF_TEAM_RED );
+	C_Team *pBlue = GetGlobalTeam( TF_TEAM_BLUE );
+
+	bool bTeamsDisabled = false;
+
+	if ( pBlue->GetNumPlayers() >= 9 && pRed->GetNumPlayers() >= 9 )
+		bTeamsDisabled = true;
+
+	m_pHighlanderLabel->SetVisible( bEnabled );
+	m_pHighlanderLabelShadow->SetVisible( bEnabled );
+
+	m_pTeamFullLabel->SetVisible( bTeamsDisabled && bEnabled );
+	m_pTeamFullLabelShadow->SetVisible( bTeamsDisabled && bEnabled );
+
+	ConVarRef mp_allowspectators( "mp_allowspectators" );
+	if ( bEnabled && mp_allowspectators.IsValid() && mp_allowspectators.GetBool() && bTeamsDisabled )
+	{
+		m_pTeamsFullArrow->SetVisible( true );
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( m_pTeamsFullArrow, "TeamsFullArrowAnimate" );
+	}
+	else
+	{
+		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( m_pTeamsFullArrow, "TeamsFullArrowAnimateEnd" );
+		m_pTeamsFullArrow->SetVisible( false );
 	}
 }
 
@@ -657,6 +701,9 @@ void CTFTeamMenu::OnTick()
 		m_bBlueDisabled = true;
 	}
 
+	if ( TFGameRules() )
+		SetHighlanderTeamsFullPanels( TFGameRules()->IsInHighlanderMode() );
+
 	if ( m_pSpecTeamButton && m_pSpecLabel )
 	{
 		ConVarRef mp_allowspectators( "mp_allowspectators" );
@@ -782,23 +829,23 @@ void CTFFourTeamMenu::ShowPanel(bool bShow)
 			switch (C_TFPlayer::GetLocalTFPlayer()->GetTeamNumber())
 			{
 			case TF_TEAM_RED:
-				GetFocusNavGroup().SetCurrentFocus(m_pRedTeamButton->GetVPanel(), m_pRedTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pRedTeamButton->GetVPanel(), m_pRedTeamButton->GetVPanel() );
 				break;
 
 			case TF_TEAM_BLUE:
-				GetFocusNavGroup().SetCurrentFocus(m_pBlueTeamButton->GetVPanel(), m_pBlueTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pBlueTeamButton->GetVPanel(), m_pBlueTeamButton->GetVPanel() );
 				break;
 
 			case TF_TEAM_GREEN:
-				GetFocusNavGroup().SetCurrentFocus(m_pGreenTeamButton->GetVPanel(), m_pGreenTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pGreenTeamButton->GetVPanel(), m_pGreenTeamButton->GetVPanel() );
 				break;
 
 			case TF_TEAM_YELLOW:
-				GetFocusNavGroup().SetCurrentFocus(m_pYellowTeamButton->GetVPanel(), m_pYellowTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pYellowTeamButton->GetVPanel(), m_pYellowTeamButton->GetVPanel() );
 				break;
 
 			default:
-				GetFocusNavGroup().SetCurrentFocus(m_pAutoTeamButton->GetVPanel(), m_pAutoTeamButton->GetVPanel());
+				GetFocusNavGroup().SetCurrentFocus( m_pAutoTeamButton->GetVPanel(), m_pAutoTeamButton->GetVPanel() );
 				break;
 		}
 	}
@@ -909,8 +956,8 @@ void CTFFourTeamMenu::OnKeyCodePressed(KeyCode code)
 	}
 	else if (m_iScoreBoardKey != BUTTON_CODE_INVALID && m_iScoreBoardKey == code)
 	{
-		gViewPortInterface->ShowPanel(PANEL_SCOREBOARD, true);
-		gViewPortInterface->PostMessageToPanel(PANEL_SCOREBOARD, new KeyValues("PollHideCode", "code", code));
+		gViewPortInterface->ShowPanel( PANEL_FOURTEAMSCOREBOARD, true );
+		gViewPortInterface->PostMessageToPanel( PANEL_FOURTEAMSCOREBOARD, new KeyValues( "PollHideCode", "code", code ) );
 	}
 	else
 	{
@@ -1117,12 +1164,13 @@ void CTFDeathmatchTeamMenu::ApplySchemeSettings(IScheme *pScheme)
 //-----------------------------------------------------------------------------
 void CTFDeathmatchTeamMenu::ShowPanel(bool bShow)
 {
-	if (BaseClass::IsVisible() == bShow)
+	if ( BaseClass::IsVisible() == bShow )
 		return;
 
-	if (!C_TFPlayer::GetLocalTFPlayer())
+	if ( !C_TFPlayer::GetLocalTFPlayer() )
 		return;
-	if (!gameuifuncs || !gViewPortInterface || !engine)
+
+	if ( !gameuifuncs || !gViewPortInterface || !engine )
 		return;
 
 	if (bShow)
@@ -1286,8 +1334,8 @@ void CTFDeathmatchTeamMenu::OnKeyCodePressed(KeyCode code)
 	}
 	else if (m_iScoreBoardKey != BUTTON_CODE_INVALID && m_iScoreBoardKey == code)
 	{
-		gViewPortInterface->ShowPanel(PANEL_SCOREBOARD, true);
-		gViewPortInterface->PostMessageToPanel(PANEL_SCOREBOARD, new KeyValues("PollHideCode", "code", code));
+		gViewPortInterface->ShowPanel( PANEL_DEATHMATCHSCOREBOARD, true );
+		gViewPortInterface->PostMessageToPanel( PANEL_DEATHMATCHSCOREBOARD, new KeyValues("PollHideCode", "code", code) );
 	}
 	else
 	{

@@ -100,6 +100,9 @@ bool CHudTFCrosshair::ShouldDraw()
 	if ( !pWeapon )
 		return false;
 
+	if ( pPlayer->m_Shared.InCond( TF_COND_TAUNTING ) || pPlayer->m_Shared.IsLoser() )
+		return false;
+
 	return pWeapon->ShouldDrawCrosshair();
 }
 
@@ -107,16 +110,16 @@ void CHudTFCrosshair::Paint()
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if (!pPlayer)
+	if ( !pPlayer )
 		return;
 
 	const char *crosshairfile = cl_crosshair_file.GetString();
 
-	if (Q_stricmp(crosshairfile, "") == 0)
+	if ( crosshairfile[0] == '\0' )
 	{
 		CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 
-		if (!pWeapon)
+		if ( !pWeapon )
 			return;
 
 		m_pCrosshair = pWeapon->GetWpnData().iconCrosshair;
@@ -125,54 +128,60 @@ void CHudTFCrosshair::Paint()
 	}
 	else
 	{
-		if (Q_stricmp(m_szPreviousCrosshair, crosshairfile) != 0)
+		if ( Q_stricmp( m_szPreviousCrosshair, crosshairfile ) != 0 )
 		{
 			char buf[256];
-			Q_snprintf(buf, sizeof(buf), "vgui/crosshairs/%s", crosshairfile);
+			Q_snprintf( buf, sizeof( buf ), "vgui/crosshairs/%s", crosshairfile );
 
-			vgui::surface()->DrawSetTextureFile(m_iCrosshairTextureID, buf, true, false);
+			vgui::surface()->DrawSetTextureFile( m_iCrosshairTextureID, buf, true, false );
 
-			if (m_pCrosshairOverride)
+			if ( m_pCrosshairOverride )
 			{
 				delete m_pCrosshairOverride;
 			}
 
-			m_pCrosshairOverride = vgui::surface()->DrawGetTextureMatInfoFactory(m_iCrosshairTextureID);
+			m_pCrosshairOverride = vgui::surface()->DrawGetTextureMatInfoFactory( m_iCrosshairTextureID );
 
-			if (!m_pCrosshairOverride)
-					return;
+			if ( !m_pCrosshairOverride )
+				return;
 
-			if (m_pFrameVar)
+			if ( m_pFrameVar )
 			{
 				delete m_pFrameVar;
 			}
 
 			bool bFound = false;
-			m_pFrameVar = m_pCrosshairOverride->FindVarFactory("$frame", &bFound);
-			Assert(bFound);
+			m_pFrameVar = m_pCrosshairOverride->FindVarFactory( "$frame", &bFound );
+			Assert( bFound );
 
 			m_nNumFrames = m_pCrosshairOverride->GetNumAnimationFrames();
 
 			// save the name to compare with the cvar in the future
-			Q_strncpy(m_szPreviousCrosshair, crosshairfile, sizeof(m_szPreviousCrosshair));
+			Q_strncpy( m_szPreviousCrosshair, crosshairfile, sizeof( m_szPreviousCrosshair ) );
 		}
 
-		Color clr(cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255);
+		Color clr( cl_crosshair_red.GetInt(), cl_crosshair_green.GetInt(), cl_crosshair_blue.GetInt(), 255 );
+
+		float x, y;
+		bool bBehindCamera;
+		GetDrawPosition( &x, &y, &bBehindCamera, m_vecCrossHairOffsetAngle );
+
+		if ( bBehindCamera )
+			return;
 
 		int screenWide, screenTall;
-		GetHudSize(screenWide, screenTall);
-
-		int iX = screenWide / 2;
-		int iY = screenTall / 2;
+		GetHudSize( screenWide, screenTall );
 
 		int iWidth, iHeight;
 
 		iWidth = iHeight = cl_crosshair_scale.GetInt();
+		int iX = (int)( x + 0.5f );
+		int iY = (int)( y + 0.5f );
 
-		vgui::surface()->DrawSetColor(clr);
-		vgui::surface()->DrawSetTexture(m_iCrosshairTextureID);
-		vgui::surface()->DrawTexturedRect(iX - iWidth, iY - iHeight, iX + iWidth, iY + iHeight);
-		vgui::surface()->DrawSetTexture(0);
+		vgui::surface()->DrawSetColor( clr );
+		vgui::surface()->DrawSetTexture( m_iCrosshairTextureID );
+		vgui::surface()->DrawTexturedRect( iX - iWidth, iY - iHeight, iX + iWidth, iY + iHeight );
+		vgui::surface()->DrawSetTexture( 0 );
 	}
 
 	/*

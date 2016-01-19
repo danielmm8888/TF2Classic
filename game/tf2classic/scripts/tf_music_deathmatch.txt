@@ -1,0 +1,137 @@
+"scripts/tf_music_deathmatch"
+{
+	"intro"
+	{
+		"name"				"intro"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier" 	"0.06"			//this multiplied to mp_fraglimit = amount of score needed to get to the next sequence 
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_main_01.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_MISC"
+		{	
+			"wave"		""
+			"volume"	"0.01"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_01.wav"
+				"volume_override"	"0.55"		
+			}
+		}		
+	}	
+
+	"main"
+	{
+		"name"				"main"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.25"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_main_02.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_MISC"
+		{	
+			"wave"		""
+			"volume"	"0.01"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_02.wav"
+				"volume_override"	"0.55"		
+			}
+		}
+	}	
+
+	"hard"
+	{
+		"name"				"hard"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.4"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_main_03.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_MISC"
+		{	
+			"wave"		""
+			"volume"	"0.01"		
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_03.wav"
+				"volume_override"	"0.60"		
+			}
+		}
+	}	
+
+	"second"
+	{
+		"name"				"second"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier"	"0.6"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_main_04.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_MISC"
+		{	
+			"wave"		""
+			"volume"	"0.01"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_04.wav"
+				"volume_override"	"0.60"		
+			}
+		}
+	}	
+
+	"final"
+	{
+		"name"				"final"
+		"channel"			"CHAN_STATIC"
+		"soundlevel"		"SNDLVL_140dB"
+		"pitch"				"100"
+		"skipmultiplier" 	"0.9"
+		
+		"LAYER_MAIN"
+		{		
+			"wave" 		"music/cues/dm_main_05.wav"
+			"volume"	"1.00"
+		}
+		
+		"LAYER_MISC"
+		{	
+			"wave"		""
+			"volume"	"0.01"	
+				
+			"MOOD_DANGER"
+			{	
+				"wave_override"		"music/cues/dm_orch_05.wav"
+				"volume_override"	"0.55"		
+			}
+		}
+	}	
+}

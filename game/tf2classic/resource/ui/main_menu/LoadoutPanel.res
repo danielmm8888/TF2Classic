@@ -12,22 +12,24 @@
 		"pinCorner"			"0"
 		"visible"			"1"
 		"enabled"			"1"
+		"border"			""
 	}	
 	
 	"BackgroundImage"
 	{
 		"ControlName"		"ImagePanel"
 		"fieldName"			"BackgroundImage"
-		"xpos"				"-2"
-		"ypos"				"-2"
+		"xpos"				"100"
+		"ypos"				"20"
 		"zpos"				"-2"
-		"wide"				"f-4"
-		"tall"				"f-4"
+		"wide"				"f+200"
+		"tall"				"f+40"
 		"autoResize"		"0"
 		"pinCorner"			"0"
 		"scaleimage"		"1"
 		"border"			"AdvRoundedButtonArmed"
 		"visible"			"1"
+		//"fillcolor"			"46 43 42 255"
 		"enabled"			"1"
 	}
 	
@@ -145,14 +147,44 @@
 			}
 			"animation"
 			{
-				"name"		"PDA"
-				"activity"	"ACT_MP_STAND_PDA"
+				"name"		"GRENADE"
+				"activity"	""
 			}	
 			"animation"
 			{
 				"name"		"BUILDING"
 				"activity"	"ACT_MP_STAND_BUILDING"
-			}		
+			}	
+			"animation"
+			{
+				"name"		"PDA"
+				"activity"	"ACT_MP_STAND_PDA"
+			}	
+			"animation"
+			{
+				"name"		"ITEM1"
+				"activity"	"ACT_MP_STAND_ITEM1"
+			}
+			"animation"
+			{
+				"name"		"ITEM2"
+				"activity"	"ACT_MP_STAND_ITEM2"
+			}
+			"animation"
+			{
+				"name"		"MELEE_ALLCLASS"
+				"activity"	"ACT_MP_STAND_MELEE_ALLCLASS"
+			}
+			"animation"
+			{
+				"name"		"SECONDARY2"
+				"activity"	"ACT_MP_STAND_SECONDARY2"
+			}
+			"animation"
+			{
+				"name"		"PRIMARY2"
+				"activity"	"ACT_MP_STAND_PRIMARY2"
+			}
 		}
 	}
 	
@@ -210,7 +242,7 @@
 		"xpos"			"c-70"
 		"ypos"			"c-70"
 		"zpos"			"-1"		
-		"wide"			"500"
+		"wide"			"380"
 		"tall"			"280"
 		"autoResize"	"0"
 		"pinCorner"		"0"
@@ -266,7 +298,7 @@
 		"xpos"				"c-280"
 		"ypos"				"115"
 		"zpos"				"5"
-		"wide"				"300"
+		"wide"				"500"
 		"tall"				"30"
 		"autoResize"		"0"
 		"pinCorner"			"0"
@@ -285,7 +317,7 @@
 		"xpos"				"c-278"
 		"ypos"				"115"
 		"zpos"				"4"
-		"wide"				"300"
+		"wide"				"500"
 		"tall"				"30"
 		"autoResize"		"0"
 		"pinCorner"			"0"
@@ -296,6 +328,20 @@
 		"font"				"TeamMenuBold"
 		"fgcolor"			"Black"
 	}	
+	
+	"LogoCircle"
+	{
+		"ControlName"	"CTFRotatingImagePanel"
+		"fieldName"		"LogoCircle"
+		"xpos"			"87"
+		"ypos"			"44"
+		"zpos"			"5"
+		"wide"			"30"
+		"tall"			"30"
+		"image"			"vgui/class_icons/scout"
+		"visible"		"0"
+		"enabled"		"1"
+	}
 	
 	"classselection"
 	{
@@ -333,6 +379,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/scout"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -357,6 +404,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/soldier"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -381,6 +429,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/pyro"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -405,6 +454,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/demo"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -429,6 +479,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/heavy"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -453,6 +504,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/engineer"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -477,6 +529,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/medic"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -501,6 +554,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/sniper"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -525,6 +579,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/spy"	
+				"imagewidth"		"55"
 			}
 		}
 	
@@ -549,6 +604,7 @@
 			"SubImage"
 			{
 				"image" 			"class_icons/allclass"	
+				"imagewidth"		"55"
 			}
 		}
 	}

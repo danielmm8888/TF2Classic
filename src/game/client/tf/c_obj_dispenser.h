@@ -34,6 +34,8 @@ public:
 
 	virtual void OnDataChanged( DataUpdateType_t updateType );
 
+	virtual void SetDormant( bool bDormant );
+
 	void UpdateEffects( void );
 
 	virtual void UpdateDamageEffects( BuildingDamageLevel_t damageLevel );
@@ -99,5 +101,12 @@ public:
 	CDispenserControlPanel_Yellow( vgui::Panel *parent, const char *panelName) : CDispenserControlPanel(parent, panelName ) {}
 };
 
+class C_ObjectCartDispenser : public C_ObjectDispenser
+{
+	DECLARE_CLASS( C_ObjectCartDispenser, C_ObjectDispenser );
+
+public:
+	DECLARE_CLIENTCLASS();
+};
 
 #endif	//C_OBJ_DISPENSER_H

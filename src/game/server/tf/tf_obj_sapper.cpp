@@ -18,6 +18,9 @@
 #define SAPPER_MINS				Vector(0, 0, 0)
 #define SAPPER_MAXS				Vector(1, 1, 1)
 
+const char *g_sapperModel = "models/buildables/sapper_placed.mdl";
+const char *g_sapperModelPlacement = "models/buildables/sapper_placement.mdl";
+
 #define SAPPER_MODEL_SENTRY_1	"models/buildables/sapper_sentry1.mdl"
 #define SAPPER_MODEL_SENTRY_2	"models/buildables/sapper_sentry2.mdl"
 #define SAPPER_MODEL_SENTRY_3	"models/buildables/sapper_sentry3.mdl"
@@ -50,8 +53,8 @@ ConVar	obj_sapper_amount( "obj_sapper_amount", "25", FCVAR_NONE, "Amount of heal
 //-----------------------------------------------------------------------------
 CObjectSapper::CObjectSapper()
 {
-	m_iHealth = obj_sapper_health.GetInt();
-	SetMaxHealth( m_iHealth );
+	m_iHealth = GetBaseHealth();
+	SetMaxHealth( GetBaseHealth() );
 
 	UseClientSideAnimation();
 }
@@ -71,10 +74,10 @@ void CObjectSapper::UpdateOnRemove()
 //-----------------------------------------------------------------------------
 void CObjectSapper::Spawn()
 {
-	SetModel( SAPPER_MODEL_SENTRY_1_PLACEMENT );
+	SetModel( GetSapperModelName( SAPPER_MODEL_PLACEMENT ) );
 
 	m_takedamage = DAMAGE_YES;
-	m_iHealth = obj_sapper_health.GetInt();
+	m_iHealth = GetBaseHealth();
 
 	SetType( OBJ_ATTACHMENT_SAPPER );
 
@@ -94,28 +97,10 @@ void CObjectSapper::Spawn()
 //-----------------------------------------------------------------------------
 void CObjectSapper::Precache()
 {
-	int iModelIndex;
-
-	iModelIndex = PrecacheModel( SAPPER_MODEL_SENTRY_1 );
+	int iModelIndex = PrecacheModel( GetSapperModelName( SAPPER_MODEL_PLACED ) );
 	PrecacheGibsForModel( iModelIndex );
 
-	iModelIndex = PrecacheModel( SAPPER_MODEL_SENTRY_2 );
-	PrecacheGibsForModel( iModelIndex );
-
-	iModelIndex = PrecacheModel( SAPPER_MODEL_SENTRY_3 );
-	PrecacheGibsForModel( iModelIndex );
-
-	iModelIndex = PrecacheModel( SAPPER_MODEL_TELEPORTER );
-	PrecacheGibsForModel( iModelIndex );
-
-	iModelIndex = PrecacheModel( SAPPER_MODEL_DISPENSER );
-	PrecacheGibsForModel( iModelIndex );
-
-	PrecacheModel( SAPPER_MODEL_SENTRY_1_PLACEMENT );
-	PrecacheModel( SAPPER_MODEL_SENTRY_2_PLACEMENT );
-	PrecacheModel( SAPPER_MODEL_SENTRY_3_PLACEMENT );
-	PrecacheModel( SAPPER_MODEL_TELEPORTER_PLACEMENT );
-	PrecacheModel( SAPPER_MODEL_DISPENSER_PLACEMENT );
+	PrecacheModel( GetSapperModelName( SAPPER_MODEL_PLACEMENT ) );
 
 	PrecacheScriptSound( "Weapon_Sapper.Plant" );
 	PrecacheScriptSound( "Weapon_Sapper.Timer" );
@@ -163,51 +148,7 @@ void CObjectSapper::SetupAttachedVersion( void )
 
 	if ( IsPlacing() )
 	{
-		switch( pObject->GetType() )
-		{
-		case OBJ_SENTRYGUN:
-			{
-				// what level?
-				CObjectSentrygun *pSentry = dynamic_cast<CObjectSentrygun *>( pObject );
-				Assert( pSentry );
-				if ( !pSentry )
-				{
-					DestroyObject();
-					return;
-				}
-
-				int iLevel = pSentry->GetUpgradeLevel();
-
-				switch( iLevel )
-				{
-				case 1:
-					SetModel( SAPPER_MODEL_SENTRY_1_PLACEMENT );
-					break;
-				case 2:
-					SetModel( SAPPER_MODEL_SENTRY_2_PLACEMENT );
-					break;
-				case 3:
-					SetModel( SAPPER_MODEL_SENTRY_3_PLACEMENT );
-					break;
-				default:
-					Assert(0);
-					break;
-				}
-			}
-			break;
-
-		case OBJ_TELEPORTER:
-			SetModel( SAPPER_MODEL_TELEPORTER_PLACEMENT );
-			break;
-
-		case OBJ_DISPENSER:
-			SetModel( SAPPER_MODEL_DISPENSER_PLACEMENT );
-			break;
-
-		default:
-			Assert( !"what kind of object are we trying to place a sapper on?" );
-			break;
-		}
+		SetModel( GetSapperModelName( SAPPER_MODEL_PLACEMENT ) );
 	}	
 
 	BaseClass::SetupAttachedVersion();
@@ -229,56 +170,24 @@ void CObjectSapper::OnGoActive( void )
 		return;
 	}
 
-	switch( pObject->GetType() )
-	{
-	case OBJ_SENTRYGUN:
-		{
-			// what level?
-			CObjectSentrygun *pSentry = dynamic_cast<CObjectSentrygun *>( pObject );
-			Assert( pSentry );
-			if ( !pSentry )
-			{
-				DestroyObject();
-				return;
-			}
-
-			int iLevel = pSentry->GetUpgradeLevel();
-
-			switch( iLevel )
-			{
-			case 1:
-				SetModel( SAPPER_MODEL_SENTRY_1 );
-				break;
-			case 2:
-				SetModel( SAPPER_MODEL_SENTRY_2 );
-				break;
-			case 3:
-				SetModel( SAPPER_MODEL_SENTRY_3 );
-				break;
-			default:
-				Assert(0);
-				break;
-			}
-		}
-		break;
-
-	case OBJ_TELEPORTER:
-		SetModel( SAPPER_MODEL_TELEPORTER );
-		break;
-
-	case OBJ_DISPENSER:
-		SetModel( SAPPER_MODEL_DISPENSER );
-		break;
-
-	default:
-		Assert( !"what kind of object are we trying to place a sapper on?" );
-		break;
-	}
+	SetModel( GetSapperModelName( SAPPER_MODEL_PLACED ) );
 
 	UTIL_SetSize( this, SAPPER_MINS, SAPPER_MAXS );
 	SetSolid( SOLID_NONE );
 
 	BaseClass::OnGoActive();
+}
+
+const char *CObjectSapper::GetSapperModelName( SapperModel_t iModelType )
+{
+	// Live gets builder model here for sapper model overrides.
+
+	if ( iModelType == SAPPER_MODEL_PLACEMENT )
+	{
+		return g_sapperModelPlacement;
+	}
+
+	return g_sapperModel;
 }
 
 //-----------------------------------------------------------------------------
@@ -349,3 +258,20 @@ int CObjectSapper::OnTakeDamage( const CTakeDamageInfo &info )
 
 	return BaseClass::OnTakeDamage( info );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CObjectSapper::GetBaseHealth( void )
+{
+	int iBaseHealth = obj_sapper_health.GetInt();
+
+	CTFPlayer *pPlayer = GetOwner();
+	if ( !pPlayer )
+		return iBaseHealth;
+
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iBaseHealth, mult_sapper_health );
+
+	return iBaseHealth;
+}
+

@@ -12,7 +12,8 @@
 using namespace vgui;
 
 class CTFButtonBase;
-class CTFToolTip;
+class CTFToolTipPanel;
+class CTFDialogPanelBase;
 
 enum MouseState
 {
@@ -66,6 +67,7 @@ public:
 
 	virtual void SetImage(const char *sImage){ pButtonImage->SetImage(sImage); };
 	virtual void SetImageInset(int iInsetX, int iInsetY);
+	virtual void SetImageSize(int iWide, int iTall);
 	virtual void SetToolTip(const char *sText);
 
 	virtual void OnThink();

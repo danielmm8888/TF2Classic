@@ -93,6 +93,12 @@ void CTFHudDeathNotice::PlayRivalrySounds( int iKillerIndex, int iVictimIndex, i
 	if ( iKillerIndex != iLocalPlayerIndex && iVictimIndex != iLocalPlayerIndex )
 		return;
 
+	// Stop any sounds that are already playing to avoid ear rape in case of
+	// multiple dominations at once.
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Domination" );
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Nemesis" );
+	C_BaseEntity::StopSound( SOUND_FROM_LOCAL_PLAYER, "Game.Revenge" );
+
 	const char *pszSoundName = NULL;
 
 	if ( iType == TF_DEATH_DOMINATION )
@@ -168,23 +174,24 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			// mentioning that
 			int iKillerID = engine->GetPlayerForUserID( event->GetInt( "attacker" ) );
 			int iVictimID = engine->GetPlayerForUserID( event->GetInt( "userid" ) );
+			int nDeathFlags = event->GetInt( "death_flags" );
 		
-			if ( event->GetInt( "dominated" ) > 0 )
+			if ( nDeathFlags & TF_DEATH_DOMINATION )
 			{
 				AddAdditionalMsg( iKillerID, iVictimID, "#Msg_Dominating" );
 				PlayRivalrySounds( iKillerID, iVictimID, TF_DEATH_DOMINATION );
 			}
-			if ( event->GetInt( "assister_dominated" ) > 0 && ( iAssisterID > 0 ) )
+			if ( ( nDeathFlags & TF_DEATH_ASSISTER_DOMINATION ) && ( iAssisterID > 0 ) )
 			{
 				AddAdditionalMsg( iAssisterID, iVictimID, "#Msg_Dominating" );
 				PlayRivalrySounds( iAssisterID, iVictimID, TF_DEATH_DOMINATION );
 			}
-			if ( event->GetInt( "revenge" ) > 0 ) 
+			if ( nDeathFlags & TF_DEATH_REVENGE )
 			{
 				AddAdditionalMsg( iKillerID, iVictimID, "#Msg_Revenge" );
 				PlayRivalrySounds( iKillerID, iVictimID, TF_DEATH_REVENGE );
 			}
-			if ( event->GetInt( "assister_revenge" ) > 0 && ( iAssisterID > 0 ) ) 
+			if ( ( nDeathFlags & TF_DEATH_ASSISTER_REVENGE ) && ( iAssisterID > 0 ) )
 			{
 				AddAdditionalMsg( iAssisterID, iVictimID, "#Msg_Revenge" );
 				PlayRivalrySounds( iAssisterID, iVictimID, TF_DEATH_REVENGE );
@@ -238,11 +245,6 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 		case TF_DMG_CUSTOM_HEADSHOT:
 			Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_headshot", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
 			break;
-		case TF_DMG_CUSTOM_BURNING:
-			// special-case if custom kill is burning; if the attacker is dead we can't get weapon information, so force flamethrower as weapon
-			Q_strncpy(m_DeathNotices[iDeathNoticeMsg].szIcon, "d_flamethrower", ARRAYSIZE(m_DeathNotices[iDeathNoticeMsg].szIcon));
-			m_DeathNotices[iDeathNoticeMsg].wzInfoText[0] = 0;
-			break;
 		case TF_DMG_CUSTOM_SUICIDE:
 			{
 				// display a different message if this was suicide, or assisted suicide (suicide w/recent damage, kill awarded to damager)
@@ -288,9 +290,12 @@ void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const ch
 	DeathNoticeItem &msg2 = m_DeathNotices[AddDeathNoticeItem()];
 	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
 	Q_strncpy( msg2.Victim.szName, g_PR->GetPlayerName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
-
+	
 	msg2.Killer.iTeam = g_PR->GetTeam(iKillerID);
 	msg2.Victim.iTeam = g_PR->GetTeam(iVictimID);
+
+	msg2.Killer.iPlayerID = iKillerID;
+	msg2.Victim.iPlayerID = iVictimID;
 
 	const wchar_t *wzMsg =  g_pVGuiLocalize->Find( pMsgKey );
 	if ( wzMsg )

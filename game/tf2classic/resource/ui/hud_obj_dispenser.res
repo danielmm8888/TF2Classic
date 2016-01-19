@@ -31,7 +31,7 @@
 		"iconColor"		"255 255 255 255"
 	}
 	
-	"Icon"
+	"Icon_Dispenser"
 	{
 		"ControlName"	"CIconPanel"
 		"fieldName"		"Icon"
@@ -85,7 +85,55 @@
 		"wide"			"160"
 		"tall"			"31"
 		"visible"		"0"
-		
+
+		"Icon_Upgrade_1"
+		{
+			"ControlName"	"CIconPanel"
+			"fieldName"		"Icon_Upgrade_1"
+			"xpos"			"46"
+			"ypos"			"4"
+			"zpos"			"1"
+			"wide"			"8"
+			"tall"			"8"
+			"visible"		"0"
+			"enabled"		"1"
+			"scaleImage"	"1"	
+			"icon"			"obj_status_upgrade_1"
+			"iconColor"		"255 255 255 255"
+		}
+
+		"Icon_Upgrade_2"
+		{
+			"ControlName"	"CIconPanel"
+			"fieldName"		"Icon_Upgrade_2"
+			"xpos"			"46"
+			"ypos"			"4"
+			"zpos"			"1"
+			"wide"			"8"
+			"tall"			"8"
+			"visible"		"0"
+			"enabled"		"1"
+			"scaleImage"	"1"	
+			"icon"			"obj_status_upgrade_2"
+			"iconColor"		"255 255 255 255"
+		}
+
+		"Icon_Upgrade_3"
+		{
+			"ControlName"	"CIconPanel"
+			"fieldName"		"Icon_Upgrade_3"
+			"xpos"			"46"
+			"ypos"			"4"
+			"zpos"			"1"
+			"wide"			"8"
+			"tall"			"8"
+			"visible"		"0"
+			"enabled"		"1"
+			"scaleImage"	"1"	
+			"icon"			"obj_status_upgrade_3"
+			"iconColor"		"255 255 255 255"
+		}
+
 		"AlertTray"
 		{
 			"ControlName"	"CBuildingStatusAlertTray"
@@ -207,20 +255,20 @@
 			"tall"			"31"
 			"visible"		"0"
 			
-			"MetalIcon"	
+			"AmmoIcon"	
 			{
-				"ControlName"	"CIconPanel"
-				"fieldName"		"MetalIcon"
+				"ControlName"	"ImagePanel"
+				"fieldName"		"AmmoIcon"
 				"xpos"			"0"
 				"ypos"			"5"
 				"zpos"			"1"
-				"wide"			"9"
-				"tall"			"9"
+				"wide"			"10"
+				"tall"			"10"
 				"visible"		"1"
 				"enabled"		"1"
-				"scaleImage"	"1"	
-				"icon"			"ico_metal"
-				"iconColor"		"ProgressOffWhite"
+				"scaleImage"	"1"
+				"image"			"../hud/hud_obj_status_ammo_64"
+				"drawcolor"		"ProgressOffWhite"
 			}
 
 			"Ammo"
@@ -228,9 +276,9 @@
 				"ControlName"	"ContinuousProgressBar"
 				"fieldName"		"Ammo"
 				"font"			"Default"
-				"xpos"			"0"
-				"ypos"			"16"
-				"wide"			"50"
+				"xpos"			"12"
+				"ypos"			"6"
+				"wide"			"38"
 				"tall"			"8"
 				"autoResize"	"0"
 				"pinCorner"		"0"
@@ -240,6 +288,40 @@
 				"dulltext"		"0"
 				"brighttext"	"0"
 			}	
+			
+			"UpgradeIcon"
+			{
+				"ControlName"	"CIconPanel"
+				"fieldName"		"UpgradeIcon"
+				"xpos"			"0"
+				"ypos"			"16"
+				"zpos"			"1"
+				"wide"			"10"
+				"tall"			"10"
+				"visible"		"1"
+				"enabled"		"1"
+				"scaleImage"	"1"	
+				"icon"			"ico_metal"
+				"iconColor"		"ProgressOffWhite"
+			}
+			
+			"Upgrade"
+			{	
+				"ControlName"	"ContinuousProgressBar"
+				"fieldName"		"Upgrade"
+				"font"			"Default"
+				"xpos"			"12"
+				"ypos"			"17"
+				"wide"			"38"
+				"tall"			"8"
+				"autoResize"	"0"
+				"pinCorner"		"0"
+				"visible"		"1"
+				"enabled"		"1"
+				"textAlignment"	"Left"
+				"dulltext"		"0"
+				"brighttext"	"0"
+			}
 		}
 	}
 }

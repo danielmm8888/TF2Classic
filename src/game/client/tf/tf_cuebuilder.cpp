@@ -4,7 +4,7 @@
 #include "cdll_util.h"
 #include "engine/IEngineSound.h"
 #include "soundenvelope.h"
-#include "c_script_parser.h"
+#include "script_parser.h"
 #include "c_tf_player.h"
 #include "tf_gamerules.h"
 #include "c_playerresource.h"
@@ -14,15 +14,13 @@ const char *g_aCueMood[MOOD_COUNT] =
 {
 	"MOOD_NEUTRAL",
 	"MOOD_DANGER",
-	"MOOD_DEATH"
 };
 
 const char *g_aCueLayer[LAYER_COUNT] =
 {
 	"LAYER_MAIN",
-	"LAYER_BASS",
+	"LAYER_MISC",
 	"LAYER_PERC",
-	"LAYER_MISC"
 };
 
 
@@ -111,6 +109,19 @@ private:
 };
 CTFMusicScriptParser g_TFMusicScriptParser;
 
+static void EnableCommand(IConVar *var, const char *pOldValue, float flOldValue)
+{
+	ConVar *pCvar = (ConVar *)var;
+	if (pCvar->GetBool())
+	{
+		GetCueBuilder()->ResetAndStartCue();
+	}
+	else
+	{
+		GetCueBuilder()->StopCue();
+	}
+}
+ConVar tf2c_cues_enabled("tf2c_cues_enabled", "0", FCVAR_USERINFO | FCVAR_ARCHIVE, "Enable dynamic music", EnableCommand);
 
 void PlayCommand(const CCommand &args)
 {
@@ -119,13 +130,13 @@ void PlayCommand(const CCommand &args)
 	GetCueBuilder()->SetCurrentTrack(sName);
 	GetCueBuilder()->ResetAndStartCue();
 }
-ConCommand tf2c_cues_play("tf2c_cues_play", PlayCommand);
+ConCommand tf2c_cues_play("tf2c_cues_play", PlayCommand, "", FCVAR_DEVELOPMENTONLY);
 
 void StopCommand(const CCommand &args)
 {
 	GetCueBuilder()->StopCue();
 }
-ConCommand tf2c_cues_stop("tf2c_cues_stop", StopCommand);
+ConCommand tf2c_cues_stop("tf2c_cues_stop", StopCommand, "", FCVAR_DEVELOPMENTONLY);
 
 void SetSequenceCommand(const CCommand &args)
 {
@@ -134,20 +145,20 @@ void SetSequenceCommand(const CCommand &args)
 	GetCueBuilder()->GetCurrentTrack()->SetCurrentSeqID(ID);
 	GetCueBuilder()->GetCurrentTrack()->Play();
 }
-ConCommand tf2c_cues_setsequence("tf2c_cues_setsequence", SetSequenceCommand);
+ConCommand tf2c_cues_setsequence("tf2c_cues_setsequence", SetSequenceCommand, "", FCVAR_DEVELOPMENTONLY);
 
 void SkipCommand(const CCommand &args)
 {
 	GetCueBuilder()->GetCurrentTrack()->SetShouldSkip(true);
 }
-ConCommand tf2c_cues_skipsequence("tf2c_cues_skipsequence", SkipCommand);
+ConCommand tf2c_cues_skipsequence("tf2c_cues_skipsequence", SkipCommand, "", FCVAR_DEVELOPMENTONLY);
 
 void SetMoodCommand(const CCommand &args)
 {
 	int iMood = atoi(args[1]);
 	GetCueBuilder()->SetMood((CueMood)iMood);
 }
-ConCommand tf2c_cues_setmood("tf2c_cues_setmood", SetMoodCommand);
+ConCommand tf2c_cues_setmood("tf2c_cues_setmood", SetMoodCommand, "", FCVAR_DEVELOPMENTONLY);
 
 
 //-----------------------------------------------------------------------------
@@ -193,6 +204,10 @@ bool CTFCueBuilder::Init()
 
 void CTFCueBuilder::Update(float frametime)
 {
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if (!pLocalPlayer)
+		return;
+
 	for (unsigned int i = 0; i < m_PlaylistDatabase.Count(); i++)
 	{
 		m_PlaylistDatabase[i]->Update();
@@ -202,12 +217,15 @@ void CTFCueBuilder::Update(float frametime)
 //-----------------------------------------------------------------------------
 // Purpose: Event handler
 //-----------------------------------------------------------------------------
-void CTFCueBuilder::FireGameEvent(IGameEvent *event)
+void CTFCueBuilder::FireGameEvent( IGameEvent *event )
 {
-	const char *type = event->GetName();
-
-	if (!TFGameRules())
+	if ( !tf2c_cues_enabled.GetBool() )
 		return;
+
+	if ( !TFGameRules() )
+		return;
+
+	const char *type = event->GetName();
 
 	if (0 == Q_strcmp(type, "localplayer_changeteam"))
 	{
@@ -253,6 +271,9 @@ void CTFCueBuilder::FireGameEvent(IGameEvent *event)
 			if (!tf_PR)
 				return;
 
+			if (m_iCurrentTrack == -1)
+				return;
+
 			int iLocalIndex = GetLocalPlayerIndex();
 			int iLocalScore = tf_PR->GetTotalScore(iLocalIndex);
 			int iLocalKillstreak = tf_PR->GetKillstreak(iLocalIndex);
@@ -294,12 +315,16 @@ void CTFCueBuilder::SetMood(CueMood mood)
 void CTFCueBuilder::StartCue()
 {
 	CueTrack *pCurrentTrack = GetCurrentTrack();
-	DevMsg("Playing track %s\n", pCurrentTrack->GetTrackName());	
+	DevMsg("Playing track %s\n", pCurrentTrack->GetTrackName());
+	if (!tf2c_cues_enabled.GetBool())
+		return;
 	pCurrentTrack->StartPlaying();
 }
 
 void CTFCueBuilder::ResetAndStartCue()
 {
+	if (m_iCurrentTrack == -1)
+		return;
 	GetCurrentTrack()->SetCurrentSeqID(-1);
 	SetMood(MOOD_NEUTRAL);
 	StartCue();
@@ -337,28 +362,30 @@ void CueTrack::Update()
 	if (!m_bPlay)
 		return;
 
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalPlayer)
-		return;
-
 	bool bPlaying = IsStillPlaying();
 	bool bLoopEnded = false;
-	if (GetCurrentSeqID() > -1)
+	if (GetCurrentSeqID() == -1)
 	{
-		CueSequence pSeqInfo = GetSequence(GetCurrentSeqID());
-		float fDuration = enginesound->GetSoundDuration(pSeqInfo.GetTrack(LAYER_MAIN, MOOD_NEUTRAL).sWaveName);
-		bLoopEnded = m_fCurrentDuration + fDuration < gpGlobals->curtime;
+		NextSeq();
+		return;
 	}
-	if (bLoopEnded)
+
+	CueSequence pSeqInfo = GetSequence(GetCurrentSeqID());
+	float fDuration = enginesound->GetSoundDuration(pSeqInfo.GetTrack(LAYER_MAIN, MOOD_NEUTRAL).sWaveName);
+	if (m_fCurrentDuration + fDuration <= gpGlobals->curtime)
 	{
 		DevMsg("Loop ended\n");
-		m_fCurrentDuration = gpGlobals->curtime;
+		m_fCurrentDuration += fDuration;
+		bLoopEnded = true;
 	}
-	if (!bPlaying || (bLoopEnded && GetShouldSkip()))
+	if (bLoopEnded && GetShouldSkip())
 	{
 		SetShouldSkip(false);
 		Stop();
 		NextSeq();
+	}
+	if (!bPlaying)
+	{
 		Play();
 	}
 }
@@ -454,7 +481,6 @@ void CueTrack::Play()
 		return;
 	}
 
-	m_fCurrentDuration = gpGlobals->curtime;
 	bool bPlaying = IsStillPlaying();
 	if (!bPlaying)
 	{
@@ -470,6 +496,7 @@ void CueTrack::Play()
 		}
 	}
 	SetVolumes();
+	m_fCurrentDuration = gpGlobals->curtime;
 }
 
 void CueTrack::Stop()

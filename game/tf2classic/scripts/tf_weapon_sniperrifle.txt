@@ -17,6 +17,7 @@ WeaponData
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"
 	"MaxAmmo"		"25"
+	"SpawnAmmo"		"10"
 	
 	"DoInstantEjectBrass"	"0"
 	"BrassModel"		"models/weapons/shells/shell_sniperrifle.mdl"
@@ -25,7 +26,6 @@ WeaponData
 	"primary_ammo"		"TF_AMMO_PRIMARY"
 	"secondary_ammo"	"None"
 	"clip_size"		"-1"
-	"default_clip"		"75"
 
 	// Buckets.
 	"bucket"		"0"

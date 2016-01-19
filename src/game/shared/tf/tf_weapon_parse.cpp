@@ -8,6 +8,8 @@
 #include "tf_weapon_parse.h"
 #include "tf_shareddefs.h"
 #include "tf_playerclass_shared.h"
+#include "activitylist.h"
+#include "tf_gamerules.h"
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -52,6 +54,9 @@ CTFWeaponInfo::CTFWeaponInfo()
 	m_szExplosionWaterEffect[0] = '\0';
 
 	m_iWeaponType = TF_WPN_TYPE_PRIMARY;
+
+	m_iMaxAmmo = 0;
+	m_iSpawnAmmo = 0;
 }
 
 CTFWeaponInfo::~CTFWeaponInfo()
@@ -63,7 +68,6 @@ CTFWeaponInfo::~CTFWeaponInfo()
 //-----------------------------------------------------------------------------
 void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 {
-	int i;
 
 	BaseClass::Parse( pKeyValuesData, szWeaponName );
 
@@ -81,12 +85,11 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bDrawCrosshair		= pKeyValuesData->GetInt( "DrawCrosshair", 1 ) > 0;
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iAmmoPerShot			= pKeyValuesData->GetInt( "AmmoPerShot", 1 );
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_bUseRapidFireCrits	= ( pKeyValuesData->GetInt( "UseRapidFireCrits", 0 ) != 0 );
-	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iMaxAmmo				= pKeyValuesData->GetInt("MaxAmmo", 0);
 
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile = TF_PROJECTILE_NONE;
 	const char *pszProjectileType = pKeyValuesData->GetString( "ProjectileType", "projectile_none" );
 
-	for ( i=0;i<TF_NUM_PROJECTILES;i++ )
+	for ( int i = 0; i < TF_NUM_PROJECTILES; i++ )
 	{
 		if ( FStrEq( pszProjectileType, g_szProjectileNames[i] ) )
 		{
@@ -99,6 +102,11 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 
 	m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_flSmackDelay			= pKeyValuesData->GetFloat( "SmackDelay", 0.2f );
 	m_WeaponData[TF_WEAPON_SECONDARY_MODE].m_flSmackDelay		= pKeyValuesData->GetFloat( "Secondary_SmackDelay", 0.2f );
+
+#ifdef DM_WEAPON_BUCKET
+	m_iSlotDM = pKeyValuesData->GetInt( "bucket_DM", 0 );
+	m_iPositionDM = pKeyValuesData->GetInt( "bucket_position_DM", 0 );
+#endif
 
 	m_bDoInstantEjectBrass = ( pKeyValuesData->GetInt( "DoInstantEjectBrass", 1 ) != 0 );
 	const char *pszBrassModel = pKeyValuesData->GetString( "BrassModel", NULL );
@@ -126,7 +134,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	m_WeaponData[TF_WEAPON_SECONDARY_MODE].m_iProjectile = m_WeaponData[TF_WEAPON_PRIMARY_MODE].m_iProjectile;
 	pszProjectileType = pKeyValuesData->GetString( "Secondary_ProjectileType", "projectile_none" );
 
-	for ( i=0;i<TF_NUM_PROJECTILES;i++ )
+	for ( int i = 0; i < TF_NUM_PROJECTILES; i++ )
 	{
 		if ( FStrEq( pszProjectileType, g_szProjectileNames[i] ) )
 		{
@@ -137,37 +145,11 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 
 	const char *pszWeaponType = pKeyValuesData->GetString( "WeaponType" );
 
-	if ( !Q_strcmp( pszWeaponType, "primary" ) )
+	int iType = UTIL_StringFieldToInt( pszWeaponType, g_AnimSlots, TF_WPN_TYPE_COUNT );
+
+	if ( iType >= 0 )
 	{
-		m_iWeaponType = TF_WPN_TYPE_PRIMARY;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "secondary" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_SECONDARY;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "melee" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_MELEE;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "grenade" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_GRENADE;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "building" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_BUILDING;
-	}
-	else if ( !Q_strcmp( pszWeaponType, "pda" ) )
-	{
-		m_iWeaponType = TF_WPN_TYPE_PDA;
-	}
-	else if (!Q_strcmp(pszWeaponType, "item1"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM1;
-	}
-	else if (!Q_strcmp(pszWeaponType, "item2"))
-	{
-		m_iWeaponType = TF_WPN_TYPE_ITEM2;
+		m_iWeaponType = iType;
 	}
 
 	// Grenade data.
@@ -242,4 +224,7 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	}
 
 	m_bDontDrop = ( pKeyValuesData->GetInt( "DontDrop", 0 ) > 0 );
+
+	m_iMaxAmmo = pKeyValuesData->GetInt( "MaxAmmo", 0 );
+	m_iSpawnAmmo = pKeyValuesData->GetInt( "SpawnAmmo", 0 );
 }

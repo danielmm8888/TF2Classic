@@ -680,7 +680,7 @@ void CTeamControlPointMaster::CheckWinConditions( void )
 		{
 			bool bWinner = true;
 
-#if defined( TF_DLL )
+#if defined( TF_DLL ) || defined ( TF_CLASSIC )
 			if ( TFGameRules() && TFGameRules()->IsInKothMode() )
 			{
 				CTeamRoundTimer *pTimer = NULL;
@@ -692,6 +692,16 @@ void CTeamControlPointMaster::CheckWinConditions( void )
 				{
 					pTimer = TFGameRules()->GetBlueKothRoundTimer();
 				}
+#ifdef TF_CLASSIC
+				else if ( iWinners == TF_TEAM_GREEN )
+				{
+					pTimer = TFGameRules()->GetGreenKothRoundTimer();
+				}
+				else if ( iWinners == TF_TEAM_YELLOW )
+				{
+					pTimer = TFGameRules()->GetYellowKothRoundTimer();
+				}
+#endif
 
 				if ( pTimer )
 				{

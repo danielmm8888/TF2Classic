@@ -16,6 +16,7 @@
 #include "tf_weapon_builder.h"
 #include "vguiscreen.h"
 #include "tf_gamerules.h"
+#include "tf_obj_teleporter.h"
 
 extern ConVar tf2_object_hard_limits;
 extern ConVar tf_fastbuild;
@@ -146,6 +147,12 @@ bool CTFWeaponBuilder::Deploy( void )
 			m_iAltFireHint = HINT_ALTFIRE_ROTATE_BUILDING;
 			pPlayer->StartHintTimer( m_iAltFireHint );
 		}
+
+		if ( m_hObjectBeingBuilt && m_hObjectBeingBuilt->IsBeingCarried() )
+		{
+			// We just pressed attack2, don't immediately rotate it.
+			m_bInAttack2 = true;
+		}
 	}
 
 	return bDeploy;
@@ -153,9 +160,10 @@ bool CTFWeaponBuilder::Deploy( void )
 
 Activity CTFWeaponBuilder::GetDrawActivity( void )
 {
-	// sapper used to call different draw animations , one when invis and one when not.
-	// now you can go invis *while* deploying, so let's always use the one-handed deploy.
-	if ( GetType() == OBJ_ATTACHMENT_SAPPER )
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+
+	// Use the one handed sapper deploy if we're invisible.
+	if ( pOwner && GetType() == OBJ_ATTACHMENT_SAPPER && pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		return ACT_VM_DRAW_DEPLOYED;
 	}
@@ -166,19 +174,39 @@ Activity CTFWeaponBuilder::GetDrawActivity( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFWeaponBuilder::CanHolster( void ) const
+{
+	// If player is hauling a building he can't switch away without dropping it.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		return false;
+	}
+
+	return BaseClass::CanHolster();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: Stop placement when holstering
 //-----------------------------------------------------------------------------
 bool CTFWeaponBuilder::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
-	if ( GetOwner() && ToTFPlayer(GetOwner()) && ToTFPlayer(GetOwner())->m_Shared.IsCarryingObject() )
-		return false;
-
 	if ( m_iBuildState == BS_PLACING || m_iBuildState == BS_PLACING_INVALID )
 	{
 		SetCurrentState( BS_IDLE );
 	}
 
 	StopPlacement();
+
+	// Make sure hauling status is cleared.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		pOwner->m_Shared.SetCarriedObject( NULL );
+	}
 
 	return BaseClass::Holster(pSwitchingTo);
 }
@@ -277,7 +305,33 @@ void CTFWeaponBuilder::PrimaryAttack( void )
 					pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_GRENADE );
 				}
 
+				// Need to save this for later since StartBuilding will clear m_hObjectBeingBuilt.
+				CBaseObject *pParentObject = m_hObjectBeingBuilt->GetParentObject();
+
 				StartBuilding();
+
+				// Attaching a sapper to a teleporter automatically saps another end.
+				if ( GetType() == OBJ_ATTACHMENT_SAPPER )
+				{
+					CObjectTeleporter *pTeleporter = dynamic_cast<CObjectTeleporter *>( pParentObject );
+
+					if ( pTeleporter )
+					{
+						CObjectTeleporter *pMatch = pTeleporter->GetMatchingTeleporter();
+
+						// If the other end is not already sapped then place a sapper on it.
+						if ( pMatch && !pMatch->IsPlacing() && !pMatch->HasSapper() )
+						{
+							SetCurrentState( BS_PLACING );
+							StartPlacement();
+							if ( m_hObjectBeingBuilt.Get() )
+							{
+								m_hObjectBeingBuilt->UpdateAttachmentPlacement( pMatch );
+								StartBuilding();
+							}
+						}
+					}
+				}
 
 				// Should we switch away?
 				if ( iFlags & OF_ALLOW_REPEAT_PLACEMENT )
@@ -445,12 +499,12 @@ void CTFWeaponBuilder::StartPlacement( void )
 {
 	StopPlacement();
 
-	/*if ( GetOwner() && ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject() )
+	if ( GetOwner() && ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject() )
 	{
-		m_hObjectBeingBuilt = ToTFPlayer(GetOwner())->m_Shared.GetCarriedObject();
+		m_hObjectBeingBuilt = ToTFPlayer( GetOwner() )->m_Shared.GetCarriedObject();
 		m_hObjectBeingBuilt->StartPlacement( ToTFPlayer( GetOwner() ) );
 		return;
-	}*/
+	}
 
 	// Create the slab
 	m_hObjectBeingBuilt = (CBaseObject*)CreateEntityByName( GetObjectInfo( m_iObjectType )->m_pClassName );
@@ -516,17 +570,12 @@ void CTFWeaponBuilder::StartBuilding( void )
 	{
 		Assert( pObj );
 
-		pObj->RedeployBuilding( ToTFPlayer( GetOwner() ) );
-		m_hObjectBeingBuilt = NULL;
-
-		pPlayer->m_Shared.SetCarriedObject( NULL );
-		return;
+		pObj->DropCarriedObject( pPlayer );
 	}
 
 	Assert( pObj );
 
 	pObj->StartBuilding( GetOwner() );
-	pObj->AddSpawnFlags( SF_OBJ_UPGRADABLE );
 
 	m_hObjectBeingBuilt = NULL;
 

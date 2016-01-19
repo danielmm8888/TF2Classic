@@ -142,29 +142,7 @@ void C_ObjectTeleporter::StartChargedEffects()
 {
 	char szEffect[ 128 ];
 
-	string_t teamname;
-	switch ( GetTeamNumber() )
-	{
-		case TF_TEAM_RED:
-			teamname = "red";
-			break;
-
-		case TF_TEAM_BLUE:
-			teamname = "blue";
-			break;
-
-		case TF_TEAM_GREEN:
-			teamname = "green";
-			break;
-
-		case TF_TEAM_YELLOW:
-			teamname = "yellow";
-			break;
-
-		default:
-			teamname = "blue";
-			break;
-	}
+	string_t teamname = MAKE_STRING( GetTeamParticleName( GetTeamNumber() ) );
 
 	Q_snprintf( szEffect, sizeof( szEffect), "teleporter_%s_charged_level%d", teamname, m_iUpgradeLevel );
 
@@ -176,29 +154,7 @@ void C_ObjectTeleporter::StartActiveEffects()
 {
 	char szEffect[ 128 ];
 
-	string_t teamname;
-	switch (GetTeamNumber())
-	{
-	case TF_TEAM_RED:
-		teamname = "red";
-		break;
-
-	case TF_TEAM_BLUE:
-		teamname = "blue";
-		break;
-
-	case TF_TEAM_GREEN:
-		teamname = "green";
-		break;
-
-	case TF_TEAM_YELLOW:
-		teamname = "yellow";
-		break;
-
-	default:
-		teamname = "blue";
-		break;
-	}
+	string_t teamname = MAKE_STRING( GetTeamParticleName( GetTeamNumber() ) );
 
 	Q_snprintf( szEffect, sizeof(szEffect), "teleporter_%s_%s_level%d", teamname,
 		( GetObjectMode() == TELEPORTER_TYPE_ENTRANCE ) ? "entrance" : "exit", 
@@ -369,7 +325,7 @@ void C_ObjectTeleporter::GetTargetIDDataString( wchar_t *sDataString, int iMaxLe
 	}
 	else if ( m_iState == TELEPORTER_STATE_RECHARGING && gpGlobals->curtime < m_flRechargeTime )
 	{
-		float flPercent = clamp( ( m_flRechargeTime - gpGlobals->curtime ) / g_iTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ], 0.0f, 1.0f );
+		float flPercent = clamp( ( m_flRechargeTime - gpGlobals->curtime ) / g_flTeleporterRechargeTimes[ GetUpgradeLevel() - 1 ], 0.0f, 1.0f );
 
 		wchar_t wszRecharging[ 32 ];
 		_snwprintf( wszRecharging, ARRAYSIZE(wszRecharging) - 1, L"%.0f", 100 - (flPercent * 100) );
@@ -393,9 +349,12 @@ void C_ObjectTeleporter::UpdateDamageEffects( BuildingDamageLevel_t damageLevel 
 {
 	if ( m_pDamageEffects )
 	{
-		m_pDamageEffects->StopEmission( false, false );
+		ParticleProp()->StopEmission( m_pDamageEffects );
 		m_pDamageEffects = NULL;
 	}
+
+	if ( IsPlacing() )
+		return;
 
 	const char *pszEffect = "";
 

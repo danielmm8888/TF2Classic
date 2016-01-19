@@ -9,6 +9,7 @@
 #include "tf_controls.h"
 #include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
+#include "panels/tf_tooltippanel.h"
 #include "basemodelpanel.h"
 
 
@@ -177,6 +178,11 @@ void CTFAdvButtonBase::SetImageInset(int iInsetX, int iInsetY)
 	pButtonImage->SetPos(iInsetX, iInsetY);
 }
 
+void CTFAdvButtonBase::SetImageSize(int iWide, int iTall)
+{
+	pButtonImage->SetSize(iWide, iTall);
+}
+
 void CTFAdvButtonBase::SetToolTip(const char *sText)
 {
 	Q_strncpy(pToolTip, sText, sizeof(pToolTip));
@@ -200,16 +206,17 @@ void CTFAdvButtonBase::SetDefaultAnimation()
 		SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
 }
 
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFAdvButtonBase::SendAnimation(MouseState flag)
 {
+
 	switch (flag)
 	{
-	//We can add additional stuff like animation here
 	case MOUSE_DEFAULT:
+		if (pToolTip[0] != '\0')
+			MAINMENU_ROOT->HideToolTip();
 		if (m_bBorderVisible)
 			SetBorder(GETSCHEME()->GetBorder(pSelectedBG));
 		break;

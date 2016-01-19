@@ -93,7 +93,12 @@ void CTFDialogPanelBase::Show()
 		RequestFocus();
 		MakePopup();
 	}
-	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_LINEAR);
+	vgui::GetAnimationController()->RunAnimationCommand(this, "Alpha", 255, 0.05f, 0.3f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE);
+	int _x, _y;
+	GetPos(_x, _y);
+	SetPos(_x - XRES(15), _y);
+	AnimationController::PublicValue_t p_AnimHover(_x, _y);
+	vgui::GetAnimationController()->RunAnimationCommand(this, "Position", p_AnimHover, 0.0f, 0.3f, vgui::AnimationController::INTERPOLATOR_SIMPLESPLINE, NULL);
 	MAINMENU_ROOT->ShowPanel(SHADEBACKGROUND_MENU);
 };
 

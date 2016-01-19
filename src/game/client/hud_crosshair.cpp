@@ -26,6 +26,10 @@
 #include "c_portal_player.h"
 #endif // PORTAL
 
+#ifdef TF_CLASSIC_CLIENT
+#include "cam_thirdperson.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -187,6 +191,17 @@ void CHudCrosshair::GetDrawPosition ( float *pX, float *pY, bool *pbBehindCamera
 			AngleVectors( CurrentViewAngles() - g_pSixenseInput->GetViewAngleOffset(), &aimVector );
 			// calculate where the bullet would go so we can draw the cross appropriately
 			vecEnd = vecStart + aimVector * MAX_TRACE_LENGTH;
+			bUseOffset = true;
+		}
+#endif
+
+#ifdef TF_CLASSIC_CLIENT
+		if ( g_ThirdPersonManager.WantToUseGameThirdPerson() )
+		{
+			vecStart = pPlayer->Weapon_ShootPosition();
+			Vector vecDir;
+			pPlayer->EyeVectors( &vecDir );
+			vecEnd = vecStart + vecDir * MAX_TRACE_LENGTH;
 			bUseOffset = true;
 		}
 #endif

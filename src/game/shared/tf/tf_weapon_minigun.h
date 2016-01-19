@@ -57,7 +57,7 @@ public:
 	void			SharedAttack();
 	virtual void	WeaponIdle();
 	virtual bool	SendWeaponAnim( int iActivity );
-	virtual bool	CanHolster( void );
+	virtual bool	CanHolster( void ) const;
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	virtual bool	Lower( void );
 	virtual void	HandleFireOnEmpty( void );
@@ -127,6 +127,7 @@ private:
 	void StopBrassEffect();
 	void HandleBrassEffect();
 
+	EHANDLE				m_hBrassEffectHost;
 	CNewParticleEffect *m_pEjectBrassEffect;
 	int					m_iEjectBrassAttachment;
 
@@ -134,6 +135,7 @@ private:
 	void StopMuzzleEffect();
 	void HandleMuzzleEffect();
 
+	EHANDLE				m_hMuzzleEffectHost;
 	CNewParticleEffect *m_pMuzzleEffect;
 	int					m_iMuzzleAttachment;
 #endif

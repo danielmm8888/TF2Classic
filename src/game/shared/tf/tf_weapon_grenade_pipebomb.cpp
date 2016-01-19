@@ -62,12 +62,13 @@ RecvPropEHandle( RECVINFO( m_hLauncher ) ),
 SendPropBool( SENDINFO( m_bTouched ) ),
 SendPropInt( SENDINFO( m_iType ), 2 ),
 SendPropEHandle( SENDINFO( m_hLauncher ) ),
-
 #endif
 END_NETWORK_TABLE()
 
 #ifdef GAME_DLL
 static string_t s_iszTrainName;
+static string_t s_iszSawBlade01;
+static string_t s_iszSawBlade02;
 #endif
 
 //-----------------------------------------------------------------------------
@@ -80,6 +81,8 @@ CTFGrenadePipebombProjectile::CTFGrenadePipebombProjectile()
 	m_flChargeTime = 0.0f;
 #ifdef GAME_DLL
 	s_iszTrainName  = AllocPooledString( "models/props_vehicles/train_enginecar.mdl" );
+	s_iszSawBlade01 = AllocPooledString( "sawmovelinear01" );
+	s_iszSawBlade02 = AllocPooledString( "sawmovelinear02" );
 #endif
 }
 
@@ -97,7 +100,6 @@ CTFGrenadePipebombProjectile::~CTFGrenadePipebombProjectile()
 //-----------------------------------------------------------------------------
 // Purpose: 
 // PIPEBOMB = STICKY
-// GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 int	CTFGrenadePipebombProjectile::GetDamageType( void )
 {
@@ -140,57 +142,48 @@ void CTFGrenadePipebombProjectile::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Output : const char
-// STICKY = STICKY
+// STICKYBOMB = STICKY
 // PIPEBOMB = GRENADE
 //-----------------------------------------------------------------------------
 const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 {
 	if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
 	{
-		if (TFGameRules()->IsDeathmatch())
-			return "stickybombtrail_dm";
-
-		switch (GetTeamNumber())
-		{
-		case TF_TEAM_RED:
-			return "stickybombtrail_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "stickybombtrail_blue";
-			break;
-		case TF_TEAM_GREEN:
-			return "stickybombtrail_green";
-			break;
-		case TF_TEAM_YELLOW:
-			return "stickybombtrail_yellow";
-			break;
-		default:
-			return "stickybombtrail_blue";
-			break;
-		}
+		return ConstructTeamParticle( "stickybombtrail_%s", GetTeamNumber(), true );
 	}
 	else
 	{
-		if (TFGameRules()->IsDeathmatch())
-			return "pipebombtrail_dm";
+		return ConstructTeamParticle( "pipebombtrail_%s", GetTeamNumber(), true );
+	}
+}
 
-		switch (GetTeamNumber())
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : updateType - 
+// GRENADE = STICKY
+// PIPE = GRENADE
+//-----------------------------------------------------------------------------
+void CTFGrenadePipebombProjectile::CreateTrails( void )
+{
+	CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
+
+	C_TFPlayer *pPlayer = ToTFPlayer( GetThrower() );
+
+	if ( pPlayer )
+	{
+		pPlayer->m_Shared.SetParticleToMercColor( pParticle );
+	}
+
+	if ( m_bCritical )
+	{
+		const char *pszFormat = ( m_iType == TF_GL_MODE_REMOTE_DETONATE ) ? "critical_grenade_%s" : "critical_pipe_%s";
+		const char *pszEffectName = ConstructTeamParticle( pszFormat, GetTeamNumber(), true );
+
+		pParticle = ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
+
+		if ( pPlayer )
 		{
-		case TF_TEAM_RED:
-			return "pipebombtrail_red";
-			break;
-		case TF_TEAM_BLUE:
-			return "pipebombtrail_blue";
-			break;
-		case TF_TEAM_GREEN:
-			return "pipebombtrail_green";
-			break;
-		case TF_TEAM_YELLOW:
-			return "pipebombtrail_yellow";
-			break;
-		default:
-			return "pipebombtrail_blue";
-			break;
+			pPlayer->m_Shared.SetParticleToMercColor( pParticle );
 		}
 	}
 }
@@ -198,10 +191,9 @@ const char *CTFGrenadePipebombProjectile::GetTrailParticleName( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : updateType - 
-// STICKY = GRENADE
-// GRENADE = PIPEBOMB
+// PIPEBOMB = STICKY
 //-----------------------------------------------------------------------------
-void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
+void CTFGrenadePipebombProjectile::OnDataChanged( DataUpdateType_t updateType )
 {
 	BaseClass::OnDataChanged( updateType );
 
@@ -209,100 +201,29 @@ void CTFGrenadePipebombProjectile::OnDataChanged(DataUpdateType_t updateType)
 	{
 		m_flCreationTime = gpGlobals->curtime;
 
-
-		CNewParticleEffect *pParticle = ParticleProp()->Create( GetTrailParticleName(), PATTACH_ABSORIGIN_FOLLOW );
 		m_bPulsed = false;
 
-		C_TFPlayer *pPlayer = ToTFPlayer(GetThrower());
+		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>( m_hLauncher.Get() );
 
-		if (pPlayer && TFGameRules()->IsDeathmatch())
-		{
-			pPlayer->m_Shared.SetParticleToMercColor(pParticle);
-		}
-
-		CTFPipebombLauncher *pLauncher = dynamic_cast<CTFPipebombLauncher*>(m_hLauncher.Get());
-
-		if (pLauncher)
+		if ( pLauncher )
 		{
 			pLauncher->AddPipeBomb( this );
 		}
 
-		if ( m_bCritical )
-		{
-			if (TFGameRules()->IsDeathmatch())
-			{
-				if (m_iType == TF_GL_MODE_REMOTE_DETONATE)
-				{
-					pParticle = ParticleProp()->Create("critical_grenade_dm", PATTACH_ABSORIGIN_FOLLOW);
-				}
-				else
-				{
-					pParticle = ParticleProp()->Create("critical_pipe_dm", PATTACH_ABSORIGIN_FOLLOW);
-				}
-
-				if (pPlayer && pParticle)
-				{
-					pPlayer->m_Shared.SetParticleToMercColor(pParticle);
-				}
-				return;
-			}
-			switch( GetTeamNumber() )
-			{
-			case TF_TEAM_BLUE:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_blue", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_blue", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_RED:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_red", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_red", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_GREEN:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_green", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			case TF_TEAM_YELLOW:
-
-				if ( m_iType == TF_GL_MODE_REMOTE_DETONATE )
-				{
-					ParticleProp()->Create( "critical_grenade_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				else
-				{
-					ParticleProp()->Create( "critical_pipe_yellow", PATTACH_ABSORIGIN_FOLLOW );
-				}
-				break;
-			default:
-				break;
-			}
-		}
-
+		CreateTrails();
 	}
 	else if ( m_bTouched )
 	{
 		//ParticleProp()->StopEmission();
 	}
+
+	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	{
+		ParticleProp()->StopEmission();
+		CreateTrails();
+	}
 }
+
 extern ConVar tf_grenadelauncher_livetime;
 
 void CTFGrenadePipebombProjectile::Simulate( void )
@@ -316,21 +237,8 @@ void CTFGrenadePipebombProjectile::Simulate( void )
 	{
 		if ( (gpGlobals->curtime - m_flCreationTime) >= tf_grenadelauncher_livetime.GetFloat() )
 		{
-			switch (GetTeamNumber())
-			{
-			case TF_TEAM_RED:
-				ParticleProp()->Create( "stickybomb_pulse_red", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_BLUE:
-				ParticleProp()->Create( "stickybomb_pulse_blue", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_GREEN:
-				ParticleProp()->Create( "stickybomb_pulse_green", PATTACH_ABSORIGIN );
-				break;
-			case TF_TEAM_YELLOW:
-				ParticleProp()->Create( "stickybomb_pulse_yellow", PATTACH_ABSORIGIN );
-				break;
-			}
+			const char *pszEffectName = ConstructTeamParticle( "stickybomb_pulse_%s", GetTeamNumber() );
+			ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN );
 
 			m_bPulsed = true;
 		}
@@ -377,7 +285,7 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_pipe );
 //-----------------------------------------------------------------------------
 CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector &position, const QAngle &angles, 
 																    const Vector &velocity, const AngularImpulse &angVelocity, 
-																    CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate )
+																    CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate, float flDamageMult )
 {
 	CTFGrenadePipebombProjectile *pGrenade = static_cast<CTFGrenadePipebombProjectile*>( CBaseEntity::CreateNoSpawn( bRemoteDetonate ? "tf_projectile_pipe_remote" : "tf_projectile_pipe", position, angles, pOwner ) );
 	if ( pGrenade )
@@ -394,6 +302,8 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 			pGrenade->SetDamage( TF_WEAPON_GRENADE_XBOX_DAMAGE );
 		}
 #endif
+
+		pGrenade->SetDamage( pGrenade->GetDamage() * flDamageMult );
 		pGrenade->m_flFullDamage = pGrenade->GetDamage();
 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )
@@ -412,7 +322,7 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 //-----------------------------------------------------------------------------
 // Purpose:
 // PIPEBOMB = STICKY
-// GRENADE = GRENADE
+// PIPEGRENADE\GRENADE = GRENADE
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Spawn()
 {
@@ -424,7 +334,7 @@ void CTFGrenadePipebombProjectile::Spawn()
 	}
 	else
 	{
-		SetModel(TF_WEAPON_PIPEGRENADE_MODEL);
+		SetModel( TF_WEAPON_PIPEGRENADE_MODEL );
 		SetDetonateTimerLength( TF_WEAPON_GRENADE_DETONATE_TIME );
 		SetTouch( &CTFGrenadePipebombProjectile::PipebombTouch );
 	}
@@ -484,6 +394,10 @@ void CTFGrenadePipebombProjectile::BounceSound( void )
 //-----------------------------------------------------------------------------
 void CTFGrenadePipebombProjectile::Detonate()
 {
+	// If we're detonating stickies then we're currently inside prediction
+	// so we gotta make sure all effects show up.
+	CDisablePredictionFiltering disabler;
+
 	if ( ShouldNotDetonate() )
 	{
 		RemoveGrenade();
@@ -555,7 +469,7 @@ void CTFGrenadePipebombProjectile::PipebombTouch( CBaseEntity *pOther )
 		m_flDamage = m_flFullDamage;
 		// Save this entity as enemy, they will take 100% damage.
 		m_hEnemy = pOther;
-		Detonate();
+		Explode( &pTrace, GetDamageType() );
 	}
 
 	// Train hack!
@@ -605,8 +519,19 @@ void CTFGrenadePipebombProjectile::VPhysicsCollision( int index, gamevcollisione
 
 	bool bIsDynamicProp = ( NULL != dynamic_cast<CDynamicProp *>( pHitEntity ) );
 
+	// HACK: Prevents stickies from sticking to blades in Sawmill. Need to find a way that is not as silly.
+	CBaseEntity *pParent = pHitEntity->GetMoveParent();
+
+	if ( pParent )
+	{
+		if ( pParent->NameMatches( s_iszSawBlade01 ) || pParent->NameMatches( s_iszSawBlade02 ) )
+		{
+			bIsDynamicProp = false;
+		}
+	}
+
 	// Pipebombs stick to the world when they touch it
-	if ( pHitEntity && ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
+	if ( ( pHitEntity->IsWorld() || bIsDynamicProp ) && gpGlobals->curtime > m_flMinSleepTime )
 	{
 		m_bTouched = true;
 		VPhysicsGetObject()->EnableMotion( false );
@@ -701,6 +626,28 @@ int CTFGrenadePipebombProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	return 0;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGrenadePipebombProjectile::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	if ( GetType() == TF_GL_MODE_REMOTE_DETONATE )
+	{
+		// This is kind of lame.
+		Vector vecPushSrc = pDeflectedBy->WorldSpaceCenter();
+		Vector vecPushDir = GetAbsOrigin() - vecPushSrc;
+		VectorNormalize( vecPushDir );
+
+		CTakeDamageInfo info( pDeflectedBy, pDeflectedBy, 100, DMG_BLAST );
+		CalculateExplosiveDamageForce( &info, vecPushDir, vecPushSrc );
+		TakeDamage( info );
+	}
+	else
+	{
+		BaseClass::Deflected( pDeflectedBy, vecDir );
+	}
+	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
+}
 
 
 #endif

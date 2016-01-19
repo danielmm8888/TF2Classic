@@ -24,6 +24,7 @@ WeaponData
 	"ProjectileType"	"projectile_rocket"
 	"HasTeamSkins_Viewmodel"	"1"
 	"MaxAmmo"		"20"
+	"SpawnAmmo"		"8"
 
 	// Secondary Attributes.
 	"secondary_ammo"	"None"
@@ -31,6 +32,9 @@ WeaponData
 	// Buckets.
 	"bucket"		"0"
 	"bucket_position"	"0"	
+
+	"bucket_DM"		"4"
+	"bucket_position_DM"	"0"
 
 	"ExplosionEffect"		"ExplosionCore_wall"
 	"ExplosionPlayerEffect"		"ExplosionCore_MidAir"

@@ -156,11 +156,11 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 	while ( --count >= 0 )
 	{
 		// What class do they want?
-		int iClass = RandomInt( 1, TF_CLASS_COUNT-1 );
+		int iClass = RandomInt( TF_CLASS_SCOUT, TF_LAST_NORMAL_CLASS );
 		char const *pVal = args.FindArg( "-class" );
 		if ( pVal )
 		{
-			for ( int i=1; i < TF_CLASS_COUNT_ALL; i++ )
+			for ( int i=1; i <= TF_CLASS_ENGINEER; i++ )
 			{
 				if ( stricmp( GetPlayerClassData( i )->m_szClassName, pVal ) == 0 )
 				{
@@ -178,16 +178,21 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 		{
 			if ( stricmp( pVal, "red" ) == 0 )
 				iTeam = TF_TEAM_RED;
+			else if ( stricmp( pVal, "blue" ) == 0 )
+				iTeam = TF_TEAM_BLUE;
 			else if ( stricmp( pVal, "green" ) == 0 )
 				iTeam = TF_TEAM_GREEN;
 			else if ( stricmp( pVal, "yellow" ) == 0 )
 				iTeam = TF_TEAM_YELLOW;
 			else if ( stricmp( pVal, "spectator" ) == 0 )
 				iTeam = TEAM_SPECTATOR;
-			else if ( stricmp( pVal, "random" ) == 0 && TFGameRules()->IsFourTeamGame() )
-				iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
 			else if ( stricmp( pVal, "random" ) == 0 )
-				iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
+			{
+				if ( TFGameRules()->IsFourTeamGame() )
+					iTeam = RandomInt( TF_TEAM_RED, TF_TEAM_YELLOW );
+				else
+					iTeam = RandomInt( 0, 100 ) < 50 ? TF_TEAM_BLUE : TF_TEAM_RED;
+			}
 			else
 				iTeam = TEAM_UNASSIGNED;
 		}
@@ -275,12 +280,14 @@ static void RunPlayerMove( CTFPlayer *fakeclient, const QAngle& viewangles, floa
 		cmd.random_seed = random->RandomInt( 0, 0x7fffffff );
 	}
 
+	/*
 	if ( bot_dontmove.GetBool() )
 	{
 		cmd.forwardmove = 0;
 		cmd.sidemove = 0;
 		cmd.upmove = 0;
 	}
+	*/
 
 	MoveHelperServer()->SetHost( fakeclient );
 	fakeclient->PlayerRunCommand( &cmd, MoveHelperServer() );
@@ -345,7 +352,7 @@ void Bot_Think( CTFPlayer *pBot )
 		}
 		pBot->HandleCommand_JoinTeam( pszTeam );
 	}
-	else if ( pBot->GetTeamNumber() != TEAM_UNASSIGNED && pBot->GetPlayerClass()->IsClass( TF_CLASS_UNDEFINED ) )
+	else if ( pBot->GetTeamNumber() != TEAM_UNASSIGNED && pBot->IsPlayerClass( TF_CLASS_UNDEFINED ) )
 	{
 		// If they're on a team but haven't picked a class, choose a random class..
 		pBot->HandleCommand_JoinClass( GetPlayerClassData( botdata->m_WantedClass )->m_szClassName );
@@ -362,10 +369,9 @@ void Bot_Think( CTFPlayer *pBot )
 			bot_saveme.SetValue( bot_saveme.GetInt() - 1 );
 		}
 
-		// Stop when shot
 		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) )
 		{
-			if ( pBot->m_iHealth == 100 )
+			if ( !bot_dontmove.GetBool() )
 			{
 				forwardmove = 600 * ( botdata->backwards ? -1 : 1 );
 				if ( botdata->sidemove != 0.0f )
@@ -384,8 +390,7 @@ void Bot_Think( CTFPlayer *pBot )
 			}
 		}
 
-		// Only turn if I haven't been hurt
-		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) && pBot->m_iHealth == 100 )
+		if ( !pBot->IsEFlagSet(EFL_BOT_FROZEN) && !bot_dontmove.GetBool() )
 		{
 			Vector vecEnd;
 			Vector forward;
@@ -596,7 +601,7 @@ void Bot_Think( CTFPlayer *pBot )
 		//sidemove = cos( gpGlobals->curtime * 2.3 + pBot->entindex() ) * speed;
 		sidemove = cos( gpGlobals->curtime + pBot->entindex() ) * speed;
 
-		/*
+		
 		if (sin(gpGlobals->curtime ) < -0.5)
 		{
 			buttons |= IN_DUCK;
@@ -605,7 +610,7 @@ void Bot_Think( CTFPlayer *pBot )
 		{
 			buttons |= IN_WALK;
 		}
-		*/
+		
 
 		pBot->SetLocalAngles( botdata->lastAngles );
 		vecViewAngles = botdata->lastAngles;

@@ -22,6 +22,9 @@ enum
 	DISPENSER_LEVEL_3,
 };
 
+#define SF_IGNORE_LOS	0x0004
+#define SF_NO_DISGUISED_SPY_HEALING	0x0008
+
 // ------------------------------------------------------------------------ //
 // Resupply object that's built by the player
 // ------------------------------------------------------------------------ //
@@ -45,6 +48,7 @@ public:
 	virtual void	DetonateObject( void );
 	virtual void	OnGoActive( void );	
 	virtual bool	StartBuilding( CBaseEntity *pBuilder );
+	virtual void	InitializeMapPlacedObject( void );
 	virtual int		DrawDebugTextOverlays(void) ;
 	virtual void	SetModel( const char *pModel );
 
@@ -84,6 +88,9 @@ public:
 	virtual int		GetMaxUpgradeLevel( void );
 	virtual char	*GetPlacementModel( void );
 
+	virtual void	MakeCarriedObject( CTFPlayer *pPlayer );
+	virtual void	DropCarriedObject( CTFPlayer *pPlayer );
+
 private:
 
 	void StartUpgrading( void );
@@ -106,6 +113,7 @@ private:
 	bool m_bIsUpgrading;
 
 	EHANDLE m_hTouchTrigger;
+	string_t m_szTriggerName;
 
 	DECLARE_DATADESC();
 };
@@ -113,9 +121,21 @@ private:
 class CObjectCartDispenser : public CObjectDispenser
 {
 	DECLARE_CLASS( CObjectCartDispenser, CObjectDispenser );
+	DECLARE_DATADESC();
 
 public:
+	DECLARE_SERVERCLASS();
+
 	virtual int		GetMaxUpgradeLevel( void ) { return 1; }
+	virtual void	Spawn( void );
+	virtual bool	CanBeUpgraded( CTFPlayer *pPlayer ) { return false; }
+	virtual void	GetControlPanelInfo( int nPanelIndex, const char *&pPanelName ) { return; }
+	virtual void	SetModel( const char *pModel );
+	virtual void	OnGoActive( void );
+
+private:
+
+	CNetworkVar( int, m_iAmmoMetal );
 
 };
 

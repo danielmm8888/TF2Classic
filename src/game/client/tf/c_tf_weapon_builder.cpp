@@ -101,6 +101,22 @@ bool C_TFWeaponBuilder::Deploy( void )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool C_TFWeaponBuilder::CanHolster( void ) const
+{
+	// If player is hauling a building he can't switch away without dropping it.
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && pOwner->m_Shared.IsCarryingObject() )
+	{
+		return false;
+	}
+
+	return BaseClass::CanHolster();
+}
+
+//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 void C_TFWeaponBuilder::SecondaryAttack( void )
@@ -334,9 +350,10 @@ const char *C_TFWeaponBuilder::GetWorldModel( void ) const
 
 Activity C_TFWeaponBuilder::GetDrawActivity( void )
 {
-	// sapper used to call different draw animations , one when invis and one when not.
-	// now you can go invis *while* deploying, so let's always use the one-handed deploy.
-	if ( GetSubType() == OBJ_ATTACHMENT_SAPPER )
+	CTFPlayer *pOwner = ToTFPlayer( GetOwner() );
+
+	// Use the one handed sapper deploy if we're invisible.
+	if ( pOwner && GetObjectType() == OBJ_ATTACHMENT_SAPPER && pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 		return ACT_VM_DRAW_DEPLOYED;
 	}
@@ -355,14 +372,32 @@ void C_TFWeaponBuilder::UpdateViewModel( void )
 	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
 	if ( vm == NULL )
 		return;
-	
-	GetViewModel( m_nViewModelIndex );
 
 	int vmType = vm->GetViewModelType();
-	if ( vmType == vm->VMTYPE_L4D )
-		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
-	else if (vmType == vm->VMTYPE_TF2)
-		vm->UpdateViewmodelAddon( GetObjectInfo( m_iObjectType )->m_pViewModel );
+	const char *pszModel = NULL;
+
+	if ( vmType == VMTYPE_L4D )
+	{
+		pszModel = pTFPlayer->GetPlayerClass()->GetHandModelName();
+	}
+	else if ( vmType == VMTYPE_TF2 )
+	{
+		if ( HasItemDefinition() )
+		{
+			pszModel = GetObjectInfo( m_iObjectType )->m_pViewModel;
+		}
+		else
+		{
+			pszModel = GetTFWpnData().szViewModel;
+		}
+	}
+
+	if ( pszModel && pszModel[0] != '\0' )
+	{
+		vm->UpdateViewmodelAddon( pszModel );
+	}
 	else
+	{
 		vm->RemoveViewmodelAddon();
+	}
 }

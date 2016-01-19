@@ -29,6 +29,7 @@
 #include "effect_dispatch_data.h"
 #include "c_te_effect_dispatch.h"
 #include "toolframework_client.h"
+#include "c_env_projectedtexture.h"
 
 // for spy material proxy
 #include "proxyentity.h"
@@ -36,6 +37,7 @@
 #include "materialsystem/imaterialvar.h"
 #endif
 
+extern ConVar r_drawviewmodel;
 extern ConVar tf_useparticletracers;
 
 #ifdef CLIENT_DLL
@@ -103,6 +105,22 @@ void FindHullIntersection( const Vector &vecSrc, trace_t &tr, const Vector &mins
 	}
 }
 
+#ifdef CLIENT_DLL
+void RecvProxy_Sequence( const CRecvProxyData *pData, void *pStruct, void *pOut );
+
+void RecvProxy_WeaponSequence( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	C_TFWeaponBase *pWeapon = (C_TFWeaponBase *)pStruct;
+
+	// Weapons carried by other players have different models on server and client
+	// so we should ignore sequence changes in such case.
+	if ( pWeapon->UsingViewModel() )
+	{
+		RecvProxy_Sequence( pData, pStruct, pOut );
+	}
+}
+#endif
+
 //=============================================================================
 //
 // TFWeaponBase tables.
@@ -116,12 +134,19 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	RecvPropInt( RECVINFO( m_iReloadMode ) ),
 	RecvPropBool( RECVINFO( m_bResetParity ) ), 
 	RecvPropBool( RECVINFO( m_bReloadedThroughAnimEvent ) ),
+	RecvPropTime( RECVINFO( m_flLastFireTime ) ),
+
+	RecvPropInt( RECVINFO( m_nSequence ), 0, RecvProxy_WeaponSequence ),
 // Server specific.
 #else
 	SendPropBool( SENDINFO( m_bLowered ) ),
 	SendPropBool( SENDINFO( m_bResetParity ) ),
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
+	SendPropTime( SENDINFO( m_flLastFireTime ) ),
+
+	SendPropExclude( "DT_BaseAnimating", "m_nSequence" ),
+	SendPropInt( SENDINFO( m_nSequence ), ANIMATION_SEQUENCE_BITS, SPROP_UNSIGNED ),
 #endif
 END_NETWORK_TABLE()
 
@@ -130,6 +155,7 @@ BEGIN_PREDICTION_DATA( CTFWeaponBase )
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
+	DEFINE_PRED_FIELD_TOL( m_flLastFireTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE, TD_MSECTOLERANCE ),
 #endif
 END_PREDICTION_DATA()
 
@@ -139,7 +165,7 @@ LINK_ENTITY_TO_CLASS( tf_weapon_base, CTFWeaponBase );
 #if !defined( CLIENT_DLL )
 
 BEGIN_DATADESC( CTFWeaponBase )
-DEFINE_FUNCTION( FallThink )
+DEFINE_THINKFUNC( FallThink )
 END_DATADESC()
 
 // Client specific
@@ -186,6 +212,7 @@ CTFWeaponBase::CTFWeaponBase()
 	m_iLastCritCheckFrame = 0;
 	m_bCurrentAttackIsCrit = false;
 	m_iCurrentSeed = -1;
+	m_flLastFireTime = 0.0f;
 }
 
 // -----------------------------------------------------------------------------
@@ -193,6 +220,8 @@ CTFWeaponBase::CTFWeaponBase()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::Spawn()
 {
+	GetAttributeContainer()->InitializeAttributes( this );
+
 	// Base class spawn.
 	BaseClass::Spawn();
 
@@ -226,8 +255,6 @@ void CTFWeaponBase::Spawn()
 // -----------------------------------------------------------------------------
 void CTFWeaponBase::FallInit( void )
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-		SetPickupTouch();
 }
 
 //-----------------------------------------------------------------------------
@@ -244,12 +271,6 @@ void CTFWeaponBase::Precache()
 	}
 
 	const CTFWeaponInfo *pTFInfo = &GetTFWpnData();
-
-	// Precache the DM viewmodel (if we have one)
-	if (pTFInfo->m_szViewModelDM[0] != '\0')
-	{
-		PrecacheModel(pTFInfo->m_szViewModelDM);
-	}
 
 	if ( pTFInfo->m_szExplosionSound && pTFInfo->m_szExplosionSound[0] )
 	{
@@ -341,208 +362,55 @@ bool CTFWeaponBase::IsWeapon( int iWeapon ) const
 	return GetWeaponID() == iWeapon; 
 }
 
-int PrimaryArmActTable[13][2] = {
-	{ ACT_VM_DRAW, ACT_PRIMARY_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_PRIMARY_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_PRIMARY_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_PRIMARY_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_PRIMARY_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_PRIMARY_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_PRIMARY_VM_RELOAD },
-	{ ACT_VM_RELOAD_START, ACT_PRIMARY_RELOAD_START },
-	{ ACT_VM_RELOAD_FINISH, ACT_PRIMARY_RELOAD_FINISH },
-	{ ACT_VM_DRYFIRE, ACT_PRIMARY_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_PRIMARY_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_PRIMARY_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_PRIMARY_VM_LOWERED_TO_IDLE },
-};
-
-int SecondaryArmActTable[13][2] = {
-	{ ACT_VM_DRAW, ACT_SECONDARY_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_SECONDARY_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_SECONDARY_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_SECONDARY_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_SECONDARY_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_SECONDARY_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_SECONDARY_VM_RELOAD },
-	{ ACT_VM_RELOAD_START, ACT_SECONDARY_RELOAD_START },
-	{ ACT_VM_RELOAD_FINISH, ACT_SECONDARY_RELOAD_FINISH },
-	{ ACT_VM_DRYFIRE, ACT_SECONDARY_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_SECONDARY_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_SECONDARY_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_SECONDARY_VM_LOWERED_TO_IDLE },
-};
-
-int MeleeArmActTable[13][2] = {
-	{ ACT_VM_DRAW, ACT_MELEE_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_MELEE_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_MELEE_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_MELEE_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_MELEE_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_MELEE_VM_RELOAD },
-	{ ACT_VM_DRYFIRE, ACT_MELEE_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_MELEE_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_MELEE_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_MELEE_VM_LOWERED_TO_IDLE },
-	{ ACT_VM_HITCENTER, ACT_MELEE_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_VM_SWINGHARD },
-};
-
-int BuildingArmActTable[2][2] = {
-	{ ACT_VM_DRAW, ACT_ENGINEER_BLD_VM_DRAW },
-	{ ACT_VM_IDLE, ACT_ENGINEER_BLD_VM_IDLE },
-};
-
-int PdaArmActTable[11][2] = {
-	{ ACT_VM_DRAW, ACT_PDA_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_PDA_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_PDA_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_MELEE_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_PDA_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_PDA_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_PDA_VM_RELOAD },
-	{ ACT_VM_DRYFIRE, ACT_PDA_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_PDA_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_PDA_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_PDA_VM_LOWERED_TO_IDLE },
-};
-
-int Item1ArmActTable[15][2] = {
-	{ ACT_VM_DRAW, ACT_ITEM1_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_ITEM1_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_ITEM1_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_ITEM1_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_ITEM1_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_ITEM1_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_ITEM1_VM_RELOAD },
-	{ ACT_VM_DRYFIRE, ACT_ITEM1_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM1_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_ITEM1_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM1_VM_LOWERED_TO_IDLE },
-	{ ACT_VM_RELOAD_START, ACT_ITEM1_RELOAD_START },
-	{ ACT_VM_RELOAD_FINISH, ACT_ITEM1_RELOAD_FINISH },
-	{ ACT_VM_HITCENTER, ACT_ITEM1_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_ITEM1_VM_SWINGHARD },
-};
-
-int Item2ArmActTable[13][2] = {
-	{ ACT_VM_DRAW, ACT_ITEM2_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_ITEM2_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_ITEM2_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_ITEM2_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_ITEM2_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_ITEM2_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_ITEM2_VM_RELOAD },
-	{ ACT_VM_DRYFIRE, ACT_ITEM2_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM2_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_ITEM2_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM2_VM_LOWERED_TO_IDLE },
-	{ ACT_VM_HITCENTER, ACT_ITEM2_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_ITEM2_VM_SWINGHARD },
-};
-
-int Item3ArmActTable[13][2] = {
-	{ ACT_VM_DRAW, ACT_ITEM3_VM_DRAW },
-	{ ACT_VM_HOLSTER, ACT_ITEM3_VM_HOLSTER },
-	{ ACT_VM_IDLE, ACT_ITEM3_VM_IDLE },
-	{ ACT_VM_PULLBACK, ACT_ITEM3_VM_PULLBACK },
-	{ ACT_VM_PRIMARYATTACK, ACT_ITEM3_VM_PRIMARYATTACK },
-	{ ACT_VM_SECONDARYATTACK, ACT_ITEM3_VM_SECONDARYATTACK },
-	{ ACT_VM_RELOAD, ACT_ITEM3_VM_RELOAD },
-	{ ACT_VM_DRYFIRE, ACT_ITEM3_VM_DRYFIRE },
-	{ ACT_VM_IDLE_TO_LOWERED, ACT_ITEM3_VM_IDLE_TO_LOWERED },
-	{ ACT_VM_IDLE_LOWERED, ACT_ITEM3_VM_IDLE_LOWERED },
-	{ ACT_VM_LOWERED_TO_IDLE, ACT_ITEM3_VM_LOWERED_TO_IDLE },
-	{ ACT_VM_HITCENTER, ACT_ITEM3_VM_HITCENTER },
-	{ ACT_VM_SWINGHARD, ACT_ITEM3_VM_SWINGHARD },
-};
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::TranslateViewmodelHandActivity( int iActivity )
-{
+{	
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
+	if ( pTFPlayer == NULL )
+	{
+		Assert( false ); // This shouldn't be possible
+		return iActivity;
+	}
+
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel( m_nViewModelIndex, false ) );
+	if ( vm == NULL )
+	{
+		return iActivity;
+	}
+
+	// This is only used by TF2 VM type.
+	if ( vm->GetViewModelType() != VMTYPE_TF2 )
+		return iActivity;
+
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
-	if (pTFPlayer == NULL)
+	if ( HasItemDefinition() )
 	{
-		Assert(false); // This shouldn't be possible
-		return iActivity;
+		int iSchemaRole = m_Item.GetAnimationSlot();
+		if ( iSchemaRole >= 0 )
+		{
+			iWeaponRole = iSchemaRole;
+		}
+
+		Activity actActivityOverride = m_Item.GetActivityOverride( GetTeamNumber(), (Activity)iActivity );
+		if ( actActivityOverride != iActivity )
+		{
+			return actActivityOverride;
+		}
 	}
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
-	if (vm == NULL)
+	for ( int i = 0; i <= 160; i++ )
 	{
-		return iActivity;
+		const viewmodel_acttable_t& act = s_viewmodelacttable[i];
+		if ( iActivity == act.actBaseAct && iWeaponRole == act.iWeaponRole )
+		{
+			return act.actTargetAct;
+		}
 	}
 
-	if (vm->GetViewModelType() != vm->VMTYPE_TF2)
-		return iActivity;
-
-	// Oh jesus no
-
-	switch ( iWeaponRole )
-	{
-		case TF_WPN_TYPE_PRIMARY:
-			for (int i = 0; i < 13; i++)
-			{
-				if (PrimaryArmActTable[i][0] == iActivity)
-					return PrimaryArmActTable[i][1];
-			}
-			return iActivity;
-		case TF_WPN_TYPE_SECONDARY:
-			for (int i = 0; i < 13; i++)
-			{
-				if (SecondaryArmActTable[i][0] == iActivity)
-					return SecondaryArmActTable[i][1];
-			}
-			return iActivity;
-
-		case TF_WPN_TYPE_MELEE:
-			for (int i = 0; i < 13; i++)
-			{
-				if (MeleeArmActTable[i][0] == iActivity)
-					return MeleeArmActTable[i][1];
-			}
-			return iActivity;
-
-		case TF_WPN_TYPE_BUILDING:
-			for (int i = 0; i < 2; i++)
-			{
-				if (BuildingArmActTable[i][0] == iActivity)
-					return BuildingArmActTable[i][1];
-			}
-			return iActivity;
-
-		case TF_WPN_TYPE_PDA:
-			for (int i = 0; i < 13; i++)
-			{
-				if (PdaArmActTable[i][0] == iActivity)
-					return PdaArmActTable[i][1];
-			}
-			return iActivity;
-
-		case TF_WPN_TYPE_ITEM1:
-			for (int i = 0; i < 13; i++)
-			{
-				if (Item1ArmActTable[i][0] == iActivity)
-					return Item1ArmActTable[i][1];
-			}
-			return iActivity;
-
-		case TF_WPN_TYPE_ITEM2:
-			for (int i = 0; i < 13; i++)
-			{
-				if (Item2ArmActTable[i][0] == iActivity)
-					return Item2ArmActTable[i][1];
-			}
-			return iActivity;
-
-		default:
-			return iActivity;
-	};
+	return iActivity;
 }
 
 //-----------------------------------------------------------------------------
@@ -560,9 +428,13 @@ void CTFWeaponBase::SetViewModel()
 
 	Assert( vm->ViewModelIndex() == m_nViewModelIndex );
 
-	vm->SetViewModelType( vm->VMTYPE_NONE );
+	vm->SetViewModelType( VMTYPE_NONE );
 
-	vm->SetWeaponModel( GetViewModel( m_nViewModelIndex ), this );
+	const char *pszModelName = GetViewModel( m_nViewModelIndex );
+
+	m_iViewModelIndex = modelinfo->GetModelIndex( pszModelName );
+
+	vm->SetWeaponModel( pszModelName, this );
 
 #ifdef CLIENT_DLL
 	UpdateViewModel();
@@ -572,63 +444,63 @@ void CTFWeaponBase::SetViewModel()
 #ifdef CLIENT_DLL
 void CTFWeaponBase::UpdateViewModel(void)
 {
-	CTFPlayer *pTFPlayer = ToTFPlayer(GetOwner());
+	CTFPlayer *pTFPlayer = ToTFPlayer( GetOwner() );
 	if ( pTFPlayer == NULL )
 		return;
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pTFPlayer->GetViewModel(m_nViewModelIndex, false));
+	CTFViewModel *vm = dynamic_cast<CTFViewModel*>( pTFPlayer->GetViewModel(m_nViewModelIndex, false ) );
 	if ( vm == NULL )
 		return;
-	
-	GetViewModel( m_nViewModelIndex );
 
 	int vmType = vm->GetViewModelType();
-	if ( vmType == vm->VMTYPE_L4D )
-		vm->UpdateViewmodelAddon( pTFPlayer->GetPlayerClass()->GetHandModelName() );
-	else if (vmType == vm->VMTYPE_TF2)
-		vm->UpdateViewmodelAddon( GetTFWpnData().szViewModel );
+	const char *pszModel = NULL;
+
+	if ( vmType == VMTYPE_L4D )
+	{
+		pszModel = pTFPlayer->GetPlayerClass()->GetHandModelName();
+	}
+	else if (vmType == VMTYPE_TF2)
+	{
+		if ( HasItemDefinition() )
+		{
+			pszModel = m_Item.GetPlayerDisplayModel();
+		}
+		else
+		{
+			pszModel = GetTFWpnData().szViewModel;
+		}
+	}
+
+	if ( pszModel && pszModel[0] != '\0' )
+	{
+		vm->UpdateViewmodelAddon( pszModel );
+	}
 	else
+	{
 		vm->RemoveViewmodelAddon();
+	}
 }
 #endif
 
 const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if (!pPlayer)
+	if ( !pPlayer )
 		return vModel;
 
-	CBaseAnimating *pTemp = new CBaseAnimating();
-	if (!pTemp)
-		return vModel;
+	CEconItemDefinition *pStatic = m_Item.GetStaticData();
 
-	CTFViewModel *vm = dynamic_cast<CTFViewModel*>(pPlayer->GetViewModel(m_nViewModelIndex, false));
-
-	pTemp->SetModel(vModel);
-
-	if (pTemp->SelectWeightedSequence(ACT_VM_IDLE) == -1)
+	if ( pStatic )
 	{
-		pTemp->Remove();
+		int iType = pStatic->attach_to_hands;
 
-		if (vm)
-			vm->SetViewModelType(vm->VMTYPE_TF2);
+		CTFViewModel *vm = dynamic_cast<CTFViewModel *>( pPlayer->GetViewModel( m_nViewModelIndex ) );
+		if ( vm )
+			vm->SetViewModelType( iType );
 
-		return pPlayer->GetPlayerClass()->GetHandModelName();
+		if ( iType == VMTYPE_TF2 )
+			return pPlayer->GetPlayerClass()->GetHandModelName();
 	}
-	else if (pTemp->LookupAttachment("l4d") > 0)
-	{
-		pTemp->Remove();
-
-		if (vm)
-			vm->SetViewModelType(vm->VMTYPE_L4D);
-
-		return vModel;
-	}
-
-	pTemp->Remove();
-
-	if (vm)
-		vm->SetViewModelType(vm->VMTYPE_HL2);
 
 	return vModel;
 }
@@ -638,21 +510,57 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 // -----------------------------------------------------------------------------
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
-	if (TFGameRules() && TFGameRules()->IsDeathmatch())
-	{
-		if (GetTFWpnData().m_szViewModelDM[0] != '\0')
-			return DetermineViewModelType( GetTFWpnData().m_szViewModelDM );
-	}
+	const char *pszModelName = NULL;
 
-	if ( GetPlayerOwner() )
+	if ( HasItemDefinition() )
 	{
-		return DetermineViewModelType( GetTFWpnData().szViewModel );
+		pszModelName = m_Item.GetPlayerDisplayModel();
 	}
 	else
 	{
-		return BaseClass::GetViewModel();
+		pszModelName = BaseClass::GetViewModel( iViewModel );
 	}
+
+	return DetermineViewModelType( pszModelName );
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetWorldModel( void ) const
+{
+	// Use model from item schema if we have an item ID.
+	if ( HasItemDefinition() )
+	{
+		return m_Item.GetWorldDisplayModel();
+	}
+
+	return BaseClass::GetWorldModel();
+}
+
+#ifdef DM_WEAPON_BUCKET
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetSlot( void ) const
+{
+	if ( TFGameRules()->IsDeathmatch() )
+		return GetTFWpnData().m_iSlotDM;
+
+	return GetWpnData().iSlot;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetPosition( void ) const
+{
+	if ( TFGameRules()->IsDeathmatch() )
+		return GetTFWpnData().m_iPositionDM;
+
+	return GetWpnData().iPosition;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -711,30 +619,128 @@ bool CTFWeaponBase::Deploy( void )
 #endif
 
 	float flOriginalPrimaryAttack = m_flNextPrimaryAttack;
+	float flOriginalSecondaryAttack = m_flNextSecondaryAttack;
 
 	bool bDeploy = BaseClass::Deploy();
 
 	if ( bDeploy )
 	{
-		// Make sure viewmodel index is correct since deathmatch uses alt viewmodels.
-		// May also help custom weapons in the future.
-		m_iViewModelIndex = modelinfo->GetModelIndex( GetViewModel() );
+		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
+		if ( !pPlayer )
+			return false;
 
 		// Overrides the anim length for calculating ready time.
 		// Don't override primary attacks that are already further out than this. This prevents
 		// people exploiting weapon switches to allow weapons to fire faster.
-		float flDeployTime = 0.67;
-		m_flNextPrimaryAttack = max( flOriginalPrimaryAttack, gpGlobals->curtime + flDeployTime );
+		float flDeployTime = 0.5f;
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flDeployTime, mult_deploy_time );
+		CALL_ATTRIB_HOOK_FLOAT( flDeployTime, mult_single_wep_deploy_time );
 
-		CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
-		if (!pPlayer)
-			return false;
+		if ( pPlayer->GetLastWeapon() )
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer->GetLastWeapon(), flDeployTime, mult_switch_from_wep_deploy_time );
+
+		if ( pPlayer->m_Shared.InCond( TF_COND_BLASTJUMPING ) )
+			CALL_ATTRIB_HOOK_FLOAT( flDeployTime, mult_rocketjump_deploy_time );
+
+		if ( pPlayer->m_Shared.GetNumHealers() == 0 )
+			CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pPlayer, flDeployTime, mod_medic_healed_deploy_time );
+
+		m_flNextPrimaryAttack = max( flOriginalPrimaryAttack, gpGlobals->curtime + flDeployTime );
+		m_flNextSecondaryAttack = max( flOriginalSecondaryAttack, gpGlobals->curtime + flDeployTime );
+
 
 		pPlayer->SetNextAttack( m_flNextPrimaryAttack );
 	}
 
 	return bDeploy;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
+{
+	BaseClass::Equip( pOwner );
+	
+	// Add it to attribute providers list.
+	ReapplyProvision();
+
+	CTFPlayer *pTFOwner = GetTFPlayerOwner();
+	if ( pTFOwner )
+	{
+		pTFOwner->TeamFortress_SetSpeed();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFWeaponBase::IsViewModelFlipped( void )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner )
+	{
+		return ( m_bFlipViewModel != pOwner->ShouldFlipViewModel() );
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::ReapplyProvision( void )
+{
+	int iProvideOnActive = 0;
+	CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
+	if ( !iProvideOnActive || m_iState == WEAPON_IS_ACTIVE )
+	{
+		BaseClass::ReapplyProvision();
+	}
+	else
+	{
+		// Weapon not active, remove it from providers list.
+		GetAttributeContainer()->StopProvidingTo( GetOwner() );
+		m_hOldOwner = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::OnActiveStateChanged( int iOldState )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner )
+	{
+		int iProvideOnActive = 0;
+		CALL_ATTRIB_HOOK_INT( iProvideOnActive, provide_on_active );
+
+		// If set to only provide attributes while active, update the status now.
+		if ( iProvideOnActive )
+		{
+			ReapplyProvision();
+		}
+
+		// Weapon might be giving us speed boost when active.
+		pOwner->TeamFortress_SetSpeed();
+	}
+
+	BaseClass::OnActiveStateChanged( iOldState );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UpdateOnRemove( void )
+{
+	//RemoveExtraWearables();
+
+	BaseClass::UpdateOnRemove();
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -759,18 +765,7 @@ void CTFWeaponBase::PrimaryAttack( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBase::OnPickedUp(CBaseCombatCharacter *pNewOwner)
 {
-#ifdef GAME_DLL
-	CTFPlayer *pPlayer = ToTFPlayer(pNewOwner);
-	int iAmmoType = m_pWeaponInfo->iAmmoType;
-
-	if ( iAmmoType != -1 )
-	{
-		pPlayer->SetAmmoCount(1,iAmmoType);
-		pPlayer->GiveAmmo(pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType);
-	}
-#endif
-
-	BaseClass::OnPickedUp(pNewOwner);
+	BaseClass::OnPickedUp( pNewOwner );
 }
 
 
@@ -808,15 +803,8 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 		m_iCurrentSeed = iSeed;
 		RandomSeed( m_iCurrentSeed );
 	}
-	if ( ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN ) && ( TFGameRules()->GetWinningTeam() == pPlayer->GetTeamNumber() ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if ( pPlayer->m_Shared.InCond( TF_COND_CRITBOOSTED ) )
-	{
-		m_bCurrentAttackIsCrit = true;
-	}
-	else if  (pPlayer->m_Shared.InCond( TF_COND_POWERUP_CRITDAMAGE ) )
+
+	if ( pPlayer->m_Shared.IsCritBoosted() )
 	{
 		m_bCurrentAttackIsCrit = true;
 	}
@@ -836,14 +824,18 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 	if ( !pPlayer )
 		return false;
 
+	// Random crits are disabled in DM due to balancing reasons
+	if ( TFGameRules()->IsDeathmatch() )
+		return false;
+
 	// Don't bother checking if random crits are off.
 	if ( !tf_weapon_criticals.GetBool() )
 		return false;
 
-	float flPlayerCritMult = pPlayer->GetCritMult();
-
 	if ( !CanFireCriticalShot() )
 		return false;
+
+	float flPlayerCritMult = pPlayer->GetCritMult();
 
 	if ( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_bUseRapidFireCrits )
 	{
@@ -855,7 +847,14 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 		m_flLastCritCheckTime = gpGlobals->curtime;
 
 		// get the total crit chance (ratio of total shots fired we want to be crits)
-		float flTotalCritChance = clamp( TF_DAMAGE_CRIT_CHANCE_RAPID * flPlayerCritMult, 0.01f, 0.99f );
+		float flTotalCritChance = TF_DAMAGE_CRIT_CHANCE_RAPID * flPlayerCritMult;
+		CALL_ATTRIB_HOOK_FLOAT( flTotalCritChance, mult_crit_chance );
+
+		// If the chance is 0, just bail.
+		if ( flTotalCritChance == 0.0f )
+			return false;
+
+		flTotalCritChance = clamp( flTotalCritChance, 0.01f, 0.99f );
 		// get the fixed amount of time that we start firing crit shots for	
 		float flCritDuration = TF_DAMAGE_CRIT_DURATION_RAPID;
 		// calculate the amount of time, on average, that we want to NOT fire crit shots for in order to achive the total crit chance we want
@@ -876,8 +875,68 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 	else
 	{
 		// single-shot weapon, just use random pct per shot
-		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE-1 ) < ( TF_DAMAGE_CRIT_CHANCE * flPlayerCritMult ) * WEAPON_RANDOM_RANGE );
+		float flCritChance = TF_DAMAGE_CRIT_CHANCE * flPlayerCritMult;
+		CALL_ATTRIB_HOOK_FLOAT( flCritChance, mult_crit_chance );
+
+		// If the chance is 0, just bail.
+		if ( flCritChance == 0.0f )
+			return false;
+
+		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE-1 ) < flCritChance * WEAPON_RANDOM_RANGE );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetMaxClip1( void ) const
+{
+	int iMaxClip = CBaseCombatWeapon::GetMaxClip1();
+
+	float fMaxClipMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
+	fMaxClipMult *= iMaxClip;
+	if ( fMaxClipMult != 0 )
+		return fMaxClipMult;
+
+	return iMaxClip;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetDefaultClip1( void ) const
+{
+	int iDefaultClip = CBaseCombatWeapon::GetDefaultClip1();
+
+	float fDefaultClipMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
+	fDefaultClipMult *= iDefaultClip;
+	if ( fDefaultClipMult != 0 )
+		return fDefaultClipMult;
+
+	return iDefaultClip;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetMaxAmmo( void )
+{
+	return GetTFWpnData().m_iMaxAmmo;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int CTFWeaponBase::GetInitialAmmo( void )
+{
+	int iSpawnAmmo = 0;
+	CALL_ATTRIB_HOOK_INT( iSpawnAmmo, mod_spawn_ammo_override );
+	if ( iSpawnAmmo )
+		return iSpawnAmmo;
+
+	return GetTFWpnData().m_iSpawnAmmo;
 }
 
 //-----------------------------------------------------------------------------
@@ -902,7 +961,7 @@ bool CTFWeaponBase::Reload( void )
 	}
 
 	// Reload one object at a time.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 		return ReloadSingly();
 
 	// Normal reload.
@@ -918,9 +977,11 @@ void CTFWeaponBase::AbortReload( void )
 {
 	BaseClass::AbortReload();
 
-#ifndef CLIENT_DLL
-	StopWeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+	if ( !UsingViewModel() ) 
 #endif
+	StopWeaponSound( RELOAD );
+
 	m_iReloadMode.Set( TF_RELOAD_START );
 }
 
@@ -997,9 +1058,10 @@ bool CTFWeaponBase::ReloadSingly( void )
 				UpdateReloadTimers( false );
 			}
 
-#ifndef CLIENT_DLL
-			WeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+			if ( !UsingViewModel() )
 #endif
+			WeaponSound( RELOAD );
 
 			// Next continue to reload shells?
 			m_iReloadMode.Set( TF_RELOADING_CONTINUE );
@@ -1110,10 +1172,11 @@ bool CTFWeaponBase::DefaultReload( int iClipSize1, int iClipSize2, int iActivity
 	if ( !( bReloadPrimary || bReloadSecondary )  )
 		return false;
 
-#ifndef CLIENT_DLL
 	// Play reload
-	WeaponSound( RELOAD );
+#ifdef CLIENT_DLL
+	if ( !UsingViewModel() )
 #endif
+	WeaponSound( RELOAD );
 
 	// Play the player's reload animation
 	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
@@ -1168,7 +1231,18 @@ void CTFWeaponBase::SetReloadTimer( float flReloadTime )
 	if ( !pPlayer )
 		return;
 
-	float flTime = gpGlobals->curtime + flReloadTime;
+	float flModifiedTime = flReloadTime;
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, mult_reload_time );
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, mult_reload_time_hidden );
+	CALL_ATTRIB_HOOK_FLOAT( flModifiedTime, fast_reload );
+
+	CBaseViewModel *vm = pPlayer->GetViewModel( m_nViewModelIndex );
+	if ( vm )
+	{
+		vm->SetPlaybackRate( flReloadTime / flModifiedTime );
+	}
+
+	float flTime = gpGlobals->curtime + flModifiedTime;
 
 	// Set next player attack time (weapon independent).
 	pPlayer->m_flNextAttack = flTime;
@@ -1196,6 +1270,26 @@ bool CTFWeaponBase::PlayEmptySound()
 //	EmitSound( filter, entindex(), "Default.ClipEmpty_Rifle" );
 
 	return false;
+}
+
+// -----------------------------------------------------------------------------
+// Purpose: Returns override from item schema if there is one.
+// -----------------------------------------------------------------------------
+const char *CTFWeaponBase::GetShootSound( int iIndex ) const
+{
+	const char *pszSoundName = NULL;
+
+	if ( HasItemDefinition() )
+	{
+		pszSoundName = m_Item.GetSoundOverride( iIndex, GetTeamNumber() );
+	}
+
+	if ( !pszSoundName || pszSoundName[0] == '\0' )
+	{
+		pszSoundName = BaseClass::GetShootSound( iIndex );
+	}
+
+	return pszSoundName;
 }
 
 // -----------------------------------------------------------------------------
@@ -1246,10 +1340,9 @@ void CTFWeaponBase::ItemBusyFrame( void )
 	{
 		if ( pPlayer->m_nButtons & IN_ATTACK )
 		{
-			if ( ( !m_bReloadsSingly || m_iReloadMode != TF_RELOAD_START ) && Clip1() > 0 )
+			if ( ( ( ReloadsSingly() && m_iReloadMode != TF_RELOAD_START ) || m_bInReload ) && Clip1() > 0 )
 			{
-				m_iReloadMode.Set( TF_RELOAD_START );
-				m_bInReload = false;
+				AbortReload();
 
 				pPlayer->m_flNextAttack = gpGlobals->curtime;
 				m_flNextPrimaryAttack = gpGlobals->curtime;
@@ -1290,7 +1383,7 @@ void CTFWeaponBase::ItemPostFrame( void )
 	BaseClass::ItemPostFrame();
 
 	// Check for reload singly interrupts.
-	if ( m_bReloadsSingly )
+	if ( ReloadsSingly() )
 	{
 		ReloadSinglyPostFrame();
 	}
@@ -1457,13 +1550,50 @@ void CTFWeaponBase::WeaponIdle( void )
 		}
 		else if ( HasWeaponIdleTimeElapsed() ) 
 		{
-			if ( !( m_bReloadsSingly && m_iReloadMode != TF_RELOAD_START ) )
+			if ( !( ReloadsSingly() && m_iReloadMode != TF_RELOAD_START ) )
 			{
 				SendWeaponAnim( ACT_VM_IDLE );
 				m_flTimeWeaponIdle = gpGlobals->curtime + SequenceDuration();
 			}
 		}
 	}
+}
+
+ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
+int CTFWeaponBase::GetActivityWeaponRole( void )
+{
+	int iWeaponRole = GetTFWpnData().m_iWeaponType;
+
+	if ( HasItemDefinition() )
+	{
+		int iSchemaRole = m_Item.GetAnimationSlot();
+		if ( iSchemaRole >= 0 )
+			iWeaponRole = iSchemaRole;
+	}
+	
+	if ( mp_forceactivityset.GetInt() >= 0 )
+	{
+		iWeaponRole = mp_forceactivityset.GetInt();
+	}
+
+#ifdef CLIENT_DLL
+	// If we're disguised, we show a different weapon from what we're actually carrying.
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
+	{
+		CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
+		if ( pWeaponInfo )
+		{
+			iWeaponRole = pWeaponInfo->m_iWeaponType;
+		}
+	}
+#endif
+
+	return iWeaponRole;
 }
 
 // -----------------------------------------------------------------------------
@@ -1678,6 +1808,46 @@ const Vector &CTFWeaponBase::GetBulletSpread( void )
 	return cone;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
+void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageInfo &info )
+{
+	float flStunTime = 0.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flStunTime, mult_onhit_enemyspeed_major );
+	if ( flStunTime )
+	{
+		pVictim->m_Shared.AddCond( TF_COND_SLOWED, flStunTime );
+	}
+
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( !pOwner || !pOwner->IsAlive() )
+		return;
+
+	// Afterburn shouldn't trigger on-hit effects.
+	if ( !( info.GetDamageType() & DMG_BURN ) )
+	{
+		float flAddCharge = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT( flAddCharge, add_onhit_ubercharge );
+		if ( flAddCharge )
+		{
+			CWeaponMedigun *pMedigun = pOwner->GetMedigun();
+
+			if ( pMedigun )
+			{
+				pMedigun->AddCharge( flAddCharge );
+			}
+		}
+
+		float flAddHealth = 0.0f;
+		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
+		if ( flAddHealth )
+		{
+			pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+		}
+	}
+}
+
 #else
 
 void TE_DynamicLight( IRecipientFilter& filter, float delay,
@@ -1699,9 +1869,7 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 	const char *pszMuzzleFlashParticleEffect = GetMuzzleFlashParticleEffect();
 
 	// Pick the right muzzleflash (3rd / 1st person)
-	CTFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pLocalPlayer && (GetOwnerEntity() == pLocalPlayer || 
-		(pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE && pLocalPlayer->GetObserverTarget() == GetOwnerEntity())) )
+	if ( UsingViewModel() )
 	{
 		pszMuzzleFlashEffect = GetMuzzleFlashEffectName_1st();
 	}
@@ -1716,10 +1884,10 @@ void CTFWeaponBase::CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nInd
 		pAttachEnt->GetAttachment( iMuzzleFlashAttachment, vecOrigin, angAngles );
 
 		// Muzzleflash light
-		if (tf2c_muzzlelight.GetBool())
+		if ( tf2c_muzzlelight.GetBool() )
 		{
 			CLocalPlayerFilter filter;
-			TE_DynamicLight(filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH);
+			TE_DynamicLight( filter, 0.0f, &vecOrigin, 255, 192, 64, 5, 70.0f, 0.05f, 70.0f / 0.05f, LIGHT_INDEX_MUZZLEFLASH );
 		}
 		
 		if ( pszMuzzleFlashEffect )
@@ -1790,6 +1958,21 @@ int	CTFWeaponBase::InternalDrawModel( int flags )
 	return ret;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
+bool CTFWeaponBase::ShouldDraw( void )
+{
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		if ( pOwner->m_Shared.IsLoser() )
+			return false;
+	}
+
+	return BaseClass::ShouldDraw();
+}
+
 void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 {
 	C_BaseEntity *pAttachEnt;
@@ -1798,8 +1981,11 @@ void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 	if ( pOwner == NULL )
 		return;
 
-	bool bDrawMuzzleFlashOnViewModel = ( pOwner->IsLocalPlayer() && !C_BasePlayer::ShouldDrawLocalPlayer() ) ||
-		( IsLocalPlayerSpectator() && GetSpectatorMode() == OBS_MODE_IN_EYE && GetSpectatorTarget() == pOwner->entindex() );
+	bool bDrawMuzzleFlashOnViewModel = !pOwner->ShouldDrawThisPlayer();
+
+	// Don't draw muzzleflashes if the viewmodels are disabled
+	if ( bDrawMuzzleFlashOnViewModel && !r_drawviewmodel.GetBool() )
+		return;
 
 	if ( bDrawMuzzleFlashOnViewModel )
 	{
@@ -1886,13 +2072,14 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 
 	//Here we go...
 	//Since we can't get a repro for the invisible weapon thing, I'll fix it right up here:
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
 
 	//Our owner is alive
 	if ( pOwner && pOwner->IsAlive() == true )
 	{
 		//And he is NOT taunting
-		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false )
+		if ( pOwner->m_Shared.InCond ( TF_COND_TAUNTING ) == false &&
+			pOwner->m_Shared.IsLoser() == false )
 		{
 			//Then why the hell am I NODRAW?
 			if ( pOwner->GetActiveWeapon() == this && IsEffectActive( EF_NODRAW ) )
@@ -1953,7 +2140,7 @@ void CTFWeaponBase::Redraw()
 
 #endif
 
-acttable_t CTFWeaponBase::m_acttablePrimary[] = 
+acttable_t CTFWeaponBase::s_acttablePrimary[] = 
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_PRIMARY,				false },
 	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_PRIMARY,				false },
@@ -1967,17 +2154,16 @@ acttable_t CTFWeaponBase::m_acttablePrimary[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_PRIMARY,			false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_PRIMARY,			false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_PRIMARY,				false },
-	{ ACT_MP_DEPLOYED,			ACT_MP_DEPLOYED_PRIMARY,			false },
 	{ ACT_MP_SWIM_DEPLOYED,		ACT_MP_SWIM_DEPLOYED_PRIMARY,		false },
-	//{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_PRIMARY, false },
-	//{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_PRIMARY, false },
+	//{ ACT_MP_DEPLOYED,		ACT_MP_DEPLOYED_PRIMARY,			false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_PRIMARY,   false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_PRIMARY,	false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,				ACT_MP_ATTACK_STAND_PRIMARY,	false },
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE_DEPLOYED,		ACT_MP_ATTACK_STAND_PRIMARY_DEPLOYED, false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_PRIMARY,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,				ACT_MP_ATTACK_CROUCH_PRIMARY,	false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE_DEPLOYED,	ACT_MP_ATTACK_CROUCH_PRIMARY_DEPLOYED,	false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_PRIMARY,		false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_PRIMARY,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,				ACT_MP_ATTACK_SWIM_PRIMARY,		false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,			ACT_MP_ATTACK_AIRWALK_PRIMARY,	false },
 
 	{ ACT_MP_RELOAD_STAND,		ACT_MP_RELOAD_STAND_PRIMARY,		false },
 	{ ACT_MP_RELOAD_STAND_LOOP,	ACT_MP_RELOAD_STAND_PRIMARY_LOOP,	false },
@@ -1990,7 +2176,7 @@ acttable_t CTFWeaponBase::m_acttablePrimary[] =
 	{ ACT_MP_RELOAD_SWIM_END,	ACT_MP_RELOAD_SWIM_PRIMARY_END,		false },
 	{ ACT_MP_RELOAD_AIRWALK,	ACT_MP_RELOAD_AIRWALK_PRIMARY,		false },
 	{ ACT_MP_RELOAD_AIRWALK_LOOP,	ACT_MP_RELOAD_AIRWALK_PRIMARY_LOOP,	false },
-	{ ACT_MP_RELOAD_AIRWALK_END,ACT_MP_RELOAD_AIRWALK_PRIMARY_END,	false },
+	{ ACT_MP_RELOAD_AIRWALK_END,	ACT_MP_RELOAD_AIRWALK_PRIMARY_END,	false },
 
 	{ ACT_MP_GESTURE_FLINCH,	ACT_MP_GESTURE_FLINCH_PRIMARY, false },
 
@@ -2006,15 +2192,15 @@ acttable_t CTFWeaponBase::m_acttablePrimary[] =
 	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,	false },
 	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE,	false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_PRIMARY,	false },
 	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_PRIMARY,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_PRIMARY,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_PRIMARY,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_PRIMARY,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_PRIMARY,	false },
 };
 
-acttable_t CTFWeaponBase::m_acttableSecondary[] = 
+acttable_t CTFWeaponBase::s_acttableSecondary[] = 
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_SECONDARY,				false },
 	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_SECONDARY,			false },
@@ -2027,32 +2213,33 @@ acttable_t CTFWeaponBase::m_acttableSecondary[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_SECONDARY,		false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_SECONDARY,			false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_SECONDARY,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_SECONDARY, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_SECONDARY,		false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_SECONDARY,		false },
 	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_SECONDARY,		false },
 	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_SECONDARY,	false },
 
-	{ ACT_MP_RELOAD_STAND,		ACT_MP_RELOAD_STAND_SECONDARY,		false },
-	{ ACT_MP_RELOAD_STAND_LOOP,	ACT_MP_RELOAD_STAND_SECONDARY_LOOP,	false },
-	{ ACT_MP_RELOAD_STAND_END,	ACT_MP_RELOAD_STAND_SECONDARY_END,	false },
-	{ ACT_MP_RELOAD_CROUCH,		ACT_MP_RELOAD_CROUCH_SECONDARY,		false },
-	{ ACT_MP_RELOAD_CROUCH_LOOP,ACT_MP_RELOAD_CROUCH_SECONDARY_LOOP,false },
-	{ ACT_MP_RELOAD_CROUCH_END,	ACT_MP_RELOAD_CROUCH_SECONDARY_END,	false },
-	{ ACT_MP_RELOAD_SWIM,		ACT_MP_RELOAD_SWIM_SECONDARY,		false },
-	{ ACT_MP_RELOAD_SWIM_LOOP,	ACT_MP_RELOAD_SWIM_SECONDARY_LOOP,	false },
-	{ ACT_MP_RELOAD_SWIM_END,	ACT_MP_RELOAD_SWIM_SECONDARY_END,	false },
-	{ ACT_MP_RELOAD_AIRWALK,	ACT_MP_RELOAD_AIRWALK_SECONDARY,	false },
+	{ ACT_MP_RELOAD_STAND,			ACT_MP_RELOAD_STAND_SECONDARY,			false },
+	{ ACT_MP_RELOAD_STAND_LOOP,		ACT_MP_RELOAD_STAND_SECONDARY_LOOP,		false },
+	{ ACT_MP_RELOAD_STAND_END,		ACT_MP_RELOAD_STAND_SECONDARY_END,		false },
+	{ ACT_MP_RELOAD_CROUCH,			ACT_MP_RELOAD_CROUCH_SECONDARY,			false },
+	{ ACT_MP_RELOAD_CROUCH_LOOP,	ACT_MP_RELOAD_CROUCH_SECONDARY_LOOP,	false },
+	{ ACT_MP_RELOAD_CROUCH_END,		ACT_MP_RELOAD_CROUCH_SECONDARY_END,		false },
+	{ ACT_MP_RELOAD_SWIM,			ACT_MP_RELOAD_SWIM_SECONDARY,			false },
+	{ ACT_MP_RELOAD_SWIM_LOOP,		ACT_MP_RELOAD_SWIM_SECONDARY_LOOP,		false },
+	{ ACT_MP_RELOAD_SWIM_END,		ACT_MP_RELOAD_SWIM_SECONDARY_END,		false },
+	{ ACT_MP_RELOAD_AIRWALK,		ACT_MP_RELOAD_AIRWALK_SECONDARY,		false },
 	{ ACT_MP_RELOAD_AIRWALK_LOOP,	ACT_MP_RELOAD_AIRWALK_SECONDARY_LOOP,	false },
-	{ ACT_MP_RELOAD_AIRWALK_END,ACT_MP_RELOAD_AIRWALK_SECONDARY_END,false },
+	{ ACT_MP_RELOAD_AIRWALK_END,	ACT_MP_RELOAD_AIRWALK_SECONDARY_END,	false },
 
 	{ ACT_MP_GESTURE_FLINCH,	ACT_MP_GESTURE_FLINCH_SECONDARY, false },
 
-	{ ACT_MP_GRENADE1_DRAW,		ACT_MP_SECONDARY_GRENADE1_DRAW,	false },
-	{ ACT_MP_GRENADE1_IDLE,		ACT_MP_SECONDARY_GRENADE1_IDLE,	false },
+	{ ACT_MP_GRENADE1_DRAW,		ACT_MP_SECONDARY_GRENADE1_DRAW,		false },
+	{ ACT_MP_GRENADE1_IDLE,		ACT_MP_SECONDARY_GRENADE1_IDLE,		false },
 	{ ACT_MP_GRENADE1_ATTACK,	ACT_MP_SECONDARY_GRENADE1_ATTACK,	false },
-	{ ACT_MP_GRENADE2_DRAW,		ACT_MP_SECONDARY_GRENADE2_DRAW,	false },
-	{ ACT_MP_GRENADE2_IDLE,		ACT_MP_SECONDARY_GRENADE2_IDLE,	false },
+	{ ACT_MP_GRENADE2_DRAW,		ACT_MP_SECONDARY_GRENADE2_DRAW,		false },
+	{ ACT_MP_GRENADE2_IDLE,		ACT_MP_SECONDARY_GRENADE2_IDLE,		false },
 	{ ACT_MP_GRENADE2_ATTACK,	ACT_MP_SECONDARY_GRENADE2_ATTACK,	false },
 
 	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,	false },
@@ -2060,15 +2247,15 @@ acttable_t CTFWeaponBase::m_acttableSecondary[] =
 	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,	false },
 	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE,	false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_SECONDARY,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_SECONDARY,		false },
 	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_SECONDARY,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_SECONDARY,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_SECONDARY,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_SECONDARY,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_SECONDARY,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_SECONDARY,		false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_SECONDARY,		false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_SECONDARY,			false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_SECONDARY,			false },
 };
 
-acttable_t CTFWeaponBase::m_acttableMelee[] = 
+acttable_t CTFWeaponBase::s_acttableMelee[] = 
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_MELEE,				false },
 	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_MELEE,			false },
@@ -2081,6 +2268,7 @@ acttable_t CTFWeaponBase::m_acttableMelee[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_MELEE,		false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_MELEE,			false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_MELEE,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_MELEE, false },
 
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_MELEE,		false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_MELEE,		false },
@@ -2092,56 +2280,57 @@ acttable_t CTFWeaponBase::m_acttableMelee[] =
 	{ ACT_MP_ATTACK_SWIM_SECONDARYFIRE,		ACT_MP_ATTACK_SWIM_MELEE,		false },
 	{ ACT_MP_ATTACK_AIRWALK_SECONDARYFIRE,	ACT_MP_ATTACK_AIRWALK_MELEE,	false },
 
-	{ ACT_MP_GESTURE_FLINCH,	ACT_MP_GESTURE_FLINCH_MELEE, false },
+	{ ACT_MP_GESTURE_FLINCH,	ACT_MP_GESTURE_FLINCH_MELEE,	false },
 
-	{ ACT_MP_GRENADE1_DRAW,		ACT_MP_MELEE_GRENADE1_DRAW,	false },
-	{ ACT_MP_GRENADE1_IDLE,		ACT_MP_MELEE_GRENADE1_IDLE,	false },
+	{ ACT_MP_GRENADE1_DRAW,		ACT_MP_MELEE_GRENADE1_DRAW,		false },
+	{ ACT_MP_GRENADE1_IDLE,		ACT_MP_MELEE_GRENADE1_IDLE,		false },
 	{ ACT_MP_GRENADE1_ATTACK,	ACT_MP_MELEE_GRENADE1_ATTACK,	false },
-	{ ACT_MP_GRENADE2_DRAW,		ACT_MP_MELEE_GRENADE2_DRAW,	false },
-	{ ACT_MP_GRENADE2_IDLE,		ACT_MP_MELEE_GRENADE2_IDLE,	false },
+	{ ACT_MP_GRENADE2_DRAW,		ACT_MP_MELEE_GRENADE2_DRAW,		false },
+	{ ACT_MP_GRENADE2_IDLE,		ACT_MP_MELEE_GRENADE2_IDLE,		false },
 	{ ACT_MP_GRENADE2_ATTACK,	ACT_MP_MELEE_GRENADE2_ATTACK,	false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_MELEE,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_MELEE,		false },
 	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_MELEE,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_MELEE,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_MELEE,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_MELEE,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_MELEE,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_MELEE,	false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_MELEE,	false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_MELEE,		false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_MELEE,		false },
 };
 
-acttable_t CTFWeaponBase::m_acttableBuilding[] = 
+acttable_t CTFWeaponBase::s_acttableBuilding[] =
 {
-	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_BUILDING,			false },
-	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_BUILDING,			false },
-	{ ACT_MP_RUN,				ACT_MP_RUN_BUILDING,			false },
-	{ ACT_MP_WALK,				ACT_MP_WALK_BUILDING,			false },
-	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_BUILDING,		false },
-	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_BUILDING,		false },
-	{ ACT_MP_JUMP,				ACT_MP_JUMP_BUILDING,			false },
-	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_BUILDING,		false },
-	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_BUILDING,		false },
-	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_BUILDING,		false },
-	{ ACT_MP_SWIM,				ACT_MP_SWIM_BUILDING,			false },
+	{ ACT_MP_STAND_IDLE,	ACT_MP_STAND_BUILDING,		false },
+	{ ACT_MP_CROUCH_IDLE,	ACT_MP_CROUCH_BUILDING,		false },
+	{ ACT_MP_RUN,			ACT_MP_RUN_BUILDING,		false },
+	{ ACT_MP_WALK,			ACT_MP_WALK_BUILDING,		false },
+	{ ACT_MP_AIRWALK,		ACT_MP_AIRWALK_BUILDING,	false },
+	{ ACT_MP_CROUCHWALK,	ACT_MP_CROUCHWALK_BUILDING, false },
+	{ ACT_MP_JUMP,			ACT_MP_JUMP_BUILDING,		false },
+	{ ACT_MP_JUMP_START,	ACT_MP_JUMP_START_BUILDING, false },
+	{ ACT_MP_JUMP_FLOAT,	ACT_MP_JUMP_FLOAT_BUILDING, false },
+	{ ACT_MP_JUMP_LAND,		ACT_MP_JUMP_LAND_BUILDING,	false },
+	{ ACT_MP_SWIM,			ACT_MP_SWIM_BUILDING,		false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_BUILDING,		false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_BUILDING,		false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_BUILDING,		false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_BUILDING,	false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_BUILDING,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_BUILDING,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_BUILDING,	false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_BUILDING, false },
 
-	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
-	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE_BUILDING,	false },
+	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE_BUILDING, false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_BUILDING,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_BUILDING,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_BUILDING,	false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_BUILDING, false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_BUILDING,	false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_BUILDING,	false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_BUILDING,		false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_BUILDING,		false },
 };
 
-acttable_t CTFWeaponBase::m_acttablePDA[] = 
+
+acttable_t CTFWeaponBase::s_acttablePDA[] = 
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_PDA,			false },
 	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_PDA,			false },
@@ -2155,18 +2344,18 @@ acttable_t CTFWeaponBase::m_acttablePDA[] =
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_PDA,		false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_PDA,			false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_PDA, false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_PDA, false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_MP_ATTACK_STAND_PDA,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,	ACT_MP_ATTACK_SWIM_PDA,		false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH,	ACT_MP_GESTURE_VC_HANDMOUTH_PDA,	false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_PDA,	false },
 	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_PDA,	false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP,	ACT_MP_GESTURE_VC_FISTPUMP_PDA,	false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP,	ACT_MP_GESTURE_VC_THUMBSUP_PDA,	false },
-	{ ACT_MP_GESTURE_VC_NODYES,	ACT_MP_GESTURE_VC_NODYES_PDA,	false },
-	{ ACT_MP_GESTURE_VC_NODNO,	ACT_MP_GESTURE_VC_NODNO_PDA,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_PDA,	false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_PDA,	false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_PDA,	false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_PDA,	false },
 };
 
-acttable_t CTFWeaponBase::m_acttableItem1[] =
+acttable_t CTFWeaponBase::s_acttableItem1[] =
 {
 	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_ITEM1,			false },
 	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_ITEM1,		false },
@@ -2179,134 +2368,418 @@ acttable_t CTFWeaponBase::m_acttableItem1[] =
 	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_ITEM1,	false },
 	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_ITEM1,		false },
 	{ ACT_MP_SWIM,				ACT_MP_SWIM_ITEM1,			false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_ITEM1, false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_ITEM1, false },
-	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE, ACT_MP_ATTACK_STAND_ITEM1_SECONDARY, false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_ITEM1, false },
-	{ ACT_MP_ATTACK_CROUCH_SECONDARYFIRE, ACT_MP_ATTACK_CROUCH_ITEM1_SECONDARY, false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_ITEM1, false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE, ACT_MP_ATTACK_AIRWALK_ITEM1, false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_ITEM1,				false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_ITEM1,				false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_ITEM1,				false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_ITEM1,			false },
+	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE,	ACT_MP_ATTACK_STAND_ITEM1_SECONDARY,	false },
+	{ ACT_MP_ATTACK_CROUCH_SECONDARYFIRE,	ACT_MP_ATTACK_CROUCH_ITEM1_SECONDARY,	false },
+	{ ACT_MP_ATTACK_SWIM_SECONDARYFIRE,		ACT_MP_ATTACK_SWIM_ITEM1,				false },
+	{ ACT_MP_ATTACK_AIRWALK_SECONDARYFIRE,	ACT_MP_ATTACK_AIRWALK_ITEM1,			false },
 
-	{ ACT_MP_DEPLOYED,			ACT_MP_DEPLOYED_ITEM1, false },
-	{ ACT_MP_DEPLOYED_IDLE,		ACT_MP_DEPLOYED_IDLE_ITEM1, false },
-	{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_ITEM1, false },
-	{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_ITEM1, false },
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE_DEPLOYED, ACT_MP_ATTACK_STAND_PRIMARY_DEPLOYED_ITEM1, false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE_DEPLOYED, ACT_MP_ATTACK_CROUCH_PRIMARY_DEPLOYED_ITEM1, false },
+	{ ACT_MP_DEPLOYED,				ACT_MP_DEPLOYED_ITEM1,				false },
+	{ ACT_MP_DEPLOYED_IDLE,			ACT_MP_DEPLOYED_IDLE_ITEM1,			false },
+	{ ACT_MP_CROUCH_DEPLOYED,		ACT_MP_CROUCHWALK_DEPLOYED_ITEM1,	false },
+	{ ACT_MP_CROUCH_DEPLOYED_IDLE,	ACT_MP_CROUCH_DEPLOYED_IDLE_ITEM1,	false },
 
-	{ ACT_MP_GESTURE_FLINCH, ACT_MP_GESTURE_FLINCH_ITEM1, false },
+	{ ACT_MP_GESTURE_FLINCH,		ACT_MP_GESTURE_FLINCH_ITEM1,		false },
 
-	{ ACT_MP_GRENADE1_DRAW, ACT_MP_ITEM1_GRENADE1_DRAW, false },
-	{ ACT_MP_GRENADE1_IDLE, ACT_MP_ITEM1_GRENADE1_IDLE, false },
-	{ ACT_MP_GRENADE1_ATTACK, ACT_MP_ITEM1_GRENADE1_ATTACK, false },
-	{ ACT_MP_GRENADE2_DRAW, ACT_MP_ITEM1_GRENADE2_DRAW, false },
-	{ ACT_MP_GRENADE2_IDLE, ACT_MP_ITEM1_GRENADE2_IDLE, false },
-	{ ACT_MP_GRENADE2_ATTACK, ACT_MP_ITEM1_GRENADE2_ATTACK, false },
+	{ ACT_MP_GRENADE1_DRAW,			ACT_MP_ITEM1_GRENADE1_DRAW,		false },
+	{ ACT_MP_GRENADE1_IDLE,			ACT_MP_ITEM1_GRENADE1_IDLE,		false },
+	{ ACT_MP_GRENADE1_ATTACK,		ACT_MP_ITEM1_GRENADE1_ATTACK,	false },
+	{ ACT_MP_GRENADE2_DRAW,			ACT_MP_ITEM1_GRENADE2_DRAW,		false },
+	{ ACT_MP_GRENADE2_IDLE,			ACT_MP_ITEM1_GRENADE2_IDLE,		false },
+	{ ACT_MP_GRENADE2_ATTACK,		ACT_MP_ITEM1_GRENADE2_ATTACK,	false },
 
-	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-
-	{ ACT_MP_GESTURE_VC_HANDMOUTH, ACT_MP_GESTURE_VC_HANDMOUTH_ITEM1, false },
-	{ ACT_MP_GESTURE_VC_FINGERPOINT, ACT_MP_GESTURE_VC_FINGERPOINT_ITEM1, false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP, ACT_MP_GESTURE_VC_FISTPUMP_ITEM1, false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP, ACT_MP_GESTURE_VC_THUMBSUP_ITEM1, false },
-	{ ACT_MP_GESTURE_VC_NODYES, ACT_MP_GESTURE_VC_NODYES_ITEM1, false },
-	{ ACT_MP_GESTURE_VC_NODNO, ACT_MP_GESTURE_VC_NODNO_ITEM1, false },
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_ITEM1,	false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_ITEM1,false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_ITEM1,	false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_ITEM1,	false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_ITEM1,		false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_ITEM1,		false },
 };
 
-acttable_t CTFWeaponBase::m_acttableItem2[] =
+acttable_t CTFWeaponBase::s_acttableItem2[] =
 {
-	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_ITEM2, false },
-	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_ITEM2, false },
-	{ ACT_MP_RUN, ACT_MP_RUN_ITEM2, false },
-	{ ACT_MP_WALK, ACT_MP_WALK_ITEM2, false },
-	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_ITEM2, false },
-	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_ITEM2, false },
-	{ ACT_MP_JUMP,	ACT_MP_JUMP_ITEM2, false },
-	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_ITEM2, false },
-	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_ITEM2, false },
-	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_ITEM2, false },
-	{ ACT_MP_SWIM, ACT_MP_SWIM_ITEM2, false },
+	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_ITEM2,				false },
+	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_ITEM2,			false },
+	{ ACT_MP_RUN,				ACT_MP_RUN_ITEM2,				false },
+	{ ACT_MP_WALK,				ACT_MP_WALK_ITEM2,				false },
+	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_ITEM2,			false },
+	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_ITEM2,		false },
+	{ ACT_MP_JUMP,				ACT_MP_JUMP_ITEM2,				false },
+	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_ITEM2,		false },
+	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_ITEM2,		false },
+	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_ITEM2,			false },
+	{ ACT_MP_SWIM,				ACT_MP_SWIM_ITEM2,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_ITEM2, false },
 
-	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_ITEM2, false },
-	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE, ACT_MP_ATTACK_STAND_ITEM2_SECONDARY, false },
-	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_ITEM2, false },
-	{ ACT_MP_ATTACK_CROUCH_SECONDARYFIRE, ACT_MP_ATTACK_CROUCH_ITEM2_SECONDARY, false },
-	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE, ACT_MP_ATTACK_SWIM_ITEM2, false },
-	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE, ACT_MP_ATTACK_AIRWALK_ITEM2, false },
+	{ ACT_MP_RELOAD_STAND,		ACT_MP_RELOAD_STAND_ITEM2,		false },
+	{ ACT_MP_RELOAD_CROUCH,		ACT_MP_RELOAD_CROUCH_ITEM2,		false },
+	{ ACT_MP_RELOAD_SWIM,		ACT_MP_RELOAD_SWIM_ITEM2,		false },
+	{ ACT_MP_RELOAD_AIRWALK,	ACT_MP_RELOAD_AIRWALK_ITEM2,	false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_ITEM2,		false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_ITEM2,		false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_ITEM2,		false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_ITEM2,	false },
 
-	{ ACT_MP_DEPLOYED, ACT_MP_DEPLOYED_ITEM2, false },
-	{ ACT_MP_DEPLOYED_IDLE, ACT_MP_DEPLOYED_IDLE_ITEM2, false },
-	{ ACT_MP_CROUCHWALK_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED_ITEM2, false },
-	{ ACT_MP_CROUCH_DEPLOYED_IDLE, ACT_MP_CROUCH_DEPLOYED_IDLE_ITEM2, false },
+	{ ACT_MP_DEPLOYED,				ACT_MP_DEPLOYED_ITEM2,				false },
+	{ ACT_MP_DEPLOYED_IDLE,			ACT_MP_DEPLOYED_IDLE_ITEM2,			false },
+	{ ACT_MP_CROUCH_DEPLOYED,		ACT_MP_CROUCHWALK_DEPLOYED_ITEM2,	false },
+	{ ACT_MP_CROUCH_DEPLOYED_IDLE,	ACT_MP_CROUCH_DEPLOYED_IDLE_ITEM2,	false },
+
+	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE,	ACT_MP_ATTACK_STAND_ITEM2_SECONDARY,	false },
+	{ ACT_MP_ATTACK_CROUCH_SECONDARYFIRE,	ACT_MP_ATTACK_CROUCH_ITEM2_SECONDARY,	false },
+	{ ACT_MP_ATTACK_SWIM_SECONDARYFIRE,		ACT_MP_ATTACK_SWIM_ITEM2,				false },
+	{ ACT_MP_ATTACK_AIRWALK_SECONDARYFIRE,	ACT_MP_ATTACK_AIRWALK_ITEM2,			false },
+
+	{ ACT_MP_GESTURE_FLINCH,		ACT_MP_GESTURE_FLINCH_ITEM2,		false },
+
+	{ ACT_MP_GRENADE1_DRAW,			ACT_MP_ITEM2_GRENADE1_DRAW,		false },
+	{ ACT_MP_GRENADE1_IDLE,			ACT_MP_ITEM2_GRENADE1_IDLE,		false },
+	{ ACT_MP_GRENADE1_ATTACK,		ACT_MP_ITEM2_GRENADE1_ATTACK,	false },
+	{ ACT_MP_GRENADE2_DRAW,			ACT_MP_ITEM2_GRENADE2_DRAW,		false },
+	{ ACT_MP_GRENADE2_IDLE,			ACT_MP_ITEM2_GRENADE2_IDLE,		false },
+	{ ACT_MP_GRENADE2_ATTACK,		ACT_MP_ITEM2_GRENADE2_ATTACK,	false },
+
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_ITEM2,		false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_ITEM2,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_ITEM2,		false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_ITEM2,		false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_ITEM2,			false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_ITEM2,			false },
+
+
+	{ ACT_MP_RELOAD_STAND_LOOP,		ACT_MP_RELOAD_STAND_ITEM2_LOOP,		false },
+	{ ACT_MP_RELOAD_STAND_END,		ACT_MP_RELOAD_STAND_ITEM2_END,		false },
+	{ ACT_MP_RELOAD_CROUCH_LOOP,	ACT_MP_RELOAD_CROUCH_ITEM2_LOOP,	false },
+	{ ACT_MP_RELOAD_CROUCH_END,		ACT_MP_RELOAD_CROUCH_ITEM2_END,		false },
+	{ ACT_MP_RELOAD_SWIM_LOOP,		ACT_MP_RELOAD_SWIM_ITEM2_LOOP,		false },
+	{ ACT_MP_RELOAD_SWIM_END,		ACT_MP_RELOAD_SWIM_ITEM2_END,		false },
+	{ ACT_MP_RELOAD_AIRWALK_LOOP,	ACT_MP_RELOAD_AIRWALK_ITEM2_LOOP,	false },
+	{ ACT_MP_RELOAD_AIRWALK_END,	ACT_MP_RELOAD_AIRWALK_ITEM2_END,	false },
+
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE_DEPLOYED, ACT_MP_ATTACK_STAND_PRIMARY_DEPLOYED_ITEM2, false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE_DEPLOYED, ACT_MP_ATTACK_CROUCH_PRIMARY_DEPLOYED_ITEM2, false },
-
-	{ ACT_MP_RELOAD_STAND, ACT_MP_RELOAD_STAND_ITEM2, false },
-	{ ACT_MP_RELOAD_STAND_LOOP, ACT_MP_RELOAD_STAND_ITEM2_LOOP, false },
-	{ ACT_MP_RELOAD_STAND_END, ACT_MP_RELOAD_STAND_ITEM2_END, false },
-	{ ACT_MP_RELOAD_CROUCH, ACT_MP_RELOAD_CROUCH_ITEM2, false },
-	{ ACT_MP_RELOAD_CROUCH_LOOP, ACT_MP_RELOAD_CROUCH_ITEM2_LOOP, false },
-	{ ACT_MP_RELOAD_CROUCH_END, ACT_MP_RELOAD_CROUCH_ITEM2_END, false },
-	{ ACT_MP_RELOAD_SWIM, ACT_MP_RELOAD_SWIM_ITEM2, false },
-	{ ACT_MP_RELOAD_SWIM_LOOP, ACT_MP_RELOAD_SWIM_ITEM2_LOOP, false },
-	{ ACT_MP_RELOAD_SWIM_END, ACT_MP_RELOAD_SWIM_ITEM2_END, false },
-	{ ACT_MP_RELOAD_AIRWALK, ACT_MP_RELOAD_AIRWALK_ITEM2, false },
-	{ ACT_MP_RELOAD_AIRWALK_LOOP, ACT_MP_RELOAD_AIRWALK_ITEM2_LOOP, false },
-	{ ACT_MP_RELOAD_AIRWALK_END, ACT_MP_RELOAD_AIRWALK_ITEM2_END, false },
-
-	{ ACT_MP_GESTURE_FLINCH, ACT_MP_GESTURE_FLINCH_ITEM2, false },
-
-	{ ACT_MP_GRENADE1_DRAW, ACT_MP_ITEM2_GRENADE1_DRAW, false },
-	{ ACT_MP_GRENADE1_IDLE, ACT_MP_ITEM2_GRENADE1_IDLE, false },
-	{ ACT_MP_GRENADE1_ATTACK, ACT_MP_ITEM2_GRENADE1_ATTACK, false },
-	{ ACT_MP_GRENADE2_DRAW, ACT_MP_ITEM2_GRENADE2_DRAW, false },
-	{ ACT_MP_GRENADE2_IDLE, ACT_MP_ITEM2_GRENADE2_IDLE, false },
-	{ ACT_MP_GRENADE2_ATTACK, ACT_MP_ITEM2_GRENADE2_ATTACK, false },
-
-	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
-	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_STAND_GRENADE, false },
 
 	{ ACT_MP_ATTACK_STAND_GRENADE, ACT_MP_ATTACK_STAND_GRENADE_ITEM2, false },
 	{ ACT_MP_ATTACK_CROUCH_GRENADE, ACT_MP_ATTACK_CROUCH_GRENADE_ITEM2, false },
 	{ ACT_MP_ATTACK_SWIM_GRENADE, ACT_MP_ATTACK_SWIM_GRENADE_ITEM2, false },
 	{ ACT_MP_ATTACK_AIRWALK_GRENADE, ACT_MP_ATTACK_AIRWALK_GRENADE_ITEM2, false },
 
-	{ ACT_MP_GESTURE_VC_HANDMOUTH, ACT_MP_GESTURE_VC_HANDMOUTH_ITEM2, false },
-	{ ACT_MP_GESTURE_VC_FINGERPOINT, ACT_MP_GESTURE_VC_FINGERPOINT_ITEM2, false },
-	{ ACT_MP_GESTURE_VC_FISTPUMP, ACT_MP_GESTURE_VC_FISTPUMP_ITEM2, false },
-	{ ACT_MP_GESTURE_VC_THUMBSUP, ACT_MP_GESTURE_VC_THUMBSUP_ITEM2, false },
-	{ ACT_MP_GESTURE_VC_NODYES, ACT_MP_GESTURE_VC_NODYES_ITEM2, false },
-	{ ACT_MP_GESTURE_VC_NODNO, ACT_MP_GESTURE_VC_NODNO_ITEM2, false },
 };
 
-ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
+acttable_t CTFWeaponBase::s_acttableMeleeAllClass[] = 
+{
+	{ ACT_MP_STAND_IDLE,		ACT_MP_STAND_MELEE_ALLCLASS,	false },
+	{ ACT_MP_CROUCH_IDLE,		ACT_MP_CROUCH_MELEE_ALLCLASS,	false },
+	{ ACT_MP_RUN,				ACT_MP_RUN_MELEE_ALLCLASS,		false },
+	{ ACT_MP_WALK,				ACT_MP_WALK_MELEE_ALLCLASS,				false },
+	{ ACT_MP_AIRWALK,			ACT_MP_AIRWALK_MELEE_ALLCLASS,			false },
+	{ ACT_MP_CROUCHWALK,		ACT_MP_CROUCHWALK_MELEE_ALLCLASS,		false },
+	{ ACT_MP_JUMP,				ACT_MP_JUMP_MELEE_ALLCLASS,				false },
+	{ ACT_MP_JUMP_START,		ACT_MP_JUMP_START_MELEE_ALLCLASS,		false },
+	{ ACT_MP_JUMP_FLOAT,		ACT_MP_JUMP_FLOAT_MELEE_ALLCLASS,		false },
+	{ ACT_MP_JUMP_LAND,			ACT_MP_JUMP_LAND_MELEE_ALLCLASS,		false },
+	{ ACT_MP_SWIM,				ACT_MP_SWIM_MELEE_ALLCLASS,				false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH, ACT_MP_DOUBLEJUMP_CROUCH_MELEE,			false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_MELEE_ALLCLASS,		false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_MELEE_ALLCLASS,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_MELEE_ALLCLASS,		false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_MELEE_ALLCLASS,	false },
+
+	{ ACT_MP_ATTACK_STAND_SECONDARYFIRE,	ACT_MP_ATTACK_STAND_MELEE_SECONDARY_ALLCLASS,	false },
+	{ ACT_MP_ATTACK_CROUCH_SECONDARYFIRE,	ACT_MP_ATTACK_CROUCH_MELEE_SECONDARY_ALLCLASS,	false },
+	{ ACT_MP_ATTACK_SWIM_SECONDARYFIRE,		ACT_MP_ATTACK_SWIM_MELEE_ALLCLASS,				false },
+	{ ACT_MP_ATTACK_AIRWALK_SECONDARYFIRE,	ACT_MP_ATTACK_AIRWALK_MELEE_ALLCLASS,			false },
+
+	{ ACT_MP_GESTURE_FLINCH,	ACT_MP_GESTURE_FLINCH_MELEE,	false },
+
+	{ ACT_MP_GRENADE1_DRAW,		ACT_MP_MELEE_GRENADE1_DRAW,		false },
+	{ ACT_MP_GRENADE1_IDLE,		ACT_MP_MELEE_GRENADE1_IDLE,		false },
+	{ ACT_MP_GRENADE1_ATTACK,	ACT_MP_MELEE_GRENADE1_ATTACK,	false },
+	{ ACT_MP_GRENADE2_DRAW,		ACT_MP_MELEE_GRENADE2_DRAW,		false },
+	{ ACT_MP_GRENADE2_IDLE,		ACT_MP_MELEE_GRENADE2_IDLE,		false },
+	{ ACT_MP_GRENADE2_ATTACK,	ACT_MP_MELEE_GRENADE2_ATTACK,	false },
+
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_MELEE,		false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_MELEE,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_MELEE,		false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_MELEE,		false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_MELEE,			false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_MELEE,			false },
+};
+
+acttable_t CTFWeaponBase::s_acttableSecondary2[] =
+{
+	{ ACT_MP_STAND_IDLE,	ACT_MP_STAND_SECONDARY2, false },
+	{ ACT_MP_CROUCH_IDLE,	ACT_MP_CROUCH_SECONDARY2, false },
+	{ ACT_MP_RUN,			ACT_MP_RUN_SECONDARY2, false },
+	{ ACT_MP_WALK,			ACT_MP_WALK_SECONDARY2, false },
+	{ ACT_MP_AIRWALK,		ACT_MP_AIRWALK_SECONDARY2, false },
+	{ ACT_MP_CROUCHWALK,	ACT_MP_CROUCHWALK_SECONDARY2, false },
+	{ ACT_MP_JUMP,			ACT_MP_JUMP_SECONDARY2, false },
+	{ ACT_MP_JUMP_START,	ACT_MP_JUMP_START_SECONDARY2, false },
+	{ ACT_MP_JUMP_FLOAT,	ACT_MP_JUMP_FLOAT_SECONDARY2, false },
+	{ ACT_MP_JUMP_LAND,		ACT_MP_JUMP_LAND_SECONDARY2, false },
+	{ ACT_MP_SWIM,			ACT_MP_SWIM_SECONDARY2, false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_SECONDARY2,		false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_SECONDARY2,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_SECONDARY2,		false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_SECONDARY2,	false },
+
+	{ ACT_MP_RELOAD_STAND,			ACT_MP_RELOAD_STAND_SECONDARY2,			false },
+	{ ACT_MP_RELOAD_STAND_LOOP,		ACT_MP_RELOAD_STAND_SECONDARY2_LOOP,	false },
+	{ ACT_MP_RELOAD_STAND_END,		ACT_MP_RELOAD_STAND_SECONDARY2_END,		false },
+	{ ACT_MP_RELOAD_CROUCH,			ACT_MP_RELOAD_CROUCH_SECONDARY2,		false },
+	{ ACT_MP_RELOAD_CROUCH_LOOP,		ACT_MP_RELOAD_CROUCH_SECONDARY2_LOOP,	false },
+	{ ACT_MP_RELOAD_CROUCH_END,			ACT_MP_RELOAD_CROUCH_SECONDARY2_END,	false },
+	{ ACT_MP_RELOAD_SWIM,				ACT_MP_RELOAD_SWIM_SECONDARY2,			false },
+	{ ACT_MP_RELOAD_SWIM_LOOP,			ACT_MP_RELOAD_SWIM_SECONDARY2_LOOP,		false },
+	{ ACT_MP_RELOAD_SWIM_END,			ACT_MP_RELOAD_SWIM_SECONDARY2_END,		false },
+	{ ACT_MP_RELOAD_AIRWALK,			ACT_MP_RELOAD_AIRWALK_SECONDARY2,		false },
+	{ ACT_MP_RELOAD_AIRWALK_LOOP,		ACT_MP_RELOAD_AIRWALK_SECONDARY2_LOOP,	false },
+	{ ACT_MP_RELOAD_AIRWALK_END,		ACT_MP_RELOAD_AIRWALK_SECONDARY2_END,	false },
+
+	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE, false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE, false },
+
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_SECONDARY,		false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_SECONDARY,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_SECONDARY, false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_SECONDARY,	false },
+
+};
+
+acttable_t CTFWeaponBase::s_acttablePrimary2[] = 
+{
+	{ ACT_MP_STAND_IDLE,					ACT_MP_STAND_PRIMARY,				false },
+	{ ACT_MP_CROUCH_IDLE,					ACT_MP_CROUCH_PRIMARY,				false },
+	{ ACT_MP_DEPLOYED,						ACT_MP_DEPLOYED_PRIMARY,			false },
+	{ ACT_MP_CROUCH_DEPLOYED,				ACT_MP_CROUCHWALK_DEPLOYED,			false },
+	{ ACT_MP_CROUCH_DEPLOYED_IDLE,			ACT_MP_CROUCH_DEPLOYED_IDLE,		false },
+	{ ACT_MP_RUN,							ACT_MP_RUN_PRIMARY,					false },
+	{ ACT_MP_WALK,							ACT_MP_WALK_PRIMARY,				false },
+	{ ACT_MP_AIRWALK,						ACT_MP_AIRWALK_PRIMARY,				false },
+	{ ACT_MP_CROUCHWALK,					ACT_MP_CROUCHWALK_PRIMARY,			false },
+	{ ACT_MP_JUMP,							ACT_MP_JUMP_PRIMARY,				false },
+	{ ACT_MP_JUMP_START,					ACT_MP_JUMP_START_PRIMARY,			false },
+	{ ACT_MP_JUMP_FLOAT,					ACT_MP_JUMP_FLOAT_PRIMARY,			false },
+	{ ACT_MP_JUMP_LAND,						ACT_MP_JUMP_LAND_PRIMARY,			false },
+	{ ACT_MP_SWIM,							ACT_MP_SWIM_PRIMARY,				false },
+	{ ACT_MP_SWIM_DEPLOYED,					ACT_MP_SWIM_DEPLOYED_PRIMARY,		false },
+	{ ACT_MP_DOUBLEJUMP_CROUCH,				ACT_MP_DOUBLEJUMP_CROUCH_PRIMARY,   false },
+	{ ACT_MP_ATTACK_STAND_PRIMARY_SUPER,	ACT_MP_ATTACK_STAND_PRIMARY_SUPER,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARY_SUPER,	ACT_MP_ATTACK_CROUCH_PRIMARY_SUPER, false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARY_SUPER,		ACT_MP_ATTACK_SWIM_PRIMARY_SUPER,	false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,		ACT_MP_ATTACK_STAND_PRIMARY_ALT,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,		ACT_MP_ATTACK_CROUCH_PRIMARY_ALT,	false },
+	{ ACT_MP_ATTACK_SWIM_PRIMARYFIRE,		ACT_MP_ATTACK_SWIM_PRIMARY_ALT,		false },
+	{ ACT_MP_ATTACK_AIRWALK_PRIMARYFIRE,	ACT_MP_ATTACK_AIRWALK_PRIMARY,		false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_MP_RELOAD_STAND_PRIMARY_ALT,		false },
+	{ ACT_MP_RELOAD_STAND_LOOP,			ACT_MP_RELOAD_STAND_PRIMARY_LOOP_ALT,	false },
+	{ ACT_MP_RELOAD_STAND_END,			ACT_MP_RELOAD_STAND_PRIMARY_END_ALT,	false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_MP_RELOAD_CROUCH_PRIMARY_ALT,		false },
+	{ ACT_MP_RELOAD_CROUCH_LOOP,		ACT_MP_RELOAD_CROUCH_PRIMARY_LOOP_ALT,	false },
+	{ ACT_MP_RELOAD_CROUCH_END,			ACT_MP_RELOAD_CROUCH_PRIMARY_END_ALT,	false },
+	{ ACT_MP_RELOAD_SWIM,				ACT_MP_RELOAD_SWIM_PRIMARY_ALT,			false },
+	{ ACT_MP_RELOAD_SWIM_LOOP,			ACT_MP_RELOAD_SWIM_PRIMARY_LOOP,		false },
+	{ ACT_MP_RELOAD_SWIM_END,			ACT_MP_RELOAD_SWIM_PRIMARY_END,			false },
+	{ ACT_MP_RELOAD_AIRWALK,			ACT_MP_RELOAD_AIRWALK_PRIMARY_ALT,		false },
+	{ ACT_MP_RELOAD_AIRWALK_LOOP,		ACT_MP_RELOAD_AIRWALK_PRIMARY_LOOP_ALT,	false },
+	{ ACT_MP_RELOAD_AIRWALK_END,		ACT_MP_RELOAD_AIRWALK_PRIMARY_END_ALT,	false },
+
+	{ ACT_MP_ATTACK_STAND_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,		false },
+	{ ACT_MP_ATTACK_CROUCH_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,		false },
+	{ ACT_MP_ATTACK_SWIM_GRENADE,		ACT_MP_ATTACK_STAND_GRENADE,		false },
+	{ ACT_MP_ATTACK_AIRWALK_GRENADE,	ACT_MP_ATTACK_STAND_GRENADE,		false },
+
+	{ ACT_MP_GESTURE_VC_HANDMOUTH,		ACT_MP_GESTURE_VC_HANDMOUTH_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_FINGERPOINT,	ACT_MP_GESTURE_VC_FINGERPOINT_PRIMARY,	false },
+	{ ACT_MP_GESTURE_VC_FISTPUMP,		ACT_MP_GESTURE_VC_FISTPUMP_PRIMARY,		false },
+	{ ACT_MP_GESTURE_VC_THUMBSUP,		ACT_MP_GESTURE_VC_THUMBSUP_PRIMARY,		false },
+	{ ACT_MP_GESTURE_VC_NODYES,			ACT_MP_GESTURE_VC_NODYES_PRIMARY,		false },
+	{ ACT_MP_GESTURE_VC_NODNO,			ACT_MP_GESTURE_VC_NODNO_PRIMARY,		false },
+};	
+
+viewmodel_acttable_t CTFWeaponBase::s_viewmodelacttable[] = 
+{
+	{ ACT_VM_DRAW,		ACT_PRIMARY_VM_DRAW,		TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_HOLSTER,	ACT_PRIMARY_VM_HOLSTER,		TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_IDLE,		ACT_PRIMARY_VM_IDLE,		TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_PULLBACK,	ACT_PRIMARY_VM_PULLBACK,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_PRIMARYATTACK,		ACT_PRIMARY_VM_PRIMARYATTACK,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_SECONDARYATTACK,	ACT_PRIMARY_VM_SECONDARYATTACK, TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_RELOAD,			ACT_PRIMARY_VM_RELOAD,			TF_WPN_TYPE_PRIMARY },
+	{ ACT_RELOAD_START,			ACT_PRIMARY_RELOAD_START,		TF_WPN_TYPE_PRIMARY },
+	{ ACT_RELOAD_FINISH,		ACT_PRIMARY_RELOAD_FINISH,		TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_DRYFIRE,			ACT_PRIMARY_VM_DRYFIRE,			TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_PRIMARY_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_IDLE_LOWERED,		ACT_PRIMARY_VM_IDLE_LOWERED,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_PRIMARY_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_STAND_PREFIRE,		ACT_PRIMARY_ATTACK_STAND_PREFIRE,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_STAND_POSTFIRE,		ACT_PRIMARY_ATTACK_STAND_POSTFIRE,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_STAND_STARTFIRE,	ACT_PRIMARY_ATTACK_STAND_STARTFIRE, TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_CROUCH_PREFIRE,		ACT_PRIMARY_ATTACK_CROUCH_PREFIRE,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_CROUCH_POSTFIRE,	ACT_PRIMARY_ATTACK_CROUCH_POSTFIRE, TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_SWIM_PREFIRE,		ACT_PRIMARY_ATTACK_SWIM_PREFIRE,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_MP_ATTACK_SWIM_POSTFIRE,		ACT_PRIMARY_ATTACK_SWIM_POSTFIRE,	TF_WPN_TYPE_PRIMARY },
+	{ ACT_VM_DRAW,					ACT_SECONDARY_VM_DRAW,				TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_HOLSTER,				ACT_SECONDARY_VM_HOLSTER,			TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_IDLE,					ACT_SECONDARY_VM_IDLE,				TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_PULLBACK,				ACT_SECONDARY_VM_PULLBACK,			TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_PRIMARYATTACK,			ACT_SECONDARY_VM_PRIMARYATTACK,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_SECONDARYATTACK,		ACT_SECONDARY_VM_SECONDARYATTACK,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_RELOAD,				ACT_SECONDARY_VM_RELOAD,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_RELOAD_START,				ACT_SECONDARY_RELOAD_START,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_RELOAD_FINISH,			ACT_SECONDARY_RELOAD_FINISH,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_DRYFIRE,				ACT_SECONDARY_VM_DRYFIRE,			TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_IDLE_TO_LOWERED,		ACT_SECONDARY_VM_IDLE_TO_LOWERED,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_IDLE_LOWERED,			ACT_SECONDARY_VM_IDLE_LOWERED,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_LOWERED_TO_IDLE,		ACT_SECONDARY_VM_LOWERED_TO_IDLE,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_STAND_PREFIRE,	ACT_SECONDARY_ATTACK_STAND_PREFIRE,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_STAND_POSTFIRE, ACT_SECONDARY_ATTACK_STAND_POSTFIRE,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_STAND_STARTFIRE,	ACT_SECONDARY_ATTACK_STAND_STARTFIRE,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_CROUCH_PREFIRE,		ACT_SECONDARY_ATTACK_CROUCH_PREFIRE,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_CROUCH_POSTFIRE,	ACT_SECONDARY_ATTACK_CROUCH_POSTFIRE,	TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_SWIM_PREFIRE,		ACT_SECONDARY_ATTACK_SWIM_PREFIRE,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_MP_ATTACK_SWIM_POSTFIRE,		ACT_SECONDARY_ATTACK_SWIM_POSTFIRE,		TF_WPN_TYPE_SECONDARY },
+	{ ACT_VM_DRAW,					ACT_MELEE_VM_DRAW,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_HOLSTER,				ACT_MELEE_VM_HOLSTER,	TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE,					ACT_MELEE_VM_IDLE,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_PULLBACK,				ACT_MELEE_VM_PULLBACK,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_PRIMARYATTACK,			ACT_MELEE_VM_PRIMARYATTACK,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_SECONDARYATTACK,		ACT_MELEE_VM_SECONDARYATTACK,	TF_WPN_TYPE_MELEE },
+	{ ACT_VM_RELOAD,				ACT_MELEE_VM_RELOAD,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_DRYFIRE,				ACT_MELEE_VM_DRYFIRE,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE_TO_LOWERED,		ACT_MELEE_VM_IDLE_TO_LOWERED,	TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE_LOWERED,			ACT_MELEE_VM_IDLE_LOWERED,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_LOWERED_TO_IDLE,		ACT_MELEE_VM_LOWERED_TO_IDLE,	TF_WPN_TYPE_MELEE },
+	{ ACT_VM_HITCENTER,				ACT_MELEE_VM_HITCENTER,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_SWINGHARD,				ACT_MELEE_VM_SWINGHARD,			TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_STAND_PREFIRE,	ACT_MELEE_ATTACK_STAND_PREFIRE,			TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_STAND_POSTFIRE,		ACT_MELEE_ATTACK_STAND_POSTFIRE,	TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_STAND_STARTFIRE,	ACT_MELEE_ATTACK_STAND_STARTFIRE,	TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_CROUCH_PREFIRE,		ACT_MELEE_ATTACK_CROUCH_PREFIRE,	TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_CROUCH_POSTFIRE,	ACT_MELEE_ATTACK_CROUCH_POSTFIRE,	TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_SWIM_PREFIRE,		ACT_MELEE_ATTACK_SWIM_PREFIRE,	TF_WPN_TYPE_MELEE },
+	{ ACT_MP_ATTACK_SWIM_POSTFIRE,		ACT_MELEE_ATTACK_SWIM_POSTFIRE, TF_WPN_TYPE_MELEE },
+	{ ACT_VM_DRAW_SPECIAL,				ACT_VM_DRAW_SPECIAL,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_HOLSTER_SPECIAL,			ACT_VM_HOLSTER_SPECIAL,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE_SPECIAL,			ACT_VM_IDLE_SPECIAL,				TF_WPN_TYPE_MELEE },
+	{ ACT_VM_PULLBACK_SPECIAL,		ACT_VM_PULLBACK_SPECIAL,			TF_WPN_TYPE_MELEE },
+	{ ACT_VM_PRIMARYATTACK_SPECIAL, ACT_VM_PRIMARYATTACK_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_SECONDARYATTACK_SPECIAL,	ACT_VM_SECONDARYATTACK_SPECIAL, TF_WPN_TYPE_MELEE },
+	{ ACT_VM_HITCENTER_SPECIAL,			ACT_VM_HITCENTER_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_SWINGHARD_SPECIAL,			ACT_VM_SWINGHARD_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE_TO_LOWERED_SPECIAL,	ACT_VM_IDLE_TO_LOWERED_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_IDLE_LOWERED_SPECIAL,		ACT_VM_IDLE_LOWERED_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_LOWERED_TO_IDLE_SPECIAL,	ACT_VM_LOWERED_TO_IDLE_SPECIAL,		TF_WPN_TYPE_MELEE },
+	{ ACT_BACKSTAB_VM_DOWN,			ACT_BACKSTAB_VM_DOWN,		TF_WPN_TYPE_MELEE },
+	{ ACT_BACKSTAB_VM_UP,			ACT_BACKSTAB_VM_UP,			TF_WPN_TYPE_MELEE },
+	{ ACT_BACKSTAB_VM_IDLE,			ACT_BACKSTAB_VM_IDLE,		TF_WPN_TYPE_MELEE },
+	{ ACT_VM_DRAW,			ACT_PDA_VM_DRAW, TF_WPN_TYPE_PDA },
+	{ ACT_VM_HOLSTER,		ACT_PDA_VM_HOLSTER, TF_WPN_TYPE_PDA },
+	{ ACT_VM_IDLE,				ACT_PDA_VM_IDLE, TF_WPN_TYPE_PDA },
+	{ ACT_VM_PULLBACK,			ACT_PDA_VM_PULLBACK, TF_WPN_TYPE_PDA },
+	{ ACT_VM_PRIMARYATTACK,		ACT_PDA_VM_PRIMARYATTACK, TF_WPN_TYPE_PDA },
+	{ ACT_VM_SECONDARYATTACK,	ACT_PDA_VM_SECONDARYATTACK, TF_WPN_TYPE_PDA },
+	{ ACT_VM_RELOAD,		ACT_PDA_VM_RELOAD, TF_WPN_TYPE_PDA },
+	{ ACT_VM_DRYFIRE,		ACT_PDA_VM_DRYFIRE, TF_WPN_TYPE_PDA },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_PDA_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_PDA },
+	{ ACT_VM_IDLE_LOWERED,		ACT_PDA_VM_IDLE_LOWERED, TF_WPN_TYPE_PDA },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_PDA_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_PDA },
+	{ ACT_VM_DRAW,				ACT_ITEM1_VM_DRAW, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_HOLSTER,			ACT_ITEM1_VM_HOLSTER, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_IDLE,			ACT_ITEM1_VM_IDLE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_PULLBACK,		ACT_ITEM1_VM_PULLBACK, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_PRIMARYATTACK,		ACT_ITEM1_VM_PRIMARYATTACK, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_SECONDARYATTACK,	ACT_ITEM1_VM_SECONDARYATTACK, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_RELOAD,		ACT_ITEM1_VM_RELOAD, TF_WPN_TYPE_ITEM1 },
+	{ ACT_RELOAD_START,		ACT_ITEM1_RELOAD_START, TF_WPN_TYPE_ITEM1 },
+	{ ACT_RELOAD_FINISH,	ACT_ITEM1_RELOAD_FINISH, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_DRYFIRE,		ACT_ITEM1_VM_DRYFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_ITEM1_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_IDLE_LOWERED,		ACT_ITEM1_VM_IDLE_LOWERED, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_ITEM1_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_STAND_PREFIRE,		ACT_ITEM1_ATTACK_STAND_PREFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_STAND_POSTFIRE,		ACT_ITEM1_ATTACK_STAND_POSTFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_STAND_STARTFIRE,	ACT_ITEM1_ATTACK_STAND_STARTFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_CROUCH_PREFIRE,		ACT_ITEM1_ATTACK_CROUCH_PREFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_CROUCH_POSTFIRE,	ACT_ITEM1_ATTACK_CROUCH_POSTFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_SWIM_PREFIRE,		ACT_ITEM1_ATTACK_SWIM_PREFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_MP_ATTACK_SWIM_POSTFIRE,		ACT_ITEM1_ATTACK_SWIM_POSTFIRE, TF_WPN_TYPE_ITEM1 },
+	{ ACT_VM_DRAW,			ACT_ITEM2_VM_DRAW, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_HOLSTER,		ACT_ITEM2_VM_HOLSTER, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_IDLE,			ACT_ITEM2_VM_IDLE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_PULLBACK,		ACT_ITEM2_VM_PULLBACK, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_PRIMARYATTACK,		ACT_ITEM2_VM_PRIMARYATTACK, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_SECONDARYATTACK,	ACT_ITEM2_VM_SECONDARYATTACK, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_RELOAD,			ACT_ITEM2_VM_RELOAD, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_DRYFIRE,			ACT_ITEM2_VM_DRYFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_ITEM2_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_IDLE_LOWERED,		ACT_ITEM2_VM_IDLE_LOWERED, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_ITEM2_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_STAND_PREFIRE,		ACT_ITEM2_ATTACK_STAND_PREFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_STAND_POSTFIRE,		ACT_ITEM2_ATTACK_STAND_POSTFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_STAND_STARTFIRE,	ACT_ITEM2_ATTACK_STAND_STARTFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_CROUCH_PREFIRE,		ACT_ITEM2_ATTACK_CROUCH_PREFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_CROUCH_POSTFIRE,	ACT_ITEM2_ATTACK_CROUCH_POSTFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_SWIM_PREFIRE,		ACT_ITEM2_ATTACK_SWIM_PREFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_MP_ATTACK_SWIM_POSTFIRE,		ACT_ITEM2_ATTACK_SWIM_POSTFIRE, TF_WPN_TYPE_ITEM2 },
+	{ ACT_VM_DRAW,			ACT_MELEE_ALLCLASS_VM_DRAW, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_HOLSTER,		ACT_MELEE_ALLCLASS_VM_HOLSTER, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_IDLE,			ACT_MELEE_ALLCLASS_VM_IDLE, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_PULLBACK,		ACT_MELEE_ALLCLASS_VM_PULLBACK, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_PRIMARYATTACK,		ACT_MELEE_ALLCLASS_VM_PRIMARYATTACK, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_SECONDARYATTACK,	ACT_MELEE_ALLCLASS_VM_SECONDARYATTACK, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_RELOAD,			ACT_MELEE_ALLCLASS_VM_RELOAD, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_DRYFIRE,			ACT_MELEE_ALLCLASS_VM_DRYFIRE, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_MELEE_ALLCLASS_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_IDLE_LOWERED,		ACT_MELEE_ALLCLASS_VM_IDLE_LOWERED, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_MELEE_ALLCLASS_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_HITCENTER,		ACT_MELEE_ALLCLASS_VM_HITCENTER, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_SWINGHARD,		ACT_MELEE_ALLCLASS_VM_SWINGHARD, TF_WPN_TYPE_MELEE_ALLCLASS },
+	{ ACT_VM_DRAW,			ACT_SECONDARY2_VM_DRAW, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_HOLSTER,		ACT_SECONDARY2_VM_HOLSTER, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_IDLE,			ACT_SECONDARY2_VM_IDLE, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_PULLBACK,		ACT_SECONDARY2_VM_PULLBACK, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_PRIMARYATTACK, ACT_SECONDARY2_VM_PRIMARYATTACK, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_RELOAD,		ACT_SECONDARY2_VM_RELOAD, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_RELOAD_START,		ACT_SECONDARY2_RELOAD_START, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_RELOAD_FINISH,	ACT_SECONDARY2_RELOAD_FINISH, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_DRYFIRE,		ACT_SECONDARY2_VM_DRYFIRE, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_SECONDARY2_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_IDLE_LOWERED,		ACT_SECONDARY2_VM_IDLE_LOWERED, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_SECONDARY2_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_SECONDARY2 },
+	{ ACT_VM_DRAW,				ACT_PRIMARY_VM_DRAW, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_HOLSTER,			ACT_PRIMARY_VM_HOLSTER, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_IDLE,				ACT_PRIMARY_VM_IDLE, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_PULLBACK,			ACT_PRIMARY_VM_PULLBACK, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_PRIMARYATTACK,		ACT_PRIMARY_VM_PRIMARYATTACK, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_RELOAD,			ACT_PRIMARY_VM_RELOAD_3, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_RELOAD_START,			ACT_PRIMARY_RELOAD_START_3, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_RELOAD_FINISH,		ACT_PRIMARY_RELOAD_FINISH_3, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_DRYFIRE,			ACT_PRIMARY_VM_DRYFIRE, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_IDLE_TO_LOWERED,	ACT_PRIMARY_VM_IDLE_TO_LOWERED, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_IDLE_LOWERED,		ACT_PRIMARY_VM_IDLE_LOWERED, TF_WPN_TYPE_PRIMARY2 },
+	{ ACT_VM_LOWERED_TO_IDLE,	ACT_PRIMARY_VM_LOWERED_TO_IDLE, TF_WPN_TYPE_PRIMARY2 },
+};
+
 
 acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
-	int iWeaponRole = GetTFWpnData().m_iWeaponType;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-#ifdef CLIENT_DLL
-	// If we're disguised, we show a different weapon from what we're actually carrying.
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
-	{
-		CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
-		if ( pWeaponInfo )
-		{
-			iWeaponRole = pWeaponInfo->m_iWeaponType;
-		}
-	}
-#endif
+	int iWeaponRole = GetActivityWeaponRole();
 
 	acttable_t *pTable;
 
@@ -2314,32 +2787,44 @@ acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 	{
 	case TF_WPN_TYPE_PRIMARY:
 	default:
-		pTable = m_acttablePrimary;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttablePrimary;
+		iActivityCount = ARRAYSIZE( s_acttablePrimary );
 		break;
 	case TF_WPN_TYPE_SECONDARY:
-		pTable = m_acttableSecondary;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttableSecondary;
+		iActivityCount = ARRAYSIZE( s_acttableSecondary );
 		break;
 	case TF_WPN_TYPE_MELEE:
-		pTable = m_acttableMelee;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttableMelee;
+		iActivityCount = ARRAYSIZE( s_acttableMelee );
 		break;
 	case TF_WPN_TYPE_BUILDING:
-		pTable = m_acttableBuilding;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttableBuilding;
+		iActivityCount = ARRAYSIZE( s_acttableBuilding );
 		break;
 	case TF_WPN_TYPE_PDA:
-		pTable = m_acttablePDA;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttablePDA;
+		iActivityCount = ARRAYSIZE( s_acttablePDA );
 		break;
 	case TF_WPN_TYPE_ITEM1:
-		pTable = m_acttableItem1;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttableItem1;
+		iActivityCount = ARRAYSIZE( s_acttableItem1 );
 		break;
 	case TF_WPN_TYPE_ITEM2:
-		pTable = m_acttableItem2;
-		iActivityCount = ARRAYSIZE( m_acttablePrimary );
+		pTable = s_acttableItem2;
+		iActivityCount = ARRAYSIZE( s_acttableItem2 );
+		break;
+	case TF_WPN_TYPE_MELEE_ALLCLASS:
+		pTable = s_acttableMeleeAllClass;
+		iActivityCount = ARRAYSIZE( s_acttableMeleeAllClass );
+		break;
+	case TF_WPN_TYPE_SECONDARY2:
+		pTable = s_acttableSecondary2;
+		iActivityCount = ARRAYSIZE( s_acttableSecondary2 );
+		break;
+	case TF_WPN_TYPE_PRIMARY2: 
+		pTable = s_acttablePrimary2;
+		iActivityCount = ARRAYSIZE( s_acttablePrimary2 );
 		break;
 	}
 
@@ -2366,24 +2851,30 @@ CTFPlayer *CTFWeaponBase::GetTFPlayerOwner() const
 // -----------------------------------------------------------------------------
 // Purpose:
 // -----------------------------------------------------------------------------
+bool CTFWeaponBase::UsingViewModel( void )
+{
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
+
+	if ( pOwner && !pOwner->ShouldDrawThisPlayer() )
+		return true;
+
+	return false;
+}
+
+// -----------------------------------------------------------------------------
+// Purpose:
+// -----------------------------------------------------------------------------
 C_BaseEntity *CTFWeaponBase::GetWeaponForEffect()
 {
-	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( !pLocalPlayer )
-		return NULL;
+	C_TFPlayer *pOwner = GetTFPlayerOwner();
 
-#if 0
-	// This causes many problems!
-	if ( pLocalPlayer->GetObserverMode() == OBS_MODE_IN_EYE )
+	if ( pOwner && !pOwner->ShouldDrawThisPlayer() )
 	{
-		C_BasePlayer *pObserverTarget = ToBasePlayer( pLocalPlayer->GetObserverTarget() );
-		if ( pObserverTarget )
-			return pObserverTarget->GetViewModel();
+		C_BaseViewModel *pViewModel = pOwner->GetViewModel();
+		
+		if ( pViewModel )
+			return pViewModel;
 	}
-#endif
-
-	if ( pLocalPlayer == GetTFPlayerOwner() )
-		return pLocalPlayer->GetViewModel();
 
 	return this;
 }
@@ -2627,6 +3118,17 @@ int CTFWeaponBase::GetSkin()
 	return nSkin;
 }
 
+//-----------------------------------------------------------------------------
+// Should this object cast shadows?
+//-----------------------------------------------------------------------------
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) || m_iState != WEAPON_IS_ACTIVE )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
+}
+
 bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& origin, const QAngle& angles, int event, const char *options )
 {
 	if( event == 6002 )
@@ -2757,5 +3259,25 @@ CTFWeaponInfo *GetTFWeaponInfo(int iWeapon)
 	}
 
 	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>(GetFileWeaponInfoFromHandle(hWpnInfo));
+	return pWeaponInfo;
+}
+
+CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass )
+{
+	// Get the weapon information.
+	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+
+	if ( !pItemDef )
+		return NULL;
+
+	const char *pszClassname = TranslateWeaponEntForClass( pItemDef->item_class, iClass );
+
+	WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pszClassname );
+	if ( hWpnInfo == GetInvalidWeaponInfoHandle() )
+	{
+		return NULL;
+	}
+
+	CTFWeaponInfo *pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
 	return pWeaponInfo;
 }

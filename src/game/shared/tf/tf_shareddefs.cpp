@@ -23,6 +23,44 @@ const char *g_aTeamNames[TF_TEAM_COUNT] =
 	"Yellow"
 };
 
+const char *g_aTeamNamesShort[TF_TEAM_COUNT] =
+{
+	"red", // Unassigned
+	"red", // Spectator
+	"red",
+	"blu",
+	"grn",
+	"ylw"
+};
+
+const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
+{
+	"red",
+	"red",
+	"red",
+	"blue",
+	"green",
+	"yellow"
+};
+
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/ )
+{
+	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() )
+	{
+		return "dm";
+	}
+
+	return g_aTeamParticleNames[iTeam];
+}
+
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/ )
+{
+	static char szParticleName[256];
+
+	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride ) );
+	return szParticleName;
+}
+
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
 {
 	{ 0, 0, 0, 0 }, // Unassigned
@@ -32,6 +70,11 @@ color32 g_aTeamColors[TF_TEAM_COUNT] =
 	{ 0, 255, 0, 0 }, // Green
 	{ 255, 255, 0, 0 } // Yellow
 };
+
+bool IsGameTeam( int iTeam )
+{
+	return ( iTeam > LAST_SHARED_TEAM && iTeam < TF_TEAM_COUNT ); 
+}
 
 //-----------------------------------------------------------------------------
 // Classes.
@@ -107,8 +150,43 @@ const char *g_aGameTypeNames[] =
 	"#Gametype_CP",
 	"#Gametype_Escort",
 	"#Gametype_Arena",
+	"#Gametype_RobotDestruction",
+	"#GameType_Passtime",
+	"#GameType_PlayerDestruction",
 	"#Gametype_MVM",
-	"#Gametype_DM"
+	"#Gametype_DM",
+	"#Gametype_VIP",
+};
+
+//-----------------------------------------------------------------------------
+// Weapon Types
+//-----------------------------------------------------------------------------
+const char *g_AnimSlots[] =
+{
+	"primary",
+	"secondary",
+	"melee",
+	"grenade",
+	"building",
+	"pda",
+	"item1",
+	"item2",
+	"MELEE_ALLCLASS",
+	"secondary2",
+	"primary2"
+};
+
+const char *g_LoadoutSlots[] =
+{
+	"primary",
+	"secondary",
+	"melee",
+	"pda",
+	"pda2",
+	"building",
+	"head",
+	"misc",
+	"action"
 };
 
 //-----------------------------------------------------------------------------
@@ -122,6 +200,137 @@ const char *g_aAmmoNames[] =
 	"TF_AMMO_METAL",
 	"TF_AMMO_GRENADES1",
 	"TF_AMMO_GRENADES2"
+};
+
+struct pszWpnEntTranslationListEntry
+{
+	const char *weapon_name;
+	const char *padding;
+	const char *weapon_scout;
+	const char *weapon_sniper;
+	const char *weapon_soldier;
+	const char *weapon_demoman;
+	const char *weapon_medic;
+	const char *weapon_heavyweapons;
+	const char *weapon_pyro;
+	const char *weapon_spy;
+	const char *weapon_engineer;
+	const char *weapon_civilian;
+	const char *weapon_mercenary;
+};
+static pszWpnEntTranslationListEntry pszWpnEntTranslationList[] =
+{
+	"tf_weapon_shotgun",			// Base weapon to translate
+	NULL,
+	"tf_weapon_shotgun_primary",	// Scout
+	"tf_weapon_shotgun_primary",	// Sniper
+	"tf_weapon_shotgun_soldier",	// Soldier
+	"tf_weapon_shotgun_primary",	// Demoman
+	"tf_weapon_shotgun_primary",	// Medic
+	"tf_weapon_shotgun_hwg",		// Heavy
+	"tf_weapon_shotgun_pyro",		// Pyro
+	"tf_weapon_shotgun_primary",	// Spy
+	"tf_weapon_shotgun_primary",	// Engineer
+	"tf_weapon_shotgun_primary",	// Civilian
+	"tf_weapon_shotgun_soldier",	// Mercenary
+
+	"tf_weapon_pistol",				// Base weapon to translate
+	NULL,
+	"tf_weapon_pistol_scout",		// Scout
+	"tf_weapon_pistol",				// Sniper
+	"tf_weapon_pistol",				// Soldier
+	"tf_weapon_pistol",				// Demoman
+	"tf_weapon_pistol",				// Medic
+	"tf_weapon_pistol",				// Heavy
+	"tf_weapon_pistol",				// Pyro
+	"tf_weapon_pistol",				// Spy
+	"tf_weapon_pistol",				// Engineer
+	"tf_weapon_pistol",				// Civilian
+	"tf_weapon_pistol",				// Mercenary
+
+	"tf_weapon_shovel",				// Base weapon to translate
+	NULL,
+	"tf_weapon_shovel",				// Scout
+	"tf_weapon_shovel",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_shovel",				// Medic
+	"tf_weapon_shovel",				// Heavy
+	"tf_weapon_shovel",				// Pyro
+	"tf_weapon_shovel",				// Spy
+	"tf_weapon_shovel",				// Engineer
+	"tf_weapon_shovel",				// Civilian
+	"tf_weapon_shovel",				// Mercenary
+
+	"tf_weapon_bottle",				// Base weapon to translate
+	NULL,
+	"tf_weapon_bottle",				// Scout
+	"tf_weapon_bottle",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_bottle",				// Medic
+	"tf_weapon_bottle",				// Heavy
+	"tf_weapon_bottle",				// Pyro
+	"tf_weapon_bottle",				// Spy
+	"tf_weapon_bottle",				// Engineer
+	"tf_weapon_bottle",				// Civilian
+	"tf_weapon_bottle",				// Mercenary
+
+	"saxxy",						// Base weapon to translate
+	NULL,
+	"tf_weapon_bat",				// Scout
+	"tf_weapon_club",				// Sniper
+	"tf_weapon_shovel",				// Soldier
+	"tf_weapon_bottle",				// Demoman
+	"tf_weapon_bonesaw",			// Medic
+	"tf_weapon_fireaxe",			// Heavy
+	"tf_weapon_fireaxe",			// Pyro
+	"tf_weapon_knife",				// Spy
+	"tf_weapon_wrench",				// Engineer
+	"tf_weapon_umbrella",			// Civilian
+	"tf_weapon_crowbar",			// Mercenary
+
+	"tf_weapon_throwable",			// Base weapon to translate
+	NULL,
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88D0
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+	"tf_weapon_throwable", //UNK_10D88B2
+
+	"tf_weapon_parachute",			// Base weapon to translate
+	NULL,
+	"tf_weapon_parachute_secondary",	// Scout
+	"tf_weapon_parachute_secondary",	// Sniper
+	"tf_weapon_parachute_primary",		// Soldier
+	"tf_weapon_parachute_secondary",	// Demoman
+	"tf_weapon_parachute_secondary",	// Medic
+	"tf_weapon_parachute_secondary",	// Heavy
+	"tf_weapon_parachute_secondary",	// Pyro
+	"tf_weapon_parachute_secondary",	// Spy
+	0,									// Engineer
+	"tf_weapon_parachute_secondary",	// Civilian
+	"tf_weapon_parachute_secondary",	// Mercenary
+
+	"tf_weapon_revolver",			// Base weapon to translate
+	NULL,
+	"tf_weapon_revolver",			// Scout
+	"tf_weapon_revolver",			// Sniper
+	"tf_weapon_revolver",			// Soldier
+	"tf_weapon_revolver",			// Demoman
+	"tf_weapon_revolver",			// Medic
+	"tf_weapon_revolver",			// Heavy
+	"tf_weapon_revolver",			// Pyro
+	"tf_weapon_revolver",			// Spy
+	"tf_weapon_revolver_secondary",	// Engineer
+	"tf_weapon_revolver",			// Civilian
+	"tf_weapon_revolver",			// Mercenary
 };
 
 //-----------------------------------------------------------------------------
@@ -184,22 +393,12 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_DISPENSER",
 	"TF_WEAPON_INVIS",
 	"TF_WEAPON_FLAG", // ADD NEW WEAPONS AFTER THIS
-	"TF_WEAPON_SMG_SCOUT",
-	"TF_WEAPON_ROCKETLAUNCHERBETA",
-	"TF_WEAPON_CYCLOPS",
-	"TF_WEAPON_OVERHEALER",
-	"TF_WEAPON_FISHWHACKER",
-	"TF_WEAPON_SHOTGUN_MEDIC",
 	"TF_WEAPON_HUNTERRIFLE",
 	"TF_WEAPON_UMBRELLA",
-	"TF_WEAPON_KRITZKRIEG",
-	"TF_WEAPON_UBERSAW",
 	"TF_WEAPON_FLAREGUN",
-	"TF_WEAPON_GRENADE_FLARE",	
-	"TF_WEAPON_STENGUN",
-	"TF_WEAPON_DOUBLEBARREL",
-	"TF_WEAPON_SIXSHOOTER",
+	"TF_WEAPON_HAMMERFISTS",
 	"TF_WEAPON_CHAINSAW",
+	"TF_WEAPON_HEAVYARTILLERY",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -261,26 +460,31 @@ int g_aWeaponDamageTypes[] =
 	DMG_GENERIC,	// TF_WEAPON_DISPENSER
 	DMG_GENERIC,	// TF_WEAPON_INVIS
 	DMG_GENERIC,	// TF_WEAPON_FLAG // ADD NEW WEAPONS AFTER THIS
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SMG_SCOUT
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_ROCKETLAUNCHERBETA,
-	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_CYCLOPS,
-	DMG_BULLET,		// TF_WEAPON_OVERHEALER,
-	DMG_CLUB,		// TF_WEAPON_FISHWHACKER, 
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_SHOTGUN_MEDIC,
 	DMG_BULLET | DMG_USE_HITLOCATIONS,//TF_WEAPON_HUNTERRIFLE,
 	DMG_CLUB, // TF_WEAPON_UMBRELLA,
-	DMG_BULLET,		// TF_WEAPON_KRITZ,
-	DMG_SLASH,		// TF_WEAPON_UBERSAW,
-	DMG_IGNITE | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,		// TF_WEAPON_FLAREGUN,
-	DMG_IGNITE | DMG_HALF_FALLOFF,		// TF_WEAPON_GRENADE_FLARE,
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_STENGUN,
-	DMG_BUCKSHOT | DMG_USEDISTANCEMOD,	// TF_WEAPON_DOUBLEBARREL,
-	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_SIXSHOOTER,
+	DMG_IGNITE,		// TF_WEAPON_FLAREGUN,
+	DMG_CLUB,		// TF_WEAPON_HAMMERFISTS,
 	DMG_SLASH,		// TF_WEAPON_CHAINSAW,
+	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_HEAVYARTILLERY,
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list
 	TF_DMG_SENTINEL_VALUE
+};
+
+// Spread pattern for tf_use_fixed_weaponspreads.
+const Vector g_vecFixedWpnSpreadPellets[] =
+{
+	Vector( 0, 0, 0 ),
+	Vector( 1, 0, 0 ),
+	Vector( -1, 0, 0 ),
+	Vector( 0, -1, 0 ),
+	Vector( 0, 1, 0 ),
+	Vector( 0.85, -0.85, 0 ),
+	Vector( 0.85, 0.85, 0 ),
+	Vector( -0.85, -0.85, 0 ),
+	Vector( -0.85, 0.85, 0 ),
+	Vector( 0, 0, 0 ),
 };
 
 const char *g_szProjectileNames[] =
@@ -291,9 +495,31 @@ const char *g_szProjectileNames[] =
 	"projectile_pipe",
 	"projectile_pipe_remote",
 	"projectile_syringe",
+	"projectile_flare",
+	"projectile_jar",
+	"projectile_arrow",
+	"projectile_flame_rocket",
+	"projectile_jar_milk",
+	"projectile_healing_bolt",
+	"projectile_energy_ball",
+	"projectile_energy_ring",
+	"projectile_pipe_remote_practice",
+	"projectile_cleaver",
+	"projectile_sticky_ball",
+	"projectile_cannonball",
+	"projectile_building_repair_bolt",
+	"projectile_festive_arrow",
+	"projectile_throwable",
+	"projectile_spellfireball",
+	"projectile_festive_urine",
+	"projectile_festive_healing_bolt",
+	"projectfile_breadmonster_jarate",
+	"projectfile_breadmonster_madmilk",
+	"projectile_grapplinghook",
+	"projectile_sentry_rocket",
+	"projectile_bread_monster",
 	"projectile_nail",
 	"projectile_dart",
-	"projectile_flare"
 };
 
 // these map to the projectiles named in g_szProjectileNames
@@ -307,8 +533,6 @@ int g_iProjectileWeapons[] =
 	TF_WEAPON_SYRINGEGUN_MEDIC,
 	TF_WEAPON_NAILGUN,
 	TF_WEAPON_TRANQ,
-	TF_WEAPON_ROCKETLAUNCHERBETA,
-	TF_WEAPON_CYCLOPS,
 	TF_WEAPON_FLAREGUN,
 };
 
@@ -398,6 +622,42 @@ const char *WeaponIdToAlias( int iWeapon )
 	return g_aWeaponNames[iWeapon];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Entity classnames need to be in lower case. Use this whenever
+// you're spawning a weapon.
+//-----------------------------------------------------------------------------
+const char *WeaponIdToClassname( int iWeapon )
+{
+	const char *pszWeaponAlias = WeaponIdToAlias( iWeapon );
+
+	if ( pszWeaponAlias == NULL )
+		return NULL;
+
+	static char szEntName[256];
+	Q_strcpy( szEntName, pszWeaponAlias );
+	Q_strlower( szEntName );
+
+	return szEntName;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+const char *TranslateWeaponEntForClass( const char *pszName, int iClass )
+{
+	if ( pszName )
+	{
+		for ( int i = 0; i < ARRAYSIZE( pszWpnEntTranslationList ); i++ )
+		{
+			if ( V_stricmp( pszName, pszWpnEntTranslationList[i].weapon_name ) == 0 )
+			{
+				return ( (const char **)&( pszWpnEntTranslationList[i] ) )[1 + iClass];
+			}
+		}
+	}
+	return pszName;
+}
+
 #ifdef GAME_DLL
 
 //-----------------------------------------------------------------------------
@@ -408,44 +668,74 @@ int GetWeaponFromDamage( const CTakeDamageInfo &info )
 	int iWeapon = TF_WEAPON_NONE;
 
 	// Work out what killed the player, and send a message to all clients about it
-	const char *killer_weapon_name = TFGameRules()->GetKillingWeaponName( info, NULL );
-
-	if ( !Q_strnicmp( killer_weapon_name, "tf_projectile", 13 ) )
-	{
-		for( int i = 0; i < ARRAYSIZE( g_szProjectileNames ); i++ )
-		{
-			if ( !Q_stricmp( &killer_weapon_name[ 3 ], g_szProjectileNames[ i ] ) )
-			{
-				iWeapon = g_iProjectileWeapons[ i ];
-				break;
-			}
-		}
-	}
-	else
-	{
-		int iLen = Q_strlen( killer_weapon_name );
-
-		// strip off _projectile from projectiles shot from other projectiles
-		if ( ( iLen < 256 ) && ( iLen > 11 ) && !Q_stricmp( &killer_weapon_name[ iLen - 11 ], "_projectile" ) )
-		{
-			char temp[ 256 ];
-			Q_strcpy( temp, killer_weapon_name );
-			temp[ iLen - 11 ] = 0;
-
-			// set the weapon used
-			iWeapon = GetWeaponId( temp );
-		}
-		else
-		{
-			// set the weapon used
-			iWeapon = GetWeaponId( killer_weapon_name );
-		}
-	}
+	TFGameRules()->GetKillingWeaponName( info, NULL, iWeapon );
 
 	return iWeapon;
 }
 
 #endif
+
+//-----------------------------------------------------------------------------
+// Conditions stuff.
+//-----------------------------------------------------------------------------
+int condition_to_attribute_translation[] =
+{
+	TF_COND_BURNING,
+	TF_COND_AIMING,
+	TF_COND_ZOOMED,
+	TF_COND_DISGUISING,
+	TF_COND_DISGUISED,
+	TF_COND_STEALTHED,
+	TF_COND_INVULNERABLE,
+	TF_COND_TELEPORTED,
+	TF_COND_TAUNTING,
+	TF_COND_INVULNERABLE_WEARINGOFF,
+	TF_COND_STEALTHED_BLINK,
+	TF_COND_SELECTED_TO_TELEPORT,
+	TF_COND_CRITBOOSTED,
+	TF_COND_TMPDAMAGEBONUS,
+	TF_COND_FEIGN_DEATH,
+	TF_COND_PHASE,
+	TF_COND_STUNNED,
+	TF_COND_HEALTH_BUFF,
+	TF_COND_HEALTH_OVERHEALED,
+	TF_COND_URINE,
+	TF_COND_ENERGY_BUFF,
+	TF_COND_LAST,
+};
+
+int ConditionExpiresFast( int nCond )
+{
+	// Damaging conds
+	if ( nCond == TF_COND_BURNING ||
+		nCond == TF_COND_BLEEDING )
+		return true;
+
+	// Liquids
+	if ( nCond == TF_COND_URINE ||
+		nCond == TF_COND_MAD_MILK )
+		return true;
+
+	// Tranq
+	if ( nCond == TF_COND_SLOWED )
+		return true;
+
+	return false;
+}
+
+
+//-----------------------------------------------------------------------------
+// Mediguns.
+//-----------------------------------------------------------------------------
+MedigunEffects_t g_MedigunEffects[] =
+{
+	{ TF_COND_INVULNERABLE, TF_COND_INVULNERABLE_WEARINGOFF, "TFPlayer.InvulnerableOn", "TFPlayer.InvulnerableOff" },
+	{ TF_COND_CRITBOOSTED, TF_COND_LAST, "TFPlayer.CritBoostOn", "TFPlayer.CritBoostOff" },
+	{ TF_COND_MEGAHEAL, TF_COND_LAST, "TFPlayer.QuickFixInvulnerableOn", "TFPlayer.MegaHealOff" },
+	{ TF_COND_MEDIGUN_UBER_BULLET_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_BLAST_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+	{ TF_COND_MEDIGUN_UBER_FIRE_RESIST, TF_COND_LAST, "WeaponMedigun_Vaccinator.InvulnerableOn", "WeaponMedigun_Vaccinator.InvulnerableOff" },
+};
 
 // ------------------------------------------------------------------------------------------------ //
 // CObjectInfo tables.
@@ -558,7 +848,7 @@ void LoadObjectInfos( IBaseFileSystem *pFileSystem )
 			(pInfo->m_Cost = pSub->GetInt( "Cost", -999 )) == -999 ||
 			(pInfo->m_CostMultiplierPerInstance = pSub->GetFloat( "CostMultiplier", -999 )) == -999 ||
 			(pInfo->m_UpgradeCost = pSub->GetInt( "UpgradeCost", -999 )) == -999 ||
-			(pInfo->m_flUpgradeDuration = pSub->GetInt( "UpgradeDuration", -999)) == -999 ||
+			(pInfo->m_flUpgradeDuration = pSub->GetFloat( "UpgradeDuration", -999)) == -999 ||
 			(pInfo->m_MaxUpgradeLevel = pSub->GetInt( "MaxUpgradeLevel", -999 )) == -999 ||
 			(pInfo->m_SelectionSlot = pSub->GetInt( "SelectionSlot", -999 )) == -999 ||
 			(pInfo->m_BuildCount = pSub->GetInt( "BuildCount", -999 )) == -999 ||
@@ -683,20 +973,22 @@ bool ClassCanBuild( int iClass, int iObjectType )
 	return ( iClass == TF_CLASS_ENGINEER );
 }
 
-int g_iTeleporterRechargeTimes[] =
+float g_flTeleporterRechargeTimes[] =
 {
-	10,
-	5,
-	3
+	10.0,
+	5.0,
+	3.0
 };
 
-float g_flDispenserAmmoRates[] = {
+float g_flDispenserAmmoRates[] =
+{
 	0.2,
 	0.3,
 	0.4
 };
 
-float g_flDispenserHealRates[] = {
+float g_flDispenserHealRates[] =
+{
 	10.0,
 	15.0,
 	20.0

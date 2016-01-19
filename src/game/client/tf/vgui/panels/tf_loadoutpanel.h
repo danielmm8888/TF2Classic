@@ -9,6 +9,7 @@ class CTFWeaponSetPanel;
 class CModelPanel;
 class CTFAdvButton;
 class CTFRGBPanel;
+class CTFAdvItemButton;
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -32,22 +33,27 @@ public:
 	void GameLayout();
 	void SetWeaponPreset(int iClass, int iSlot, int iPreset);
 	void SetCurrentClass(int iClass);
-	void SetCurrentSlot(int iSlot) { iCurrentSlot = iSlot; };
-	void SetCurrentPreset(int iPreset) { iCurrentPreset = iPreset; };
-	void SetModelWeapon(int iClass, int iSlot, int iPreset);
+	void SetCurrentSlot(int iSlot) { m_iCurrentSlot = iSlot; };
+	int  GetAnimSlot( CEconItemDefinition *pItemDef, int iClass );
+	const char *GetWeaponModel( CEconItemDefinition *pItemDef );
+	void UpdateModelWeapons( void );
 	void SetModelClass(int iClass);
+	void SetSlotAndPreset(int iSlot, int iPreset);
+	void SideRow(int iRow, int iDir);
+	void ResetRows();
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
 	CModelPanel		*m_pGameModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CTFRGBPanel		*m_pRGBPanel;
-	CUtlVector<CTFAdvButton*>	m_pWeaponIcons;
+	CUtlVector<CTFAdvItemButton*> m_pWeaponIcons;
+	CUtlVector<CTFAdvItemButton*> m_pSlideButtons;
+	CUtlVector<int> m_RawIDPos;
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
-	int	iCurrentClass;
-	int	iCurrentSlot;
-	int	iCurrentPreset;
-	int iCurrentSkin;
+	int	m_iCurrentClass;
+	int	m_iCurrentSlot;
+	int m_iCurrentSkin;
 };
 
 //-----------------------------------------------------------------------------

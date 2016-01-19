@@ -212,7 +212,7 @@ void CTFFourTeamScoreBoardDialog::InitPlayerList(SectionedListPanel *pPlayerList
 	}
 
 	pPlayerList->AddColumnToSection(0, "name", "", 0, m_iNameWidth);
-	pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
+	//pPlayerList->AddColumnToSection(0, "status", "", SectionedListPanel::COLUMN_IMAGE , m_iStatusWidth);
 	pPlayerList->AddColumnToSection(0, "nemesis", "", SectionedListPanel::COLUMN_IMAGE, m_iNemesisWidth);
 	pPlayerList->AddColumnToSection(0, "class", "", SectionedListPanel::COLUMN_IMAGE, m_iClassWidth);
 	pPlayerList->AddColumnToSection(0, "score", "", 0, m_iScoreWidth);
@@ -422,7 +422,7 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerList()
 						iClass = tf_PR->GetPlayerClass( playerIndex );
 					}
 
-					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass <= TF_LAST_NORMAL_CLASS )
+					if( iClass >= TF_FIRST_NORMAL_CLASS && iClass < TF_CLASS_MERCENARY )
 					{
 						pKeyValues->SetInt("class", tf_PR->IsAlive(playerIndex) ? m_iClassEmblem[iClass] : m_iClassEmblemDead[iClass]);
 					}
@@ -474,6 +474,9 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerList()
 			
 			int itemID = pPlayerList->AddItem( 0, pKeyValues );
 			Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
+			if ( !tf_PR->IsAlive( playerIndex ) )
+				clr.SetColor( clr.r(), clr.g(), clr.b(), clr.a() / 2 );
+
 			pPlayerList->SetItemFgColor( itemID, clr );
 
 			if ( iSelectedPlayerIndex == playerIndex )
@@ -592,7 +595,7 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerDetails()
 
 	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
 	int iTeam = pLocalPlayer->GetTeamNumber();
-	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass <= TF_LAST_NORMAL_CLASS ) )
+	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_MERCENARY ) )
 	{
 		m_pClassImage->SetClass( iTeam, iClass, 0 );
 		m_pClassImage->SetVisible( true );

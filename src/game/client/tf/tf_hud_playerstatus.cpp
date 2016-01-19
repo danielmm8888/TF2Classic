@@ -22,6 +22,7 @@
 #include "c_tf_player.h"
 #include "tf_shareddefs.h"
 #include "tf_hud_playerstatus.h"
+#include "tf_hud_target_id.h"
 
 using namespace vgui;
 
@@ -416,6 +417,15 @@ void CTFHudPlayerHealth::SetHealth( int iNewHealth, int iMaxHealth, int	iMaxBuff
 		if ( !m_pHealthImageBG->IsVisible() )
 		{
 			m_pHealthImageBG->SetVisible( true );
+		}
+
+		CTargetID *pTargetID = dynamic_cast<CTargetID *>( this->GetParent() );
+		if ( NULL != pTargetID )
+		{
+			if ( cl_entitylist->GetEnt( pTargetID->GetTargetIndex() )->IsBaseObject() )
+				m_pHealthImageBuildingBG->SetVisible( true );
+			else
+				m_pHealthImageBuildingBG->SetVisible( false );
 		}
 
 		// are we getting a health bonus?

@@ -34,6 +34,21 @@ END_DATADESC()
 
 #define TF_FLARE_MIN_VEL 1200
 
+acttable_t CTFFlareGun::m_acttable[] =
+{
+	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_SECONDARY2, false },
+	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_SECONDARY2, false },
+	{ ACT_MP_RUN, ACT_MP_RUN_SECONDARY2, false },
+	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_SECONDARY2, false },
+	{ ACT_MP_CROUCHWALK, ACT_MP_CROUCHWALK_SECONDARY2, false },
+	{ ACT_MP_JUMP_START, ACT_MP_JUMP_START_SECONDARY2, false },
+	{ ACT_MP_JUMP_FLOAT, ACT_MP_JUMP_FLOAT_SECONDARY2, false },
+	{ ACT_MP_JUMP_LAND, ACT_MP_JUMP_LAND_SECONDARY2, false },
+	{ ACT_MP_SWIM, ACT_MP_SWIM_SECONDARY2, false },
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE, ACT_MP_ATTACK_STAND_SECONDARY2, false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_SECONDARY2, false },
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
@@ -50,68 +65,4 @@ void CTFFlareGun::Spawn(void)
 	BaseClass::Spawn();
 }
 
-//-----------------------------------------------------------------------------
-// Purpose: Primary fire function
-//-----------------------------------------------------------------------------
-void CTFFlareGun::PrimaryAttack(void)
-{
-	// Check for ammunition.
-	if (m_iClip1 <= 0 && m_iClip1 != -1)
-		return;
-
-	// Are we capable of firing again?
-	if (m_flNextPrimaryAttack > gpGlobals->curtime)
-		return;
-
-	if (!CanAttack())
-		return;
-
-	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
-
-	LaunchProjectile();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFFlareGun::LaunchProjectile(void)
-{
-	// Get the player owning the weapon.
-	CTFPlayer *pPlayer = ToTFPlayer(GetPlayerOwner());
-	if (!pPlayer)
-		return;
-
-	CalcIsAttackCritical();
-
-	SendWeaponAnim(ACT_VM_PRIMARYATTACK);
-
-	pPlayer->SetAnimation(PLAYER_ATTACK1);
-	pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
-
-	FireProjectile(pPlayer);
-
-#if !defined( CLIENT_DLL ) 
-	pPlayer->SpeakWeaponFire();
-	CTF_GameStats.Event_PlayerFiredWeapon(pPlayer, IsCurrentAttackACrit());
-#endif
-
-	// Set next attack times.
-	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData(m_iWeaponMode).m_flTimeFireDelay;
-
-	SetWeaponIdleTime(gpGlobals->curtime + SequenceDuration());
-
-	// Check the reload mode and behave appropriately.
-	if (m_bReloadsSingly)
-	{
-		m_iReloadMode.Set(TF_RELOAD_START);
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Returns the projectile speed used by FireProjectile in CTFWeaponBase
-//-----------------------------------------------------------------------------
-float CTFFlareGun::GetProjectileSpeed(void)
-{
-	return TF_FLARE_MIN_VEL;
-}
-
+IMPLEMENT_DM_ACTTABLE( CTFFlareGun );

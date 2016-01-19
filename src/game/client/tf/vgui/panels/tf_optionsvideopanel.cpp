@@ -371,7 +371,7 @@ void CTFOptionsVideoPanel::CreateControls()
 	m_pQueuedMode->AddItem("#gameui_disabled", NULL);
 	m_pQueuedMode->AddItem("#gameui_enabled", NULL);
 
-	m_pFOVSlider = new CCvarSlider(NULL, "FOV", "#GameUI_FOV", 75.0f, 90.0f, "fov_desired");
+	m_pFOVSlider = new CCvarSlider(NULL, "FOV", "#GameUI_FOV", 75.0f, 100.0f, "fov_desired");
 
 	m_pDXLevel->SetVisible(false);
 

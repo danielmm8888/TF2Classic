@@ -9,270 +9,289 @@
 #include "cbase.h"
 #include "tf_shareddefs.h"
 #include "tf_inventory.h"
+#include "econ_item_system.h"
 
-CTFInventory *pTFInventory = NULL;
+static CTFInventory g_TFInventory;
 
 CTFInventory *GetTFInventory()
 {
-	if (NULL == pTFInventory)
+	return &g_TFInventory;
+}
+
+CTFInventory::CTFInventory() : CAutoGameSystemPerFrame( "CTFInventory" )
+{
+#ifdef CLIENT_DLL
+	m_pInventory = NULL;
+#endif
+
+	// Generate dummy base items.
+	for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
 	{
-		pTFInventory = new CTFInventory();
-	}
-	return pTFInventory;
-}
-
-CTFInventory::CTFInventory()
-{
-};
-
-int CTFInventory::GetWeapon(int iClass, int iSlot, int iNum)
-{
-	return Weapons[iClass][iSlot][iNum];
-};
-
-
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot)
-{
-	return CheckValidSlot(iClass, iSlot, 0);
-}
-
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon)
-{
-	return CheckValidWeapon(iClass, iSlot, iWeapon, 0);
-}
-
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool HudCheck)
-{
-	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
-		return false;
-	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
-	if (iSlot >= iCount || iSlot < 0)
-		return false;
-	bool bWeapon = false;
-	for (int i = 0; i < iCount; i++) //if there's at least one weapon in slot
-	{
-		if (Weapons[iClass][iSlot][i])
+		for ( int iSlot = 0; iSlot < TF_LOADOUT_SLOT_COUNT; iSlot++ )
 		{
-			bWeapon = true;
-			break;
+			m_Items[iClass][iSlot].AddToTail( NULL );
 		}
 	}
-	return bWeapon;
 };
 
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool HudCheck)
+CTFInventory::~CTFInventory()
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass >= TF_CLASS_COUNT_ALL)
+#if defined( CLIENT_DLL )
+	m_pInventory->deleteThis();
+#endif
+}
+
+bool CTFInventory::Init( void )
+{
+	GetItemSchema()->Init();
+
+	// Generate item list.
+	FOR_EACH_MAP( GetItemSchema()->m_Items, i )
+	{
+		int iItemID = GetItemSchema()->m_Items.Key( i );
+		CEconItemDefinition *pItemDef = GetItemSchema()->m_Items.Element( i );
+
+		if ( pItemDef->item_slot == -1 )
+			continue;
+
+		// Add it to each class that uses it.
+		for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
+		{
+			if ( pItemDef->used_by_classes & ( 1 << iClass ) )
+			{
+				// Show it if it's either base item or has show_in_armory flag.
+				int iSlot = pItemDef->GetLoadoutSlot( iClass );
+
+				if ( pItemDef->baseitem )
+				{
+					CEconItemView *pBaseItem = m_Items[iClass][iSlot][0];
+					if ( pBaseItem != NULL )
+					{
+						Warning( "Duplicate base item %d for class %s in slot %s!\n", iItemID, g_aPlayerClassNames_NonLocalized[iClass], g_LoadoutSlots[iSlot] );
+						delete pBaseItem;
+					}
+
+					m_Items[iClass][iSlot][0] = new CEconItemView( iItemID );
+				}
+				else if ( pItemDef->show_in_armory )
+				{
+					CEconItemView *pNewItem = new CEconItemView( iItemID );
+					m_Items[iClass][iSlot].AddToTail( pNewItem );
+				}
+			}
+		}
+	}
+
+
+#if defined( CLIENT_DLL )
+	LoadInventory();
+#endif
+
+	return true;
+}
+
+void CTFInventory::LevelInitPreEntity( void )
+{
+	GetItemSchema()->Precache();
+}
+
+int CTFInventory::GetWeapon(int iClass, int iSlot)
+{
+	return Weapons[iClass][iSlot];
+};
+
+CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
+{
+	if ( CheckValidWeapon( iClass, iSlot, iNum ) == false )
+		return NULL;
+
+	return m_Items[iClass][iSlot][iNum];
+};
+
+bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
 		return false;
-	int iCount = (HudCheck ? INVENTORY_ROWNUM : INVENTORY_WEAPONS);
-	if (iWeapon >= iCount || iWeapon < 0)
+
+	int iCount = (bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT);
+
+	// Array bounds check.
+	if ( iSlot >= iCount || iSlot < 0 )
 		return false;
-	if (!Weapons[iClass][iSlot][iWeapon])
+
+	// Slot must contain a base item.
+	if ( m_Items[iClass][iSlot][0] == NULL )
 		return false;
+
+	return true;
+};
+
+bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
+{
+	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
+		return false;
+
+	int iCount = ( bHudCheck ? INVENTORY_COLNUM : m_Items[iClass][iSlot].Count() );
+
+	// Array bounds check.
+	if ( iWeapon >= iCount || iWeapon < 0 )
+		return false;
+
+	// Don't allow switching if this class has no weapon at this position.
+	if ( m_Items[iClass][iSlot][iWeapon] == NULL )
+		return false;
+
 	return true;
 };
 
 #if defined( CLIENT_DLL )
-const char* CTFInventory::GetSlotName(int iSlot)
+void CTFInventory::LoadInventory()
 {
-	return g_aPlayerSlotNames[iSlot];
+	bool bExist = filesystem->FileExists("scripts/tf_inventory.txt", "MOD");
+	if (bExist)
+	{
+		if (!m_pInventory)
+		{
+			m_pInventory = new KeyValues("Inventory");
+		}
+		m_pInventory->LoadFromFile(filesystem, "scripts/tf_inventory.txt");
+	}
+	else
+	{
+		ResetInventory();
+	}
 };
 
-CHudTexture *CTFInventory::FindHudTextureInDict(CUtlDict< CHudTexture *, int >& list, const char *psz)
+void CTFInventory::SaveInventory()
 {
-	int idx = list.Find(psz);
-	if (idx == list.InvalidIndex())
-		return NULL;
-
-	return list[idx];
+	m_pInventory->SaveToFile(filesystem, "scripts/tf_inventory.txt");
 };
 
-KeyValues* CTFInventory::GetInventory(IBaseFileSystem *pFileSystem)
+void CTFInventory::ResetInventory()
 {
-	KeyValues *pInv = new KeyValues("Inventory");
-	pInv->LoadFromFile(pFileSystem, "scripts/tf_inventory.txt");
-	return pInv;
-};
+	if (m_pInventory)
+	{
+		m_pInventory->deleteThis();
+	}
 
-void CTFInventory::SetInventory(IBaseFileSystem *pFileSystem, KeyValues* pInventory)
+	m_pInventory = new KeyValues("Inventory");
+
+	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++)
+	{
+		KeyValues *pClassInv = new KeyValues(g_aPlayerClassNames_NonLocalized[i]);
+		for (int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++)
+		{
+			pClassInv->SetInt( g_LoadoutSlots[j], 0 );
+		}
+		m_pInventory->AddSubKey(pClassInv);
+	}
+
+	SaveInventory();
+}
+
+int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
 {
-	pInventory->SaveToFile(pFileSystem, "scripts/tf_inventory.txt");
-};
-
-char* CTFInventory::GetWeaponBucket(int iWeapon, int iTeam)
-{
-	if (iWeapon == TF_WEAPON_BUILDER) //shit but works
-		return "sprites/bucket_sapper";
-
-	CTFWeaponInfo* pWeaponInfo = GetTFWeaponInfo(iWeapon);
-	if (!pWeaponInfo)
-		return "";
-	CHudTexture *pHudTexture = (iTeam == TF_TEAM_RED ? pWeaponInfo->iconInactive : pWeaponInfo->iconActive);
-	if (!pHudTexture)
-		return "";
-	return pHudTexture->szTextureFile;
-};
-
-int CTFInventory::GetLocalPreset(KeyValues* pInventory, int iClass, int iSlot)
-{
-	KeyValues *pSub = pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pSub)
+	KeyValues *pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	if (!pClass)	//cannot find class node
+	{	
+		ResetInventory();
 		return 0;
-	const int iPreset = pSub->GetInt(g_aPlayerSlotNames[iSlot], 0);
+	}
+	int iPreset = pClass->GetInt(g_LoadoutSlots[iSlot], -1);
+	if (iPreset == -1)	//cannot find slot node
+	{
+		ResetInventory();
+		return 0;
+	}
+
+	if ( CheckValidWeapon( iClass, iSlot, iPreset ) == false )
+		return 0;
+
 	return iPreset;
 };
 
-int CTFInventory::GetWeaponPreset(IBaseFileSystem *pFileSystem, int iClass, int iSlot)
+void CTFInventory::SetWeaponPreset(int iClass, int iSlot, int iPreset)
 {
-	return GetLocalPreset(GetInventory(pFileSystem), iClass, iSlot);
+	KeyValues* pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	if (!pClass)	//cannot find class node
+	{
+		ResetInventory();
+		pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+	}
+	pClass->SetInt(GetSlotName(iSlot), iPreset);
+	SaveInventory();
+}
+
+const char* CTFInventory::GetSlotName(int iSlot)
+{
+	return g_LoadoutSlots[iSlot];
 };
+
 #endif
 
-const char *CTFInventory::g_aPlayerSlotNames[INVENTORY_SLOTS] =
-{
-	"Primary",
-	"Secondary",
-	"Melee",
-	"PDA",
-	"PDA"
-};
-
-const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][INVENTORY_SLOTS][INVENTORY_WEAPONS] =
+// Legacy array, used when we're forced to use old method of giving out weapons.
+const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT] =
 {
 	{
 
 	},
 	{
-		{
-			TF_WEAPON_SCATTERGUN, TF_WEAPON_NAILGUN
-		},
-		{
-			TF_WEAPON_PISTOL_SCOUT, TF_WEAPON_SMG_SCOUT
-		},
-		{
-			TF_WEAPON_BAT
-		}
+		TF_WEAPON_SCATTERGUN,
+		TF_WEAPON_PISTOL_SCOUT,
+		TF_WEAPON_BAT
 	},
 	{
-		{
-			TF_WEAPON_SNIPERRIFLE, TF_WEAPON_HUNTERRIFLE
-		},
-		{
-			TF_WEAPON_SMG
-		},
-		{
-			TF_WEAPON_CLUB, TF_WEAPON_FISHWHACKER
-		}
+		TF_WEAPON_SNIPERRIFLE,
+		TF_WEAPON_SMG,
+		TF_WEAPON_CLUB
 	},
 	{
-		{
-			TF_WEAPON_ROCKETLAUNCHER, TF_WEAPON_ROCKETLAUNCHERBETA
-		},
-		{
-			TF_WEAPON_SHOTGUN_SOLDIER
-		},
-		{
-			TF_WEAPON_SHOVEL
-		}
+		TF_WEAPON_ROCKETLAUNCHER,
+		TF_WEAPON_SHOTGUN_SOLDIER,
+		TF_WEAPON_SHOVEL
 	},
 	{
-		{
-			TF_WEAPON_GRENADELAUNCHER, TF_WEAPON_CYCLOPS
-		},
-		{
-			TF_WEAPON_PIPEBOMBLAUNCHER
-		},
-		{
-			TF_WEAPON_BOTTLE
-		}
+		TF_WEAPON_GRENADELAUNCHER,
+		TF_WEAPON_PIPEBOMBLAUNCHER,
+		TF_WEAPON_BOTTLE
 	},
 	{
-		{
-			TF_WEAPON_SYRINGEGUN_MEDIC, TF_WEAPON_SHOTGUN_MEDIC
-		},
-		{
-			TF_WEAPON_MEDIGUN, TF_WEAPON_OVERHEALER, TF_WEAPON_KRITZKRIEG
-		},
-		{
-			TF_WEAPON_BONESAW, TF_WEAPON_UBERSAW
-		}
+		TF_WEAPON_SYRINGEGUN_MEDIC,
+		TF_WEAPON_MEDIGUN,
+		TF_WEAPON_BONESAW
 	},
 	{
-		{
-			TF_WEAPON_MINIGUN
-		},
-		{
-			TF_WEAPON_SHOTGUN_HWG
-		},
-		{
-			TF_WEAPON_FISTS
-		}
+		TF_WEAPON_MINIGUN,
+		TF_WEAPON_SHOTGUN_HWG,
+		TF_WEAPON_FISTS
 	},
 	{
-		{
-			TF_WEAPON_FLAMETHROWER
-		},
-		{
-			TF_WEAPON_SHOTGUN_PYRO, TF_WEAPON_FLAREGUN
-		},
-		{
-			TF_WEAPON_FIREAXE
-		}
+		TF_WEAPON_FLAMETHROWER,
+		TF_WEAPON_SHOTGUN_PYRO,
+		TF_WEAPON_FIREAXE
 	},
 	{
-		{
-			TF_WEAPON_REVOLVER, TF_WEAPON_TRANQ
-		},
-		{
-			TF_WEAPON_BUILDER					// HACK!!! This is to make sapper show up on the loadout screen so spy doesn't end up with an empty slot.
-		},
-		{
-			TF_WEAPON_KNIFE
-		},
-		{
-			TF_WEAPON_PDA_SPY
-		},
-		{
-			TF_WEAPON_INVIS
-		}
+		TF_WEAPON_REVOLVER,
+		TF_WEAPON_NONE,
+		TF_WEAPON_KNIFE,
+		TF_WEAPON_PDA_SPY,
+		TF_WEAPON_INVIS
 	},
 	{
-		{
-			TF_WEAPON_SHOTGUN_PRIMARY
-		},
-		{
-			TF_WEAPON_PISTOL
-		},
-		{
-			TF_WEAPON_WRENCH
-		},
-		{
-			TF_WEAPON_PDA_ENGINEER_BUILD
-		},
-		{
-			TF_WEAPON_PDA_ENGINEER_DESTROY
-		}
+		TF_WEAPON_SHOTGUN_PRIMARY,
+		TF_WEAPON_PISTOL,
+		TF_WEAPON_WRENCH,
+		TF_WEAPON_PDA_ENGINEER_BUILD,
+		TF_WEAPON_PDA_ENGINEER_DESTROY
 	},
 	{
-		{
-
-		},
-		{
-
-		},
-		{
-			TF_WEAPON_UMBRELLA
-		}
+		TF_WEAPON_NONE,
+		TF_WEAPON_NONE,
+		TF_WEAPON_UMBRELLA
 	},
 	{
-		{
-
-		},
-		{
-			TF_WEAPON_PISTOL
-		},
-		{
-			TF_WEAPON_CROWBAR
-		}
+		TF_WEAPON_NONE,
+		TF_WEAPON_PISTOL,
+		TF_WEAPON_CROWBAR
 	}
 };
