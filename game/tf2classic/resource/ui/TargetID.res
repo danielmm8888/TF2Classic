@@ -20,7 +20,6 @@
 		"teambg_2_lodef"	"../hud/color_panel_red"
 		"teambg_3"		"../hud/color_panel_blu"
 		"teambg_3_lodef"	"../hud/color_panel_blu"
-		"alpha"		"255"
 		
 		"src_corner_height"		"23"				// pixels inside the image
 		"src_corner_width"		"23"

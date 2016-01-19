@@ -23,10 +23,7 @@ DECLARE_HUDELEMENT( CSecondaryTargetID );
 
 using namespace vgui;
 
-void HUDMinModeChangedCallBack(IConVar *var, const char *pOldString, float flOldValue);
-
 ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
-ConVar tf_hud_target_id_show_avatars( "tf_hud_target_id_show_avatars", "1", FCVAR_ARCHIVE, "Display Steam avatars on TargetID", HUDMinModeChangedCallBack );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -199,7 +196,12 @@ void CTargetID::PerformLayout( void )
 {
 	int iXIndent = XRES(5);
 	int iXPostdent = XRES(10);
-	int iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
+	int iWidth = 0;
+
+	if ( m_pAvatar )
+		iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
+	else
+		iWidth = m_pTargetHealth->GetWide() + iXIndent + iXPostdent;
 
 	int iTextW, iTextH;
 	int iDataW, iDataH;
@@ -212,6 +214,7 @@ void CTargetID::PerformLayout( void )
 	int iX,iY;
 	GetPos( iX, iY );
 	SetPos( (ScreenWidth() - iWidth) * 0.5, iY );
+
 
 	if ( m_pBGPanel )
 	{
@@ -413,13 +416,10 @@ void CTargetID::UpdateID( void )
 
 		m_pBGPanel->SetBGImage( iColorNum );
 
-		if ( tf_hud_target_id_show_avatars.GetBool() )
+		if ( m_pAvatar )
 		{
-			if ( m_pAvatar )
-			{
-				m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
-				m_pAvatar->SetShouldDrawFriendIcon( false );
-			}
+			m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
+			m_pAvatar->SetShouldDrawFriendIcon( false );
 		}
 
 		int iNameW, iDataW, iIgnored;
