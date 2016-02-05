@@ -61,8 +61,10 @@ const char * CKickIssue::GetDetailsString()
 void CKickIssue::OnVoteStarted()
 {
 	const char *pDetails = CBaseIssue::GetDetailsString();
-	const char * pch;
+	const char *pch;
 	pch = strrchr(pDetails, ' ');
+	if (!pch)
+		return;
 
 	int i = pch - pDetails + 1;
 	Q_snprintf(m_pzReason, sizeof(m_pzReason), pDetails + i);
@@ -116,7 +118,7 @@ int CKickIssue::CanCallVote(int a1, char *s, int a2, int a3)
 
 void CKickIssue::ExecuteCommand()
 {
-
+	;
 }
 
 bool CKickIssue::IsTeamRestrictedVote()
