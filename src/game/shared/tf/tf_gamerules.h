@@ -427,10 +427,10 @@ private:
 	CNetworkVar( int, m_nHudType );
 	CNetworkVar( bool, m_bPlayingKoth );
 	CNetworkVar( bool, m_bPlayingMedieval );
-	CNetworkVar( bool, m_bPlayingHybrid_CTF_CP );
 	CNetworkVar( bool, m_bPlayingSpecialDeliveryMode );
 	CNetworkVar( bool, m_bPlayingRobotDestructionMode );
 	CNetworkVar( bool, m_bPlayingMannVsMachine );
+	CNetworkVar( bool, m_bPlayingHybrid_CTF_CP );
 	CNetworkVar( bool, m_bCompetitiveMode );
 	CNetworkVar( bool, m_bPowerupMode );
 	CNetworkVar( CHandle<CTeamRoundTimer>, m_hBlueKothTimer );
@@ -464,6 +464,10 @@ inline CTFGameRules* TFGameRules()
 
 #ifdef GAME_DLL
 	bool EntityPlacementTest( CBaseEntity *pMainEnt, const Vector &vOrigin, Vector &outPos, bool bDropToGround );
+#endif
+
+#ifdef CLIENT_DLL
+	void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 #endif
 
 #endif // TF_GAMERULES_H

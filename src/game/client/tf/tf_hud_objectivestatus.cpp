@@ -836,7 +836,7 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 	{
 		case TF_GAMETYPE_CTF:
 			// turn on the flag panel
-			if (m_pFlagPanel && !m_pFlagPanel->IsVisible())
+			if ( m_pFlagPanel && !m_pFlagPanel->IsVisible() )
 			{
 				m_pFlagPanel->SetVisible(true);
 			}

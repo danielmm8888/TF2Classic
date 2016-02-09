@@ -1306,7 +1306,7 @@ void CTFGameRules::Activate()
 	if ( pArena )
 	{
 		m_nGameType.Set( TF_GAMETYPE_ARENA );
-		tf_gamemode_arena.SetValue( 0 );
+		tf_gamemode_arena.SetValue( 1 );
 		Msg( "Executing server arena config file\n", 1 );
 		engine->ServerCommand( "exec config_arena.cfg \n" );
 		engine->ServerExecute();
@@ -1340,7 +1340,7 @@ void CTFGameRules::Activate()
 	if ( pFlag )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CTF );
-		tf_gamemode_ctf.SetValue( 0 );
+		tf_gamemode_ctf.SetValue( 1 );
 		return;
 	}
 
@@ -1350,14 +1350,14 @@ void CTFGameRules::Activate()
 		m_nGameType.Set( TF_GAMETYPE_ESCORT );
 		//if ( gEntList.FindEntityByClassname( NULL, "tf_logic_multiple_escort" ) )
 
-		tf_gamemode_payload.SetValue( 0 );
+		tf_gamemode_payload.SetValue( 1 );
 		return;
 	}
 
 	if ( g_hControlPointMasters.Count() )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CP );
-		tf_gamemode_cp.SetValue( 0 );
+		tf_gamemode_cp.SetValue( 1 );
 		return;
 	}
 }
@@ -5166,3 +5166,13 @@ const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 }
 #endif
 
+#ifdef CLIENT_DLL
+void AddSubKeyNamed( KeyValues *pKeys, const char *pszName )
+{
+	KeyValues *pKeyvalToAdd = new KeyValues( pszName );
+
+	if ( pKeyvalToAdd )
+		pKeys->AddSubKey( pKeyvalToAdd );
+}
+
+#endif
