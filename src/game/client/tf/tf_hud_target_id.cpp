@@ -25,6 +25,9 @@ using namespace vgui;
 
 ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
 
+ConVar tf_hud_target_id_show_avatars( "tf_hud_target_id_show_avatars", "1", FCVAR_ARCHIVE, "Show avatars on player target ids" );
+ConVar tf_hud_target_id_show_building_avatars( "tf_hud_target_id_show_building_avatars", "0", FCVAR_ARCHIVE, "If tf_hud_target_id_show_avatars is enabled, show avatars on building target ids" );
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -42,6 +45,7 @@ CTargetID::CTargetID( const char *pElementName ) :
 
 	m_pTargetNameLabel = NULL;
 	m_pTargetDataLabel = NULL;
+	m_pAvatar = NULL;
 	m_pBGPanel = NULL;
 	m_pTargetHealth = new CTFSpectatorGUIHealth( this, "SpectatorGUIHealth" );
 	m_bLayoutOnUpdate = false;
@@ -196,12 +200,7 @@ void CTargetID::PerformLayout( void )
 {
 	int iXIndent = XRES(5);
 	int iXPostdent = XRES(10);
-	int iWidth = 0;
-
-	if ( m_pAvatar )
-		iWidth = m_pTargetHealth->GetWide() + m_pAvatar->GetWide() + iXIndent + iXPostdent;
-	else
-		iWidth = m_pTargetHealth->GetWide() + iXIndent + iXPostdent;
+	int iWidth = m_pTargetHealth->GetWide() + iXIndent + iXPostdent;
 
 	int iTextW, iTextH;
 	int iDataW, iDataH;
@@ -215,10 +214,10 @@ void CTargetID::PerformLayout( void )
 	GetPos( iX, iY );
 	SetPos( (ScreenWidth() - iWidth) * 0.5, iY );
 
-
 	if ( m_pBGPanel )
 	{
-		m_pBGPanel->SetSize( iWidth, GetTall() );
+		m_pBGPanel->SetSize( iWidth, GetTall() * 0.8 );
+		m_pBGPanel->SetPos( 0, 9 );
 		m_pBGPanel->SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 	}
 };
@@ -300,6 +299,17 @@ void CTargetID::UpdateID( void )
 			// get team color
 			iColorNum = pPlayer->GetTeamNumber();
 
+			// offset the name if avatars are enabled
+			if ( tf_hud_target_id_show_avatars.GetBool() && !g_PR->IsFakePlayer( m_iTargetEntIndex ) )
+			{
+				m_pTargetNameLabel->SetTextInset( 32, 0 );
+			}
+			else
+			{
+				// don't show avatars on undisguised bots
+				m_pTargetNameLabel->SetTextInset( 0, 0 );
+			}
+
 			if ( bDisguisedTarget )
 			{
 				// is the target a disguised enemy spy?
@@ -314,6 +324,12 @@ void CTargetID::UpdateID( void )
 						iColorNum = pPlayer->m_Shared.GetDisguiseTeam();
 						// change the avatar
 						pAvatarPlayer = pDisguiseTarget;
+						
+						// offset the name if avatars are enabled and we're a disguised enemy bot
+						if ( tf_hud_target_id_show_avatars.GetBool() && g_PR->IsFakePlayer( m_iTargetEntIndex ) )
+						{
+							m_pTargetNameLabel->SetTextInset( 32, 0 );
+						}
 					}
 				}
 				else
@@ -401,7 +417,20 @@ void CTargetID::UpdateID( void )
 				flMaxHealth = pObj->GetMaxHealth();
 				C_TFPlayer *pBuilder = pObj->GetBuilder();
 				iColorNum = pBuilder ? pBuilder->GetTeamNumber() : pObj->GetTeamNumber();
-				pAvatarPlayer = pBuilder;
+				
+				// are building avatars allowed?
+				if ( !tf_hud_target_id_show_avatars.GetBool() || !tf_hud_target_id_show_building_avatars.GetBool() || !pBuilder )
+				{
+					// avatars are off or we don't have a builder, wipe it
+					pAvatarPlayer = NULL;
+					m_pTargetNameLabel->SetTextInset( 0, 0 );
+				}
+				else
+				{
+					// show the avatar
+					pAvatarPlayer = pBuilder;
+					m_pTargetNameLabel->SetTextInset( 32, 0 );
+				}
 			}
 		}
 
@@ -416,10 +445,16 @@ void CTargetID::UpdateID( void )
 
 		m_pBGPanel->SetBGImage( iColorNum );
 
-		if ( m_pAvatar )
+		// Setup avatar
+		if ( tf_hud_target_id_show_avatars.GetBool() && m_pAvatar )
 		{
 			m_pAvatar->SetPlayer( (C_BasePlayer *)pAvatarPlayer );
 			m_pAvatar->SetShouldDrawFriendIcon( false );
+		}
+		else if ( m_pAvatar )
+		{
+			// avatars are off, wipe it
+			m_pAvatar->SetPlayer( NULL );
 		}
 
 		int iNameW, iDataW, iIgnored;
@@ -434,6 +469,12 @@ void CTargetID::UpdateID( void )
 
 			// TODO: Support	if( hud_centerid.GetInt() == 0 )
 			SetDialogVariable( "targetname", sIDString );
+		
+			if ( !m_pAvatar )
+			{
+				// we're missing the avatar, in that case don't manipulate the text
+				m_pTargetNameLabel->SetTextInset( 0, 0 );
+			}
 		}
 		else
 		{
