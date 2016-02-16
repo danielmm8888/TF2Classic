@@ -105,7 +105,7 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY, "Makes players spawn with random loadout." );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout." );
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
@@ -1509,6 +1509,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 {
+	// TODO: Make this work with Econ weapons. Not a priority atm.
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		int iWeaponID = RandomInt( TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1 );

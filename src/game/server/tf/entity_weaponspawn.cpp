@@ -68,17 +68,21 @@ extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
 
 //#define RESPAWN_PARTICLE "particlename"
 
-BEGIN_DATADESC(CWeaponSpawner)
+BEGIN_DATADESC( CWeaponSpawner )
 
 	DEFINE_KEYFIELD( m_nWeaponID, FIELD_INTEGER, "WeaponNumber" ),
 	DEFINE_KEYFIELD( m_nItemID, FIELD_INTEGER, "itemid" ),
 	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
+	DEFINE_KEYFIELD( m_bStaticSpawner, FIELD_BOOLEAN, "StaticSpawner" ),
+	DEFINE_KEYFIELD( m_bOutlineDisabled, FIELD_BOOLEAN, "DisableWeaponOutline" ),
 
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CWeaponSpawner, DT_WeaponSpawner )
 	SendPropBool( SENDINFO( m_bDisabled ) ),
 	SendPropBool( SENDINFO( m_bRespawning ) ),
+	SendPropBool( SENDINFO( m_bStaticSpawner ) ),
+	SendPropBool( SENDINFO( m_bOutlineDisabled ) ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
@@ -89,6 +93,8 @@ CWeaponSpawner::CWeaponSpawner()
 	m_nWeaponID = TF_WEAPON_NONE;
 	m_nItemID = -1;
 	m_iRespawnTime = 10;
+	m_bStaticSpawner = false;
+	m_bOutlineDisabled = false;
 }
 
 

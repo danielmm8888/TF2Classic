@@ -306,6 +306,8 @@ public:
 	virtual bool    IsHalloweenScenario( int iEventType ) { return false; };
 	virtual bool	IsPVEModeActive( void ) { return false; };
 	virtual bool	IsCompetitiveMode( void ){ return m_bCompetitiveMode; };
+	virtual bool	IsInHybridCTF_CPMode( void ){ return m_bPlayingHybrid_CTF_CP; };
+	virtual bool	IsInSpecialDeliveryMode( void ){ return m_bPlayingSpecialDeliveryMode; };
 
 #ifdef CLIENT_DLL
 
