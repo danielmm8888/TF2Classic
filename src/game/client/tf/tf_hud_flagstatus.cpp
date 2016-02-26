@@ -356,13 +356,30 @@ void CTFHudFlagObjectives::ApplySchemeSettings( IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
+	KeyValues *pConditions = NULL;
+
+	if ( TFGameRules() && TFGameRules()->IsInHybridCTF_CPMode() )
+	{
+		pConditions = new KeyValues( "conditions" );
+		AddSubKeyNamed( pConditions, "if_hybrid" );
+	}
+	else if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
+	{
+		pConditions = new KeyValues( "conditions" );
+		AddSubKeyNamed( pConditions, "if_mvm" );
+	}
+	else if ( TFGameRules() && TFGameRules()->IsInSpecialDeliveryMode() )
+	{
+		pConditions = new KeyValues( "conditions" );
+		AddSubKeyNamed( pConditions, "if_specialdelivery" );
+	}
+
 	// load control settings...
-	LoadControlSettings( "resource/UI/HudObjectiveFlagPanel.res" );
+	LoadControlSettings( "resource/UI/HudObjectiveFlagPanel.res", NULL, NULL, pConditions );
 
 	m_pCarriedImage = dynamic_cast<CTFImagePanel *>( FindChildByName( "CarriedImage" ) );
 	m_pPlayingTo = dynamic_cast<CExLabel *>( FindChildByName( "PlayingTo" ) );
 	m_pPlayingToBG = dynamic_cast<CTFImagePanel *>( FindChildByName( "PlayingToBG" ) );
-
 	m_pRedFlag = dynamic_cast<CTFFlagStatus *>( FindChildByName( "RedFlag" ) );
 	m_pBlueFlag = dynamic_cast<CTFFlagStatus *>( FindChildByName( "BlueFlag" ) );
 
@@ -380,6 +397,13 @@ void CTFHudFlagObjectives::ApplySchemeSettings( IScheme *pScheme )
 	{
 		pOutline->SetAlpha( 0 );
 	}
+
+	if ( pConditions )
+	{
+		pConditions->deleteThis();
+	}
+
+	UpdateStatus();
 }
 
 //-----------------------------------------------------------------------------

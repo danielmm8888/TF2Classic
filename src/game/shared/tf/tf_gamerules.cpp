@@ -2898,6 +2898,33 @@ static const char *g_aTaggedConVars[] =
 	"tf_use_fixed_weaponspreads",
 	"nospread",
 
+	"tf2c_force_stock_weapons",
+	"stockweapons",
+
+	"tf2c_allow_thirdperson",
+	"thirdperson",
+
+	"tf2c_random_weapons",
+	"randomizer",
+
+	"tf2c_autojump",
+	"autojump",
+
+	"tf2c_duckjump",
+	"duckjump",
+
+	"tf2c_allow_special_classes",
+	"specialclasses",
+
+	"tf2c_airblast",
+	"airblast",
+
+	"tf2c_building_hauling",
+	"hauling",
+
+	"tf2c_building_upgrades",
+	"buildingupgrades",
+
 	"mp_highlander",
 	"highlander",
 
@@ -2936,9 +2963,6 @@ static const char *g_aTaggedConVars[] =
 
 	"tf_gamemode_dm",
 	"dm",
-
-	"tf2c_allow_thirdperson",
-	"thirdperson",
 };
 
 //-----------------------------------------------------------------------------
@@ -5174,5 +5198,4 @@ void AddSubKeyNamed( KeyValues *pKeys, const char *pszName )
 	if ( pKeyvalToAdd )
 		pKeys->AddSubKey( pKeyvalToAdd );
 }
-
 #endif
