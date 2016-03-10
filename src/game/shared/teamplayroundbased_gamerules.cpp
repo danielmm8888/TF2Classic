@@ -1121,7 +1121,7 @@ bool CTeamplayRoundBasedRules::CheckTimeLimit( bool bAllowEnd /*= true*/ )
 		}
 
 #ifdef TF_CLASSIC
-		if ( IsDeathmatch() == true )
+		if ( IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 		{
 			bSwitchDueToTime = false;
 		}

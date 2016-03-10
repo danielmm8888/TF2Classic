@@ -2089,7 +2089,7 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 //-----------------------------------------------------------------------------
 bool CTFPlayerShared::SetParticleToMercColor( CNewParticleEffect *pParticle )
 {
-	if ( pParticle && TFGameRules() && TFGameRules()->IsDeathmatch() )
+	if ( pParticle && TFGameRules() && TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch()  )
 	{
 		pParticle->SetControlPoint( 9, m_pOuter->m_vecPlayerColor );
 		return true;

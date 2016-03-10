@@ -1161,7 +1161,7 @@ public:
 			}
 		}
 
-		if ( !pPlayer && TFGameRules() && TFGameRules()->IsDeathmatch() )
+		if ( !pPlayer && TFGameRules() && TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 		{
 			C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel*>(pEntity);
 			if ( pVMAddon )
@@ -3711,7 +3711,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		LoadInventory();
 	}
 
-	if ( TFGameRules()->IsDeathmatch() && GetTeamNumber() == TF_TEAM_RED && ( !IsLocalPlayer() || !InFirstPersonView() ) )
+	if (TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() && GetTeamNumber() == TF_TEAM_RED || GetTeamNumber() == TF_TEAM_BLUE && (!IsLocalPlayer() || !InFirstPersonView()))
 	{
 		char szParticleName[128];
 		int iParticleID = m_Shared.GetRespawnParticleID();
