@@ -300,6 +300,7 @@ public:
 
 	virtual bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
 	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
+	virtual bool	IsTeamDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_TDM; };
 	virtual bool    IsMannVsMachineMode( void ) { return false; };
 	virtual bool	IsInArenaMode( void ) { return m_nGameType == TF_GAMETYPE_ARENA; }
 	virtual bool	IsInKothMode( void ) { return m_bPlayingKoth; }

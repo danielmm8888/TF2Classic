@@ -492,7 +492,7 @@ void CTFPlayer::TFPlayerThink()
 		m_bJumpEffect = true;
 	}
 
-	if ( TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() && IsAlive() && m_flSpawnProtectTime )
 	{
 		if ( ( gpGlobals->curtime > m_flSpawnProtectTime ) || ( m_nButtons & IN_ATTACK ) )
 		{
@@ -900,8 +900,8 @@ void CTFPlayer::InitialSpawn( void )
 	CTF_GameStats.Event_MaxSentryKills( this, 0 );
 
 	m_bIsPlayerADev = PlayerHasPowerplay();
-
-	if ( TFGameRules()->IsDeathmatch() )
+										//For Player Viewmodel
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 	{
 		UpdatePlayerColor();
 	}
@@ -1127,7 +1127,7 @@ void CTFPlayer::InitClass( void )
 	GiveDefaultItems();
 
 	// Update player's color.
-	if ( TFGameRules()->IsDeathmatch() )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 	{
 		UpdatePlayerColor();
 	}
@@ -1697,10 +1697,10 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	case TF_TEAM_GREEN:
 	case TF_TEAM_YELLOW:
 		{
-			if ( !TFGameRules()->IsDeathmatch() )
-				pSpawnPointName = "info_player_teamspawn";
-			else
+			if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 				pSpawnPointName = "info_player_deathmatch";
+			else
+				pSpawnPointName = "info_player_teamspawn";
 
 			if ( SelectSpawnSpot( pSpawnPointName, pSpot ) )
 			{
@@ -1783,7 +1783,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 					continue;
 				}
 
-				if ( bIgnorePlayers && TFGameRules()->IsDeathmatch() )
+				if ( bIgnorePlayers && TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 				{
 					// We're spawning on a busy spawn point so kill off anyone occupying it.
 					edict_t	*edPlayer;
@@ -1922,6 +1922,8 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		SetDesiredPlayerClassIndex( TF_CLASS_MERCENARY );
 		return;
 	}
+	if (TFGameRules()->IsTeamDeathmatch() && stricmp(pTeamName, "spectate") != 0)
+		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
 
 	int iTeam = TF_TEAM_RED;
 	if ( stricmp( pTeamName, "auto" ) == 0 )
@@ -2054,7 +2056,7 @@ void CTFPlayer::HandleCommand_JoinTeam_NoMenus( const char *pTeamName )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
 {
-	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
 	{
 		ChangeTeam(TF_TEAM_RED);
 		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
@@ -2242,7 +2244,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( GetTeamNumber() <= LAST_SHARED_TEAM )
 		return;
 
-	if ( TFGameRules()->IsDeathmatch() )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 		return;
 
 	// In case we don't get the class menu message before the spawn timer
@@ -4300,7 +4302,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Stop being invisible
 	m_Shared.RemoveCond( TF_COND_STEALTHED );
 
-	if ( TFGameRules()->IsDeathmatch() )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 	{
 		// Drop our weapon in DM
 		DropWeapon( GetActiveTFWeapon(), true );
@@ -4896,7 +4898,7 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 	}
 
 	// Don't drop pistol and crowbar in DM since those are default weapons.
-	if ( TFGameRules()->IsDeathmatch() && 
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch()  && 
 		( pWeapon->IsWeapon( TF_WEAPON_PISTOL ) || pWeapon->IsWeapon( TF_WEAPON_CROWBAR ) ) )
 		return;
 
@@ -8201,12 +8203,28 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFPlayer::UpdatePlayerColor( void )
-{
-	// Update color from their convars
+{	
 	Vector vecNewColor;
-	vecNewColor.x = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
-	vecNewColor.y = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
-	vecNewColor.z = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+	if (TFGameRules()->IsTeamDeathmatch())
+	{
+		switch (GetTeamNumber())
+		{
+		case TF_TEAM_RED:
+			vecNewColor = Vector(94, 8, 5);
+			break;
+		case TF_TEAM_BLUE:
+			vecNewColor = Vector(6, 21, 80);
+			break;
+		default:
+			break;
+		}
+	}
+	else// Update color from their convars
+	{
+		vecNewColor.x = Q_atoi(engine->GetClientConVarValue(entindex(), "tf2c_setmerccolor_r")) / 255.0f;
+		vecNewColor.y = Q_atoi(engine->GetClientConVarValue(entindex(), "tf2c_setmerccolor_g")) / 255.0f;
+		vecNewColor.z = Q_atoi(engine->GetClientConVarValue(entindex(), "tf2c_setmerccolor_b")) / 255.0f;
+	}
 
 	// Clamp saturation to 0.65 max and value to 0.85 max
 	Vector vecHSVColor;

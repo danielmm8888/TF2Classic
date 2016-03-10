@@ -54,6 +54,14 @@
 
 #define ITEM_RESPAWN_TIME	10.0f
 
+static void OnTDM( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	if (((ConVar*)var)->GetInt() >= 1)
+		Msg("Team Deathmath has been enabled, waiting for map change");
+	else if (((ConVar*)var)->GetInt() <= 0)
+		Msg("Team Deathmath has been disabled, waiting for map change");
+}
+
 enum
 {
 	BIRTHDAY_RECALCULATE,
@@ -108,6 +116,7 @@ ConVar tf_gamemode_payload( "tf_gamemode_payload", "0" , FCVAR_NOTIFY | FCVAR_RE
 ConVar tf_gamemode_mvm( "tf_gamemode_mvm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_passtime( "tf_gamemode_passtime", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
 ConVar tf_gamemode_dm( "tf_gamemode_dm", "0" , FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_DEVELOPMENTONLY );
+ConVar tf_gamemode_tdm( "tf_gamemode_tdm", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enable Team DeathMatch", OnTDM );
 
 ConVar tf_teamtalk( "tf_teamtalk", "1", FCVAR_NOTIFY, "Teammates can always chat with each other whether alive or dead." );
 ConVar tf_ctf_bonus_time( "tf_ctf_bonus_time", "10", FCVAR_NOTIFY, "Length of team crit time for CTF capture." );
@@ -1294,10 +1303,22 @@ void CTFGameRules::Activate()
 
 	if ( gEntList.FindEntityByClassname( NULL, "tf_logic_deathmatch" ) || !Q_strncmp(STRING(gpGlobals->mapname), "dm_", 3) )
 	{
-		m_nGameType.Set( TF_GAMETYPE_DM );
-		tf_gamemode_dm.SetValue( 1 );
-		Msg( "Executing server deathmatch config file\n", 1 );
-		engine->ServerCommand( "exec config_deathmatch.cfg \n" );
+		if (!tf_gamemode_tdm.GetInt() == 1)
+		{
+			m_nGameType.Set(TF_GAMETYPE_DM);
+			tf_gamemode_dm.SetValue(1);
+			Msg("Executing server deathmatch config file\n", 1);
+			engine->ServerCommand("exec config_deathmatch.cfg \n");
+			engine->ServerExecute();
+			return;
+		}
+	}
+
+	if (tf_gamemode_tdm.GetInt() == 1 || gEntList.FindEntityByClassname(NULL, "tf_logic_team_deathmatch") || !Q_strncmp(STRING(gpGlobals->mapname), "tdm_", 3))
+	{
+		m_nGameType.Set(TF_GAMETYPE_TDM);
+		Msg("Executing server team deathmatch config file\n", 1);
+		engine->ServerCommand("exec config_team_deathmatch.cfg \n");
 		engine->ServerExecute();
 		return;
 	}
@@ -2295,7 +2316,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
-		if ( IsDeathmatch() && CountActivePlayers() > 0 && !g_fGameOver )
+		if ( IsDeathmatch() || IsTeamDeathmatch() && CountActivePlayers() > 0 && !g_fGameOver )
 		{
 			if ( CheckFragLimit() )
 				return;
@@ -4480,7 +4501,7 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 {
 	// DM uses a different scoring system
-	if ( TFGameRules()->IsDeathmatch() )
+	if ( TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 	{
 		int iScore = (pRoundStats->m_iStat[TFSTAT_KILLS]) +
 					 (pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
@@ -5107,6 +5128,9 @@ const char *CTFGameRules::GetGameDescription(void)
 		case TF_GAMETYPE_DM:
 			return "TF2C (Deathmatch)";
 			break;
+		case TF_GAMETYPE_TDM:
+			return "TF2C (Team Deathmatch)";
+			break;
 		case TF_GAMETYPE_VIP:
 			return "TF2C (Hunted)";
 			break;
@@ -5125,7 +5149,7 @@ const char *CTFGameRules::GetGameDescription(void)
 void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 {
 	BaseClass::PlayerSpawn(pPlayer);
-	if ( IsDeathmatch() )
+	if ( IsDeathmatch() || IsTeamDeathmatch() )
 	{
 		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
 		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();
@@ -5143,7 +5167,7 @@ void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 float CTFGameRules::GetRespawnWaveMaxLength( int iTeam, bool bScaleWithNumPlayers /* = true */ )
 {
 	// No respawn times in deathmatch.
-	if ( IsDeathmatch() )
+	if ( IsDeathmatch() || IsTeamDeathmatch() )
 		return 0.0f;
 
 	return BaseClass::GetRespawnWaveMaxLength( iTeam, bScaleWithNumPlayers );

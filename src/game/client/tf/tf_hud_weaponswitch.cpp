@@ -204,31 +204,35 @@ bool CTFHudWeaponSwitch::ShouldDraw(void)
 	if( IsTakingAFreezecamScreenshot() )
 		return false;
 
-	if (!TFGameRules() || !TFGameRules()->IsDeathmatch())
+	if (!TFGameRules())
 		return false;
-
-	C_TFPlayer *pLocalTFPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if (!pLocalTFPlayer)
-		return false;
-
-	int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
-	if (iWeaponTo != -1)
+	if (TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch())
 	{
-		m_pItemDefTo = GetItemSchema()->GetItemDefinition( iWeaponTo );
 
-		if ( !m_pItemDefTo )
+		C_TFPlayer *pLocalTFPlayer = C_TFPlayer::GetLocalTFPlayer();
+		if (!pLocalTFPlayer)
 			return false;
 
-		C_EconEntity *pWeaponFrom = pLocalTFPlayer->GetEntityForLoadoutSlot( m_pItemDefTo->GetLoadoutSlot( TF_CLASS_MERCENARY ) );
-		if (!pWeaponFrom)
-			return false;
+		int iWeaponTo = pLocalTFPlayer->m_Shared.GetDesiredWeaponIndex();
+		if (iWeaponTo != -1)
+		{
+			m_pItemDefTo = GetItemSchema()->GetItemDefinition(iWeaponTo);
 
-		m_pItemDefFrom = pWeaponFrom->GetItem()->GetStaticData();
-		UpdateStatus();
+			if (!m_pItemDefTo)
+				return false;
 
-		return true;
+			C_EconEntity *pWeaponFrom = pLocalTFPlayer->GetEntityForLoadoutSlot(m_pItemDefTo->GetLoadoutSlot(TF_CLASS_MERCENARY));
+			if (!pWeaponFrom)
+				return false;
+
+			m_pItemDefFrom = pWeaponFrom->GetItem()->GetStaticData();
+			UpdateStatus();
+
+			return true;
+		}
+
+		return false;
 	}
-
 	return false;
 }
 

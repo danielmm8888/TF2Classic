@@ -45,7 +45,7 @@ const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
 
 const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/ )
 {
-	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() )
+	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() || TFGameRules()->IsTeamDeathmatch() )
 	{
 		return "dm";
 	}
