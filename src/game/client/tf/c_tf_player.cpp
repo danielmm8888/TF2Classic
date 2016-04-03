@@ -104,6 +104,7 @@ ConVar tf2c_setmercparticle( "tf2c_setmercparticle", "1", FCVAR_ARCHIVE | FCVAR_
 
 
 #define BDAY_HAT_MODEL		"models/effects/bday_hat.mdl"
+#define SPY_MASK_MODEL		"models/player/items/spy_mask.mdl"
 
 IMaterial	*g_pHeadLabelMaterial[4] = { NULL, NULL }; 
 void	SetupHeadLabelMaterials( void );
@@ -2198,15 +2199,6 @@ CStudioHdr *C_TFPlayer::OnNewModel( void )
 		InitPhonemeMappings();
 	}
 
-	if ( IsPlayerClass( TF_CLASS_SPY ) )
-	{
-		m_iSpyMaskBodygroup = FindBodygroupByName( "spyMask" );
-	}
-	else
-	{
-		m_iSpyMaskBodygroup = -1;
-	}
-
 	m_bUpdatePartyHat = true;
 
 	return hdr;
@@ -2236,6 +2228,29 @@ void C_TFPlayer::UpdatePartyHat( void )
 				iVisibleTeam = m_Shared.GetDisguiseTeam();
 			}
 			m_hPartyHat->m_nSkin = iVisibleTeam - 2;
+		}
+	}
+}
+
+void C_TFPlayer::UpdateSpyMask(bool hide)
+{
+	if (IsAlive() && GetTeamNumber() >= FIRST_GAME_TEAM && !IsPlayerClass(TF_CLASS_UNDEFINED))
+	{
+		if (!hide)
+		{
+			if (m_hSpyMask)
+			{
+				m_hSpyMask->Release();
+			}
+
+			m_hSpyMask = C_PlayerAttachedModel::Create(SPY_MASK_MODEL, this, LookupAttachment("eyes"), vec3_origin, PAM_PERMANENT, PAM_BONEMERGE);
+		}
+		else
+		{
+			if (m_hSpyMask)
+			{
+				m_hSpyMask->Release();
+			}
 		}
 	}
 }
@@ -3922,11 +3937,6 @@ void C_TFPlayer::ValidateModelIndex( void )
 		{
 			m_nModelIndex = modelinfo->GetModelIndex( pClass->GetModelName() );
 		}
-	}
-
-	if ( m_iSpyMaskBodygroup > -1 && GetModelPtr() != NULL )
-	{
-		SetBodygroup( m_iSpyMaskBodygroup, ( m_Shared.InCond( TF_COND_DISGUISED ) && !IsEnemyPlayer() ) );
 	}
 
 	BaseClass::ValidateModelIndex();
