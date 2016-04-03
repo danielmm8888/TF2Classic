@@ -20,7 +20,7 @@ static void OnBlogToggle(IConVar *var, const char *pOldValue, float flOldValue)
 	GET_MAINMENUPANEL(CTFMainMenuPanel)->ShowBlogPanel(((ConVar*)var)->GetBool());
 }
 ConVar tf2c_mainmenu_music("tf2c_mainmenu_music", "1", FCVAR_ARCHIVE, "Toggle music in the main menu");
-ConVar tf2c_mainmenu_showblog("tf2c_mainmenu_showblog", "1", FCVAR_ARCHIVE, "Toggle blog in the main menu", OnBlogToggle);
+ConVar tf2c_mainmenu_showblog("tf2c_mainmenu_showblog", "0", FCVAR_ARCHIVE, "Toggle blog in the main menu", OnBlogToggle);
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -93,7 +93,7 @@ void CTFMainMenuPanel::PerformLayout()
 		(steamapicontext->SteamFriends() ? steamapicontext->SteamFriends()->GetPersonaName() : "Unknown"));
 	SetDialogVariable("nickname", szNickName);
 
-	ShowBlogPanel(tf2c_mainmenu_showblog.GetBool());
+	ShowBlogPanel(tf2c_mainmenu_showblog.GetBool() || GetNotificationManager()->IsOutdated());
 	OnNotificationUpdate();
 	AutoLayout();
 
