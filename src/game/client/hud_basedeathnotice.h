@@ -73,6 +73,10 @@ struct DeathNoticeItem
 	CHudTexture *iconPostKillerName;
 	wchar_t		wzPreKillerText[32];
 
+#if defined ( TF_CLASSIC_CLIENT )
+	wchar_t		wzPostkillerIconText[32];
+#endif
+
 	CHudTexture *iconPostVictimName;
 
 	bool		bSelfInflicted;

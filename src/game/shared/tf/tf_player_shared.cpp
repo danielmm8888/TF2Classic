@@ -1076,6 +1076,8 @@ void CTFPlayerShared::OnAddDisguised( void )
 		m_pOuter->m_pDisguisingEffect = NULL;
 	}
 	m_pOuter->m_flDisguiseEndEffectStartTime = gpGlobals->curtime;
+
+	m_pOuter->UpdateSpyMask(false);
 #endif
 }
 
@@ -1527,6 +1529,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 
 	UpdateCritBoostEffect();
 
+	m_pOuter->UpdateSpyMask(true);
 #else
 	m_nDisguiseTeam  = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
@@ -3412,6 +3415,16 @@ CBaseObject* CTFPlayerShared::GetCarriedObject(void)
 }
 
 #endif
+
+void CTFPlayerShared::IncKillstreak()
+{
+	m_nStreaks.Set(0, m_nStreaks.Get(0) + 1);
+
+	if (m_nStreaks.Get(0) % 10 == 0)
+	{
+
+	}
+}
 
 //-----------------------------------------------------------------------------
 // Purpose: Weapons can call this on secondary attack and it will link to the class

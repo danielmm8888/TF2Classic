@@ -816,6 +816,8 @@ void CTFPlayer::PrecachePlayerModels( void )
 		}
 	}
 	
+	PrecacheModel("models/player/items/spy_mask.mdl");
+
 	if ( TFGameRules() && TFGameRules()->IsBirthday() )
 	{
 		for ( i = 1; i < ARRAYSIZE(g_pszBDayGibs); i++ )

@@ -231,7 +231,7 @@ public:
 
 	int		GetKillstreak( void ) { return m_nStreaks.Get(0); }
 	void	SetKillstreak(int iKillstreak) { m_nStreaks.Set(0, iKillstreak); }
-	void	IncKillstreak() { m_nStreaks.Set(0, m_nStreaks.Get(0) + 1); }
+	void	IncKillstreak();
 
 	int		GetTeleporterEffectColor( void ) { return m_nTeamTeleporterUsed; }
 	void	SetTeleporterEffectColor( int iTeam ) { m_nTeamTeleporterUsed = iTeam; }

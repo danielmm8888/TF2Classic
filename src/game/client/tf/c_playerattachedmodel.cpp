@@ -42,6 +42,11 @@ bool C_PlayerAttachedModel::Initialize( const char *pszModelName, C_BaseEntity *
 		return false;
 	}
 
+	UseClientSideAnimation();
+
+	SetAbsOrigin(pParent->GetAbsOrigin());
+	SetAbsAngles(pParent->GetAbsAngles());
+
 	SetParent( pParent, iAttachment ); 
 	SetLocalOrigin( vecOffset );
 	SetLocalAngles( vec3_angle );
@@ -63,6 +68,10 @@ bool C_PlayerAttachedModel::Initialize( const char *pszModelName, C_BaseEntity *
 	if ( m_iFlags & PAM_ANIMATE_RANDOMLY )
 	{
 		m_flAnimateAt = gpGlobals->curtime + PAM_ROTATE_TIME;
+	}
+	if (m_iFlags & PAM_BONEMERGE)
+	{
+		AddEFlags(EF_BONEMERGE | EF_BONEMERGE_FASTCULL | EF_PARENT_ANIMATES);
 	}
 
 	return true;

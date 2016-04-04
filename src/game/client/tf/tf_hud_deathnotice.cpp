@@ -60,6 +60,7 @@ private:
 	void AddAdditionalMsg( int iKillerID, int iVictimID, const char *pMsgKey );
 
 	CHudTexture		*m_iconDomination;
+	CHudTexture		*m_iconKillstreak;
 
 	CPanelAnimationVar( Color, m_clrBlueText, "TeamBlue", "153 204 255 255" );
 	CPanelAnimationVar( Color, m_clrRedText, "TeamRed", "255 64 64 255" );
@@ -75,6 +76,7 @@ void CTFHudDeathNotice::ApplySchemeSettings( vgui::IScheme *scheme )
 	BaseClass::ApplySchemeSettings( scheme );
 
 	m_iconDomination = gHUD.GetIcon( "leaderboard_dominated" );
+	m_iconKillstreak = gHUD.GetIcon( "leaderboard_streak_dneg" );
 }
 
 bool CTFHudDeathNotice::IsVisible( void )
@@ -168,6 +170,22 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			}*/
 		}
 
+		if (!bIsObjectDestroyed)
+		{
+			int iKillerID = engine->GetPlayerForUserID(event->GetInt("attacker"));
+
+			int streak = event->GetInt("kill_streak_total");
+			if (streak >= 5 && streak % 5 == 0)
+			{
+				int i = RandomInt(0, 4);
+				if(i == 0) AddAdditionalMsg(iKillerID, -1, "#Msg_KillStreak1");
+				else if (i == 1) AddAdditionalMsg(iKillerID, -1, "#Msg_KillStreak2");
+				else if (i == 2) AddAdditionalMsg(iKillerID, -1, "#Msg_KillStreak3");
+				else if (i == 3) AddAdditionalMsg(iKillerID, -1, "#Msg_KillStreak4");
+				else if (i == 4) AddAdditionalMsg(iKillerID, -1, "#Msg_KillStreak5");
+			}
+		}
+
 		if ( !bIsObjectDestroyed )
 		{
 			// if this death involved a player dominating another player or getting revenge on another player, add an additional message
@@ -236,6 +254,20 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 			}
 		}
 
+		if (TFGameRules()->IsDeathmatch())
+		{
+			int streak = event->GetInt("kill_streak_total");
+
+			if (streak >= 1)
+			{
+				m_DeathNotices[iDeathNoticeMsg].iconPostKillerName = m_iconKillstreak;
+
+				wchar_t szStreakBuf[32];
+				Q_snwprintf(szStreakBuf, sizeof(szStreakBuf), L"%i", event->GetInt("kill_streak_total"));
+				Q_wcsncpy(m_DeathNotices[iDeathNoticeMsg].wzPostkillerIconText, szStreakBuf, sizeof(m_DeathNotices[iDeathNoticeMsg].wzPostkillerIconText));
+			}
+		}
+
 		const wchar_t *pMsg = NULL;
 		switch ( iCustomDamage )
 		{
@@ -252,7 +284,7 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 				pMsg = g_pVGuiLocalize->Find( bAssistedSuicide ? "#DeathMsg_AssistedSuicide" : "#DeathMsg_Suicide" );
 				if ( pMsg )
 				{
-					V_wcsncpy(m_DeathNotices[iDeathNoticeMsg].wzInfoText, pMsg, sizeof(m_DeathNotices[iDeathNoticeMsg].wzInfoText));
+					Q_wcsncpy(m_DeathNotices[iDeathNoticeMsg].wzInfoText, pMsg, sizeof(m_DeathNotices[iDeathNoticeMsg].wzInfoText));
 				}			
 				break;
 			}
@@ -288,23 +320,40 @@ void CTFHudDeathNotice::OnGameEvent(IGameEvent *event, int iDeathNoticeMsg)
 void CTFHudDeathNotice::AddAdditionalMsg( int iKillerID, int iVictimID, const char *pMsgKey )
 {
 	DeathNoticeItem &msg2 = m_DeathNotices[AddDeathNoticeItem()];
-	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
-	Q_strncpy( msg2.Victim.szName, g_PR->GetPlayerName( iVictimID ), ARRAYSIZE( msg2.Victim.szName ) );
-	
-	msg2.Killer.iTeam = g_PR->GetTeam(iKillerID);
-	msg2.Victim.iTeam = g_PR->GetTeam(iVictimID);
 
+	int iLocalPlayerIndex = GetLocalPlayerIndex();
+
+	if (iVictimID != -1)
+	{
+		Q_strncpy(msg2.Victim.szName, g_PR->GetPlayerName(iVictimID), ARRAYSIZE(msg2.Victim.szName));
+		msg2.Victim.iTeam = g_PR->GetTeam(iVictimID);
+		msg2.Victim.iPlayerID = iVictimID;
+
+		if (iLocalPlayerIndex == iVictimID)
+		{
+			msg2.bLocalPlayerInvolved = true;
+		}
+	}
+	else
+	{
+		Q_strncpy(msg2.Victim.szName, "", ARRAYSIZE(msg2.Victim.szName));
+		msg2.Victim.iTeam = 0;
+		msg2.Victim.iPlayerID = -1;
+	}
+
+	Q_strncpy( msg2.Killer.szName, g_PR->GetPlayerName( iKillerID ), ARRAYSIZE( msg2.Killer.szName ) );
+	msg2.Killer.iTeam = g_PR->GetTeam(iKillerID);
 	msg2.Killer.iPlayerID = iKillerID;
-	msg2.Victim.iPlayerID = iVictimID;
 
 	const wchar_t *wzMsg =  g_pVGuiLocalize->Find( pMsgKey );
 	if ( wzMsg )
 	{
 		V_wcsncpy( msg2.wzInfoText, wzMsg, sizeof( msg2.wzInfoText ) );
 	}
+
 	msg2.iconDeath = m_iconDomination;
-	int iLocalPlayerIndex = GetLocalPlayerIndex();
-	if ( iLocalPlayerIndex == iVictimID || iLocalPlayerIndex == iKillerID )
+
+	if ( iLocalPlayerIndex == iKillerID )
 	{
 		msg2.bLocalPlayerInvolved = true;
 	}
@@ -359,6 +408,8 @@ void CTFHudDeathNotice::Paint()
 		
 		int iconPrekillerWide = 0, iconPrekillerActualWide = 0, iconPrekillerTall = 0;
 		int iconPostkillerWide = 0, iconPostkillerActualWide = 0, iconPostkillerTall = 0;
+
+		int iPostKillerIconTextWide = msg.wzPostkillerIconText[0] ? UTIL_ComputeStringWidth(m_hTextFont, msg.wzPostkillerIconText) - xSpacing : 0;
 
 		int iconPostVictimWide = 0, iconPostVictimActualWide = 0, iconPostVictimTall = 0;
 
@@ -428,7 +479,7 @@ void CTFHudDeathNotice::Paint()
 		}
 
 		int iTotalWide = iKillerTextWide + iPlusIconWide + iAssisterTextWide + iconWide + iVictimTextWide + iDeathInfoTextWide + iDeathInfoEndTextWide + ( xMargin * 2 );
-		iTotalWide += iconPrekillerWide + iconPostkillerWide + iPreKillerTextWide + iconPostVictimWide;
+		iTotalWide += iconPrekillerWide + iconPostkillerWide + iPostKillerIconTextWide + iPreKillerTextWide + iconPostVictimWide;
 
 		int y = yStart + ( ( iLineTall + m_flLineSpacing ) * i );				
 		int yText = y + ( ( iLineTall - iTextTall ) / 2 );
@@ -493,6 +544,14 @@ void CTFHudDeathNotice::Paint()
 			int yPreIconTall = y + ( ( iLineTall - iconPostkillerTall ) / 2 );
 			iconPostKillerName->DrawSelf( x, yPreIconTall, iconPostkillerActualWide, iconPostkillerTall, m_clrIcon );
 			x += iconPostkillerWide + xSpacing;
+		}
+
+		// postkillericon text
+		if (msg.wzPostkillerIconText[0])
+		{
+			x += xSpacing;
+			DrawText(x + iDeathInfoOffset, yText, m_hTextFont, GetInfoTextColor(i, msg.bLocalPlayerInvolved), msg.wzPostkillerIconText);
+			x += iPostKillerIconTextWide + xSpacing;
 		}
 
 		// Draw glow behind weapon icon to show it was a crit death

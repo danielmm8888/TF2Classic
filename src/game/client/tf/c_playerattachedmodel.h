@@ -17,6 +17,7 @@
 #define PAM_ROTATE_RANDOMLY		(1<<1)
 #define PAM_SCALEUP				(1<<2)
 #define PAM_ANIMATE_RANDOMLY	(1<<3)
+#define PAM_BONEMERGE			(1<<4)
 
 //-----------------------------------------------------------------------------
 // Purpose: A clientside, visual only model that's attached to players
