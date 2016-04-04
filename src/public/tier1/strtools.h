@@ -1041,6 +1041,7 @@ size_t Q_URLDecode( OUT_CAP(nDecodeDestLen) char *pchDecodeDest, int nDecodeDest
 #define Q_strnlwr				V_strnlwr
 #define Q_vsnprintf				V_vsnprintf
 #define Q_vsnprintfRet			V_vsnprintfRet
+#define Q_snwprintf				V_snwprintf
 #define Q_pretifymem			V_pretifymem
 #define Q_pretifynum			V_pretifynum
 #define Q_UTF8ToUnicode			V_UTF8ToUnicode

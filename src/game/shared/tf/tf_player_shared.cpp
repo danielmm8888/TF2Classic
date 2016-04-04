@@ -3416,6 +3416,16 @@ CBaseObject* CTFPlayerShared::GetCarriedObject(void)
 
 #endif
 
+void CTFPlayerShared::IncKillstreak()
+{
+	m_nStreaks.Set(0, m_nStreaks.Get(0) + 1);
+
+	if (m_nStreaks.Get(0) % 10 == 0)
+	{
+
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Weapons can call this on secondary attack and it will link to the class
 // ability

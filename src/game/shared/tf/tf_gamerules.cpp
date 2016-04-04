@@ -3424,7 +3424,7 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 	// Find the killer & the scorer
 	CTFPlayer *pTFPlayerVictim = ToTFPlayer( pVictim );
 	CBaseEntity *pInflictor = info.GetInflictor();
-	CBaseEntity *pKiller = info.GetAttacker();
+	CTFPlayer *pKiller = ToTFPlayer( info.GetAttacker() );
 	CTFPlayer *pScorer = ToTFPlayer( GetDeathScorer( pKiller, pInflictor, pVictim ) );
 	CTFPlayer *pAssister = ToTFPlayer( GetAssister( pVictim, pScorer, pInflictor ) );
 	int iWeaponID = TF_WEAPON_NONE;
@@ -3505,6 +3505,12 @@ void CTFGameRules::DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &inf
 		event->SetInt( "customkill", info.GetDamageCustom() );
 		event->SetInt( "priority", 7 );	// HLTV event priority, not transmitted
 		event->SetInt( "death_flags", pTFPlayerVictim->GetDeathFlags() );
+
+		if(IsDeathmatch())
+		{
+			event->SetInt( "kill_streak_total", pKiller->m_Shared.GetKillstreak() );
+		}
+
 #if 0
 		if ( pTFPlayerVictim->GetDeathFlags() & TF_DEATH_DOMINATION )
 		{
