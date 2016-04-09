@@ -207,6 +207,11 @@ void CTFSniperRifle::HandleZooms( void )
 	if ( !pPlayer )
 		return;
 
+	int bBlockZoom = 0;
+	CALL_ATTRIB_HOOK_INT( bBlockZoom, unimplemented_mod_sniper_no_charge );
+	if ( bBlockZoom > 0 )
+		return;
+
 	// Handle the zoom when taunting.
 	if ( pPlayer->m_Shared.InCond( TF_COND_TAUNTING ) )
 	{
