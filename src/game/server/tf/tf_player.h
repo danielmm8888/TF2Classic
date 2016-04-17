@@ -146,8 +146,11 @@ public:
 	float				GetNextRegenTime( void ){ return m_flNextRegenerateTime; }
 	void				SetNextRegenTime( float flTime ){ m_flNextRegenerateTime = flTime; }
 
-	float				GetNextChangeClassTime( void ){ return m_flNextChangeClassTime; }
-	void				SetNextChangeClassTime( float flTime ){ m_flNextChangeClassTime = flTime; }
+	float				GetNextChangeClassTime(void){ return m_flNextChangeClassTime; }
+	void				SetNextChangeClassTime(float flTime){ m_flNextChangeClassTime = flTime; }
+
+	float				GetNextChangeTeamTime(void){ return m_flNextChangeTeamTime; }
+	void				SetNextChangeTeamTime(float flTime){ m_flNextChangeTeamTime = flTime; }
 
 	virtual	void		RemoveAllItems( bool removeSuit );
 	virtual void		RemoveAllWeapons( void );
@@ -536,6 +539,7 @@ private:
 
 	float					m_flNextRegenerateTime;
 	float					m_flNextChangeClassTime;
+	float					m_flNextChangeTeamTime;
 
 	// Ragdolls.
 	Vector					m_vecTotalBulletForce;
