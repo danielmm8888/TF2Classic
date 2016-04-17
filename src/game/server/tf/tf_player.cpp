@@ -2476,6 +2476,11 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "jointeam" ) )
 	{
+		if (gpGlobals->curtime < GetNextChangeTeamTime())
+			return false;
+
+		SetNextChangeTeamTime(gpGlobals->curtime + 2.0f);
+
 		if ( args.ArgC() >= 2 )
 		{
 			HandleCommand_JoinTeam( args[1] );
