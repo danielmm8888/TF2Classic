@@ -476,7 +476,7 @@ static s_MapInfo s_Maps[] = {
 	"cp_hydro",			"Hydro",			"#Gametype_CP_Domination",		"Snowshoe, Valve",
 	"cp_cragg_a1",		"Cragg",			"#Gametype_CP_Domination",		"Berry",
 	"ctf_casbah",		"Casbah",			"#Gametype_CTF",				"MacD11",
-	"ctf_landfall_rc"	"Landfall",			"#Gametype_CTF",				"Dr. Spud",
+	"ctf_landfall"		"Landfall",			"#Gametype_CTF",				"Dr. Spud",
 	"dm_wiseau"			"Wiseau",			"#Gametype_Deathmatch",			"MacD11, iiboharz",
 	"dm_grain"			"Grain",			"#Gametype_Deathmatch",			"Ms. Mudpie",
 	"dm_parley"			"Parley",			"#Gametype_Deathmatch",			"DrPyspy",
