@@ -262,6 +262,10 @@ public:
 
 	void NotifyShotMissedTarget();
 
+#ifdef TF_CLASSIC
+	virtual int UpdateTransmitState( void );
+#endif
+
 private:
 	
 	bool ShouldSnapShot( void );
@@ -2910,6 +2914,20 @@ void CProtoSniper::NotifyShotMissedTarget()
 	// miss zombie and zombines over and over because of the large amount of head movement
 	// in these NPCs' walk and run animations.
 }
+
+#ifdef TF_CLASSIC
+int CProtoSniper::UpdateTransmitState( void )
+{
+	// Hidden sniper is invisible but he needs to be transmitted to the victim
+	// for freezecam to work.
+	if ( m_spawnflags & SF_SNIPER_HIDDEN )
+	{
+		return SetTransmitState( FL_EDICT_FULLCHECK );
+	}
+
+	return BaseClass::UpdateTransmitState();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 //
