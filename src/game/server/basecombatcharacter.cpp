@@ -2758,9 +2758,9 @@ Disposition_t CBaseCombatCharacter::IRelationType ( CBaseEntity *pTarget )
 #ifdef TF_CLASSIC
 		// Change relationship based on our and their teams.
 		// Note that this does not affect NPC-to-NPC relatioships.
-		bool bTeamOverride = ( ( (IsPlayer() && pTarget->IsNPC()) || 
-			(IsNPC() && (pTarget->IsPlayer() || pTarget->IsBaseObject())) ) &&
-			(GetTeamNumber() && pTarget->GetTeamNumber()) );
+		bool bTeamOverride = ( ( ( IsPlayer() && pTarget->IsNPC() ) ||
+			( IsNPC() && ( pTarget->IsPlayer() || pTarget->IsBaseObject() ) ) ) &&
+			( GetTeamNumber() && pTarget->GetTeamNumber() ) );
 
 		if ( bTeamOverride )
 		{

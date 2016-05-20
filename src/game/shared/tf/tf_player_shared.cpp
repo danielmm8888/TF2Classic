@@ -1301,7 +1301,7 @@ void CTFPlayerShared::Disguise( int nTeam, int nClass )
 	}
 
 	// invalid team
-	if ( nTeam <= TEAM_SPECTATOR || nTeam > TF_TEAM_BLUE )
+	if ( nTeam <= TEAM_SPECTATOR || nTeam >= TF_TEAM_COUNT )
 	{
 		return;
 	}

@@ -11162,12 +11162,12 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::Activate( void )
 {
-	BaseClass::Activate();
-
 #ifdef TF_CLASSIC
 	if ( g_TFClassTeams[Classify()] )
 		ChangeTeam( g_TFClassTeams[Classify()] );
 #endif
+
+	BaseClass::Activate();
 
 	if ( GetModelPtr() )
 	{

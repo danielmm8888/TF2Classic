@@ -3306,7 +3306,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = "vortigaunt_beam";
 		}
 	}
-	else if ( Q_strcmp( killer_weapon_name,  "prop_vehicle_jeep" ) == 0 )
+	else if ( Q_strcmp( killer_weapon_name, "prop_vehicle_jeep" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{

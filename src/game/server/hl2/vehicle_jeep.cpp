@@ -896,6 +896,10 @@ ConVar hap_jeep_cannon_mag("hap_jeep_cannon_mag", "10", 0);
 //-----------------------------------------------------------------------------
 void CPropJeep::FireCannon( void )
 {
+#ifdef TF_CLASSIC
+	CDisablePredictionFiltering disabler;
+#endif
+
 	//Don't fire again if it's been too soon
 	if ( m_flCannonTime > gpGlobals->curtime )
 		return;
@@ -941,6 +945,10 @@ void CPropJeep::FireCannon( void )
 //-----------------------------------------------------------------------------
 void CPropJeep::FireChargedCannon( void )
 {
+#ifdef TF_CLASSIC
+	CDisablePredictionFiltering disabler;
+#endif
+
 	bool penetrated = false;
 
 	m_bCannonCharging	= false;

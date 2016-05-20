@@ -36,6 +36,7 @@
 #include "soundent.h"
 #include "ai_navigator.h"
 #include "tier1/functors.h"
+
 #ifdef TF_CLASSIC
 #include "ai_basenpc_shared.h"
 #include "tf_player.h"
@@ -105,9 +106,6 @@ enum Interruptability_t
 	DEATH_INTERRUPTABILITY
 };
 
-#ifdef TF_CLASSIC
-extern int g_TFClassTeams[];
-#endif
 //-------------------------------------
 // Memory
 //-------------------------------------

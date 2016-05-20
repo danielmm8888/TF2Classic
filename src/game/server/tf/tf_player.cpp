@@ -1570,12 +1570,6 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 	}
 
-	if ( iTeam > TF_TEAM_BLUE )
-	{
-		ClientPrint( this, HUD_PRINTCONSOLE, "Access denied.\n" );
-		return;
-	}
-
 	if (iTeam == GetTeamNumber())
 	{
 		return;	// we wouldn't change the team
@@ -1678,12 +1672,6 @@ void CTFPlayer::ForceChangeTeam( int iTeamNum )
 		iNewTeam = GetAutoTeam();
 	}
 
-	if ( iNewTeam > TF_TEAM_BLUE )
-	{
-		Warning("Access denied.\n");
-		return;
-	}
-
 	if ( !GetGlobalTeam( iNewTeam ) )
 	{
 		Warning( "CTFPlayer::ForceChangeTeam( %d ) - invalid team index.\n", iNewTeam );
@@ -1737,12 +1725,6 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	if ( !GetGlobalTeam( iTeamNum ) )
 	{
 		Warning( "CTFPlayer::ChangeTeam( %d ) - invalid team index.\n", iTeamNum );
-		return;
-	}
-
-	if ( iTeamNum > TF_TEAM_BLUE )
-	{
-		Warning("Access denied.\n");
 		return;
 	}
 
@@ -2803,11 +2785,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		return 0;
 	}
 
-	if ( info.GetDamage() > 0.0f )
-	{
-		if ( info.GetAttacker() )
-			NotifyFriendsOfDamage( info.GetAttacker() );
-	}
+	NotifyFriendsOfDamage( info.GetAttacker() );
 
 	AddDamagerToHistory( info.GetAttacker() );
 
@@ -2917,8 +2895,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 			else
 			{
-				float flMin = 0.40;
-				float flMax = 0.60;
+				float flMin = 0.4;
+				float flMax = 0.6;
 				float flCenter = 0.5;
 
 				if ( bitsDamage & DMG_USEDISTANCEMOD )
@@ -2935,8 +2913,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 							flCenter = RemapVal( flCenter, 0.5, 1.0, 0.5, 0.65 );
 						}
 					}
-					flMin = max( 0.0, flCenter - 0.10 );
-					flMax = min( 1.0, flCenter + 0.10 );
+					flMin = max( 0.0, flCenter - 0.1 );
+					flMax = min( 1.0, flCenter + 0.1 );
 
 					if ( bDebug )
 					{
@@ -6382,7 +6360,7 @@ bool CTFPlayer::WantsLagCompensationOnEntity( const CBasePlayer *pPlayer, const 
 	{
 		bIsMedic = true;
 
-		if ( pPlayer->GetTeamNumber() == GetTeamNumber()  )
+		if ( pPlayer->GetTeamNumber() == GetTeamNumber() )
 		{
 			CWeaponMedigun *pWeapon = dynamic_cast <CWeaponMedigun*>( GetActiveWeapon() );
 
