@@ -658,6 +658,9 @@ void CAI_BaseNPC::Event_Killed( const CTakeDamageInfo &info )
 	m_bBurningDeath = IsOnFire() || ( info.GetDamageType() & (DMG_BURN | DMG_IGNITE) );
 
 	DeathNotice( info );
+
+	if ( TFGameRules() )
+		TFGameRules()->NPCKilled( this, info );
 #endif
 	
 	//Adrian: Select a death pose to extrapolate the ragdoll's velocity.

@@ -274,6 +274,9 @@ public:
 	virtual void CreateStandardEntities();
 
 	virtual void PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &info );
+#ifdef TF_CLASSIC
+	virtual void NPCKilled( CAI_BaseNPC *pVictim, const CTakeDamageInfo &info );
+#endif
 	virtual void DeathNotice( CBasePlayer *pVictim, const CTakeDamageInfo &info );
 	virtual CBasePlayer *GetDeathScorer( CBaseEntity *pKiller, CBaseEntity *pInflictor, CBaseEntity *pVictim );
 
