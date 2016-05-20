@@ -3145,6 +3145,40 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	BaseClass::PlayerKilled( pVictim, info );
 }
 
+#ifdef TF_CLASSIC
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameRules::NPCKilled( CAI_BaseNPC *pVictim, const CTakeDamageInfo &info )
+{
+	CBaseEntity *pInflictor = info.GetInflictor();
+
+	if ( pInflictor )
+	{
+		CBaseObject *pObject = dynamic_cast<CBaseObject *>( pInflictor );
+		if ( pObject )
+		{
+			pObject->IncrementKills();
+
+			if ( pObject->ObjectType() == OBJ_SENTRYGUN )
+			{
+				CTFPlayer *pOwner = pObject->GetOwner();
+				if ( pOwner )
+				{
+					int iKills = pObject->GetKills();
+
+					if ( pOwner->GetMaxSentryKills() < iKills )
+					{
+						pOwner->SetMaxSentryKills( iKills );
+						CTF_GameStats.Event_MaxSentryKills( pOwner, iKills );
+					}
+				}
+			}
+		}
+	}
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: Determines if attacker and victim have gotten domination or revenge
 //-----------------------------------------------------------------------------
