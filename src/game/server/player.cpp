@@ -255,6 +255,8 @@ END_DATADESC()
 
 // Global Savedata for player
 BEGIN_DATADESC( CBasePlayer )
+	DEFINE_FIELD( m_bTransition, FIELD_BOOLEAN ),
+	DEFINE_FIELD( m_bTransitionTeleported, FIELD_BOOLEAN ),
 
 	DEFINE_EMBEDDED( m_Local ),
 #if defined USES_ECON_ITEMS
@@ -553,6 +555,9 @@ CBasePlayer *CBasePlayer::CreatePlayer( const char *className, edict_t *ed )
 CBasePlayer::CBasePlayer( )
 {
 	AddEFlags( EFL_NO_AUTO_EDICT_ATTACH );
+
+	m_bTransition = false;
+	m_bTransitionTeleported = false;
 
 #ifdef _DEBUG
 	m_vecAutoAim.Init();

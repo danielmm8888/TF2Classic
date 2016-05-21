@@ -15,6 +15,7 @@ extern Vector g_vecAttackDir;
 extern int g_iSkillLevel;
 extern bool g_fGameOver;
 extern ConVar g_Language;
+extern bool Transitioned;
 
 
 #endif // GLOBALS_H

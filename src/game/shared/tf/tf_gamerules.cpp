@@ -119,8 +119,8 @@ ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, 
 #endif
 							  );
 
-ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
-ConVar tf2c_coop( "tf2c_coop", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
+ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "1", FCVAR_NOTIFY | FCVAR_REPLICATED );
+ConVar tf2c_coop( "tf2c_coop", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
 
 /**
  * Player hull & eye position for standing, ducking, etc.  This version has a taller

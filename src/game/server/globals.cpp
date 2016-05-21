@@ -25,3 +25,4 @@
 Vector			g_vecAttackDir;
 int				g_iSkillLevel;
 bool			g_fGameOver;
+bool			Transitioned;
