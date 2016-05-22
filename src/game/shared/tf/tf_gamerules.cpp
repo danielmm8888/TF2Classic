@@ -3151,27 +3151,34 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 //-----------------------------------------------------------------------------
 void CTFGameRules::NPCKilled( CAI_BaseNPC *pVictim, const CTakeDamageInfo &info )
 {
+	CBaseEntity *pKiller = info.GetAttacker();
 	CBaseEntity *pInflictor = info.GetInflictor();
+
+	CBaseObject *pObject = NULL;
 
 	if ( pInflictor )
 	{
-		CBaseObject *pObject = dynamic_cast<CBaseObject *>( pInflictor );
-		if ( pObject )
+		pObject = dynamic_cast<CBaseObject *>( pInflictor );
+	}
+	else if ( pKiller && pKiller->IsBaseObject() )
+	{
+		pObject = dynamic_cast<CBaseObject *>( pKiller );
+	}
+	if (pObject)
+	{
+		pObject->IncrementKills();
+
+		if ( pObject->ObjectType() == OBJ_SENTRYGUN )
 		{
-			pObject->IncrementKills();
-
-			if ( pObject->ObjectType() == OBJ_SENTRYGUN )
+			CTFPlayer *pOwner = pObject->GetOwner();
+			if ( pOwner )
 			{
-				CTFPlayer *pOwner = pObject->GetOwner();
-				if ( pOwner )
-				{
-					int iKills = pObject->GetKills();
+				int iKills = pObject->GetKills();
 
-					if ( pOwner->GetMaxSentryKills() < iKills )
-					{
-						pOwner->SetMaxSentryKills( iKills );
-						CTF_GameStats.Event_MaxSentryKills( pOwner, iKills );
-					}
+				if ( pOwner->GetMaxSentryKills() < iKills )
+				{
+					pOwner->SetMaxSentryKills(iKills);
+					CTF_GameStats.Event_MaxSentryKills(pOwner, iKills);
 				}
 			}
 		}
