@@ -164,7 +164,6 @@ public:
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
 	void	RecalculateChargeEffects( bool bInstantRemove = false );
-	void	RecalculateCrits( bool bInstantRemove = false );
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
 	void	HealthKitPickupEffects( int iAmount );

@@ -2344,14 +2344,6 @@ void CTFPlayerShared::TestAndExpireChargeEffect( medigun_charge_types chargeType
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::RecalculateCrits( bool bInstantRemove )
-{
-	// Remove me.
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 int	CTFPlayerShared::FindHealerIndex( CTFPlayer *pPlayer )
 {
 	for ( int i = 0; i < m_aHealers.Count(); i++ )
