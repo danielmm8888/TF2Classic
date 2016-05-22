@@ -558,6 +558,9 @@ void CEconItemSchema::Precache( void )
 
 CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 {
+	if ( id < 0 )
+		return NULL;
+
 	CEconItemDefinition *itemdef = NULL;
 	FIND_ELEMENT( m_Items, id, itemdef );
 	return itemdef;
@@ -565,6 +568,9 @@ CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 
 EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition( int id )
 {
+	if ( id < 0 )
+		return NULL;
+
 	EconAttributeDefinition *attribdef = NULL;
 	FIND_ELEMENT( m_Attributes, id, attribdef );
 	return attribdef;

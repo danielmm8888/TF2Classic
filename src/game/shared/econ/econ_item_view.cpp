@@ -67,9 +67,6 @@ CEconItemView::CEconItemView( int iItemID )
 
 CEconItemDefinition *CEconItemView::GetStaticData( void ) const
 {
-	if ( m_iItemDefinitionIndex < 0 )
-		return NULL;
-
 	return GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
 }
 
