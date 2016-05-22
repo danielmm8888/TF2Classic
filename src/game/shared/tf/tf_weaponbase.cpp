@@ -891,15 +891,11 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::GetMaxClip1( void ) const
 {
-	int iMaxClip = CBaseCombatWeapon::GetMaxClip1();
+	float flMaxClip = (float)CBaseCombatWeapon::GetMaxClip1();
+	CALL_ATTRIB_HOOK_FLOAT( flMaxClip, mult_clipsize );
 
-	float fMaxClipMult = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( fMaxClipMult, mult_clipsize );
-	fMaxClipMult *= iMaxClip;
-	if ( fMaxClipMult != 0 )
-		return fMaxClipMult;
-
-	return iMaxClip;
+	// Round to the nearest integer.
+	return (int)( flMaxClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
@@ -907,15 +903,11 @@ int CTFWeaponBase::GetMaxClip1( void ) const
 //-----------------------------------------------------------------------------
 int CTFWeaponBase::GetDefaultClip1( void ) const
 {
-	int iDefaultClip = CBaseCombatWeapon::GetDefaultClip1();
+	float flDefaultClip = (float)CBaseCombatWeapon::GetDefaultClip1();
+	CALL_ATTRIB_HOOK_FLOAT( flDefaultClip, mult_clipsize );
 
-	float fDefaultClipMult = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( fDefaultClipMult, mult_clipsize );
-	fDefaultClipMult *= iDefaultClip;
-	if ( fDefaultClipMult != 0 )
-		return fDefaultClipMult;
-
-	return iDefaultClip;
+	// Round to the nearest integer.
+	return (int)( flDefaultClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
