@@ -1983,8 +1983,8 @@ void CTFWeaponBase::ProcessMuzzleFlashEvent( void )
 
 	bool bDrawMuzzleFlashOnViewModel = !pOwner->ShouldDrawThisPlayer();
 
-	// Don't draw muzzleflashes if the viewmodels are disabled
-	if ( bDrawMuzzleFlashOnViewModel && !r_drawviewmodel.GetBool() )
+	// Don't draw muzzleflashes if the viewmodel is not drawn.
+	if ( bDrawMuzzleFlashOnViewModel && ( !g_pClientMode->ShouldDrawViewModel() || !r_drawviewmodel.GetBool() ) )
 		return;
 
 	if ( bDrawMuzzleFlashOnViewModel )
