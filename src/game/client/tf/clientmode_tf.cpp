@@ -235,7 +235,7 @@ void ClientModeTFNormal::OverrideView( CViewSetup *pSetup )
 	// Let the player override the view.
 	pPlayer->OverrideView( pSetup );
 
-	if ( ::input->CAM_IsThirdPerson() )
+	if ( ::input->CAM_IsThirdPerson() && !pPlayer->IsObserver() )
 	{
 		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
 		Vector cam_ofs_distance;

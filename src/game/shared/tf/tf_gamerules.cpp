@@ -4594,13 +4594,6 @@ bool CTFGameRules::IsBirthday( void )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::AllowThirdPersonCamera( void )
 {
-#ifdef CLIENT_DLL
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-
-	if ( pPlayer && pPlayer->IsObserver() )
-		return false;
-#endif
-
 	return tf2c_allow_thirdperson.GetBool();
 }
 

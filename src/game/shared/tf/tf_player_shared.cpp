@@ -2446,6 +2446,9 @@ bool CTFPlayerShared::IsAlly( CBaseEntity *pEntity )
 //-----------------------------------------------------------------------------
 bool CTFPlayerShared::IsLoser( void )
 {
+	if ( !m_pOuter->IsAlive() )
+		return false;
+
 	if ( tf_always_loser.GetBool() )
 		return true;
 
