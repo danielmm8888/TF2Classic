@@ -753,10 +753,6 @@ void CServerGameDLL::PostInit()
 
 void CServerGameDLL::DLLShutdown( void )
 {
-	FileHandle_t hFile = g_pFullFileSystem->Open("cfg/transition.cfg", "w");
-	CUtlBuffer buf(0, 0, CUtlBuffer::TEXT_BUFFER);
-	g_pFullFileSystem->WriteFile("cfg/transition.cfg", "MOD", buf);
-	g_pFullFileSystem->Close(hFile);
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();

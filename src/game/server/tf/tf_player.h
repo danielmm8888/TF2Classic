@@ -79,7 +79,6 @@ public:
 	static CTFPlayer	*Instance( int iEnt );
 
 	virtual void		Spawn();
-	virtual void		SaveTransitionFile(void);
 	virtual void		ForceRespawn();
 	virtual CBaseEntity	*EntSelectSpawnPoint( void );
 	virtual void		InitialSpawn();
@@ -588,6 +587,8 @@ public:
 	// HL2 Ladder related data
 	CNetworkVar( EHANDLE, m_hLadder );
 	LadderMove_t			m_LadderMove;
+
+	bool				m_bTransition;
 
 public:
 	bool				SetPowerplayEnabled( bool bOn );

@@ -50,15 +50,6 @@
 
 REGISTER_GAMERULES_CLASS( CMultiplayRules );
 
-	// This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
-	ConVar	mp_transition_players_percent( "mp_transition_players_percent",
-						  "25",
-						  FCVAR_NOTIFY|FCVAR_REPLICATED,
-						  "How many players in percent are needed for a level transition?" );
-		#ifndef CLIENT_DLL
-		ConVar sv_transitions( "sv_transitions", "1", FCVAR_NOTIFY|FCVAR_GAMEDLL, "Enable transitions" );
-		#endif
-
 ConVar mp_chattime(
 		"mp_chattime", 
 		"10", 

@@ -122,6 +122,15 @@ ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, 
 ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "1", FCVAR_NOTIFY | FCVAR_REPLICATED );
 ConVar tf2c_coop( "tf2c_coop", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
 
+// This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
+ConVar	mp_transition_players_percent( "mp_transition_players_percent",
+	"25",
+	FCVAR_NOTIFY | FCVAR_REPLICATED,
+	"How many players in percent are needed for a level transition?" );
+#ifndef CLIENT_DLL
+ConVar sv_transitions( "sv_transitions", "1", FCVAR_NOTIFY | FCVAR_GAMEDLL, "Enable transitions" );
+#endif
+
 /**
  * Player hull & eye position for standing, ducking, etc.  This version has a taller
  * player height, but goldsrc-compatible collision bounds.
@@ -3145,7 +3154,6 @@ void CTFGameRules::PlayerKilled( CBasePlayer *pVictim, const CTakeDamageInfo &in
 	BaseClass::PlayerKilled( pVictim, info );
 }
 
-#ifdef TF_CLASSIC
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3177,7 +3185,6 @@ void CTFGameRules::NPCKilled( CAI_BaseNPC *pVictim, const CTakeDamageInfo &info 
 		}
 	}
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Determines if attacker and victim have gotten domination or revenge
