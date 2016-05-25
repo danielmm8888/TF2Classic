@@ -105,7 +105,7 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout." );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout. CURRENTLY BROKEN!!!" );
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
@@ -1184,15 +1184,20 @@ bool CTFPlayer::ItemsMatch( CEconItemView *pItem1, CEconItemView *pItem2, CTFWea
 {
 	if ( pItem1 && pItem2 )
 	{
-		// Item might have different entities for each class (i.e. shotgun).
-		int iClass = m_PlayerClass.GetClassIndex();
-		const char *pszClass1 = TranslateWeaponEntForClass( pItem1->GetEntityName(), iClass );
-		const char *pszClass2 = TranslateWeaponEntForClass( pItem2->GetEntityName(), iClass );
-
-		if ( V_strcmp( pszClass1, pszClass2 ) != 0 )
+		if ( pItem1->GetItemDefIndex() != pItem2->GetItemDefIndex() )
 			return false;
 
-		return ( pItem1->GetItemDefIndex() == pItem2->GetItemDefIndex() );
+		// Item might have different entities for each class (i.e. shotgun).
+		if ( pWeapon )
+		{
+			int iClass = m_PlayerClass.GetClassIndex();
+			const char *pszClass = TranslateWeaponEntForClass( pItem1->GetEntityName(), iClass );
+
+			if ( !FClassnameIs( pWeapon, pszClass ) )
+				return false;
+		}
+
+		return true;
 	}
 
 	return false;
@@ -2406,8 +2411,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( IsAlive() && ( GetHudClassAutoKill() == true ) && bShouldNotRespawn == false )
 	{
 		CommitSuicide( false, true );
-		if ( GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER )
-			RemoveAllObjects( false );
+		RemoveAllObjects( false );
 	}
 }
 
