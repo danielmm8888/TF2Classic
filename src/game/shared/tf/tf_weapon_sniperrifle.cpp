@@ -925,9 +925,11 @@ bool CSniperDot::ShouldDraw( void )
 	if ( IsEffectActive( EF_NODRAW ) )
 		return false;
 
+#if 0
 	// Don't draw the sniper dot when in thirdperson.
 	if ( ::input->CAM_IsThirdPerson() )
 		return false;
+#endif
 
 	return true;
 }

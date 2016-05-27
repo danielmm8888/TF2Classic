@@ -1432,13 +1432,6 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		}
 	}
 
-	if ( m_bRegenerating == false )
-	{
-		SetActiveWeapon( NULL );
-		Weapon_Switch( Weapon_GetSlot( 0 ) );
-		Weapon_SetLast( Weapon_GetSlot( 1 ) );
-	}
-
 	PostInventoryApplication();
 }
 
@@ -1507,13 +1500,6 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 				UTIL_Remove( pCarriedWeapon );
 			}
 		}
-	}
-
-	if ( m_bRegenerating == false )
-	{
-		SetActiveWeapon( NULL );
-		Weapon_Switch( Weapon_GetSlot( 0 ) );
-		Weapon_SetLast( Weapon_GetSlot( 1 ) );
 	}
 }
 

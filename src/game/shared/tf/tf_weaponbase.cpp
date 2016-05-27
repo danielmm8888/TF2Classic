@@ -895,7 +895,7 @@ int CTFWeaponBase::GetMaxClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( flMaxClip, mult_clipsize );
 
 	// Round to the nearest integer.
-	return (int)( flMaxClip + 0.5f );
+	return (int)( flMaxClip == WEAPON_NOCLIP ? flMaxClip : flMaxClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
@@ -907,7 +907,7 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 	CALL_ATTRIB_HOOK_FLOAT( flDefaultClip, mult_clipsize );
 
 	// Round to the nearest integer.
-	return (int)( flDefaultClip + 0.5f );
+	return (int)( flDefaultClip == WEAPON_NOCLIP ? flDefaultClip : flDefaultClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------

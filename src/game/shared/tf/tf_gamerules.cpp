@@ -4594,6 +4594,15 @@ bool CTFGameRules::IsBirthday( void )
 //-----------------------------------------------------------------------------
 bool CTFGameRules::AllowThirdPersonCamera( void )
 {
+#ifdef CLIENT_DLL
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pPlayer )
+	{
+		if ( pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
+			return false;
+	}
+#endif
+
 	return tf2c_allow_thirdperson.GetBool();
 }
 
