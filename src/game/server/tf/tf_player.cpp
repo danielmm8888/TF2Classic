@@ -7315,7 +7315,10 @@ void CTFPlayer::SaveForTransition( void )
 	TFPlayerTransition[entindex()].WasTransitioned = true;
 	TFPlayerTransition[entindex()].Class = GetDesiredPlayerClassIndex();
 	TFPlayerTransition[entindex()].Health = m_iHealth;
-	TFPlayerTransition[entindex()].WeaponSlot = GetActiveTFWeapon()->GetSlot();
+	if ( GetActiveTFWeapon() )
+	{
+		TFPlayerTransition[entindex()].WeaponSlot = GetActiveTFWeapon()->GetSlot();
+	}
 	
 	for ( int i = 0; i < MAX_WEAPON_SLOTS; i++ )
 	{
@@ -7347,11 +7350,13 @@ void CTFPlayer::DeleteForTransition( int arrayid )
 
 	for ( int i = 0; i < MAX_WEAPON_SLOTS; i++ )
 	{
-		CBaseCombatWeapon *pWeapon = Weapon_GetSlot( i );
-		if ( pWeapon )
-		{
-			TFPlayerTransition[entindex()].Clip1[i] = NULL;
-			TFPlayerTransition[entindex()].Clip2[i] = NULL;
-		}
+		TFPlayerTransition[entindex()].Clip1[i] = NULL;
+		TFPlayerTransition[entindex()].Clip2[i] = NULL;
 	}
+
+	for ( int i = 0; i < MAX_AMMO_SLOTS; i++ )
+	{
+		TFPlayerTransition[entindex()].Ammo[i] = NULL;
+	}
+
 }
