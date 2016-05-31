@@ -1598,13 +1598,8 @@ extern ConVar sv_transitions;
 
 void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 {
-	CBaseEntity	*pLandmark;
-	levellist_t	levels[16];
-
-	Assert(!FStrEq(m_szMapName, ""));
-
 #ifdef TF_CLASSIC
-	CTFPlayer *pPlayer = ToTFPlayer( pActivator ); // Get all the players who activate our multiplayer transition.
+	CTFPlayer *pPlayer = ToTFPlayer( pActivator );
 	if ( !pPlayer )
 		return;
 
@@ -1636,15 +1631,18 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 		}
 	}
 
-	for (int i = 0; i < gpGlobals->maxClients; i++)
+	// Some people are firing these multiple times in a frame, disable
+	if ( m_bTouched )
+		return;
+
+	m_bTouched = true;
+
+	for ( int i = 0; i < gpGlobals->maxClients; i++ )
 	{
 		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 		if ( pPlayer )
 		{
-			if ( pPlayer->GetTeamNumber() == TF_STORY_TEAM )
-			{
-				pPlayer->SaveForTransition();
-			}
+			pPlayer->SaveForTransition();
 		}
 	}
 
@@ -1654,23 +1652,22 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 	// Change to the next map.
 	engine->ChangeLevel( st_szNextMap, NULL );
 #else
+	CBaseEntity	*pLandmark;
+	levellist_t	levels[16];
+
+	Assert( !FStrEq( m_szMapName, "" ) );
+
 	// Don't work in deathmatch
 	if ( g_pGameRules->IsDeathmatch() )
 		return;
-#endif
+
+	CBaseEntity *pPlayer = ( pActivator && pActivator->IsPlayer() ) ? pActivator : UTIL_GetLocalPlayer();
 
 	// Some people are firing these multiple times in a frame, disable
 	if ( m_bTouched )
 		return;
 
 	m_bTouched = true;
-
-#ifdef TF_CLASSIC
-	// As far as we're concerned this is where we stop the code because we just transitioned.
-	return;
-#else
-	CBaseEntity *pPlayer = ( pActivator && pActivator->IsPlayer() ) ? pActivator : UTIL_GetLocalPlayer();
-#endif
 
 	int transitionState = InTransitionVolume(pPlayer, m_szLandmarkName);
 	if ( transitionState == TRANSITION_VOLUME_SCREENED_OUT )
@@ -1748,6 +1745,7 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 
 		SetTouch( NULL );
 	}
+#endif
 }
 
 //

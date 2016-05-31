@@ -117,19 +117,16 @@ extern ConVar tf2c_use_hl2_player_hull;
 // -------------------------------------------------------------------------------- //
 struct TFPlayerTransitionStruct
 {
-	uint64 STEAMID;
+	int playerClass;
+	int	health;
+	int	weapon;
+	int clip1[MAX_WEAPON_SLOTS];
+	int clip2[MAX_WEAPON_SLOTS];
+	int ammo[MAX_AMMO_SLOTS];
 
-	bool WasTransitioned;
+};
 
-	int Class;
-	int	Health;
-	int	WeaponSlot;
-	int Clip1[MAX_WEAPON_SLOTS];
-	int Clip2[MAX_WEAPON_SLOTS];
-	int Ammo[MAX_AMMO_SLOTS];
-
-}	TFPlayerTransition[MAX_PLAYERS];
-
+CUtlMap<uint64, TFPlayerTransitionStruct> g_TFPlayerTransitions( DefLessFunc( uint64 ) );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -931,37 +928,36 @@ void CTFPlayer::Spawn()
 			}
 		}
 
-		if ( ( TFGameRules() && TFGameRules()->IsCoOp() ) && ( TFGameRules()->InRoundRestart() || TFGameRules()->IsCoOpGameRunning() ) )
+		// Gotta make sure this is the first proper spawn.
+		if ( TFGameRules()->IsCoOp() && TFGameRules()->State_Get() != GR_STATE_PREGAME )
 		{
-			for ( int i = 1; i < MAX_PLAYERS; i++ )
+			unsigned short index = g_TFPlayerTransitions.Find( GetSteamIDAsUInt64() );
+			if ( index != g_TFPlayerTransitions.InvalidIndex() )
 			{
-				if ( ( TFPlayerTransition[i].STEAMID == GetSteamIDAsUInt64() ) && ( TFPlayerTransition[i].WasTransitioned == true ) )
+				// Restore health, ammo and last weapon.
+				SetHealth( g_TFPlayerTransitions[index].health );
+
+				for ( int i = 0; i < MAX_WEAPON_SLOTS; i++ )
 				{
-					//Restore Health, Ammo and Last Weapon
-					SetHealth( TFPlayerTransition[i].Health );
-
-					for ( int o = 0; o < MAX_WEAPON_SLOTS; o++ )
-					{
-						CBaseCombatWeapon *pWeapon = Weapon_GetSlot( o );
-						if ( pWeapon )
-						{
-							pWeapon->m_iClip1 = TFPlayerTransition[i].Clip1[o];
-							pWeapon->m_iClip2 = TFPlayerTransition[i].Clip2[o];
-						}
-					}
-
-					for ( int o = 0; o < MAX_AMMO_SLOTS; o++ )
-					{
-						m_iAmmo.Set( o, TFPlayerTransition[i].Ammo[o] );
-					}
-
-					CBaseCombatWeapon *pWeapon = Weapon_GetSlot( TFPlayerTransition[i].WeaponSlot );
+					CBaseCombatWeapon *pWeapon = Weapon_GetSlot( i );
 					if ( pWeapon )
-						SelectItem( pWeapon->GetClassname() );
-
-					//Now We Can Remove The Info of The Player
-					DeleteForTransition( i );
+					{
+						pWeapon->m_iClip1 = g_TFPlayerTransitions[index].clip1[i];
+						pWeapon->m_iClip2 = g_TFPlayerTransitions[index].clip2[i];
+					}
 				}
+
+				for ( int i = 0; i < MAX_AMMO_SLOTS; i++ )
+				{
+					m_iAmmo.Set( i, g_TFPlayerTransitions[index].ammo[i] );
+				}
+
+				CBaseCombatWeapon *pWeapon = Weapon_GetSlot( g_TFPlayerTransitions[index].weapon );
+				if ( pWeapon )
+					Weapon_Switch( pWeapon );
+
+				// Remove player info from the list.
+				DeleteForTransition();
 			}
 		}
 	}
@@ -1774,7 +1770,7 @@ void CTFPlayer::HandleFadeToBlack( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::ChangeTeam( int iTeamNum, bool bSilent /* = false */ )
+void CTFPlayer::ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent )
 {
 	if ( !GetGlobalTeam( iTeamNum ) )
 	{
@@ -1808,7 +1804,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum, bool bSilent /* = false */ )
 	}
 	else // active player
 	{
-		if ( !IsDead() && (iOldTeam == TF_TEAM_RED || iOldTeam == TF_TEAM_BLUE || iOldTeam == TF_TEAM_GREEN || iOldTeam == TF_TEAM_YELLOW) )
+		if ( !IsDead() && ( iOldTeam == TF_TEAM_RED || iOldTeam == TF_TEAM_BLUE ) )
 		{
 			// Kill player if switching teams while alive
 			CommitSuicide( false, true );
@@ -4231,31 +4227,30 @@ void CTFPlayer::StateEnterWELCOME( void )
 
 	if ( TFGameRules() && TFGameRules()->IsCoOp() )
 	{
-		for ( int i = 1; i < MAX_PLAYERS; i++ )
+		unsigned short index = g_TFPlayerTransitions.Find( GetSteamIDAsUInt64() );
+		if ( index != g_TFPlayerTransitions.InvalidIndex() )
 		{
-			if ( ( TFPlayerTransition[i].STEAMID == GetSteamIDAsUInt64() ) && ( TFPlayerTransition[i].WasTransitioned == true ) )
-			{
-				//A Player has finished connecting & loading the level lets not wait for players any more
-				mp_waitingforplayers_cancel.SetValue( 1 );
+			// A player has finished connecting & loading the level let's not wait for players any more.
+			mp_waitingforplayers_cancel.SetValue( 1 );
+			m_bSeenRoundInfo = true;
+			m_bIsIdle = false;
 
-				//Spawn The Player Instantly and Restore Class
-				ChangeTeam( TF_STORY_TEAM, true );
-				SetDesiredPlayerClassIndex( TFPlayerTransition[i].Class );
-				ForceRespawn();
+			// Spawn this player instantly and restore his class.
+			ChangeTeam( TF_STORY_TEAM, false, true );
+			SetDesiredPlayerClassIndex( g_TFPlayerTransitions[index].playerClass );
+			ForceRespawn();
 
-				m_bSeenRoundInfo = true;
-				m_bIsIdle = false;
-				return;
-			}
+			return;
 		}
 	}
+
 	if ( gpGlobals->eLoadType == MapLoad_Background )
 	{
 		m_bSeenRoundInfo = true;
 
 		ChangeTeam( TEAM_SPECTATOR );
 	}
-	else if ( (TFGameRules() && TFGameRules()->IsLoadingBugBaitReport()) )
+	else if ( TFGameRules() && TFGameRules()->IsLoadingBugBaitReport() )
 	{
 		m_bSeenRoundInfo = true;
 		
@@ -7304,59 +7299,37 @@ void CTFPlayer::CommanderMode()
 }
 
 //-----------------------------------------------------------------------------
-// Save Health, Ammo, Class and Current Weapon by SteamID
+// Purpose: Save Health, Ammo, Class and Current Weapon by SteamID
 //-----------------------------------------------------------------------------
 void CTFPlayer::SaveForTransition( void )
 {
-	if ( !IsAlive() )
+	if ( !IsAlive() || !IsOnStoryTeam() )
 		return;
 
-	TFPlayerTransition[entindex()].STEAMID = GetSteamIDAsUInt64();
-	TFPlayerTransition[entindex()].WasTransitioned = true;
-	TFPlayerTransition[entindex()].Class = GetDesiredPlayerClassIndex();
-	TFPlayerTransition[entindex()].Health = m_iHealth;
-	if ( GetActiveTFWeapon() )
-	{
-		TFPlayerTransition[entindex()].WeaponSlot = GetActiveTFWeapon()->GetSlot();
-	}
+	TFPlayerTransitionStruct transition;
 	
+	transition.playerClass = GetDesiredPlayerClassIndex();
+	transition.health = GetHealth();
+	transition.weapon = GetActiveWeapon() ? GetActiveWeapon()->GetSlot() : -1;
 	for ( int i = 0; i < MAX_WEAPON_SLOTS; i++ )
 	{
 		CBaseCombatWeapon *pWeapon = Weapon_GetSlot( i );
 		if ( pWeapon )
 		{
-			TFPlayerTransition[entindex()].Clip1[i] = pWeapon->m_iClip1;
-			TFPlayerTransition[entindex()].Clip2[i] = pWeapon->m_iClip2;
+			transition.clip1[i] = pWeapon->m_iClip1;
+			transition.clip2[i] = pWeapon->m_iClip2;
 		}
 	}
 
-	for ( int i = 0; i < MAX_AMMO_SLOTS; i++ )
-	{
-		TFPlayerTransition[entindex()].Ammo[i] = m_iAmmo[i];
-	}
+	memcpy( transition.ammo, m_iAmmo.Base(), m_iAmmo.Count() * sizeof( int ) );
 
+	g_TFPlayerTransitions.InsertOrReplace( GetSteamIDAsUInt64(), transition );
 }
 
 //-----------------------------------------------------------------------------
-// Delete Health, Ammo, Class and Current Weapon After Spawned
+// Purpose: Delete Health, Ammo, Class and Current Weapon After Spawned
 //-----------------------------------------------------------------------------
-void CTFPlayer::DeleteForTransition( int arrayid )
+void CTFPlayer::DeleteForTransition( void )
 {
-	TFPlayerTransition[arrayid].STEAMID = NULL;
-	TFPlayerTransition[arrayid].WasTransitioned = false;
-	TFPlayerTransition[arrayid].Class = NULL;
-	TFPlayerTransition[arrayid].Health = NULL;
-	TFPlayerTransition[arrayid].WeaponSlot = NULL;
-
-	for ( int i = 0; i < MAX_WEAPON_SLOTS; i++ )
-	{
-		TFPlayerTransition[entindex()].Clip1[i] = NULL;
-		TFPlayerTransition[entindex()].Clip2[i] = NULL;
-	}
-
-	for ( int i = 0; i < MAX_AMMO_SLOTS; i++ )
-	{
-		TFPlayerTransition[entindex()].Ammo[i] = NULL;
-	}
-
+	g_TFPlayerTransitions.Remove( GetSteamIDAsUInt64() );
 }

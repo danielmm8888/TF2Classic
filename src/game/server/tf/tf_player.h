@@ -147,7 +147,8 @@ public:
 
 	// Team.
 	void				ForceChangeTeam( int iTeamNum );
-	virtual void		ChangeTeam( int iTeamNum, bool bSilent = true);
+	virtual void		ChangeTeam( int iTeamNum ) { ChangeTeam( iTeamNum, false, false ); }
+	virtual void		ChangeTeam( int iTeamNum, bool bAutoTeam, bool bSilent );
 
 	// mp_fadetoblack
 	void				HandleFadeToBlack( void );
@@ -365,7 +366,7 @@ public:
 
 	//Transition
 	void	SaveForTransition( void );
-	void	DeleteForTransition( int arrayid );
+	void	DeleteForTransition( void );
 
 public:
 
