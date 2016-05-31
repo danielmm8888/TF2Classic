@@ -148,7 +148,7 @@ public:
 	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
 	int		GetDisguiseMaxBuffedHealth( void );
 
-	int		GetDisguiseWeaponID( void )			{ return m_iDisguiseWeaponID; }
+	CEconItemView *GetDisguiseItem( void )			{ return &m_DisguiseItem; }
 	void	RecalcDisguiseWeapon( int iSlot = 0 );
 
 #ifdef CLIENT_DLL
@@ -164,7 +164,6 @@ public:
 	void	Heal( CTFPlayer *pPlayer, float flAmount, bool bDispenserHeal = false );
 	void	StopHealing( CTFPlayer *pPlayer );
 	void	RecalculateChargeEffects( bool bInstantRemove = false );
-	void	RecalculateCrits( bool bInstantRemove = false );
 	int		FindHealerIndex( CTFPlayer *pPlayer );
 	EHANDLE	GetFirstHealer();
 	void	HealthKitPickupEffects( int iAmount );
@@ -306,7 +305,7 @@ private:
 	CNetworkVar( float, m_flDisguiseChargeLevel );
 	CNetworkVar( int, m_nDesiredDisguiseClass );
 	CNetworkVar( int, m_nDesiredDisguiseTeam );
-	CNetworkVar( int, m_iDisguiseWeaponID );
+	CEconItemView m_DisguiseItem;
 
 	bool m_bEnableSeparation;		// Keeps separation forces on when player stops moving, but still penetrating
 	Vector m_vSeparationVelocity;	// Velocity used to keep player seperate from teammates

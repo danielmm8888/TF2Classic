@@ -59,6 +59,7 @@ ConVar obj_damage_factor( "obj_damage_factor","0", FCVAR_CHEAT | FCVAR_DEVELOPME
 ConVar obj_child_damage_factor( "obj_child_damage_factor","0.25", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Factor applied to damage done to objects that are built on a buildpoint" );
 ConVar tf_fastbuild("tf_fastbuild", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY );
 ConVar tf_obj_ground_clearance( "tf_obj_ground_clearance", "32", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Object corners can be this high above the ground" );
+ConVar tf2c_building_upgrades( "tf2c_building_upgrades", "1", FCVAR_REPLICATED, "Toggles the ability to upgrade buildings other than the sentrygun" );
 
 extern short g_sModelIndexFireball;
 
@@ -292,6 +293,9 @@ bool CBaseObject::CanBeUpgraded( CTFPlayer *pPlayer )
 	{
 		return false;
 	}
+
+	if ( !tf2c_building_upgrades.GetBool() && GetType() != OBJ_SENTRYGUN )
+		return false;
 
 	return true;
 }

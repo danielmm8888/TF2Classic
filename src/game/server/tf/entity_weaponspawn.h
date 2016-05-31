@@ -36,6 +36,9 @@ public:
 	int		m_nItemID;
 	int		m_iRespawnTime;
 
+	CNetworkVar( bool, m_bStaticSpawner );
+	CNetworkVar( bool, m_bOutlineDisabled );
+
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
 

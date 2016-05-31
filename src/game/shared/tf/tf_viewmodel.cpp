@@ -305,9 +305,6 @@ void CTFViewModel::CalcViewModelView( CBasePlayer *owner, const Vector& eyePosit
 	AngleVectors(eyeAngles, &forward, &right, &up);
 	vecNewOrigin += forward*v_viewmodel_offset_x.GetFloat() + right*v_viewmodel_offset_y.GetFloat() + up*v_viewmodel_offset_z.GetFloat();
 
-//	if ( owner->GetActiveWeapon() )
-//		ToTFPlayer(owner)->GetActiveTFWeapon()->UpdateViewModel();
-
 	BaseClass::CalcViewModelView( owner, vecNewOrigin, vecNewAngles );
 
 #endif

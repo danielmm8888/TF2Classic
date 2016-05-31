@@ -252,7 +252,7 @@ public:
 	void			SetGreenKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hGreenKothTimer.Set( pTimer ); }
 	void			SetYellowKothRoundTimer( CTeamRoundTimer *pTimer ) { m_hYellowKothTimer.Set( pTimer ); }
 
-	virtual bool ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen);
+	virtual bool	ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen);
 
 protected:
 	virtual void	InitTeams( void );
@@ -306,6 +306,8 @@ public:
 	virtual bool    IsHalloweenScenario( int iEventType ) { return false; };
 	virtual bool	IsPVEModeActive( void ) { return false; };
 	virtual bool	IsCompetitiveMode( void ){ return m_bCompetitiveMode; };
+	virtual bool	IsInHybridCTF_CPMode( void ){ return m_bPlayingHybrid_CTF_CP; };
+	virtual bool	IsInSpecialDeliveryMode( void ){ return m_bPlayingSpecialDeliveryMode; };
 
 #ifdef CLIENT_DLL
 
@@ -416,6 +418,8 @@ private:
 
 	bool m_bFirstBlood;
 	int	m_iArenaTeamCount;
+
+	KeyValues *m_pAuthData;
 #endif
 
 	CNetworkVar( int, m_nGameType ); // Type of game this map is (CTF, CP)
@@ -427,10 +431,10 @@ private:
 	CNetworkVar( int, m_nHudType );
 	CNetworkVar( bool, m_bPlayingKoth );
 	CNetworkVar( bool, m_bPlayingMedieval );
-	CNetworkVar( bool, m_bPlayingHybrid_CTF_CP );
 	CNetworkVar( bool, m_bPlayingSpecialDeliveryMode );
 	CNetworkVar( bool, m_bPlayingRobotDestructionMode );
 	CNetworkVar( bool, m_bPlayingMannVsMachine );
+	CNetworkVar( bool, m_bPlayingHybrid_CTF_CP );
 	CNetworkVar( bool, m_bCompetitiveMode );
 	CNetworkVar( bool, m_bPowerupMode );
 	CNetworkVar( CHandle<CTeamRoundTimer>, m_hBlueKothTimer );
@@ -464,6 +468,10 @@ inline CTFGameRules* TFGameRules()
 
 #ifdef GAME_DLL
 	bool EntityPlacementTest( CBaseEntity *pMainEnt, const Vector &vOrigin, Vector &outPos, bool bDropToGround );
+#endif
+
+#ifdef CLIENT_DLL
+	void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 #endif
 
 #endif // TF_GAMERULES_H

@@ -32,13 +32,17 @@ private:
 	bool				m_bRespawning;
 	bool				m_bShouldGlow;
 	bool				m_bTouchingPlayer;
+	bool				m_bStaticSpawner;
+	bool				m_bOutlineDisabled;
 };
 
-LINK_ENTITY_TO_CLASS(tf_weaponspawner, C_WeaponSpawner);
+LINK_ENTITY_TO_CLASS( tf_weaponspawner, C_WeaponSpawner );
 
 IMPLEMENT_CLIENTCLASS_DT( C_WeaponSpawner, DT_WeaponSpawner, CWeaponSpawner )
 	RecvPropBool( RECVINFO( m_bDisabled ) ),
 	RecvPropBool( RECVINFO( m_bRespawning ) ),
+	RecvPropBool( RECVINFO( m_bStaticSpawner ) ),	// Mapper var that disables the hovering weapon rotation
+	RecvPropBool( RECVINFO( m_bOutlineDisabled ) ), // Mapper var that disables the weapon outlines
 END_RECV_TABLE()
 
 C_WeaponSpawner::C_WeaponSpawner()
@@ -69,11 +73,22 @@ void C_WeaponSpawner::OnDataChanged( DataUpdateType_t type )
 
 void C_WeaponSpawner::ClientThink()
 {
-	m_qAngle.y += 90 * gpGlobals->frametime;
-	if ( m_qAngle.y >= 360 )
-		m_qAngle.y -= 360;
+	// The mapper disabled the rotating effect of this spawner
+	if ( !m_bStaticSpawner )
+	{
+		m_qAngle.y += 90 * gpGlobals->frametime;
+		if ( m_qAngle.y >= 360 )
+			m_qAngle.y -= 360;
 
-	SetAbsAngles( m_qAngle );
+		SetAbsAngles( m_qAngle );
+	}
+
+	// The mapper has disabled glows for this specific weapon spawner
+	if ( m_bOutlineDisabled )
+	{
+		SetNextClientThink( CLIENT_THINK_ALWAYS );
+		return;
+	}
 
 	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 

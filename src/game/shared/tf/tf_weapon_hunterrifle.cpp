@@ -41,30 +41,30 @@ void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
 // Weapon Hunter Rifles tables.
 //
 
-IMPLEMENT_NETWORKCLASS_ALIASED(TFHunterRifle, DT_TFHunterRifle)
+IMPLEMENT_NETWORKCLASS_ALIASED( TFHunterRifle, DT_TFHunterRifle )
 
 BEGIN_NETWORK_TABLE_NOBASE( CTFHunterRifle, DT_HunterRifleLocalData )
 #if !defined( CLIENT_DLL )
-	SendPropFloat( SENDINFO(m_flChargedSpread), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+SendPropFloat( SENDINFO( m_flChargedSpread ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 #else
-	RecvPropFloat( RECVINFO(m_flChargedSpread) ),
+RecvPropFloat( RECVINFO(m_flChargedSpread) ),
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_NETWORK_TABLE(CTFHunterRifle, DT_TFHunterRifle)
+BEGIN_NETWORK_TABLE( CTFHunterRifle, DT_TFHunterRifle )
 #if !defined( CLIENT_DLL )
-	SendPropDataTable( "HunterRifleLocalData", 0, &REFERENCE_SEND_TABLE( DT_HunterRifleLocalData ), SendProxy_SendLocalWeaponDataTable ),
+SendPropDataTable( "HunterRifleLocalData", 0, &REFERENCE_SEND_TABLE( DT_HunterRifleLocalData ), SendProxy_SendLocalWeaponDataTable ),
 #else
-	RecvPropDataTable("HunterRifleLocalData", 0, 0, &REFERENCE_RECV_TABLE(DT_HunterRifleLocalData)),
+RecvPropDataTable("HunterRifleLocalData", 0, 0, &REFERENCE_RECV_TABLE(DT_HunterRifleLocalData)),
 #endif
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFHunterRifle )
 #ifdef CLIENT_DLL
-	DEFINE_PRED_FIELD( m_flUnzoomTime, FIELD_FLOAT, 0 ),
-	DEFINE_PRED_FIELD( m_flRezoomTime, FIELD_FLOAT, 0 ),
-	DEFINE_PRED_FIELD( m_bRezoomAfterShot, FIELD_BOOLEAN, 0 ),
-	DEFINE_PRED_FIELD( m_flChargedSpread, FIELD_FLOAT, 0 ),
+DEFINE_PRED_FIELD( m_flUnzoomTime, FIELD_FLOAT, 0 ),
+DEFINE_PRED_FIELD( m_flRezoomTime, FIELD_FLOAT, 0 ),
+DEFINE_PRED_FIELD( m_bRezoomAfterShot, FIELD_BOOLEAN, 0 ),
+DEFINE_PRED_FIELD( m_flChargedSpread, FIELD_FLOAT, 0 ),
 #endif
 END_PREDICTION_DATA()
 
@@ -102,8 +102,8 @@ void CTFHunterRifle::ResetTimers( void )
 //-----------------------------------------------------------------------------
 bool CTFHunterRifle::CanHolster( void ) const
 {
- 	CTFPlayer *pPlayer = GetTFPlayerOwner();
- 	if ( pPlayer )
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( pPlayer )
 	{
 		// don't allow us to holster this weapon if we're in the process of zooming and 
 		// we've just fired the weapon (next primary attack is only 1.5 seconds after firing)
@@ -121,7 +121,7 @@ bool CTFHunterRifle::CanHolster( void ) const
 //-----------------------------------------------------------------------------
 bool CTFHunterRifle::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
-// Server specific.
+	// Server specific.
 #ifdef GAME_DLL
 	// Destroy the Hunter dot.
 
@@ -188,7 +188,7 @@ void CTFHunterRifle::HandleZooms( void )
 	{
 		if ( gpGlobals->curtime > m_flRezoomTime )
 		{
-            ZoomIn();
+			ZoomIn();
 			m_flRezoomTime = -1;
 		}
 	}
@@ -213,7 +213,7 @@ void CTFHunterRifle::HandleZooms( void )
 // Purpose: 
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
-bool CTFHunterRifle::Reload(void)
+bool CTFHunterRifle::Reload( void )
 {
 	if ( BaseClass::Reload() == true )
 	{
@@ -261,11 +261,11 @@ void CTFHunterRifle::ItemPostFrame( void )
 		// Don't start charging in the time just after a shot before we unzoom to play rack anim.
 		if ( pPlayer->m_Shared.InCond( TF_COND_AIMING ) && !m_bRezoomAfterShot )
 		{
-			m_flChargedSpread = max(m_flChargedSpread - gpGlobals->frametime * TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC, TF_WEAPON_HUNTERRIFLE_SPREAD_MIN);
+			m_flChargedSpread = max( m_flChargedSpread - gpGlobals->frametime * TF_WEAPON_HUNTERRIFLE_CHARGE_PER_SEC, TF_WEAPON_HUNTERRIFLE_SPREAD_MIN );
 		}
 		else
 		{
-			m_flChargedSpread = min(TF_WEAPON_HUNTERRIFLE_SPREAD_MAX, m_flChargedSpread + gpGlobals->frametime * TF_WEAPON_HUNTERRIFLE_UNCHARGE_PER_SEC);
+			m_flChargedSpread = min( TF_WEAPON_HUNTERRIFLE_SPREAD_MAX, m_flChargedSpread + gpGlobals->frametime * TF_WEAPON_HUNTERRIFLE_UNCHARGE_PER_SEC );
 		}
 	}
 
@@ -276,14 +276,14 @@ void CTFHunterRifle::ItemPostFrame( void )
 	}
 
 	//  Reload pressed / Clip Empty
-	if ( ( pPlayer->m_nButtons & IN_RELOAD ) && !m_bInReload ) 
+	if ( ( pPlayer->m_nButtons & IN_RELOAD ) && !m_bInReload )
 	{
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		Reload();
 	}
 
 	// Idle.
-	if ( !( ( pPlayer->m_nButtons & IN_ATTACK) || ( pPlayer->m_nButtons & IN_ATTACK2 ) ) )
+	if ( !( ( pPlayer->m_nButtons & IN_ATTACK ) || ( pPlayer->m_nButtons & IN_ATTACK2 ) ) )
 	{
 		// No fire buttons down or reloading
 		if ( !ReloadOrSwitchWeapons() && ( m_bInReload == false ) )
@@ -296,7 +296,7 @@ void CTFHunterRifle::ItemPostFrame( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CTFHunterRifle::Fire(CTFPlayer *pPlayer)
+void CTFHunterRifle::Fire( CTFPlayer *pPlayer )
 {
 	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
 		return;
@@ -345,7 +345,7 @@ void CTFHunterRifle::Zoom( void )
 {
 	// Don't allow the player to zoom in while jumping
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if (!pPlayer)
+	if ( !pPlayer )
 		return;
 
 	ToggleZoom();
@@ -384,15 +384,17 @@ void CTFHunterRifle::ZoomIn( void )
 	if ( !pPlayer )
 		return;
 
-	if (pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0 || Clip1() <= 0)
+	if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 || Clip1() <= 0 )
 		return;
 
-	pPlayer->SetFOV(pPlayer, TF_WEAPON_ZOOM_FOV, 0.1f);
-	//BaseClass::ZoomIn();
+	BaseClass::ZoomIn();
 
 	pPlayer->m_Shared.AddCond( TF_COND_AIMING );
 	pPlayer->TeamFortress_SetSpeed();
 
+#ifdef GAME_DLL
+	pPlayer->ClearExpression();
+#endif
 }
 
 bool CTFHunterRifle::IsZoomed( void )
@@ -401,7 +403,7 @@ bool CTFHunterRifle::IsZoomed( void )
 
 	if ( pPlayer )
 	{
-		return pPlayer->m_Shared.InCond( TF_COND_AIMING );
+		return pPlayer->m_Shared.InCond( TF_COND_ZOOMED );
 	}
 
 	return false;
@@ -412,18 +414,20 @@ bool CTFHunterRifle::IsZoomed( void )
 //-----------------------------------------------------------------------------
 void CTFHunterRifle::ZoomOut( void )
 {
-	//BaseClass::ZoomOut();
-	
+	BaseClass::ZoomOut();
+
 	// Stop aiming
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
 
 	if ( !pPlayer )
 		return;
 
-	pPlayer->SetFOV(pPlayer, 0, 0.1f);
 	pPlayer->m_Shared.RemoveCond( TF_COND_AIMING );
 	pPlayer->TeamFortress_SetSpeed();
 
+#ifdef GAME_DLL
+	pPlayer->ClearExpression();
+#endif
 
 	// if we are thinking about zooming, cancel it
 	m_flUnzoomTime = -1;
@@ -451,7 +455,7 @@ float CTFHunterRifle::GetProjectileDamage( void )
 	return BaseClass::GetProjectileDamage();
 }
 
-float CTFHunterRifle::GetWeaponSpread(void)
+float CTFHunterRifle::GetWeaponSpread( void )
 {
 	return m_flChargedSpread * 0.0001;
 }

@@ -748,9 +748,9 @@ BEGIN_DATADESC(CTFLogicVIP)
 	DEFINE_KEYFIELD( m_nCivilianPercentageCount, FIELD_INTEGER, "CivilianPercentageCount" ),
 	DEFINE_KEYFIELD( m_bForceCivilian, FIELD_BOOLEAN, "ForceCivilian" ),
 	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianRed" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianBlue" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianGreen" ),
-	DEFINE_KEYFIELD( m_bEnableCivilianRed, FIELD_BOOLEAN, "EnableCivilianYellow" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianBlue, FIELD_BOOLEAN, "EnableCivilianBlue" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianGreen, FIELD_BOOLEAN, "EnableCivilianGreen" ),
+	DEFINE_KEYFIELD( m_bEnableCivilianYellow, FIELD_BOOLEAN, "EnableCivilianYellow" ),
 END_DATADESC()
 
 void CTFLogicVIP::Spawn(void)
@@ -1100,6 +1100,11 @@ int	CTFGameRules::Damage_GetShouldNotBleed( void )
 	return 0;
 }
 
+#ifdef GAME_DLL
+unsigned char g_aAuthDataKey[8] = TF2C_AUTHDATA_KEY;
+unsigned char g_aAuthDataXOR[8] = TF2C_AUTHDATA_XOR;
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1143,6 +1148,15 @@ CTFGameRules::CTFGameRules()
 	char szCommand[32];
 	Q_snprintf( szCommand, sizeof( szCommand ), "exec %s.cfg\n", STRING( gpGlobals->mapname ) );
 	engine->ServerCommand( szCommand );
+
+	// Load 'authenticated' data
+	unsigned char szPassword[8];
+	V_memcpy(szPassword, g_aAuthDataKey, sizeof(szPassword));
+	for (unsigned int i = 0; i < sizeof(szPassword); ++i)
+		szPassword[i] ^= g_aAuthDataXOR[i] ^ TF2C_AUTHDATA_BYTE;
+
+	m_pAuthData = ReadEncryptedKVFile(filesystem, "scripts/authdata", szPassword, true);
+	V_memset(szPassword, 0x00, sizeof(szPassword));
 
 #else // GAME_DLL
 
@@ -1306,7 +1320,7 @@ void CTFGameRules::Activate()
 	if ( pArena )
 	{
 		m_nGameType.Set( TF_GAMETYPE_ARENA );
-		tf_gamemode_arena.SetValue( 0 );
+		tf_gamemode_arena.SetValue( 1 );
 		Msg( "Executing server arena config file\n", 1 );
 		engine->ServerCommand( "exec config_arena.cfg \n" );
 		engine->ServerExecute();
@@ -1340,7 +1354,7 @@ void CTFGameRules::Activate()
 	if ( pFlag )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CTF );
-		tf_gamemode_ctf.SetValue( 0 );
+		tf_gamemode_ctf.SetValue( 1 );
 		return;
 	}
 
@@ -1350,14 +1364,14 @@ void CTFGameRules::Activate()
 		m_nGameType.Set( TF_GAMETYPE_ESCORT );
 		//if ( gEntList.FindEntityByClassname( NULL, "tf_logic_multiple_escort" ) )
 
-		tf_gamemode_payload.SetValue( 0 );
+		tf_gamemode_payload.SetValue( 1 );
 		return;
 	}
 
 	if ( g_hControlPointMasters.Count() )
 	{
 		m_nGameType.Set( TF_GAMETYPE_CP );
-		tf_gamemode_cp.SetValue( 0 );
+		tf_gamemode_cp.SetValue( 1 );
 		return;
 	}
 }
@@ -2497,6 +2511,41 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 
 	bool CTFGameRules::ClientConnected(edict_t *pEntity, const char *pszName, const char *pszAddress, char *reject, int maxrejectlen)
 	{
+#ifdef GAME_DLL
+		const CSteamID *pPlayerID = engine->GetClientSteamID(pEntity);
+
+		KeyValues *pKV = m_pAuthData->FindKey("bans");
+		if (pKV)
+		{
+			for (KeyValues *pSub = pKV->GetFirstTrueSubKey(); pSub; pSub = pSub->GetNextTrueSubKey())
+			{
+				KeyValues *pIDSub = pSub->FindKey("id");
+				if (pIDSub && pPlayerID && pIDSub->GetUint64() == pPlayerID->ConvertToUint64())
+				{
+					// SteamID is banned
+					KeyValues *pMsgSub = pSub->FindKey("message");
+					if (pMsgSub)
+					{
+						V_strncpy(reject, pMsgSub->GetString(), maxrejectlen - 1);
+					}
+					return false;
+				}
+			
+				KeyValues *pIPSub = pSub->FindKey("ip");
+				if (pIPSub && pszAddress && !V_strcmp(pIPSub->GetString(), pszAddress))
+				{
+					// IP is banned
+					KeyValues *pMsgSub = pSub->FindKey("message");
+					if (pMsgSub)
+					{
+						V_strncpy(reject, pMsgSub->GetString(), maxrejectlen - 1);
+					}
+					return false;
+				}
+			}
+		}
+#endif		
+
 		return BaseClass::ClientConnected(pEntity, pszName, pszAddress, reject, maxrejectlen);
 	}
 
@@ -2898,6 +2947,33 @@ static const char *g_aTaggedConVars[] =
 	"tf_use_fixed_weaponspreads",
 	"nospread",
 
+	"tf2c_force_stock_weapons",
+	"stockweapons",
+
+	"tf2c_allow_thirdperson",
+	"thirdperson",
+
+	"tf2c_random_weapons",
+	"randomizer",
+
+	"tf2c_autojump",
+	"autojump",
+
+	"tf2c_duckjump",
+	"duckjump",
+
+	"tf2c_allow_special_classes",
+	"specialclasses",
+
+	"tf2c_airblast",
+	"airblast",
+
+	"tf2c_building_hauling",
+	"hauling",
+
+	"tf2c_building_upgrades",
+	"buildingupgrades",
+
 	"mp_highlander",
 	"highlander",
 
@@ -2936,9 +3012,6 @@ static const char *g_aTaggedConVars[] =
 
 	"tf_gamemode_dm",
 	"dm",
-
-	"tf2c_allow_thirdperson",
-	"thirdperson",
 };
 
 //-----------------------------------------------------------------------------
@@ -4522,10 +4595,12 @@ bool CTFGameRules::IsBirthday( void )
 bool CTFGameRules::AllowThirdPersonCamera( void )
 {
 #ifdef CLIENT_DLL
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-
-	if ( pPlayer && pPlayer->IsObserver() )
-		return false;
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( pPlayer )
+	{
+		if ( pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
+			return false;
+	}
 #endif
 
 	return tf2c_allow_thirdperson.GetBool();
@@ -5166,3 +5241,12 @@ const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 }
 #endif
 
+#ifdef CLIENT_DLL
+void AddSubKeyNamed( KeyValues *pKeys, const char *pszName )
+{
+	KeyValues *pKeyvalToAdd = new KeyValues( pszName );
+
+	if ( pKeyvalToAdd )
+		pKeys->AddSubKey( pKeyvalToAdd );
+}
+#endif

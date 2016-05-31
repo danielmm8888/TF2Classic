@@ -39,7 +39,7 @@
 #include <shareddefs.h>
 #include <igameresources.h>
 
-#ifdef TF_CLIENT_DLL
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_CLASSIC_CLIENT )
 #include "tf_gamerules.h"
 void AddSubKeyNamed( KeyValues *pKeys, const char *pszName );
 #endif
@@ -458,7 +458,7 @@ void CSpectatorGUI::ApplySchemeSettings(IScheme *pScheme)
 {
 	KeyValues *pConditions = NULL;
 
-#ifdef TF_CLIENT_DLL
+#if defined ( TF_CLIENT_DLL ) || defined ( TF_CLASSIC_CLIENT )
 	if ( TFGameRules() && TFGameRules()->IsMannVsMachineMode() )
 	{
 		pConditions = new KeyValues( "conditions" );

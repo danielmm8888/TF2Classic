@@ -16,7 +16,9 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\tf,.\tf,$SRCDIR\game\shared\Multiplayer,$SRCDIR\game\shared\econ"
-		$PreprocessorDefinitions		"$BASE;TF_CLASSIC;GLOWS_ENABLE"
+		$PreprocessorDefinitions		"$BASE;TF_CLASSIC;GLOWS_ENABLE;
+										TF2C_AUTHDATA_KEY={ 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41 };TF2C_AUTHDATA_XOR={ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };TF2C_AUTHDATA_BYTE=0x00
+										"
 	}
 }
 

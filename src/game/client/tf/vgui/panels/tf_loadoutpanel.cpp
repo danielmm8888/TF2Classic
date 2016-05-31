@@ -557,6 +557,13 @@ void CTFLoadoutPanel::UpdateModelPanels()
 				if (pColorGreen) iGreen = pColorGreen->GetInt();
 				if (pColorBlue) iBlue = pColorBlue->GetInt();
 				Vector vec = Vector(iRed / 255.0f, iGreen / 255.0f, iBlue / 255.0f);
+				// Clamp according to clamping rules
+				Vector vecHSVColor;
+				RGBtoHSV(vec, vecHSVColor);
+				vecHSVColor.y = clamp(vecHSVColor.y, 0.0f, 0.65f);
+				vecHSVColor.z = clamp(vecHSVColor.z, 0.0f, 0.85f);
+				HSVtoRGB(vecHSVColor, vec);
+
 				pPanelModel->m_nSkin = 8;
 				pPanelModel->m_vecModelColor = vec;
 			}

@@ -790,9 +790,9 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 		{
 		case TF_GAMETYPE_CTF:
 			// turn on the flag panel
-			if (m_pFlagPanel && !m_pFlagPanel->IsVisible())
+			if ( m_pFlagPanel && !m_pFlagPanel->IsVisible() )
 			{
-				m_pFlagPanel->SetVisible(true);
+				m_pFlagPanel->SetVisible( true );
 			}
 			return;
 			break;
@@ -800,7 +800,7 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 		case TF_GAMETYPE_ARENA:
 		case TF_GAMETYPE_CP:
 			// turn on the control point icons
-			if (m_pControlPointIconsPanel && !m_pControlPointIconsPanel->IsVisible())
+			if ( m_pControlPointIconsPanel && !m_pControlPointIconsPanel->IsVisible() )
 			{
 				m_pControlPointIconsPanel->SetVisible(true);
 			}
@@ -836,7 +836,7 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 	{
 		case TF_GAMETYPE_CTF:
 			// turn on the flag panel
-			if (m_pFlagPanel && !m_pFlagPanel->IsVisible())
+			if ( m_pFlagPanel && !m_pFlagPanel->IsVisible() )
 			{
 				m_pFlagPanel->SetVisible(true);
 			}
@@ -849,6 +849,16 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 			{
 				m_pControlPointIconsPanel->SetVisible(true);
 			}
+
+			if ( TFGameRules() && TFGameRules()->IsInHybridCTF_CPMode() )
+			{
+				// turn on the flag panel
+				if ( m_pFlagPanel && !m_pFlagPanel->IsVisible() )
+				{
+					m_pFlagPanel->SetVisible( true );
+				}
+			}
+
 			break;
 
 		case TF_GAMETYPE_ESCORT:

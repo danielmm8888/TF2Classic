@@ -114,9 +114,18 @@ void CHudScopeCharge::Paint( void )
 	if ( !pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
 		return;
 
-	// Make sure the current weapon is a sniper rifle
-	CTFSniperRifle *pWeapon = assert_cast<CTFSniperRifle*>(pPlayer->GetActiveTFWeapon());
+	C_TFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
 	if ( !pWeapon )
+		return;
+
+	int iNoScope = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iNoScope, mod_no_scope );
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iNoScope, unimplemented_mod_sniper_no_charge );
+	if ( iNoScope )
+		return;
+
+	// Make sure the current weapon is a sniper rifle
+	if ( assert_cast<C_TFSniperRifle *>( pWeapon ) == NULL )
 		return;
 
 	// Actual charge value is set through a material proxy in the sniper rifle class
@@ -215,6 +224,13 @@ bool CHudScope::ShouldDraw( void )
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	if ( !pPlayer || !pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
+		return false;
+
+	C_TFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
+
+	int iNoScope = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( pWeapon, iNoScope, mod_no_scope );
+	if ( iNoScope )
 		return false;
 
 	return CHudElement::ShouldDraw();

@@ -148,13 +148,9 @@ void CDisguiseStatus::CheckWeapon( void )
 	if ( !pPlayer )
 		return;
 
-	//TODO: Properly get the econ weapon name instead of the regular script wep. name
-	CTFWeaponInfo *pWeaponInfo = pPlayer->m_Shared.GetDisguiseWeaponInfo();
-	if ( pWeaponInfo )
-	{
-		SetDialogVariable( "weaponname", g_pVGuiLocalize->Find( pWeaponInfo->szPrintName ) );
-	}
-
+	CEconItemDefinition *pItem = pPlayer->m_Shared.GetDisguiseItem()->GetStaticData();
+	if ( pItem )
+		SetDialogVariable( "weaponname", g_pVGuiLocalize->Find( pItem->item_name ) );
 }
 
 //-----------------------------------------------------------------------------

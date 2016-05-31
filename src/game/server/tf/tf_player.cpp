@@ -105,7 +105,7 @@ extern ConVar sv_alltalk;
 extern ConVar tf_teamtalk;
 
 // Team Fortress 2 Classic commands
-ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY | FCVAR_DEVELOPMENTONLY, "Makes players spawn with random loadout." );
+ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes players spawn with random loadout. CURRENTLY BROKEN!!!" );
 
 
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
@@ -1184,7 +1184,20 @@ bool CTFPlayer::ItemsMatch( CEconItemView *pItem1, CEconItemView *pItem2, CTFWea
 {
 	if ( pItem1 && pItem2 )
 	{
-		return ( pItem1->GetItemDefIndex() == pItem2->GetItemDefIndex() );
+		if ( pItem1->GetItemDefIndex() != pItem2->GetItemDefIndex() )
+			return false;
+
+		// Item might have different entities for each class (i.e. shotgun).
+		if ( pWeapon )
+		{
+			int iClass = m_PlayerClass.GetClassIndex();
+			const char *pszClass = TranslateWeaponEntForClass( pItem1->GetEntityName(), iClass );
+
+			if ( !FClassnameIs( pWeapon, pszClass ) )
+				return false;
+		}
+
+		return true;
 	}
 
 	return false;
@@ -1419,13 +1432,6 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		}
 	}
 
-	if ( m_bRegenerating == false )
-	{
-		SetActiveWeapon( NULL );
-		Weapon_Switch( Weapon_GetSlot( 0 ) );
-		Weapon_SetLast( Weapon_GetSlot( 1 ) );
-	}
-
 	PostInventoryApplication();
 }
 
@@ -1495,13 +1501,6 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 			}
 		}
 	}
-
-	if ( m_bRegenerating == false )
-	{
-		SetActiveWeapon( NULL );
-		Weapon_Switch( Weapon_GetSlot( 0 ) );
-		Weapon_SetLast( Weapon_GetSlot( 1 ) );
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1509,6 +1508,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ManageRandomWeapons( TFPlayerClassData_t *pData )
 {
+	// TODO: Make this work with Econ weapons. Not a priority atm.
 	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
 	{
 		int iWeaponID = RandomInt( TF_WEAPON_NONE + 1, TF_WEAPON_COUNT - 1 );
@@ -2397,8 +2397,7 @@ void CTFPlayer::HandleCommand_JoinClass( const char *pClassName )
 	if ( IsAlive() && ( GetHudClassAutoKill() == true ) && bShouldNotRespawn == false )
 	{
 		CommitSuicide( false, true );
-		if ( GetPlayerClass()->GetClassIndex() == TF_CLASS_ENGINEER )
-			RemoveAllObjects( false );
+		RemoveAllObjects( false );
 	}
 }
 
@@ -2475,6 +2474,11 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 	}
 	else if ( FStrEq( pcmd, "jointeam" ) )
 	{
+		if (gpGlobals->curtime < GetNextChangeTeamTime())
+			return false;
+
+		SetNextChangeTeamTime(gpGlobals->curtime + 2.0f);
+
 		if ( args.ArgC() >= 2 )
 		{
 			HandleCommand_JoinTeam( args[1] );
@@ -8125,7 +8129,8 @@ uint64 powerplay_ids[] =
 	76561198025334020 ^ powerplaymask, // DrPyspy
 	76561197993638233 ^ powerplaymask, // trotim
 	76561197995805528 ^ powerplaymask, // th13teen
-	76561198045284839 ^ powerplaymask  // iamgoofball
+	76561198045284839 ^ powerplaymask, // iamgoofball
+	76561198011507712 ^ powerplaymask, // drew
 };
 
 //-----------------------------------------------------------------------------
@@ -8206,6 +8211,13 @@ void CTFPlayer::UpdatePlayerColor( void )
 	vecNewColor.x = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
 	vecNewColor.y = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
 	vecNewColor.z = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+
+	// Clamp saturation to 0.65 max and value to 0.85 max
+	Vector vecHSVColor;
+	RGBtoHSV(vecNewColor, vecHSVColor);
+	vecHSVColor.y = clamp(vecHSVColor.y, 0.0f, 0.65f);
+	vecHSVColor.z = clamp(vecHSVColor.z, 0.0f, 0.85f);
+	HSVtoRGB(vecHSVColor, vecNewColor);
 
 	m_vecPlayerColor = vecNewColor;
 }
