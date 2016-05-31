@@ -3436,7 +3436,7 @@ void C_TFPlayer::InitPlayerGibs( void )
 //			&vecVelocity - 
 //			&vecImpactVelocity - 
 //-----------------------------------------------------------------------------
-void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVelocity, float flImpactScale, bool bBurning = false )
+void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVelocity, float flImpactScale, bool bBurning )
 {
 	// Make sure we have Gibs to create.
 	if ( m_aGibs.Count() == 0 )
