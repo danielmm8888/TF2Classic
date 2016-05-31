@@ -1636,6 +1636,18 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 		}
 	}
 
+	for (int i = 0; i < gpGlobals->maxClients; i++)
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( pPlayer )
+		{
+			if ( pPlayer->GetTeamNumber() == TF_STORY_TEAM )
+			{
+				pPlayer->SaveForTransition();
+			}
+		}
+	}
+
 	// This object will get removed in the call to engine->ChangeLevel, copy the params into "safe" memory
 	Q_strncpy( st_szNextMap, m_szMapName, sizeof( st_szNextMap ) );
 

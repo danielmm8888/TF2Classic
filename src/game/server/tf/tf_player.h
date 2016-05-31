@@ -147,7 +147,7 @@ public:
 
 	// Team.
 	void				ForceChangeTeam( int iTeamNum );
-	virtual void		ChangeTeam( int iTeamNum );
+	virtual void		ChangeTeam( int iTeamNum, bool bSilent = true);
 
 	// mp_fadetoblack
 	void				HandleFadeToBlack( void );
@@ -362,6 +362,10 @@ public:
 	CAI_BaseNPC *GetSquadCommandRepresentative();
 	int GetNumSquadCommandables();
 	int GetNumSquadCommandableMedics();
+
+	//Transition
+	void	SaveForTransition( void );
+	void	DeleteForTransition( int arrayid );
 
 public:
 
