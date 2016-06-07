@@ -29,6 +29,7 @@ LINK_ENTITY_TO_CLASS( item_powerup_shortuber, CTFPowerupShortUber );
 //-----------------------------------------------------------------------------
 CTFPowerupShortUber::CTFPowerupShortUber()
 {
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------

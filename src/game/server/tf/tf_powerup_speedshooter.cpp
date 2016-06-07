@@ -30,6 +30,7 @@ LINK_ENTITY_TO_CLASS( item_powerup_speedshooter, CTFPowerupSpeedshooter );
 //-----------------------------------------------------------------------------
 CTFPowerupSpeedshooter::CTFPowerupSpeedshooter()
 {
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------

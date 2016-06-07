@@ -31,6 +31,7 @@ LINK_ENTITY_TO_CLASS( item_powerup_ragemode, CTFPowerupRagemode );
 //-----------------------------------------------------------------------------
 CTFPowerupRagemode::CTFPowerupRagemode()
 {
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------

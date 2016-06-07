@@ -34,15 +34,12 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual int	GetEffectDuration(void) { { return m_iEffectDuration; }; }
 	virtual int	GetCondition( void ) { return m_iPowerupCondition; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 
 private:
-
 	int		m_iPowerupCondition;
-	int		m_iEffectDuration;
 };
 
 #endif // POWERUP_CUSTOM_H

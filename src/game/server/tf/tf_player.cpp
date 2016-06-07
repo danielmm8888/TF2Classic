@@ -54,6 +54,7 @@
 #include "econ_item_schema.h"
 #include "baseprojectile.h"
 #include "tf_weapon_flamethrower.h"
+#include "tf_basedmpowerup.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -4289,6 +4290,8 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// we want the rag doll to burn if the player was burning and was not a pryo (who only burns momentarily)
 	bool bBurning = m_Shared.InCond( TF_COND_BURNING ) && ( TF_CLASS_PYRO != GetPlayerClass()->GetClassIndex() );
 
+	DropPowerups();
+
 	// Remove all conditions...
 	m_Shared.RemoveAllCond( NULL );
 
@@ -4299,9 +4302,6 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	}
 
 	RemoveTeleportEffect();
-
-	// Stop being invisible
-	m_Shared.RemoveCond( TF_COND_STEALTHED );
 
 	if ( TFGameRules()->IsDeathmatch() )
 	{
@@ -4987,6 +4987,23 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 		DroppedWeaponCleanUp();
 	}
 	pWeapon->SetModel( pWeapon->GetViewModel() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::DropPowerups( void )
+{
+	for ( int i = TF_FIRST_POWERUP_COND; i < TF_COND_LAST; i++ )
+	{
+		if ( m_Shared.InCond( i ) )
+		{
+			const char *pszClassname = g_aPowerups[i - TF_FIRST_POWERUP_COND];
+
+			if ( pszClassname[0] != '\0' )
+				CTFBaseDMPowerup::Create( WorldSpaceCenter(), vec3_angle, this, pszClassname, m_Shared.GetConditionDuration( i ) ); 
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------

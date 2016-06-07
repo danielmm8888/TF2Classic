@@ -291,6 +291,7 @@ public:
 	void DropAmmoPack( void );
 	void DropWeapon( CTFWeaponBase *pWeapon, bool bKilled = false );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
+	void DropPowerups( void );
 
 	bool CanDisguise( void );
 	bool CanGoInvisible( void );

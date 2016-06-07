@@ -28,14 +28,20 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 	float	GetRespawnDelay( void );
+	float	GetEffectDuration( void ) { return m_flEffectDuration; }
+	void	SetEffectDuration( float flTime ) { m_flEffectDuration = flTime; }
 
 	virtual const char *GetDefaultPickupSound( void ) { return "Healthkit.Touch"; }
 	virtual const char *GetDefaultPowerupModel( void ) { return "models/class_menu/random_class_icon.mdl"; }
 
-	virtual int	GetEffectDuration( void ) { return 0; }
 	virtual int GetCondition( void ) { return TF_COND_AIMING; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
+
+	static CTFBaseDMPowerup *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszClassname, float flDuration );
+
+protected:
+	float		m_flEffectDuration;
 
 private:
 	string_t	m_strPickupSound;

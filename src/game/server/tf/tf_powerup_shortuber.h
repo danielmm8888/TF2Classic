@@ -30,7 +30,6 @@ public:
 	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_uber.mdl"; }
 	virtual const char *GetDefaultPickupSound( void ) { return "PowerupUber.Touch"; }
 
-	virtual int	GetEffectDuration( void ) { return 15; }
 	virtual int	GetCondition( void ) { return TF_COND_INVULNERABLE; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }

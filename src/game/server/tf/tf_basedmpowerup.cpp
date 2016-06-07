@@ -38,6 +38,23 @@ CTFBaseDMPowerup::CTFBaseDMPowerup()
 	m_flRespawnTime = 30.0f;
 }
 
+CTFBaseDMPowerup *CTFBaseDMPowerup::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszClassname, float flDuration )
+{
+	CTFBaseDMPowerup *pPowerup = dynamic_cast<CTFBaseDMPowerup *>( CBaseEntity::CreateNoSpawn( pszClassname, vecOrigin, vecAngles, pOwner ) );
+
+	if ( pPowerup )
+	{
+		pPowerup->SetEffectDuration( flDuration );
+		pPowerup->AddSpawnFlags( SF_NORESPAWN );
+		DispatchSpawn( pPowerup );
+
+		pPowerup->SetThink( &CBaseEntity::SUB_Remove );
+		pPowerup->SetNextThink( gpGlobals->curtime + 30.0f );
+	}
+
+	return pPowerup;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: Precache 
 //-----------------------------------------------------------------------------

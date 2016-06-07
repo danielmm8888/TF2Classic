@@ -30,7 +30,7 @@ LINK_ENTITY_TO_CLASS( item_powerup_critdamage, CTFPowerupCritdamage );
 //-----------------------------------------------------------------------------
 CTFPowerupCritdamage::CTFPowerupCritdamage()
 {
-//	m_iEffectDuration = 15;
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------
