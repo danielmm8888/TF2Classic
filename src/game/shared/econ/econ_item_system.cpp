@@ -39,13 +39,6 @@ const char *g_EffectTypes[] =
 	"negative"
 };
 
-//-----------------------------------------------------------------------------
-// Purpose: for the UtlMap
-//-----------------------------------------------------------------------------
-static bool schemaLessFunc( const int &lhs, const int &rhs )
-{
-	return lhs < rhs;
-}
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -230,7 +223,7 @@ public:
 		for ( KeyValues *pSubData = pKeyValuesData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			EconAttributeDefinition *pAttribute = new EconAttributeDefinition;
-			int index = V_atoi( pSubData->GetName() );
+			int index = atoi( pSubData->GetName() );
 
 			GET_STRING_DEFAULT( pAttribute, pSubData, name, ( unnamed ) );
 			GET_STRING( pAttribute, pSubData, attribute_class );
@@ -485,8 +478,6 @@ public:
 
 		return true;
 	};
-
-private:
 };
 CEconSchemaParser g_EconSchemaParser;
 
@@ -495,8 +486,8 @@ CEconSchemaParser g_EconSchemaParser;
 //-----------------------------------------------------------------------------
 CEconItemSchema::CEconItemSchema()
 {
-	m_Items.SetLessFunc( schemaLessFunc );
-	m_Attributes.SetLessFunc( schemaLessFunc );
+	SetDefLessFunc( m_Items );
+	SetDefLessFunc( m_Attributes );
 
 	m_bInited = false;
 }

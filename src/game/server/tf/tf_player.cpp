@@ -428,7 +428,7 @@ CTFPlayer::CTFPlayer()
 	m_bBlastLaunched = false;
 	m_bJumpEffect = false;
 
-	memset( m_WeaponPreset, 0, TF_CLASS_COUNT * TF_LOADOUT_SLOT_COUNT );
+	memset( m_WeaponPreset, 0, TF_CLASS_COUNT_ALL * TF_LOADOUT_SLOT_COUNT * sizeof( int ) );
 
 	m_bIsPlayerADev = false;
 }
@@ -8013,10 +8013,9 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 	for ( int i = 3; i + 1 < args.ArgC(); i += 2 )
 	{
 		int iAttribIndex = atoi( args[i] );
-		float flValue = V_atof( args[i + 1] );
+		float flValue = atof( args[i + 1] );
 
 		CEconItemAttribute econAttribute( iAttribIndex, flValue );
-
 		bAddedAttributes = econItem.AddAttribute( &econAttribute );
 	}
 
@@ -8030,6 +8029,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 	if ( pEntity )
 	{
 		CBaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
+
 		if ( pWeapon )
 		{
 			if ( pWeapon == pPlayer->GetActiveWeapon() )
@@ -8060,8 +8060,8 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		CBaseCombatWeapon *pWeapon = pEconEnt->MyCombatWeaponPointer();
 		if ( pWeapon )
 		{
-			int iAmmo = pWeapon->GetPrimaryAmmoType();
-			pPlayer->SetAmmoCount( pPlayer->GetMaxAmmo( iAmmo ), iAmmo );
+			int iAmmoType = pWeapon->GetPrimaryAmmoType();
+			pPlayer->SetAmmoCount( pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType );
 		}
 	}
 }

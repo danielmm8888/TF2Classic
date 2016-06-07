@@ -214,7 +214,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropEHandle( SENDINFO( m_hCarriedObject ) ),
 	SendPropBool( SENDINFO( m_bCarryingObject ) ),
 	SendPropInt( SENDINFO( m_nTeamTeleporterUsed ), 3, SPROP_UNSIGNED ),
-	SendPropInt( SENDINFO( m_iRespawnParticleID ), 0, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iRespawnParticleID ), -1, SPROP_UNSIGNED ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
@@ -1911,8 +1911,6 @@ void CTFPlayerShared::RemoveDisguise( void )
 void CTFPlayerShared::RecalcDisguiseWeapon( int iSlot /*= 0*/ )
 {
 #ifndef CLIENT_DLL
-	// IMPORTANT!!! - This whole function will need to be rewritten if we switch to using item schema.
-	// So please remind me about this when we do. (Nicknine)
 	if ( !InCond( TF_COND_DISGUISED ) )
 	{
 		m_DisguiseItem.SetItemDefIndex( -1 );

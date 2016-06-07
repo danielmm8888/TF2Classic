@@ -23,20 +23,12 @@ EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: for the UtlMap
-//-----------------------------------------------------------------------------
-static bool actLessFunc( const int &lhs, const int &rhs )
-{
-	return lhs < rhs;
-}
-
-//-----------------------------------------------------------------------------
 // EconItemVisuals
 //-----------------------------------------------------------------------------
 
 EconItemVisuals::EconItemVisuals()
 {
-	animation_replacement.SetLessFunc( actLessFunc );
+	SetDefLessFunc( animation_replacement );
 	memset( aWeaponSounds, 0, sizeof( aWeaponSounds ) );
 }
 
