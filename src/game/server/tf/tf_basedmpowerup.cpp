@@ -20,9 +20,8 @@
 
 BEGIN_DATADESC( CTFBaseDMPowerup )
 
-	DEFINE_KEYFIELD( m_strModelName, FIELD_STRING, "ModelName" ),
 	DEFINE_KEYFIELD( m_strPickupSound, FIELD_SOUNDNAME, "PickupSound" ),
-	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
+	DEFINE_KEYFIELD( m_flRespawnTime, FIELD_FLOAT, "RespawnTime" ),
 
 END_DATADESC()
 
@@ -36,9 +35,7 @@ END_SEND_TABLE()
 //-----------------------------------------------------------------------------
 CTFBaseDMPowerup::CTFBaseDMPowerup()
 {
-	m_iRespawnTime = 0;
-	m_strModelName = MAKE_STRING("models/class_menu/random_class_icon.mdl");
-	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
+	m_flRespawnTime = 30.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -46,8 +43,12 @@ CTFBaseDMPowerup::CTFBaseDMPowerup()
 //-----------------------------------------------------------------------------
 void CTFBaseDMPowerup::Precache( void )
 {
-	PrecacheModel( GetPowerupModel() );	
-	PrecacheScriptSound( GetPickupSound() );
+	UTIL_ValidateSoundName( m_strPickupSound, GetDefaultPickupSound() );
+	if ( GetModelName() == NULL_STRING )
+		SetModelName( AllocPooledString( GetDefaultPowerupModel() ) );
+
+	PrecacheModel( STRING( GetModelName() ) );	
+	PrecacheScriptSound( STRING( m_strPickupSound ) );
 
 	BaseClass::Precache();
 }
@@ -58,7 +59,7 @@ void CTFBaseDMPowerup::Precache( void )
 void CTFBaseDMPowerup::Spawn( void )
 {
 	Precache();
-	SetModel( GetPowerupModel() );
+	SetModel( STRING( GetModelName() ) );
 
 	BaseClass::Spawn();
 
@@ -70,7 +71,7 @@ void CTFBaseDMPowerup::Spawn( void )
 //-----------------------------------------------------------------------------
 float CTFBaseDMPowerup::GetRespawnDelay( void )
 {
-	return (float)m_iRespawnTime;
+	return m_flRespawnTime;
 }
 
 //-----------------------------------------------------------------------------
@@ -96,7 +97,7 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 		WRITE_STRING( GetClassname() );
 		MessageEnd();
 
-		EmitSound( user, entindex(), GetPickupSound() );
+		pPlayer->EmitSound( STRING( m_strPickupSound ) );
 
 		bSuccess = true;
 	}

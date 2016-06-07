@@ -32,9 +32,6 @@ LINK_ENTITY_TO_CLASS( item_powerup_classchange, CTFPowerupClasschange );
 CTFPowerupClasschange::CTFPowerupClasschange()
 {	
 	m_nClassIndex = TF_CLASS_SCOUT;
-	m_iRespawnTime = 30;
-	m_strModelName = MAKE_STRING("models/items/powerup_crit.mdl");
-	m_strPickupSound = MAKE_STRING("HealthKit.Touch");
 //	m_iEffectDuration = 15;
 }
 
