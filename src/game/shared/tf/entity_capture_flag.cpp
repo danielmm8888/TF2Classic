@@ -558,7 +558,7 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 		return;
 
 	// Don't let invulnerable players pickup flags
-	if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pPlayer->m_Shared.IsInvulnerable() )
 		return;
 
 #ifdef GAME_DLL

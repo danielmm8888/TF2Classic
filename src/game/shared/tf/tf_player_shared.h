@@ -108,6 +108,7 @@ public:
 	float	GetConditionDuration( int nCond );
 
 	bool	IsCritBoosted( void );
+	bool	IsInvulnerable( void );
 
 	void	ConditionGameRulesThink( void );
 

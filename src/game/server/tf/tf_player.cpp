@@ -339,9 +339,9 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	// Data that gets sent to all other players
 	SendPropDataTable( "tfnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
 
-	SendPropInt( SENDINFO( m_nForceTauntCam ), 2, SPROP_UNSIGNED ),
-
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
+	SendPropInt( SENDINFO( m_nForceTauntCam ), 2, SPROP_UNSIGNED ),
+	SendPropTime( SENDINFO( m_flLastDamageTime ) ),
 
 END_SEND_TABLE()
 
@@ -3143,7 +3143,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 	{
 		// no impact effects
 	}
-	else if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	else if ( m_Shared.IsInvulnerable() )
 	{ 
 		// Make bullet impacts
 		g_pEffects->Ricochet( ptr->endpos - (vecDir * 8), -vecDir );
@@ -3428,7 +3428,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	int bitsDamage = inputInfo.GetDamageType();
 
 	// If we're invulnerable, force ourselves to only take damage events only, so we still get pushed
-	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( m_Shared.IsInvulnerable() )
 	{
 		bool bAllowDamage = false;
 
@@ -3961,7 +3961,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	}
 
 	//No bleeding while invul or disguised.
-	bool bBleed = ( m_Shared.InCond( TF_COND_DISGUISED ) == false && m_Shared.InCond( TF_COND_INVULNERABLE ) == false );
+	bool bBleed = ( m_Shared.InCond( TF_COND_DISGUISED ) == false && m_Shared.IsInvulnerable() == false );
 	if ( bBleed && pAttacker->IsPlayer() )
 	{
 		CTFWeaponBase *pWeapon = ToTFPlayer( pAttacker )->GetActiveTFWeapon();
@@ -7322,7 +7322,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 	}
 	criteriaSet.AppendCriteria( "killsthislife", UTIL_VarArgs( "%d", iTotalKills ) );
 	criteriaSet.AppendCriteria( "disguised", m_Shared.InCond( TF_COND_DISGUISED ) ? "1" : "0" );
-	criteriaSet.AppendCriteria( "invulnerable", m_Shared.InCond( TF_COND_INVULNERABLE ) ? "1" : "0" );
+	criteriaSet.AppendCriteria( "invulnerable", m_Shared.IsInvulnerable() ? "1" : "0" );
 	criteriaSet.AppendCriteria( "beinghealed", m_Shared.InCond( TF_COND_HEALTH_BUFF ) ? "1" : "0" );
 	criteriaSet.AppendCriteria( "waitingforplayers", (TFGameRules()->IsInWaitingForPlayers() || TFGameRules()->IsInPreMatch()) ? "1" : "0" );
 	criteriaSet.AppendCriteria( "teamrole", GetTFTeam()->GetRole() ? "defense" : "offense" );

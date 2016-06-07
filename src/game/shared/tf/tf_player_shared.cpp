@@ -431,6 +431,22 @@ bool CTFPlayerShared::IsCritBoosted( void )
 	return false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::IsInvulnerable( void )
+{
+	// Oh man again...
+	if ( InCond( TF_COND_INVULNERABLE ) ||
+		InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) ||
+		InCond( TF_COND_INVULNERABLE_USER_BUFF ) ||
+		InCond( TF_COND_INVULNERABLE_CARD_EFFECT ) ||
+		InCond( TF_COND_POWERUP_SHORTUBER  ) )
+		return true;
+
+	return false;
+}
+
 void CTFPlayerShared::DebugPrintConditions( void )
 {
 #ifndef CLIENT_DLL
@@ -475,8 +491,8 @@ void CTFPlayerShared::OnPreDataChanged( void )
 {
 	m_nOldConditions = m_nPlayerCond;
 	m_nOldConditionsEx = m_nPlayerCondEx;
-	m_nOldConditionsEx = m_nPlayerCondEx2;
-	m_nOldConditionsEx = m_nPlayerCondEx3;
+	m_nOldConditionsEx2 = m_nPlayerCondEx2;
+	m_nOldConditionsEx3 = m_nPlayerCondEx3;
 	m_nOldDisguiseClass = GetDisguiseClass();
 	m_nOldDisguiseTeam = GetDisguiseTeam();
 	m_iOldDisguiseWeaponModelIndex = m_iDisguiseWeaponModelIndex;
@@ -497,8 +513,8 @@ void CTFPlayerShared::OnDataChanged( void )
 
 	m_nOldConditions = m_nPlayerCond;
 	m_nOldConditionsEx = m_nPlayerCondEx;
-	m_nOldConditionsEx = m_nPlayerCondEx2;
-	m_nOldConditionsEx = m_nPlayerCondEx3;
+	m_nOldConditionsEx2 = m_nPlayerCondEx2;
+	m_nOldConditionsEx3 = m_nPlayerCondEx3;
 
 	if ( m_bWasCritBoosted != IsCritBoosted() )
 	{
@@ -605,6 +621,9 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		break;
 
 	case TF_COND_INVULNERABLE:
+	case TF_COND_INVULNERABLE_USER_BUFF:
+	case TF_COND_INVULNERABLE_CARD_EFFECT:
+	case TF_COND_POWERUP_SHORTUBER:
 		OnAddInvulnerable();
 		break;
 
@@ -693,6 +712,9 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 		break;
 
 	case TF_COND_INVULNERABLE:
+	case TF_COND_INVULNERABLE_USER_BUFF:
+	case TF_COND_INVULNERABLE_CARD_EFFECT:
+	case TF_COND_POWERUP_SHORTUBER:
 		OnRemoveInvulnerable();
 		break;
 

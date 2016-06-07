@@ -560,7 +560,9 @@ private:
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.
 	int					m_iLastSkin;
-	float				m_flLastDamageTime;
+
+	CNetworkVar( float, m_flLastDamageTime );
+
 	float				m_flNextPainSoundTime;
 	int					m_LastDamageType;
 	int					m_iDeathFlags;				// TF_DEATH_* flags with additional death info

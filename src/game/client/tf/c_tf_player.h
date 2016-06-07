@@ -346,8 +346,6 @@ public:
 	int				m_iOldPlayerClass;	// Used to detect player class changes
 	bool			m_bIsDisplayingNemesisIcon;
 
-	int				m_nForceTauntCam;
-
 	int				m_iSpawnCounter;
 
 	bool			m_bSaveMeParity;
@@ -389,6 +387,9 @@ public:
 
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
+
+	int				m_nForceTauntCam;
+	float			m_flLastDamageTime;
 
 	CAttributeManager m_AttributeManager;
 

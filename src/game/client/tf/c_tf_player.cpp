@@ -882,7 +882,7 @@ public:
 
 		if ( pPlayer )
 		{
-			if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) && !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
+			if ( pPlayer->m_Shared.IsInvulnerable() && !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
 			{
 				m_pResult->SetFloatValue( 1.0 );
 			}
@@ -1510,9 +1510,9 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropDataTable( "tflocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFLocalPlayerExclusive) ),
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
 
-	RecvPropInt( RECVINFO( m_nForceTauntCam ) ),
-
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
+	RecvPropInt( RECVINFO( m_nForceTauntCam ) ),
+	RecvPropTime( RECVINFO( m_flLastDamageTime ) ),
 
 END_RECV_TABLE()
 
@@ -1794,7 +1794,7 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 	}
 
 	// Check for full health and remove decals.
-	if ( ( m_iHealth > m_iOldHealth && m_iHealth >= GetMaxHealth() ) || m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( ( m_iHealth > m_iOldHealth && m_iHealth >= GetMaxHealth() ) || m_Shared.IsInvulnerable() )
 	{
 		// If we were just fully healed, remove all decals
 		RemoveAllDecals();
@@ -3628,7 +3628,7 @@ int C_TFPlayer::GetSkin()
 		nSkin = 8;
 
 	// 3 and 4 are invulnerable
-	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( m_Shared.IsInvulnerable() && ( !m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) || gpGlobals->curtime - m_flLastDamageTime < 2.0f ) )
 	{
 		nSkin += 2;
 		if ( TFGameRules()->IsDeathmatch() )
@@ -3672,7 +3672,7 @@ void C_TFPlayer::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 		return;
 	}
 
-	if ( m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( m_Shared.IsInvulnerable() )
 	{ 
 		Vector vecDir = rayEnd - rayStart;
 		VectorNormalize(vecDir);
@@ -3784,7 +3784,7 @@ bool C_TFPlayer::IsOverridingViewmodel( void )
 		pPlayer = assert_cast<C_TFPlayer*>(pLocalPlayer->GetObserverTarget());
 	}
 
-	if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pPlayer->m_Shared.IsInvulnerable() && !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) )
 		return true;
 
 	return BaseClass::IsOverridingViewmodel();
@@ -3805,7 +3805,7 @@ int	C_TFPlayer::DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags 
 		pPlayer = assert_cast<C_TFPlayer*>(pLocalPlayer->GetObserverTarget());
 	}
 
-	if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pPlayer->m_Shared.IsInvulnerable() && !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) )
 	{
 		// Force the invulnerable material
 		modelrender->ForcedMaterialOverride( *pPlayer->GetInvulnMaterialRef() );

@@ -574,7 +574,7 @@ enum
 #define TF_FIRST_POWERUP_COND TF_COND_POWERUP_CRITDAMAGE
 
 extern int condition_to_attribute_translation[];
-extern const char *g_aPowerups[TF_COND_LAST - TF_FIRST_POWERUP_COND];
+extern const char *g_aPowerups[];
 
 bool ConditionExpiresFast( int nCond );
 bool IsPowerupCond( int nCond );
