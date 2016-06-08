@@ -4131,8 +4131,8 @@ void CTFPlayer::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	CTFPlayer *pDamager = ToTFPlayer(hDamager);
-	if (!pDamager || (pDamager->GetTeam() == GetTeam() && !TFGameRules()->IsDeathmatch()))
+	CTFPlayer *pDamager = ToTFPlayer( hDamager );
+	if ( !pDamager || pDamager == this || ( InSameTeam( pDamager ) && !TFGameRules()->IsDeathmatch() ) )
 		return;
 
 	// If this damager is different from the most recent damager, shift the
@@ -4246,6 +4246,18 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		if ( IsAlive() )
 		{
 			m_Shared.IncKillstreak();
+
+			// Apply on-kill effects.
+			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+			if ( pWeapon )
+			{
+				float flCritOnKill = 0.0f;
+				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flCritOnKill, add_onkill_critboost_time );
+				if ( flCritOnKill )
+				{
+					m_Shared.AddCond( TF_COND_CRITBOOSTED_ON_KILL, flCritOnKill );
+				}
+			}
 		}
 	}
 	else
@@ -4254,19 +4266,6 @@ void CTFPlayer::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		{
 			CBaseObject *pObject = dynamic_cast<CBaseObject *>( pVictim );
 			SpeakConceptIfAllowed( MP_CONCEPT_KILLED_OBJECT, pObject->GetResponseRulesModifier() );
-		}
-	}
-
-	// Apply on-kill effects.
-	if ( IsAlive() && pVictim->IsPlayer() )
-	{
-		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
-
-		float flCritOnKill = 0.0f;
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flCritOnKill, add_onkill_critboost_time );
-		if ( flCritOnKill )
-		{
-			m_Shared.AddCond( TF_COND_CRITBOOSTED_ON_KILL, flCritOnKill );
 		}
 	}
 }
@@ -4280,10 +4279,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	StateTransition( TF_STATE_DYING );	// Transition into the dying state.
 
-	CTFPlayer *pPlayerAttacker = NULL;
-	if ( info.GetAttacker() && info.GetAttacker()->IsPlayer() )
+	CBaseEntity *pAttacker = info.GetAttacker();
+	CBaseEntity *pInflictor = info.GetInflictor();
+	CTFPlayer *pTFAttacker = NULL;
+	if ( pAttacker && pAttacker->IsPlayer() )
 	{
-		pPlayerAttacker = ToTFPlayer( info.GetAttacker() );
+		pTFAttacker = ToTFPlayer( info.GetAttacker() );
 	}
 
 	bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
@@ -4315,7 +4316,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	}
 
 	// If the player has a capture flag and was killed by another player, award that player a defense
-	if ( HasItem() && pPlayerAttacker && ( pPlayerAttacker != this ) )
+	if ( HasItem() && pTFAttacker && ( pTFAttacker != this ) )
 	{
 		CCaptureFlag *pCaptureFlag = dynamic_cast<CCaptureFlag *>( GetItem() );
 		if ( pCaptureFlag )
@@ -4323,12 +4324,12 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 			IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_flag_event" );
 			if ( event )
 			{
-				event->SetInt( "player", pPlayerAttacker->entindex() );
+				event->SetInt( "player", pTFAttacker->entindex() );
 				event->SetInt( "eventtype", TF_FLAGEVENT_DEFEND );
 				event->SetInt( "priority", 8 );
 				gameeventmanager->FireEvent( event );
 			}
-			CTF_GameStats.Event_PlayerDefendedPoint( pPlayerAttacker );
+			CTF_GameStats.Event_PlayerDefendedPoint( pTFAttacker );
 		}
 	}
 
@@ -4338,7 +4339,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
 		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
 		pObject->DropCarriedObject( this );
-		CTakeDamageInfo newInfo( info.GetInflictor(), info.GetAttacker(), (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_BUILDING_CARRIED );
+		CTakeDamageInfo newInfo( pInflictor, pAttacker, (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_BUILDING_CARRIED );
 		pObject->Killed( newInfo );
 	}
 
@@ -4389,37 +4390,37 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	// show killer in death cam mode
 	// chopped down version of SetObserverTarget without the team check
-	if( pPlayerAttacker )
+	if( pTFAttacker )
 	{
 		// See if we were killed by a sentrygun. If so, look at that instead of the player
-		if ( info.GetInflictor() && info.GetInflictor()->IsBaseObject() )
+		if ( pInflictor && pInflictor->IsBaseObject() )
 		{
 			// Catches the case where we're killed directly by the sentrygun (i.e. bullets)
 			// Look at the sentrygun
-			m_hObserverTarget.Set( info.GetInflictor() ); 
+			m_hObserverTarget.Set( pInflictor ); 
 		}
 		// See if we were killed by a projectile emitted from a base object. The attacker
 		// will still be the owner of that object, but we want the deathcam to point to the 
 		// object itself.
-		else if ( info.GetInflictor() && info.GetInflictor()->GetOwnerEntity() && 
-					info.GetInflictor()->GetOwnerEntity()->IsBaseObject() )
+		else if ( pInflictor && pInflictor->GetOwnerEntity() && 
+					pInflictor->GetOwnerEntity()->IsBaseObject() )
 		{
-			m_hObserverTarget.Set( info.GetInflictor()->GetOwnerEntity() );
+			m_hObserverTarget.Set( pInflictor->GetOwnerEntity() );
 		}
 		else
 		{
 			// Look at the player
-			m_hObserverTarget.Set( info.GetAttacker() ); 
+			m_hObserverTarget.Set( pAttacker ); 
 		}
 
 		// reset fov to default
 		SetFOV( this, 0 );
 	}
-	else if ( info.GetAttacker() && info.GetAttacker()->IsBaseObject() )
+	else if ( pAttacker && pAttacker->IsBaseObject() )
 	{
 		// Catches the case where we're killed by entities spawned by the sentrygun (i.e. rockets)
 		// Look at the sentrygun. 
-		m_hObserverTarget.Set( info.GetAttacker() ); 
+		m_hObserverTarget.Set( pAttacker ); 
 	}
 	else
 	{
@@ -4429,21 +4430,34 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	if ( info_modified.GetDamageCustom() == TF_DMG_CUSTOM_SUICIDE )
 	{
 		// if this was suicide, recalculate attacker to see if we want to award the kill to a recent damager
-		info_modified.SetAttacker( TFGameRules()->GetDeathScorer( info.GetAttacker(), info.GetInflictor(), this ) );
+		info_modified.SetAttacker( TFGameRules()->GetDeathScorer( info.GetAttacker(), pInflictor, this ) );
+	}
+	else if ( !TFGameRules()->IsDeathmatch() && ( !pAttacker || pAttacker == this || pAttacker->IsBSPModel() ) )
+	{
+		// Recalculate attacker if player killed himself or this was environmental death.
+		CBasePlayer *pDamager = TFGameRules()->GetRecentDamager( this, 0, TF_TIME_ENV_DEATH_KILL_CREDIT );
+		if ( pDamager )
+		{
+			info_modified.SetAttacker( pDamager );
+			info_modified.SetInflictor( NULL );
+			info_modified.SetWeapon( NULL );
+			info_modified.SetDamageType( DMG_GENERIC );
+			info_modified.SetDamageCustom( TF_DMG_CUSTOM_SUICIDE );
+		}
 	}
 
-	m_OnDeath.FireOutput(this, this);
+	m_OnDeath.FireOutput( this, this );
 
 	BaseClass::Event_Killed( info_modified );
 
-	CTFPlayer *pInflictor = ToTFPlayer( info.GetInflictor() );
+	CTFPlayer *pTFInflictor = ToTFPlayer( pInflictor );
 	if ( ( TF_DMG_CUSTOM_HEADSHOT == info.GetDamageCustom() ) && pInflictor )
 	{				
-		CTF_GameStats.Event_Headshot( pInflictor );
+		CTF_GameStats.Event_Headshot( pTFInflictor );
 	}
 	else if ( ( TF_DMG_CUSTOM_BACKSTAB == info.GetDamageCustom() ) && pInflictor )
 	{
-		CTF_GameStats.Event_Backstab( pInflictor );
+		CTF_GameStats.Event_Backstab( pTFInflictor );
 	}
 
 	// Create the ragdoll entity.
@@ -4470,7 +4484,26 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		}
 	}
 
-	m_Shared.SetKillstreak(0);
+	m_Shared.SetKillstreak( 0 );
+
+	if ( pAttacker && pAttacker == pInflictor && pAttacker->IsBSPModel() )
+	{
+		CTFPlayer *pDamager = TFGameRules()->GetRecentDamager( this, 0, TF_TIME_ENV_DEATH_KILL_CREDIT );
+
+		if ( pDamager )
+		{
+			IGameEvent *event = gameeventmanager->CreateEvent( "environmental_death" );
+
+			if ( event )
+			{
+				event->SetInt( "killer", pDamager->GetUserID() );
+				event->SetInt( "victim", GetUserID() );
+				event->SetInt( "priority", 9 ); // HLTV event priority, not transmitted
+				
+				gameeventmanager->FireEvent( event );
+			}
+		}
+	}
 }
 
 bool CTFPlayer::Event_Gibbed( const CTakeDamageInfo &info )

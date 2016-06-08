@@ -643,6 +643,9 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 			pVictim->SetGroundEntity( NULL );
 			pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
 			pVictim->EmitSound( "TFPlayer.AirBlastImpact" );
+
+			// Add pusher as recent damager we he can get a kill credit for pushing a player to his death.
+			pVictim->AddDamagerToHistory( pAttacker );
 		}
 	}
 	else if ( pVictim->InSameTeam( pAttacker ) )

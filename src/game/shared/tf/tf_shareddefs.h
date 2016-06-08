@@ -653,6 +653,7 @@ enum {
 // Assist-damage constants
 //-----------------------------------------------------------------------------
 #define TF_TIME_ASSIST_KILL				3.0f	// Time window for a recent damager to get credit for an assist for a kill
+#define TF_TIME_ENV_DEATH_KILL_CREDIT	5.0f
 #define TF_TIME_SUICIDE_KILL_CREDIT		10.0f	// Time window for a recent damager to get credit for a kill if target suicides
 
 //-----------------------------------------------------------------------------
@@ -1243,6 +1244,7 @@ public:
 // Unused
 #define TF_DEATH_FIRST_BLOOD	0x0010
 #define TF_DEATH_FEIGN_DEATH	0x0020
+#define TF_DEATH_GIB			0x0080
 #define TF_DEATH_PURGATORY		0x0100
 #define TF_DEATH_AUSTRALIUM		0x0400
 

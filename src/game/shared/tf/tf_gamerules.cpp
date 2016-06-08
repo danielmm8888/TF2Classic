@@ -3233,6 +3233,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	switch ( info.GetDamageCustom() )
 	{
+	case TF_DMG_CUSTOM_SUICIDE:
+		pszCustomKill = "world";
+		break;
 	case TF_DMG_TAUNT_PYRO:
 		pszCustomKill = "taunt_pyro";
 		break;
@@ -3348,11 +3351,11 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	// strip certain prefixes from inflictor's classname
 	const char *prefix[] = { "tf_weapon_grenade_", "tf_weapon_", "NPC_", "func_" };
-	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
+	for ( int i = 0; i < ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix
-		int len = Q_strlen( prefix[i] );
-		if ( strncmp( killer_weapon_name, prefix[i], len ) == 0 )
+		int len = V_strlen( prefix[i] );
+		if ( V_strncmp( killer_weapon_name, prefix[i], len ) == 0 )
 		{
 			killer_weapon_name += len;
 			break;
@@ -3360,9 +3363,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// In case of a sentry kill change the icon according to sentry level.
-	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
+	if ( V_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
 	{
-		CBaseObject* pObject = assert_cast<CBaseObject *>( pInflictor );
+		CBaseObject *pObject = assert_cast<CBaseObject *>( pInflictor );
 
 		if ( pObject )
 		{
@@ -3377,7 +3380,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 		}
 	}
-	else if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
+	else if ( V_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
 	{
 		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
