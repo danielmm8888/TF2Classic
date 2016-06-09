@@ -123,6 +123,7 @@ void CWeaponSpawner::Spawn( void )
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
+	SetSolid( SOLID_BBOX );
 	SetCollisionBounds( -Vector( 22, 22, 15 ), Vector( 22, 22, 15 ) );
 
 	AddEffects( EF_ITEM_BLINK );

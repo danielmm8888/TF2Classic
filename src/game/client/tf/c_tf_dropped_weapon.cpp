@@ -110,14 +110,13 @@ void C_TFDroppedWeapon::UpdateGlowEffect()
 		float flGreen = RemapValClamped( m_iAmmo, 0, m_iMaxAmmo / 2, 0.15f, 0.75f );
 		float flBlue = 0.15f;
 		Vector vecColor = Vector( flRed, flGreen, flBlue );
-		float flAlpha = RemapValClamped( m_iAmmo, 0, m_iMaxAmmo, 0.25f, 1.0f );
 
-		m_pGlowEffect = new CGlowObject( this, vecColor, flAlpha, true, true );
+		m_pGlowEffect = new CGlowObject( this, vecColor, 1.0f, true, true );
 	}
 
 	if ( m_bShouldGlow )
 	{
-		m_pGlowEffect->SetAlpha( RemapValClamped( m_iAmmo, 0, m_iMaxAmmo, 0.25f, 1.0f ) );
+		m_pGlowEffect->SetAlpha( 1.0f );
 	}
 	else
 	{
