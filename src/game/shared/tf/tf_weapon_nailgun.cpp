@@ -18,7 +18,7 @@ BEGIN_PREDICTION_DATA( CTFNailgun )
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_nailgun, CTFNailgun );
-PRECACHE_WEAPON_REGISTER( tf_weapon_nailgun);
+PRECACHE_WEAPON_REGISTER( tf_weapon_nailgun );
 
 // Server specific.
 #ifndef CLIENT_DLL
@@ -34,15 +34,7 @@ void CTFNailgun::Precache()
 {
 	BaseClass::Precache();
 #ifndef CLIENT_DLL
-	PrecacheParticleSystem("nailtrails_scout_red");
-	PrecacheParticleSystem("nailtrails_scout_blue");
-	PrecacheParticleSystem("nailtrails_scout_green");
-	PrecacheParticleSystem("nailtrails_scout_yellow");
-	PrecacheParticleSystem("nailtrails_scout_dm");
-	PrecacheParticleSystem("nailtrails_scout_red_crit");
-	PrecacheParticleSystem("nailtrails_scout_blue_crit");
-	PrecacheParticleSystem("nailtrails_scout_green_crit");
-	PrecacheParticleSystem("nailtrails_scout_yellow_crit");
-	PrecacheParticleSystem("nailtrails_scout_dm_crit");
+	PrecacheTeamParticles( "nailtrails_scout_%s", true );
+	PrecacheTeamParticles( "nailtrails_scout_%s_crit", true );
 #endif
 }

@@ -60,15 +60,11 @@ void CTFProjectile_Flare::Precache()
 {
 	PrecacheModel( TF_WEAPON_FLARE_MODEL );
 
-	PrecacheParticleSystem( "flaregun_trail_red" );
-	PrecacheParticleSystem( "flaregun_trail_crit_red" );
-	PrecacheParticleSystem( "flaregun_trail_blue" );
-	PrecacheParticleSystem( "flaregun_trail_crit_blue" );
-	PrecacheParticleSystem( "flaregun_trail_green" );
-	PrecacheParticleSystem( "flaregun_trail_crit_green" );
-	PrecacheParticleSystem( "flaregun_trail_yellow" );
-	PrecacheParticleSystem( "flaregun_trail_crit_yellow" );
+	PrecacheTeamParticles( "flaregun_trail_%s", true );
+	PrecacheTeamParticles( "flaregun_trail_crit_%s", true );
+
 	PrecacheScriptSound( "TFPlayer.FlareImpact" );
+
 	BaseClass::Precache();
 }
 

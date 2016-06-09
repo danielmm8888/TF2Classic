@@ -231,12 +231,9 @@ void CWeaponMedigun::Precache()
 	PrecacheScriptSound( "WeaponMedigun.NoTarget" );
 	PrecacheScriptSound( "WeaponMedigun.Charged" );
 
-	for ( int i = TF_TEAM_RED; i < TF_TEAM_COUNT; i++ )
-	{
-		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].fullcharge, i ) );
-		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam, i ) );
-		PrecacheParticleSystem( ConstructTeamParticle( g_MedigunParticles[iType].beam_invlun, i ) );
-	}
+	PrecacheTeamParticles( g_MedigunParticles[iType].fullcharge );
+	PrecacheTeamParticles( g_MedigunParticles[iType].beam );
+	PrecacheTeamParticles( g_MedigunParticles[iType].beam_invlun );
 
 	// Precache charge sounds.
 	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )

@@ -43,12 +43,8 @@ void CTFTranq::Precache()
 {
 	BaseClass::Precache();
 #ifndef CLIENT_DLL
-	PrecacheParticleSystem("tranq_tracer_teamcolor_red");
-	PrecacheParticleSystem("tranq_tracer_teamcolor_blue");
-	PrecacheParticleSystem("tranq_tracer_teamcolor_green");
-	PrecacheParticleSystem("tranq_tracer_teamcolor_yellow");
-	PrecacheParticleSystem("tranq_tracer_teamcolor_dm");
-	PrecacheParticleSystem("tranq_distortion_trail");
-	PrecacheParticleSystem("tranq_tracer_red");
+	PrecacheTeamParticles( "tranq_tracer_teamcolor_%s", true );
+	PrecacheParticleSystem( "tranq_distortion_trail" );
+	PrecacheParticleSystem( "tranq_tracer_red" );
 #endif
 }

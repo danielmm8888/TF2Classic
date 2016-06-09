@@ -379,10 +379,7 @@ void CObjectDispenser::Precache()
 	PrecacheScriptSound( "Building_Dispenser.GenerateMetal" );
 	PrecacheScriptSound( "Building_Dispenser.Heal" );
 
-	PrecacheParticleSystem( "dispenser_heal_red" );
-	PrecacheParticleSystem( "dispenser_heal_blue" );
-	PrecacheParticleSystem( "dispenser_heal_green" );
-	PrecacheParticleSystem( "dispenser_heal_yellow" );
+	PrecacheTeamParticles( "dispenser_heal_%s" );
 }
 
 #define DISPENSER_UPGRADE_DURATION	1.5f

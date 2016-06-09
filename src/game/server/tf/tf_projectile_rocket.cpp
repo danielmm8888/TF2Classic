@@ -63,13 +63,11 @@ void CTFProjectile_Rocket::Spawn()
 void CTFProjectile_Rocket::Precache()
 {
 	PrecacheModel( ROCKET_MODEL );
-	PrecacheModel("models/weapons/w_models/w_rocketbeta.mdl");
-	PrecacheParticleSystem( "critical_rocket_blue" );
-	PrecacheParticleSystem( "critical_rocket_red" );
-	PrecacheParticleSystem( "critical_rocket_green" );
-	PrecacheParticleSystem( "critical_rocket_yellow" );
-	PrecacheParticleSystem( "critical_rocket_dm" );
+	PrecacheModel( "models/weapons/w_models/w_rocketbeta.mdl" );
+
+	PrecacheTeamParticles( "critical_rocket_%s", true );
 	PrecacheParticleSystem( "rockettrail" );
+
 	BaseClass::Precache();
 }
 
@@ -92,8 +90,8 @@ CBasePlayer *CTFProjectile_Rocket::GetScorer( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int	CTFProjectile_Rocket::GetDamageType() 
-{ 
+int	CTFProjectile_Rocket::GetDamageType()
+{
 	int iDmgType = BaseClass::GetDamageType();
 	if ( m_bCritical )
 	{

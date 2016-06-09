@@ -43,22 +43,37 @@ const char *g_aTeamParticleNames[TF_TEAM_COUNT] =
 	"yellow"
 };
 
-const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/ )
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/, const char **pNames/* = g_aTeamParticleNames*/ )
 {
 	if ( bDeathmatchOverride && TFGameRules() && TFGameRules()->IsDeathmatch() )
 	{
 		return "dm";
 	}
 
-	return g_aTeamParticleNames[iTeam];
+	return pNames[iTeam];
 }
 
-const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/ )
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/, const char **pNames/* = g_aTeamParticleNames*/ )
 {
 	static char szParticleName[256];
 
-	Q_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride ) );
+	V_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride, pNames ) );
 	return szParticleName;
+}
+
+void PrecacheTeamParticles( const char *pszFormat, bool bDeathmatchOverride /*= false*/, const char **pNames/* = g_aTeamParticleNames*/ )
+{
+	for ( int i = FIRST_GAME_TEAM; i < TF_TEAM_COUNT; i++ )
+	{
+		const char *pszParticle = ConstructTeamParticle( pszFormat, i, false, pNames );
+		PrecacheParticleSystem( pszParticle );
+	}
+
+	if ( bDeathmatchOverride )
+	{
+		const char *pszParticle = ConstructTeamParticle( pszFormat, FIRST_GAME_TEAM, true, pNames );
+		PrecacheParticleSystem( pszParticle );
+	}
 }
 
 color32 g_aTeamColors[TF_TEAM_COUNT] = 
