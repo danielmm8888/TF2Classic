@@ -36,7 +36,7 @@ LINK_ENTITY_TO_CLASS( tf_weaponbase_melee, CTFWeaponBaseMelee );
 // Server specific.
 #if !defined( CLIENT_DLL ) 
 BEGIN_DATADESC( CTFWeaponBaseMelee )
-DEFINE_THINKFUNC( Smack )
+	DEFINE_THINKFUNC( Smack )
 END_DATADESC()
 #endif
 

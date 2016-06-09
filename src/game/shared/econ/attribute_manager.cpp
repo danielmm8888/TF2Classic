@@ -11,6 +11,11 @@
 
 #define ATTRIB_REAPPLY_PARITY_BITS 3
 
+
+//=============================================================================
+// CAttributeManager
+//=============================================================================
+
 BEGIN_NETWORK_TABLE_NOBASE( CAttributeManager, DT_AttributeManager )
 #ifdef CLIENT_DLL
 	RecvPropEHandle( RECVINFO( m_hOuter ) ),
@@ -28,11 +33,17 @@ CAttributeManager::CAttributeManager()
 }
 
 #ifdef CLIENT_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CAttributeManager::OnPreDataChanged( DataUpdateType_t updateType )
 {
 	m_iOldReapplyProvisionParity = m_iReapplyProvisionParity;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CAttributeManager::OnDataChanged( DataUpdateType_t updateType )
 {
 	// If parity ever falls out of sync we can catch up here.
@@ -49,16 +60,25 @@ void CAttributeManager::OnDataChanged( DataUpdateType_t updateType )
 
 #endif
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CAttributeManager::AddProvider( CBaseEntity *pEntity )
 {
 	m_AttributeProviders.AddToTail( pEntity );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CAttributeManager::RemoveProvider( CBaseEntity *pEntity )
 {
 	m_AttributeProviders.FindAndRemove( pEntity );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Add this entity to target's providers list.
+//-----------------------------------------------------------------------------
 void CAttributeManager::ProviteTo( CBaseEntity *pEntity )
 {
 	if ( !pEntity || !m_hOuter.Get() )
@@ -77,6 +97,9 @@ void CAttributeManager::ProviteTo( CBaseEntity *pEntity )
 	m_iReapplyProvisionParity = ( m_iReapplyProvisionParity + 1 ) & ( ( 1 << ATTRIB_REAPPLY_PARITY_BITS ) - 1 );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Remove this entity from target's providers list.
+//-----------------------------------------------------------------------------
 void CAttributeManager::StopProvidingTo( CBaseEntity *pEntity )
 {
 	if ( !pEntity || !m_hOuter.Get() )
@@ -95,6 +118,9 @@ void CAttributeManager::StopProvidingTo( CBaseEntity *pEntity )
 	m_iReapplyProvisionParity = ( m_iReapplyProvisionParity + 1 ) & ( ( 1 << ATTRIB_REAPPLY_PARITY_BITS ) - 1 );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CAttributeManager::InitializeAttributes( CBaseEntity *pEntity )
 {
 	Assert( pEntity->GetHasAttributesInterfacePtr() != NULL );
@@ -103,6 +129,9 @@ void CAttributeManager::InitializeAttributes( CBaseEntity *pEntity )
 	m_bParsingMyself = false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Search for an attribute on our providers.
+//-----------------------------------------------------------------------------
 float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )
 {
 	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
@@ -146,6 +175,10 @@ float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *
 }
 
 
+//=============================================================================
+// CAttributeContainer
+//=============================================================================
+
 BEGIN_NETWORK_TABLE_NOBASE( CAttributeContainer, DT_AttributeContainer )
 #ifdef CLIENT_DLL
 	RecvPropEHandle( RECVINFO( m_hOuter ) ),
@@ -167,6 +200,9 @@ CAttributeContainer::CAttributeContainer()
 
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Search for an attribute and apply its value.
+//-----------------------------------------------------------------------------
 float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity *pEntity, string_t strAttributeClass )
 {
 	if ( m_bParsingMyself || m_hOuter.Get() == NULL )

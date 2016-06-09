@@ -16,6 +16,7 @@ class CEconItemSchema
 {
 	friend class CEconSchemaParser;
 	friend class CTFInventory;
+
 public:
 	CEconItemSchema();
 	~CEconItemSchema();
@@ -29,7 +30,7 @@ public:
 	EconAttributeDefinition *GetAttributeDefinitionByClass( const char* name );
 	int GetAttributeIndex( const char *classname );
 
-protected:
+private:
 	CUtlDict< int, unsigned short >					m_GameInfo;
 	CUtlDict< EconQuality, unsigned short >			m_Qualities;
 	CUtlDict< EconColor, unsigned short >			m_Colors;
@@ -37,7 +38,6 @@ protected:
 	CUtlMap< int, CEconItemDefinition * >			m_Items;
 	CUtlMap< int, EconAttributeDefinition * >		m_Attributes;
 
-private:
 	bool m_bInited;
 };
 

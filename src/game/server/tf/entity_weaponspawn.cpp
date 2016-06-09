@@ -64,18 +64,16 @@ static WeaponTranslation_t g_aWeaponTranslations[] =
 	{ 71, 9014 }
 };
 
-extern CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
+CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 
 //#define RESPAWN_PARTICLE "particlename"
 
 BEGIN_DATADESC( CWeaponSpawner )
-
 	DEFINE_KEYFIELD( m_nWeaponID, FIELD_INTEGER, "WeaponNumber" ),
 	DEFINE_KEYFIELD( m_nItemID, FIELD_INTEGER, "itemid" ),
-	DEFINE_KEYFIELD( m_iRespawnTime, FIELD_INTEGER, "RespawnTime" ),
+	DEFINE_KEYFIELD( m_flRespawnTime, FIELD_FLOAT, "RespawnTime" ),
 	DEFINE_KEYFIELD( m_bStaticSpawner, FIELD_BOOLEAN, "StaticSpawner" ),
 	DEFINE_KEYFIELD( m_bOutlineDisabled, FIELD_BOOLEAN, "DisableWeaponOutline" ),
-
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CWeaponSpawner, DT_WeaponSpawner )
@@ -85,14 +83,14 @@ IMPLEMENT_SERVERCLASS_ST( CWeaponSpawner, DT_WeaponSpawner )
 	SendPropBool( SENDINFO( m_bOutlineDisabled ) ),
 END_SEND_TABLE()
 
-LINK_ENTITY_TO_CLASS(tf_weaponspawner, CWeaponSpawner);
+LINK_ENTITY_TO_CLASS( tf_weaponspawner, CWeaponSpawner );
 
 
 CWeaponSpawner::CWeaponSpawner()
 {
 	m_nWeaponID = TF_WEAPON_NONE;
 	m_nItemID = -1;
-	m_iRespawnTime = 10;
+	m_flRespawnTime = 10.0f;
 	m_bStaticSpawner = false;
 	m_bOutlineDisabled = false;
 }
@@ -101,7 +99,7 @@ CWeaponSpawner::CWeaponSpawner()
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function 
 //-----------------------------------------------------------------------------
-void CWeaponSpawner::Spawn(void)
+void CWeaponSpawner::Spawn( void )
 {
 	// Damn it. We need both item definition and weapon script data for spawners to work properly.
 	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
@@ -125,21 +123,20 @@ void CWeaponSpawner::Spawn(void)
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
-	SetSolid( SOLID_BBOX );
-	SetCollisionBounds( -Vector(22, 22, 15), Vector(22, 22, 15) );
+	SetCollisionBounds( -Vector( 22, 22, 15 ), Vector( 22, 22, 15 ) );
 
 	AddEffects( EF_ITEM_BLINK );
 }
 
 float CWeaponSpawner::GetRespawnDelay( void )
 {
-	return (float)m_iRespawnTime;
+	return m_flRespawnTime;
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: Precache function 
 //-----------------------------------------------------------------------------
-void CWeaponSpawner::Precache(void)
+void CWeaponSpawner::Precache( void )
 {
 	PrecacheModel( m_Item.GetWorldDisplayModel() );
 	//PrecacheParticleSystem( RESPAWN_PARTICLE );
@@ -211,7 +208,7 @@ void CWeaponSpawner::Materialize( void )
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::EndTouch( CBaseEntity *pOther )
 {
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>(pOther);
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pOther );
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
@@ -227,11 +224,11 @@ void CWeaponSpawner::EndTouch( CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
+bool CWeaponSpawner::MyTouch( CBasePlayer *pPlayer )
 {
 	bool bSuccess = false;
 
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer *>(pPlayer);
+	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer *>( pPlayer );
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
@@ -248,13 +245,13 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 				if ( pTFPlayer->GiveAmmo( pWeapon->GetInitialAmmo(), iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
 			}
-			else if ( !(pTFPlayer->m_nButtons & IN_ATTACK) && 
-			(pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL) )
+			// Check Use button, always replace pistol
+			else if ( !( pTFPlayer->m_nButtons & IN_ATTACK ) &&
+				( pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL ) )
 			{
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );
 
-				// Check Use button, always replace pistol
 				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
 				{
 					pWeapon->Holster();
@@ -285,7 +282,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			if ( pNewWeapon )
 			{
 				pPlayer->SetAmmoCount( pNewWeapon->GetInitialAmmo(), iAmmoType );
-				pNewWeapon->DefaultTouch( pPlayer );
+				pNewWeapon->GiveTo( pPlayer );
 				pTFPlayer->m_Shared.SetDesiredWeaponIndex( -1 );
 				bSuccess = true;
 			}
@@ -297,7 +294,7 @@ bool CWeaponSpawner::MyTouch(CBasePlayer *pPlayer)
 			user.MakeReliable();
 
 			UserMessageBegin( user, "ItemPickup" );
-			WRITE_STRING( GetClassname() );
+				WRITE_STRING( GetClassname() );
 			MessageEnd();
 
 			pPlayer->EmitSound( "BaseCombatCharacter.AmmoPickup" );

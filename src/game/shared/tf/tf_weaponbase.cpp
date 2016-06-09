@@ -114,7 +114,7 @@ void RecvProxy_WeaponSequence( const CRecvProxyData *pData, void *pStruct, void 
 
 	// Weapons carried by other players have different models on server and client
 	// so we should ignore sequence changes in such case.
-	if ( pWeapon->UsingViewModel() )
+	if ( !pWeapon->GetOwner() || pWeapon->UsingViewModel() )
 	{
 		RecvProxy_Sequence( pData, pStruct, pOut );
 	}
@@ -892,10 +892,13 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 int CTFWeaponBase::GetMaxClip1( void ) const
 {
 	float flMaxClip = (float)CBaseCombatWeapon::GetMaxClip1();
+	if ( flMaxClip == WEAPON_NOCLIP )
+		return (int)flMaxClip;
+
 	CALL_ATTRIB_HOOK_FLOAT( flMaxClip, mult_clipsize );
 
 	// Round to the nearest integer.
-	return (int)( flMaxClip == WEAPON_NOCLIP ? flMaxClip : flMaxClip + 0.5f );
+	return (int)( flMaxClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
@@ -905,9 +908,11 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 {
 	float flDefaultClip = (float)CBaseCombatWeapon::GetDefaultClip1();
 	CALL_ATTRIB_HOOK_FLOAT( flDefaultClip, mult_clipsize );
+	if ( flDefaultClip == WEAPON_NOCLIP )
+		return (int)flDefaultClip;
 
 	// Round to the nearest integer.
-	return (int)( flDefaultClip == WEAPON_NOCLIP ? flDefaultClip : flDefaultClip + 0.5f );
+	return (int)( flDefaultClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------

@@ -69,7 +69,7 @@ CTFDroppedWeapon *CTFDroppedWeapon::Create( const Vector &vecOrigin, const QAngl
 		pDroppedWeapon->SetModelName( pWeapon->GetModelName() );
 		pDroppedWeapon->SetItem( pWeapon->GetItem() );
 		WEAPON_FILE_INFO_HANDLE	hWpnInfo = LookupWeaponInfoSlot( pWeapon->GetClassname() );
-		pDroppedWeapon->m_pWeaponInfo = static_cast<CTFWeaponInfo*>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
+		pDroppedWeapon->m_pWeaponInfo = static_cast<CTFWeaponInfo *>( GetFileWeaponInfoFromHandle( hWpnInfo ) );
 
 		DispatchSpawn( pDroppedWeapon );
 	}
@@ -160,12 +160,14 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 			{
 				pPlayer->SetAmmoCount( m_iAmmo, iAmmoType );
 				pNewWeapon->DefaultTouch( pPlayer );
+
+				// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
+				// weapons for faster reload.
 				if ( pPlayer == GetOwnerEntity() )
 				{
-					// If this is the same guy who dropped it restore old clip size to avoid exploiting swapping
-					// weapons for faster reload.
 					pNewWeapon->m_iClip1 = m_iClip;
 				}
+
 				pTFPlayer->m_Shared.SetDesiredWeaponIndex( -1 );
 				bSuccess = true;
 			}
@@ -177,7 +179,7 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 			user.MakeReliable();
 
 			UserMessageBegin( user, "ItemPickup" );
-			WRITE_STRING( GetClassname() );
+				WRITE_STRING( GetClassname() );
 			MessageEnd();
 
 			pPlayer->EmitSound( "BaseCombatCharacter.AmmoPickup" );

@@ -515,6 +515,9 @@ bool CEconItemSchema::Init( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Runs on level start, precaches models and sounds from schema.
+//-----------------------------------------------------------------------------
 void CEconItemSchema::Precache( void )
 {
 	// Precache everything from schema.
@@ -547,6 +550,9 @@ void CEconItemSchema::Precache( void )
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 {
 	if ( id < 0 )
@@ -557,6 +563,9 @@ CEconItemDefinition* CEconItemSchema::GetItemDefinition( int id )
 	return itemdef;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition( int id )
 {
 	if ( id < 0 )
@@ -567,6 +576,9 @@ EconAttributeDefinition *CEconItemSchema::GetAttributeDefinition( int id )
 	return attribdef;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByName( const char *name )
 {
 	//unsigned int index = m_Attributes.Find(name);
@@ -585,6 +597,9 @@ EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByName( const ch
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass( const char *classname )
 {
 	//unsigned int index = m_Attributes.Find(name);
@@ -603,6 +618,9 @@ EconAttributeDefinition *CEconItemSchema::GetAttributeDefinitionByClass( const c
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 int CEconItemSchema::GetAttributeIndex( const char *name )
 {
 	if ( !name )

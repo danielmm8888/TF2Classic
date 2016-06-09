@@ -17,19 +17,19 @@ extern ConVar r_drawothermodels;
 
 void C_ViewmodelAttachmentModel::SetViewmodel( C_TFViewModel *vm )
 {
-	m_viewmodel.Set(vm);
+	m_viewmodel.Set( vm );
 }
 
 int C_ViewmodelAttachmentModel::InternalDrawModel( int flags )
 {
-	CMatRenderContextPtr pRenderContext(materials);
+	CMatRenderContextPtr pRenderContext( materials );
 
-	if (m_viewmodel->ShouldFlipViewModel())
-		pRenderContext->CullMode(MATERIAL_CULLMODE_CW);
+	if ( m_viewmodel->ShouldFlipViewModel() )
+		pRenderContext->CullMode( MATERIAL_CULLMODE_CW );
 
-	int ret = BaseClass::InternalDrawModel(flags);
+	int ret = BaseClass::InternalDrawModel( flags );
 
-	pRenderContext->CullMode(MATERIAL_CULLMODE_CCW);
+	pRenderContext->CullMode( MATERIAL_CULLMODE_CCW );
 
 	return ret;
 }
@@ -48,22 +48,22 @@ int C_ViewmodelAttachmentModel::DrawOverriddenViewmodel( int flags )
 
 	ValidateModelIndex();
 
-	if (r_drawothermodels.GetInt())
+	if ( r_drawothermodels.GetInt() )
 	{
 		MDLCACHE_CRITICAL_SECTION();
 
 		int extraFlags = 0;
-		if (r_drawothermodels.GetInt() == 2)
+		if ( r_drawothermodels.GetInt() == 2 )
 		{
 			extraFlags |= STUDIO_WIREFRAME;
 		}
 
-		if (flags & STUDIO_SHADOWDEPTHTEXTURE)
+		if ( flags & STUDIO_SHADOWDEPTHTEXTURE )
 		{
 			extraFlags |= STUDIO_SHADOWDEPTHTEXTURE;
 		}
 
-		if (flags & STUDIO_SSAODEPTHTEXTURE)
+		if ( flags & STUDIO_SSAODEPTHTEXTURE )
 		{
 			extraFlags |= STUDIO_SSAODEPTHTEXTURE;
 		}
@@ -71,7 +71,7 @@ int C_ViewmodelAttachmentModel::DrawOverriddenViewmodel( int flags )
 		// Necessary for lighting blending
 		CreateModelInstance();
 
-		drawn = InternalDrawModel(flags | extraFlags);
+		drawn = InternalDrawModel( flags | extraFlags );
 	}
 
 	// If we're visualizing our bboxes, draw them
@@ -86,13 +86,13 @@ int C_ViewmodelAttachmentModel::DrawModel( int flags )
 	if ( !IsVisible() )
 		return 0;
 
-	if (m_viewmodel.Get() == NULL)
+	if ( m_viewmodel.Get() == NULL )
 		return 0;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	C_TFPlayer *pPlayer = ToTFPlayer( m_viewmodel.Get()->GetOwner() );
 
-	if ( pLocalPlayer && pLocalPlayer->IsObserver() 
+	if ( pLocalPlayer && pLocalPlayer->IsObserver()
 		&& pLocalPlayer->GetObserverTarget() != m_viewmodel.Get()->GetOwner() )
 		return false;
 

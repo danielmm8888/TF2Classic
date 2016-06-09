@@ -128,9 +128,7 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 		}
 	}
 
-	pAddon = new class C_ViewmodelAttachmentModel;
-	if ( !pAddon )
-		return;
+	pAddon = new C_ViewmodelAttachmentModel();
 
 	if ( pAddon->InitializeAsClientEntity( pszModelname, RENDER_GROUP_VIEW_MODEL_TRANSLUCENT ) == false )
 	{
@@ -437,9 +435,9 @@ int CTFViewModel::GetSkin()
 void CTFViewModel::FireEvent( const Vector& origin, const QAngle& angles, int event, const char *options )
 {
 	// Don't process animevents if it's not drawn.
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
+	C_BasePlayer *pOwner = ToBasePlayer( GetOwner() );
 
-	if ( pOwner->ShouldDrawThisPlayer() )
+	if ( !pOwner || pOwner->ShouldDrawThisPlayer() )
 		return;
 
 	BaseClass::FireEvent( origin, angles, event, options );

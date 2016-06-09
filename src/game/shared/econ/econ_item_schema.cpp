@@ -2,9 +2,9 @@
 #include "econ_item_schema.h"
 #include "econ_item_system.h"
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 // CEconItemAttribute
-//-----------------------------------------------------------------------------
+//=============================================================================
 
 BEGIN_NETWORK_TABLE_NOBASE( CEconItemAttribute, DT_EconItemAttribute )
 #ifdef CLIENT_DLL
@@ -22,9 +22,9 @@ EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
 }
 
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 // EconItemVisuals
-//-----------------------------------------------------------------------------
+//=============================================================================
 
 EconItemVisuals::EconItemVisuals()
 {
@@ -34,10 +34,13 @@ EconItemVisuals::EconItemVisuals()
 
 
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 // CEconItemDefinition
-//-----------------------------------------------------------------------------
+//=============================================================================
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGNED*/ )
 {
 	if ( iTeamNum > LAST_SHARED_TEAM && iTeamNum < TF_TEAM_COUNT )
@@ -48,6 +51,9 @@ EconItemVisuals *CEconItemDefinition::GetVisuals( int iTeamNum /*= TEAM_UNASSIGN
 	return &visual[TEAM_UNASSIGNED];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 int CEconItemDefinition::GetLoadoutSlot( int iClass /*= TF_CLASS_UNDEFINED*/ )
 {
 	if ( iClass && item_slot_per_class[iClass] != -1 )
@@ -58,6 +64,9 @@ int CEconItemDefinition::GetLoadoutSlot( int iClass /*= TF_CLASS_UNDEFINED*/ )
 	return item_slot;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Find an attribute with the specified class.
+//-----------------------------------------------------------------------------
 CEconItemAttribute *CEconItemDefinition::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.

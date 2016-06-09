@@ -19,10 +19,8 @@
 //=============================================================================
 
 BEGIN_DATADESC( CTFBaseDMPowerup )
-
 	DEFINE_KEYFIELD( m_strPickupSound, FIELD_SOUNDNAME, "PickupSound" ),
 	DEFINE_KEYFIELD( m_flRespawnTime, FIELD_FLOAT, "RespawnTime" ),
-
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CTFBaseDMPowerup, DT_TFBaseDMPowerup )
@@ -46,6 +44,7 @@ CTFBaseDMPowerup *CTFBaseDMPowerup::Create( const Vector &vecOrigin, const QAngl
 	{
 		pPowerup->SetEffectDuration( flDuration );
 		pPowerup->AddSpawnFlags( SF_NORESPAWN );
+
 		DispatchSpawn( pPowerup );
 
 		pPowerup->RemoveSolidFlags( FSOLID_NOT_SOLID );
@@ -67,7 +66,7 @@ void CTFBaseDMPowerup::Precache( void )
 	if ( GetModelName() == NULL_STRING )
 		SetModelName( AllocPooledString( GetDefaultPowerupModel() ) );
 
-	PrecacheModel( STRING( GetModelName() ) );	
+	PrecacheModel( STRING( GetModelName() ) );
 	PrecacheScriptSound( STRING( m_strPickupSound ) );
 
 	BaseClass::Precache();
@@ -102,19 +101,19 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 	bool bSuccess = false;
 
 	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pPlayer );
-	if  ( pTFPlayer && ValidTouch( pPlayer ) )
+	if ( pTFPlayer && ValidTouch( pPlayer ) )
 	{
-		//Add the condition and duration from derived classes
+		// Add the condition and duration from derived classes
 		pTFPlayer->m_Shared.AddCond( GetCondition(), GetEffectDuration() );
-		
-		//Give full health
+
+		// Give full health
 		SetHealth( GetMaxHealth() );
 
 		CSingleUserRecipientFilter user( pPlayer );
 		user.MakeReliable();
 
 		UserMessageBegin( user, "ItemPickup" );
-		WRITE_STRING( GetClassname() );
+			WRITE_STRING( GetClassname() );
 		MessageEnd();
 
 		pPlayer->EmitSound( STRING( m_strPickupSound ) );

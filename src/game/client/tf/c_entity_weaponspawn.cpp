@@ -18,6 +18,7 @@ public:
 	DECLARE_CLIENTCLASS();
 
 	C_WeaponSpawner();
+	~C_WeaponSpawner();
 
 	virtual void OnDataChanged( DataUpdateType_t type );
 
@@ -50,6 +51,11 @@ C_WeaponSpawner::C_WeaponSpawner()
 	m_pGlowEffect = NULL;
 	m_bShouldGlow = false;
 	m_bTouchingPlayer = false;
+}
+
+C_WeaponSpawner::~C_WeaponSpawner()
+{
+	delete m_pGlowEffect;
 }
 
 void C_WeaponSpawner::Spawn( void )

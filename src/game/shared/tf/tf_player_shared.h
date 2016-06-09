@@ -146,6 +146,7 @@ public:
 	}
 	int		GetDisguiseHealth( void )			{ return m_iDisguiseHealth; }
 	void	SetDisguiseHealth( int iDisguiseHealth );
+	int		AddDisguiseHealth( int iHealthToAdd, bool bOverheal = false );
 	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
 	int		GetDisguiseMaxBuffedHealth( void );
 
@@ -332,7 +333,6 @@ private:
 	float					m_flHealFraction;	// Store fractional health amounts
 	float					m_flDisguiseHealFraction;	// Same for disguised healing
 
-	float		m_flInvulnerableOffTime;
 	float		m_flChargeOffTime[TF_CHARGE_COUNT];
 	bool		m_bChargeSounds[TF_CHARGE_COUNT];
 #endif

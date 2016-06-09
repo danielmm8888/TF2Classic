@@ -1192,9 +1192,9 @@ bool CTFPlayer::ItemsMatch( CEconItemView *pItem1, CEconItemView *pItem2, CTFWea
 		if ( pWeapon )
 		{
 			int iClass = m_PlayerClass.GetClassIndex();
-			const char *pszClass = TranslateWeaponEntForClass( pItem1->GetEntityName(), iClass );
+			const char *pszClassname = TranslateWeaponEntForClass( pItem1->GetEntityName(), iClass );
 
-			if ( !FClassnameIs( pWeapon, pszClass ) )
+			if ( !FClassnameIs( pWeapon, pszClassname ) )
 				return false;
 		}
 
@@ -1944,7 +1944,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		}
 	}
 
-	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame() )
 	{
 		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
@@ -2056,8 +2056,8 @@ void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
 {
 	if ( TFGameRules()->IsDeathmatch() && stricmp( pTeamName, "spectate" ) != 0 )
 	{
-		ChangeTeam(TF_TEAM_RED);
-		SetDesiredPlayerClassIndex(TF_CLASS_MERCENARY);
+		ChangeTeam( TF_TEAM_RED );
+		SetDesiredPlayerClassIndex( TF_CLASS_MERCENARY );
 		return;
 	}
 
@@ -2082,7 +2082,7 @@ void CTFPlayer::HandleCommand_JoinTeam_NoKill( const char *pTeamName )
 		}
 	}
 
-	if (iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iTeam > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame() )
 	{
 		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
@@ -2170,9 +2170,9 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 		return;
 	}
 
-	if (iTeamNum > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame())
+	if ( iTeamNum > TF_TEAM_BLUE && !TFGameRules()->IsFourTeamGame() )
 	{
-		Warning("Four player teams have been disabled!\n");
+		ClientPrint( this, HUD_PRINTCONSOLE, "Four player teams have been disabled!\n" );
 		return;
 	}
 
@@ -3170,7 +3170,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 //-----------------------------------------------------------------------------
 int CTFPlayer::TakeHealth( float flHealth, int bitsDamageType )
 {
-	int bResult = false;
+	int iResult = false;
 
 	// If the bit's set, add over the max health
 	if ( bitsDamageType & DMG_IGNORE_MAXHEALTH )
@@ -3178,7 +3178,7 @@ int CTFPlayer::TakeHealth( float flHealth, int bitsDamageType )
 		int iTimeBasedDamage = g_pGameRules->Damage_GetTimeBased();
 		m_bitsDamageType &= ~(bitsDamageType & ~iTimeBasedDamage);
 		m_iHealth += flHealth;
-		bResult = true;
+		iResult = (int)flHealth;
 	}
 	else
 	{
@@ -3193,15 +3193,15 @@ int CTFPlayer::TakeHealth( float flHealth, int bitsDamageType )
 
 		if ( flHealthToAdd <= 0 )
 		{
-			bResult = false;
+			iResult = 0;
 		}
 		else
 		{
-			bResult = BaseClass::TakeHealth( flHealthToAdd, bitsDamageType );
+			iResult = BaseClass::TakeHealth( flHealthToAdd, bitsDamageType );
 		}
 	}
 
-	return bResult;
+	return iResult;
 }
 
 //-----------------------------------------------------------------------------
@@ -4339,6 +4339,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		CBaseObject *pObject = m_Shared.GetCarriedObject();
 		pObject->Teleport( &WorldSpaceCenter(), &GetAbsAngles(), &vec3_origin );
 		pObject->DropCarriedObject( this );
+
 		CTakeDamageInfo newInfo( pInflictor, pAttacker, (float)pObject->GetHealth(), DMG_GENERIC, TF_DMG_BUILDING_CARRIED );
 		pObject->Killed( newInfo );
 	}
@@ -4956,6 +4957,7 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 	// Create dropped weapon entity.
 	CTFDroppedWeapon *pDroppedWeapon = CTFDroppedWeapon::Create( vecPackOrigin, vecPackAngles, this, pWeapon );;
 	Assert( pDroppedWeapon );
+
 	if ( pDroppedWeapon )
 	{
 		// Give the dropped weapon entity our ammo.
@@ -7027,7 +7029,7 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 		if ( player->m_lifeState == LIFE_DEAD || player->m_lifeState == LIFE_DYING )
 		{
 			// Once we're past the pause after death, find a new target
-			if ( (player->GetDeathTime() + DEATH_ANIMATION_TIME ) < gpGlobals->curtime )
+			if ( ( player->GetDeathTime() + DEATH_ANIMATION_TIME ) < gpGlobals->curtime )
 			{
 				FindInitialObserverTarget();
 			}
@@ -7041,8 +7043,8 @@ void CTFPlayer::ValidateCurrentObserverTarget( void )
 		if ( m_iObserverMode == OBS_MODE_IN_EYE )
 		{
 			m_iObserverMode = OBS_MODE_CHASE;
-			SetObserverTarget(m_hObserverTarget);
-			SetMoveType(MOVETYPE_OBSERVER);
+			SetObserverTarget( m_hObserverTarget );
+			SetMoveType( MOVETYPE_OBSERVER );
 			CheckObserverSettings();
 			//ForceObserverMode( OBS_MODE_CHASE ); // We'll leave this in in case something screws up
 		}
@@ -7143,17 +7145,17 @@ void CTFPlayer::Taunt( void )
 		}
 
 		// Setup a taunt attack if necessary.
-		if ( Q_stricmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
+		if ( V_stricmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
 		{
 			m_flTauntAttackTime = gpGlobals->curtime + 2.0;
 			m_iTauntAttack = TF_TAUNT_PYRO;
 		}
-		else if ( Q_stricmp( szResponse, "scenes/player/heavy/low/taunt03_v1.vcd" ) == 0 )
+		else if ( V_stricmp( szResponse, "scenes/player/heavy/low/taunt03_v1.vcd" ) == 0 )
 		{
 			m_flTauntAttackTime = gpGlobals->curtime + 1.8;
 			m_iTauntAttack = TF_TAUNT_HEAVY;
 		}
-		else if ( Q_strnicmp( szResponse, "scenes/player/spy/low/taunt03", 29 ) == 0 )
+		else if ( V_strnicmp( szResponse, "scenes/player/spy/low/taunt03", 29 ) == 0 )
 		{
 			m_flTauntAttackTime = gpGlobals->curtime + 1.8;
 			m_iTauntAttack = TF_TAUNT_SPY1;
@@ -7187,7 +7189,7 @@ void CTFPlayer::DoTauntAttack( void )
 		Vector mins = vecOrigin - Vector( 24, 24, 24 );
 		Vector maxs = vecOrigin + Vector( 24, 24, 24 );
 
-		QAngle angForce( -45.0f, EyeAngles()[YAW], 0 );
+		QAngle angForce( -45, EyeAngles()[YAW], 0 );
 		Vector vecForce;
 		AngleVectors( angForce, &vecForce );
 		float flDamage = 0.0f;
@@ -7197,20 +7199,20 @@ void CTFPlayer::DoTauntAttack( void )
 		switch ( iTauntType )
 		{
 		case TF_TAUNT_PYRO:
-			vecForce *= 25000.0f;
-			flDamage = 500.0f;
+			vecForce *= 25000;
+			flDamage = 500;
 			nDamageType = DMG_IGNITE;
 			iDamageCustom = TF_DMG_TAUNT_PYRO;
 			break;
 		case TF_TAUNT_SPY3:
-			vecForce *= 20000.0f;
-			flDamage = 500.0f;
+			vecForce *= 20000;
+			flDamage = 500;
 			nDamageType = DMG_SLASH;
 			iDamageCustom = TF_DMG_TAUNT_SPY;
 			break;
 		default:
-			vecForce *= 100.0f;
-			flDamage = 25.0f;
+			vecForce *= 100;
+			flDamage = 25;
 			nDamageType = DMG_SLASH | DMG_PREVENT_PHYSICS_FORCE;
 			iDamageCustom = TF_DMG_TAUNT_SPY;
 			break;
@@ -7276,9 +7278,9 @@ void CTFPlayer::DoTauntAttack( void )
 			if ( pEntity && pEntity->IsPlayer() && !InSameTeam( pEntity ) )
 			{
 				Vector vecForce, vecDamagePos;
-				QAngle angForce( -45.0, angShot[YAW], 0.0 );
+				QAngle angForce( -45, angShot[YAW], 0 );
 				AngleVectors( angForce, &vecForce );
-				vecForce *= 25000.0f;
+				vecForce *= 25000;
 
 				vecDamagePos = tr.endpos;
 
@@ -8110,6 +8112,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		CBaseCombatWeapon *pWeapon = pEconEnt->MyCombatWeaponPointer();
 		if ( pWeapon )
 		{
+			// Give full ammo for this weapon.
 			int iAmmoType = pWeapon->GetPrimaryAmmoType();
 			pPlayer->SetAmmoCount( pPlayer->GetMaxAmmo( iAmmoType ), iAmmoType );
 		}

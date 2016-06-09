@@ -112,12 +112,6 @@ const char *g_pszBDayGibs[22] =
 	"models/player/gibs/gibs_tire.mdl"
 };
 
-#ifdef CLIENT_DLL
-EXTERN_RECV_TABLE( DT_ScriptCreatedItem )
-#else
-EXTERN_SEND_TABLE( DT_ScriptCreatedItem )
-#endif
-
 //=============================================================================
 //
 // Tables.
@@ -754,7 +748,7 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 int CTFPlayerShared::GetMaxBuffedHealth( void )
 {
 	float flBoostMax = m_pOuter->GetMaxHealth() * tf_max_health_boost.GetFloat();
-	if ( TFGameRules()->GetGameType() == TF_GAMETYPE_DM )
+	if ( TFGameRules()->IsDeathmatch() )
 	{
 		flBoostMax = m_pOuter->GetMaxHealth() * tf2c_dm_max_health_boost.GetFloat();
 	}
@@ -1916,6 +1910,23 @@ void CTFPlayerShared::SetDisguiseHealth( int iDisguiseHealth )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+int CTFPlayerShared::AddDisguiseHealth( int iHealthToAdd, bool bOverheal /*= false*/ )
+{
+	Assert( InCond( TF_COND_DISGUISED ) );
+
+	int iMaxHealth = bOverheal ? GetDisguiseMaxBuffedHealth() : GetDisguiseMaxHealth();
+	iHealthToAdd = clamp( iHealthToAdd, 0, iMaxHealth - m_iDisguiseHealth );
+	if ( iHealthToAdd <= 0 )
+		return 0;
+
+	m_iDisguiseHealth += iHealthToAdd;
+
+	return iHealthToAdd;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerShared::RemoveDisguise( void )
 {
 #ifdef CLIENT_DLL
@@ -2191,8 +2202,8 @@ medigun_charge_types CTFPlayerShared::GetChargeEffectBeingProvided( CTFPlayer *p
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 {
-	bool bShouldCharge[TF_CHARGE_COUNT] = {};
-	CTFPlayer *pProviders[TF_CHARGE_COUNT] = {};
+	bool bShouldCharge[TF_CHARGE_COUNT] = { };
+	CTFPlayer *pProviders[TF_CHARGE_COUNT] = { };
 
 	if ( m_pOuter->m_flPowerPlayTime > gpGlobals->curtime )
 	{
@@ -2212,9 +2223,6 @@ void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 		// Check players healing us.
 		for ( int i = 0; i < m_aHealers.Count(); i++ )
 		{
-			if ( !m_aHealers[i].pPlayer )
-				continue;
-
 			CTFPlayer *pPlayer = ToTFPlayer( m_aHealers[i].pPlayer );
 			if ( !pPlayer )
 				continue;
@@ -2237,11 +2245,14 @@ void CTFPlayerShared::RecalculateChargeEffects( bool bInstantRemove )
 
 	for ( int i = 0; i < TF_CHARGE_COUNT; i++ )
 	{
-		float flRemoveTime = i == TF_CHARGE_INVULNERABLE ? tf_invuln_time.GetFloat() : 0.0f;
+		float flRemoveTime = ( i == TF_CHARGE_INVULNERABLE ) ? tf_invuln_time.GetFloat() : 0.0f;
 		SetChargeEffect( (medigun_charge_types)i, bShouldCharge[i], bInstantRemove, g_MedigunEffects[i], flRemoveTime, pProviders[i] );
 	}
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPlayerShared::SetChargeEffect( medigun_charge_types chargeType, bool bShouldCharge, bool bInstantRemove, const MedigunEffects_t &chargeEffect, float flRemoveTime, CTFPlayer *pProvider )
 {
 	if ( InCond( chargeEffect.condition_enable ) == bShouldCharge )

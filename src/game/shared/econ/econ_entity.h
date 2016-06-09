@@ -6,6 +6,7 @@
 
 #ifndef ECON_ENTITY_H
 #define ECON_ENTITY_H
+
 #ifdef _WIN32
 #pragma once
 #endif

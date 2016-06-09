@@ -18,7 +18,7 @@ class C_ViewmodelAttachmentModel : public C_BaseViewModel
 	DECLARE_CLASS( C_ViewmodelAttachmentModel, C_BaseViewModel );
 public:
 
-	virtual int	InternalDrawModel(int flags);
+	virtual int	InternalDrawModel( int flags );
 
 	virtual int	DrawModel( int flags );
 
