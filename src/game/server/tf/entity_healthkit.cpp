@@ -66,6 +66,7 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 	{
 		int iHealthToAdd = ceil( pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()] );
 		bool bTiny = GetPowerupSize() == POWERUP_TINY;
+		int iHealthRestored = 0;
 
 		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 		Assert( pTFPlayer );
@@ -75,12 +76,14 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 		{
 			iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
 
-			if ( pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH ) )
+			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
+			if ( iHealthRestored )
 				bSuccess = true;
 		}
 		else
 		{
-			if ( pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC ) )
+			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC );
+			if ( iHealthRestored )
 				bSuccess = true;
 		}
 
@@ -127,6 +130,16 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			}
 
 			EmitSound( user, entindex(), pszSound );
+
+			IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
+			
+			if ( event )
+			{
+				event->SetInt( "amount", iHealthRestored );
+				event->SetInt( "entindex", pPlayer->entindex() );
+
+				gameeventmanager->FireEvent( event );
+			}
 		}
 	}
 

@@ -39,20 +39,21 @@ typedef struct
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-class CHudAccountPanel : public CHudElement, public EditablePanel
+class CAccountPanel : public CHudElement, public EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( CHudAccountPanel, EditablePanel );
+	DECLARE_CLASS_SIMPLE( CAccountPanel, EditablePanel );
 
 public:
-	CHudAccountPanel( const char *pElementName );
+	CAccountPanel( const char *pElementName );
 
 	virtual void	ApplySchemeSettings( IScheme *scheme );
 	virtual void	LevelInit( void );
-	virtual bool	ShouldDraw( void );
+	
 	virtual void	Paint( void );
 
-	virtual void	FireGameEvent( IGameEvent *event );
 	void OnAccountValueChanged( int iOldValue, int iNewValue );
+
+	virtual const char *GetResFilename( void ) { return "resource/UI/HudAccountPanel.res"; }
 
 private:
 
@@ -72,12 +73,10 @@ private:
 	CPanelAnimationVar( vgui::HFont, m_hDeltaItemFont, "delta_item_font", "Default" );
 };
 
-DECLARE_HUDELEMENT( CHudAccountPanel );
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "CHudAccountPanel" )
+CAccountPanel::CAccountPanel( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, pElementName )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
@@ -92,36 +91,15 @@ CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CHudElement( pE
 	{
 		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
 	}
-
-	ListenForGameEvent( "player_account_changed" );
 }
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CHudAccountPanel::FireGameEvent( IGameEvent *event )
-{
-	const char * type = event->GetName();
-
-	if ( Q_strcmp(type, "player_account_changed") == 0 )
-	{
-		int iOldValue = event->GetInt( "old_account" );
-		int iNewValue = event->GetInt( "new_account" );
-		OnAccountValueChanged( iOldValue, iNewValue );
-	}
-	else
-	{
-		CHudElement::FireGameEvent( event );
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudAccountPanel::ApplySchemeSettings( IScheme *pScheme )
+void CAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 {
 	// load control settings...
-	LoadControlSettings( "resource/UI/HudAccountPanel.res" );
+	LoadControlSettings( GetResFilename() );
 
 	BaseClass::ApplySchemeSettings( pScheme );
 }
@@ -129,7 +107,7 @@ void CHudAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 // Purpose: called whenever a new level's starting
 //-----------------------------------------------------------------------------
-void CHudAccountPanel::LevelInit( void )
+void CAccountPanel::LevelInit( void )
 {
 	iAccountDeltaHead = 0;
 
@@ -139,22 +117,7 @@ void CHudAccountPanel::LevelInit( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CHudAccountPanel::ShouldDraw( void )
-{
-	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-
-	if ( !pPlayer || !pPlayer->IsAlive() || !pPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
-	{
-		return false;
-	}
-
-	return CHudElement::ShouldDraw();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CHudAccountPanel::OnAccountValueChanged( int iOldValue, int iNewValue )
+void CAccountPanel::OnAccountValueChanged( int iOldValue, int iNewValue )
 {
 	// update the account value
 	SetDialogVariable( "metal", iNewValue ); 
@@ -178,7 +141,7 @@ void CHudAccountPanel::OnAccountValueChanged( int iOldValue, int iNewValue )
 //-----------------------------------------------------------------------------
 // Purpose: Paint the deltas
 //-----------------------------------------------------------------------------
-void CHudAccountPanel::Paint( void )
+void CAccountPanel::Paint( void )
 {
 	BaseClass::Paint();
 
@@ -220,5 +183,155 @@ void CHudAccountPanel::Paint( void )
 
 			vgui::surface()->DrawPrintText( wBuf, wcslen(wBuf), FONT_DRAW_NONADDITIVE );
 		}
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Metal account
+//-----------------------------------------------------------------------------
+class CHudAccountPanel : public CAccountPanel
+{
+public:
+	CHudAccountPanel( const char *pElementName );
+
+	virtual bool	ShouldDraw( void );
+	virtual void	FireGameEvent( IGameEvent *event );
+};
+
+DECLARE_HUDELEMENT( CHudAccountPanel );
+
+CHudAccountPanel::CHudAccountPanel( const char *pElementName ) : CAccountPanel( pElementName )
+{
+	ListenForGameEvent( "player_account_changed" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CHudAccountPanel::ShouldDraw( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer || !pPlayer->IsAlive() || !pPlayer->IsPlayerClass( TF_CLASS_ENGINEER ) )
+	{
+		return false;
+	}
+
+	return CHudElement::ShouldDraw();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHudAccountPanel::FireGameEvent( IGameEvent *event )
+{
+	const char *type = event->GetName();
+
+	if ( V_strcmp( type, "player_account_changed" ) == 0 )
+	{
+		int iOldValue = event->GetInt( "old_account" );
+		int iNewValue = event->GetInt( "new_account" );
+		OnAccountValueChanged( iOldValue, iNewValue );
+	}
+	else
+	{
+		CHudElement::FireGameEvent( event );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Health account
+//-----------------------------------------------------------------------------
+class CHealthAccountPanel : public CAccountPanel
+{
+public:
+	CHealthAccountPanel( const char *pElementName );
+
+	virtual bool	ShouldDraw( void );
+	virtual void	FireGameEvent( IGameEvent *event );
+
+	virtual const char *GetResFilename( void ) { return "resource/UI/HudHealthAccount.res"; }
+};
+
+DECLARE_HUDELEMENT( CHealthAccountPanel );
+
+CHealthAccountPanel::CHealthAccountPanel( const char *pElementName ) : CAccountPanel( pElementName )
+{
+	ListenForGameEvent( "player_healonhit" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CHealthAccountPanel::ShouldDraw( void )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+	if ( !pPlayer || !pPlayer->IsAlive() )
+	{
+		return false;
+	}
+
+	return CHudElement::ShouldDraw();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CHealthAccountPanel::FireGameEvent( IGameEvent *event )
+{
+	const char *type = event->GetName();
+
+	if ( V_strcmp( type, "player_healonhit" ) == 0 )
+	{
+		int iAmount = event->GetInt( "amount" );
+		int iPlayer = event->GetInt( "entindex" );
+		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayer ) );
+		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
+
+		if ( !pPlayer || !pLocalPlayer )
+			return;
+
+		if ( pPlayer == pLocalPlayer )
+		{
+			// If this is a local player show the number in HUD.
+			OnAccountValueChanged( 0, iAmount );
+		}
+		else
+		{
+			// Show a particle to indicate that player got healed.
+			int iTeam = pPlayer->GetTeamNumber();
+
+			if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->IsEnemyPlayer() )
+			{
+				// Don't give away cloaked spies.
+				if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+					return;
+
+				// Show their disguise team color.
+				if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+					iTeam = pPlayer->m_Shared.GetDisguiseTeam();
+			}
+
+			const char *pszFormat = NULL;
+			if ( iAmount < 0 )
+			{
+				pszFormat = "healthlost_%s";
+			}
+			else
+			{
+				pszFormat = iAmount < 100 ? "healthgained_%s" : "healthgained_%s_large";
+			}
+
+			char szParticle[128];
+			V_snprintf( szParticle, sizeof( szParticle ), pszFormat, g_aTeamNamesShort[iTeam] );
+			
+			pPlayer->ParticleProp()->Create( szParticle, PATTACH_POINT, "head" );
+		}
+	}
+	else
+	{
+		CHudElement::FireGameEvent( event );
 	}
 }

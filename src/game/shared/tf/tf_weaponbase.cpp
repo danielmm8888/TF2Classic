@@ -1852,7 +1852,20 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
 		if ( flAddHealth )
 		{
-			pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+			int iHealthRestored = pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+
+			if ( iHealthRestored )
+			{
+				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
+
+				if ( event )
+				{
+					event->SetInt( "amount", iHealthRestored );
+					event->SetInt( "entindex", pOwner->entindex() );
+
+					gameeventmanager->FireEvent( event );
+				}
+			}
 		}
 	}
 }
