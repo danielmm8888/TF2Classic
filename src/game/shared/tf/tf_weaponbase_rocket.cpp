@@ -39,13 +39,13 @@ BEGIN_NETWORK_TABLE( CTFBaseRocket, DT_TFBaseRocket )
 
 	// Server specific.
 #else
-	SendPropVector( SENDINFO( m_vInitialVelocity ), 12 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/	),
+	SendPropVector( SENDINFO( m_vInitialVelocity ), 12 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/ ),
 
 	SendPropExclude( "DT_BaseEntity", "m_vecOrigin" ),
 	SendPropExclude( "DT_BaseEntity", "m_angRotation" ),
 
-	SendPropVector	(SENDINFO(m_vecOrigin), -1,  SPROP_COORD_MP_INTEGRAL|SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
-	SendPropQAngles	(SENDINFO(m_angRotation), 6, SPROP_CHANGES_OFTEN, SendProxy_Angles ),
+	SendPropVector( SENDINFO( m_vecOrigin ), -1, SPROP_COORD_MP_INTEGRAL | SPROP_CHANGES_OFTEN, 0.0f, HIGH_DEFAULT, SendProxy_Origin ),
+	SendPropQAngles( SENDINFO( m_angRotation ), 6, SPROP_CHANGES_OFTEN, SendProxy_Angles ),
 
 	SendPropInt( SENDINFO( m_iDeflected ), 4, SPROP_UNSIGNED ),
 	SendPropEHandle( SENDINFO( m_hLauncher ) ),
@@ -63,6 +63,9 @@ END_DATADESC()
 #endif
 
 ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | FCVAR_CHEAT /*| FCVAR_DEVELOPMENTONLY*/, "Render rocket radius." );
+#ifdef GAME_DLL
+ConVar tf2c_homing_rockets( "tf2c_homing_rockets", "0", FCVAR_CHEAT, "What is \"Rocket + x = Death\"?" );
+#endif
 
 //=============================================================================
 //
@@ -78,13 +81,13 @@ CTFBaseRocket::CTFBaseRocket()
 	m_iDeflected = 0;
 	m_hLauncher = NULL;
 
-// Client specific.
+	// Client specific.
 #ifdef CLIENT_DLL
 
 	m_flSpawnTime = 0.0f;
 	m_iOldTeamNum = TEAM_UNASSIGNED;
-		
-// Server specific.
+
+	// Server specific.
 #else
 
 	m_flDamage = 0.0f;
@@ -115,17 +118,17 @@ void CTFBaseRocket::Spawn( void )
 	// Precache.
 	Precache();
 
-// Client specific.
+	// Client specific.
 #ifdef CLIENT_DLL
 
 	m_flSpawnTime = gpGlobals->curtime;
 	BaseClass::Spawn();
 
-// Server specific.
+	// Server specific.
 #else
 
 	//Derived classes must have set model.
-	Assert( GetModel() );	
+	Assert( GetModel() );
 
 	SetSolid( SOLID_BBOX );
 	SetMoveType( MOVETYPE_FLY, MOVECOLLIDE_FLY_CUSTOM );
@@ -237,8 +240,8 @@ void CTFBaseRocket::Simulate( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin, 
-									  const QAngle &vecAngles, CBaseEntity *pOwner )
+CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClassname, const Vector &vecOrigin,
+	const QAngle &vecAngles, CBaseEntity *pOwner )
 {
 	CTFBaseRocket *pRocket = static_cast<CTFBaseRocket*>( CBaseEntity::CreateNoSpawn( pszClassname, vecOrigin, vecAngles, pOwner ) );
 	if ( !pRocket )
@@ -266,7 +269,7 @@ CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClass
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
 
 	Vector vecVelocity = vecForward * flVelocity;
-	pRocket->SetAbsVelocity( vecVelocity );	
+	pRocket->SetAbsVelocity( vecVelocity );
 	pRocket->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
 	// Setup the initial angles.
@@ -292,7 +295,7 @@ void CTFBaseRocket::RocketTouch( CBaseEntity *pOther )
 
 	// Handle hitting skybox (disappear).
 	const trace_t *pTrace = &CBaseEntity::GetTouchTrace();
-	if( pTrace->surface.flags & SURF_SKY )
+	if ( pTrace->surface.flags & SURF_SKY )
 	{
 		UTIL_Remove( this );
 		return;
@@ -307,30 +310,30 @@ void CTFBaseRocket::RocketTouch( CBaseEntity *pOther )
 // Purpose:
 //-----------------------------------------------------------------------------
 unsigned int CTFBaseRocket::PhysicsSolidMaskForEntity( void ) const
-{ 
+{
 	int teamContents = 0;
 
 	if ( m_bCollideWithTeammates == false )
 	{
 		// Only collide with the other team
 
-		switch (GetTeamNumber())
+		switch ( GetTeamNumber() )
 		{
-			case TF_TEAM_RED:
-				teamContents = CONTENTS_BLUETEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
-				break;
+		case TF_TEAM_RED:
+			teamContents = CONTENTS_BLUETEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
+			break;
 
-			case TF_TEAM_BLUE:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
-				break;
+		case TF_TEAM_BLUE:
+			teamContents = CONTENTS_REDTEAM | CONTENTS_GREENTEAM | CONTENTS_YELLOWTEAM;
+			break;
 
-			case TF_TEAM_GREEN:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_YELLOWTEAM;
-				break;
+		case TF_TEAM_GREEN:
+			teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_YELLOWTEAM;
+			break;
 
-			case TF_TEAM_YELLOW:
-				teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_GREENTEAM;
-				break;
+		case TF_TEAM_YELLOW:
+			teamContents = CONTENTS_REDTEAM | CONTENTS_BLUETEAM | CONTENTS_GREENTEAM;
+			break;
 		}
 	}
 	else
@@ -376,7 +379,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	Vector vecOrigin = GetAbsOrigin();
 	CPVSFilter filter( vecOrigin );
 	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex(), iItemID );
-	CSoundEnt::InsertSound ( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
+	CSoundEnt::InsertSound( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
 
 	// Damage.
 	CBaseEntity *pAttacker = GetOwnerEntity();
@@ -438,7 +441,7 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 
 	lastEdge = Vector( flRadius + pos.x, pos.y, pos.z );
 	float angle;
-	for( angle=0.0f; angle <= 360.0f; angle += 22.5f )
+	for ( angle = 0.0f; angle <= 360.0f; angle += 22.5f )
 	{
 		edge.x = flRadius * cos( angle ) + pos.x;
 		edge.y = pos.y;
@@ -450,7 +453,7 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 	}
 
 	lastEdge = Vector( pos.x, flRadius + pos.y, pos.z );
-	for( angle=0.0f; angle <= 360.0f; angle += 22.5f )
+	for ( angle = 0.0f; angle <= 360.0f; angle += 22.5f )
 	{
 		edge.x = pos.x;
 		edge.y = flRadius * cos( angle ) + pos.y;
@@ -462,7 +465,7 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 	}
 
 	lastEdge = Vector( pos.x, flRadius + pos.y, pos.z );
-	for( angle=0.0f; angle <= 360.0f; angle += 22.5f )
+	for ( angle = 0.0f; angle <= 360.0f; angle += 22.5f )
 	{
 		edge.x = flRadius * cos( angle ) + pos.x;
 		edge.y = flRadius * sin( angle ) + pos.y;
@@ -486,7 +489,7 @@ void CTFBaseRocket::IncremenentDeflected( void )
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFBaseRocket::SetLauncher( CBaseEntity *pLauncher )
-{ 
+{
 	m_hLauncher = pLauncher;
 }
 
@@ -497,7 +500,50 @@ void CTFBaseRocket::FlyThink( void )
 		m_bCollideWithTeammates = true;
 	}
 
-	SetNextThink( gpGlobals->curtime + 0.1 );
+	if ( tf2c_homing_rockets.GetBool() )
+	{
+		// Find the closest visible enemy player.
+		CUtlVector<CTFPlayer *> vecPlayers;
+		int count = CollectPlayers( &vecPlayers, TEAM_ANY, true );
+		CTFPlayer *pClosest = NULL;
+		float flClosest = FLT_MAX;
+		for ( int i = 0; i < count; i++ )
+		{
+			CTFPlayer *pPlayer = vecPlayers[i];
+			if ( pPlayer == GetOwnerEntity() )
+				continue;
+
+			if ( pPlayer->GetTeamNumber() == GetTeamNumber() && !TFGameRules()->IsDeathmatch() )
+				continue;
+
+			Vector vecTarget = pPlayer->BodyTarget( GetAbsOrigin(), false );
+			if ( FVisible( vecTarget ) )
+			{
+				float flDist = ( vecTarget - GetAbsOrigin() ).Length();
+				if ( flDist < flClosest )
+				{
+					flClosest = flDist;
+					pClosest = pPlayer;
+				}
+			}
+		}
+
+		// Head towards him.
+		if ( pClosest )
+		{
+			Vector vecTarget = pClosest->BodyTarget( GetAbsOrigin(), false );
+			Vector vecDir = vecTarget - GetAbsOrigin();
+			VectorNormalize( vecDir );
+
+			float flSpeed = GetAbsVelocity().Length();
+			QAngle angForward;
+			VectorAngles( vecDir, angForward );
+			SetAbsAngles( angForward );
+			SetAbsVelocity( vecDir * flSpeed );
+		}
+	}
+
+	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 
 #endif
