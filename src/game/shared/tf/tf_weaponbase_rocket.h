@@ -53,6 +53,8 @@ protected:
 	// Networked.
 	CNetworkVector( m_vInitialVelocity );
 
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_vecVelocity );
+
 //=============================================================================
 //
 // Client specific.
@@ -64,6 +66,7 @@ public:
 	virtual int		DrawModel( int flags );
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	PostDataUpdate( DataUpdateType_t type );
+	virtual void	Simulate( void );
 
 protected:
 	int		m_iOldTeamNum;
