@@ -1086,8 +1086,8 @@ void CTFPlayer::Regenerate( void )
 		m_Shared.RemoveCond( TF_COND_SLOWED );
 	}
 
-	//Fill Spy cloak
-	m_Shared.SetSpyCloakMeter(100.0f);
+	// Fill Spy cloak
+	m_Shared.SetSpyCloakMeter( 100.0f );
 }
 
 //-----------------------------------------------------------------------------
@@ -3120,7 +3120,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		}
 	}
 
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) && m_Shared.GetDesiredDisguiseTeam() != GetTeamNumber() )
 	{
 		// no impact effects
 	}
@@ -8242,16 +8242,16 @@ void CTFPlayer::UpdatePlayerColor( void )
 {
 	// Update color from their convars
 	Vector vecNewColor;
-	vecNewColor.x = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
-	vecNewColor.y = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
-	vecNewColor.z = Q_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
+	vecNewColor.x = V_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
+	vecNewColor.y = V_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_g" ) ) / 255.0f;
+	vecNewColor.z = V_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_b" ) ) / 255.0f;
 
 	// Clamp saturation to 0.65 max and value to 0.85 max
 	Vector vecHSVColor;
-	RGBtoHSV(vecNewColor, vecHSVColor);
-	vecHSVColor.y = clamp(vecHSVColor.y, 0.0f, 0.65f);
-	vecHSVColor.z = clamp(vecHSVColor.z, 0.0f, 0.85f);
-	HSVtoRGB(vecHSVColor, vecNewColor);
+	RGBtoHSV( vecNewColor, vecHSVColor );
+	vecHSVColor.y = clamp( vecHSVColor.y, 0.0f, 0.65f );
+	vecHSVColor.z = clamp( vecHSVColor.z, 0.0f, 0.85f );
+	HSVtoRGB( vecHSVColor, vecNewColor );
 
 	m_vecPlayerColor = vecNewColor;
 }

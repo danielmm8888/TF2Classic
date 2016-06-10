@@ -55,9 +55,9 @@ const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride /*= false*/
 
 const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride /*= false*/, const char **pNames/* = g_aTeamParticleNames*/ )
 {
-	static char szParticleName[256];
+	static char szParticleName[128];
 
-	V_snprintf( szParticleName, 256, pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride, pNames ) );
+	V_snprintf( szParticleName, sizeof( szParticleName ), pszFormat, GetTeamParticleName( iTeam, bDeathmatchOverride, pNames ) );
 	return szParticleName;
 }
 
@@ -71,8 +71,9 @@ void PrecacheTeamParticles( const char *pszFormat, bool bDeathmatchOverride /*= 
 
 	if ( bDeathmatchOverride )
 	{
-		const char *pszParticle = ConstructTeamParticle( pszFormat, FIRST_GAME_TEAM, true, pNames );
-		PrecacheParticleSystem( pszParticle );
+		char szParticle[128];
+		V_snprintf( szParticle, sizeof( szParticle ), pszFormat, "dm" );
+		PrecacheParticleSystem( szParticle );
 	}
 }
 

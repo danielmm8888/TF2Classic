@@ -1185,7 +1185,7 @@ bool CTFPlayerShared::ShouldShowRecentlyTeleported( void )
 		if ( InCond( TF_COND_STEALTHED ) )
 			return false;
 
-		if ( InCond( TF_COND_DISGUISED ) && ( m_pOuter->IsLocalPlayer() || !m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ) )
+		if ( InCond( TF_COND_DISGUISED ) && ( m_pOuter->IsLocalPlayer() || m_pOuter->IsEnemyPlayer() ) )
 		{
 			if ( GetDisguiseTeam() != m_nTeamTeleporterUsed )
 				return false;
@@ -2026,7 +2026,7 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 			bShouldShow = false;
 		}
 		else if ( InCond( TF_COND_DISGUISED ) &&
-			!m_pOuter->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) &&
+			m_pOuter->IsEnemyPlayer() &&
 			m_pOuter->GetTeamNumber() != GetDisguiseTeam() )
 		{
 			// Don't show crit effect for disguised enemy spies unless they're disguised
@@ -2060,20 +2060,12 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 
 		if ( m_hCritEffectHost.Get() )
 		{
-			int iTeamNum = m_pOuter->GetTeamNumber();
-			char szEffectName[128];
-			const char *pszTeamName = !TFGameRules()->IsDeathmatch() ? g_aTeamNamesShort[iTeamNum] : "dm";
-
-
-			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s", pszTeamName );
-
-			m_pCritEffects[0] = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			const char *pszEffect = ConstructTeamParticle( "critgun_weaponmodel_%s", m_pOuter->GetTeamNumber(), true, g_aTeamNamesShort );
+			m_pCritEffects[0] = m_hCritEffectHost->ParticleProp()->Create( pszEffect, PATTACH_ABSORIGIN_FOLLOW );
 			SetParticleToMercColor( m_pCritEffects[0] );
 
-
-			Q_snprintf( szEffectName, sizeof( szEffectName ), "critgun_weaponmodel_%s_glow", pszTeamName );
-
-			m_pCritEffects[1] = m_hCritEffectHost->ParticleProp()->Create( szEffectName, PATTACH_ABSORIGIN_FOLLOW );
+			pszEffect = ConstructTeamParticle( "critgun_weaponmodel_%s_glow", m_pOuter->GetTeamNumber(), true, g_aTeamNamesShort );
+			m_pCritEffects[1] = m_hCritEffectHost->ParticleProp()->Create( pszEffect, PATTACH_ABSORIGIN_FOLLOW );
 			SetParticleToMercColor( m_pCritEffects[1] );
 		}
 

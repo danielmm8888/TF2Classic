@@ -24,7 +24,7 @@ using namespace vgui;
 
 // Floating delta text items, float off the top of the frame to 
 // show changes to the metal account value
-typedef struct 
+typedef struct
 {
 	// amount of delta
 	int m_iAmount;
@@ -48,7 +48,7 @@ public:
 
 	virtual void	ApplySchemeSettings( IScheme *scheme );
 	virtual void	LevelInit( void );
-	
+
 	virtual void	Paint( void );
 
 	void OnAccountValueChanged( int iOldValue, int iNewValue );
@@ -87,7 +87,7 @@ CAccountPanel::CAccountPanel( const char *pElementName ) : CHudElement( pElement
 
 	SetDialogVariable( "metal", 0 );
 
-	for( int i=0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
 	}
@@ -120,7 +120,7 @@ void CAccountPanel::LevelInit( void )
 void CAccountPanel::OnAccountValueChanged( int iOldValue, int iNewValue )
 {
 	// update the account value
-	SetDialogVariable( "metal", iNewValue ); 
+	SetDialogVariable( "metal", iNewValue );
 
 	int iDelta = iNewValue - iOldValue;
 
@@ -145,7 +145,7 @@ void CAccountPanel::Paint( void )
 {
 	BaseClass::Paint();
 
-	for ( int i=0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		// update all the valid delta items
 		if ( m_AccountDeltaItems[i].m_flDieTime > gpGlobals->curtime )
@@ -174,14 +174,14 @@ void CAccountPanel::Paint( void )
 
 			if ( m_AccountDeltaItems[i].m_iAmount > 0 )
 			{
-				_snwprintf( wBuf, sizeof(wBuf)/sizeof(wchar_t), L"+%d", m_AccountDeltaItems[i].m_iAmount );
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"+%d", m_AccountDeltaItems[i].m_iAmount );
 			}
 			else
 			{
-				_snwprintf( wBuf, sizeof(wBuf)/sizeof(wchar_t), L"%d", m_AccountDeltaItems[i].m_iAmount );
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"%d", m_AccountDeltaItems[i].m_iAmount );
 			}
 
-			vgui::surface()->DrawPrintText( wBuf, wcslen(wBuf), FONT_DRAW_NONADDITIVE );
+			vgui::surface()->DrawPrintText( wBuf, wcslen( wBuf ), FONT_DRAW_NONADDITIVE );
 		}
 	}
 }
@@ -288,12 +288,11 @@ void CHealthAccountPanel::FireGameEvent( IGameEvent *event )
 		int iAmount = event->GetInt( "amount" );
 		int iPlayer = event->GetInt( "entindex" );
 		C_TFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( iPlayer ) );
-		C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-		if ( !pPlayer || !pLocalPlayer )
+		if ( !pPlayer )
 			return;
 
-		if ( pPlayer == pLocalPlayer )
+		if ( pPlayer->IsLocalPlayer() )
 		{
 			// If this is a local player show the number in HUD.
 			OnAccountValueChanged( 0, iAmount );
@@ -324,10 +323,9 @@ void CHealthAccountPanel::FireGameEvent( IGameEvent *event )
 				pszFormat = iAmount < 100 ? "healthgained_%s" : "healthgained_%s_large";
 			}
 
-			char szParticle[128];
-			V_snprintf( szParticle, sizeof( szParticle ), pszFormat, g_aTeamNamesShort[iTeam] );
-			
-			pPlayer->ParticleProp()->Create( szParticle, PATTACH_POINT, "head" );
+			const char *pszParticle = ConstructTeamParticle( pszFormat, iTeam, false, g_aTeamNamesShort );
+
+			pPlayer->ParticleProp()->Create( pszParticle, PATTACH_POINT, "head" );
 		}
 	}
 	else

@@ -131,14 +131,18 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 			EmitSound( user, entindex(), pszSound );
 
-			IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
-			
-			if ( event )
+			// Disabled for overheal pills since they'll cause too much spam.
+			if ( iHealthRestored && !bTiny )
 			{
-				event->SetInt( "amount", iHealthRestored );
-				event->SetInt( "entindex", pPlayer->entindex() );
+				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
 
-				gameeventmanager->FireEvent( event );
+				if ( event )
+				{
+					event->SetInt( "amount", iHealthRestored );
+					event->SetInt( "entindex", pPlayer->entindex() );
+
+					gameeventmanager->FireEvent( event );
+				}
 			}
 		}
 	}

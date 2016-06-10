@@ -178,7 +178,7 @@ void CDisguiseStatus::ShowAndUpdateStatus( void )
 	if ( m_pDisguiseNameLabel )
 	{
 		m_pDisguiseNameLabel->SetVisible( true );
-		CBasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
+		C_BasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 		if ( pDisguiseTarget )
 			SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
 	}
@@ -212,7 +212,7 @@ void CDisguiseStatus::Paint( void )
 	if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 		return;
 
-	CBasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
+	C_BasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 	if ( pDisguiseTarget )
 	{
 		SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
