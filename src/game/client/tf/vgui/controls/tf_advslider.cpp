@@ -260,7 +260,7 @@ void CTFAdvSlider::SetPercentage(float fPerc)
 	}
 	else
 	{
-		Q_snprintf(sValue, sizeof(sValue), "%2.1f", fValue);
+		Q_snprintf(sValue, sizeof(sValue), "%2.2f", fValue);
 	}
 	pValueLabel->SetText(sValue);
 	if (!bVertical)
