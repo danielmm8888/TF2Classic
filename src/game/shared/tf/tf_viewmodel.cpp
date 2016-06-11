@@ -137,11 +137,12 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 	}
 
 	m_hViewmodelAddon = pAddon;
+
 	pAddon->m_nSkin = GetSkin();
 	pAddon->FollowEntity( this );
-	pAddon->UpdatePartitionListEntry();
-	pAddon->CollisionProp()->MarkPartitionHandleDirty();
-	pAddon->UpdateVisibility();
+	pAddon->SetLocalOrigin( vec3_origin );
+	pAddon->SetLocalAngles( vec3_angle );
+
 	pAddon->SetViewmodel( this );
 }
 

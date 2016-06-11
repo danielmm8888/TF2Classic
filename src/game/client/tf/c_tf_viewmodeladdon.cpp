@@ -15,6 +15,18 @@
 
 extern ConVar r_drawothermodels;
 
+bool C_ViewmodelAttachmentModel::InitializeAsClientEntity( const char *pszModelName, RenderGroup_t renderGroup )
+{
+	if ( BaseClass::InitializeAsClientEntity( pszModelName, renderGroup ) )
+	{
+		AddEffects( EF_BONEMERGE | EF_BONEMERGE_FASTCULL );
+		AddSolidFlags( FSOLID_NOT_SOLID );
+		return true;
+	}
+
+	return false;
+}
+
 void C_ViewmodelAttachmentModel::SetViewmodel( C_TFViewModel *vm )
 {
 	m_viewmodel.Set( vm );
