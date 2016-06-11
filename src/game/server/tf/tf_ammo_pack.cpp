@@ -169,7 +169,7 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 			bSuccess = true;
 		}
 
-		
+
 		// Unlike medium ammo packs, restore only 25% cloak.
 		float flCloak = pTFPlayer->m_Shared.GetSpyCloakMeter();
 		if ( flCloak < 100.0f )

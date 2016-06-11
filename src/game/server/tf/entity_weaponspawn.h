@@ -40,7 +40,6 @@ public:
 
 private:
 	CEconItemView m_Item;
-	CTFWeaponInfo *m_pWeaponInfo;
 
 	int		m_nWeaponID;
 	int		m_nItemID;

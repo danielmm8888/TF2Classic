@@ -21,7 +21,7 @@ public:
 	CTFAmmoPack() {}
 
 	virtual void Spawn();
-	virtual void Precache();		
+	virtual void Precache();
 
 	void EXPORT FlyThink( void );
 	void EXPORT PackTouch( CBaseEntity *pOther );
@@ -30,7 +30,7 @@ public:
 
 	int GiveAmmo( int iCount, int iAmmoType );
 
-	static CTFAmmoPack *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, bool bUseCustomAmmoCount = false);
+	static CTFAmmoPack *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszModelName, bool bUseCustomAmmoCount = false );
 
 	float GetCreationTime( void ) { return m_flCreationTime; }
 	void  SetInitialVelocity( Vector &vecVelocity );

@@ -1628,7 +1628,7 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconI
 	if ( Weapon_OwnsThisType( pszEntName ) )
 		return NULL;
 
-	CBaseEntity* pEntity = CreateEntityByName( pszEntName );
+	CBaseEntity *pEntity = CreateEntityByName( pszEntName );
 	
 	if ( pEntity == NULL )
 	{
@@ -1654,7 +1654,7 @@ CBaseEntity	*CTFPlayer::GiveNamedItem( const char *pszName, int iSubType, CEconI
 	DispatchSpawn( pEntity );
 	pEntity->Activate();
 
-	if ( pEntity != NULL && !( pEntity->IsMarkedForDeletion() ) )
+	if ( pEntity && !pEntity->IsMarkedForDeletion() )
 	{
 		pEntity->Touch( this );
 	}

@@ -112,11 +112,6 @@ void CWeaponSpawner::Spawn( void )
 
 	m_Item.SetItemDefIndex( m_nItemID );
 
-	// Only merc can use weapon spawners so it's safe use him for translation.
-	m_pWeaponInfo = GetTFWeaponInfoForItem( m_nItemID, TF_CLASS_MERCENARY );
-
-	Assert( m_pWeaponInfo );
-
 	Precache();
 
 	SetModel( m_Item.GetWorldDisplayModel() );
@@ -229,26 +224,23 @@ bool CWeaponSpawner::MyTouch( CBasePlayer *pPlayer )
 {
 	bool bSuccess = false;
 
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer *>( pPlayer );
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 	if ( ValidTouch( pTFPlayer ) && pTFPlayer->IsPlayerClass( TF_CLASS_MERCENARY ) )
 	{
 #ifndef DM_WEAPON_BUCKET
 		int iSlot = m_Item.GetStaticData()->GetLoadoutSlot( TF_CLASS_MERCENARY );
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)pTFPlayer->GetEntityForLoadoutSlot( iSlot );
-		const char *pszWeaponName = m_Item.GetEntityName();
-		int iAmmoType = m_pWeaponInfo->iAmmoType;
 
 		if ( pWeapon )
 		{
 			if ( pTFPlayer->ItemsMatch( pWeapon->GetItem(), &m_Item, pWeapon ) )
 			{
-				if ( pTFPlayer->GiveAmmo( pWeapon->GetInitialAmmo(), iAmmoType, true, TF_AMMO_SOURCE_AMMOPACK ) )
+				if ( pTFPlayer->GiveAmmo( pWeapon->GetInitialAmmo(), pWeapon->GetPrimaryAmmoType(), true, TF_AMMO_SOURCE_AMMOPACK ) )
 					bSuccess = true;
 			}
-			// Check Use button, always replace pistol
 			else if ( !( pTFPlayer->m_nButtons & IN_ATTACK ) &&
-				( pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL ) )
+				( pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL ) ) // Check Use button, always replace pistol.
 			{
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );
@@ -279,10 +271,12 @@ bool CWeaponSpawner::MyTouch( CBasePlayer *pPlayer )
 
 		if ( !pWeapon )
 		{
+			const char *pszWeaponName = m_Item.GetEntityName();
 			CTFWeaponBase *pNewWeapon = (CTFWeaponBase *)pTFPlayer->GiveNamedItem( pszWeaponName, 0, &m_Item );
+
 			if ( pNewWeapon )
 			{
-				pPlayer->SetAmmoCount( pNewWeapon->GetInitialAmmo(), iAmmoType );
+				pPlayer->SetAmmoCount( pNewWeapon->GetInitialAmmo(), pNewWeapon->GetPrimaryAmmoType() );
 				pNewWeapon->GiveTo( pPlayer );
 				pTFPlayer->m_Shared.SetDesiredWeaponIndex( -1 );
 				bSuccess = true;
