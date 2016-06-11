@@ -62,6 +62,7 @@ public:
 
 	virtual void	FireGameEvent( IGameEvent *event );
 	void			OnDamaged( IGameEvent *event );
+	void			PlayHitSound( int iAmount, bool bKill );
 
 private:
 
@@ -95,6 +96,11 @@ ConVar tf_dingaling_volume( "tf_dingaling_volume", "0.75", FCVAR_ARCHIVE, "Desir
 ConVar tf_dingaling_pitchmindmg( "tf_dingaling_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
 ConVar tf_dingaling_pitchmaxdmg( "tf_dingaling_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
 ConVar tf_dingalingaling_repeat_delay( "tf_dingalingaling_repeat_delay", "0", FCVAR_ARCHIVE, "Desired repeat delay of the hit sound. Set to 0 to play a sound for every instance of damage dealt." );
+
+ConVar tf_dingalingaling_lasthit( "tf_dingalingaling_lasthit", "0", FCVAR_ARCHIVE, "If set to 1, play a sound whenever one of your attacks kills an enemy. The sound can be customized by replacing the 'tf/sound/ui/killsound.wav' file." );
+ConVar tf_dingaling_lasthit_volume( "tf_dingaling_lasthit_volume", "0.75", FCVAR_ARCHIVE, "Desired volume of the last hit sound.", true, 0.0, true, 1.0 );
+ConVar tf_dingaling_lasthit_pitchmindmg( "tf_dingaling_lasthit_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the last hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
+ConVar tf_dingaling_lasthit_pitchmaxdmg( "tf_dingaling_lasthit_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the last hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -184,6 +190,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		int iAttacker = event->GetInt( "attacker" );
 		int iVictim = event->GetInt( "userid" );
 		int iDmgAmount = event->GetInt( "damageamount" );
+		int iHealth = event->GetInt( "health" );
 
 		// Did we shoot the guy?
 		if ( iAttacker != pPlayer->GetUserID() )
@@ -208,27 +215,19 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 			return;
 
 		// Play hit sound, if appliable.
-		if ( tf_dingalingaling.GetBool() )
+		bool bDinged = false;
+
+		if ( tf_dingalingaling_lasthit.GetBool() && iHealth == 0 )
 		{
-			float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
-			if ( flRepeatDelay <= 0 || gpGlobals->curtime - m_flLastHitSound > flRepeatDelay )
-			{
-				EmitSound_t params;
+			// This guy is dead, play kill sound.
+			PlayHitSound( iDmgAmount, true );
+			bDinged = true;
+		}
 
-				params.m_pSoundName = "ui/hitsound.wav";
-
-				params.m_flVolume = tf_dingaling_volume.GetFloat();
-
-				float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
-				float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
-				params.m_nPitch = RemapValClamped( (float)iDmgAmount, 10, 150, flPitchMin, flPitchMax );
-
-				CLocalPlayerFilter filter;
-
-				C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
-
-				m_flLastHitSound = gpGlobals->curtime;
-			}
+		if ( tf_dingalingaling.GetBool() && !bDinged )
+		{
+			PlayHitSound( iDmgAmount, false );
+			bDinged = true;
 		}
 
 		// Leftover from old code?
@@ -278,6 +277,36 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::PlayHitSound( int iAmount, bool bKill )
+{
+	if ( !bKill )
+	{
+		float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
+		if ( flRepeatDelay > 0 && gpGlobals->curtime - m_flLastHitSound <= flRepeatDelay )
+			return;
+	}
+
+	EmitSound_t params;
+
+	params.m_pSoundName = bKill ? "ui/killsound.wav" : "ui/hitsound.wav";
+
+	params.m_flVolume = bKill ? tf_dingaling_lasthit_volume.GetFloat() : tf_dingaling_volume.GetFloat();
+
+	float flPitchMin = bKill ? tf_dingaling_lasthit_pitchmindmg.GetFloat() : tf_dingaling_pitchmindmg.GetFloat();
+	float flPitchMax = bKill ? tf_dingaling_lasthit_pitchmaxdmg.GetFloat() : tf_dingaling_pitchmaxdmg.GetFloat();
+	params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+
+	CLocalPlayerFilter filter;
+
+	C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
+
+	if ( !bKill )
+		m_flLastHitSound = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
