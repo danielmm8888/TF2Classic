@@ -3942,7 +3942,8 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	}
 
 	//No bleeding while invul or disguised.
-	bool bBleed = ( m_Shared.InCond( TF_COND_DISGUISED ) == false && m_Shared.IsInvulnerable() == false );
+	bool bBleed = ( ( m_Shared.InCond( TF_COND_DISGUISED ) == false || m_Shared.GetDisguiseTeam() == GetTeamNumber() ) &&
+		m_Shared.IsInvulnerable() == false );
 	if ( bBleed && pAttacker->IsPlayer() )
 	{
 		CTFWeaponBase *pWeapon = ToTFPlayer( pAttacker )->GetActiveTFWeapon();

@@ -87,7 +87,7 @@ private:
 
 DECLARE_HUDELEMENT( CDamageAccountPanel );
 
-ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "" );
+ConVar hud_combattext( "hud_combattext", "1", FCVAR_ARCHIVE, "" );
 ConVar hud_combattext_batching( "hud_combattext_batching", "0", FCVAR_ARCHIVE, "If set to 1, numbers that are too close together are merged." );
 ConVar hud_combattext_batching_window( "hud_combattext_batching_window", "0.2", FCVAR_ARCHIVE, "Maximum delay between damage events in order to batch numbers." );
 
@@ -123,6 +123,7 @@ CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudEleme
 
 	ListenForGameEvent( "player_hurt" );
 	ListenForGameEvent( "player_healed" );
+	ListenForGameEvent( "npc_hurt" );
 }
 
 //-----------------------------------------------------------------------------
@@ -133,7 +134,7 @@ void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 	// For future reference, live TF2 apparently uses player_healed for green medic numbers.
 	const char * type = event->GetName();
 
-	if ( Q_strcmp( type, "player_hurt" ) == 0 )
+	if ( V_strcmp( type, "player_hurt" ) == 0 || V_strcmp( type, "npc_hurt" ) == 0 )
 	{
 		OnDamaged( event );
 	}
@@ -187,8 +188,10 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer && pPlayer->IsAlive() ) 
 	{
-		int iAttacker = event->GetInt( "attacker" );
-		int iVictim = event->GetInt( "userid" );
+		bool bIsPlayer = V_strcmp( event->GetName(), "npc_hurt" ) != 0;
+
+		int iAttacker = bIsPlayer ? event->GetInt( "attacker" ) : event->GetInt( "attacker_player" );;
+		int iVictim = bIsPlayer ? event->GetInt( "userid" ) : event->GetInt( "entindex" );
 		int iDmgAmount = event->GetInt( "damageamount" );
 		int iHealth = event->GetInt( "health" );
 
@@ -197,22 +200,29 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 			return;
 
 		// No self-damage notifications.
-		if ( iAttacker == iVictim )
+		if ( bIsPlayer && iAttacker == iVictim )
 			return;
 
 		// Don't show anything if no damage was done.
 		if ( iDmgAmount == 0 )
 			return;
 
-		// Currently only supporting players.
-		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByUserId( iVictim ) );
+		C_BaseEntity *pVictim = bIsPlayer ? UTIL_PlayerByUserId( iVictim ) : ClientEntityList().GetBaseEntity( iVictim );
 
 		if ( !pVictim )
 			return;
 
-		// Don't show damage notifications for spies disguised as our team.
-		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
-			return;
+		if ( bIsPlayer )
+		{
+			C_TFPlayer *pTFVictim = ToTFPlayer( pVictim );
+
+			if ( !pTFVictim )
+				return;
+
+			// Don't show damage notifications for spies disguised as our team.
+			if ( pTFVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pTFVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
+				return;
+		}
 
 		// Play hit sound, if appliable.
 		bool bDinged = false;
@@ -243,6 +253,16 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		if ( tr.fraction != 1.0f )
 			return;
 
+		Vector vecTextPos;
+		if ( pVictim->IsBaseObject() )
+		{
+			vecTextPos = pVictim->GetAbsOrigin() + Vector( 0, 0, pVictim->WorldAlignMaxs().z );
+		}
+		else
+		{
+			vecTextPos = pVictim->EyePosition();
+		}
+
 		if ( hud_combattext_batching.GetBool() )
 		{
 			// Cycle through deltas and search for one that belongs to this player.
@@ -257,7 +277,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 						// Update it's die time and damage.
 						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 						m_AccountDeltaItems[i].m_iAmount += iDmgAmount;
-						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+						m_AccountDeltaItems[i].m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
 						return;
 					}
@@ -274,7 +294,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 		pNewDeltaItem->m_iAmount = iDmgAmount;
 		pNewDeltaItem->m_hEntity = pVictim;
-		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+		pNewDeltaItem->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
 }
@@ -293,13 +313,26 @@ void CDamageAccountPanel::PlayHitSound( int iAmount, bool bKill )
 
 	EmitSound_t params;
 
-	params.m_pSoundName = bKill ? "ui/killsound.wav" : "ui/hitsound.wav";
+	if ( bKill )
+	{
+		params.m_pSoundName = "ui/killsound.wav";
 
-	params.m_flVolume = bKill ? tf_dingaling_lasthit_volume.GetFloat() : tf_dingaling_volume.GetFloat();
+		params.m_flVolume = tf_dingaling_lasthit_volume.GetFloat();
 
-	float flPitchMin = bKill ? tf_dingaling_lasthit_pitchmindmg.GetFloat() : tf_dingaling_pitchmindmg.GetFloat();
-	float flPitchMax = bKill ? tf_dingaling_lasthit_pitchmaxdmg.GetFloat() : tf_dingaling_pitchmaxdmg.GetFloat();
-	params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+		float flPitchMin = tf_dingaling_lasthit_pitchmindmg.GetFloat();
+		float flPitchMax = tf_dingaling_lasthit_pitchmaxdmg.GetFloat();
+		params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+	}
+	else
+	{
+		params.m_pSoundName = "ui/hitsound.wav";
+
+		params.m_flVolume = tf_dingaling_volume.GetFloat();
+
+		float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
+		float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
+		params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+	}
 
 	CLocalPlayerFilter filter;
 

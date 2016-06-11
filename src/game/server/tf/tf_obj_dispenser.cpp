@@ -703,7 +703,7 @@ void CObjectDispenser::StartTouch( CBaseEntity *pOther )
 	EHANDLE hOther = pOther;
 	m_hTouchingEntities.AddToTail( hOther );
 
-	if ( !IsBuilding() && !IsDisabled() && CouldHealTarget( pOther ) && !IsHealingTarget( pOther ) )
+	if ( !IsBuilding() && !IsDisabled() && !IsRedeploying() && CouldHealTarget( pOther ) && !IsHealingTarget( pOther ) )
 	{
 		// try to start healing them
 		StartHealing( pOther );
