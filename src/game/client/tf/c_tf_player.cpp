@@ -1790,6 +1790,11 @@ void C_TFPlayer::OnDataChanged( DataUpdateType_t updateType )
 			m_iOldPlayerClass != m_PlayerClass.GetClassIndex() )
 		{
 			pActiveWpn->SetViewModel();
+
+			if ( ShouldDrawThisPlayer() )
+			{
+				m_Shared.UpdateCritBoostEffect();
+			}
 		}
 	}
 
