@@ -180,7 +180,7 @@ void CDisguiseStatus::ShowAndUpdateStatus( void )
 		m_pDisguiseNameLabel->SetVisible( true );
 		C_BasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 		if ( pDisguiseTarget )
-			SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
+			SetDialogVariable( "disguisename", pDisguiseTarget->GetPlayerName() );
 	}
 
 	if ( m_pWeaponNameLabel )
@@ -215,7 +215,7 @@ void CDisguiseStatus::Paint( void )
 	C_BasePlayer *pDisguiseTarget = ToBasePlayer( pPlayer->m_Shared.GetDisguiseTarget() );
 	if ( pDisguiseTarget )
 	{
-		SetDialogVariable( "disguisename", pPlayer->GetPlayerName() );
+		SetDialogVariable( "disguisename", pDisguiseTarget->GetPlayerName() );
 	}
 
 	CheckWeapon();

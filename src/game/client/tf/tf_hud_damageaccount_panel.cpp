@@ -367,23 +367,27 @@ void CDamageAccountPanel::Paint( void )
 				c[3] = (int)( 255.0f * ( flLifetimePercent / 0.5 ) );
 			}
 
-			int iX, iY;
-			bool bOnscreen = GetVectorInScreenSpace( m_AccountDeltaItems[i].m_vDamagePos, iX, iY );
+			int x, y;
+			bool bOnscreen = GetVectorInScreenSpace( m_AccountDeltaItems[i].m_vDamagePos, x, y );
 
 			if ( !bOnscreen )
 				continue;
 
-			float flHeight = 50.0f;
-			float flYPos = (float)iY - ( 1.0 - flLifetimePercent ) * flHeight;
+			int flHeight = 50.0f;
+			y -= (int)( ( 1.0f - flLifetimePercent ) * flHeight );
 
 			// Use BIGGER font for crits.
-			vgui::surface()->DrawSetTextFont( m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont );
-			vgui::surface()->DrawSetTextColor( c );
-			vgui::surface()->DrawSetTextPos( iX, (int)flYPos );
+			vgui::HFont hFont = m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont;
 
 			wchar_t wBuf[20];
-
 			_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+
+			// Offset x pos so the text is centered.
+			x -= UTIL_ComputeStringWidth( hFont, wBuf ) / 2;
+
+			vgui::surface()->DrawSetTextFont( hFont );
+			vgui::surface()->DrawSetTextColor( c );
+			vgui::surface()->DrawSetTextPos( x, y );
 
 			vgui::surface()->DrawPrintText( wBuf, wcslen( wBuf ), FONT_DRAW_NONADDITIVE );
 		}

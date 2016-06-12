@@ -91,8 +91,6 @@
 			"scaleImage"		"1"	
 			"teambg_2"		"../hud/freezecam_blue_bg"	// Reversed, due to showing killer's name
 			"teambg_3"		"../hud/freezecam_red_bg"	// Reversed, due to showing killer's name
-			"teambg_4"		"../hud/freezecam_green_bg"	// Reversed, due to showing killer's name
-			"teambg_5"		"../hud/freezecam_yellow_bg"	// Reversed, due to showing killer's name
 		}
 
 		"FreezeLabel"
@@ -182,12 +180,13 @@
 			"tall"			"48"
 			"visible"		"1"
 			"enabled"		"1"
-			"image"			"../hud/freezecam_blue_bg"
+			"image"			"../hud/freezecam_black_bg"
 			"scaleImage"		"1"	
-			"teambg_2"		"../hud/freezecam_blue_bg"	// Reversed, due to showing killer's name
-			"teambg_3"		"../hud/freezecam_red_bg"	// Reversed, due to showing killer's name
-			"teambg_4"		"../hud/freezecam_green_bg"	// Reversed, due to showing killer's name
-			"teambg_5"		"../hud/freezecam_yellow_bg"	// Reversed, due to showing killer's name
+			"teambg_0"		"../hud/freezecam_black_bg"
+			"teambg_2"		"../hud/freezecam_red_bg"
+			"teambg_3"		"../hud/freezecam_blue_bg"
+			"teambg_4"		"../hud/freezecam_green_bg"
+			"teambg_5"		"../hud/freezecam_yellow_bg"
 		}
 		
 		"FreezeLabel"
