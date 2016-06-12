@@ -50,7 +50,7 @@
 	}
 	"demoman"
 	{
-		"primary"		"1"
+		"primary"		"0"
 		"secondary"		"0"
 		"melee"		"0"
 		"pda"		"0"
@@ -64,7 +64,7 @@
 	{
 		"primary"		"0"
 		"secondary"		"0"
-		"melee"		"0"
+		"melee"		"1"
 		"pda"		"0"
 		"pda2"		"0"
 		"building"		"0"
@@ -99,9 +99,9 @@
 	"spy"
 	{
 		"primary"		"0"
-		"secondary"		"0"
+		"secondary"		"1"
 		"melee"		"0"
-		"pda"		"0"
+		"pda"		"20"
 		"pda2"		"0"
 		"building"		"0"
 		"head"		"0"
@@ -120,7 +120,7 @@
 		"misc"		"0"
 		"action"		"0"
 	}
-	"Civilian"
+	"civilian"
 	{
 		"primary"		"0"
 		"secondary"		"0"

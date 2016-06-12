@@ -58,7 +58,7 @@ DESCRIPTION INFO_OPTIONS
 		"#TF_autoreload"
 		"#Tooltip_autoreload"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	"hud_fastswitch"
@@ -66,7 +66,7 @@ DESCRIPTION INFO_OPTIONS
 		"#GameUI_FastSwitchCheck"
 		"#Tooltip_hud_fastswitch"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	"tf_dingalingaling"
@@ -77,18 +77,108 @@ DESCRIPTION INFO_OPTIONS
 		{ "0" }
 	}
 
-	//"tf_dingaling_volume"
+	"tf_dingaling_volume"
+	{
+		"#TF_Dingaling_Volume"
+		"#Tooltip_Dingaling_Volume"
+		{ SLIDER 0 1 }
+		{ "0.75" }
+	}
+	
+	//"tf_dingalingaling_effect"
 	//{
-	//	"#TF_Dingaling_Volume"
-	//	"#Tooltip_Dingaling_Volume"
-	//	{ SLIDER 0 1 }
-	//	{ "0.75" }
+	//	"#tf_dingalingaling_effect"
+	//	{ LIST
+	//		"#tf_dingalingaling_Default"                "0"
+	//		"#tf_dingalingaling_Electro"                "1"
+	//		"#tf_dingalingaling_Notes"	            	"2"
+	//		"#tf_dingalingaling_Percussion"             "3"
+	//		"#tf_dingalingaling_Retro"                  "4"
+	//		"#tf_dingalingaling_Space"					"5"
+	//		"#tf_dingalingaling_Beepo"					"6"
+	//		"#tf_dingalingaling_Vortex"					"7"
+	//		"#tf_dingalingaling_Squasher"				"8"
+	//	}
+	//	{ "-1" }
 	//}
+
+	"tf_dingaling_pitchmindmg"
+	{
+		"#TF_Dingaling_PitchLowDmg"
+		"#Tooltip_Dingaling_PitchLowDmg"
+		{ SLIDER 1 255 }
+		{ "100" }
+	}
+	
+	"tf_dingaling_pitchmaxdmg"
+	{
+		"#TF_Dingaling_PitchHighDmg"
+		"#Tooltip_Dingaling_PitchHighDmg"
+		{ SLIDER 1 255 }
+		{ "100" }
+	}
+	
+	"tf_dingalingaling_lasthit"
+	{
+		"#TF_LastHitbeeps"
+		"#Tooltip_Hitbeeps"
+		{ BOOL }
+		{ "0" }
+	}
+
+	"tf_dingaling_lasthit_volume"
+	{
+		"#TF_Dingaling_LastHit_Volume"
+		"#Tooltip_Dingaling_Volume"
+		{ SLIDER 0 1 }
+		{ "0.75" }
+	}
+
+	//"tf_dingalingaling_last_effect"
+	//{
+	//	"#tf_dingalingaling_last_effect"
+	//	{ LIST
+	//		"#tf_dingalingaling_Default"                "0"
+	//		"#tf_dingalingaling_Electro"                "1"
+	//		"#tf_dingalingaling_Notes"	            	"2"
+	//		"#tf_dingalingaling_Percussion"             "3"
+	//		"#tf_dingalingaling_Retro"                  "4"
+	//		"#tf_dingalingaling_Space"					"5"
+	//		"#tf_dingalingaling_Beepo"					"6"
+	//		"#tf_dingalingaling_Vortex"					"7"
+	//		"#tf_dingalingaling_Squasher"				"8"
+	//	}
+	//	{ "0" }
+	//}
+
+	"tf_dingaling_lasthit_pitchmindmg"
+	{
+		"#TF_Dingaling_LastHit_PitchLowDmg"
+		"#Tooltip_Dingaling_PitchLowDmg"
+		{ SLIDER 1 255 }
+		{ "100" }
+	}
+	
+	"tf_dingaling_lasthit_pitchmaxdmg"
+	{
+		"#TF_Dingaling_LastHit_PitchHighDmg"
+		"#Tooltip_Dingaling_PitchHighDmg"
+		{ SLIDER 1 255 }
+		{ "100" }
+	}
 	
 	"hud_combattext"
 	{
 		"#TF_CombatText"
 		"#Tooltip_CombatText"
+		{ BOOL }
+		{ "1" }
+	}
+	
+	"hud_combattext_batching"
+	{
+		"#TF_CombatTextBatching"
+		"#Tooltip_CombatTextBatching"
 		{ BOOL }
 		{ "0" }
 	}
@@ -160,7 +250,7 @@ DESCRIPTION INFO_OPTIONS
 		"#TF_medigun_autoheal"
 		"#Tooltip_medigun_autoheal"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	//"hud_medichealtargetmarker"
@@ -433,7 +523,7 @@ DESCRIPTION INFO_OPTIONS
 		"#Valve_Multiplayer_Decal_Limit"
 		"#Tooltip_Multiplayer_Decal_Limit"
 		{ SLIDER 0 4096 }
-		{ "2048" }
+		{ "4096" }
 	}
 	
 	"category5"
@@ -554,41 +644,34 @@ DESCRIPTION INFO_OPTIONS
 	
 	"category6"
 	{
-		"Team Fortress 2 Classic Options"
+		"#TF_OptionCategory_Classic"
 		{ CATEGORY }
 	}
 	
 	"tf2c_model_muzzleflash"
 	{
-		"Enable beta model muzzleflash"
+		"#TFOption_modelmuzzleflash"
 		{ BOOL }
-		{ "0" }
-	}
-	
-	"tf2c_model_muzzleflash"
-	{
-		"Enable beta model muzzleflash"
-		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	"tf2c_ammobucket"
 	{
-		"Enable weapon icon in ammo section"
+		"#TFOption_ammobucket"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	"tf2c_muzzlelight"
 	{
-		"Enable dynamic lights for muzzleflashes and the flamethrower"
+		"#TFOption_muzzlelight"
 		{ BOOL }
-		{ "0" }
+		{ "1" }
 	}
 	
 	"tf2c_coloredhud"
 	{
-		"Enable colored HUD panels in Deathmatch"
+		"#TFOption_coloredhud"
 		{ BOOL }
 		{ "1" }
 	}

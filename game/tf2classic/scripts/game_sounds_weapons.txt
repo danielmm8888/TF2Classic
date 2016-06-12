@@ -1685,7 +1685,7 @@
 }
 
 // ------------------------------------------------------------------------------------ //
-// HEAVY ARTILLERY
+// TOMMY GUN
 // ------------------------------------------------------------------------------------ //
 "Weapon_HeavyArtillery.Single"
 {
@@ -1701,6 +1701,46 @@
 	"soundlevel"	"SNDLVL_94dB"
 	"volume"	"1.0"
 	"wave"		")weapons/artillery_shoot_crit.wav"
+}
+
+"Weapon_Tommmygun.DrumOut"
+{
+	"channel"	"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_NORM"
+	"volume"	"1.0"
+	"wave"		"weapons/tommy_drum_out.wav"
+}
+
+"Weapon_Tommmygun.DrumIn"
+{
+	"channel"	"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_NORM"
+	"volume"	"1.0"
+	"wave"		"weapons/tommy_drum_in.wav"
+}
+
+"Weapon_Tommmygun.BoltBack"
+{
+	"channel"	"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_NORM"
+	"volume"	"1.0"
+	"wave"		"weapons/tommy_bolt_backward.wav"
+}
+
+"Weapon_Tommmygun.BoltForward"
+{
+	"channel"	"CHAN_ITEM"
+	"soundlevel"	"SNDLVL_NORM"
+	"volume"	"1.0"
+	"wave"		"weapons/tommy_bolt_forward.wav"
+}
+
+"Weapon_TommyGun.WorldReload"
+{
+	"channel"	"CHAN_WEAPON"
+	"soundlevel"	"SNDLVL_94dB"
+	"volume"	"1.0"
+	"wave"		")weapons/artillery_shoot.wav"
 }
 
 

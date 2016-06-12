@@ -56,13 +56,14 @@
 
 	"rndwave"			
 	{
-		"wave"		"player/death3.wav"
-		"wave"		"player/death5.wav"
-		"wave"		"player/death6.wav"
-		"wave"		"player/death7.wav"
-		"wave"		"player/death8.wav"
-		"wave"		"player/death9.wav"
-		"wave"		"player/death10.wav"
+		"wave"		"vo/Civilian_Painsharp01.wav"
+		"wave"		"vo/Civilian_Painsharp02.wav"
+		"wave"		"vo/Civilian_Painsharp03.wav"
+		"wave"		"vo/Civilian_Painsharp04.wav"
+		"wave"		"vo/Civilian_Painsharp05.wav"
+		"wave"		"vo/Civilian_Painsharp06.wav"
+		"wave"		"vo/Civilian_Painsharp07.wav"
+		"wave"		"vo/Civilian_Painsharp08.wav"
 	}
 }
 
@@ -76,10 +77,18 @@
 
 	"rndwave"			
 	{
-		"wave"		"player/crit_death1.wav"
-		"wave"		"player/crit_death2.wav"
-		"wave"		"player/crit_death3.wav"
-		"wave"		"player/crit_death4.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath01.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath02.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath03.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath04.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath05.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath06.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath07.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath08.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath09.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath10.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath11.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath12.wav"
 	}
 }
 
@@ -93,10 +102,18 @@
 
 	"rndwave"			
 	{
-		"wave"		"player/crit_death1.wav"
-		"wave"		"player/crit_death2.wav"
-		"wave"		"player/crit_death3.wav"
-		"wave"		"player/crit_death4.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath01.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath02.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath03.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath04.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath05.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath06.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath07.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath08.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath09.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath10.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath11.wav"
+		"wave"		"vo/Civilian_PainCriticalDeath12.wav"
 	}
 }
 
@@ -110,21 +127,14 @@
 
 	"rndwave"			
 	{
-		"wave"		"player/pain6.wav"
-		"wave"		"player/pain7.wav"
-		"wave"		"player/pain8.wav"
-		"wave"		"player/pain9.wav"
-		"wave"		"player/pain10.wav"
-		"wave"		"player/pain11.wav"
-		"wave"		"player/pain12.wav"
-		"wave"		"player/pain13.wav"
-		"wave"		"player/pain14.wav"
-		"wave"		"player/pain15.wav"
-		"wave"		"player/pain18.wav"
-		"wave"		"player/pain20.wav"
-		"wave"		"player/pain21.wav"
-		"wave"		"player/pain23.wav"
-		"wave"		"player/pain24.wav"
+		"wave"		"vo/Civilian_Painsharp01.wav"
+		"wave"		"vo/Civilian_Painsharp02.wav"
+		"wave"		"vo/Civilian_Painsharp03.wav"
+		"wave"		"vo/Civilian_Painsharp04.wav"
+		"wave"		"vo/Civilian_Painsharp05.wav"
+		"wave"		"vo/Civilian_Painsharp06.wav"
+		"wave"		"vo/Civilian_Painsharp07.wav"
+		"wave"		"vo/Civilian_Painsharp08.wav"
 	}
 }
 
