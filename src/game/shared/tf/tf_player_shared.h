@@ -132,6 +132,7 @@ public:
 	void	FindDisguiseTarget( void );
 	int		GetDisguiseTeam( void )				{ return m_nDisguiseTeam; }
 	int		GetDisguiseClass( void ) 			{ return m_nDisguiseClass; }
+	int		GetMaskClass( void )				{ return m_nMaskClass; }
 	int		GetDesiredDisguiseClass( void )		{ return m_nDesiredDisguiseClass; }
 	int		GetDesiredDisguiseTeam( void )		{ return m_nDesiredDisguiseTeam; }
 	EHANDLE GetDisguiseTarget( void ) 	
@@ -300,6 +301,7 @@ private:
 //...maybe store the name instead of the index?
 	CNetworkVar( int, m_nDisguiseTeam );		// Team spy is disguised as.
 	CNetworkVar( int, m_nDisguiseClass );		// Class spy is disguised as.
+	CNetworkVar( int, m_nMaskClass );			// Fake disguise class.
 	EHANDLE m_hDisguiseTarget;					// Playing the spy is using for name disguise.
 	CNetworkVar( int, m_iDisguiseTargetIndex );
 	CNetworkVar( int, m_iDisguiseHealth );		// Health to show our enemies in player id

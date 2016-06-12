@@ -153,6 +153,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseClass ) ),
+	RecvPropInt( RECVINFO( m_nMaskClass ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseTargetIndex ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseHealth ) ),
 	RecvPropInt( RECVINFO( m_iDisguiseMaxHealth ) ),
@@ -213,6 +214,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_nDisguiseClass ), 4, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_nMaskClass ), 4, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseTargetIndex ), 7, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDisguiseHealth ), 10 ),
 	SendPropInt( SENDINFO( m_iDisguiseMaxHealth ), 10 ),
@@ -1885,6 +1887,8 @@ void CTFPlayerShared::CompleteDisguise( void )
 			m_flDisguiseChargeLevel = random->RandomFloat( 0.0f, 0.99f );
 		}
 	}
+
+	m_nMaskClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();
