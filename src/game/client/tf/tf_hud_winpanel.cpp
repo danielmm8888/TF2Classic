@@ -340,10 +340,12 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 			if ( pPlayerAvatar )
 			{
 				pPlayerAvatar->ClearAvatar();
+				pPlayerAvatar->SetShouldScaleImage( true );
+				pPlayerAvatar->SetShouldDrawFriendIcon( false );
+
 				if ( bShow )
-				{					
-					pPlayerAvatar->SetPlayer(GetSteamIDForPlayerIndex(iPlayerIndex), k_EAvatarSize32x32);
-					pPlayerAvatar->SetAvatarSize(32, 32);
+				{
+					pPlayerAvatar->SetPlayer( iPlayerIndex );
 				}
 				pPlayerAvatar->SetVisible( bShow );
 			}

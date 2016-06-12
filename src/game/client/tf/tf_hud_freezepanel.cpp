@@ -269,6 +269,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 				if ( m_pAvatar )
 				{
 					m_pAvatar->SetPlayer( (C_BasePlayer*)pKiller );
+					m_pAvatar->SetShouldDrawFriendIcon( false );
 				}
 			}
 			else if ( pKiller->IsBaseObject() )
@@ -290,6 +291,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 					if ( m_pAvatar )
 					{
 						m_pAvatar->SetPlayer( pOwner );
+						m_pAvatar->SetShouldDrawFriendIcon( false );
 					}
 
 					pKiller = pOwner;
