@@ -20,7 +20,6 @@ bool C_ViewmodelAttachmentModel::InitializeAsClientEntity( const char *pszModelN
 	if ( BaseClass::InitializeAsClientEntity( pszModelName, renderGroup ) )
 	{
 		AddEffects( EF_BONEMERGE | EF_BONEMERGE_FASTCULL );
-		AddSolidFlags( FSOLID_NOT_SOLID );
 		return true;
 	}
 

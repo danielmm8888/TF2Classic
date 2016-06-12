@@ -140,8 +140,6 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 
 	pAddon->m_nSkin = GetSkin();
 	pAddon->FollowEntity( this );
-	pAddon->SetLocalOrigin( vec3_origin );
-	pAddon->SetLocalAngles( vec3_angle );
 
 	pAddon->SetViewmodel( this );
 }
