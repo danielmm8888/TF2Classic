@@ -23,6 +23,7 @@
 #include "iinput.h"
 #include "tf_weapon_medigun.h"
 #include "ihasattributes.h"
+#include "c_tf_spymask.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -258,6 +259,8 @@ public:
 
 	virtual	IMaterial *GetHeadLabelMaterial( void );
 
+	void	UpdateSpyMask( void );
+
 protected:
 
 	void ResetFlexWeights( CStudioHdr *pStudioHdr );
@@ -383,13 +386,13 @@ public:
 
 	int GetNumActivePipebombs( void );
 
-	int				m_iSpyMaskBodygroup;
-
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
 
 	int				m_nForceTauntCam;
 	float			m_flLastDamageTime;
+
+	CHandle<C_TFSpyMask> m_hSpyMask;
 
 	CAttributeManager m_AttributeManager;
 

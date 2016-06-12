@@ -807,6 +807,8 @@ void CTFPlayer::PrecachePlayerModels( void )
 		PrecacheModel( "models/effects/bday_hat.mdl" );
 	}
 
+	PrecacheModel( TF_MODEL_SPY_MASK );
+
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
 	{
@@ -3120,7 +3122,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		}
 	}
 
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && m_Shared.GetDesiredDisguiseTeam() != GetTeamNumber() )
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
 		// no impact effects
 	}

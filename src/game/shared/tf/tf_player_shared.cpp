@@ -1109,6 +1109,7 @@ void CTFPlayerShared::OnDisguiseChanged( void )
 	//RecalcDisguiseWeapon();
 	m_pOuter->UpdateRecentlyTeleportedEffect();
 	UpdateCritBoostEffect();
+	m_pOuter->UpdateSpyMask();
 }
 #endif
 

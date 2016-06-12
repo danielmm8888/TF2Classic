@@ -785,6 +785,12 @@ void CSpyInvisProxy::OnBind( C_BaseEntity *pEnt )
 
 	if ( !pPlayer )
 	{
+		// This might be a cosmetic parented to a player.
+		pPlayer = ToTFPlayer( pEnt->GetMoveParent() );
+	}
+
+	if ( !pPlayer )
+	{
 		m_pPercentInvisible->SetFloatValue( 0.0 );
 		return;
 	}
@@ -2124,11 +2130,11 @@ void C_TFPlayer::OnPlayerClassChange( void )
 	m_PlayerAnimState->SetWalkSpeed( GetPlayerClass()->GetMaxSpeed() * 0.5 );
 
 	// Execute the class cfg
-	if (IsLocalPlayer())
+	if ( IsLocalPlayer() )
 	{
 		char szCommand[128];
-		Q_snprintf(szCommand, sizeof(szCommand), "exec %s.cfg\n", GetPlayerClass()->GetName());
-		engine->ExecuteClientCmd(szCommand);
+		Q_snprintf( szCommand, sizeof( szCommand ), "exec %s.cfg\n", GetPlayerClass()->GetName() );
+		engine->ExecuteClientCmd( szCommand );
 	}
 }
 
@@ -2203,16 +2209,13 @@ CStudioHdr *C_TFPlayer::OnNewModel( void )
 		InitPhonemeMappings();
 	}
 
-	if ( IsPlayerClass( TF_CLASS_SPY ) )
-	{
-		m_iSpyMaskBodygroup = FindBodygroupByName( "spyMask" );
-	}
-	else
-	{
-		m_iSpyMaskBodygroup = -1;
-	}
-
 	m_bUpdatePartyHat = true;
+
+	if ( m_hSpyMask )
+	{
+		// Local player must have changed team.
+		m_hSpyMask->UpdateVisibility();
+	}
 
 	return hdr;
 }
@@ -3639,10 +3642,6 @@ int C_TFPlayer::GetSkin()
 		if ( TFGameRules()->IsDeathmatch() )
 			nSkin = 9;
 	}
-	else if ( m_Shared.InCond( TF_COND_DISGUISED ) && !IsEnemyPlayer() )
-	{
-		nSkin += 4 + ( ( m_Shared.GetDisguiseClass() - TF_FIRST_NORMAL_CLASS ) * 2 );
-	}
 
 	return nSkin;
 }
@@ -3927,11 +3926,6 @@ void C_TFPlayer::ValidateModelIndex( void )
 		{
 			m_nModelIndex = modelinfo->GetModelIndex( pClass->GetModelName() );
 		}
-	}
-
-	if ( m_iSpyMaskBodygroup > -1 && GetModelPtr() != NULL )
-	{
-		SetBodygroup( m_iSpyMaskBodygroup, ( m_Shared.InCond( TF_COND_DISGUISED ) && !IsEnemyPlayer() ) );
 	}
 
 	BaseClass::ValidateModelIndex();
@@ -4287,13 +4281,6 @@ void C_TFPlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, f
 	BaseClass::CalcView( eyeOrigin, eyeAngles, zNear, zFar, fov );
 }
 
-static void cc_tf_crashclient()
-{
-	C_TFPlayer *pPlayer = NULL;
-	pPlayer->ComputeFxBlend();
-}
-static ConCommand tf_crashclient( "tf_crashclient", cc_tf_crashclient, "Crashes this client for testing.", FCVAR_DEVELOPMENTONLY );
-
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -4340,6 +4327,44 @@ CBaseCombatWeapon *C_TFPlayer::Weapon_GetSlot( int slot ) const
 
 	return NULL;
 }
+
+void C_TFPlayer::UpdateSpyMask( void )
+{
+	C_TFSpyMask *pMask = m_hSpyMask.Get();
+
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) )
+	{
+		// Create mask if we don't already have one.
+		if ( !pMask )
+		{
+			pMask = new C_TFSpyMask();
+
+			if ( !pMask->InitializeAsClientEntity( TF_MODEL_SPY_MASK, RENDER_GROUP_OPAQUE_ENTITY ) )
+			{
+				pMask->Release();
+				return;
+			}
+
+			pMask->SetOwnerEntity( this );
+			pMask->FollowEntity( this );
+			pMask->UpdateVisibility();
+
+			m_hSpyMask = pMask;
+		}
+	}
+	else if ( pMask )
+	{
+		pMask->Release();
+		m_hSpyMask = NULL;
+	}
+}
+
+static void cc_tf_crashclient()
+{
+	C_TFPlayer *pPlayer = NULL;
+	pPlayer->ComputeFxBlend();
+}
+static ConCommand tf_crashclient( "tf_crashclient", cc_tf_crashclient, "Crashes this client for testing.", FCVAR_DEVELOPMENTONLY );
 
 #include "c_obj_sentrygun.h"
 
