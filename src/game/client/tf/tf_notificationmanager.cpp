@@ -5,6 +5,7 @@
 #include "script_parser.h"
 #include "tf_gamerules.h"
 #include "tf_hud_notification_panel.h"
+#include "vgui\ISurface.h"
 //#include "public\steam\matchmakingtypes.h"
 
 const char *g_aRequestURLs[REQUEST_COUNT] =
@@ -344,6 +345,7 @@ void CTFNotificationManager::SendNotification(MessageNotification pMessage)
 {
 	pNotifications.AddToTail(pMessage);
 	MAINMENU_ROOT->OnNotificationUpdate();
+	surface()->PlaySound( "ui/notification_alert.wav" );
 }
 
 void CTFNotificationManager::RemoveNotification(int iIndex)

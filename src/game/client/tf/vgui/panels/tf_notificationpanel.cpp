@@ -66,7 +66,6 @@ void CTFNotificationPanel::OnNotificationUpdate()
 			}
 		}
 	}
-	surface()->PlaySound("ui/notification_alert.wav");
 
 	UpdateLabels();
 };
