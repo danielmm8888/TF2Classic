@@ -1255,6 +1255,6 @@ public:
 #define TF_CAMERA_DIST_RIGHT 30
 #define TF_CAMERA_DIST_UP 0
 
-#define TF_MODEL_SPY_MASK "models/player/items/spy_mask.mdl"
+#define TF_SPY_MASK_MODEL "models/player/items/spy_mask.mdl"
 
 #endif // TF_SHAREDDEFS_H

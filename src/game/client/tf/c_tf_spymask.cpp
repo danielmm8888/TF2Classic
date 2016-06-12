@@ -28,7 +28,7 @@ bool C_TFSpyMask::InitializeAsClientEntity( const char *pszModelName, RenderGrou
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: Show mask to player's teammates.
 //-----------------------------------------------------------------------------
 bool C_TFSpyMask::ShouldDraw( void )
 {
@@ -47,7 +47,7 @@ bool C_TFSpyMask::ShouldDraw( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
+// Purpose: Show player's disguise class.
 //-----------------------------------------------------------------------------
 int C_TFSpyMask::GetSkin( void )
 {

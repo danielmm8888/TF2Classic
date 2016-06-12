@@ -1553,6 +1553,7 @@ void CTFPlayerShared::OnRemoveDisguised( void )
 #else
 	m_nDisguiseTeam = TF_SPY_UNDEFINED;
 	m_nDisguiseClass.Set( TF_CLASS_UNDEFINED );
+	m_nMaskClass = TF_CLASS_UNDEFINED;
 	m_hDisguiseTarget.Set( NULL );
 	m_iDisguiseTargetIndex = TF_DISGUISE_TARGET_INDEX_NONE;
 	m_iDisguiseHealth = 0;

@@ -807,7 +807,7 @@ void CTFPlayer::PrecachePlayerModels( void )
 		PrecacheModel( "models/effects/bday_hat.mdl" );
 	}
 
-	PrecacheModel( TF_MODEL_SPY_MASK );
+	PrecacheModel( TF_SPY_MASK_MODEL );
 
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )

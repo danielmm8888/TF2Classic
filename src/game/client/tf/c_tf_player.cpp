@@ -4339,7 +4339,7 @@ void C_TFPlayer::UpdateSpyMask( void )
 		{
 			pMask = new C_TFSpyMask();
 
-			if ( !pMask->InitializeAsClientEntity( TF_MODEL_SPY_MASK, RENDER_GROUP_OPAQUE_ENTITY ) )
+			if ( !pMask->InitializeAsClientEntity( TF_SPY_MASK_MODEL, RENDER_GROUP_OPAQUE_ENTITY ) )
 			{
 				pMask->Release();
 				return;
