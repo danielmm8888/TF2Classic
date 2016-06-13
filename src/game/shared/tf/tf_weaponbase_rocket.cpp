@@ -65,6 +65,7 @@ END_DATADESC()
 ConVar tf_rocket_show_radius( "tf_rocket_show_radius", "0", FCVAR_REPLICATED | FCVAR_CHEAT /*| FCVAR_DEVELOPMENTONLY*/, "Render rocket radius." );
 #ifdef GAME_DLL
 ConVar tf2c_homing_rockets( "tf2c_homing_rockets", "0", FCVAR_CHEAT, "What is \"Rocket + x = Death\"?" );
+ConVar tf2c_homing_deflected_rockets( "tf2c_homing_deflected_rockets", "0", FCVAR_CHEAT, "Homing Crit Rockets 2: Back with Vengeance" );
 #endif
 
 //=============================================================================
@@ -500,7 +501,7 @@ void CTFBaseRocket::FlyThink( void )
 		m_bCollideWithTeammates = true;
 	}
 
-	if ( tf2c_homing_rockets.GetBool() )
+	if ( tf2c_homing_rockets.GetBool() || ( tf2c_homing_deflected_rockets.GetBool() && m_iDeflected ) )
 	{
 		// Find the closest visible enemy player.
 		CUtlVector<CTFPlayer *> vecPlayers;
