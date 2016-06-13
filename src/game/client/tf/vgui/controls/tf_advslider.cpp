@@ -150,10 +150,7 @@ void CTFAdvSlider::OnThink()
 	BaseClass::OnThink();
 	if (pButton->GetState() == MOUSE_PRESSED && IsEnabled())
 	{
-		float fOldValue = fValue;
 		SetPercentage();
-		if (fOldValue != fValue)
-			RunCommand();
 	}
 }
 
@@ -168,17 +165,15 @@ void CTFAdvSlider::RunCommand()
 {
 	PostActionSignal(new KeyValues("ControlModified"));
 
-	if (!Q_strcmp(GetCommandString(), ""))
+	if ( GetCommandString()[0] == '\0' )
 	{
-		char szCommand[MAX_PATH];
-		Q_snprintf(szCommand, sizeof(szCommand), "scrolled");
-		GetParent()->OnCommand(szCommand);
+		GetParent()->OnCommand( "scrolled" );
 	}
-	else if (m_bAutoChange)
+	else if ( IsAutoChange() )
 	{
 		char szCommand[MAX_PATH];
-		Q_snprintf(szCommand, sizeof(szCommand), "%s %f", GetCommandString(), GetValue());
-		engine->ExecuteClientCmd(szCommand);
+		Q_snprintf( szCommand, sizeof( szCommand ), "%s %f", GetCommandString(), GetValue() );
+		engine->ExecuteClientCmd( szCommand );
 	}
 }
 
@@ -385,10 +380,12 @@ void CTFScrollButton::OnMousePressed(vgui::MouseCode code)
 void CTFScrollButton::OnMouseReleased(vgui::MouseCode code)
 {
 	BaseClass::BaseClass::OnMouseReleased(code);
-	if (code == MOUSE_LEFT && (iState == MOUSE_ENTERED || iState == MOUSE_PRESSED))
+
+	if ( m_pParent )
 	{
-		m_pParent->GetParent()->OnCommand(m_pParent->GetCommandString());
+		m_pParent->RunCommand();
 	}
+
 	if (code == MOUSE_LEFT && iState == MOUSE_ENTERED)
 	{
 		SetMouseEnteredState(MOUSE_ENTERED);
