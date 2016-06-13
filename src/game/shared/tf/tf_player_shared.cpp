@@ -1386,7 +1386,7 @@ void CTFPlayerShared::RecalculatePlayerBodygroups( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon /*= NULL*/, float flFlameDuration )
+void CTFPlayerShared::Burn( CTFPlayer *pAttacker, CTFWeaponBase *pWeapon /*= NULL*/, float flFlameDuration /*= -1.0f*/ )
 {
 #ifdef CLIENT_DLL
 
@@ -3321,26 +3321,11 @@ bool CTFPlayer::CanAttack( void )
 	return true;
 }
 
-#ifdef GAME_DLL
 bool CTFPlayer::CanPickupBuilding( CBaseObject *pObject )
 {
 	if ( !pObject )
 		return false;
 
-	if ( pObject->GetBuilder() != this )
-		return false;
-
-	if ( pObject->IsBuilding() || pObject->IsUpgrading() || pObject->IsRedeploying() )
-		return false;
-
-	return true;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-bool CTFPlayer::TryToPickupBuilding( void )
-{
 	if ( !tf2c_building_hauling.GetBool() )
 		return false;
 
@@ -3355,6 +3340,21 @@ bool CTFPlayer::TryToPickupBuilding( void )
 	if ( bCannotPickUpBuildings != 0 )
 		return false;
 
+	if ( pObject->GetBuilder() != this )
+		return false;
+
+	if ( pObject->IsBuilding() || pObject->IsUpgrading() || pObject->IsRedeploying() || pObject->IsDisabled() )
+		return false;
+
+	return true;
+}
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayer::TryToPickupBuilding( void )
+{
 	Vector vecForward;
 	AngleVectors( EyeAngles(), &vecForward );
 	Vector vecSwingStart = Weapon_ShootPosition();

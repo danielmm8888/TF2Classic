@@ -109,6 +109,7 @@ public:
 	bool			IsBeingCarried(void) const { return m_bCarried; }
 	bool			IsBuilding( void ) const { return m_bBuilding; }
 	virtual bool	IsUpgrading( void ) const { return false; }
+	bool			IsRedeploying( void ) const { return m_bCarryDeploy; }
 
 	virtual void	FinishedBuilding( void ) { return; }
 
