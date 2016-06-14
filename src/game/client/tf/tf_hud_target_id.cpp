@@ -26,7 +26,7 @@ using namespace vgui;
 ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
 
 ConVar tf_hud_target_id_show_avatars( "tf_hud_target_id_show_avatars", "1", FCVAR_ARCHIVE, "Show avatars on player target ids" );
-ConVar tf_hud_target_id_show_building_avatars( "tf_hud_target_id_show_building_avatars", "0", FCVAR_ARCHIVE, "If tf_hud_target_id_show_avatars is enabled, show avatars on building target ids" );
+ConVar tf_hud_target_id_show_building_avatars( "tf_hud_target_id_show_building_avatars", "1", FCVAR_ARCHIVE, "If tf_hud_target_id_show_avatars is enabled, show avatars on building target ids" );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -407,7 +407,7 @@ void CTargetID::UpdateID( void )
 				iColorNum = pBuilder ? pBuilder->GetTeamNumber() : pObj->GetTeamNumber();
 				
 				// Are building avatars allowed?
-				if ( tf_hud_target_id_show_avatars.GetBool() && !tf_hud_target_id_show_building_avatars.GetBool() && pBuilder )
+				if ( tf_hud_target_id_show_avatars.GetBool() && tf_hud_target_id_show_building_avatars.GetBool() && pBuilder )
 				{
 					pAvatarPlayer = pBuilder;
 				}

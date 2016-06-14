@@ -1078,6 +1078,12 @@ void CDescription::TransferCurrentValues(const char *pszConfigFile)
 		}
 		*/
 
+		if ( pObj->type == O_OBSOLETE || pObj->type == O_CATEGORY )
+		{
+			pObj = pObj->pNext;
+			continue;
+		}
+
 		ConVarRef var(pObj->cvarname);
 		if (!var.IsValid())
 		{
