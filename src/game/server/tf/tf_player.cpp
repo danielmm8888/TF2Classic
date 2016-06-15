@@ -8158,7 +8158,6 @@ uint64 powerplay_ids[] =
 	76561198037744635 ^ powerplaymask, // Snowshoe
 	76561198007621815 ^ powerplaymask, // HotPocket
 	76561198075858535 ^ powerplaymask, // chowder908
-	76561198031608022 ^ powerplaymask, // kibbleknight
 	76561198027900325 ^ powerplaymask, // over.povered
 	76561197966759649 ^ powerplaymask, // iiboharz
 	76561198014717105 ^ powerplaymask, // benjamoose
@@ -8252,8 +8251,8 @@ void CTFPlayer::UpdatePlayerColor( void )
 	// Clamp saturation to 0.65 max and value to 0.85 max
 	Vector vecHSVColor;
 	RGBtoHSV( vecNewColor, vecHSVColor );
-	vecHSVColor.y = clamp( vecHSVColor.y, 0.0f, 0.65f );
-	vecHSVColor.z = clamp( vecHSVColor.z, 0.0f, 0.85f );
+	vecHSVColor.y = clamp( vecHSVColor.y, 0.0f, 0.8f );
+	vecHSVColor.z = clamp( vecHSVColor.z, 0.0f, 0.9f );
 	HSVtoRGB( vecHSVColor, vecNewColor );
 
 	m_vecPlayerColor = vecNewColor;
