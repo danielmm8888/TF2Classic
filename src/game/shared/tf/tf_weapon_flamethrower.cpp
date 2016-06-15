@@ -577,11 +577,8 @@ void CTFFlameThrower::SecondaryAttack()
 			Vector vecPushDir;
 			QAngle angPushDir = angDir;
 
-			// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
-			if ( pTFPlayer->GetGroundEntity() != NULL )
-			{
-				angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
-			}
+			// Push them at least 45 degrees up.
+			angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
 
 			AngleVectors( angPushDir, &vecPushDir );
 
