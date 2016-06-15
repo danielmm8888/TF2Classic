@@ -7,6 +7,7 @@
 #include "tf_viewmodel.h"
 #include "tf_shareddefs.h"
 #include "tf_weapon_minigun.h"
+#include "tf_gamerules.h"
 
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
@@ -139,7 +140,9 @@ void CTFViewModel::UpdateViewmodelAddon( const char *pszModelname )
 	m_hViewmodelAddon = pAddon;
 
 	pAddon->m_nSkin = GetSkin();
+	pAddon->SetOwner( GetOwner() );
 	pAddon->FollowEntity( this );
+	pAddon->UpdateVisibility();
 
 	pAddon->SetViewmodel( this );
 }
@@ -405,9 +408,14 @@ int CTFViewModel::GetSkin()
 	CTFPlayer *pPlayer = ToTFPlayer( GetOwner() );
 	if ( pPlayer )
 	{
-		if ( pWeapon->GetTFWpnData().m_bHasTeamSkins_Viewmodel )
+		if ( TFGameRules()->IsDeathmatch() )
 		{
-			switch( pPlayer->GetTeamNumber() )	
+			// Merc arms are team colored so use the colored skin for all weapons.
+			nSkin = 4;
+		}
+		else if ( pWeapon->GetTFWpnData().m_bHasTeamSkins_Viewmodel )
+		{
+			switch ( pPlayer->GetTeamNumber() )
 			{
 			case TF_TEAM_RED:
 				nSkin = 0;
@@ -505,16 +513,7 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 	if ( !pEnt )
 		return;
 
-	C_TFViewModel *pVM;
-	C_ViewmodelAttachmentModel *pVMAddon = dynamic_cast<C_ViewmodelAttachmentModel *>(pEnt);
-	if (pVMAddon)
-	{
-		pVM = dynamic_cast<C_TFViewModel *>(pVMAddon->m_viewmodel.Get());
-	}
-	else
-	{
-		pVM = dynamic_cast<C_TFViewModel *>(pEnt);
-	}
+	C_BaseViewModel *pVM = dynamic_cast<C_BaseViewModel *>( pEnt );
 
 	if ( !pVM )
 	{
@@ -522,7 +521,7 @@ void CViewModelInvisProxy::OnBind( C_BaseEntity *pEnt )
 		return;
 	}
 
-	CTFPlayer *pPlayer = ToTFPlayer( pVM->GetOwner() );
+	C_TFPlayer *pPlayer = ToTFPlayer( pVM->GetOwner() );
 
 	if ( !pPlayer )
 	{
