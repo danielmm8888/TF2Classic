@@ -758,6 +758,91 @@ void CTFLogicVIP::Spawn(void)
 	BaseClass::Spawn();
 }
 
+class CTFClassLimits : public CBaseEntity
+{
+public:
+	DECLARE_CLASS(CTFClassLimits, CBaseEntity);
+	DECLARE_DATADESC();
+
+	void	Spawn(void);
+
+	int GetLimitForClass(int iClass)
+	{
+		int result;
+
+		if (iClass <= TF_LAST_NORMAL_CLASS)
+		{
+			switch (iClass)
+			{
+			default:
+				result = -1;
+			case TF_CLASS_ENGINEER:
+				result = m_nEngineerLimit;
+				break;
+			case TF_CLASS_SPY:
+				result = m_nSpyLimit;
+				break;
+			case TF_CLASS_PYRO:
+				result = m_nPyroLimit;
+				break;
+			case TF_CLASS_HEAVYWEAPONS:
+				result = m_nHeavyLimit;
+				break;
+			case TF_CLASS_MEDIC:
+				result = m_nMedicLimit;
+				break;
+			case TF_CLASS_DEMOMAN:
+				result = m_nDemomanLimit;
+				break;
+			case TF_CLASS_SOLDIER:
+				result = m_nSoldierLimit;
+				break;
+			case TF_CLASS_SNIPER:
+				result = m_nSniperLimit;
+				break;
+			case TF_CLASS_SCOUT:
+				result = m_nScoutLimit;
+				break;
+			}
+		}
+		else
+		{
+			result = -1;
+		}
+		return result;
+	}
+
+private:
+	int		m_nScoutLimit;
+	int		m_nSoldierLimit;
+	int		m_nPyroLimit;
+	int		m_nDemomanLimit;
+	int		m_nHeavyLimit;
+	int		m_nEngineerLimit;
+	int		m_nMedicLimit;
+	int		m_nSniperLimit;
+	int		m_nSpyLimit;
+};
+
+LINK_ENTITY_TO_CLASS(tf_logic_classlimits, CTFClassLimits);
+
+BEGIN_DATADESC(CTFClassLimits)
+DEFINE_KEYFIELD(m_nScoutLimit,		FIELD_INTEGER, "ScoutLimit"),
+DEFINE_KEYFIELD(m_nSoldierLimit,	FIELD_INTEGER, "SoldierLimit"),
+DEFINE_KEYFIELD(m_nPyroLimit,		FIELD_INTEGER, "PyroLimit"),
+DEFINE_KEYFIELD(m_nDemomanLimit,	FIELD_INTEGER, "DemomanLimit"),
+DEFINE_KEYFIELD(m_nHeavyLimit,		FIELD_INTEGER, "HeavyLimit"),
+DEFINE_KEYFIELD(m_nEngineerLimit,	FIELD_INTEGER, "EngineerLimit"),
+DEFINE_KEYFIELD(m_nMedicLimit,		FIELD_INTEGER, "MedicLimit"),
+DEFINE_KEYFIELD(m_nSniperLimit,		FIELD_INTEGER, "SniperLimit"),
+DEFINE_KEYFIELD(m_nSpyLimit,		FIELD_INTEGER, "SpyLimit"),
+END_DATADESC()
+
+void CTFClassLimits::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
 class CArenaLogic : public CBaseEntity
 {
 public:
@@ -1376,11 +1461,13 @@ void CTFGameRules::Activate()
 	}
 }
 
+extern ConVar tf2c_allow_special_classes;
+
 int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 {
 	int result;
 
-	if ( IsInTournamentMode() /*||  *((_DWORD *)this + 462) == 7 */ )
+	if ( IsInTournamentMode() )
 	{
 		if ( iDesiredClassIndex <= TF_LAST_NORMAL_CLASS )
 		{
@@ -1422,6 +1509,13 @@ int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 			result = -1;
 		}
 	}
+	else if (iDesiredClassIndex == TF_CLASS_CIVILIAN)
+	{
+		if (!tf2c_allow_special_classes.GetBool())
+			return 1;
+		else
+			return -1;
+	}
 	else if ( IsInHighlanderMode() )
 	{
 		result = 1;
@@ -1429,6 +1523,10 @@ int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 	else if ( tf_classlimit.GetBool() )
 	{
 		result = tf_classlimit.GetInt();
+	}
+	else if (CTFClassLimits *pLimits = dynamic_cast< CTFClassLimits * > ( gEntList.FindEntityByClassname(NULL, "tf_class_limits") ))
+	{
+		result = pLimits->GetLimitForClass( iDesiredClassIndex );
 	}
 	else
 	{
