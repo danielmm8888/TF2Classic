@@ -186,6 +186,8 @@ public:
 		CLEAR_STR(model_world);
 		attach_to_hands = 0;
 		act_as_wearable = false;
+		CLEAR_STR(mouse_pressed_sound);
+		CLEAR_STR(drop_sound);
 	}
 
 	EconItemVisuals *GetVisuals( int iTeamNum = TEAM_UNASSIGNED );
@@ -222,6 +224,8 @@ public:
 	bool act_as_wearable;
 	CUtlVector<CEconItemAttribute> attributes;
 	EconItemVisuals visual[TF_TEAM_COUNT];
+	char mouse_pressed_sound[128];
+	char drop_sound[128];
 };
 
 #endif // ECON_ITEM_SCHEMA_H

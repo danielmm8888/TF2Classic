@@ -394,6 +394,9 @@ public:
 		GET_INT( pItem, pData, attach_to_hands );
 		GET_BOOL( pItem, pData, act_as_wearable );
 
+		GET_STRING( pItem, pData, mouse_pressed_sound );
+		GET_STRING( pItem, pData, drop_sound );
+
 		for ( KeyValues *pSubData = pData->GetFirstSubKey(); pSubData != NULL; pSubData = pSubData->GetNextKey() )
 		{
 			if ( !V_stricmp( pSubData->GetName(), "capabilities" ) )
