@@ -3448,12 +3448,16 @@ bool CTFPlayer::DoClassSpecialSkill( void )
 			// Toggle invisibility
 			if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 			{
+#ifdef GAME_DLL
 				m_Shared.FadeInvis( tf_spy_invis_unstealth_time.GetFloat() );
+#endif
 				bDoSkill = true;
 			}
 			else if ( CanGoInvisible() && ( m_Shared.GetSpyCloakMeter() > 8.0f ) )	// must have over 10% cloak to start
 			{
+#ifdef GAME_DLL
 				m_Shared.AddCond( TF_COND_STEALTHED );
+#endif
 				bDoSkill = true;
 			}
 
