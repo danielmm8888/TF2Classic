@@ -1024,7 +1024,7 @@ void CTFPlayer::Spawn()
 	CollisionProp()->SetSurroundingBoundsType( USE_SPECIFIED_BOUNDS, &mins, &maxs );
 
 	// Hack to hide the chat on the background map.
-	if (!Q_strcmp(gpGlobals->mapname.ToCStr(), "background01"))
+	if ( gpGlobals->eLoadType == MapLoad_Background )
 	{
 		m_Local.m_iHideHUD |= HIDEHUD_CHAT;
 	}
@@ -1083,7 +1083,7 @@ void CTFPlayer::Regenerate( void )
 	}
 
 	// Remove tranq condition
-	if  (m_Shared.InCond( TF_COND_SLOWED ) )
+	if ( m_Shared.InCond( TF_COND_SLOWED ) )
 	{
 		m_Shared.RemoveCond( TF_COND_SLOWED );
 	}
@@ -4115,7 +4115,7 @@ void CTFPlayer::AddDamagerToHistory( EHANDLE hDamager )
 {
 	// sanity check: ignore damager if it is on our team.  (Catch-all for 
 	// damaging self in rocket jumps, etc.)
-	CTFPlayer *pDamager = ToTFPlayer( hDamager );
+	CTFPlayer *pDamager = ToTFPlayer( hDamager.Get() );
 	if ( !pDamager || pDamager == this || ( InSameTeam( pDamager ) && !TFGameRules()->IsDeathmatch() ) )
 		return;
 

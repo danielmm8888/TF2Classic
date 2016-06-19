@@ -60,8 +60,8 @@ void CTFProjectile_Flare::Precache()
 {
 	PrecacheModel( TF_WEAPON_FLARE_MODEL );
 
-	PrecacheTeamParticles( "flaregun_trail_%s", true );
-	PrecacheTeamParticles( "flaregun_trail_crit_%s", true );
+	PrecacheTeamParticles( "flaregun_trail_%s", false );
+	PrecacheTeamParticles( "flaregun_trail_crit_%s", false );
 
 	PrecacheScriptSound( "TFPlayer.FlareImpact" );
 

@@ -95,7 +95,7 @@ void CTFInventory::LevelInitPreEntity( void )
 	GetItemSchema()->Precache();
 }
 
-int CTFInventory::GetWeapon(int iClass, int iSlot)
+int CTFInventory::GetWeapon( int iClass, int iSlot )
 {
 	return Weapons[iClass][iSlot];
 };
@@ -108,12 +108,12 @@ CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 	return m_Items[iClass][iSlot][iNum];
 };
 
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
+bool CTFInventory::CheckValidSlot( int iClass, int iSlot, bool bHudCheck /*= false*/ )
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
+	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
 		return false;
 
-	int iCount = (bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT);
+	int iCount = ( bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT );
 
 	// Array bounds check.
 	if ( iSlot >= iCount || iSlot < 0 )
@@ -126,9 +126,9 @@ bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= fals
 	return true;
 };
 
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
+bool CTFInventory::CheckValidWeapon( int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/ )
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
+	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
 		return false;
 
 	int iCount = ( bHudCheck ? INVENTORY_COLNUM : m_Items[iClass][iSlot].Count() );
@@ -147,14 +147,14 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHu
 #if defined( CLIENT_DLL )
 void CTFInventory::LoadInventory()
 {
-	bool bExist = filesystem->FileExists("scripts/tf_inventory.txt", "MOD");
-	if (bExist)
+	bool bExist = filesystem->FileExists( "scripts/tf_inventory.txt", "MOD" );
+	if ( bExist )
 	{
-		if (!m_pInventory)
+		if ( !m_pInventory )
 		{
-			m_pInventory = new KeyValues("Inventory");
+			m_pInventory = new KeyValues( "Inventory" );
 		}
-		m_pInventory->LoadFromFile(filesystem, "scripts/tf_inventory.txt");
+		m_pInventory->LoadFromFile( filesystem, "scripts/tf_inventory.txt" );
 	}
 	else
 	{
@@ -164,41 +164,41 @@ void CTFInventory::LoadInventory()
 
 void CTFInventory::SaveInventory()
 {
-	m_pInventory->SaveToFile(filesystem, "scripts/tf_inventory.txt");
+	m_pInventory->SaveToFile( filesystem, "scripts/tf_inventory.txt" );
 };
 
 void CTFInventory::ResetInventory()
 {
-	if (m_pInventory)
+	if ( m_pInventory )
 	{
 		m_pInventory->deleteThis();
 	}
 
-	m_pInventory = new KeyValues("Inventory");
+	m_pInventory = new KeyValues( "Inventory" );
 
-	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++)
+	for ( int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++ )
 	{
-		KeyValues *pClassInv = new KeyValues(g_aPlayerClassNames_NonLocalized[i]);
-		for (int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++)
+		KeyValues *pClassInv = new KeyValues( g_aPlayerClassNames_NonLocalized[i] );
+		for ( int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++ )
 		{
 			pClassInv->SetInt( g_LoadoutSlots[j], 0 );
 		}
-		m_pInventory->AddSubKey(pClassInv);
+		m_pInventory->AddSubKey( pClassInv );
 	}
 
 	SaveInventory();
 }
 
-int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
+int CTFInventory::GetWeaponPreset( int iClass, int iSlot )
 {
-	KeyValues *pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pClass)	//cannot find class node
-	{	
+	KeyValues *pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
+	if ( !pClass )	//cannot find class node
+	{
 		ResetInventory();
 		return 0;
 	}
-	int iPreset = pClass->GetInt(g_LoadoutSlots[iSlot], -1);
-	if (iPreset == -1)	//cannot find slot node
+	int iPreset = pClass->GetInt( g_LoadoutSlots[iSlot], -1 );
+	if ( iPreset == -1 )	//cannot find slot node
 	{
 		ResetInventory();
 		return 0;
@@ -210,19 +210,19 @@ int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
 	return iPreset;
 };
 
-void CTFInventory::SetWeaponPreset(int iClass, int iSlot, int iPreset)
+void CTFInventory::SetWeaponPreset( int iClass, int iSlot, int iPreset )
 {
-	KeyValues* pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pClass)	//cannot find class node
+	KeyValues* pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
+	if ( !pClass )	//cannot find class node
 	{
 		ResetInventory();
-		pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+		pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
 	}
-	pClass->SetInt(GetSlotName(iSlot), iPreset);
+	pClass->SetInt( GetSlotName( iSlot ), iPreset );
 	SaveInventory();
 }
 
-const char* CTFInventory::GetSlotName(int iSlot)
+const char* CTFInventory::GetSlotName( int iSlot )
 {
 	return g_LoadoutSlots[iSlot];
 };
