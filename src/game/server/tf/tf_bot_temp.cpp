@@ -34,7 +34,7 @@ ConVar bot_forceattackon( "bot_forceattackon", "1", 0, "When firing, don't tap f
 ConVar bot_flipout( "bot_flipout", "0", 0, "When on, all bots fire their guns." );
 ConVar bot_defend( "bot_defend", "0", 0, "Set to a team number, and that team will all keep their combat shields raised." );
 ConVar bot_changeclass( "bot_changeclass", "0", 0, "Force all bots to change to the specified class." );
-ConVar bot_dontmove( "bot_dontmove", "0", FCVAR_CHEAT );
+ConVar bot_dontmove( "bot_dontmove", "0" );
 ConVar bot_saveme( "bot_saveme", "0", FCVAR_CHEAT );
 static ConVar bot_mimic( "bot_mimic", "0", 0, "Bot uses usercmd of player by index." );
 static ConVar bot_mimic_yaw_offset( "bot_mimic_yaw_offset", "180", 0, "Offsets the bot yaw." );
@@ -146,7 +146,7 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 	int count = args.FindArgInt( "-count", 1 );
 	count = clamp( count, 1, 16 );
 
-	if (args.FindArg( "-all" ))
+	if ( args.FindArg( "-all" ) )
 		count = 9;
 
 	// Look at -frozen.
@@ -156,21 +156,21 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 	while ( --count >= 0 )
 	{
 		// What class do they want?
-		int iClass = RandomInt( TF_CLASS_SCOUT, TF_LAST_NORMAL_CLASS );
+		int iClass = RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
 		char const *pVal = args.FindArg( "-class" );
 		if ( pVal )
 		{
-			for ( int i=1; i <= TF_CLASS_ENGINEER; i++ )
+			for ( int i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; i++ )
 			{
-				if ( stricmp( GetPlayerClassData( i )->m_szClassName, pVal ) == 0 )
+				if ( V_stricmp( pVal, g_aPlayerClassNames_NonLocalized[i] ) == 0 )
 				{
 					iClass = i;
 					break;
 				}
 			}
 		}
-		if (args.FindArg( "-all" ))
-			iClass = 9 - count ;
+		if ( args.FindArg( "-all" ) )
+			iClass = 9 - count;
 
 		int iTeam = TEAM_UNASSIGNED;
 		pVal = args.FindArg( "-team" );
