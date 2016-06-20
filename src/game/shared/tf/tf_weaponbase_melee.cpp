@@ -387,6 +387,10 @@ bool CTFWeaponBaseMelee::CalcIsAttackCriticalHelper( void )
 	if ( !pPlayer )
 		return false;
 
+	// Random crits are disabled in DM because the crowbar appearently has 75% crit chance.
+	if ( TFGameRules()->IsDeathmatch() )
+		return false;
+
 	int nCvarValue = tf_weapon_criticals_melee.GetInt();
 
 	if ( nCvarValue == 0 )
