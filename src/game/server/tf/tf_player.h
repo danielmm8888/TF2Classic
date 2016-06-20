@@ -355,9 +355,9 @@ public:
 	virtual void		PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force );
 	virtual bool		IsDeflectable( void ) { return true; }
 
-	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
-	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
-	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer( void ) { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner( void ) { return NULL; }
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 	void UpdatePlayerColor( void );

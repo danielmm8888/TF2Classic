@@ -747,7 +747,6 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 
 	EHANDLE hOther = pOther;
 	bFound = m_hHealingTargets.FindAndRemove( hOther );
-	NetworkStateChanged();
 
 	if ( bFound )
 	{
@@ -757,6 +756,8 @@ void CObjectDispenser::StopHealing( CBaseEntity *pOther )
 		{
 			pPlayer->m_Shared.StopHealing( GetOwner() );
 		}
+
+		NetworkStateChanged();
 	}
 }
 

@@ -2,6 +2,9 @@
 #include "econ_item_schema.h"
 #include "econ_item_system.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
+
 //=============================================================================
 // CEconItemAttribute
 //=============================================================================
@@ -16,22 +19,13 @@ BEGIN_NETWORK_TABLE_NOBASE( CEconItemAttribute, DT_EconItemAttribute )
 #endif
 END_NETWORK_TABLE()
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 EconAttributeDefinition *CEconItemAttribute::GetStaticData( void )
 {
 	return GetItemSchema()->GetAttributeDefinition( m_iAttributeDefinitionIndex );
 }
-
-
-//=============================================================================
-// EconItemVisuals
-//=============================================================================
-
-EconItemVisuals::EconItemVisuals()
-{
-	SetDefLessFunc( animation_replacement );
-	memset( aWeaponSounds, 0, sizeof( aWeaponSounds ) );
-}
-
 
 
 //=============================================================================

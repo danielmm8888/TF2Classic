@@ -11,6 +11,9 @@
 #include "tf_inventory.h"
 #include "econ_item_system.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
+
 static CTFInventory g_TFInventory;
 
 CTFInventory *GetTFInventory()

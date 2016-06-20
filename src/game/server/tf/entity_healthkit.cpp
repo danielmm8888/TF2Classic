@@ -75,17 +75,15 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 		if ( bTiny )
 		{
 			iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
-
 			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
-			if ( iHealthRestored )
-				bSuccess = true;
 		}
 		else
 		{
 			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC );
-			if ( iHealthRestored )
-				bSuccess = true;
 		}
+
+		if ( iHealthRestored )
+			bSuccess = true;
 
 		// Restore disguise health.
 		if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )

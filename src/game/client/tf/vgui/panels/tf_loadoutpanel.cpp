@@ -143,7 +143,12 @@ public:
 
 	_WeaponData *GetTFWeaponInfo(const char *name)
 	{
-		return &m_WeaponInfoDatabase[m_WeaponInfoDatabase.Find(name)];
+		int index = m_WeaponInfoDatabase.Find( name );
+
+		if ( index != m_WeaponInfoDatabase.InvalidIndex() )
+			return &m_WeaponInfoDatabase[index];
+		
+		return NULL;
 	}
 
 private:

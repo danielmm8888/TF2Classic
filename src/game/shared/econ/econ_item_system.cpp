@@ -3,6 +3,9 @@
 #include "script_parser.h"
 #include "activitylist.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
+
 const char *g_TeamVisualSections[TF_TEAM_COUNT] =
 {
 	"visuals",			// TEAM_UNASSIGNED
@@ -229,11 +232,11 @@ public:
 			GET_STRING( pAttribute, pSubData, attribute_class );
 			GET_STRING( pAttribute, pSubData, description_string );
 
-			const char *szFormat = pSubData->GetString( "description_format" );
-			pAttribute->description_format = UTIL_StringFieldToInt( szFormat, g_AttributeDescriptionFormats, ARRAYSIZE( g_AttributeDescriptionFormats ) );
+			const char *pszFormat = pSubData->GetString( "description_format" );
+			pAttribute->description_format = UTIL_StringFieldToInt( pszFormat, g_AttributeDescriptionFormats, ARRAYSIZE( g_AttributeDescriptionFormats ) );
 
-			const char *szEffect = pSubData->GetString( "effect_type" );
-			pAttribute->effect_type = UTIL_StringFieldToInt( szEffect, g_EffectTypes, ARRAYSIZE( g_EffectTypes ) );
+			const char *pszEffect = pSubData->GetString( "effect_type" );
+			pAttribute->effect_type = UTIL_StringFieldToInt( pszEffect, g_EffectTypes, ARRAYSIZE( g_EffectTypes ) );
 
 			GET_BOOL( pAttribute, pSubData, hidden );
 			GET_BOOL( pAttribute, pSubData, stored_as_integer );
@@ -276,14 +279,12 @@ public:
 			else if ( !V_strnicmp( pVisualData->GetName(), "sound_", 6 ) )
 			{
 				// Fetching this similar to weapon script file parsing.
-				const char *pszSoundName = pVisualData->GetString();
-
 				// Advancing pointer past sound_ prefix... why couldn't they just make a subsection for sounds?
 				int iSound = GetWeaponSoundFromString( pVisualData->GetName() + 6 );
 
 				if ( iSound != -1 )
 				{
-					V_strncpy( pVisuals->aWeaponSounds[iSound], pszSoundName, MAX_WEAPON_STRING );
+					V_strncpy( pVisuals->aWeaponSounds[iSound], pVisualData->GetString(), MAX_WEAPON_STRING );
 				}
 			}
 			else if ( !V_stricmp( pVisualData->GetName(), "styles" ) )
@@ -425,10 +426,7 @@ public:
 
 						if ( pszSlotname[0] != '1' )
 						{
-							int iSlot = UTIL_StringFieldToInt( pszSlotname, g_LoadoutSlots, TF_LOADOUT_SLOT_COUNT );
-							
-							if ( iSlot != -1 )
-								pItem->item_slot_per_class[iClass] = iSlot;
+							pItem->item_slot_per_class[iClass] = UTIL_StringFieldToInt( pszSlotname, g_LoadoutSlots, TF_LOADOUT_SLOT_COUNT );
 						}
 					}
 				}

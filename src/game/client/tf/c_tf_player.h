@@ -229,9 +229,9 @@ public:
 
 	bool	CanPickupBuilding( C_BaseObject *pObject );
 
-	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
-	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
-	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer( void ) { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner( void ) { return NULL; }
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 public:

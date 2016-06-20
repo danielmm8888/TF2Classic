@@ -3531,8 +3531,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 			}
 			else
 			{
-				float flMin = 0.40;
-				float flMax = 0.60;
+				float flMin = 0.4;
+				float flMax = 0.6;
 				float flCenter = 0.5;
 
 				if ( bitsDamage & DMG_USEDISTANCEMOD )
@@ -3549,8 +3549,8 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 							flCenter = RemapVal( flCenter, 0.5, 1.0, 0.5, 0.65 );
 						}
 					}
-					flMin = max( 0.0, flCenter - 0.10 );
-					flMax = min( 1.0, flCenter + 0.10 );
+					flMin = max( 0.0, flCenter - 0.1 );
+					flMax = min( 1.0, flCenter + 0.1 );
 
 					if ( bDebug )
 					{

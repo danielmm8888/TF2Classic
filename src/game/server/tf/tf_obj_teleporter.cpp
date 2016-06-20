@@ -653,9 +653,9 @@ void CObjectTeleporter::TeleporterThink( void )
 				m_iUpgradeLevel = 1;
 
 				// We need to adjust for any damage received if we downgraded
-				float iHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
+				float flHealthPercentage = GetHealth() / GetMaxHealthForCurrentLevel();
 				SetMaxHealth( GetMaxHealthForCurrentLevel() );
-				SetHealth( (int)floorf( GetMaxHealthForCurrentLevel() * iHealthPercentage ) );
+				SetHealth( (int)( GetMaxHealthForCurrentLevel() * flHealthPercentage ) );
 				m_iUpgradeMetal = 0;
 			}
 		}

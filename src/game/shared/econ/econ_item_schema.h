@@ -98,8 +98,6 @@ public:
 	DECLARE_EMBEDDED_NETWORKVAR();
 	DECLARE_CLASS_NOBASE( CEconItemAttribute );
 
-	EconAttributeDefinition *GetStaticData( void );
-
 	CEconItemAttribute()
 	{
 		m_iAttributeDefinitionIndex = -1;
@@ -112,6 +110,8 @@ public:
 		CLEAR_STR( attribute_class );
 		value = flValue;
 	}
+
+	EconAttributeDefinition *GetStaticData( void );
 
 public:
 	CNetworkVar( int, m_iAttributeDefinitionIndex );
@@ -143,7 +143,11 @@ struct EconItemStyle
 class EconItemVisuals
 {
 public:
-	EconItemVisuals();
+	EconItemVisuals()
+	{
+		SetDefLessFunc( animation_replacement );
+		memset( aWeaponSounds, 0, sizeof( aWeaponSounds ) );
+	}
 
 public:
 	CUtlDict< bool, unsigned short > player_bodygroups;

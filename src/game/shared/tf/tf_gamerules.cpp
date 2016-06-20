@@ -3064,13 +3064,13 @@ static const char *g_aTaggedConVars[] =
 	"specialclasses",
 
 	"tf2c_airblast",
-	"airblast",
+	"noairblast",
 
 	"tf2c_building_hauling",
-	"hauling",
+	"nohauling",
 
 	"tf2c_building_upgrades",
-	"buildingupgrades",
+	"nobuildingupgrades",
 
 	"mp_highlander",
 	"highlander",

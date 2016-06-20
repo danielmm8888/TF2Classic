@@ -1072,9 +1072,9 @@ bool CTFWeaponBase::ReloadSingly( void )
 			return false;
 
 		// If we have ammo, remove ammo and add it to clip
-		if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+		if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 		{
-			m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+			m_iClip1++;
 			pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 		}
 
@@ -1118,9 +1118,9 @@ void CTFWeaponBase::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCh
 	{
 		if ( pEvent->event == AE_WPN_INCREMENTAMMO )
 		{
-			if ( pOperator->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+			if ( pOperator->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 			{
-				m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+				m_iClip1++;
 				pOperator->RemoveAmmo( 1, m_iPrimaryAmmoType );
 			}
 
@@ -1660,31 +1660,8 @@ const char *CTFWeaponBase::GetTracerType( void )
 	{
 		if ( GetOwner() && !m_szTracerName[0] )
 		{
-			if ( TFGameRules()->IsDeathmatch() )
-			{
-				Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "dm" );
-			}
-			else
-			{
-				switch ( GetOwner()->GetTeamNumber() )
-				{
-				case TF_TEAM_RED:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red" );
-					break;
-				case TF_TEAM_BLUE:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "blue" );
-					break;
-				case TF_TEAM_GREEN:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "green" );
-					break;
-				case TF_TEAM_YELLOW:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "yellow" );
-					break;
-				default:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red" );
-					break;
-				}
-			}
+			const char *pszTeamName = GetTeamParticleName( GetOwner()->GetTeamNumber(), true );
+			V_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, pszTeamName );
 		}
 
 		//if ( !m_szTracerName[0] )
@@ -3166,9 +3143,9 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	{
 		CTFPlayer *pPlayer = GetTFPlayerOwner();
 
-		if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+		if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 		{
-			m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+			m_iClip1++;
 			pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 		}
 
