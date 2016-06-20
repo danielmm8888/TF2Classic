@@ -32,18 +32,20 @@ public:
 	void	EndTouch( CBaseEntity *pOther );
 	float	GetRespawnDelay( void );
 
+private:
+	CEconItemView m_Item;
+
 	CNetworkVar( bool, m_bStaticSpawner );
 	CNetworkVar( bool, m_bOutlineDisabled );
 
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bDisabled );
 	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
 
-private:
-	CEconItemView m_Item;
+	CNetworkVar( float, m_flRespawnTime );
+	CNetworkVar( float, m_flRespawnAtTime );
 
 	int		m_nWeaponID;
 	int		m_nItemID;
-	float	m_flRespawnTime;
 };
 
 #endif // ENTITY_HEALTHKIT_H

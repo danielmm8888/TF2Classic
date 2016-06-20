@@ -56,6 +56,7 @@ public:
 
 	virtual powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 
+public:
 	CNetworkVarForDerived( bool, m_bDisabled );
 	CNetworkVarForDerived( bool, m_bRespawning );
 };

@@ -24,6 +24,9 @@ BEGIN_DATADESC( CTFBaseDMPowerup )
 END_DATADESC()
 
 IMPLEMENT_SERVERCLASS_ST( CTFBaseDMPowerup, DT_TFBaseDMPowerup )
+	SendPropBool( SENDINFO( m_bRespawning ) ),
+	SendPropTime( SENDINFO( m_flRespawnTime ) ),
+	SendPropTime( SENDINFO( m_flRespawnAtTime ) ),
 END_SEND_TABLE()
 
 //=============================================================================
@@ -83,6 +86,40 @@ void CTFBaseDMPowerup::Spawn( void )
 	BaseClass::Spawn();
 
 	AddEffects( EF_ITEM_BLINK );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:  Override to get rid of EF_NODRAW
+//-----------------------------------------------------------------------------
+CBaseEntity* CTFBaseDMPowerup::Respawn( void )
+{
+	CBaseEntity *pRet = BaseClass::Respawn();
+
+	RemoveEffects( EF_NODRAW );
+	RemoveEffects( EF_ITEM_BLINK );
+	m_nRenderMode = kRenderTransColor;
+	SetRenderColorA( 80 );
+
+	m_flRespawnAtTime = GetNextThink();
+
+	return pRet;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFBaseDMPowerup::Materialize( void )
+{
+	BaseClass::Materialize();
+
+	if ( !IsDisabled() )
+	{
+		EmitSound( "Item.Materialize" );
+		CPVSFilter filter( GetAbsOrigin() );
+		AddEffects( EF_ITEM_BLINK );
+		m_nRenderFX = kRenderFxNone;
+		SetRenderColorA( 255 );
+	}
 }
 
 //-----------------------------------------------------------------------------

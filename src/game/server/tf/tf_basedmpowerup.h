@@ -26,6 +26,8 @@ public:
 
 	void	Spawn( void );
 	void	Precache( void );
+	CBaseEntity* Respawn( void );
+	void	Materialize( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 	float	GetRespawnDelay( void );
 	float	GetEffectDuration( void ) { return m_flEffectDuration; }
@@ -45,7 +47,11 @@ protected:
 
 private:
 	string_t	m_strPickupSound;
-	float		m_flRespawnTime;
+
+	IMPLEMENT_NETWORK_VAR_FOR_DERIVED( m_bRespawning );
+
+	CNetworkVar( float, m_flRespawnTime );
+	CNetworkVar( float, m_flRespawnAtTime );
 };
 
 #endif // BASE_DM_POWERUP_H

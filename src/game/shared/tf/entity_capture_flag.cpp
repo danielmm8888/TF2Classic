@@ -1455,20 +1455,6 @@ int CCaptureFlagReturnIcon::UpdateTransmitState( void )
 
 #ifdef CLIENT_DLL
 
-typedef struct
-{
-	float maxProgress;
-
-	float vert1x;
-	float vert1y;
-	float vert2x;
-	float vert2y;
-
-	int swipe_dir_x;
-	int swipe_dir_y;
-} progress_segment_t;
-
-
 // This defines the properties of the 8 circle segments
 // in the circular progress bar.
 progress_segment_t Segments[8] = 

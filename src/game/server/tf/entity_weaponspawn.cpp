@@ -64,8 +64,6 @@ static WeaponTranslation_t g_aWeaponTranslations[] =
 	{ 71, 9014 }
 };
 
-CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
-
 //#define RESPAWN_PARTICLE "particlename"
 
 BEGIN_DATADESC( CWeaponSpawner )
@@ -81,6 +79,8 @@ IMPLEMENT_SERVERCLASS_ST( CWeaponSpawner, DT_WeaponSpawner )
 	SendPropBool( SENDINFO( m_bRespawning ) ),
 	SendPropBool( SENDINFO( m_bStaticSpawner ) ),
 	SendPropBool( SENDINFO( m_bOutlineDisabled ) ),
+	SendPropTime( SENDINFO( m_flRespawnTime ) ),
+	SendPropTime( SENDINFO( m_flRespawnAtTime ) ),
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_weaponspawner, CWeaponSpawner );
@@ -93,6 +93,7 @@ CWeaponSpawner::CWeaponSpawner()
 	m_flRespawnTime = 10.0f;
 	m_bStaticSpawner = false;
 	m_bOutlineDisabled = false;
+	m_flRespawnAtTime = 0.0f;
 }
 
 
@@ -101,7 +102,6 @@ CWeaponSpawner::CWeaponSpawner()
 //-----------------------------------------------------------------------------
 void CWeaponSpawner::Spawn( void )
 {
-	// Damn it. We need both item definition and weapon script data for spawners to work properly.
 	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
 	if ( !pItemDef )
 	{
@@ -172,13 +172,17 @@ bool CWeaponSpawner::KeyValue( const char *szKeyName, const char *szValue )
 //-----------------------------------------------------------------------------
 CBaseEntity* CWeaponSpawner::Respawn( void )
 {
-	BaseClass::Respawn();
+	CBaseEntity *pRet = BaseClass::Respawn();
+
 	RemoveEffects( EF_NODRAW );
 	RemoveEffects( EF_ITEM_BLINK );
 	m_nRenderFX = kRenderFxDistort;
 	//m_nRenderMode = kRenderTransColor;
 	//SetRenderColor( 246, 232, 99, 128 );
-	return this;
+
+	m_flRespawnAtTime = GetNextThink();
+
+	return pRet;
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +199,6 @@ void CWeaponSpawner::Materialize( void )
 		//TE_TFParticleEffect( filter, 0.0f, RESPAWN_PARTICLE, GetAbsOrigin(), QAngle( 0,0,0 ) );
 		AddEffects( EF_ITEM_BLINK );
 		m_nRenderFX = kRenderFxNone;
-		SetRenderColor( 255, 255, 255, 255 );
 	}
 }
 
