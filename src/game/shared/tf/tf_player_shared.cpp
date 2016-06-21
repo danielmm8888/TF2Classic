@@ -1881,7 +1881,7 @@ void CTFPlayerShared::CompleteDisguise( void )
 	else
 	{
 		int iMaxHealth = GetPlayerClassData( m_nDisguiseClass )->m_nMaxHealth;
-		m_iDisguiseHealth = (int)random->RandomInt( iMaxHealth / 2, iMaxHealth );
+		m_iDisguiseHealth = random->RandomInt( iMaxHealth / 2, iMaxHealth );
 		m_iDisguiseMaxHealth = iMaxHealth;
 		if ( m_nDisguiseClass == TF_CLASS_MEDIC )
 		{
@@ -1889,7 +1889,10 @@ void CTFPlayerShared::CompleteDisguise( void )
 		}
 	}
 
-	m_nMaskClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
+	if ( m_nDisguiseClass == TF_CLASS_SPY )
+	{
+		m_nMaskClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS );
+	}
 
 	// Update the player model and skin.
 	m_pOuter->UpdateModel();

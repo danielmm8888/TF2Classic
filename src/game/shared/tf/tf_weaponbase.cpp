@@ -946,11 +946,17 @@ bool CTFWeaponBase::Reload( void )
 	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
 		return false;
 
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	// Can't reload while cloaked.
+	if ( pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
+		return false;
+
 	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
 	if ( m_iReloadMode == TF_RELOAD_START )
 	{
 		// If I don't have any spare ammo, I can't reload
-		if ( GetOwner()->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
+		if ( pOwner->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
 			return false;
 
 		if ( Clip1() >= GetMaxClip1() )

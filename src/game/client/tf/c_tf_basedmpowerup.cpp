@@ -116,7 +116,6 @@ int C_TFBaseDMPowerup::DrawModel( int flags )
 		QAngle vAngle = vec3_angle;
 
 		// Align it towards the viewer
-		Vector vViewOrigin = CurrentViewOrigin();
 		Vector vUp = CurrentViewUp();
 		Vector vRight = CurrentViewRight();
 		if ( fabs( vRight.z ) > 0.95 )	// don't draw it edge-on
