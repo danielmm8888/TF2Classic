@@ -534,8 +534,10 @@ const char *g_szProjectileNames[] =
 	"projectile_grapplinghook",
 	"projectile_sentry_rocket",
 	"projectile_bread_monster",
+	// Add new projectiles here.
 	"projectile_nail",
 	"projectile_dart",
+	"projectile_mirv",
 };
 
 // these map to the projectiles named in g_szProjectileNames

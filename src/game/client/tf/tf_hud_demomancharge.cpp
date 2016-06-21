@@ -88,9 +88,7 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	int iWeaponID = pWpn->GetWeaponID();
-
-	if ( iWeaponID != TF_WEAPON_PIPEBOMBLAUNCHER )
+	if ( !pWpn->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) && !pWpn->IsWeapon( TF_WEAPON_GRENADE_MIRV ) )
 	{
 		return false;
 	}

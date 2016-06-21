@@ -21,6 +21,7 @@
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
 	#include "tf_projectile_flare.h"
+	#include "tf_weapon_grenade_mirv.h"
 	#include "te.h"
 
 #else	// Client specific.
@@ -201,8 +202,13 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_FLARE:
-		pProjectile = FireFlare(pPlayer);
-		pPlayer->DoAnimationEvent(PLAYERANIMEVENT_ATTACK_PRIMARY);
+		pProjectile = FireFlare( pPlayer );
+		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
+		break;
+
+	case TF_PROJECTILE_MIRV:
+		pProjectile = FireMirv( pPlayer );
+		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
 	case TF_PROJECTILE_JAR:
@@ -584,6 +590,45 @@ CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
 		pProjectile->SetDamage( GetProjectileDamage() );
 	}
 	return pProjectile;
+#endif
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Fire a  pipe bomb
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFWeaponBaseGun::FireMirv( CTFPlayer *pPlayer )
+{
+	PlayWeaponShootSound();
+
+#ifdef GAME_DLL
+
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
+
+	// Create grenades here!!
+	Vector vecSrc = pPlayer->Weapon_ShootPosition();
+	vecSrc += vecForward * 16.0f + vecRight * 8.0f + vecUp * -6.0f;
+
+	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
+		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
+
+	//float flDamageMult = 1.0f;
+	//CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
+
+	CTFGrenadeMirvProjectile *pProjectile = CTFGrenadeMirvProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
+		pPlayer, GetTFWpnData(), 3.0f );
+
+
+	if ( pProjectile )
+	{
+		pProjectile->SetCritical( IsCurrentAttackACrit() );
+		pProjectile->SetLauncher( this );
+	}
+	return pProjectile;
+
 #endif
 
 	return NULL;
