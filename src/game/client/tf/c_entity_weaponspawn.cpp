@@ -13,7 +13,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-ConVar cl_weapon_respawn_size( "cl_weapon_respawn_size", "20" );
+ConVar tf2c_weapon_respawn_timer( "tf2c_weapon_respawn_timer", "1", FCVAR_ARCHIVE, "Show visual respawn timers for weapons in Deathmatch." );
+ConVar tf2c_weapon_respawn_size( "tf2c_weapon_respawn_size", "20", FCVAR_CHEAT );
 
 class C_WeaponSpawner : public C_BaseAnimating
 {
@@ -195,10 +196,9 @@ void C_WeaponSpawner::UpdateGlowEffect( void )
 //-----------------------------------------------------------------------------
 int C_WeaponSpawner::DrawModel( int flags )
 {
-	if ( !BaseClass::DrawModel( flags ) )
-		return 0;
+	int ret = BaseClass::DrawModel( flags );
 
-	if ( m_bRespawning )
+	if ( m_bRespawning && tf2c_weapon_respawn_timer.GetBool() )
 	{
 		if ( !m_pReturnProgressMaterial_Full )
 		{
@@ -212,12 +212,12 @@ int C_WeaponSpawner::DrawModel( int flags )
 
 		if ( !m_pReturnProgressMaterial_Full || !m_pReturnProgressMaterial_Empty )
 		{
-			return 1;
+			return ret;
 		}
 
 		CMatRenderContextPtr pRenderContext( materials );
 
-		float flSize = cl_weapon_respawn_size.GetFloat();
+		float flSize = tf2c_weapon_respawn_size.GetFloat();
 
 		Vector vOrigin = GetAbsOrigin()/* + Vector( 0, 0, flSize + 10 )*/;
 		QAngle vAngle = vec3_angle;
@@ -226,7 +226,7 @@ int C_WeaponSpawner::DrawModel( int flags )
 		Vector vUp = CurrentViewUp();
 		Vector vRight = CurrentViewRight();
 		if ( fabs( vRight.z ) > 0.95 )	// don't draw it edge-on
-			return 1;
+			return ret;
 
 		vRight.z = 0;
 		VectorNormalize( vRight );
@@ -318,5 +318,5 @@ int C_WeaponSpawner::DrawModel( int flags )
 		}
 	}
 
-	return 1;
+	return ret;
 }
