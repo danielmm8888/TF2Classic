@@ -111,6 +111,11 @@ void CAccountPanel::LevelInit( void )
 {
 	iAccountDeltaHead = 0;
 
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	{
+		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
+	}
+
 	CHudElement::LevelInit();
 }
 

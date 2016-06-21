@@ -116,7 +116,7 @@ CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudEleme
 
 	iAccountDeltaHead = 0;
 
-	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
 	}
@@ -162,6 +162,11 @@ void CDamageAccountPanel::LevelInit( void )
 {
 	iAccountDeltaHead = 0;
 
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	{
+		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
+	}
+
 	CHudElement::LevelInit();
 }
 
@@ -186,7 +191,7 @@ bool CDamageAccountPanel::ShouldDraw( void )
 void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pPlayer && pPlayer->IsAlive() ) 
+	if ( pPlayer && pPlayer->IsAlive() )
 	{
 		bool bIsPlayer = V_strcmp( event->GetName(), "npc_hurt" ) != 0;
 
@@ -349,7 +354,7 @@ void CDamageAccountPanel::Paint( void )
 {
 	BaseClass::Paint();
 
-	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		// update all the valid delta items
 		if ( m_AccountDeltaItems[i].m_flDieTime > gpGlobals->curtime )
