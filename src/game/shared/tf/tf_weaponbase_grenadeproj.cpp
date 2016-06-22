@@ -665,6 +665,8 @@ public:
 				return false;
 			if ( pEntity->GetCollisionGroup() == COLLISION_GROUP_NONE )
 				return false;
+			if ( pEntity->GetCollisionGroup() == TFCOLLISION_GROUP_RESPAWNROOMS )
+				return false;
 
 			return true;
 		}
