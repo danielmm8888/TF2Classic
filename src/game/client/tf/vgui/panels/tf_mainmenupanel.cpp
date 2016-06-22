@@ -159,9 +159,9 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "testnotification"))
 	{
-		char resultString[128];
-		Q_snprintf(resultString, sizeof(resultString), "test %d", GetNotificationManager()->GetNotificationsCount());
-		MessageNotification Notification("Yoyo", resultString);
+		wchar_t resultString[128];
+		V_snwprintf(resultString, sizeof(resultString), L"test %d", GetNotificationManager()->GetNotificationsCount());
+		MessageNotification Notification(L"Yoyo", resultString, time( NULL ) );
 		GetNotificationManager()->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
