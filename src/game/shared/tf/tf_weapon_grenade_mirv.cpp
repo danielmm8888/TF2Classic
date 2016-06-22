@@ -23,6 +23,8 @@
 
 #define MIRV_BLIP_FREQUENCY			1.0f
 #define MIRV_BLIP_FAST_FREQUENCY	0.3f
+#define MIRV_WARN_TIME				1.0f
+#define MIRV_BLIP_SOUND				"Weapon_Grenade_Mirv.Timer"
 
 //=============================================================================
 //
@@ -59,6 +61,7 @@ void CTFGrenadeMirvProjectile::Spawn()
 
 	BaseClass::Spawn();
 
+	SetDetonateTimerLength( GRENADE_MIRV_TIMER );
 	BlipSound();
 	m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
 
@@ -108,7 +111,7 @@ void CTFGrenadeMirvProjectile::DetonateThink( void )
 	{
 		BlipSound();
 
-		if ( GetDetonateTime() - gpGlobals->curtime <= 1.0f  )
+		if ( GetDetonateTime() - gpGlobals->curtime <= MIRV_WARN_TIME )
 		{
 			m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FAST_FREQUENCY;
 		}
@@ -155,7 +158,19 @@ void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 //-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::BlipSound( void )
 {
-	EmitSound( "Weapon_Grenade_Mirv.Timer" );
+	EmitSound_t params;
+	params.m_pSoundName = MIRV_BLIP_SOUND;
+
+	float flTime = GetDetonateTime() - gpGlobals->curtime;
+	if ( flTime <= MIRV_WARN_TIME )
+	{
+		params.m_nPitch = RemapValClamped( flTime, 0.0f, 1.0f, 125, 100 );
+		params.m_nFlags |= SND_CHANGE_PITCH;
+	}
+
+	CPASAttenuationFilter filter( this, MIRV_BLIP_SOUND );
+
+	EmitSound( filter, entindex(), params );
 }
 
 //=============================================================================

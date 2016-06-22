@@ -201,7 +201,7 @@ CTFWeaponBaseGrenadeProj *CTFWeaponBaseGrenadeProj::Create( const char *szName, 
 	if ( pGrenade )
 	{
 		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
-		pGrenade->SetDetonateTimerLength( timer );
+		//pGrenade->SetDetonateTimerLength( timer );
 	}
 
 	return pGrenade;
