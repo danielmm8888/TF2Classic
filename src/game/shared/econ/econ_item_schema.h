@@ -100,23 +100,25 @@ public:
 
 	CEconItemAttribute()
 	{
-		m_iAttributeDefinitionIndex = -1;
-		CLEAR_STR( attribute_class );
-		value = 0;
+		Init( -1, 0.0f );
 	}
 	CEconItemAttribute( int iIndex, float flValue )
 	{
-		m_iAttributeDefinitionIndex = iIndex;
-		CLEAR_STR( attribute_class );
-		value = flValue;
+		Init( iIndex, flValue );
+	}
+	CEconItemAttribute( int iIndex, float flValue, const char *pszAttributeClass )
+	{
+		Init( iIndex, flValue, pszAttributeClass );
 	}
 
+	void Init( int iIndex, float flValue, const char *pszAttributeClass = NULL );
 	EconAttributeDefinition *GetStaticData( void );
 
 public:
 	CNetworkVar( int, m_iAttributeDefinitionIndex );
 	CNetworkVar( float, value ); // m_iRawValue32
-	char attribute_class[128];
+	CNetworkString( value_string, 128 );
+	CNetworkString( attribute_class, 128 );
 };
 
 struct EconItemStyle
@@ -188,6 +190,7 @@ public:
 		image_inventory_size_h = 0;
 		CLEAR_STR(model_player);
 		CLEAR_STR(model_world);
+		memset( model_player_per_class, 0, sizeof( model_player_per_class ) );
 		attach_to_hands = 0;
 		act_as_wearable = false;
 		CLEAR_STR(mouse_pressed_sound);
@@ -223,7 +226,7 @@ public:
 	int	 image_inventory_size_h;
 	char model_player[128];
 	char model_world[128];
-	CUtlDict< const char*, unsigned short > model_player_per_class;
+	char model_player_per_class[TF_CLASS_COUNT_ALL][128];
 	int attach_to_hands;
 	bool act_as_wearable;
 	CUtlVector<CEconItemAttribute> attributes;

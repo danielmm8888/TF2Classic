@@ -57,12 +57,37 @@ END_SEND_TABLE()
 
 CEconItemView::CEconItemView()
 {
-	m_iItemDefinitionIndex = -1;
+	Init( -1 );
 }
 
 CEconItemView::CEconItemView( int iItemID )
 {
+	Init( iItemID );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CEconItemView::Init( int iItemID )
+{
+	SetItemDefIndex( iItemID );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CEconItemView::SetItemDefIndex( int iItemID )
+{
 	m_iItemDefinitionIndex = iItemID;
+	//m_pItemDef = GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CEconItemView::GetItemDefIndex( void ) const
+{
+	return m_iItemDefinitionIndex;
 }
 
 //-----------------------------------------------------------------------------
@@ -98,12 +123,15 @@ const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 //-----------------------------------------------------------------------------
 // Purpose: Get view model.
 //-----------------------------------------------------------------------------
-const char *CEconItemView::GetPlayerDisplayModel() const
+const char *CEconItemView::GetPlayerDisplayModel( int iClass/* = 0*/ ) const
 {
 	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
+		if ( pStatic->model_player_per_class[iClass][0] != '\0' )
+			return pStatic->model_player_per_class[iClass];
+
 		return pStatic->model_player;
 	}
 
@@ -283,11 +311,7 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 	{
 		CEconItemAttribute *pAttribute = &m_AttributeList[i];
 
-		EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
-		if ( !pStatic )
-			continue;
-
-		string_t strMyClass = AllocPooledString( pStatic->attribute_class );
+		string_t strMyClass = AllocPooledString( pAttribute->attribute_class.Get() );
 
 		if ( strMyClass == strClass )
 		{

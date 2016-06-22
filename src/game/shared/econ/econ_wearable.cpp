@@ -21,8 +21,6 @@ BEGIN_NETWORK_TABLE( CEconWearable, DT_EconWearable )
 #endif
 END_NETWORK_TABLE()
 
-LINK_ENTITY_TO_CLASS( econ_wearable, CEconWearable )
-
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------

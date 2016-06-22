@@ -463,7 +463,7 @@ void CTFWeaponBase::UpdateViewModel( void )
 	{
 		if ( HasItemDefinition() )
 		{
-			pszModel = m_Item.GetPlayerDisplayModel();
+			pszModel = m_Item.GetPlayerDisplayModel( pTFPlayer->GetPlayerClass()->GetClassIndex() );
 		}
 		else
 		{
@@ -511,10 +511,11 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
 	const char *pszModelName = NULL;
+	CTFPlayer *pOwner = GetTFPlayerOwner();
 
-	if ( HasItemDefinition() )
+	if ( pOwner && HasItemDefinition() )
 	{
-		pszModelName = m_Item.GetPlayerDisplayModel();
+		pszModelName = m_Item.GetPlayerDisplayModel( pOwner->GetPlayerClass()->GetClassIndex() );
 	}
 	else
 	{

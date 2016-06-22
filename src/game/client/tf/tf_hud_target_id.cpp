@@ -430,7 +430,7 @@ void CTargetID::UpdateID( void )
 		{
 			m_pAvatar->SetPlayer( pAvatarPlayer );
 			m_pAvatar->SetShouldDrawFriendIcon( false );
-			m_pTargetNameLabel->SetTextInset( 32, 0 );
+			m_pTargetNameLabel->SetTextInset( XRES( 12 ), 0 );
 		}
 		else
 		{

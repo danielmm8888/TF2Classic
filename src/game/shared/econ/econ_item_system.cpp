@@ -410,7 +410,16 @@ public:
 			}
 			else if ( !V_stricmp( pSubData->GetName(), "model_player_per_class" ) )
 			{
-				GET_VALUES_FAST_STRING( pItem->model_player_per_class, pSubData );
+				for ( KeyValues *pClassData = pSubData->GetFirstSubKey(); pClassData != NULL; pClassData = pClassData->GetNextKey() )
+				{
+					const char *pszClass = pClassData->GetName();
+					int iClass = UTIL_StringFieldToInt( pszClass, g_aPlayerClassNames_NonLocalized, TF_CLASS_COUNT_ALL );
+
+					if ( iClass != -1 )
+					{
+						V_strncpy( pItem->model_player_per_class[iClass], pClassData->GetString(), 128 );
+					}
+				}
 			}
 			else if ( !V_stricmp( pSubData->GetName(), "used_by_classes" ) )
 			{
@@ -440,10 +449,7 @@ public:
 					if ( iAttributeID == -1 )
 						continue;
 
-					CEconItemAttribute attribute;
-					attribute.m_iAttributeDefinitionIndex = iAttributeID;
-					GET_STRING( ( &attribute ), pAttribData, attribute_class );
-					GET_FLOAT( ( &attribute ), pAttribData, value );
+					CEconItemAttribute attribute( iAttributeID, pAttribData->GetFloat( "value" ), pAttribData->GetString( "attribute_class" ) );
 					pItem->attributes.AddToTail( attribute );
 				}
 			}
@@ -508,7 +514,10 @@ bool CEconItemSchema::Init( void )
 		ActivityList_Free();
 		ActivityList_RegisterSharedActivities();
 
+		float flStartTime = engine->Time();
 		g_EconSchemaParser.InitParser( "scripts/items/items_game.txt", true, false );
+		float flEndTime = engine->Time();
+		Msg( "Processing item schema took %.02fms. Parsed %d items and %d attributes.\n", ( flEndTime - flStartTime ) * 1000.0f, m_Items.Count(), m_Attributes.Count() );
 
 		m_bInited = true;
 	}
@@ -527,11 +536,18 @@ void CEconItemSchema::Precache( void )
 		CEconItemDefinition *pItem = m_Items[i];
 
 		// Precache models.
-		if ( pItem->model_world[0] )
+		if ( pItem->model_world[0] != '\0' )
 			CBaseEntity::PrecacheModel( pItem->model_world );
 
-		if ( pItem->model_player[0] )
+		if ( pItem->model_player[0] != '\0' )
 			CBaseEntity::PrecacheModel( pItem->model_player );
+
+		for ( int iClass = 0; iClass < TF_CLASS_COUNT_ALL; iClass++ )
+		{
+			const char *pszModel = pItem->model_player_per_class[iClass];
+			if ( pszModel[0] != '\0' )
+				CBaseEntity::PrecacheModel( pszModel );
+		}
 
 		// Precache visuals.
 		for ( int i = 0; i < TF_TEAM_COUNT; i++ )

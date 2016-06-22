@@ -13,12 +13,10 @@
 #include "cbase.h"
 //#include "server_class.h"
 #include "igamesystem.h"
-#include "tf_playeranimstate.h"
 #include "tf_shareddefs.h"
-#include "tf_weapon_parse.h"
-#include "filesystem.h" 
 #if defined( CLIENT_DLL )
 #include "c_tf_player.h"
+#include "filesystem.h" 
 #endif
 
 #define INVENTORY_WEAPONS		5

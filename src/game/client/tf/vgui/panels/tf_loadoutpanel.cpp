@@ -209,7 +209,7 @@ bool CTFLoadoutPanel::Init()
 
 				if ( pItem )
 				{
-					const char *pszWeaponModel = GetWeaponModel( pItem->GetStaticData() );
+					const char *pszWeaponModel = GetWeaponModel( pItem->GetStaticData(), iClassIndex );
 
 					if ( pszWeaponModel[0] != '\0' )
 					{
@@ -419,13 +419,16 @@ int CTFLoadoutPanel::GetAnimSlot( CEconItemDefinition *pItemDef, int iClass )
 	return iSlot;
 }
 
-const char *CTFLoadoutPanel::GetWeaponModel( CEconItemDefinition *pItemDef )
+const char *CTFLoadoutPanel::GetWeaponModel( CEconItemDefinition *pItemDef, int iClass )
 {
 	if ( !pItemDef )
 		return "";
 
 	if ( pItemDef->act_as_wearable )
 	{
+		if ( pItemDef->model_player_per_class[iClass][0] != '\0' )
+			return pItemDef->model_player_per_class[iClass];
+
 		return pItemDef->model_player;
 	}
 
@@ -485,7 +488,7 @@ void CTFLoadoutPanel::UpdateModelWeapons( void )
 		// If this is the active weapon or it's a wearable, add its model.
 		if ( pItem == pActiveItem || pItemDef->act_as_wearable )
 		{
-			const char *pszModel = GetWeaponModel( pItemDef );
+			const char *pszModel = GetWeaponModel( pItemDef, m_iCurrentClass );
 			if ( pszModel[0] != '\0' )
 			{
 				m_pClassModelPanel->SetMergeMDL( pszModel, NULL, 0 );

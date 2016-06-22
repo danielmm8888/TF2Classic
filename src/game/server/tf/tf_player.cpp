@@ -50,6 +50,7 @@
 #include "cdll_int.h"
 #include "tf_weaponbase.h"
 #include "econ_wearable.h"
+#include "tf_wearable.h"
 #include "tf_dropped_weapon.h"
 #include "econ_item_schema.h"
 #include "baseprojectile.h"
@@ -1362,7 +1363,7 @@ void CTFPlayer::ValidateWearables( void )
 
 	for ( int i = 0; i < GetNumWearables(); i++ )
 	{
-		CEconWearable *pWearable = GetWearable( i );
+		CTFWearable *pWearable = static_cast<CTFWearable *>( GetWearable( i ) );
 
 		if ( !pWearable )
 			continue;
@@ -1378,6 +1379,10 @@ void CTFPlayer::ValidateWearables( void )
 			{
 				// Not supposed to carry this wearable, nuke it.
 				RemoveWearable( pWearable );
+			}
+			else
+			{
+				pWearable->UpdateModelToClass();
 			}
 		}
 	}
