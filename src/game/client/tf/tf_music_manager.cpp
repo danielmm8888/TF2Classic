@@ -37,8 +37,17 @@ bool CTFMusicManager::Init( void )
 	ListenForGameEvent( "teamplay_round_start" );
 	ListenForGameEvent( "player_death" );
 	ListenForGameEvent( "player_spawn" );
+	ListenForGameEvent( "teamplay_win_panel" );
 
 	return true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Check intensity conditions here.
+//-----------------------------------------------------------------------------
+void CTFMusicManager::LevelShutdownPreEntity( void )
+{
+	StopMusic( false );
 }
 
 //-----------------------------------------------------------------------------
@@ -143,26 +152,30 @@ void CTFMusicManager::FireGameEvent( IGameEvent *event )
 
 	if ( V_strcmp( event->GetName(), "localplayer_changeteam" ) == 0 )
 	{
-		int iTeam = pPlayer->GetTeamNumber();
-
 		// Start music if player entered the battle.
-		if ( iTeam >= FIRST_GAME_TEAM )
+		if ( CanPlayMusic() )
 		{
 			StartMusic();
 		}
-		else
+		else if ( pPlayer->GetTeamNumber() < FIRST_GAME_TEAM )
 		{
+			// Play ending cue if player switched to spec.
 			StopMusic( true );
 		}
 	}
 	else if ( V_strcmp( event->GetName(), "teamplay_round_start" ) == 0 )
 	{
-		if ( m_bPlaying )
+		// Restart music.
+		StopMusic( false );
+
+		if ( CanPlayMusic() )
 		{
-			// Restart music.
-			StopMusic( false );
 			StartMusic();
 		}
+	}
+	else if ( V_strcmp( event->GetName(), "teamplay_win_panel" ) == 0 )
+	{
+		StopMusic( false );
 	}
 }
 
@@ -215,6 +228,7 @@ void CTFMusicManager::StopMusic( bool bPlayEnding /*= false*/ )
 		if ( pTrack->pSound )
 		{
 			controller.SoundDestroy( pTrack->pSound );
+			pTrack->pSound = NULL;
 		}
 
 		pTrack->bPlay = false;
@@ -245,4 +259,29 @@ void CTFMusicManager::StopMusic( bool bPlayEnding /*= false*/ )
 int CTFMusicManager::GetMusicPower( void )
 {
 	return (int)( m_flIntensity / TF_MUSIC_INTENSITY_FRACTION );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFMusicManager::CanPlayMusic( void )
+{
+	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	if ( !pPlayer )
+		return false;
+
+	// Don't play music for spectators.
+	if ( pPlayer->GetTeamNumber() < FIRST_GAME_TEAM )
+		return false;
+
+	if ( TFGameRules() )
+	{
+		if ( TFGameRules()->IsInWaitingForPlayers() )
+			return false;
+
+		if ( TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
+			return false;
+	}
+
+	return true;
 }

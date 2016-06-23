@@ -33,6 +33,7 @@ public:
 	// Methods of IGameSystem
 	virtual char const *Name() { return "CTFMusicManager"; }
 	virtual bool Init( void );
+	virtual void LevelShutdownPreEntity( void );
 	virtual void Update( float flFrameTime );
 
 	// Methods of CGameEventListener
@@ -41,6 +42,7 @@ public:
 	void StartMusic( void );
 	void StopMusic( bool bPlayEnding = false );
 	int GetMusicPower( void );
+	bool CanPlayMusic( void );
 
 private:
 	SMusicTrack m_Tracks[TF_MUSIC_LAYERS];
