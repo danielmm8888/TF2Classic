@@ -1,6 +1,8 @@
 #include "cbase.h"
 #include "tf_music_manager.h"
 #include "tf_gamerules.h"
+#include <vgui_controls/Controls.h>
+#include <vgui/IScheme.h>
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -8,6 +10,8 @@
 ConVar tf2c_music_manager( "tf2c_music_manager", "0", FCVAR_ARCHIVE );
 ConVar tf2c_music_manager_volume( "tf2c_music_manager_volume", "0.75", FCVAR_ARCHIVE );
 ConVar tf2c_music_manager_track( "tf2c_music_manager_track", "1", FCVAR_ARCHIVE, NULL, true, 1, true, 3 );
+
+ConVar tf2c_music_manager_debug( "tf2c_music_manager_debug", "0", FCVAR_CHEAT );
 
 static CTFMusicManager g_TFMusicManager;
 CTFMusicManager *GetTFMusicManager( void )
@@ -58,6 +62,13 @@ void CTFMusicManager::Update( float flFrameTime )
 	if ( !m_bPlaying )
 		return;
 
+	// Shut off the music if the cvar got toggled off.
+	if ( !tf2c_music_manager.GetBool() )
+	{
+		StopMusic( false );
+		return;
+	}
+
 	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
 	if ( !pLocalPlayer )
 		return;
@@ -92,8 +103,6 @@ void CTFMusicManager::Update( float flFrameTime )
 		m_flIntensity = RemapValClamped( flClosest, 0, 1024, 1.0f, 0.0f );
 	}
 
-	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
-
 	bool bLoop = false;
 	if ( m_flLoopTime != 0.0f && gpGlobals->curtime >= m_flLoopTime )
 	{
@@ -101,6 +110,8 @@ void CTFMusicManager::Update( float flFrameTime )
 		bLoop = true;
 		m_flLoopTime = gpGlobals->curtime + m_flDuration;
 	}
+
+	CSoundEnvelopeController &controller = CSoundEnvelopeController::GetController();
 
 	for ( int i = 0; i < TF_MUSIC_LAYERS; i++ )
 	{
@@ -138,6 +149,28 @@ void CTFMusicManager::Update( float flFrameTime )
 			controller.SoundChangeVolume( pTrack->pSound, flVolume, flDeltaTime );
 		}
 	}
+
+#if 0
+	if ( tf2c_music_manager_debug.GetBool() )
+	{
+		int vx, vy, vw, vh;
+		vgui::surface()->GetFullscreenViewport( vx, vy, vw, vh );
+
+		int x = vw - 300;
+		int y = 2;
+
+		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
+		vgui::HFont hFont = vgui::scheme()->GetIScheme( scheme )->GetFont( "Default" );
+		Color col( 0, 255, 0 );
+		vgui::surface()->DrawSetTextFont( hFont );
+		vgui::surface()->DrawSetTextColor( col );
+		vgui::surface()->DrawSetTextPos( x, y );
+
+		wchar_t buf[128];
+		V_snwprintf( buf, 128, L"Intensity: %.02f", m_flLoopTime );
+		vgui::surface()->DrawPrintText( buf, 128 );
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------
