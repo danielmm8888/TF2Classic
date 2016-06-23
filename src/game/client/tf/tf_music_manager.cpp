@@ -63,8 +63,9 @@ void CTFMusicManager::Update( float flFrameTime )
 		return;
 
 	bool bAlive = pLocalPlayer->IsAlive();
+	bool bPreGame = TFGameRules()->IsInWaitingForPlayers();
 
-	if ( !bAlive )
+	if ( !bAlive || bPreGame )
 	{
 		// Keep it queit if player is dead.
 		m_flIntensity = 0.0f;
@@ -117,6 +118,10 @@ void CTFMusicManager::Update( float flFrameTime )
 
 		if ( !pTrack->bPlay )
 			flVolume = 0.01f;
+		else if ( bPreGame )
+		{
+			flVolume *= 0.5f;
+		}
 		else if ( !bAlive )
 			flVolume *= 0.25f; // Tone it down when player is dead.
 
@@ -276,9 +281,6 @@ bool CTFMusicManager::CanPlayMusic( void )
 
 	if ( TFGameRules() )
 	{
-		if ( TFGameRules()->IsInWaitingForPlayers() )
-			return false;
-
 		if ( TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
 			return false;
 	}
