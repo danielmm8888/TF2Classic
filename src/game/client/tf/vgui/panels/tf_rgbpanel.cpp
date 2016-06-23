@@ -4,6 +4,7 @@
 #include "controls/tf_cvarslider.h"
 #include <vgui/ILocalize.h>
 #include "controls/tf_advmodelpanel.h"
+#include "c_tf_player.h"
 
 using namespace vgui;
 // memdbgon must be the last include file in a .cpp file!!!
@@ -67,6 +68,15 @@ void CTFRGBPanel::ApplySchemeSettings(vgui::IScheme *pScheme)
 		}
 	}
 
+	if ( tf2c_setmerccolor_r.GetFloat() == 0.0f && tf2c_setmerccolor_g.GetFloat() == 0.0f && tf2c_setmerccolor_b.GetFloat() == 0.0f )
+	{
+		// 0 0 0 is default value which disables the proxy. So that means this is the first game launch.
+		// Let's generate a random color...
+		tf2c_setmerccolor_r.SetValue( RandomInt( 0, 255 ) );
+		tf2c_setmerccolor_g.SetValue( RandomInt( 0, 255 ) );
+		tf2c_setmerccolor_b.SetValue( RandomInt( 0, 255 ) );
+		InvalidateLayout( true, true );
+	}
 }
 
 void CTFRGBPanel::PerformLayout()

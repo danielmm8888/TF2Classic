@@ -217,7 +217,7 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 			else
 			{
 				for ( int i = 0; i < ARRAYSIZE( flColors ); i++ )
-					flColors[i] = RandomFloat( 0, 255 );
+					flColors[i] = (float)RandomInt( 0, 255 );
 			}
 
 			vecColor.Init( flColors[0], flColors[1], flColors[2] );
