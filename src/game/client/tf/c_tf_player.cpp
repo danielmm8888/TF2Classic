@@ -1124,7 +1124,12 @@ public:
 
 		if ( !pC_BaseEntity )
 		{
-			m_pResult->SetVecValue( 1, 1, 1 );
+			// Assuming we're at the menus... Use cvar values.
+			float r = floorf( tf2c_setmerccolor_r.GetFloat() ) / 255.0f;
+			float g = floorf( tf2c_setmerccolor_g.GetFloat() ) / 255.0f;
+			float b = floorf( tf2c_setmerccolor_b.GetFloat() ) / 255.0f;
+
+			m_pResult->SetVecValue( r, g, b );
 			return;
 		}
 

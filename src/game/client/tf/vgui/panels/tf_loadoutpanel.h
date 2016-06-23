@@ -44,7 +44,6 @@ public:
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
-	CModelPanel		*m_pGameModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CTFRGBPanel		*m_pRGBPanel;
 	CUtlVector<CTFAdvItemButton*> m_pWeaponIcons;
@@ -53,7 +52,6 @@ private:
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	m_iCurrentClass;
 	int	m_iCurrentSlot;
-	int m_iCurrentSkin;
 };
 
 //-----------------------------------------------------------------------------
