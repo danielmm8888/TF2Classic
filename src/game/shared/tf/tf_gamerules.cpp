@@ -3001,6 +3001,9 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 		}
 	}
 
+	if ( pTFPlayer->IsFakeClient() )
+		return;
+
 	// keep track of their hud_classautokill value
 	int nClassAutoKill = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "hud_classautokill" ) );
 	pTFPlayer->SetHudClassAutoKill( nClassAutoKill > 0 ? true : false );

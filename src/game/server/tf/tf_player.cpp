@@ -8247,6 +8247,10 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::UpdatePlayerColor( void )
 {
+	// Bots pick colors themselves.
+	if ( IsFakeClient() )
+		return;
+
 	// Update color from their convars
 	Vector vecNewColor;
 	vecNewColor.x = V_atoi( engine->GetClientConVarValue( entindex(), "tf2c_setmerccolor_r" ) ) / 255.0f;
