@@ -100,7 +100,8 @@ struct _WeaponData
 	char iconActive[64];
 	char iconInactive[64];
 	char szPrintName[64];
-	int m_iWeaponType;
+	int iWeaponType;
+	bool bHasTeamSkins;
 };
 
 //-----------------------------------------------------------------------------
@@ -128,8 +129,9 @@ public:
 		const char *pszWeaponType = pKeyValuesData->GetString( "WeaponType" );
 
 		int iType = UTIL_StringFieldToInt( pszWeaponType, g_AnimSlots, TF_WPN_TYPE_COUNT );
+		sTemp.iWeaponType = iType >= 0 ? iType : TF_WPN_TYPE_PRIMARY;
 
-		sTemp.m_iWeaponType = iType >= 0 ? iType : TF_WPN_TYPE_PRIMARY;
+		sTemp.bHasTeamSkins = ( pKeyValuesData->GetBool( "HasTeamSkins_Worldmodel" ) );
 
 		for ( KeyValues *pData = pKeyValuesData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey() )
 		{
@@ -425,7 +427,7 @@ int CTFLoadoutPanel::GetAnimSlot( CEconItemDefinition *pItemDef, int iClass )
 		_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
 		Assert( pWeaponInfo );
 
-		iSlot = pWeaponInfo->m_iWeaponType;
+		iSlot = pWeaponInfo->iWeaponType;
 	}
 
 	return iSlot;
@@ -503,7 +505,39 @@ void CTFLoadoutPanel::UpdateModelWeapons( void )
 			const char *pszModel = GetWeaponModel( pItemDef, m_iCurrentClass );
 			if ( pszModel[0] != '\0' )
 			{
-				m_pClassModelPanel->SetMergeMDL( pszModel, NULL, 0 );
+				int nSkin = 0;
+
+				C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+				if ( pPlayer )
+				{
+					if ( pItem == pActiveItem )
+					{
+						const char *pszClassname = TranslateWeaponEntForClass( pItemDef->item_class, m_iCurrentClass );
+						_WeaponData *pWeaponInfo = g_TFWeaponScriptParser.GetTFWeaponInfo( pszClassname );
+						Assert( pWeaponInfo );
+
+						if ( pWeaponInfo->bHasTeamSkins )
+						{
+							switch ( pPlayer->GetTeamNumber() )
+							{
+							case TF_TEAM_RED:
+								nSkin = 0;
+								break;
+							case TF_TEAM_BLUE:
+								nSkin = 1;
+								break;
+							case TF_TEAM_GREEN:
+								nSkin = 2;
+								break;
+							case TF_TEAM_YELLOW:
+								nSkin = 3;
+								break;
+							}
+						}
+					}
+				}
+
+				m_pClassModelPanel->SetMergeMDL( pszModel, NULL, nSkin );
 			}
 		}
 	}
