@@ -24,11 +24,15 @@ struct SMusicTrack
 	CSoundPatch *pSound;
 };
 
+class CHudMusicManager;
+
 class CTFMusicManager : public CAutoGameSystemPerFrame, public CGameEventListener
 {
 public:
 	CTFMusicManager();
 	~CTFMusicManager();
+
+	friend class CHudMusicManager;
 
 	// Methods of IGameSystem
 	virtual char const *Name() { return "CTFMusicManager"; }
@@ -41,6 +45,7 @@ public:
 
 	void StartMusic( void );
 	void StopMusic( bool bPlayEnding = false );
+	bool IsPlayingMusic( void ) { return m_bPlaying; }
 	int GetMusicPower( void );
 	bool CanPlayMusic( void );
 
@@ -52,6 +57,7 @@ private:
 	
 	int m_iTrack;
 	float m_flIntensity;
+	float m_flPlayerIntensity;
 };
 
 extern CTFMusicManager *GetTFMusicManager( void );

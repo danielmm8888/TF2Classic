@@ -34,7 +34,6 @@ public:
 	virtual void Reset();
 	virtual void Update();
 	virtual void ShowPanel( bool bShow );
-	virtual void UpdatePlayerAvatar( int playerIndex, KeyValues *kv );
 	virtual void OnCommand(const char* command);
 
 protected:

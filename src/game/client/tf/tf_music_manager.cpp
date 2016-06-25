@@ -1,17 +1,16 @@
 #include "cbase.h"
 #include "tf_music_manager.h"
 #include "tf_gamerules.h"
+#include "c_tf_player.h"
 #include <vgui_controls/Controls.h>
+#include <vgui/ISurface.h>
 #include <vgui/IScheme.h>
+#include <vgui_controls/Panel.h>
+#include "hudelement.h"
+#include "iclientmode.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
-
-ConVar tf2c_music_manager( "tf2c_music_manager", "0", FCVAR_ARCHIVE );
-ConVar tf2c_music_manager_volume( "tf2c_music_manager_volume", "0.75", FCVAR_ARCHIVE );
-ConVar tf2c_music_manager_track( "tf2c_music_manager_track", "1", FCVAR_ARCHIVE, NULL, true, 1, true, 3 );
-
-ConVar tf2c_music_manager_debug( "tf2c_music_manager_debug", "0", FCVAR_CHEAT );
 
 static CTFMusicManager g_TFMusicManager;
 CTFMusicManager *GetTFMusicManager( void )
@@ -19,10 +18,37 @@ CTFMusicManager *GetTFMusicManager( void )
 	return &g_TFMusicManager;
 }
 
+static void MusicManagerToggle( IConVar *var, const char *pOldValue, float flOldValue )
+{
+	if ( !TFGameRules() || !TFGameRules()->IsDeathmatch() )
+		return;
+
+	ConVar *pCvar = (ConVar *)var;
+	if ( pCvar->GetBool() )
+	{
+		if ( g_TFMusicManager.CanPlayMusic() )
+		{
+			g_TFMusicManager.StartMusic();
+		}
+	}
+	else
+	{
+		g_TFMusicManager.StopMusic();
+	}
+}
+
+ConVar tf2c_music_manager( "tf2c_music_manager", "0", FCVAR_ARCHIVE, "Enable dynamic music in Deathmatch.", MusicManagerToggle );
+ConVar tf2c_music_manager_volume( "tf2c_music_manager_volume", "0.75", FCVAR_ARCHIVE );
+ConVar tf2c_music_manager_track( "tf2c_music_manager_track", "1", FCVAR_ARCHIVE, NULL, true, 1, true, 3 );
+
+ConVar tf2c_music_manager_debug( "tf2c_music_manager_debug", "0", FCVAR_CHEAT );
+
+
 CTFMusicManager::CTFMusicManager() : CAutoGameSystemPerFrame( "CTFMusicManager" )
 {
 	m_bPlaying = false;
 	m_flIntensity = 0.0f;
+	m_flPlayerIntensity = 0.0f;
 	m_iTrack = 1;
 	m_flLoopTime = 0.0f;
 	m_flDuration = 0.0f;
@@ -47,11 +73,13 @@ bool CTFMusicManager::Init( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Check intensity conditions here.
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTFMusicManager::LevelShutdownPreEntity( void )
 {
 	StopMusic( false );
+	m_flIntensity = 0.0f;
+	m_flPlayerIntensity = 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -62,33 +90,31 @@ void CTFMusicManager::Update( float flFrameTime )
 	if ( !m_bPlaying )
 		return;
 
-	// Shut off the music if the cvar got toggled off.
-	if ( !tf2c_music_manager.GetBool() )
-	{
-		StopMusic( false );
-		return;
-	}
-
-	C_BasePlayer *pLocalPlayer = C_BasePlayer::GetLocalPlayer();
+	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
 		return;
 
 	bool bAlive = pLocalPlayer->IsAlive();
 	bool bPreGame = TFGameRules()->IsInWaitingForPlayers();
 
-	if ( !bAlive || bPreGame )
+	m_flIntensity = 0.0f;
+
+	// Keep it quiet if player is dead.
+	if ( bAlive && !bPreGame )
 	{
-		// Keep it queit if player is dead.
-		m_flIntensity = 0.0f;
-	}
-	else
-	{
+		float flPlayerIntensity = 0.0f;
+
 		// Calculate intensity based on distance from other players.
-		float flClosest = FLT_MAX;
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
 			C_BasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 			if ( !pPlayer || pPlayer == pLocalPlayer || !pPlayer->IsAlive() )
+				continue;
+
+			int x, y;
+
+			// Only count them if they're on-screen.
+			if ( GetVectorInScreenSpace( pPlayer->WorldSpaceCenter(), x, y ) == false )
 				continue;
 
 			trace_t tr;
@@ -96,13 +122,38 @@ void CTFMusicManager::Update( float flFrameTime )
 			if ( tr.fraction != 1.0f )
 				continue;
 
+			// Up to 50% per player.
 			float flDist = ( pPlayer->GetAbsOrigin() - pLocalPlayer->GetAbsOrigin() ).Length();
-			flClosest = min( flDist, flClosest );
+			flPlayerIntensity += RemapValClamped( flDist, 1024, 0, 0.0f, 0.5f );
 		}
 
-		m_flIntensity = RemapValClamped( flClosest, 0, 1024, 1.0f, 0.0f );
+		flPlayerIntensity = clamp( flPlayerIntensity, 0.0f, 1.0f );
+
+		if ( flPlayerIntensity >= m_flPlayerIntensity )
+		{
+			m_flPlayerIntensity = flPlayerIntensity;
+		}
+		else
+		{
+			// Go down gradually.
+			m_flPlayerIntensity = Approach( flPlayerIntensity, m_flPlayerIntensity, 0.05f * gpGlobals->frametime );
+		}
+
+		m_flIntensity += m_flPlayerIntensity;
+
+		// Killstreak increases intensity, 5% per kill.
+		m_flIntensity += (float)pLocalPlayer->m_Shared.GetKillstreak() * 0.05f;
+
+		// Low health increases intensity up to 70%.
+		int iHalfHealth = pLocalPlayer->GetMaxHealth() / 2;
+		if ( pLocalPlayer->GetHealth() < iHalfHealth )
+		{
+			m_flIntensity += RemapValClamped( pLocalPlayer->GetHealth(), iHalfHealth, 1, 0.0f, 0.70f );
+		}
 	}
 
+	m_flIntensity = clamp( m_flIntensity, 0.0f, 1.0f );
+	 
 	bool bLoop = false;
 	if ( m_flLoopTime != 0.0f && gpGlobals->curtime >= m_flLoopTime )
 	{
@@ -149,28 +200,6 @@ void CTFMusicManager::Update( float flFrameTime )
 			controller.SoundChangeVolume( pTrack->pSound, flVolume, flDeltaTime );
 		}
 	}
-
-#if 0
-	if ( tf2c_music_manager_debug.GetBool() )
-	{
-		int vx, vy, vw, vh;
-		vgui::surface()->GetFullscreenViewport( vx, vy, vw, vh );
-
-		int x = vw - 300;
-		int y = 2;
-
-		vgui::HScheme scheme = vgui::scheme()->GetScheme( "ClientScheme" );
-		vgui::HFont hFont = vgui::scheme()->GetIScheme( scheme )->GetFont( "Default" );
-		Color col( 0, 255, 0 );
-		vgui::surface()->DrawSetTextFont( hFont );
-		vgui::surface()->DrawSetTextColor( col );
-		vgui::surface()->DrawSetTextPos( x, y );
-
-		wchar_t buf[128];
-		V_snwprintf( buf, 128, L"Intensity: %.02f", m_flLoopTime );
-		vgui::surface()->DrawPrintText( buf, 128 );
-	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -211,9 +240,19 @@ void CTFMusicManager::FireGameEvent( IGameEvent *event )
 			StartMusic();
 		}
 	}
+	else if ( V_strcmp( event->GetName(), "player_death" ) == 0 )
+	{
+		int iVictim = event->GetInt( "userid" );
+		if ( iVictim == pPlayer->GetUserID() )
+		{
+			// Player died, reset intensity.
+			m_flIntensity = 0.0f;
+			m_flPlayerIntensity = 0.0f;
+		}
+	}
 	else if ( V_strcmp( event->GetName(), "teamplay_win_panel" ) == 0 )
 	{
-		StopMusic( false );
+		StopMusic( true );
 	}
 }
 
@@ -320,3 +359,103 @@ bool CTFMusicManager::CanPlayMusic( void )
 
 	return true;
 }
+
+using namespace vgui;
+
+//-----------------------------------------------------------------------------
+// Purpose: For debugging music manager.
+//-----------------------------------------------------------------------------
+class CHudMusicManager : public CHudElement, public vgui::Panel
+{
+	DECLARE_CLASS_SIMPLE( CHudMusicManager, vgui::Panel );
+
+public:
+	CHudMusicManager( const char *pElementName );
+	~CHudMusicManager( void );
+
+	virtual void	ApplySchemeSettings( vgui::IScheme *pScheme );
+	virtual void	Paint();
+
+	virtual bool	ShouldDraw( void );
+
+	vgui::HFont		m_hFont;
+};
+
+DECLARE_HUDELEMENT( CHudMusicManager );
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Input  : *parent - 
+//-----------------------------------------------------------------------------
+CHudMusicManager::CHudMusicManager( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "CHudMusicManager" )
+{
+	Panel *pParent = g_pClientMode->GetViewport();
+	SetParent( pParent );
+
+	SetVisible( false );
+	SetCursor( null );
+
+	SetFgColor( Color( 0, 0, 0, 255 ) );
+	SetPaintBackgroundEnabled( false );
+
+	m_hFont = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+CHudMusicManager::~CHudMusicManager( void )
+{
+}
+
+void CHudMusicManager::ApplySchemeSettings( vgui::IScheme *pScheme )
+{
+	BaseClass::ApplySchemeSettings( pScheme );
+
+	m_hFont = pScheme->GetFont( "Default" );
+	Assert( m_hFont );
+
+	SetSize( ScreenWidth(), ScreenHeight() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+// Output : Returns true on success, false on failure.
+//-----------------------------------------------------------------------------
+bool CHudMusicManager::ShouldDraw( void )
+{
+	if ( tf2c_music_manager_debug.GetBool() )
+		return true;
+
+	return false;
+}
+
+void CHudMusicManager::Paint( void )
+{
+	surface()->DrawSetTextFont( m_hFont );
+
+	Color col;
+	if ( g_TFMusicManager.m_flIntensity == 1.0f )
+	{
+		col.SetColor( 255, 0, 0, 255 );
+	}
+	else if ( g_TFMusicManager.m_flPlayerIntensity )
+	{
+		col.SetColor( 255, 255, 0, 255 );
+	}
+	else
+	{
+		col.SetColor( 0, 255, 0, 255 );
+	}
+
+	surface()->DrawSetTextColor( col );
+
+	int vx, vy, vw, vh;
+	vgui::surface()->GetFullscreenViewport( vx, vy, vw, vh );
+	surface()->DrawSetTextPos( vw - 300, 12 );
+	
+	wchar_t buf[64];
+	V_snwprintf( buf, 64, L"Intensity: %.f%%", g_TFMusicManager.m_flIntensity * 100.0f );
+	surface()->DrawPrintText( buf, wcslen( buf ) );
+}
+
