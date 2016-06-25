@@ -17,6 +17,7 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
 #include "tf_weaponbase.h"
+#include "engine/IEngineSound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -39,6 +40,8 @@ public:
 
 private:
 	vgui::ContinuousProgressBar *m_pChargeMeter;
+
+	bool m_bCharging;
 };
 
 DECLARE_HUDELEMENT( CHudDemomanChargeMeter );
@@ -56,6 +59,8 @@ CHudDemomanChargeMeter::CHudDemomanChargeMeter( const char *pElementName ) : CHu
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
 
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
+
+	m_bCharging = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -110,7 +115,14 @@ void CHudDemomanChargeMeter::OnTick( void )
 	ITFChargeUpWeapon *pChargeupWeapon = dynamic_cast< ITFChargeUpWeapon *>( pWpn );
 
 	if ( !pWpn || !pChargeupWeapon )
+	{
+		if ( m_bCharging )
+		{
+			C_BaseEntity::StopSound( pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+			m_bCharging = false;
+		}
 		return;
+	}
 
 	if ( m_pChargeMeter )
 	{
@@ -126,10 +138,23 @@ void CHudDemomanChargeMeter::OnTick( void )
 				float flPercentCharged = min( 1.0, flTimeCharged / flChargeMaxTime );
 
 				m_pChargeMeter->SetProgress( flPercentCharged );
+
+				if ( !m_bCharging )
+				{
+					CLocalPlayerFilter filter;
+					C_BaseEntity::EmitSound( filter, pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+					m_bCharging = true;
+				}
 			}
 			else
 			{
 				m_pChargeMeter->SetProgress( 0.0f );
+
+				if ( m_bCharging )
+				{
+					C_BaseEntity::StopSound( pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+					m_bCharging = false;
+				}
 			}
 		}
 	}

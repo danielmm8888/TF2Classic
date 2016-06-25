@@ -277,7 +277,7 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 
 	// Setup the think and touch functions (see CBaseEntity).
 	SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
-	SetNextThink( gpGlobals->curtime + 0.2 );
+	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 
 //-----------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 	}
 
 
-	SetNextThink( gpGlobals->curtime + 0.2 );
+	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 
 //-----------------------------------------------------------------------------

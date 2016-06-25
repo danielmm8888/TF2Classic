@@ -59,7 +59,7 @@ public:
 
 	virtual void	Spawn( void );
 	virtual void	Precache( void );
-	virtual void	Detonate( void );
+	virtual void	UpdateOnRemove( void );
 	virtual void	BounceSound( void );
 };
 

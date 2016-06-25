@@ -736,6 +736,7 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "TFPlayer.AttackerPain" );
 	PrecacheScriptSound( "TFPlayer.SaveMe" );
 	PrecacheScriptSound( "Camera.SnapShot" );
+	PrecacheScriptSound( "Weapon_StickyBombLauncher.ChargeUp" );
 
 	PrecacheScriptSound( "Game.YourTeamLost" );
 	PrecacheScriptSound( "Game.YourTeamWon" );

@@ -64,8 +64,6 @@ void CTFGrenadeMirvProjectile::Spawn()
 	SetDetonateTimerLength( GRENADE_MIRV_TIMER );
 	BlipSound();
 	m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
-
-	SetThink( &CTFGrenadeMirvProjectile::DetonateThink );
 }
 
 //-----------------------------------------------------------------------------
@@ -249,7 +247,7 @@ void CTFGrenadeMirvBomb::Precache()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CTFGrenadeMirvBomb::Detonate( void )
+void CTFGrenadeMirvBomb::UpdateOnRemove( void )
 {
 	StopSound( "Weapon_Grenade_Mirv.Fuse" );
 	BaseClass::Detonate();

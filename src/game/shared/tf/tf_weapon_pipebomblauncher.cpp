@@ -48,7 +48,7 @@ END_NETWORK_TABLE()
 
 BEGIN_NETWORK_TABLE( CTFPipebombLauncher, DT_WeaponPipebombLauncher )
 #ifdef CLIENT_DLL
-	RecvPropDataTable( "PipebombLauncherLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_PipebombLauncherLocalData ) ),
+RecvPropDataTable( "PipebombLauncherLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_PipebombLauncherLocalData ) ),
 #else
 	SendPropDataTable( "PipebombLauncherLocalData", 0, &REFERENCE_SEND_TABLE( DT_PipebombLauncherLocalData ), SendProxy_SendLocalWeaponDataTable ),
 #endif	
@@ -107,7 +107,6 @@ void CTFPipebombLauncher::Spawn( void )
 bool CTFPipebombLauncher::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	m_flChargeBeginTime = 0;
-	StopSound("Weapon_StickyBombLauncher.ChargeUp");
 
 	return BaseClass::Holster( pSwitchingTo );
 }
@@ -201,8 +200,6 @@ void CTFPipebombLauncher::LaunchGrenade( void )
 	if ( !pPlayer )
 		return;
 
-	StopSound("Weapon_StickyBombLauncher.ChargeUp");
-
 	CalcIsAttackCritical();
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
@@ -278,7 +275,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 				pTemp->SetTimer( gpGlobals->curtime ); // explode NOW
 			}
 
-			m_Pipebombs.Remove(0);
+			m_Pipebombs.Remove( 0 );
 		}
 
 		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
@@ -288,7 +285,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 		m_Pipebombs.AddToTail( hHandle );
 
 		m_iPipebombCount = m_Pipebombs.Count();
- #endif
+#endif
 	}
 
 	return pProjectile;
@@ -372,7 +369,7 @@ void CTFPipebombLauncher::SecondaryAttack( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPipebombLauncher::UpdateOnRemove(void)
+void CTFPipebombLauncher::UpdateOnRemove( void )
 {
 	// If we just died, we want to fizzle our pipebombs.
 	// If the player switched classes, our pipebombs have already been removed.
@@ -390,7 +387,7 @@ void CTFPipebombLauncher::UpdateOnRemove(void)
 //-----------------------------------------------------------------------------
 void CTFPipebombLauncher::DeathNotice( CBaseEntity *pVictim )
 {
-	Assert( dynamic_cast<CTFGrenadePipebombProjectile*>(pVictim) );
+	Assert( dynamic_cast<CTFGrenadePipebombProjectile*>( pVictim ) );
 
 	PipebombHandle hHandle;
 	hHandle = (CTFGrenadePipebombProjectile*)pVictim;
