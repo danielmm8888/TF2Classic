@@ -94,6 +94,17 @@ void CTFMusicManager::Update( float flFrameTime )
 	if ( !pLocalPlayer )
 		return;
 
+	// Watch track changes.
+	if ( tf2c_music_manager_track.GetInt() != m_iTrack )
+	{
+		StopMusic();
+
+		if ( CanPlayMusic() )
+			StartMusic();
+
+		return;
+	}
+
 	bool bAlive = pLocalPlayer->IsAlive();
 	bool bPreGame = TFGameRules()->IsInWaitingForPlayers();
 
@@ -102,6 +113,18 @@ void CTFMusicManager::Update( float flFrameTime )
 	// Keep it quiet if player is dead.
 	if ( bAlive && !bPreGame )
 	{
+		// Killstreak increases intensity, 5% per kill.
+		m_flIntensity += (float)pLocalPlayer->m_Shared.GetKillstreak() * 0.05f;
+
+		// Low health increases intensity up to 70%.
+		int iHalfHealth = pLocalPlayer->GetMaxHealth() / 2;
+		if ( pLocalPlayer->GetHealth() < iHalfHealth )
+		{
+			m_flIntensity += RemapValClamped( pLocalPlayer->GetHealth(), iHalfHealth, 1, 0.0f, 0.70f );
+		}
+
+		m_flIntensity = clamp( m_flIntensity, 0.0f, 1.0f );
+
 		float flPlayerIntensity = 0.0f;
 
 		// Calculate intensity based on distance from other players.
@@ -127,7 +150,7 @@ void CTFMusicManager::Update( float flFrameTime )
 			flPlayerIntensity += RemapValClamped( flDist, 1024, 0, 0.0f, 0.5f );
 		}
 
-		flPlayerIntensity = clamp( flPlayerIntensity, 0.0f, 1.0f );
+		flPlayerIntensity = clamp( flPlayerIntensity, 0.0f, 1.0f - m_flPlayerIntensity );
 
 		if ( flPlayerIntensity >= m_flPlayerIntensity )
 		{
@@ -140,19 +163,7 @@ void CTFMusicManager::Update( float flFrameTime )
 		}
 
 		m_flIntensity += m_flPlayerIntensity;
-
-		// Killstreak increases intensity, 5% per kill.
-		m_flIntensity += (float)pLocalPlayer->m_Shared.GetKillstreak() * 0.05f;
-
-		// Low health increases intensity up to 70%.
-		int iHalfHealth = pLocalPlayer->GetMaxHealth() / 2;
-		if ( pLocalPlayer->GetHealth() < iHalfHealth )
-		{
-			m_flIntensity += RemapValClamped( pLocalPlayer->GetHealth(), iHalfHealth, 1, 0.0f, 0.70f );
-		}
 	}
-
-	m_flIntensity = clamp( m_flIntensity, 0.0f, 1.0f );
 	 
 	bool bLoop = false;
 	if ( m_flLoopTime != 0.0f && gpGlobals->curtime >= m_flLoopTime )
@@ -327,6 +338,8 @@ void CTFMusicManager::StopMusic( bool bPlayEnding /*= false*/ )
 		C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params );
 	}
 
+	m_flIntensity = 0.0f;
+	m_flPlayerIntensity = 0.0f;
 	m_bPlaying = false;
 }
 
