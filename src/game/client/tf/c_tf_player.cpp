@@ -4365,3 +4365,25 @@ static void cc_tf_debugsentrydmg()
 	}
 }
 static ConCommand tf_debugsentrydamage( "tf_debugsentrydamage", cc_tf_debugsentrydmg, "", FCVAR_DEVELOPMENTONLY );
+
+vgui::IImage* GetDefaultAvatarImage( C_BasePlayer *pPlayer )
+{
+	if ( pPlayer )
+	{
+		switch ( pPlayer->GetTeamNumber() )
+		{
+		case TF_TEAM_RED:
+		{
+			static vgui::IImage *pRedAvatar = scheme()->GetImage( "../vgui/avatar_default_red", true );
+			return pRedAvatar;
+		}
+		case TF_TEAM_BLUE:
+		{
+			static vgui::IImage *pBlueAvatar = scheme()->GetImage( "../vgui/avatar_default_blue", true );
+			return pBlueAvatar;
+		}
+		}
+	}
+
+	return NULL;
+}

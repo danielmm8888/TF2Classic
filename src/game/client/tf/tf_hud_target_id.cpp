@@ -23,6 +23,8 @@ DECLARE_HUDELEMENT( CSecondaryTargetID );
 
 using namespace vgui;
 
+vgui::IImage* GetDefaultAvatarImage( C_BasePlayer *pPlayer );
+
 ConVar tf_hud_target_id_alpha( "tf_hud_target_id_alpha", "100", FCVAR_ARCHIVE , "Alpha value of target id background, default 100" );
 
 ConVar tf_hud_target_id_show_avatars( "tf_hud_target_id_show_avatars", "1", FCVAR_ARCHIVE, "Show avatars on player target ids" );
@@ -296,8 +298,8 @@ void CTargetID::UpdateID( void )
 			// Get team color.
 			iColorNum = pPlayer->GetTeamNumber();
 
-			// Get the avatar (unless it's a bot).
-			if ( tf_hud_target_id_show_avatars.GetBool() && !g_PR->IsFakePlayer( m_iTargetEntIndex ) )
+			// Get the avatar.
+			if ( tf_hud_target_id_show_avatars.GetBool() )
 			{
 				pAvatarPlayer = pPlayer;
 			}
@@ -428,8 +430,10 @@ void CTargetID::UpdateID( void )
 		// Setup avatar
 		if ( tf_hud_target_id_show_avatars.GetBool() && pAvatarPlayer && m_pAvatar )
 		{
+			m_pAvatar->SetDefaultAvatar( GetDefaultAvatarImage( pAvatarPlayer ) );
 			m_pAvatar->SetPlayer( pAvatarPlayer );
 			m_pAvatar->SetShouldDrawFriendIcon( false );
+
 			m_pTargetNameLabel->SetTextInset( XRES( 12 ), 0 );
 		}
 		else

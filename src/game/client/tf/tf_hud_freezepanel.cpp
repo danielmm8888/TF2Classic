@@ -27,6 +27,8 @@
 
 DECLARE_HUDELEMENT_DEPTH( CTFFreezePanel, 1 );
 
+vgui::IImage* GetDefaultAvatarImage( C_BasePlayer *pPlayer );
+
 #define CALLOUT_WIDE		(XRES(100))
 #define CALLOUT_TALL		(XRES(50))
 
@@ -268,6 +270,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 				if ( m_pAvatar )
 				{
+					m_pAvatar->SetDefaultAvatar( GetDefaultAvatarImage( (C_BasePlayer*)pKiller ) );
+
 					m_pAvatar->SetPlayer( (C_BasePlayer*)pKiller );
 					m_pAvatar->SetShouldDrawFriendIcon( false );
 				}
@@ -290,6 +294,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 					if ( m_pAvatar )
 					{
+						m_pAvatar->SetDefaultAvatar( GetDefaultAvatarImage( pOwner ) );
+
 						m_pAvatar->SetPlayer( pOwner );
 						m_pAvatar->SetShouldDrawFriendIcon( false );
 					}

@@ -46,7 +46,9 @@ using namespace vgui;
 #define SCOREBOARD_MAX_LIST_ENTRIES 12
 
 extern bool IsInCommentaryMode( void );
-extern const char *GetMapDisplayName(const char *mapName);
+extern const char *GetMapDisplayName( const char *mapName );
+
+vgui::IImage* GetDefaultAvatarImage( C_BasePlayer *pPlayer );
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
