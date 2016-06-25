@@ -85,9 +85,12 @@ void CTFImagePanel::UpdateBGImage( void )
 //-----------------------------------------------------------------------------
 void CTFImagePanel::SetBGImage( int iTeamNum )
 {
-	if ( m_szTeamBG[iTeamNum] && m_szTeamBG[iTeamNum][0] )
+	if ( m_iBGTeam >= 0 && m_iBGTeam < TF_TEAM_COUNT )
 	{
-		SetImage( m_szTeamBG[iTeamNum] );
+		if ( m_szTeamBG[iTeamNum] && m_szTeamBG[iTeamNum][0] )
+		{
+			SetImage( m_szTeamBG[iTeamNum] );
+		}
 	}
 }
 

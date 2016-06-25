@@ -973,6 +973,16 @@ public:
 
 EXPOSE_INTERFACE( CProxyBurnLevel, IMaterialProxy, "BurnLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
+Vector g_aUrineLevels[TF_TEAM_COUNT] =
+{
+	Vector( 1, 1, 1 ),
+	Vector( 1, 1, 1 ),
+	Vector( 7, 5, 1 ),
+	Vector( 9, 6, 2 ),
+	Vector( 5, 7, 1 ),
+	Vector( 9, 6, 1 ),
+};
+
 //-----------------------------------------------------------------------------
 // Purpose: Used for jarate
 //			Returns the RGB value for the appropriate tint condition.
@@ -1015,8 +1025,21 @@ public:
 
 		if ( pPlayer && pPlayer->m_Shared.InCond( TF_COND_URINE ) )
 		{
-			m_pResult->SetVecValue( 1, 5, 7 );
-			return;
+			int iTeam = pPlayer->GetTeamNumber();
+			if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && pPlayer->IsEnemyPlayer() )
+			{
+				iTeam = pPlayer->m_Shared.GetDisguiseTeam();
+			}
+
+			if ( iTeam >= FIRST_GAME_TEAM && iTeam < TF_TEAM_COUNT )
+			{
+				float r = g_aUrineLevels[iTeam].x;
+				float g = g_aUrineLevels[iTeam].y;
+				float b = g_aUrineLevels[iTeam].z;
+
+				m_pResult->SetVecValue( r, g, b );
+				return;
+			}
 		}
 
 		m_pResult->SetVecValue( 1, 1, 1 );
