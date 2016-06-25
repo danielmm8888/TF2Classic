@@ -232,7 +232,7 @@ public:
 
 	virtual bool	AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
 
-	virtual int		GetClassLimit( int iDesiredClassIndex );
+	virtual int		GetClassLimit( int iDesiredClassIndex, int iTeam );
 	virtual bool	CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClassIndex );
 
 	void			SetTeamGoalString( int iTeam, const char *pszGoal );

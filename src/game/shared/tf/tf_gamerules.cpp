@@ -766,11 +766,13 @@ public:
 
 	void	Spawn(void);
 
+	inline int GetTeam() { return m_iTeam; }
+
 	int GetLimitForClass(int iClass)
 	{
 		int result;
 
-		if (iClass <= TF_LAST_NORMAL_CLASS)
+		if (iClass < TF_CLASS_COUNT_ALL)
 		{
 			switch (iClass)
 			{
@@ -803,6 +805,9 @@ public:
 			case TF_CLASS_SCOUT:
 				result = m_nScoutLimit;
 				break;
+			case TF_CLASS_MERCENARY:
+				result = m_nMercenaryLimit;
+				break;
 			}
 		}
 		else
@@ -813,6 +818,8 @@ public:
 	}
 
 private:
+	int		m_iTeam;
+
 	int		m_nScoutLimit;
 	int		m_nSoldierLimit;
 	int		m_nPyroLimit;
@@ -822,11 +829,13 @@ private:
 	int		m_nMedicLimit;
 	int		m_nSniperLimit;
 	int		m_nSpyLimit;
+	int		m_nMercenaryLimit;
 };
 
 LINK_ENTITY_TO_CLASS(tf_logic_classlimits, CTFClassLimits);
 
 BEGIN_DATADESC(CTFClassLimits)
+DEFINE_KEYFIELD(m_iTeam,			FIELD_INTEGER, "Team"),
 DEFINE_KEYFIELD(m_nScoutLimit,		FIELD_INTEGER, "ScoutLimit"),
 DEFINE_KEYFIELD(m_nSoldierLimit,	FIELD_INTEGER, "SoldierLimit"),
 DEFINE_KEYFIELD(m_nPyroLimit,		FIELD_INTEGER, "PyroLimit"),
@@ -836,6 +845,7 @@ DEFINE_KEYFIELD(m_nEngineerLimit,	FIELD_INTEGER, "EngineerLimit"),
 DEFINE_KEYFIELD(m_nMedicLimit,		FIELD_INTEGER, "MedicLimit"),
 DEFINE_KEYFIELD(m_nSniperLimit,		FIELD_INTEGER, "SniperLimit"),
 DEFINE_KEYFIELD(m_nSpyLimit,		FIELD_INTEGER, "SpyLimit"),
+DEFINE_KEYFIELD(m_nMercenaryLimit,	FIELD_INTEGER, "MercenaryLimit"),
 END_DATADESC()
 
 void CTFClassLimits::Spawn(void)
@@ -1463,9 +1473,9 @@ void CTFGameRules::Activate()
 
 extern ConVar tf2c_allow_special_classes;
 
-int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
+int CTFGameRules::GetClassLimit( int iDesiredClassIndex, int iTeam )
 {
-	int result;
+	int result = -1;
 
 	if ( IsInTournamentMode() )
 	{
@@ -1526,7 +1536,13 @@ int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 	}
 	else if (CTFClassLimits *pLimits = dynamic_cast< CTFClassLimits * > ( gEntList.FindEntityByClassname(NULL, "tf_class_limits") ))
 	{
-		result = pLimits->GetLimitForClass( iDesiredClassIndex );
+		do
+		{
+			if (pLimits->GetTeam() == iTeam)
+			{
+				result = pLimits->GetLimitForClass( iDesiredClassIndex );
+			}
+		} while (nullptr != (pLimits = dynamic_cast< CTFClassLimits * > ( gEntList.FindEntityByClassname(pLimits, "tf_class_limits") )));
 	}
 	else
 	{
@@ -1547,7 +1563,7 @@ bool CTFGameRules::CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClass
 	int iClassLimit = 0;
 	int iClassCount = 0;
 
-	iClassLimit = GetClassLimit( iDesiredClassIndex );
+	iClassLimit = GetClassLimit( iDesiredClassIndex, pTFTeam->GetTeamNumber() );
 	
 	if ( iClassLimit != -1 && pTFTeam && pTFPlayer->GetTeamNumber() >= TF_TEAM_RED )
 	{
