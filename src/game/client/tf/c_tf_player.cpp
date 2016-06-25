@@ -1190,6 +1190,12 @@ public:
 				}
 			}
 
+			// Something else?
+			if ( !pPlayer )
+			{
+				pPlayer = ToTFPlayer( pEntity->GetOwnerEntity() );
+			}
+
 			if ( pPlayer )
 			{
 				m_pResult->SetVecValue( pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z );
@@ -3448,6 +3454,38 @@ void C_TFPlayer::CreatePlayerGibs( const Vector &vecOrigin, const Vector &vecVel
 	// Break up the player.
 	m_hSpawnedGibs.Purge();
 	m_hFirstGib = CreateGibsFromList( m_aGibs, GetModelIndex(), NULL, breakParams, this, -1 , false, true, &m_hSpawnedGibs, bBurning );
+
+	// Gib skin numbers don't match player skin numbers so we gotta fix it up here.
+	for ( int i = 0; i < m_hSpawnedGibs.Count(); i++ )
+	{
+		C_BaseAnimating *pGib = static_cast<C_BaseAnimating *>( m_hSpawnedGibs[i].Get() );
+
+		if ( TFGameRules()->IsDeathmatch() )
+		{
+			pGib->m_nSkin = 4;
+		}
+		else
+		{
+			switch ( GetTeamNumber() )
+			{
+			case TF_TEAM_RED:
+				pGib->m_nSkin = 0;
+				break;
+			case TF_TEAM_BLUE:
+				pGib->m_nSkin = 1;
+				break;
+			case TF_TEAM_GREEN:
+				pGib->m_nSkin = 2;
+				break;
+			case TF_TEAM_YELLOW:
+				pGib->m_nSkin = 3;
+				break;
+			default:
+				pGib->m_nSkin = 0;
+				break;
+			}
+		}
+	}
 
 	DropPartyHat( breakParams, vecBreakVelocity );
 }
