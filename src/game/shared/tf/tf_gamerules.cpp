@@ -4702,6 +4702,9 @@ bool CTFGameRules::AllowThirdPersonCamera( void )
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer )
 	{
+		if ( pPlayer->IsObserver() )
+			return false;
+
 		if ( pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
 			return false;
 	}
