@@ -250,7 +250,7 @@ void CTFGrenadeMirvBomb::Precache()
 void CTFGrenadeMirvBomb::UpdateOnRemove( void )
 {
 	StopSound( "Weapon_Grenade_Mirv.Fuse" );
-	BaseClass::Detonate();
+	BaseClass::UpdateOnRemove();
 }
 
 //-----------------------------------------------------------------------------

@@ -150,8 +150,6 @@ void CTFMusicManager::Update( float flFrameTime )
 			flPlayerIntensity += RemapValClamped( flDist, 1024, 0, 0.0f, 0.5f );
 		}
 
-		flPlayerIntensity = clamp( flPlayerIntensity, 0.0f, 1.0f - m_flPlayerIntensity );
-
 		if ( flPlayerIntensity >= m_flPlayerIntensity )
 		{
 			m_flPlayerIntensity = flPlayerIntensity;
@@ -161,6 +159,8 @@ void CTFMusicManager::Update( float flFrameTime )
 			// Go down gradually.
 			m_flPlayerIntensity = Approach( flPlayerIntensity, m_flPlayerIntensity, 0.05f * gpGlobals->frametime );
 		}
+
+		m_flPlayerIntensity = clamp( m_flPlayerIntensity, 0.0f, 1.0f - m_flIntensity );
 
 		m_flIntensity += m_flPlayerIntensity;
 	}
