@@ -5379,13 +5379,6 @@ public:
 #ifdef TF_CLASSIC
 			}
 #endif
-			else if ( gpGlobals->maxClients > 1 )
-			{
-				// On listen servers with more than 1 player, only allow the host to issue ent_fires.
-				CBasePlayer *pHostPlayer = UTIL_GetListenServerHost();
-				if ( pPlayer != pHostPlayer )
-					return;
-			}
 
 			if ( command.ArgC() >= 3 )
 			{
