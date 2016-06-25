@@ -229,7 +229,7 @@ DECLARE_CLIENT_EFFECT( NAILGUN_NAIL_DISPATCH_EFFECT, ClientsideProjectileNailCal
 
 #define TRANQDART_MODEL				"models/weapons/w_models/w_dart.mdl"
 #define TRANQDART_DISPATCH_EFFECT	"ClientProjectile_TranqDart"
-#define TRANQDART_GRAVITY	0.0f
+#define TRANQDART_GRAVITY	0.3f
 
 LINK_ENTITY_TO_CLASS( tf_projectile_dart, CTFProjectile_Dart );
 PRECACHE_REGISTER( tf_projectile_dart );
