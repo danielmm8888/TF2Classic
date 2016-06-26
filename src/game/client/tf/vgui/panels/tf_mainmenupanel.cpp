@@ -5,7 +5,6 @@
 #include "vgui_controls/SectionedListPanel.h"
 #include "vgui_controls/ImagePanel.h"
 #include "tf_notificationmanager.h"
-#include "c_sdkversionchecker.h"
 #include "engine/IEngineSound.h"
 #include "vgui_avatarimage.h"
 
@@ -285,7 +284,7 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	if (m_pVersionLabel)
 	{
 		char verString[64];
-		Q_snprintf(verString, sizeof(verString), "Version: %s\nSDK branch: %s", GetNotificationManager()->GetVersionString(), GetSDKVersionChecker()->GetKey());
+		Q_snprintf(verString, sizeof(verString), "Version: %s", GetNotificationManager()->GetVersionString());
 		m_pVersionLabel->SetText(verString);
 	}
 };
