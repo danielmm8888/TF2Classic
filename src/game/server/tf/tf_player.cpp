@@ -3114,7 +3114,9 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 					// play the critical shot sound to the shooter	
 					if ( pWpn )
 					{
-						pWpn->WeaponSound( BURST );
+						if ( pWpn->IsWeapon( TF_WEAPON_SNIPERRIFLE ) )
+							pWpn->WeaponSound( BURST );
+
 						CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWpn, flDamage, headshot_damage_modify );
 					}
 				}
