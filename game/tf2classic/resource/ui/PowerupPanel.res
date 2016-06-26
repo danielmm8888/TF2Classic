@@ -1,0 +1,28 @@
+"Resource/UI/PowerupPanel.res"
+{
+	"TimePanelProgressBar"
+	{
+		"ControlName"		"CTFProgressBar"
+		"fieldName"			"TimePanelProgressBar"
+		"xpos"				"0"
+		"xpos_hidef"		"159"
+		"xpos_lodef"		"165"
+		"ypos"				"0"
+		"ypos_hidef"		"15"
+		"ypos_lodef"		"16"
+		"zpos"				"4"	
+		"wide"				"40"
+		"wide_lodef"		"25"
+		"tall"				"40"
+		"tall_lodef"		"25"	
+		"visible"			"1"
+		"visible_minmode"	"0"
+		"enabled"			"1"
+		"scaleImage"		"1"
+		"image"				""
+		"color_active"			"207 166 40 20"
+		"color_inactive"		"147 106 0 80"
+		"color_warning"			"220 62 47 127"
+		"percent_warning"		"0.75"
+	}
+}

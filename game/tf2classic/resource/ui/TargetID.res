@@ -93,8 +93,8 @@
 	{
 		"ControlName"	"CAvatarImagePanel"
 		"fieldName"		"AvatarImage"
-		"xpos"			"32"
-		"xpos_minmode"	"26"
+		"xpos"			"34"
+		"xpos_minmode"	"30"
 		"ypos"			"12"
 		"ypos_minmode"	"8"
 		"zpos"			"1"

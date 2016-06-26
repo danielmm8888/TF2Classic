@@ -233,6 +233,7 @@
 	"SniperTaunts"			"0.72"
 	"SoldierTaunts"			"0.72"
 	"SpyTaunts"			"0.72"
+	"Music"				"1.0" // TF2 music already quites down when player is dead.
 	"Tf_music"			"0.72"
 	"All"				"0.01"
 }

@@ -1011,6 +1011,15 @@
 			"height"	"110"
 		}
 		
+		"obj_status_alert_background_tall_nocolor"
+		{
+			"file"		"HUD/eng_status_area_sentry_alrt_nocolor"
+			"x"			"0"
+			"y"			"0"
+			"width"		"80"
+			"height"	"110"
+		}
+		
 		"obj_status_icon_wrench"
 		{
 			"file"		"HUD/eng_status_alert_ico_wrench"

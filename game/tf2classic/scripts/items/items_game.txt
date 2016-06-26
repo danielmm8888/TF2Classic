@@ -1074,6 +1074,78 @@
 			"drop_sound"	"ui/item_light_gun_drop.wav"
 			"xifier_class_remap"	"flaregun"
 		}
+		"weapon_huntsman"
+		{
+			"item_class"	"tf_weapon_compound_bow"
+			"craft_class"	"weapon"
+			"craft_material_type"	"weapon"
+			"capabilities"
+			{
+				"nameable"		"1"
+			}
+			"tags"
+			{
+				"can_deal_damage"			"1"
+				"can_headshot"				"1"
+				"can_deal_posthumous_damage"	"1"
+				"can_deal_critical_damage"	"1"
+				"can_deal_mvm_penetration_damage"	"1"
+				"can_deal_long_distance_damage"	"1"
+				"can_deal_taunt_damage"		"1"
+			}
+			"show_in_armory"	"1"
+			"item_type_name"	"#TF_Weapon_CompoundBow"
+			"item_name"	"#TF_Unique_Achievement_CompoundBow"
+			"item_slot"	"primary"
+			"item_quality"	"unique"
+			"propername"	"1"
+			"item_iconname"	"huntsman"
+			"min_ilevel"	"10"
+			"max_ilevel"	"10"
+			"anim_slot"	"item2"
+			"image_inventory"	"backpack/weapons/c_models/c_bow/c_bow"
+			"image_inventory_size_w"		"128"
+			"image_inventory_size_h"		"82"
+			"model_player"	"models/weapons/c_models/c_bow/c_bow.mdl"
+			"attach_to_hands"	"1"
+			"flip_viewmodel"	"1"
+			"used_by_classes"
+			{
+				"sniper"	"1"
+			}
+			"attributes"
+			{
+				"hidden primary max ammo bonus"
+				{
+					"attribute_class"	"mult_maxammo_primary"
+					"value"	"0.5"
+				}
+				"disable fancy class select anim"
+				{
+					"attribute_class"	"disable_fancy_class_select_anim"
+					"value"	"1"
+				}
+				"special taunt"
+				{
+					"attribute_class"	"special_taunt"
+					"value" "1"
+				}
+				"allowed in medieval mode"
+				{
+					"attribute_class"	"allowed_in_medieval_mode"
+					"value"	"1"
+				}
+			}
+			"visuals"
+			{
+				"player_bodygroups"
+				{
+					"arrows"		"1"
+				}
+			}
+			"mouse_pressed_sound"	"ui/item_wood_pole_pickup.wav"
+			"drop_sound"		"ui/item_wood_pole_drop.wav"
+		}
 		"weapon_crowbar"
 		{
 			"capabilities"
@@ -2078,6 +2150,13 @@
 			"prefab"	"valve weapon_flaregun"
 			"first_sale_date"	"2011/04/14"
 		}
+		"56"
+		{
+			"name"	"The Huntsman"
+			"first_sale_date"	"2010/09/29"
+			"prefab"	"valve weapon_huntsman"
+			"xifier_class_remap"	"huntsman"
+		}
 		"133"
 		{
 			"name"	"The Gunboats"
@@ -2107,57 +2186,14 @@
 			"image_inventory_size_h"	"82"
 			"model_player"	"models/weapons/c_models/c_rocketboots_soldier.mdl"
 			"act_as_wearable"	"1"
+			"model_player_per_class"
+			{
+				"soldier"	"models/weapons/c_models/c_rocketboots_soldier.mdl"
+				"demoman"	"models/weapons/c_models/c_rocketboots_demo.mdl"
+			}
 			"used_by_classes"
 			{
 				"soldier"	"secondary"
-			}
-			"attributes"
-			{
-				"rocket jump damage reduction"
-				{
-					"attribute_class"	"rocket_jump_dmg_reduction"
-					"value"	"0.4"
-				}
-				"allowed in medieval mode"
-				{
-					"attribute_class"	"allowed_in_medieval_mode"
-					"value"	"1"
-				}
-			}
-			"mouse_pressed_sound"	"ui/item_metal_weapon_pickup.wav"
-			"drop_sound"	"ui/item_metal_weapon_drop.wav"
-		}
-		"134"
-		{
-			"name"	"The Gunboats"
-			"prefab"	"valve"
-			"first_sale_date"	"2010/09/29"
-			"item_class"	"tf_wearable"
-			"craft_class"	"weapon"
-			"craft_material_type"	"weapon"
-			"loadondemand"	"1"
-			"capabilities"
-			{
-				"nameable"	"1"
-				"can_gift_wrap"	"1"
-			}
-			"show_in_armory"	"1"
-			"item_type_name"	"#TF_Wearable_Boots"
-			"item_name"	"#TF_Unique_Blast_Boots"
-			"item_slot"	"secondary"
-			"equip_region"	"feet"
-			"anim_slot"	"FORCE_NOT_USED"
-			"item_quality"	"unique"
-			"propername"	"1"
-			"min_ilevel"	"10"
-			"max_ilevel"	"10"
-			"image_inventory"	"backpack/weapons/c_models/c_rocketboots_soldier"
-			"image_inventory_size_w"	"128"
-			"image_inventory_size_h"	"82"
-			"model_player"	"models/weapons/c_models/c_rocketboots_demo.mdl"
-			"act_as_wearable"	"1"
-			"used_by_classes"
-			{
 				"demoman"	"primary"
 			}
 			"attributes"
@@ -2785,113 +2821,43 @@
 		}
 		"9015"
 		{
-			"name"	"Frag Grenade"
+			"name"	"MIRV"
 			"capabilities"
 			{
 				"nameable"	"1"
 			}
 			"tags"
 			{
-				"can_deal_damage"	"1"
-				"can_deal_critical_damage"	"1"
 				"can_deal_gib_damage"	"1"
-				"can_deal_posthumous_damage"	"1"
+				"can_deal_damage"	"1"
+				"can_be_equipped_by_soldier_or_demo"	"1"
+				"can_deal_critical_damage"	"1"
 				"can_deal_long_distance_damage"	"1"
 			}
-			"item_class"	"tf_weapon_grenadelauncher"
+			"item_class"	"tf_weapon_grenade_mirv"
 			"craft_class"	"weapon"
 			"craft_material_type"	"weapon"
 			"show_in_armory"	"1"
-			"item_type_name"	"#TF_Weapon_Cyclops"
-			"item_name"	"#TF_Weapon_Frag"
-			"propername"	"1"
+			"item_type_name"	"#TF_Weapon_Grenade"
+			"item_name"	"#TF_Weapon_Mirv"
 			"item_slot"	"secondary"
 			"anim_slot"	"melee"
 			"item_quality"	"unique"
-			"min_ilevel"	"8"
-			"max_ilevel"	"8"
-			"image_inventory"	"backpack/weapons/w_models/w_grenadelauncher"
-			"image_inventory_size_w"	"128"
-			"image_inventory_size_h"	"82"
-			"model_world"	"models/weapons/w_models/w_grenade_frag.mdl"
-			"model_player"	"models/weapons/v_models/v_grenade_frag_merc.mdl"
-			"attach_to_hands"	"2"
-			"used_by_classes"
-			{
-				"mercenary"	"1"
-			}
-			"attributes"
-			{
-				"clip size penalty"
-				{
-					"attribute_class"	"mult_clipsize"
-					"value"	"0.25"
-				}
-				"fire rate penalty"
-				{
-					"attribute_class"	"mult_postfiredelay"
-					"value"	"1.0"
-				}
-				"hidden primary max ammo bonus"
-				{
-					"attribute_class"	"mult_maxammo_primary"
-					"value"	"0.11"
-				}
-			}
-			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
-			"drop_sound"	"ui/item_heavy_gun_drop.wav"
-			"visuals"
-			{
-				"sound_single_shot"	"Weapon_Grenade_Normal.Single"
-				"sound_reload"	"Weapon_Cyclops.WorldReload"
-				"sound_special3"	"Weapon_Cyclops.ModeSwitch"
-				"sound_burst"	"Weapon_Grenade_Normal.Single"
-			}
-		}
-		"9016"
-		{
-			"name"	"Battle Knife"
-			"capabilities"
-			{
-				"nameable"	"1"
-			}
-			"tags"
-			{
-				"can_deal_damage"	"1"
-				"can_deal_critical_damage"	"1"
-				"can_deal_mvm_penetration_damage"	"1"
-				"can_deal_long_distance_damage"	"1"
-			}
-			"item_class"	"tf_weapon_knife"
-			"craft_class"	"weapon"
-			"craft_material_type"	"weapon"
-			"item_type_name"	"#TF_Weapon_Knife"
-			"item_name"	"#TF_Weapon_Knife"
-			"item_slot"	"melee"
-			"item_quality"	"unique"
 			"propername"	"1"
-			"min_ilevel"	"8"
-			"max_ilevel"	"8"
-			"image_inventory"	"backpack/workshop/weapons/c_models/c_paratrooper_knife/c_paratrooper_knife"
+			"min_ilevel"	"5"
+			"max_ilevel"	"10"
+			"image_inventory"	"backpack/weapons/w_models/w_stickybomb_launcher"
 			"image_inventory_size_w"	"128"
 			"image_inventory_size_h"	"82"
-			"model_world"	"models/weapons/w_models/w_paratrooper_knife.mdl"
-			"model_player"	"models/weapons/v_models/v_paratrooper_knife.mdl"
+			"model_world"	"models/weapons/w_models/w_grenade_mirv_demo.mdl"
+			"model_player"	"models/weapons/v_models/v_mirv_demo.mdl"
 			"attach_to_hands"	"2"
 			"used_by_classes"
 			{
-				"mercenary"	"1"
+				"demoman"	"1"
 			}
 			"mouse_pressed_sound"	"ui/item_heavy_gun_pickup.wav"
 			"drop_sound"	"ui/item_heavy_gun_drop.wav"
-			"attributes"
-			{
-				"damage bonus"
-				{
-					"attribute_class"	"mult_dmg"
-					"value"	"1.125"
-				}
-			}
 		}
 		"9017"
 		{
@@ -2928,72 +2894,6 @@
 			}
 			"mouse_pressed_sound"	"ui/item_metal_weapon_pickup.wav"
 			"drop_sound"	"ui/item_metal_weapon_drop.wav"
-		}
-		"9018"
-		{
-			"name"	"Coffee Pot"
-			"capabilities"
-			{
-				"nameable"	"1"
-			}
-			"tags"
-			{
-				"can_deal_damage"	"1"
-			}
-			"first_sale_date"	"2010/09/29"
-			"item_class"	"tf_weapon_bottle"
-			"craft_class"	"weapon"
-			"craft_material_type"	"weapon"
-			"item_type_name"	"#TF_Weapon_Bottle"
-			"item_name"	"#TF_Weapon_Bottle"
-			"item_slot"	"melee"
-			"item_quality"	"normal"
-			"min_ilevel"	"1"
-			"max_ilevel"	"1"
-			"image_inventory"	"backpack/weapons/w_models/w_bottle"
-			"image_inventory_size_w"	"128"
-			"image_inventory_size_h"	"82"
-			"model_world"	"models/weapons/w_models/w_coffepot.mdl"
-			"model_player"	"models/weapons/v_models/v_coffepot_merc.mdl"
-			"attach_to_hands"	"2"
-			"used_by_classes"
-			{
-			}
-			"mouse_pressed_sound"	"ui/item_bottle_pickup.wav"
-			"drop_sound"	"ui/item_bottle_drop.wav"
-		}
-		"9019"
-		{
-			"name"	"Lead Pipe"
-			"capabilities"
-			{
-				"nameable"	"1"
-			}
-			"tags"
-			{
-				"can_deal_damage"	"1"
-			}
-			"first_sale_date"	"2010/09/29"
-			"item_class"	"tf_weapon_shovel"
-			"craft_class"	"weapon"
-			"craft_material_type"	"weapon"
-			"item_type_name"	"#TF_Weapon_Shovel"
-			"item_name"	"#TF_Weapon_Shovel"
-			"item_slot"	"melee"
-			"item_quality"	"normal"
-			"min_ilevel"	"1"
-			"max_ilevel"	"1"
-			"image_inventory"	"backpack/weapons/w_models/w_shovel"
-			"image_inventory_size_w"	"128"
-			"image_inventory_size_h"	"82"
-			"model_world"	"models/weapons/w_models/w_leadpipe.mdl"
-			"model_player"	"models/weapons/v_models/v_leadpipe_merc.mdl"
-			"attach_to_hands"	"2"
-			"used_by_classes"
-			{
-			}
-			"mouse_pressed_sound"	"ui/item_shovel_pickup.wav"
-			"drop_sound"	"ui/item_shovel_drop.wav"
 		}
 	}
 	"attributes"

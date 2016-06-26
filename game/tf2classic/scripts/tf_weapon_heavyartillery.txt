@@ -41,8 +41,8 @@ WeaponData
 	SoundData
 	{
 		"single_shot"		"Weapon_HeavyArtillery.Single"
-		"empty"			"Weapon_Shotgun.ClipEmpty"
-		"reload"		"Weapon_Shotgun.WorldReload"
+		"empty"			"Weapon_SMG.ClipEmpty"	
+		"reload"		"Weapon_SMG.WorldReload"
 		"burst"			"Weapon_HeavyArtillery.SingleCrit"
 	}
 
