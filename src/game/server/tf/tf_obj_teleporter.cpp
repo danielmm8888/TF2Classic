@@ -305,7 +305,9 @@ void CObjectTeleporter::Precache()
 	PrecacheScriptSound( "Building_Teleporter.Ready" );
 	PrecacheScriptSound( "Building_Teleporter.Send" );
 	PrecacheScriptSound( "Building_Teleporter.Receive" );
-	PrecacheScriptSound( "Building_Teleporter.Spin" );
+	PrecacheScriptSound( "Building_Teleporter.SpinLevel1" );
+	PrecacheScriptSound( "Building_Teleporter.SpinLevel2" );
+	PrecacheScriptSound( "Building_Teleporter.SpinLevel3" );
 
 	PrecacheTeamParticles( "teleporter_%s_charged" );
 	PrecacheTeamParticles( "teleporter_%s_entrance" );

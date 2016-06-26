@@ -221,6 +221,9 @@ void CTFInventory::ResetInventory()
 	SaveInventory();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 int CTFInventory::GetWeaponPreset( int iClass, int iSlot )
 {
 	KeyValues *pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
@@ -242,6 +245,9 @@ int CTFInventory::GetWeaponPreset( int iClass, int iSlot )
 	return iPreset;
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::SetWeaponPreset( int iClass, int iSlot, int iPreset )
 {
 	KeyValues* pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
@@ -261,7 +267,9 @@ const char* CTFInventory::GetSlotName( int iSlot )
 
 #endif
 
-// Legacy array, used when we're forced to use old method of giving out weapons.
+//-----------------------------------------------------------------------------
+// Purpose: Legacy array, used when we're forced to use old method of giving out weapons.
+//-----------------------------------------------------------------------------
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT] =
 {
 	{

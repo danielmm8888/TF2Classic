@@ -19,7 +19,7 @@
 class CTFFlareGun : public CTFWeaponBaseGun
 {
 public:
-	DECLARE_CLASS(CTFFlareGun, CTFWeaponBaseGun);
+	DECLARE_CLASS( CTFFlareGun, CTFWeaponBaseGun );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
@@ -31,7 +31,7 @@ public:
 	CTFFlareGun();
 
 	virtual void	Spawn( void );
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_FLAREGUN; }
+	virtual int		GetWeaponID( void ) const { return TF_WEAPON_FLAREGUN; }
 
 	DECLARE_DM_ACTTABLE();
 };

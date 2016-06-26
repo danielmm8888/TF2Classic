@@ -44,17 +44,6 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_projectile );
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-CTFGrenadeMirvProjectile* CTFGrenadeMirvProjectile::Create( const Vector &position, const QAngle &angles, 
-															const Vector &velocity, const AngularImpulse &angVelocity, 
-															CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, int iFlags )
-{
-	CTFGrenadeMirvProjectile *pGrenade = static_cast<CTFGrenadeMirvProjectile*>( CTFWeaponBaseGrenadeProj::Create( "tf_weapon_grenade_mirv_projectile", position, angles, velocity, angVelocity, pOwner, weaponInfo, timer, iFlags ) );
-	return pGrenade;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::Spawn()
 {
 	SetModel( GRENADE_MODEL );
@@ -72,8 +61,7 @@ void CTFGrenadeMirvProjectile::Spawn()
 void CTFGrenadeMirvProjectile::Precache()
 {
 	PrecacheModel( GRENADE_MODEL );
-	PrecacheScriptSound( "Weapon_Grenade_Mirv.Fuse" );
-	PrecacheScriptSound( "Weapon_Grenade_Mirv.Timer" );
+	PrecacheScriptSound( MIRV_BLIP_SOUND );
 
 	BaseClass::Precache();
 }
@@ -240,6 +228,7 @@ void CTFGrenadeMirvBomb::Spawn()
 void CTFGrenadeMirvBomb::Precache()
 {
 	PrecacheModel( GRENADE_MODEL_BOMBLET );
+	PrecacheScriptSound( "Weapon_Grenade_Mirv.Fuse" );
 
 	BaseClass::Precache();
 }

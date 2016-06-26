@@ -195,12 +195,12 @@ void CTFWeaponBaseGrenadeProj::OnDataChanged( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 CTFWeaponBaseGrenadeProj *CTFWeaponBaseGrenadeProj::Create( const char *szName, const Vector &position, const QAngle &angles, 
 													   const Vector &velocity, const AngularImpulse &angVelocity, 
-													   CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, int iFlags )
+													   CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, float flDamageMult /* = 1.0f*/ )
 {
 	CTFWeaponBaseGrenadeProj *pGrenade = static_cast<CTFWeaponBaseGrenadeProj*>( CBaseEntity::Create( szName, position, angles, pOwner ) );
 	if ( pGrenade )
 	{
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo, flDamageMult );
 		//pGrenade->SetDetonateTimerLength( timer );
 	}
 
@@ -211,7 +211,7 @@ CTFWeaponBaseGrenadeProj *CTFWeaponBaseGrenadeProj::Create( const char *szName, 
 // Purpose: 
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::InitGrenade( const Vector &velocity, const AngularImpulse &angVelocity, 
-									CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo )
+									CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float flDamageMult )
 {
 	// We can't use OwnerEntity for grenades, because then the owner can't shoot them with his hitscan weapons (due to collide rules)
 	// Thrower is used to store the person who threw the grenade, for damage purposes.
@@ -224,7 +224,7 @@ void CTFWeaponBaseGrenadeProj::InitGrenade( const Vector &velocity, const Angula
 	SetFriction( 0.2f/*BaseClass::GetGrenadeFriction()*/ );
 	SetElasticity( 0.45f/*BaseClass::GetGrenadeElasticity()*/ );
 
-	SetDamage( weaponInfo.GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nDamage );
+	SetDamage( (float)weaponInfo.GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nDamage * flDamageMult );
 	SetDamageRadius( weaponInfo.m_flDamageRadius );
 	ChangeTeam( pOwner->GetTeamNumber() );
 
