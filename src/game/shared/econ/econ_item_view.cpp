@@ -311,7 +311,14 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 	{
 		CEconItemAttribute *pAttribute = &m_AttributeList[i];
 
-		if ( pAttribute->m_strAttributeClass == strClass )
+#ifdef GAME_DLL
+		string_t strMyClass = pAttribute->m_strAttributeClass;
+#else
+		// FIXME: Need to find a proper solution here.
+		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
+#endif
+
+		if ( strMyClass == strClass )
 		{
 			return pAttribute;
 		}

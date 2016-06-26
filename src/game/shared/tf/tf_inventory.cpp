@@ -14,6 +14,8 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define TF_INVENTORY_FILE "tf_inventory.txt"
+
 static CTFInventory g_TFInventory;
 
 CTFInventory *GetTFInventory()
@@ -44,6 +46,9 @@ CTFInventory::~CTFInventory()
 #endif
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Fill the item arrays with data from item schema.
+//-----------------------------------------------------------------------------
 bool CTFInventory::Init( void )
 {
 	GetItemSchema()->Init();
@@ -93,16 +98,25 @@ bool CTFInventory::Init( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::LevelInitPreEntity( void )
 {
 	GetItemSchema()->Precache();
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 int CTFInventory::GetWeapon( int iClass, int iSlot )
 {
 	return Weapons[iClass][iSlot];
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 {
 	if ( CheckValidWeapon( iClass, iSlot, iNum ) == false )
@@ -111,6 +125,9 @@ CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 	return m_Items[iClass][iSlot][iNum];
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 bool CTFInventory::CheckValidSlot( int iClass, int iSlot, bool bHudCheck /*= false*/ )
 {
 	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
@@ -129,6 +146,9 @@ bool CTFInventory::CheckValidSlot( int iClass, int iSlot, bool bHudCheck /*= fal
 	return true;
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 bool CTFInventory::CheckValidWeapon( int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/ )
 {
 	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
@@ -148,16 +168,19 @@ bool CTFInventory::CheckValidWeapon( int iClass, int iSlot, int iWeapon, bool bH
 };
 
 #if defined( CLIENT_DLL )
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::LoadInventory()
 {
-	bool bExist = filesystem->FileExists( "scripts/tf_inventory.txt", "MOD" );
+	bool bExist = filesystem->FileExists( TF_INVENTORY_FILE, "MOD" );
 	if ( bExist )
 	{
 		if ( !m_pInventory )
 		{
 			m_pInventory = new KeyValues( "Inventory" );
 		}
-		m_pInventory->LoadFromFile( filesystem, "scripts/tf_inventory.txt" );
+		m_pInventory->LoadFromFile( filesystem, TF_INVENTORY_FILE );
 	}
 	else
 	{
@@ -165,11 +188,17 @@ void CTFInventory::LoadInventory()
 	}
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::SaveInventory()
 {
-	m_pInventory->SaveToFile( filesystem, "scripts/tf_inventory.txt" );
+	m_pInventory->SaveToFile( filesystem, TF_INVENTORY_FILE );
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: Create a default inventory file.
+//-----------------------------------------------------------------------------
 void CTFInventory::ResetInventory()
 {
 	if ( m_pInventory )
