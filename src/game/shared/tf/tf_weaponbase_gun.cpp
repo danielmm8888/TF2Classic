@@ -21,6 +21,7 @@
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
 	#include "tf_projectile_flare.h"
+	#include "tf_projectile_arrow.h"
 	#include "tf_weapon_grenade_mirv.h"
 	#include "te.h"
 
@@ -207,7 +208,7 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_MIRV:
-		pProjectile = FireMirv( pPlayer );
+		pProjectile = FireGrenade( pPlayer );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
@@ -227,7 +228,8 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 	case TF_PROJECTILE_FESTITIVE_ARROW:
 	case TF_PROJECTILE_FESTITIVE_HEALING_BOLT:
 	case TF_PROJECTILE_GRAPPLINGHOOK:
-		// TO-DO: Implement arrow support
+		pProjectile = FireArrow( pPlayer, iProjectile );
+		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
 	case TF_PROJECTILE_NONE:
@@ -596,9 +598,43 @@ CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Fire a  pipe bomb
+// Purpose: Fire a flare
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireMirv( CTFPlayer *pPlayer )
+CBaseEntity *CTFWeaponBaseGun::FireArrow( CTFPlayer *pPlayer, int iType )
+{
+	PlayWeaponShootSound();
+
+#ifdef GAME_DLL
+	Vector vecSrc;
+	QAngle angForward;
+	Vector vecOffset( 23.5f, 12.0f, -3.0f );
+	if ( pPlayer->GetFlags() & FL_DUCKING )
+	{
+		vecOffset.z = 8.0f;
+	}
+	if ( IsWeapon( TF_WEAPON_COMPOUND_BOW ) )
+	{
+		// Valve were apparently too lazy to fix the viewmodel and just flipped it through the code.
+		vecOffset.y *= -1.0f;
+	}
+	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
+
+	CTFProjectile_Arrow *pProjectile = CTFProjectile_Arrow::Create( this, vecSrc, angForward, pPlayer, pPlayer, iType );
+	if ( pProjectile )
+	{
+		pProjectile->SetCritical( IsCurrentAttackACrit() );
+		pProjectile->SetDamage( GetProjectileDamage() );
+	}
+	return pProjectile;
+#endif
+
+	return NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Use this for any old grenades: MIRV, Frag, etc
+//-----------------------------------------------------------------------------
+CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer )
 {
 	PlayWeaponShootSound();
 
@@ -614,12 +650,15 @@ CBaseEntity *CTFWeaponBaseGun::FireMirv( CTFPlayer *pPlayer )
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
-	//float flDamageMult = 1.0f;
-	//CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
+	float flDamageMult = 1.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
 
-	CTFGrenadeMirvProjectile *pProjectile = CTFGrenadeMirvProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+	char szEntName[256];
+	V_snprintf( szEntName, sizeof( szEntName ), "%s_projectile", WeaponIdToClassname( GetWeaponID() ) );
+
+	CTFWeaponBaseGrenadeProj *pProjectile = CTFWeaponBaseGrenadeProj::Create( szEntName, vecSrc, pPlayer->EyeAngles(), vecVelocity,
 		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, GetTFWpnData(), 3.0f );
+		pPlayer, GetTFWpnData(), 3.0f, flDamageMult );
 
 
 	if ( pProjectile )

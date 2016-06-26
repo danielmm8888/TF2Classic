@@ -294,7 +294,7 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 		pGrenade->SetPipebombMode( bRemoteDetonate );
 		DispatchSpawn( pGrenade );
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo, flDamageMult );
 
 #ifdef _X360 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )
@@ -303,7 +303,6 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 		}
 #endif
 
-		pGrenade->SetDamage( pGrenade->GetDamage() * flDamageMult );
 		pGrenade->m_flFullDamage = pGrenade->GetDamage();
 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )

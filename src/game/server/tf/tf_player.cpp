@@ -4271,11 +4271,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	CBaseEntity *pAttacker = info.GetAttacker();
 	CBaseEntity *pInflictor = info.GetInflictor();
-	CTFPlayer *pTFAttacker = NULL;
-	if ( pAttacker && pAttacker->IsPlayer() )
-	{
-		pTFAttacker = ToTFPlayer( info.GetAttacker() );
-	}
+	CTFPlayer *pTFAttacker = ToTFPlayer( pAttacker );
 
 	bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
 	// we want the rag doll to burn if the player was burning and was not a pryo (who only burns momentarily)
@@ -4441,14 +4437,16 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 
 	BaseClass::Event_Killed( info_modified );
 
-	CTFPlayer *pTFInflictor = ToTFPlayer( pInflictor );
-	if ( ( TF_DMG_CUSTOM_HEADSHOT == info.GetDamageCustom() ) && pInflictor )
-	{				
-		CTF_GameStats.Event_Headshot( pTFInflictor );
-	}
-	else if ( ( TF_DMG_CUSTOM_BACKSTAB == info.GetDamageCustom() ) && pInflictor )
+	if ( pTFAttacker )
 	{
-		CTF_GameStats.Event_Backstab( pTFInflictor );
+		if ( TF_DMG_CUSTOM_HEADSHOT == info.GetDamageCustom() )
+		{
+			CTF_GameStats.Event_Headshot( pTFAttacker );
+		}
+		else if ( TF_DMG_CUSTOM_BACKSTAB == info.GetDamageCustom() )
+		{
+			CTF_GameStats.Event_Backstab( pTFAttacker );
+		}
 	}
 
 	// Create the ragdoll entity.
