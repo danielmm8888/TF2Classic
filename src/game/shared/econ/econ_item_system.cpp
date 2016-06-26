@@ -564,6 +564,13 @@ void CEconItemSchema::Precache( void )
 					CBaseEntity::PrecacheScriptSound( pVisuals->aWeaponSounds[i] );
 			}
 		}
+
+		// Cache all attrbute names.
+		for ( int i = 0; i < pItem->attributes.Count(); i++ )
+		{
+			CEconItemAttribute *pAttribute = &pItem->attributes[i];
+			pAttribute->m_strAttributeClass = AllocPooledString( pAttribute->attribute_class );
+		}
 	}
 }
 

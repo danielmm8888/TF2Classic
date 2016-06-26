@@ -92,9 +92,8 @@ CEconItemAttribute *CEconItemDefinition::IterateAttributes( string_t strClass )
 	for ( int i = 0; i < attributes.Count(); i++ )
 	{
 		CEconItemAttribute *pAttribute = &attributes[i];
-		string_t strMyClass = AllocPooledString( pAttribute->attribute_class.Get() );
 
-		if ( strMyClass == strClass )
+		if ( pAttribute->m_strAttributeClass == strClass )
 		{
 			return pAttribute;
 		}

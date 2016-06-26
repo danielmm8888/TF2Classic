@@ -8058,6 +8058,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		float flValue = atof( args[i + 1] );
 
 		CEconItemAttribute econAttribute( iAttribIndex, flValue );
+		econAttribute.m_strAttributeClass = AllocPooledString( econAttribute.attribute_class );
 		bAddedAttributes = econItem.AddAttribute( &econAttribute );
 	}
 

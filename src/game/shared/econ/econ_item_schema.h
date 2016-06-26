@@ -119,6 +119,7 @@ public:
 	CNetworkVar( float, value ); // m_iRawValue32
 	CNetworkString( value_string, 128 );
 	CNetworkString( attribute_class, 128 );
+	string_t m_strAttributeClass;
 };
 
 struct EconItemStyle

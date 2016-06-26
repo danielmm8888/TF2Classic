@@ -311,9 +311,7 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 	{
 		CEconItemAttribute *pAttribute = &m_AttributeList[i];
 
-		string_t strMyClass = AllocPooledString( pAttribute->attribute_class.Get() );
-
-		if ( strMyClass == strClass )
+		if ( pAttribute->m_strAttributeClass == strClass )
 		{
 			return pAttribute;
 		}
