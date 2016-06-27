@@ -42,6 +42,7 @@ public:
 	CTFPipebombLauncher();
 	~CTFPipebombLauncher();
 
+	virtual void	Precache( void );
 	virtual void	Spawn( void );
 	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_PIPEBOMBLAUNCHER; }
 	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer );
@@ -61,6 +62,7 @@ public:
 	// ITFChargeUpWeapon
 	virtual float GetChargeBeginTime( void ) { return m_flChargeBeginTime; }
 	virtual float GetChargeMaxTime( void );
+	virtual const char* GetChargeSound( void ) { return "Weapon_GrenadeLauncher.ChargeUp"; }
 	int	GetPipeBombCount( void ) { return m_iPipebombCount; }
 
 	void LaunchGrenade( void );

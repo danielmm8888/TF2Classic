@@ -326,7 +326,7 @@ public:
 //-----------------------------------------------------------------------------
 // Purpose: Return angles for a projectile reflected by airblast
 //-----------------------------------------------------------------------------
-void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vector &vecPos, Vector *vecDeflect, bool bHitTeammates /* = true */ )
+void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vector &vecPos, Vector *vecDeflect, bool bHitTeammates /* = true */, bool bUseHitboxes /* = false */ )
 {
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
@@ -338,16 +338,17 @@ void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vect
 
 	// Trace forward and find what's in front of us, and aim at that
 	trace_t tr;
+	int nMask = bUseHitboxes ? MASK_SOLID | CONTENTS_HITBOX : MASK_SOLID;
 
 	if ( bHitTeammates )
 	{
 		CTraceFilterSimple filter( pPlayer, COLLISION_GROUP_NONE );
-		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+		UTIL_TraceLine( vecShootPos, endPos, nMask, &filter, &tr );
 	}
 	else
 	{
 		CTraceFilterIgnoreTeammates filter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
-		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+		UTIL_TraceLine( vecShootPos, endPos, nMask, &filter, &tr );
 	}
 
 	// vecPos is projectile's current position. Use that to find angles.
@@ -370,7 +371,7 @@ void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vect
 //-----------------------------------------------------------------------------
 // Purpose: Return the origin & angles for a projectile fired from the player's gun
 //-----------------------------------------------------------------------------
-void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates /* = true */ )
+void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates /* = true */, bool bUseHitboxes /* = false */ )
 {
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
@@ -382,16 +383,17 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 
 	// Trace forward and find what's in front of us, and aim at that
 	trace_t tr;
+	int nMask = bUseHitboxes ? MASK_SOLID | CONTENTS_HITBOX : MASK_SOLID;
 
 	if ( bHitTeammates )
 	{
 		CTraceFilterSimple filter( pPlayer, COLLISION_GROUP_NONE );
-		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+		UTIL_TraceLine( vecShootPos, endPos, nMask, &filter, &tr );
 	}
 	else
 	{
 		CTraceFilterIgnoreTeammates filter( pPlayer, COLLISION_GROUP_NONE, pPlayer->GetTeamNumber() );
-		UTIL_TraceLine( vecShootPos, endPos, MASK_SOLID, &filter, &tr );
+		UTIL_TraceLine( vecShootPos, endPos, nMask, &filter, &tr );
 	}
 
 #ifndef CLIENT_DLL
@@ -617,9 +619,9 @@ CBaseEntity *CTFWeaponBaseGun::FireArrow( CTFPlayer *pPlayer, int iType )
 		// Valve were apparently too lazy to fix the viewmodel and just flipped it through the code.
 		vecOffset.y *= -1.0f;
 	}
-	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
+	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false, true );
 
-	CTFProjectile_Arrow *pProjectile = CTFProjectile_Arrow::Create( this, vecSrc, angForward, pPlayer, pPlayer, iType );
+	CTFProjectile_Arrow *pProjectile = CTFProjectile_Arrow::Create( this, vecSrc, angForward, GetProjectileSpeed(), GetProjectileGravity(), pPlayer, pPlayer, iType );
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
@@ -697,6 +699,14 @@ float CTFWeaponBaseGun::GetProjectileSpeed( void )
 	// grenade launcher and pipebomb launcher hook this to set variable pipebomb speed
 
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Accessor for damage, so sniper etc can modify damage
+//-----------------------------------------------------------------------------
+float CTFWeaponBaseGun::GetProjectileGravity( void )
+{
+	return 0.001f;
 }
 
 //-----------------------------------------------------------------------------

@@ -60,7 +60,7 @@ CTFProjectile_Arrow::~CTFProjectile_Arrow()
 
 #ifdef GAME_DLL
 
-CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType )
+CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, float flSpeed, float flGravity, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType )
 {
 	CTFProjectile_Arrow *pArrow = static_cast<CTFProjectile_Arrow *>( CBaseEntity::CreateNoSpawn( "tf_projectile_arrow", vecOrigin, vecAngles, pOwner ) );
 
@@ -85,10 +85,9 @@ CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Ve
 		Vector vecForward, vecRight, vecUp;
 		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-		float flVelocity = 2000.0f;
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flSpeed, mult_projectile_speed );
 
-		Vector vecVelocity = vecForward * flVelocity;
+		Vector vecVelocity = vecForward * flSpeed;
 		pArrow->SetAbsVelocity( vecVelocity );
 		pArrow->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
@@ -96,6 +95,9 @@ CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Ve
 		QAngle angles;
 		VectorAngles( vecVelocity, angles );
 		pArrow->SetAbsAngles( angles );
+
+		pArrow->SetGravity( flGravity );
+
 		return pArrow;
 	}
 

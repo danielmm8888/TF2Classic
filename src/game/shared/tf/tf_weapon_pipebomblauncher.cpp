@@ -95,6 +95,16 @@ CTFPipebombLauncher::~CTFPipebombLauncher()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFPipebombLauncher::Precache( void )
+{
+	PrecacheScriptSound( GetChargeSound() );
+
+	BaseClass::Precache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFPipebombLauncher::Spawn( void )
 {
 	m_iAltFireHint = HINT_ALTFIRE_PIPEBOMBLAUNCHER;
@@ -141,7 +151,7 @@ void CTFPipebombLauncher::WeaponReset( void )
 void CTFPipebombLauncher::PrimaryAttack( void )
 {
 	// Check for ammunition.
-	if ( m_iClip1 <= 0 && m_iClip1 != -1 )
+	if ( m_iClip1 <= 0 && m_iClip1 != WEAPON_NOCLIP )
 		return;
 
 	// Are we capable of firing again?
@@ -356,7 +366,10 @@ void CTFPipebombLauncher::SecondaryAttack( void )
 		else
 		{
 			// Play a detonate sound.
-			WeaponSound( SPECIAL3 );
+#ifdef CLIENT_DLL
+			if ( prediction->IsFirstTimePredicted() )
+#endif
+				WeaponSound( SPECIAL3 );
 		}
 	}
 }

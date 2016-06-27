@@ -98,8 +98,8 @@ class ITFChargeUpWeapon
 {
 public:
 	virtual float GetChargeBeginTime( void ) = 0;
-
 	virtual float GetChargeMaxTime( void ) = 0;
+	virtual const char *GetChargeSound( void ) = 0;
 };
 
 //=============================================================================

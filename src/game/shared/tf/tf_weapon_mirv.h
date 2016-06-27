@@ -42,6 +42,7 @@ public:
 	CTFWeaponMirv();
 	~CTFWeaponMirv();
 
+	virtual void	Precache( void );
 	virtual void	Spawn( void );
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_GRENADE_MIRV; }
 
@@ -57,6 +58,7 @@ public:
 	// ITFChargeUpWeapon
 	virtual float GetChargeBeginTime( void ) { return m_flChargeBeginTime; }
 	virtual float GetChargeMaxTime( void );
+	virtual const char *GetChargeSound( void ) { return "Weapon_Grenade_Mirv.ChargeUp"; }
 
 	void LaunchGrenade( void );
 

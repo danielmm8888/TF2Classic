@@ -42,6 +42,7 @@ private:
 	vgui::ContinuousProgressBar *m_pChargeMeter;
 
 	bool m_bCharging;
+	int m_iChargupSound;
 };
 
 DECLARE_HUDELEMENT( CHudDemomanChargeMeter );
@@ -61,6 +62,7 @@ CHudDemomanChargeMeter::CHudDemomanChargeMeter( const char *pElementName ) : CHu
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
 
 	m_bCharging = false;
+	m_iChargupSound = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -81,7 +83,7 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if ( !pPlayer || !pPlayer->IsPlayerClass( TF_CLASS_DEMOMAN ) || !pPlayer->IsAlive() )
+	if ( !pPlayer || !pPlayer->IsAlive() )
 	{
 		return false;
 	}
@@ -93,7 +95,9 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	if ( !pWpn->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) && !pWpn->IsWeapon( TF_WEAPON_GRENADE_MIRV ) )
+	if ( !pWpn->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) &&
+		!pWpn->IsWeapon( TF_WEAPON_GRENADE_MIRV ) &&
+		!pWpn->IsWeapon( TF_WEAPON_COMPOUND_BOW ) )
 	{
 		return false;
 	}
@@ -118,7 +122,12 @@ void CHudDemomanChargeMeter::OnTick( void )
 	{
 		if ( m_bCharging )
 		{
-			C_BaseEntity::StopSound( pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+			if ( m_iChargupSound != -1 )
+			{
+				enginesound->StopSoundByGuid( m_iChargupSound );
+				m_iChargupSound = -1;
+			}
+
 			m_bCharging = false;
 		}
 		return;
@@ -141,8 +150,13 @@ void CHudDemomanChargeMeter::OnTick( void )
 
 				if ( !m_bCharging )
 				{
-					CLocalPlayerFilter filter;
-					C_BaseEntity::EmitSound( filter, pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+					if ( pChargeupWeapon->GetChargeSound() != NULL )
+					{
+						CLocalPlayerFilter filter;
+						C_BaseEntity::EmitSound( filter, pPlayer->entindex(), pChargeupWeapon->GetChargeSound() );
+						m_iChargupSound = enginesound->GetGuidForLastSoundEmitted();
+					}
+
 					m_bCharging = true;
 				}
 			}
@@ -152,7 +166,12 @@ void CHudDemomanChargeMeter::OnTick( void )
 
 				if ( m_bCharging )
 				{
-					C_BaseEntity::StopSound( pPlayer->entindex(), "Weapon_StickyBombLauncher.ChargeUp" );
+					if ( m_iChargupSound != -1 )
+					{
+						enginesound->StopSoundByGuid( m_iChargupSound );
+						m_iChargupSound = -1;
+					}
+
 					m_bCharging = false;
 				}
 			}

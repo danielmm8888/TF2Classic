@@ -42,7 +42,7 @@ public:
 #ifdef GAME_DLL
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_COMPOUND_BOW; }
 
-	static CTFProjectile_Arrow *Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType );
+	static CTFProjectile_Arrow *Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, float flSpeed, float flGravity, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType );
 
 	// IScorer interface
 	virtual CBasePlayer *GetScorer( void );

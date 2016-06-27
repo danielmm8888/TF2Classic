@@ -16,7 +16,7 @@
 #define CTFCompoundBow C_TFCompoundBow
 #endif
 
-class CTFCompoundBow : public CTFWeaponBaseGun
+class CTFCompoundBow : public CTFWeaponBaseGun, public ITFChargeUpWeapon
 {
 public:
 	DECLARE_CLASS( CTFCompoundBow, CTFWeaponBaseGun );
@@ -33,6 +33,30 @@ public:
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_COMPOUND_BOW; }
 
 	virtual void	Precache( void );
+
+	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
+	virtual bool	Deploy( void );
+	virtual void	WeaponReset( void );
+	virtual void	PrimaryAttack( void );
+	virtual void	SecondaryAttack( void );
+	virtual void	LowerBow( void );
+	virtual void	WeaponIdle( void );
+	virtual void	ItemPostFrame( void );
+	virtual float	GetProjectileDamage( void );
+	virtual float	GetProjectileSpeed( void );
+	virtual float	GetProjectileGravity( void );
+	virtual void	GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates = true, bool bUseHitboxes = false );
+
+	void			FireArrow( void );	
+
+public:
+	// ITFChargeUpWeapon
+	virtual float	GetChargeBeginTime( void ) { return m_flChargeBeginTime; }
+	virtual float	GetChargeMaxTime( void );
+	virtual const char* GetChargeSound( void ) { return NULL; }
+
+private:
+	float	m_flChargeBeginTime;
 };
 
 #endif // TF_WEAPON_COMPOUND_BOW_H
