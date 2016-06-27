@@ -19,16 +19,16 @@ class CTFWeaponInfo;
 
 class CItemModelPanel : public vgui::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE(CItemModelPanel, vgui::Panel);
+	DECLARE_CLASS_SIMPLE( CItemModelPanel, vgui::Panel );
 
 public:
-	CItemModelPanel(Panel *parent, const char* name);
+	CItemModelPanel( Panel *parent, const char* name );
 
-	virtual void ApplySchemeSettings(vgui::IScheme *pScheme);
+	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual void PerformLayout();
 
-	virtual void SetWeapon(C_BaseCombatWeapon *pWeapon, int iBorderStyle = -1, int ID = -1);
-	virtual void SetWeapon(CEconItemDefinition *pItemDefinition, int iBorderStyle = -1, int ID = -1);
+	virtual void SetWeapon( C_BaseCombatWeapon *pWeapon, int iBorderStyle = -1, int ID = -1 );
+	virtual void SetWeapon( CEconItemDefinition *pItemDefinition, int iBorderStyle = -1, int ID = -1 );
 
 private:
 	C_BaseCombatWeapon	*m_pWeapon;
@@ -55,15 +55,14 @@ class CTFHudWeaponSwitch : public CHudElement, public vgui::EditablePanel
 
 public:
 
-	CTFHudWeaponSwitch(const char *pElementName);
+	CTFHudWeaponSwitch( const char *pElementName );
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
-	virtual bool ShouldDraw(void);
+	virtual bool ShouldDraw( void );
+	virtual void SetVisible( bool bVisible );
 	void OnTick();
 
 private:
-	
-	void UpdateStatus( void );
 	CEconItemDefinition *m_pItemDefFrom;
 	CEconItemDefinition *m_pItemDefTo;
 
