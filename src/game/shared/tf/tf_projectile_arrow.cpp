@@ -16,6 +16,8 @@
 
 ConVar tf_debug_arrows( "tf_debug_arrows", "0", FCVAR_CHEAT );
 
+#define TF_ARROW_FIX
+
 const char *g_pszArrowModels[] =
 {
 	"models/weapons/w_models/w_arrow.mdl",
@@ -149,6 +151,10 @@ void CTFProjectile_Arrow::Spawn( void )
 
 	BaseClass::Spawn();
 
+#ifdef TF_ARROW_FIX
+	SetSolidFlags( FSOLID_NOT_SOLID | FSOLID_TRIGGER );
+#endif
+
 	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
 	SetGravity( 0.3f ); // TODO: Check again later.
 
@@ -208,16 +214,14 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		pAttacker = pScorerInterface->GetScorer();
 	}
 
-	// Play explosion sound and effect.
 	Vector vecOrigin = GetAbsOrigin();
+	Vector vecDir = GetAbsVelocity();
 	CTFPlayer *pPlayer = ToTFPlayer( pOther );
+	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( m_hLauncher.Get() );
 
 	if ( pPlayer )
 	{
-		CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( m_hLauncher.Get() );
-		if ( !pWeapon )
-			return;
-
+#ifndef TF_ARROW_FIX
 		CStudioHdr *pStudioHdr = pPlayer->GetModelPtr();
 		if ( !pStudioHdr )
 			return;
@@ -232,7 +236,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		// Oh boy... we gotta figure out the closest hitbox on player model to land a hit on.
 		// Trace a bit ahead, to get closer to player's body.
 		trace_t trFly;
-		UTIL_TraceLine( GetAbsOrigin(), GetAbsOrigin() + vecDir * 16.0f, MASK_SHOT, this, COLLISION_GROUP_NONE, &trFly );
+		UTIL_TraceLine( vecOrigin, vecOrigin + vecDir * 16.0f, MASK_SHOT, this, COLLISION_GROUP_NONE, &trFly );
 
 		QAngle angHit;
 		trace_t trHit;
@@ -268,16 +272,31 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		Vector vecHitDir = trHit.plane.normal * -1.0f;
 		AngleVectors( angHit, &vecHitDir );
 		SetAbsAngles( angHit );
+#else
+		// Trace ahead to see if we're going to hit player's hitbox.
+		trace_t trHit;
+		UTIL_TraceLine( vecOrigin, vecOrigin + vecDir * gpGlobals->frametime, MASK_SHOT, this, COLLISION_GROUP_NONE, &trHit );
+		if ( trHit.m_pEnt != pOther ) // Didn't hit, keep going.
+			return;
+#endif
 
 		// Do damage.
 		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() | DMG_PREVENT_PHYSICS_FORCE );
-		CalculateBulletDamageForce( &info, pWeapon->GetTFWpnData().iAmmoType, vecDir, GetAbsOrigin() );
+		CalculateBulletDamageForce( &info, pWeapon ? pWeapon->GetTFWpnData().iAmmoType : 0, vecDir, vecOrigin );
 		info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
 
 		pPlayer->DispatchTraceAttack( info, vecDir, &trHit );
 		ApplyMultiDamage();
 
 		pPlayer->EmitSound( "Weapon_Arrow.ImpactFlesh" );
+	}
+	else if ( pOther->IsBaseObject() )
+	{
+		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() | DMG_PREVENT_PHYSICS_FORCE );
+		CalculateBulletDamageForce( &info, pWeapon->GetTFWpnData().iAmmoType, vecDir, vecOrigin );
+		
+		pOther->TakeDamage( info );
+		pOther->EmitSound( "Weapon_Arrow.ImpactMetal" );
 	}
 	else
 	{
