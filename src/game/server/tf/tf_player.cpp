@@ -736,7 +736,6 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "TFPlayer.AttackerPain" );
 	PrecacheScriptSound( "TFPlayer.SaveMe" );
 	PrecacheScriptSound( "Camera.SnapShot" );
-	PrecacheScriptSound( "Weapon_StickyBombLauncher.ChargeUp" );
 
 	PrecacheScriptSound( "Game.YourTeamLost" );
 	PrecacheScriptSound( "Game.YourTeamWon" );
@@ -1949,7 +1948,7 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 		DropFlag();
 	}
 
-	if (iTeam == TEAM_SPECTATOR)
+	if ( iTeam == TEAM_SPECTATOR )
 	{
 		// Prevent this is the cvar is set
 		if ( !mp_allowspectators.GetInt() && !IsHLTV() )
@@ -1984,23 +1983,23 @@ void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 
 		ChangeTeam( iTeam );
 
-		switch (iTeam)
+		switch ( iTeam )
 		{
-			case TF_TEAM_RED:
-				ShowViewPortPanel(PANEL_CLASS_RED);
-				break;
+		case TF_TEAM_RED:
+			ShowViewPortPanel( PANEL_CLASS_RED );
+			break;
 
-			case TF_TEAM_BLUE:
-				ShowViewPortPanel(PANEL_CLASS_BLUE);
-				break;
+		case TF_TEAM_BLUE:
+			ShowViewPortPanel( PANEL_CLASS_BLUE );
+			break;
 
-			case TF_TEAM_GREEN:
-				ShowViewPortPanel(PANEL_CLASS_GREEN);
-				break;
+		case TF_TEAM_GREEN:
+			ShowViewPortPanel( PANEL_CLASS_GREEN );
+			break;
 
-			case TF_TEAM_YELLOW:
-				ShowViewPortPanel(PANEL_CLASS_YELLOW);
-				break;
+		case TF_TEAM_YELLOW:
+			ShowViewPortPanel( PANEL_CLASS_YELLOW );
+			break;
 		}
 	}
 
@@ -2191,7 +2190,7 @@ void CTFPlayer::ChangeTeam( int iTeamNum )
 	}
 	else // active player
 	{
-		if ( !IsDead() && (iOldTeam == TF_TEAM_RED || iOldTeam == TF_TEAM_BLUE || iOldTeam == TF_TEAM_GREEN || iOldTeam == TF_TEAM_YELLOW) )
+		if ( !IsDead() && ( iOldTeam >= FIRST_GAME_TEAM ) )
 		{
 			// Kill player if switching teams while alive
 			CommitSuicide( false, true );
@@ -5518,6 +5517,12 @@ bool CTFPlayer::SetObserverMode(int mode)
 //-----------------------------------------------------------------------------
 void CTFPlayer::StateEnterOBSERVER( void )
 {
+	// Drop flag when switching to spec.
+	if ( HasTheFlag() )
+	{
+		DropFlag();
+	}
+
 	// Always start a spectator session in chase mode
 	m_iObserverLastMode = OBS_MODE_CHASE;
 
