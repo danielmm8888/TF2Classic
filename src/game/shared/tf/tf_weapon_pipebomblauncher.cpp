@@ -40,15 +40,17 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFPipebombLauncher, DT_WeaponPipebombLauncher )
 BEGIN_NETWORK_TABLE_NOBASE( CTFPipebombLauncher, DT_PipebombLauncherLocalData )
 #ifdef CLIENT_DLL
 	RecvPropInt( RECVINFO( m_iPipebombCount ) ),
+	RecvPropTime( RECVINFO( m_flChargeBeginTime ) ),
 #else
 	SendPropInt( SENDINFO( m_iPipebombCount ), 5, SPROP_UNSIGNED ),
+	SendPropTime( SENDINFO( m_flChargeBeginTime ) ),
 #endif
 END_NETWORK_TABLE()
 
 
 BEGIN_NETWORK_TABLE( CTFPipebombLauncher, DT_WeaponPipebombLauncher )
 #ifdef CLIENT_DLL
-RecvPropDataTable( "PipebombLauncherLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_PipebombLauncherLocalData ) ),
+	RecvPropDataTable( "PipebombLauncherLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_PipebombLauncherLocalData ) ),
 #else
 	SendPropDataTable( "PipebombLauncherLocalData", 0, &REFERENCE_SEND_TABLE( DT_PipebombLauncherLocalData ), SendProxy_SendLocalWeaponDataTable ),
 #endif	
@@ -56,7 +58,7 @@ END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CTFPipebombLauncher )
-	DEFINE_FIELD(  m_flChargeBeginTime, FIELD_FLOAT )
+	DEFINE_PRED_FIELD( m_flChargeBeginTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 #endif
 

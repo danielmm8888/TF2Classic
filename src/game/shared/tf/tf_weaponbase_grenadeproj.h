@@ -34,7 +34,7 @@ public:
 	virtual void			Spawn();
 	virtual void			Precache();
 
-	void					InitGrenade( const Vector &velocity, const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float flDamageMult );
+	void					InitGrenade( const Vector &velocity, const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon );
 
 	// Unique identifier.
 	virtual int GetWeaponID( void ) const { return TF_WEAPON_NONE; }
@@ -79,7 +79,7 @@ public:
 
 	static CTFWeaponBaseGrenadeProj *Create( const char *szName, const Vector &position, const QAngle &angles, 
 				const Vector &velocity, const AngularImpulse &angVelocity, 
-				CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, float flDamageMult = 1.0f );
+				CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon );
 	 
 	int						OnTakeDamage( const CTakeDamageInfo &info );
 

@@ -110,7 +110,7 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 
 	FireProjectile( pPlayer );
 
-	m_flLastFireTime  = gpGlobals->curtime;
+	m_flLastFireTime = gpGlobals->curtime;
 
 	// Set next attack times.
 	float flFireDelay = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
@@ -550,12 +550,9 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +		
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
-	float flDamageMult = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
-
 	CTFGrenadePipebombProjectile *pProjectile = CTFGrenadePipebombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity, 
 		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, GetTFWpnData(), bRemoteDetonate, flDamageMult );
+		pPlayer, this, bRemoteDetonate );
 
 
 	if ( pProjectile )
@@ -652,15 +649,12 @@ CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer )
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
-	float flDamageMult = 1.0f;
-	CALL_ATTRIB_HOOK_FLOAT( flDamageMult, mult_dmg );
-
 	char szEntName[256];
 	V_snprintf( szEntName, sizeof( szEntName ), "%s_projectile", WeaponIdToClassname( GetWeaponID() ) );
 
 	CTFWeaponBaseGrenadeProj *pProjectile = CTFWeaponBaseGrenadeProj::Create( szEntName, vecSrc, pPlayer->EyeAngles(), vecVelocity,
 		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, GetTFWpnData(), 3.0f, flDamageMult );
+		pPlayer, this );
 
 
 	if ( pProjectile )

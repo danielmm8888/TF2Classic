@@ -24,11 +24,11 @@
 #endif
 
 // TODO: Hardcode these eventually. (Nicknine)
-ConVar tf_mirv_min_charge_velocity( "tf_mirv_min_charge_velocity", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
-ConVar tf_mirv_max_charge_velocity( "tf_mirv_max_charge_velocity", "1500", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar tf2c_mirv_min_charge_velocity( "tf2c_mirv_min_charge_velocity", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar tf2c_mirv_max_charge_velocity( "tf2c_mirv_max_charge_velocity", "1500", FCVAR_REPLICATED | FCVAR_CHEAT );
 
-#define TF_MIRV_MIN_CHARGE_VEL tf_mirv_min_charge_velocity.GetFloat() // 900
-#define TF_MIRV_MAX_CHARGE_VEL tf_mirv_max_charge_velocity.GetFloat() // 2400
+#define TF_MIRV_MIN_CHARGE_VEL tf2c_mirv_min_charge_velocity.GetFloat() // 900
+#define TF_MIRV_MAX_CHARGE_VEL tf2c_mirv_max_charge_velocity.GetFloat() // 2400
 #define TF_MIRV_MAX_CHARGE_TIME 3.0f
 
 //=============================================================================
@@ -37,21 +37,17 @@ ConVar tf_mirv_max_charge_velocity( "tf_mirv_max_charge_velocity", "1500", FCVAR
 //
 IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponMirv, DT_WeaponMirv )
 
-BEGIN_NETWORK_TABLE_NOBASE( CTFWeaponMirv, DT_WeaponMirvLocalData )
-END_NETWORK_TABLE()
-
-
 BEGIN_NETWORK_TABLE( CTFWeaponMirv, DT_WeaponMirv )
 #ifdef CLIENT_DLL
-RecvPropDataTable( "PipebombLauncherLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_WeaponMirvLocalData ) ),
+	RecvPropTime( RECVINFO( m_flChargeBeginTime ) ),
 #else
-SendPropDataTable( "PipebombLauncherLocalData", 0, &REFERENCE_SEND_TABLE( DT_WeaponMirvLocalData ), SendProxy_SendLocalWeaponDataTable ),
-#endif	
+	SendPropTime( SENDINFO( m_flChargeBeginTime ) ),
+#endif
 END_NETWORK_TABLE()
 
 #ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CTFWeaponMirv )
-	DEFINE_FIELD( m_flChargeBeginTime, FIELD_FLOAT )
+	DEFINE_PRED_FIELD( m_flChargeBeginTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
 END_PREDICTION_DATA()
 #endif
 

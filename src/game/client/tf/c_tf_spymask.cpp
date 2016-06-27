@@ -56,7 +56,7 @@ int C_TFSpyMask::GetSkin( void )
 	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_DISGUISED ) )
 	{
 		// If this is an enemy spy disguised as a spy show a fake disguise class.
-		if ( pOwner->IsEnemyPlayer() && pOwner->m_Shared.GetDisguiseClass() == TF_CLASS_SPY  )
+		if ( pOwner->IsEnemyPlayer() && pOwner->m_Shared.GetDisguiseClass() == TF_CLASS_SPY )
 		{
 			return ( pOwner->m_Shared.GetMaskClass() - 1 );
 		}
@@ -67,5 +67,5 @@ int C_TFSpyMask::GetSkin( void )
 
 	}
 
-	return 0;
+	return BaseClass::GetSkin();
 }

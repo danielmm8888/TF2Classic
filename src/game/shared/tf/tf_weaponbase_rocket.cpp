@@ -506,8 +506,9 @@ void CTFBaseRocket::FlyThink( void )
 		// Find the closest visible enemy player.
 		CUtlVector<CTFPlayer *> vecPlayers;
 		int count = CollectPlayers( &vecPlayers, TEAM_ANY, true );
-		CTFPlayer *pClosest = NULL;
 		float flClosest = FLT_MAX;
+		Vector vecClosestTarget = vec3_origin;
+
 		for ( int i = 0; i < count; i++ )
 		{
 			CTFPlayer *pPlayer = vecPlayers[i];
@@ -517,22 +518,33 @@ void CTFBaseRocket::FlyThink( void )
 			if ( pPlayer->GetTeamNumber() == GetTeamNumber() && !TFGameRules()->IsDeathmatch() )
 				continue;
 
-			Vector vecTarget = pPlayer->BodyTarget( GetAbsOrigin(), false );
+			Vector vecTarget;
+			QAngle angTarget;
+			if ( GetWeaponID() == TF_WEAPON_COMPOUND_BOW )
+			{
+				int iBone = pPlayer->LookupBone( "bip_head" );
+				pPlayer->GetBonePosition( iBone, vecTarget, angTarget );;
+			}
+			else
+			{
+				vecTarget = pPlayer->EyePosition();
+			}
+
 			if ( FVisible( vecTarget ) )
 			{
-				float flDist = ( vecTarget - GetAbsOrigin() ).Length();
-				if ( flDist < flClosest )
+				float flDistSqr = ( vecTarget - GetAbsOrigin() ).LengthSqr();
+				if ( flDistSqr < flClosest )
 				{
-					flClosest = flDist;
-					pClosest = pPlayer;
+					flClosest = flDistSqr;
+					vecClosestTarget = vecTarget;
 				}
 			}
 		}
 
 		// Head towards him.
-		if ( pClosest )
+		if ( vecClosestTarget != vec3_origin )
 		{
-			Vector vecTarget = pClosest->BodyTarget( GetAbsOrigin(), false );
+			Vector vecTarget = vecClosestTarget;
 			Vector vecDir = vecTarget - GetAbsOrigin();
 			VectorNormalize( vecDir );
 

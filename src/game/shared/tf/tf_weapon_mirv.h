@@ -62,14 +62,12 @@ public:
 
 	void LaunchGrenade( void );
 
-
-
 #ifdef GAME_DLL
 	void			UpdateOnRemove( void );
 #endif
 
 private:
-	float	m_flChargeBeginTime;
+	CNetworkVar( float, m_flChargeBeginTime );
 	float	m_flLastDenySoundTime;
 
 	CTFWeaponMirv( const CTFWeaponMirv & ) {}

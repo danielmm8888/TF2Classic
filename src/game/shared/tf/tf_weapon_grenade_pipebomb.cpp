@@ -285,7 +285,7 @@ PRECACHE_WEAPON_REGISTER( tf_projectile_pipe );
 //-----------------------------------------------------------------------------
 CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector &position, const QAngle &angles, 
 																    const Vector &velocity, const AngularImpulse &angVelocity, 
-																    CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate, float flDamageMult )
+																	CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon, bool bRemoteDetonate )
 {
 	CTFGrenadePipebombProjectile *pGrenade = static_cast<CTFGrenadePipebombProjectile*>( CBaseEntity::CreateNoSpawn( bRemoteDetonate ? "tf_projectile_pipe_remote" : "tf_projectile_pipe", position, angles, pOwner ) );
 	if ( pGrenade )
@@ -294,7 +294,7 @@ CTFGrenadePipebombProjectile* CTFGrenadePipebombProjectile::Create( const Vector
 		pGrenade->SetPipebombMode( bRemoteDetonate );
 		DispatchSpawn( pGrenade );
 
-		pGrenade->InitGrenade( velocity, angVelocity, pOwner, weaponInfo, flDamageMult );
+		pGrenade->InitGrenade( velocity, angVelocity, pOwner, pWeapon );
 
 #ifdef _X360 
 		if ( pGrenade->m_iType != TF_GL_MODE_REMOTE_DETONATE )

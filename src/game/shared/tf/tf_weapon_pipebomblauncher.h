@@ -91,7 +91,7 @@ private:
 	typedef CHandle<CTFGrenadePipebombProjectile>	PipebombHandle;
 	CUtlVector<PipebombHandle>		m_Pipebombs;
 
-	float	m_flChargeBeginTime;
+	CNetworkVar( float, m_flChargeBeginTime );
 	float	m_flLastDenySoundTime;
 
 	CTFPipebombLauncher( const CTFPipebombLauncher & ) {}

@@ -63,7 +63,7 @@ public:
 
 	// Creation.
 	static CTFGrenadePipebombProjectile *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		                                         const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, bool bRemoteDetonate, float flDamageMult );
+		                                         const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon, bool bRemoteDetonate );
 
 	// Overrides.
 	virtual void	Spawn();
