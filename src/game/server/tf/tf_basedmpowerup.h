@@ -36,9 +36,7 @@ public:
 	virtual const char *GetDefaultPickupSound( void ) { return "HealthKit.Touch"; }
 	virtual const char *GetDefaultPowerupModel( void ) { return "models/class_menu/random_class_icon.mdl"; }
 
-	virtual int GetCondition( void ) { return TF_COND_AIMING; }
-
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
+	virtual int GetCondition( void ) { return TF_COND_LAST; } // Should trigger an assert.
 
 	static CTFBaseDMPowerup *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, const char *pszClassname, float flDuration );
 

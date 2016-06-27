@@ -82,6 +82,7 @@ void CTFBaseDMPowerup::Spawn( void )
 {
 	Precache();
 	SetModel( STRING( GetModelName() ) );
+	SetRenderMode( kRenderTransColor );
 
 	BaseClass::Spawn();
 
@@ -97,7 +98,6 @@ CBaseEntity* CTFBaseDMPowerup::Respawn( void )
 
 	RemoveEffects( EF_NODRAW );
 	RemoveEffects( EF_ITEM_BLINK );
-	m_nRenderMode = kRenderTransColor;
 	SetRenderColorA( 80 );
 
 	m_flRespawnAtTime = GetNextThink();
@@ -115,9 +115,7 @@ void CTFBaseDMPowerup::Materialize( void )
 	if ( !IsDisabled() )
 	{
 		EmitSound( "Item.Materialize" );
-		CPVSFilter filter( GetAbsOrigin() );
 		AddEffects( EF_ITEM_BLINK );
-		m_nRenderFX = kRenderFxNone;
 		SetRenderColorA( 255 );
 	}
 }

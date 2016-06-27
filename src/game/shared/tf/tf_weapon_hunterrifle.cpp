@@ -45,26 +45,26 @@ IMPLEMENT_NETWORKCLASS_ALIASED( TFHunterRifle, DT_TFHunterRifle )
 
 BEGIN_NETWORK_TABLE_NOBASE( CTFHunterRifle, DT_HunterRifleLocalData )
 #if !defined( CLIENT_DLL )
-SendPropFloat( SENDINFO( m_flChargedSpread ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+	SendPropFloat( SENDINFO( m_flChargedSpread ), 0, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
 #else
-RecvPropFloat( RECVINFO(m_flChargedSpread) ),
+	RecvPropFloat( RECVINFO(m_flChargedSpread) ),
 #endif
 END_NETWORK_TABLE()
 
 BEGIN_NETWORK_TABLE( CTFHunterRifle, DT_TFHunterRifle )
 #if !defined( CLIENT_DLL )
-SendPropDataTable( "HunterRifleLocalData", 0, &REFERENCE_SEND_TABLE( DT_HunterRifleLocalData ), SendProxy_SendLocalWeaponDataTable ),
+	SendPropDataTable( "HunterRifleLocalData", 0, &REFERENCE_SEND_TABLE( DT_HunterRifleLocalData ), SendProxy_SendLocalWeaponDataTable ),
 #else
-RecvPropDataTable("HunterRifleLocalData", 0, 0, &REFERENCE_RECV_TABLE(DT_HunterRifleLocalData)),
+	RecvPropDataTable("HunterRifleLocalData", 0, 0, &REFERENCE_RECV_TABLE(DT_HunterRifleLocalData)),
 #endif
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFHunterRifle )
 #ifdef CLIENT_DLL
-DEFINE_PRED_FIELD( m_flUnzoomTime, FIELD_FLOAT, 0 ),
-DEFINE_PRED_FIELD( m_flRezoomTime, FIELD_FLOAT, 0 ),
-DEFINE_PRED_FIELD( m_bRezoomAfterShot, FIELD_BOOLEAN, 0 ),
-DEFINE_PRED_FIELD( m_flChargedSpread, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_flUnzoomTime, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_flRezoomTime, FIELD_FLOAT, 0 ),
+	DEFINE_PRED_FIELD( m_bRezoomAfterShot, FIELD_BOOLEAN, 0 ),
+	DEFINE_PRED_FIELD( m_flChargedSpread, FIELD_FLOAT, 0 ),
 #endif
 END_PREDICTION_DATA()
 
