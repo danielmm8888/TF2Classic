@@ -6,25 +6,23 @@
 #include "cbase.h"
 #include "tf_weaponbase.h"
 #include "tf_gamerules.h"
-#include "npcevent.h"
 #include "engine/IEngineSound.h"
 #include "tf_weapon_grenade_mirv.h"
 
 // Server specific.
 #ifdef GAME_DLL
 #include "tf_player.h"
-#include "items.h"
 #include "tf_weaponbase_grenadeproj.h"
 #include "soundent.h"
-#include "KeyValues.h"
+#include "particle_parse.h"
 #endif
 
 #define GRENADE_MIRV_TIMER	3.0f // seconds
 
 #define MIRV_BLIP_FREQUENCY			1.0f
-#define MIRV_BLIP_FAST_FREQUENCY	0.3f
-#define MIRV_WARN_TIME				1.0f
+#define MIRV_WARN_TIME				0.5f
 #define MIRV_BLIP_SOUND				"Weapon_Grenade_Mirv.Timer"
+#define MIRV_LEADIN_SOUND			"Weapon_Grenade_Mirv.LeadIn"
 
 //=============================================================================
 //
@@ -41,6 +39,13 @@ END_DATADESC()
 LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv_projectile, CTFGrenadeMirvProjectile );
 PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_projectile );
 
+
+CTFGrenadeMirvProjectile::CTFGrenadeMirvProjectile()
+{
+	m_flNextBlipTime = 0.0f;
+	m_bPlayedLeadIn = false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -53,6 +58,9 @@ void CTFGrenadeMirvProjectile::Spawn()
 	SetDetonateTimerLength( GRENADE_MIRV_TIMER );
 	BlipSound();
 	m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
+
+	// Players need to be able to hit it with their weapons.
+	AddSolidFlags( FSOLID_TRIGGER );
 }
 
 //-----------------------------------------------------------------------------
@@ -62,8 +70,32 @@ void CTFGrenadeMirvProjectile::Precache()
 {
 	PrecacheModel( GRENADE_MODEL );
 	PrecacheScriptSound( MIRV_BLIP_SOUND );
+	PrecacheScriptSound( MIRV_LEADIN_SOUND );
 
 	BaseClass::Precache();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CTFGrenadeMirvProjectile::OnTakeDamage( const CTakeDamageInfo &info )
+{
+	if ( !info.GetAttacker() )
+		return 0;
+
+	if ( info.GetAttacker()->GetTeamNumber() == GetTeamNumber() )
+		return 0;
+
+	// Wrench hit defuses the dynamite pack.
+	if ( info.GetDamageCustom() == TF_DMG_WRENCH_FIX )
+	{
+		SetThink( &CBaseEntity::SUB_Remove );
+		SetNextThink( gpGlobals->curtime + 5.0f );
+
+		return 1;
+	}
+
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -93,18 +125,19 @@ void CTFGrenadeMirvProjectile::Detonate()
 //-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::DetonateThink( void )
 {
-	if ( gpGlobals->curtime > m_flNextBlipTime )
+	if ( GetDetonateTime() - gpGlobals->curtime <= MIRV_WARN_TIME )
+	{
+		if ( !m_bPlayedLeadIn )
+		{
+			EmitSound( MIRV_LEADIN_SOUND );
+			m_bPlayedLeadIn = true;
+		}
+	}
+	else if ( gpGlobals->curtime > m_flNextBlipTime )
 	{
 		BlipSound();
 
-		if ( GetDetonateTime() - gpGlobals->curtime <= MIRV_WARN_TIME )
-		{
-			m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FAST_FREQUENCY;
-		}
-		else
-		{
-			m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
-		}
+		m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
 	}
 
 	BaseClass::DetonateThink();
@@ -144,19 +177,7 @@ void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 //-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::BlipSound( void )
 {
-	EmitSound_t params;
-	params.m_pSoundName = MIRV_BLIP_SOUND;
-
-	float flTime = GetDetonateTime() - gpGlobals->curtime;
-	if ( flTime <= MIRV_WARN_TIME )
-	{
-		params.m_nPitch = RemapValClamped( flTime, 0.0f, 1.0f, 125, 100 );
-		params.m_nFlags |= SND_CHANGE_PITCH;
-	}
-
-	CPASAttenuationFilter filter( this, MIRV_BLIP_SOUND );
-
-	EmitSound( filter, entindex(), params );
+	EmitSound( MIRV_BLIP_SOUND );
 }
 
 //=============================================================================

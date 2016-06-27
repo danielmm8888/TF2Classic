@@ -20,8 +20,9 @@
 class CTFGrenadeMirvProjectile : public CTFWeaponBaseGrenadeProj
 {
 public:
-
 	DECLARE_CLASS( CTFGrenadeMirvProjectile, CTFWeaponBaseGrenadeProj );
+
+	CTFGrenadeMirvProjectile();
 
 	// Unique identifier.
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_MIRV; }
@@ -35,6 +36,7 @@ public:
 	// Overrides.
 	virtual void	Spawn( void );
 	virtual void	Precache( void );
+	virtual int		OnTakeDamage( const CTakeDamageInfo &info );
 	virtual void	BounceSound( void );
 	virtual void	Detonate( void );
 	virtual void	Explode( trace_t *pTrace, int bitsDamageType );
@@ -45,6 +47,7 @@ public:
 
 private:
 	float	m_flNextBlipTime;
+	bool	m_bPlayedLeadIn;
 };
 
 class CTFGrenadeMirvBomb : public CTFWeaponBaseGrenadeProj

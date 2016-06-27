@@ -337,7 +337,7 @@ void CTFWeaponBaseMelee::Smack( void )
 			iDmgType |= DMG_CRITICAL;
 		}
 
-		CTakeDamageInfo info( pPlayer, pPlayer, flDamage, iDmgType, iCustomDamage );
+		CTakeDamageInfo info( pPlayer, pPlayer, this, flDamage, iDmgType, iCustomDamage );
 		CalculateMeleeDamageForce( &info, vecForward, vecSwingEnd, 1.0f / flDamage * tf_meleeattackforcescale.GetFloat() );
 		trace.m_pEnt->DispatchTraceAttack( info, vecForward, &trace ); 
 		ApplyMultiDamage();

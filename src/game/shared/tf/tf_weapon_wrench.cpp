@@ -116,3 +116,14 @@ void CTFWrench::Smack( void )
 		BaseClass::Smack();
 	}
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+float CTFWrench::GetMeleeDamage( CBaseEntity *pTarget, int &iCustomDamage )
+{
+	float flDamage = BaseClass::GetMeleeDamage( pTarget, iCustomDamage );
+	iCustomDamage = TF_DMG_WRENCH_FIX;
+
+	return flDamage;
+}
