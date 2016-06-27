@@ -26,7 +26,7 @@ const char *g_pszArrowModels[] =
 	//"models/weapons/w_models/w_arrow_xmas.mdl",
 };
 
-IMPLEMENT_NETWORKCLASS_DT( CTFProjectile_Arrow, DT_ProjectileArrow )
+IMPLEMENT_NETWORKCLASS_DT( CTFProjectile_Arrow, DT_TFProjectile_Arrow )
 #ifdef CLIENT_DLL
 	RecvPropBool( RECVINFO( m_bCritical ) ),
 	RecvPropInt( RECVINFO( m_iType ) ),
@@ -196,7 +196,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		return;
 
 	// Handle hitting skybox (disappear).
-	const trace_t *pTrace = &CBaseEntity::GetTouchTrace();
+	trace_t *pTrace = const_cast<trace_t *>( &CBaseEntity::GetTouchTrace() );
 	if ( pTrace->surface.flags & SURF_SKY )
 	{
 		UTIL_Remove( this );
@@ -294,7 +294,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 	}
 	else if ( pOther->IsBaseObject() )
 	{
-		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() | DMG_PREVENT_PHYSICS_FORCE );
+		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() );
 		CalculateBulletDamageForce( &info, pWeapon->GetTFWpnData().iAmmoType, vecDir, vecOrigin );
 		
 		pOther->TakeDamage( info );
@@ -319,10 +319,55 @@ int	CTFProjectile_Arrow::GetDamageType()
 	{
 		iDmgType |= DMG_CRITICAL;
 	}
+	if ( CanHeadshot() )
+	{
+		iDmgType |= DMG_USE_HITLOCATIONS;
+	}
 
 	return iDmgType;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFProjectile_Arrow::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	// Get arrow's speed.
+	float flVel = GetAbsVelocity().Length();
+
+	QAngle angForward;
+	VectorAngles( vecDir, angForward );
+
+	// Now change arrow's direction.
+	SetAbsAngles( angForward );
+	SetAbsVelocity( vecDir * flVel );
+
+	// And change owner.
+	IncremenentDeflected();
+	SetOwnerEntity( pDeflectedBy );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	SetScorer( pDeflectedBy );
+
+	// Change trail color.
+	if ( m_hSpriteTrail.Get() )
+	{
+		UTIL_Remove( m_hSpriteTrail.Get() );
+	}
+
+	CreateTrail();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFProjectile_Arrow::CanHeadshot( void )
+{
+	return ( m_iType == TF_PROJECTILE_ARROW || m_iType == TF_PROJECTILE_FESTITIVE_ARROW );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 const char *CTFProjectile_Arrow::GetTrailParticleName( void )
 {
 	const char *pszFormat = NULL;

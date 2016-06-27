@@ -51,14 +51,19 @@ public:
 	virtual void	Precache( void );
 	virtual void	Spawn( void );
 
-	void	SetScorer( CBaseEntity *pScorer );
+	void			SetScorer( CBaseEntity *pScorer );
 
-	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
+	void			SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 	virtual int		GetDamageType();
 
-	void	ArrowTouch( CBaseEntity *pOther );
-	const char *GetTrailParticleName( void );
-	void	CreateTrail( void );
+	virtual bool	IsDeflectable() { return true; }
+	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+
+	bool			CanHeadshot( void );
+	void			ArrowTouch( CBaseEntity *pOther );
+	const char		*GetTrailParticleName( void );
+	void			CreateTrail( void );
+
 	virtual void	UpdateOnRemove( void );
 #else
 
