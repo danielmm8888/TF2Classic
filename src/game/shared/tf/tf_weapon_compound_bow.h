@@ -42,10 +42,12 @@ public:
 	virtual void	LowerBow( void );
 	virtual void	WeaponIdle( void );
 	virtual void	ItemPostFrame( void );
+
 	virtual float	GetProjectileDamage( void );
 	virtual float	GetProjectileSpeed( void );
 	virtual float	GetProjectileGravity( void );
 	virtual void	GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffset, Vector *vecSrc, QAngle *angForward, bool bHitTeammates = true, bool bUseHitboxes = false );
+	virtual bool	CalcIsAttackCriticalHelper( void );
 
 	void			FireArrow( void );	
 
@@ -56,7 +58,7 @@ public:
 	virtual const char* GetChargeSound( void ) { return NULL; }
 
 private:
-	float	m_flChargeBeginTime;
+	CNetworkVar( float, m_flChargeBeginTime );
 };
 
 #endif // TF_WEAPON_COMPOUND_BOW_H

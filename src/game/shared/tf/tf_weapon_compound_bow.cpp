@@ -25,9 +25,17 @@
 IMPLEMENT_NETWORKCLASS_ALIASED( TFCompoundBow, DT_WeaponCompoundBow )
 
 BEGIN_NETWORK_TABLE( CTFCompoundBow, DT_WeaponCompoundBow )
+#ifdef CLIENT_DLL
+	RecvPropTime( RECVINFO( m_flChargeBeginTime ) ),
+#else
+	SendPropTime( SENDINFO( m_flChargeBeginTime ) ),
+#endif
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFCompoundBow )
+#ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_flChargeBeginTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
+#endif
 END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_compound_bow, CTFCompoundBow );
@@ -289,6 +297,15 @@ void CTFCompoundBow::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOffse
 		angForward->x += RandomFloat( -flSpread, flSpread );
 		angForward->y += RandomFloat( -flSpread, flSpread );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFCompoundBow::CalcIsAttackCriticalHelper( void )
+{
+	// No random critical hits.
+	return false;
 }
 
 float CTFCompoundBow::GetChargeMaxTime( void )
