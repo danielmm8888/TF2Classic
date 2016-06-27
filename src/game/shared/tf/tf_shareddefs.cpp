@@ -723,18 +723,31 @@ int condition_to_attribute_translation[] =
 	TF_COND_HEALTH_OVERHEALED,
 	TF_COND_URINE,
 	TF_COND_ENERGY_BUFF,
-	TF_COND_LAST,
+	TF_COND_LAST
 };
 
-const char *g_aPowerups[] =
+int g_aPowerupConds[] =
+{
+	TF_COND_POWERUP_CRITDAMAGE,
+	TF_COND_POWERUP_SHORTUBER,
+	TF_COND_POWERUP_FASTRELOAD,
+	TF_COND_POWERUP_CLOAK,
+	TF_COND_POWERUP_RAGEMODE,
+	TF_COND_POWERUP_CLASSCHANGE,
+	TF_COND_LAST
+};
+
+const char *g_aPowerupNames[] =
 {
 	"item_powerup_critdamage", // TF_COND_POWERUP_CRITDAMAGE,
 	"item_powerup_shortuber", // TF_COND_POWERUP_SHORTUBER,
 	"item_powerup_speedshooter", // TF_COND_POWERUP_FASTRELOAD,
-	"", // TF_COND_POWERUP_CLOAK,
+	"item_powerup_cloak", // TF_COND_POWERUP_CLOAK,
 	"item_powerup_ragemode", // TF_COND_POWERUP_RAGEMODE,
 	"item_powerup_classchange", // TF_COND_POWERUP_CLASSCHANGE,
 };
+
+COMPILE_TIME_ASSERT( ( ARRAYSIZE( g_aPowerupConds ) - 1 ) == ARRAYSIZE( g_aPowerupNames ) );
 
 bool ConditionExpiresFast( int nCond )
 {
@@ -753,13 +766,6 @@ bool ConditionExpiresFast( int nCond )
 		return true;
 
 	return false;
-}
-
-bool IsPowerupCond( int nCond )
-{
-	COMPILE_TIME_ASSERT( ARRAYSIZE( g_aPowerups ) == ( TF_COND_LAST - TF_FIRST_POWERUP_COND ) );
-
-	return ( nCond >= TF_FIRST_POWERUP_COND && nCond < TF_COND_LAST );
 }
 
 

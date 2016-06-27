@@ -576,14 +576,13 @@ enum
 	TF_COND_LAST
 };
 
-#define TF_FIRST_POWERUP_COND TF_COND_POWERUP_CRITDAMAGE
-#define TF_POWERUP_COND_COUNT ( TF_COND_LAST - TF_FIRST_POWERUP_COND )
-
 extern int condition_to_attribute_translation[];
-extern const char *g_aPowerups[];
+extern const char *g_aPowerupNames[];
+extern int g_aPowerupConds[];
+
+#define TF_POWERUP_COND_COUNT ARRAYSIZE( g_aPowerupConds )
 
 bool ConditionExpiresFast( int nCond );
-bool IsPowerupCond( int nCond );
 
 //-----------------------------------------------------------------------------
 // Mediguns.

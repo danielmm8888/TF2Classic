@@ -5019,14 +5019,13 @@ void CTFPlayer::DropWeapon( CTFWeaponBase *pWeapon, bool bKilled /*= false*/ )
 //-----------------------------------------------------------------------------
 void CTFPlayer::DropPowerups( void )
 {
-	for ( int i = TF_FIRST_POWERUP_COND; i < TF_COND_LAST; i++ )
+	for ( int i = 0; g_aPowerupConds[i] != TF_COND_LAST; i++ )
 	{
-		if ( m_Shared.InCond( i ) )
+		int nCond = g_aPowerupConds[i];
+		if ( m_Shared.InCond( nCond ) )
 		{
-			const char *pszClassname = g_aPowerups[i - TF_FIRST_POWERUP_COND];
-
-			if ( pszClassname[0] != '\0' )
-				CTFBaseDMPowerup::Create( WorldSpaceCenter(), vec3_angle, this, pszClassname, m_Shared.GetConditionDuration( i ) ); 
+			const char *pszClassname = g_aPowerupNames[i];
+			CTFBaseDMPowerup::Create( WorldSpaceCenter(), vec3_angle, this, pszClassname, m_Shared.GetConditionDuration( nCond ) );
 		}
 	}
 }
