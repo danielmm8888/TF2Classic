@@ -243,7 +243,8 @@ bool CWeaponSpawner::MyTouch( CBasePlayer *pPlayer )
 					bSuccess = true;
 			}
 			else if ( !( pTFPlayer->m_nButtons & IN_ATTACK ) &&
-				( pTFPlayer->m_nButtons & IN_USE || pWeapon->GetWeaponID() == TF_WEAPON_PISTOL ) ) // Check Use button, always replace pistol.
+				( pTFPlayer->m_nButtons & IN_USE ||
+				( TFGameRules()->IsDeathmatch() && pWeapon->GetWeaponID() == TF_WEAPON_PISTOL ) ) ) // Check Use button, always replace pistol.
 			{
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );

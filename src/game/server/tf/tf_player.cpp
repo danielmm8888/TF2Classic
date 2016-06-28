@@ -1017,6 +1017,8 @@ void CTFPlayer::Spawn()
 
 	m_nBlastJumpFlags = 0;
 
+	m_Shared.SetDesiredWeaponIndex( -1 );
+
 	// This makes the surrounding box always the same size as the standing collision box
 	// helps with parts of the hitboxes that extend out of the crouching hitbox, eg with the
 	// heavyweapons guy
@@ -4302,6 +4304,8 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		DropAmmoPack();
 	}
 
+	m_Shared.SetDesiredWeaponIndex( -1 );
+
 	// If the player has a capture flag and was killed by another player, award that player a defense
 	if ( HasItem() && pTFAttacker && ( pTFAttacker != this ) )
 	{
@@ -4420,7 +4424,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		// if this was suicide, recalculate attacker to see if we want to award the kill to a recent damager
 		info_modified.SetAttacker( TFGameRules()->GetDeathScorer( info.GetAttacker(), pInflictor, this ) );
 	}
-	else if ( !TFGameRules()->IsDeathmatch() && ( !pAttacker || pAttacker == this || pAttacker->IsBSPModel() ) )
+	else if ( !pAttacker || pAttacker == this || pAttacker->IsBSPModel() )
 	{
 		// Recalculate attacker if player killed himself or this was environmental death.
 		CBasePlayer *pDamager = TFGameRules()->GetRecentDamager( this, 0, TF_TIME_ENV_DEATH_KILL_CREDIT );
@@ -5023,8 +5027,7 @@ void CTFPlayer::DropPowerups( void )
 		int nCond = g_aPowerupConds[i];
 		if ( m_Shared.InCond( nCond ) )
 		{
-			const char *pszClassname = g_aPowerupNames[i];
-			CTFBaseDMPowerup::Create( WorldSpaceCenter(), vec3_angle, this, pszClassname, m_Shared.GetConditionDuration( nCond ) );
+			CTFBaseDMPowerup::Create( WorldSpaceCenter(), vec3_angle, this, g_aPowerupNames[i], m_Shared.GetConditionDuration( nCond ) );
 		}
 	}
 }
