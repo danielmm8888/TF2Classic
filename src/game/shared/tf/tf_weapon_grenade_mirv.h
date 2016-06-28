@@ -11,6 +11,10 @@
 
 #include "tf_weaponbase_grenadeproj.h"
 
+#define TF_MIRV_TIMER	4.0f // seconds
+#define TF_MIRV_BLIP_SOUND		"Weapon_Grenade_Mirv.Timer"
+#define TF_MIRV_BLIP_FREQUENCY	1.0f
+
 //=============================================================================
 //
 // TF Mirv Grenade Projectile and Bombs (Server specific.)
@@ -27,11 +31,9 @@ public:
 	// Unique identifier.
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_MIRV; }
 
-#if 0
 	// Creation.
 	static CTFGrenadeMirvProjectile *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		                                     const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, const CTFWeaponInfo &weaponInfo, float timer, int iFlags = 0 );
-#endif
+		                                     const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon );
 
 	// Overrides.
 	virtual void	Spawn( void );
@@ -40,13 +42,11 @@ public:
 	virtual void	BounceSound( void );
 	virtual void	Detonate( void );
 	virtual void	Explode( trace_t *pTrace, int bitsDamageType );
-	void			DetonateThink( void );
 	void			BlipSound( void );
 
 	DECLARE_DATADESC();
 
 private:
-	float	m_flNextBlipTime;
 	bool	m_bPlayedLeadIn;
 };
 

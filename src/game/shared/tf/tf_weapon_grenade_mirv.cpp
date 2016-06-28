@@ -17,11 +17,8 @@
 #include "particle_parse.h"
 #endif
 
-#define GRENADE_MIRV_TIMER	3.0f // seconds
+#define MIRV_WARN_TIME				1.0f
 
-#define MIRV_BLIP_FREQUENCY			1.0f
-#define MIRV_WARN_TIME				0.5f
-#define MIRV_BLIP_SOUND				"Weapon_Grenade_Mirv.Timer"
 #define MIRV_LEADIN_SOUND			"Weapon_Grenade_Mirv.LeadIn"
 
 //=============================================================================
@@ -31,7 +28,6 @@
 #ifdef GAME_DLL
 
 BEGIN_DATADESC( CTFGrenadeMirvProjectile )
-	DEFINE_THINKFUNC( DetonateThink ),
 END_DATADESC()
 
 #define GRENADE_MODEL "models/weapons/w_models/w_grenade_mirv.mdl"
@@ -40,9 +36,19 @@ LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv_projectile, CTFGrenadeMirvProjectil
 PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_projectile );
 
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+CTFGrenadeMirvProjectile* CTFGrenadeMirvProjectile::Create( const Vector &position, const QAngle &angles,
+	const Vector &velocity, const AngularImpulse &angVelocity,
+	CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon )
+{
+	CTFGrenadeMirvProjectile *pGrenade = static_cast<CTFGrenadeMirvProjectile *>( CTFWeaponBaseGrenadeProj::Create( "tf_weapon_grenade_mirv_projectile", position, angles, velocity, angVelocity, pOwner, pWeapon ) );
+	return pGrenade;
+}
+
 CTFGrenadeMirvProjectile::CTFGrenadeMirvProjectile()
 {
-	m_flNextBlipTime = 0.0f;
 	m_bPlayedLeadIn = false;
 }
 
@@ -52,12 +58,9 @@ CTFGrenadeMirvProjectile::CTFGrenadeMirvProjectile()
 void CTFGrenadeMirvProjectile::Spawn()
 {
 	SetModel( GRENADE_MODEL );
+	SetDetonateTimerLength( TF_MIRV_TIMER );
 
 	BaseClass::Spawn();
-
-	SetDetonateTimerLength( GRENADE_MIRV_TIMER );
-	BlipSound();
-	m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
 
 	// Players need to be able to hit it with their weapons.
 	AddSolidFlags( FSOLID_TRIGGER );
@@ -69,8 +72,8 @@ void CTFGrenadeMirvProjectile::Spawn()
 void CTFGrenadeMirvProjectile::Precache()
 {
 	PrecacheModel( GRENADE_MODEL );
-	PrecacheScriptSound( MIRV_BLIP_SOUND );
 	PrecacheScriptSound( MIRV_LEADIN_SOUND );
+	PrecacheScriptSound( TF_MIRV_BLIP_SOUND );
 
 	BaseClass::Precache();
 }
@@ -123,29 +126,6 @@ void CTFGrenadeMirvProjectile::Detonate()
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CTFGrenadeMirvProjectile::DetonateThink( void )
-{
-	if ( GetDetonateTime() - gpGlobals->curtime <= MIRV_WARN_TIME )
-	{
-		if ( !m_bPlayedLeadIn )
-		{
-			EmitSound( MIRV_LEADIN_SOUND );
-			m_bPlayedLeadIn = true;
-		}
-	}
-	else if ( gpGlobals->curtime > m_flNextBlipTime )
-	{
-		BlipSound();
-
-		m_flNextBlipTime = gpGlobals->curtime + MIRV_BLIP_FREQUENCY;
-	}
-
-	BaseClass::DetonateThink();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 {
 	// Pass through.
@@ -177,7 +157,19 @@ void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 //-----------------------------------------------------------------------------
 void CTFGrenadeMirvProjectile::BlipSound( void )
 {
-	EmitSound( MIRV_BLIP_SOUND );
+	if ( GetDetonateTime() - gpGlobals->curtime <= MIRV_WARN_TIME )
+	{
+		if ( !m_bPlayedLeadIn )
+		{
+			EmitSound( MIRV_LEADIN_SOUND );
+			m_bPlayedLeadIn = true;
+		}
+	}
+	else if ( gpGlobals->curtime >= m_flNextBlipTime )
+	{
+		EmitSound( TF_MIRV_BLIP_SOUND );
+		m_flNextBlipTime = gpGlobals->curtime + TF_MIRV_BLIP_FREQUENCY;
+	}
 }
 
 //=============================================================================

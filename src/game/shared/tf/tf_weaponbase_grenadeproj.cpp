@@ -34,7 +34,7 @@ extern ConVar sv_gravity;
 // Server specific.
 #ifdef GAME_DLL
 BEGIN_DATADESC( CTFWeaponBaseGrenadeProj )
-DEFINE_THINKFUNC( DetonateThink ),
+	DEFINE_THINKFUNC( DetonateThink ),
 END_DATADESC()
 
 ConVar tf_grenade_show_radius( "tf_grenade_show_radius", "0", FCVAR_CHEAT | FCVAR_DEVELOPMENTONLY, "Render radius of grenades" );
@@ -86,6 +86,8 @@ CTFWeaponBaseGrenadeProj::CTFWeaponBaseGrenadeProj()
 #ifndef CLIENT_DLL
 	m_bUseImpactNormal = false;
 	m_vecImpactNormal.Init();
+
+	m_flNextBlipTime = 0.0f;
 #endif
 }
 
@@ -267,10 +269,10 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 
 	m_takedamage = DAMAGE_EVENTS_ONLY;
 
-	if (GetThrower())
+	if ( GetThrower() )
 	{
 		// Set the team.
-		ChangeTeam(GetThrower()->GetTeamNumber());
+		ChangeTeam( GetThrower()->GetTeamNumber() );
 	}
 
 	// Set skin based on team ( red = 1, blue = 2 )
@@ -390,6 +392,8 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 		Remove( );
 		return;
 	}
+	
+	BlipSound();
 
 	if ( gpGlobals->curtime > m_flCollideWithTeammatesTime && m_bCollideWithTeammates == false )
 	{
@@ -402,7 +406,6 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 		return;
 	}
 
-
 	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 
@@ -411,6 +414,9 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGrenadeProj::Detonate( void )
 {
+	// Putting this here just in case we're inside prediction to make sure all effects show up.
+	CDisablePredictionFiltering disabler;
+
 	trace_t		tr;
 	Vector		vecSpot;// trace starts here!
 

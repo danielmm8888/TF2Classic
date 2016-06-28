@@ -22,11 +22,7 @@
 //
 // TF Weapon Pipebomb Launcher.
 //
-#ifdef GAME_DLL
 class CTFWeaponMirv : public CTFWeaponBaseGun, public ITFChargeUpWeapon
-#else
-class CTFWeaponMirv : public CTFWeaponBaseGun, public ITFChargeUpWeapon
-#endif
 {
 public:
 
@@ -48,10 +44,10 @@ public:
 
 	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
 	virtual bool	Deploy( void );
+	virtual void	ItemPostFrame( void );
 	virtual void	PrimaryAttack( void );
 	virtual void	WeaponIdle( void );
 	virtual float	GetProjectileSpeed( void );
-	virtual bool	Reload( void );
 	virtual void	WeaponReset( void );
 
 public:
@@ -60,15 +56,13 @@ public:
 	virtual float GetChargeMaxTime( void );
 	virtual const char *GetChargeSound( void ) { return "Weapon_Grenade_Mirv.ChargeUp"; }
 
-	void LaunchGrenade( void );
-
-#ifdef GAME_DLL
-	void			UpdateOnRemove( void );
-#endif
+	void			LaunchGrenade( void );
+	void			BlipSound( void );
 
 private:
 	CNetworkVar( float, m_flChargeBeginTime );
 	float	m_flLastDenySoundTime;
+	float	m_flNextBlipTime;
 
 	CTFWeaponMirv( const CTFWeaponMirv & ) {}
 };

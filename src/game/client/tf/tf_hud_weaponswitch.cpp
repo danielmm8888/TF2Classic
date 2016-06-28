@@ -208,7 +208,7 @@ bool CTFHudWeaponSwitch::ShouldDraw( void )
 		return false;
 
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( !pPlayer )
+	if ( !pPlayer || !pPlayer->IsAlive() )
 		return false;
 
 	int iWeaponTo = pPlayer->m_Shared.GetDesiredWeaponIndex();

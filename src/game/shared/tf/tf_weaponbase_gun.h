@@ -58,7 +58,7 @@ public:
 	CBaseEntity *FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDetonate );
 	CBaseEntity *FireFlare( CTFPlayer *pPlayer );
 	CBaseEntity *FireArrow( CTFPlayer *pPlayer, int iType );
-	CBaseEntity *FireGrenade( CTFPlayer *pPlayer );
+	CBaseEntity *FireGrenade( CTFPlayer *pPlayer, int iType );
 
 	virtual float GetWeaponSpread( void );
 	virtual float GetProjectileSpeed( void );

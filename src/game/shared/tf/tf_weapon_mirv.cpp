@@ -1,6 +1,6 @@
 //====== Copyright © 1996-2005, Valve Corporation, All rights reserved. =======
 //
-// Purpose: 
+// Purpose: TODO: Redo this into a base grenade throwing weapon.
 //
 //=============================================================================
 
@@ -29,11 +29,10 @@ ConVar tf2c_mirv_max_charge_velocity( "tf2c_mirv_max_charge_velocity", "1500", F
 
 #define TF_MIRV_MIN_CHARGE_VEL tf2c_mirv_min_charge_velocity.GetFloat() // 900
 #define TF_MIRV_MAX_CHARGE_VEL tf2c_mirv_max_charge_velocity.GetFloat() // 2400
-#define TF_MIRV_MAX_CHARGE_TIME 3.0f
 
 //=============================================================================
 //
-// Weapon Pipebomb Launcher tables.
+// Weapon Mirv tables.
 //
 IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponMirv, DT_WeaponMirv )
 
@@ -62,7 +61,7 @@ END_DATADESC()
 
 //=============================================================================
 //
-// Weapon Pipebomb Launcher functions.
+// Weapon Mirv functions.
 //
 
 //-----------------------------------------------------------------------------
@@ -72,6 +71,7 @@ END_DATADESC()
 CTFWeaponMirv::CTFWeaponMirv()
 {
 	m_flLastDenySoundTime = 0.0f;
+	m_flNextBlipTime = 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -133,6 +133,19 @@ void CTFWeaponMirv::WeaponReset( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+void CTFWeaponMirv::ItemPostFrame( void )
+{
+	BaseClass::ItemPostFrame();
+
+	if ( m_flChargeBeginTime != 0.0f )
+	{
+		BlipSound();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CTFWeaponMirv::PrimaryAttack( void )
 {
 	// Check for ammunition.
@@ -158,12 +171,15 @@ void CTFWeaponMirv::PrimaryAttack( void )
 		m_flChargeBeginTime = gpGlobals->curtime;
 
 		SendWeaponAnim( ACT_VM_PULLBACK );
+
+		m_flNextBlipTime = gpGlobals->curtime;
+		BlipSound();
 	}
 	else
 	{
 		float flTotalChargeTime = gpGlobals->curtime - m_flChargeBeginTime;
 
-		if ( flTotalChargeTime >= TF_MIRV_MAX_CHARGE_TIME )
+		if ( flTotalChargeTime >= TF_MIRV_TIMER )
 		{
 			LaunchGrenade();
 		}
@@ -207,10 +223,16 @@ void CTFWeaponMirv::LaunchGrenade( void )
 
 	if ( pProjectile )
 	{
-#if 0
+#ifdef GAME_DLL
 		// Save the charge time to scale the detonation timer.
-		float flTimer = TF_PIPEBOMB_MAX_CHARGE_TIME - ( gpGlobals->curtime - m_flChargeBeginTime );
+		float flTimer = TF_MIRV_TIMER - ( gpGlobals->curtime - m_flChargeBeginTime );
 		pProjectile->SetDetonateTimerLength( flTimer );
+		pProjectile->SetNextBlipTime( m_flNextBlipTime );
+
+		if ( flTimer <= 0.0f )
+		{
+			pProjectile->Detonate();
+		}
 #endif
 	}
 
@@ -237,44 +259,42 @@ void CTFWeaponMirv::LaunchGrenade( void )
 	m_flChargeBeginTime = 0;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponMirv::BlipSound( void )
+{
+	if ( gpGlobals->curtime >= m_flNextBlipTime )
+	{
+		CPASAttenuationFilter filter( GetOwner(), TF_MIRV_BLIP_SOUND );
+		if ( IsPredicted() && CBaseEntity::GetPredictionPlayer() )
+		{
+			filter.UsePredictionRules();
+		}
+		
+		EmitSound( TF_MIRV_BLIP_SOUND );
+		m_flNextBlipTime = gpGlobals->curtime + TF_MIRV_BLIP_FREQUENCY;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 float CTFWeaponMirv::GetProjectileSpeed( void )
 {
 	float flForwardSpeed = RemapValClamped( ( gpGlobals->curtime - m_flChargeBeginTime ),
 		0.0f,
-		TF_MIRV_MAX_CHARGE_TIME,
+		TF_MIRV_TIMER,
 		TF_MIRV_MIN_CHARGE_VEL,
 		TF_MIRV_MAX_CHARGE_VEL );
 
 	return flForwardSpeed;
 }
 
-//=============================================================================
-//
-// Server specific functions.
-//
-#ifdef GAME_DLL
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFWeaponMirv::UpdateOnRemove( void )
-{
-	BaseClass::UpdateOnRemove();
-}
-
-
-#endif
-
-
 float CTFWeaponMirv::GetChargeMaxTime( void )
 {
-	return TF_MIRV_MAX_CHARGE_TIME;
-}
-
-
-bool CTFWeaponMirv::Reload( void )
-{
-	if ( m_flChargeBeginTime > 0 )
-		return false;
-
-	return BaseClass::Reload();
+	return TF_MIRV_TIMER;
 }

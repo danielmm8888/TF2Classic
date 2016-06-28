@@ -109,15 +109,18 @@ public:
 	virtual void			Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
 	virtual void			IncremenentDeflected( void );
 
-protected:
+	virtual void			BlipSound( void ) { }
+	void					SetNextBlipTime( float flTime ) { m_flNextBlipTime = flTime; }
 
+protected:
 	void					DrawRadius( float flRadius );
 
 	bool					m_bUseImpactNormal;
 	Vector					m_vecImpactNormal;
 
-private:
+	float					m_flNextBlipTime;
 
+private:
 	// Custom collision to allow for constant elasticity on hit surfaces.
 	virtual void			ResolveFlyCollisionCustom( trace_t &trace, Vector &vecVelocity );
 

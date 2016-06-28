@@ -208,7 +208,7 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_MIRV:
-		pProjectile = FireGrenade( pPlayer );
+		pProjectile = FireGrenade( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
@@ -633,7 +633,7 @@ CBaseEntity *CTFWeaponBaseGun::FireArrow( CTFPlayer *pPlayer, int iType )
 //-----------------------------------------------------------------------------
 // Purpose: Use this for any old grenades: MIRV, Frag, etc
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer )
+CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer, int iType )
 {
 	PlayWeaponShootSound();
 
@@ -649,13 +649,15 @@ CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer )
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
-	char szEntName[256];
-	V_snprintf( szEntName, sizeof( szEntName ), "%s_projectile", WeaponIdToClassname( GetWeaponID() ) );
-
-	CTFWeaponBaseGrenadeProj *pProjectile = CTFWeaponBaseGrenadeProj::Create( szEntName, vecSrc, pPlayer->EyeAngles(), vecVelocity,
-		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, this );
-
+	CTFWeaponBaseGrenadeProj *pProjectile = NULL;
+	switch ( iType )
+	{
+	case TF_PROJECTILE_MIRV:
+		pProjectile = CTFGrenadeMirvProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+			AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
+			pPlayer, this );
+		break;
+	}
 
 	if ( pProjectile )
 	{
