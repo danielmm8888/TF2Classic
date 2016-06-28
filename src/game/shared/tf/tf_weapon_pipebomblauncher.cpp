@@ -219,12 +219,8 @@ void CTFPipebombLauncher::LaunchGrenade( void )
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
-	CTFGrenadePipebombProjectile *pProjectile = static_cast<CTFGrenadePipebombProjectile*>( FireProjectile( pPlayer ) );
-	if ( pProjectile )
-	{
-		// Save the charge time to scale the detonation timer.
-		pProjectile->SetChargeTime( gpGlobals->curtime - m_flChargeBeginTime );
-	}
+	FireProjectile( pPlayer );
+
 #if !defined( CLIENT_DLL ) 
 	pPlayer->SpeakWeaponFire();
 	CTF_GameStats.Event_PlayerFiredWeapon( pPlayer, IsCurrentAttackACrit() );
@@ -259,7 +255,7 @@ float CTFPipebombLauncher::GetProjectileSpeed( void )
 	return flForwardSpeed;
 }
 
-void CTFPipebombLauncher::AddPipeBomb( CTFGrenadePipebombProjectile *pBomb )
+void CTFPipebombLauncher::AddPipeBomb( CTFGrenadeStickybombProjectile *pBomb )
 {
 	PipebombHandle hHandle;
 	hHandle = pBomb;
@@ -281,7 +277,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 		// If we've gone over the max pipebomb count, detonate the oldest
 		if ( m_Pipebombs.Count() >= nMaxPipebombs )
 		{
-			CTFGrenadePipebombProjectile *pTemp = m_Pipebombs[0];
+			CTFGrenadeStickybombProjectile *pTemp = m_Pipebombs[0];
 			if ( pTemp )
 			{
 				pTemp->SetTimer( gpGlobals->curtime ); // explode NOW
@@ -290,7 +286,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 			m_Pipebombs.Remove( 0 );
 		}
 
-		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
+		CTFGrenadeStickybombProjectile *pPipebomb = (CTFGrenadeStickybombProjectile*)pProjectile;
 
 		PipebombHandle hHandle;
 		hHandle = pPipebomb;
@@ -402,10 +398,10 @@ void CTFPipebombLauncher::UpdateOnRemove( void )
 //-----------------------------------------------------------------------------
 void CTFPipebombLauncher::DeathNotice( CBaseEntity *pVictim )
 {
-	Assert( dynamic_cast<CTFGrenadePipebombProjectile*>( pVictim ) );
+	Assert( dynamic_cast<CTFGrenadeStickybombProjectile*>( pVictim ) );
 
 	PipebombHandle hHandle;
-	hHandle = (CTFGrenadePipebombProjectile*)pVictim;
+	hHandle = (CTFGrenadeStickybombProjectile*)pVictim;
 	m_Pipebombs.FindAndRemove( hHandle );
 
 	m_iPipebombCount = m_Pipebombs.Count();
@@ -423,7 +419,7 @@ bool CTFPipebombLauncher::DetonateRemotePipebombs( bool bFizzle )
 
 	for ( int i = 0; i < count; i++ )
 	{
-		CTFGrenadePipebombProjectile *pTemp = m_Pipebombs[i];
+		CTFGrenadeStickybombProjectile *pTemp = m_Pipebombs[i];
 		if ( pTemp )
 		{
 			//This guy will die soon enough.
@@ -438,7 +434,7 @@ bool CTFPipebombLauncher::DetonateRemotePipebombs( bool bFizzle )
 
 			if ( bFizzle == false )
 			{
-				if ( ( gpGlobals->curtime - pTemp->m_flCreationTime ) < tf_grenadelauncher_livetime.GetFloat() )
+				if ( ( gpGlobals->curtime - pTemp->GetCreationTime() ) < tf_grenadelauncher_livetime.GetFloat() )
 				{
 					bFailedToDetonate = true;
 					continue;

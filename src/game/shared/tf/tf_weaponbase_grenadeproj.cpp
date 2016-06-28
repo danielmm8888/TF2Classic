@@ -53,16 +53,17 @@ BEGIN_NETWORK_TABLE( CTFWeaponBaseGrenadeProj, DT_TFWeaponBaseGrenadeProj )
 #ifdef CLIENT_DLL
 	RecvPropVector( RECVINFO( m_vInitialVelocity ) ),
 	RecvPropBool( RECVINFO( m_bCritical ) ),
+	RecvPropEHandle( RECVINFO( m_hLauncher ) ),
 
 	RecvPropVector( RECVINFO_NAME( m_vecNetworkOrigin, m_vecOrigin ) ),
 	RecvPropQAngles( RECVINFO_NAME( m_angNetworkAngles, m_angRotation ) ),
 
 	RecvPropInt( RECVINFO( m_iDeflected ) ),
 	RecvPropEHandle( RECVINFO( m_hDeflectOwner ) ),
-
 #else
 	SendPropVector( SENDINFO( m_vInitialVelocity ), 20 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/	),
 	SendPropBool( SENDINFO( m_bCritical ) ),
+	SendPropEHandle( SENDINFO( m_hLauncher ) ),
 
 	SendPropExclude( "DT_BaseEntity", "m_vecOrigin" ),
 	SendPropExclude( "DT_BaseEntity", "m_angRotation" ),
@@ -224,6 +225,8 @@ void CTFWeaponBaseGrenadeProj::InitGrenade( const Vector &velocity, const Angula
 	SetGravity( 0.4f/*BaseClass::GetGrenadeGravity()*/ );
 	SetFriction( 0.2f/*BaseClass::GetGrenadeFriction()*/ );
 	SetElasticity( 0.45f/*BaseClass::GetGrenadeElasticity()*/ );
+
+	SetLauncher( pWeapon );
 
 	CTFWeaponBaseGun *pTFWeapon = dynamic_cast<CTFWeaponBaseGun *>( pWeapon );
 	if ( pTFWeapon )
@@ -630,9 +633,9 @@ void CTFWeaponBaseGrenadeProj::Deflected( CBaseEntity *pDeflectedBy, Vector &vec
 	m_hDeflectOwner = pDeflectedBy;
 	SetThrower( pBCC );
 	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+
 	if ( !TFGameRules()->IsDeathmatch() )
 		m_nSkin = pDeflectedBy->GetTeamNumber() - 2;
-	// TODO: Live TF2 adds white trail to reflected pipes and stickies. We need one as well.
 }
 
 //-----------------------------------------------------------------------------

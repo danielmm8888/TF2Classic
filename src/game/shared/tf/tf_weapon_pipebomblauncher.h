@@ -11,7 +11,7 @@
 #endif
 
 #include "tf_weaponbase_gun.h"
-#include "tf_weapon_grenade_pipebomb.h"
+#include "tf_weapon_grenade_stickybomb.h"
 
 // Client specific.
 #ifdef CLIENT_DLL
@@ -67,7 +67,7 @@ public:
 
 	void LaunchGrenade( void );
 	bool DetonateRemotePipebombs( bool bFizzle );
-	void AddPipeBomb( CTFGrenadePipebombProjectile *pBomb );
+	void AddPipeBomb( CTFGrenadeStickybombProjectile *pBomb );
 	void			DeathNotice( CBaseEntity *pVictim );
 
 
@@ -88,7 +88,7 @@ private:
 #endif
 
 	// List of active pipebombs
-	typedef CHandle<CTFGrenadePipebombProjectile>	PipebombHandle;
+	typedef CHandle<CTFGrenadeStickybombProjectile>	PipebombHandle;
 	CUtlVector<PipebombHandle>		m_Pipebombs;
 
 	CNetworkVar( float, m_flChargeBeginTime );

@@ -25,7 +25,7 @@
 
 // TODO: Hardcode these eventually. (Nicknine)
 ConVar tf2c_mirv_min_charge_velocity( "tf2c_mirv_min_charge_velocity", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
-ConVar tf2c_mirv_max_charge_velocity( "tf2c_mirv_max_charge_velocity", "1500", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar tf2c_mirv_max_charge_velocity( "tf2c_mirv_max_charge_velocity", "2600", FCVAR_REPLICATED | FCVAR_CHEAT );
 
 #define TF_MIRV_MIN_CHARGE_VEL tf2c_mirv_min_charge_velocity.GetFloat() // 900
 #define TF_MIRV_MAX_CHARGE_VEL tf2c_mirv_max_charge_velocity.GetFloat() // 2400
@@ -229,9 +229,20 @@ void CTFWeaponMirv::LaunchGrenade( void )
 		pProjectile->SetDetonateTimerLength( flTimer );
 		pProjectile->SetNextBlipTime( m_flNextBlipTime );
 
+		// Slam velocity if the grenade is blowing up into our face.
 		if ( flTimer <= 0.0f )
 		{
-			pProjectile->Detonate();
+			pProjectile->SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
+			pProjectile->SetNextThink( gpGlobals->curtime );
+			
+			if ( pProjectile->VPhysicsGetObject() )
+			{
+				pProjectile->VPhysicsGetObject()->SetVelocityInstantaneous( &vec3_origin, &vec3_origin );
+			}
+			else
+			{
+				pProjectile->SetAbsVelocity( vec3_origin );
+			}
 		}
 #endif
 	}

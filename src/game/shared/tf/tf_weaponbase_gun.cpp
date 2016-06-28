@@ -20,6 +20,7 @@
 
 	#include "tf_projectile_rocket.h"
 	#include "tf_weapon_grenade_pipebomb.h"
+	#include "tf_weapon_grenade_stickybomb.h"
 	#include "tf_projectile_flare.h"
 	#include "tf_projectile_arrow.h"
 	#include "tf_weapon_grenade_mirv.h"
@@ -192,13 +193,13 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 
 	case TF_PROJECTILE_PIPEBOMB:
 	case TF_PROJECTILE_CANNONBALL:
-		pProjectile = FirePipeBomb( pPlayer, false );
+		pProjectile = FireGrenade( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
 	case TF_PROJECTILE_PIPEBOMB_REMOTE:
 	case TF_PROJECTILE_PIPEBOMB_REMOTE_PRACTICE:
-		pProjectile = FirePipeBomb( pPlayer, true );
+		pProjectile = FireGrenade( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
@@ -532,9 +533,9 @@ CBaseEntity *CTFWeaponBaseGun::FireNail( CTFPlayer *pPlayer, int iSpecificNail )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Fire a  pipe bomb
+// Purpose: Use this for any grenades: pipes, stickies, MIRV...
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDetonate )
+CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer, int iType )
 {
 	PlayWeaponShootSound();
 
@@ -550,16 +551,33 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +		
 		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
 
-	CTFGrenadePipebombProjectile *pProjectile = CTFGrenadePipebombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity, 
-		AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-		pPlayer, this, bRemoteDetonate );
+	CTFWeaponBaseGrenadeProj *pProjectile = NULL;
 
+	switch( iType )
+	{
+	case TF_PROJECTILE_PIPEBOMB_REMOTE:
+	case TF_PROJECTILE_PIPEBOMB_REMOTE_PRACTICE:
+		pProjectile = CTFGrenadeStickybombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+			AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
+			pPlayer, this );
+		break;
+	case TF_PROJECTILE_PIPEBOMB:
+		pProjectile = CTFGrenadePipebombProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+			AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
+			pPlayer, this );
+		break;
+	case TF_PROJECTILE_MIRV:
+		pProjectile = CTFGrenadeMirvProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
+			AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
+			pPlayer, this );
+		break;
+	}
 
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
-		pProjectile->SetLauncher( this );
 	}
+
 	return pProjectile;
 
 #endif
@@ -625,47 +643,6 @@ CBaseEntity *CTFWeaponBaseGun::FireArrow( CTFPlayer *pPlayer, int iType )
 		pProjectile->SetDamage( GetProjectileDamage() );
 	}
 	return pProjectile;
-#endif
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Use this for any old grenades: MIRV, Frag, etc
-//-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer, int iType )
-{
-	PlayWeaponShootSound();
-
-#ifdef GAME_DLL
-
-	Vector vecForward, vecRight, vecUp;
-	AngleVectors( pPlayer->EyeAngles(), &vecForward, &vecRight, &vecUp );
-
-	// Create grenades here!!
-	Vector vecSrc = pPlayer->Weapon_ShootPosition();
-	vecSrc += vecForward * 16.0f + vecRight * 8.0f + vecUp * -6.0f;
-
-	Vector vecVelocity = ( vecForward * GetProjectileSpeed() ) + ( vecUp * 200.0f ) + ( random->RandomFloat( -10.0f, 10.0f ) * vecRight ) +
-		( random->RandomFloat( -10.0f, 10.0f ) * vecUp );
-
-	CTFWeaponBaseGrenadeProj *pProjectile = NULL;
-	switch ( iType )
-	{
-	case TF_PROJECTILE_MIRV:
-		pProjectile = CTFGrenadeMirvProjectile::Create( vecSrc, pPlayer->EyeAngles(), vecVelocity,
-			AngularImpulse( 600, random->RandomInt( -1200, 1200 ), 0 ),
-			pPlayer, this );
-		break;
-	}
-
-	if ( pProjectile )
-	{
-		pProjectile->SetCritical( IsCurrentAttackACrit() );
-		pProjectile->SetLauncher( this );
-	}
-	return pProjectile;
-
 #endif
 
 	return NULL;
