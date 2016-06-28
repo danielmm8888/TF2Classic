@@ -283,7 +283,7 @@ float CTFProjectile_Dart::GetGravity( void )
 //-----------------------------------------------------------------------------
 const char *GetTranqDartTrailParticleName( int iTeamNumber, bool bCritical )
 {
-	const char *pszFormat = bCritical ? "nailtrails_medic_%s_crit" : "tranq_tracer_teamcolor_%s";
+	const char *pszFormat = bCritical ? "tranq_tracer_teamcolor_%s_crit" : "tranq_tracer_teamcolor_%s";
 
 	return ConstructTeamParticle( pszFormat, iTeamNumber, true );
 }
