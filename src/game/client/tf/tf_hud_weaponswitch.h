@@ -19,13 +19,13 @@ class CTFWeaponInfo;
 
 class CItemModelPanel : public vgui::EditablePanel
 {
-	DECLARE_CLASS_SIMPLE( CItemModelPanel, vgui::Panel );
+	DECLARE_CLASS_SIMPLE( CItemModelPanel, vgui::EditablePanel );
 
 public:
 	CItemModelPanel( Panel *parent, const char* name );
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
-	virtual void PerformLayout();
+	virtual void PerformLayout( void );
 
 	virtual void SetWeapon( C_BaseCombatWeapon *pWeapon, int iBorderStyle = -1, int ID = -1 );
 	virtual void SetWeapon( CEconItemDefinition *pItemDefinition, int iBorderStyle = -1, int ID = -1 );

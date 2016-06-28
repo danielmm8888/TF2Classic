@@ -41,6 +41,8 @@ CItemModelPanel::CItemModelPanel( Panel *parent, const char* name ) : EditablePa
 
 void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 {
+	BaseClass::ApplySchemeSettings( pScheme );
+
 	m_pSlotID->SetFgColor( pScheme->GetColor( "TanLight", Color( 255, 255, 255, 255 ) ) );
 	m_pDefaultFont = pScheme->GetFont( "ItemFontNameSmallest", true );
 	m_pSelectedFont = pScheme->GetFont( "ItemFontNameSmall", true );
@@ -51,7 +53,7 @@ void CItemModelPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	m_pSelectedBlueBorder = pScheme->GetBorder( "TFFatLineBorderBlueBG" );
 }
 
-void CItemModelPanel::PerformLayout()
+void CItemModelPanel::PerformLayout( void )
 {
 	if ( m_iBorderStyle == -1 )
 	{
@@ -144,7 +146,7 @@ void CItemModelPanel::SetWeapon( C_BaseCombatWeapon *pWeapon, int iBorderStyle, 
 		m_pSlotID->SetText( "" );
 	}
 
-	PerformLayout();
+	InvalidateLayout( true );
 }
 
 void CItemModelPanel::SetWeapon( CEconItemDefinition *pItemDefinition, int iBorderStyle, int ID )
@@ -174,7 +176,8 @@ void CItemModelPanel::SetWeapon( CEconItemDefinition *pItemDefinition, int iBord
 	{
 		m_pSlotID->SetText( "" );
 	}
-	PerformLayout();
+
+	InvalidateLayout( true );
 }
 
 
@@ -276,7 +279,7 @@ void CTFHudWeaponSwitch::OnTick()
 
 	CEconItemDefinition *pItemFrom = pWeaponFrom->GetItem()->GetStaticData();
 
-	if ( pItemTo != m_pItemDefTo )
+	if ( pItemFrom != m_pItemDefFrom )
 	{
 		m_pItemDefFrom = pItemFrom;
 		m_pWeaponFrom->SetWeapon( m_pItemDefFrom );
