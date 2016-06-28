@@ -230,9 +230,7 @@ void CTFHudWeaponSwitch::SetVisible( bool bVisible )
 		{
 			key = "< not bound >";
 		}
-		char hint[64];
-		V_snprintf( hint, sizeof( hint ), "Press '%s' to switch", key );
-		SetDialogVariable( "hint", hint );
+		SetDialogVariable( "use", key );
 	}
 
 	BaseClass::SetVisible( bVisible );

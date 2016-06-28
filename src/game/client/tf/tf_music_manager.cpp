@@ -471,4 +471,3 @@ void CHudMusicManager::Paint( void )
 	V_snwprintf( buf, 64, L"Intensity: %.f%%", g_TFMusicManager.m_flIntensity * 100.0f );
 	surface()->DrawPrintText( buf, wcslen( buf ) );
 }
-

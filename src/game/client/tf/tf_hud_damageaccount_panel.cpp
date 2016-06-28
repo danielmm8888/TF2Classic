@@ -385,7 +385,14 @@ void CDamageAccountPanel::Paint( void )
 			vgui::HFont hFont = m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont;
 
 			wchar_t wBuf[20];
-			_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+			if ( m_AccountDeltaItems[i].m_iAmount > 0 )
+			{
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"+%d", m_AccountDeltaItems[i].m_iAmount );
+			}
+			else
+			{
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+			}
 
 			// Offset x pos so the text is centered.
 			x -= UTIL_ComputeStringWidth( hFont, wBuf ) / 2;

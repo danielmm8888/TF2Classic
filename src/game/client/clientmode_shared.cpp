@@ -1080,7 +1080,7 @@ void ClientModeShared::FireGameEvent( IGameEvent *event )
 #ifdef TF_CLASSIC_CLIENT
 					if ( TFGameRules() && TFGameRules()->IsDeathmatch() && team > LAST_SHARED_TEAM )
 					{
-						g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#TF_Joined_DM" ), 1, wszPlayerName );
+						g_pVGuiLocalize->ConstructString( wszLocalized, sizeof( wszLocalized ), g_pVGuiLocalize->Find( "#TF_DM_Joined" ), 1, wszPlayerName );
 					}
 					else
 					{
