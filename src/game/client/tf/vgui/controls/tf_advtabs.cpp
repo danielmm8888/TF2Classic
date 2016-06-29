@@ -37,7 +37,7 @@ DECLARE_BUILD_FACTORY_CUSTOM(CAdvTabs, CAdvTabs_Factory);
 CAdvTabs::CAdvTabs(vgui::Panel *parent, char const *panelName) : vgui::EditablePanel(parent, panelName)
 {
 	m_pButtons.RemoveAll();
-	m_pCurrentButton = false;
+	m_pCurrentButton = nullptr;
 }
 
 //-----------------------------------------------------------------------------

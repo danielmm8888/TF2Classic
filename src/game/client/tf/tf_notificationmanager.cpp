@@ -5,7 +5,7 @@
 #include "script_parser.h"
 #include "tf_gamerules.h"
 #include "tf_hud_notification_panel.h"
-#include "vgui\ISurface.h"
+#include "vgui/ISurface.h"
 #include "vgui/ILocalize.h"
 #include "fmtstr.h"
 //#include "public\steam\matchmakingtypes.h"

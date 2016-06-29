@@ -177,7 +177,7 @@ Activity CTFPlayerAnimState::TranslateActivity( Activity actDesired )
 	CBaseCombatWeapon *pWeapon = GetTFPlayer()->GetActiveWeapon();
 	if ( pWeapon )
 	{
-		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, false );
+		translateActivity = GetTFPlayer()->GetActiveWeapon()->ActivityOverride( translateActivity, nullptr );
 
 		// Live TF2 does this but is doing this after the above call correct?
 		translateActivity = pWeapon->GetItem()->GetActivityOverride( GetTFPlayer()->GetTeamNumber(), translateActivity );
