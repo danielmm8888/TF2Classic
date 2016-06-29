@@ -8,7 +8,7 @@
 #include "tf_projectile_arrow.h"
 
 #ifdef GAME_DLL
-#include "spritetrail.h"
+#include "SpriteTrail.h"
 #include "props_shared.h"
 #include "tf_player.h"
 #include "debugoverlay_shared.h"

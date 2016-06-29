@@ -84,8 +84,9 @@ void FX_TFTracerSound( const Vector &start, const Vector &end, int iTracerType )
 
 		CLocalPlayerFilter filter;
 
+		// not sure if this fix is correct
 		enginesound->EmitSound(	filter, SOUND_FROM_WORLD, CHAN_STATIC, params.soundname, 
-			params.volume, SNDLVL_TO_ATTN(params.soundlevel), 0, params.pitch, 0, &start, &shotDir, false);
+			params.volume, SNDLVL_TO_ATTN(params.soundlevel), 0, params.pitch, 0, &start, &shotDir, nullptr, false);
 	}
 
 	// Don't play another bullet whiz for this client until this time has run out
