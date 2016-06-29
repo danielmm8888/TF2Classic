@@ -217,8 +217,7 @@ void CTargetID::PerformLayout( void )
 
 	if ( m_pBGPanel )
 	{
-		m_pBGPanel->SetSize( iWidth, GetTall() * 0.8 );
-		m_pBGPanel->SetPos( 0, 9 );
+		m_pBGPanel->SetSize( iWidth, GetTall() );
 		m_pBGPanel->SetAlpha( tf_hud_target_id_alpha.GetFloat() );
 	}
 };
