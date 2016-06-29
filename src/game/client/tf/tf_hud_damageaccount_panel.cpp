@@ -281,7 +281,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 					{
 						// Update it's die time and damage.
 						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-						m_AccountDeltaItems[i].m_iAmount += iDmgAmount;
+						m_AccountDeltaItems[i].m_iAmount -= iDmgAmount;
 						m_AccountDeltaItems[i].m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
 						return;
@@ -297,7 +297,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		iAccountDeltaHead %= NUM_ACCOUNT_DELTA_ITEMS;
 
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-		pNewDeltaItem->m_iAmount = iDmgAmount;
+		pNewDeltaItem->m_iAmount = -iDmgAmount;
 		pNewDeltaItem->m_hEntity = pVictim;
 		pNewDeltaItem->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
@@ -391,7 +391,7 @@ void CDamageAccountPanel::Paint( void )
 			}
 			else
 			{
-				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"%d", m_AccountDeltaItems[i].m_iAmount );
 			}
 
 			// Offset x pos so the text is centered.
