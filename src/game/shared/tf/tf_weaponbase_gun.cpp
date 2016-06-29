@@ -357,7 +357,7 @@ void CTFWeaponBaseGun::GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vect
 	// Find angles that will get us to our desired end point
 	// Only use the trace end if it wasn't too close, which results
 	// in visually bizarre forward angles
-	if ( tr.fraction > 0.1 )
+	if ( tr.fraction > 0.1 || bUseHitboxes )
 	{
 		*vecDeflect = tr.endpos - vecPos;
 	}
@@ -439,7 +439,7 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 	// Find angles that will get us to our desired end point
 	// Only use the trace end if it wasn't too close, which results
 	// in visually bizarre forward angles
-	if ( tr.fraction > 0.1 )
+	if ( tr.fraction > 0.1 || bUseHitboxes )
 	{
 		VectorAngles( tr.endpos - *vecSrc, *angForward );
 	}
