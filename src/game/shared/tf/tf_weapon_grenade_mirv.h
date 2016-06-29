@@ -11,7 +11,7 @@
 
 #include "tf_weaponbase_grenadeproj.h"
 
-#define TF_MIRV_TIMER	4.0f // seconds
+#define TF_MIRV_TIMER	3.5f // seconds
 #define TF_MIRV_BLIP_SOUND		"Weapon_Grenade_Mirv.Timer"
 #define TF_MIRV_BLIP_FREQUENCY	1.0f
 

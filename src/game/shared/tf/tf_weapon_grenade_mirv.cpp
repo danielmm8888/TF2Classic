@@ -17,7 +17,7 @@
 #include "particle_parse.h"
 #endif
 
-#define MIRV_WARN_TIME				1.0f
+#define MIRV_WARN_TIME				0.5f
 
 #define MIRV_LEADIN_SOUND			"Weapon_Grenade_Mirv.LeadIn"
 
