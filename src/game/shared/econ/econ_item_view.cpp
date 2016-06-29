@@ -15,7 +15,7 @@
 #define MAX_ATTRIBUTES_SENT 20
 
 #ifdef CLIENT_DLL
-BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
+	BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 	RecvPropInt(RECVINFO(m_iItemDefinitionIndex)),
 	RecvPropInt(RECVINFO(m_iEntityQuality)),
 	RecvPropInt(RECVINFO(m_iEntityLevel)),
@@ -29,15 +29,15 @@ BEGIN_RECV_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
 	RecvPropDataTable( NULL, 0, 0, &REFERENCE_RECV_TABLE( DT_EconItemAttribute ) ) )
 END_RECV_TABLE()
 #else
-BEGIN_SEND_TABLE_NOBASE(CEconItemView, DT_ScriptCreatedItem)
-	SendPropInt(SENDINFO(m_iItemDefinitionIndex)),
-	SendPropInt(SENDINFO(m_iEntityQuality)),
-	SendPropInt(SENDINFO(m_iEntityLevel)),
-	SendPropInt(SENDINFO(m_iItemID)),
-	SendPropInt(SENDINFO(m_iInventoryPosition)),
-	SendPropInt(SENDINFO(m_iTeamNumber)),
-	SendPropBool(SENDINFO(m_bOnlyIterateItemViewAttributes)),
-	SendPropUtlVector( 
+BEGIN_SEND_TABLE_NOBASE( CEconItemView, DT_ScriptCreatedItem )
+	SendPropInt( SENDINFO( m_iItemDefinitionIndex ) ),
+	SendPropInt( SENDINFO( m_iEntityQuality ) ),
+	SendPropInt( SENDINFO( m_iEntityLevel ) ),
+	SendPropInt( SENDINFO( m_iItemID ) ),
+	SendPropInt( SENDINFO( m_iInventoryPosition ) ),
+	SendPropInt( SENDINFO( m_iTeamNumber ) ),
+	SendPropBool( SENDINFO( m_bOnlyIterateItemViewAttributes ) ),
+	SendPropUtlVector(
 	SENDINFO_UTLVECTOR( m_AttributeList ),
 	MAX_ATTRIBUTES_SENT,
 	SendPropDataTable( NULL, 0, &REFERENCE_SEND_TABLE( DT_EconItemAttribute ) ) )
@@ -57,19 +57,50 @@ END_SEND_TABLE()
 
 CEconItemView::CEconItemView()
 {
-	m_iItemDefinitionIndex = -1;
+	Init( -1 );
 }
 
 CEconItemView::CEconItemView( int iItemID )
 {
-	m_iItemDefinitionIndex = iItemID;
+	Init( iItemID );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CEconItemView::Init( int iItemID )
+{
+	SetItemDefIndex( iItemID );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CEconItemView::SetItemDefIndex( int iItemID )
+{
+	m_iItemDefinitionIndex = iItemID;
+	//m_pItemDef = GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CEconItemView::GetItemDefIndex( void ) const
+{
+	return m_iItemDefinitionIndex;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Get static item definition from schema.
+//-----------------------------------------------------------------------------
 CEconItemDefinition *CEconItemView::GetStaticData( void ) const
 {
 	return GetItemSchema()->GetItemDefinition( m_iItemDefinitionIndex );
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Get world model.
+//-----------------------------------------------------------------------------
 const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -89,18 +120,27 @@ const char *CEconItemView::GetWorldDisplayModel( int iClass/* = 0*/ ) const
 	return pszModelName;
 }
 
-const char *CEconItemView::GetPlayerDisplayModel() const
+//-----------------------------------------------------------------------------
+// Purpose: Get view model.
+//-----------------------------------------------------------------------------
+const char *CEconItemView::GetPlayerDisplayModel( int iClass/* = 0*/ ) const
 {
 	CEconItemDefinition *pStatic = GetStaticData();
 
 	if ( pStatic )
 	{
+		if ( pStatic->model_player_per_class[iClass][0] != '\0' )
+			return pStatic->model_player_per_class[iClass];
+
 		return pStatic->model_player;
 	}
 
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 const char* CEconItemView::GetEntityName()
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -113,6 +153,9 @@ const char* CEconItemView::GetEntityName()
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 bool CEconItemView::IsCosmetic()
 {
 	bool result = false;
@@ -126,6 +169,9 @@ bool CEconItemView::IsCosmetic()
 	return result;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 int CEconItemView::GetAnimationSlot( void )
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -138,6 +184,9 @@ int CEconItemView::GetAnimationSlot( void )
 	return -1;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOriginalActivity )
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -156,6 +205,9 @@ Activity CEconItemView::GetActivityOverride( int iTeamNumber, Activity actOrigin
 	return actOriginalActivity;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *name )
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -175,6 +227,9 @@ const char *CEconItemView::GetActivityOverride( int iTeamNumber, const char *nam
 	return name;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) const
 {
 	CEconItemDefinition *pStatic = GetStaticData();
@@ -188,6 +243,9 @@ const char *CEconItemView::GetSoundOverride( int iIndex, int iTeamNum /*= 0*/ ) 
 	return NULL;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 bool CEconItemView::HasCapability( const char* name )
 {
 	bool result = false;
@@ -201,6 +259,9 @@ bool CEconItemView::HasCapability( const char* name )
 	return result;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 bool CEconItemView::HasTag( const char* name )
 {
 	bool result = false;
@@ -214,6 +275,9 @@ bool CEconItemView::HasTag( const char* name )
 	return result;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 bool CEconItemView::AddAttribute( CEconItemAttribute *pAttribute )
 {
 	// Make sure this attribute exists.
@@ -228,11 +292,17 @@ bool CEconItemView::AddAttribute( CEconItemAttribute *pAttribute )
 	return false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 void CEconItemView::SkipBaseAttributes( bool bSkip )
 {
 	m_bOnlyIterateItemViewAttributes = bSkip;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Find an attribute with the specified class.
+//-----------------------------------------------------------------------------
 CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 {
 	// Returning the first attribute found.
@@ -241,11 +311,12 @@ CEconItemAttribute *CEconItemView::IterateAttributes( string_t strClass )
 	{
 		CEconItemAttribute *pAttribute = &m_AttributeList[i];
 
-		EconAttributeDefinition *pStatic = pAttribute->GetStaticData();
-		if ( !pStatic )
-			continue;
-
-		string_t strMyClass = AllocPooledString( pStatic->attribute_class );
+#ifdef GAME_DLL
+		string_t strMyClass = pAttribute->m_strAttributeClass;
+#else
+		// FIXME: Need to find a proper solution here.
+		string_t strMyClass = AllocPooledString( pAttribute->attribute_class );
+#endif
 
 		if ( strMyClass == strClass )
 		{

@@ -28,10 +28,6 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual const char *GetPowerupModel( void ) { return "models/class_menu/random_class_icon.mdl"; }
-	virtual const char *GetPickupSound( void ) { return "HealthKit.Touch"; }
-
-	virtual int	GetEffectDuration( void ) { return 15; }
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_FASTRELOAD; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }

@@ -112,8 +112,6 @@ public:
 	int		m_iMaxAmmo;
 	int		m_iSpawnAmmo;
 
-	// DM Viewmodel
-	char	m_szViewModelDM[MAX_WEAPON_STRING];
 #ifdef DM_WEAPON_BUCKET
 	// DM Weapon menu slot overrides
 	int		m_iSlotDM;

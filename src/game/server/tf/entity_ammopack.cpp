@@ -60,26 +60,27 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 			return false;
 
 		int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[GetPowerupSize()]), TF_AMMO_PRIMARY, true ) )
+		if ( pPlayer->GiveAmmo( ceil( iMaxPrimary * PackRatios[GetPowerupSize()] ), TF_AMMO_PRIMARY, true ) )
 		{
 			bSuccess = true;
 		}
 
 		int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[GetPowerupSize()]), TF_AMMO_SECONDARY, true ) )
+		if ( pPlayer->GiveAmmo( ceil( iMaxSecondary * PackRatios[GetPowerupSize()] ), TF_AMMO_SECONDARY, true ) )
 		{
 			bSuccess = true;
 		}
 
 		int iMaxMetal = pTFPlayer->GetMaxAmmo( TF_AMMO_METAL );
-		if ( pPlayer->GiveAmmo( ceil(iMaxMetal * PackRatios[GetPowerupSize()]), TF_AMMO_METAL, true ) )
+		if ( pPlayer->GiveAmmo( ceil( iMaxMetal * PackRatios[GetPowerupSize()] ), TF_AMMO_METAL, true ) )
 		{
 			bSuccess = true;
 		}
 
-		if (pTFPlayer->m_Shared.GetSpyCloakMeter() < 100.0f)
+		float flCloak = pTFPlayer->m_Shared.GetSpyCloakMeter();
+		if ( flCloak < 100.0f )
 		{
-			pTFPlayer->m_Shared.SetSpyCloakMeter(min(100.0f, pTFPlayer->m_Shared.GetSpyCloakMeter() + ceil(100.0f * PackRatios[GetPowerupSize()])));
+			pTFPlayer->m_Shared.SetSpyCloakMeter( min( 100.0f, flCloak + 100.0f * PackRatios[GetPowerupSize()] ) );
 			bSuccess = true;
 		}
 
@@ -91,5 +92,5 @@ bool CAmmoPack::MyTouch( CBasePlayer *pPlayer )
 		}
 	}
 
-	return bSuccess; 
+	return bSuccess;
 }

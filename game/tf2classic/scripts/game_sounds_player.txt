@@ -1037,6 +1037,46 @@
 	"wave"	"player/taunt_equipment_jingle3.wav"
 }
 
+"Taunt.SoldierShotgunFire"
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"1.0"
+	"soundlevel"  	"SNDLVL_NORM"		
+	"wave"	"weapons/shotgun_shoot.wav"
+}
+
+"Taunt.SoldierShotgunCockBack"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1.0"
+	"soundlevel"  	"SNDLVL_NORM"		
+	"wave"	"weapons/shotgun_cock_back.wav"
+}
+
+"Taunt.SoldierShotgunCockForward"
+{
+	"channel"	"CHAN_WEAPON"
+	"volume"	"1.0"
+	"soundlevel"  	"SNDLVL_NORM"		
+	"wave"	"weapons/shotgun_cock_forward.wav"
+}
+
+"Taunt.SoldierSaluteSwish"
+{
+	"channel"	"CHAN_BODY"
+	"volume"	"1.0"
+	"soundlevel"  	"SNDLVL_NORM"		
+	"wave"	"player/taunt_clothes_swipe2.wav"
+}
+
+"Taunt.SoldierTaps"
+{
+            "channel"          "CHAN_STATIC"
+            "volume"           "1.0"
+            "soundlevel"      "SNDLVL_NORM"
+             "wave"              ")misc/taps_02.wav"
+}
+
 "Taunt.Soldier02GrenadeCatch"
 {
 	"channel"	"CHAN_STATIC"

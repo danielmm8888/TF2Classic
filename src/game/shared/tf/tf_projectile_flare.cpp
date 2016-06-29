@@ -60,15 +60,11 @@ void CTFProjectile_Flare::Precache()
 {
 	PrecacheModel( TF_WEAPON_FLARE_MODEL );
 
-	PrecacheParticleSystem( "flaregun_trail_red" );
-	PrecacheParticleSystem( "flaregun_trail_crit_red" );
-	PrecacheParticleSystem( "flaregun_trail_blue" );
-	PrecacheParticleSystem( "flaregun_trail_crit_blue" );
-	PrecacheParticleSystem( "flaregun_trail_green" );
-	PrecacheParticleSystem( "flaregun_trail_crit_green" );
-	PrecacheParticleSystem( "flaregun_trail_yellow" );
-	PrecacheParticleSystem( "flaregun_trail_crit_yellow" );
+	PrecacheTeamParticles( "flaregun_trail_%s", false );
+	PrecacheTeamParticles( "flaregun_trail_crit_%s", false );
+
 	PrecacheScriptSound( "TFPlayer.FlareImpact" );
+
 	BaseClass::Precache();
 }
 
@@ -200,7 +196,7 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
 {
-	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare*>( CBaseEntity::CreateNoSpawn( "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
+	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare *>( CBaseEntity::CreateNoSpawn( "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
 
 	if ( pFlare )
 	{

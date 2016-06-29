@@ -758,6 +758,101 @@ void CTFLogicVIP::Spawn(void)
 	BaseClass::Spawn();
 }
 
+class CTFClassLimits : public CBaseEntity
+{
+public:
+	DECLARE_CLASS(CTFClassLimits, CBaseEntity);
+	DECLARE_DATADESC();
+
+	void	Spawn(void);
+
+	inline int GetTeam() { return m_iTeam; }
+
+	int GetLimitForClass(int iClass)
+	{
+		int result;
+
+		if (iClass < TF_CLASS_COUNT_ALL)
+		{
+			switch (iClass)
+			{
+			default:
+				result = -1;
+			case TF_CLASS_ENGINEER:
+				result = m_nEngineerLimit;
+				break;
+			case TF_CLASS_SPY:
+				result = m_nSpyLimit;
+				break;
+			case TF_CLASS_PYRO:
+				result = m_nPyroLimit;
+				break;
+			case TF_CLASS_HEAVYWEAPONS:
+				result = m_nHeavyLimit;
+				break;
+			case TF_CLASS_MEDIC:
+				result = m_nMedicLimit;
+				break;
+			case TF_CLASS_DEMOMAN:
+				result = m_nDemomanLimit;
+				break;
+			case TF_CLASS_SOLDIER:
+				result = m_nSoldierLimit;
+				break;
+			case TF_CLASS_SNIPER:
+				result = m_nSniperLimit;
+				break;
+			case TF_CLASS_SCOUT:
+				result = m_nScoutLimit;
+				break;
+			case TF_CLASS_MERCENARY:
+				result = m_nMercenaryLimit;
+				break;
+			}
+		}
+		else
+		{
+			result = -1;
+		}
+		return result;
+	}
+
+private:
+	int		m_iTeam;
+
+	int		m_nScoutLimit;
+	int		m_nSoldierLimit;
+	int		m_nPyroLimit;
+	int		m_nDemomanLimit;
+	int		m_nHeavyLimit;
+	int		m_nEngineerLimit;
+	int		m_nMedicLimit;
+	int		m_nSniperLimit;
+	int		m_nSpyLimit;
+	int		m_nMercenaryLimit;
+};
+
+LINK_ENTITY_TO_CLASS(tf_logic_classlimits, CTFClassLimits);
+
+BEGIN_DATADESC(CTFClassLimits)
+DEFINE_KEYFIELD(m_iTeam,			FIELD_INTEGER, "Team"),
+DEFINE_KEYFIELD(m_nScoutLimit,		FIELD_INTEGER, "ScoutLimit"),
+DEFINE_KEYFIELD(m_nSoldierLimit,	FIELD_INTEGER, "SoldierLimit"),
+DEFINE_KEYFIELD(m_nPyroLimit,		FIELD_INTEGER, "PyroLimit"),
+DEFINE_KEYFIELD(m_nDemomanLimit,	FIELD_INTEGER, "DemomanLimit"),
+DEFINE_KEYFIELD(m_nHeavyLimit,		FIELD_INTEGER, "HeavyLimit"),
+DEFINE_KEYFIELD(m_nEngineerLimit,	FIELD_INTEGER, "EngineerLimit"),
+DEFINE_KEYFIELD(m_nMedicLimit,		FIELD_INTEGER, "MedicLimit"),
+DEFINE_KEYFIELD(m_nSniperLimit,		FIELD_INTEGER, "SniperLimit"),
+DEFINE_KEYFIELD(m_nSpyLimit,		FIELD_INTEGER, "SpyLimit"),
+DEFINE_KEYFIELD(m_nMercenaryLimit,	FIELD_INTEGER, "MercenaryLimit"),
+END_DATADESC()
+
+void CTFClassLimits::Spawn(void)
+{
+	BaseClass::Spawn();
+}
+
 class CArenaLogic : public CBaseEntity
 {
 public:
@@ -1376,11 +1471,13 @@ void CTFGameRules::Activate()
 	}
 }
 
-int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
-{
-	int result;
+extern ConVar tf2c_allow_special_classes;
 
-	if ( IsInTournamentMode() /*||  *((_DWORD *)this + 462) == 7 */ )
+int CTFGameRules::GetClassLimit( int iDesiredClassIndex, int iTeam )
+{
+	int result = -1;
+
+	if ( IsInTournamentMode() )
 	{
 		if ( iDesiredClassIndex <= TF_LAST_NORMAL_CLASS )
 		{
@@ -1422,6 +1519,13 @@ int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 			result = -1;
 		}
 	}
+	else if (iDesiredClassIndex == TF_CLASS_CIVILIAN)
+	{
+		if (!tf2c_allow_special_classes.GetBool())
+			return 1;
+		else
+			return -1;
+	}
 	else if ( IsInHighlanderMode() )
 	{
 		result = 1;
@@ -1429,6 +1533,16 @@ int CTFGameRules::GetClassLimit( int iDesiredClassIndex )
 	else if ( tf_classlimit.GetBool() )
 	{
 		result = tf_classlimit.GetInt();
+	}
+	else if (CTFClassLimits *pLimits = dynamic_cast< CTFClassLimits * > ( gEntList.FindEntityByClassname(NULL, "tf_class_limits") ))
+	{
+		do
+		{
+			if (pLimits->GetTeam() == iTeam)
+			{
+				result = pLimits->GetLimitForClass( iDesiredClassIndex );
+			}
+		} while (nullptr != (pLimits = dynamic_cast< CTFClassLimits * > ( gEntList.FindEntityByClassname(pLimits, "tf_class_limits") )));
 	}
 	else
 	{
@@ -1449,7 +1563,7 @@ bool CTFGameRules::CanPlayerChooseClass( CBasePlayer *pPlayer, int iDesiredClass
 	int iClassLimit = 0;
 	int iClassCount = 0;
 
-	iClassLimit = GetClassLimit( iDesiredClassIndex );
+	iClassLimit = GetClassLimit( iDesiredClassIndex, pTFTeam->GetTeamNumber() );
 	
 	if ( iClassLimit != -1 && pTFTeam && pTFPlayer->GetTeamNumber() >= TF_TEAM_RED )
 	{
@@ -2903,6 +3017,9 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 		}
 	}
 
+	if ( pTFPlayer->IsFakeClient() )
+		return;
+
 	// keep track of their hud_classautokill value
 	int nClassAutoKill = Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "hud_classautokill" ) );
 	pTFPlayer->SetHudClassAutoKill( nClassAutoKill > 0 ? true : false );
@@ -2966,13 +3083,13 @@ static const char *g_aTaggedConVars[] =
 	"specialclasses",
 
 	"tf2c_airblast",
-	"airblast",
+	"noairblast",
 
 	"tf2c_building_hauling",
-	"hauling",
+	"nohauling",
 
 	"tf2c_building_upgrades",
-	"buildingupgrades",
+	"nobuildingupgrades",
 
 	"mp_highlander",
 	"highlander",
@@ -3233,6 +3350,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	switch ( info.GetDamageCustom() )
 	{
+	case TF_DMG_CUSTOM_SUICIDE:
+		pszCustomKill = "world";
+		break;
 	case TF_DMG_TAUNT_PYRO:
 		pszCustomKill = "taunt_pyro";
 		break;
@@ -3348,11 +3468,11 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	// strip certain prefixes from inflictor's classname
 	const char *prefix[] = { "tf_weapon_grenade_", "tf_weapon_", "NPC_", "func_" };
-	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
+	for ( int i = 0; i < ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix
-		int len = Q_strlen( prefix[i] );
-		if ( strncmp( killer_weapon_name, prefix[i], len ) == 0 )
+		int len = V_strlen( prefix[i] );
+		if ( V_strncmp( killer_weapon_name, prefix[i], len ) == 0 )
 		{
 			killer_weapon_name += len;
 			break;
@@ -3360,9 +3480,9 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// In case of a sentry kill change the icon according to sentry level.
-	if ( 0 == Q_strcmp( killer_weapon_name, "obj_sentrygun" ) )
+	if ( V_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
 	{
-		CBaseObject* pObject = assert_cast<CBaseObject *>( pInflictor );
+		CBaseObject *pObject = assert_cast<CBaseObject *>( pInflictor );
 
 		if ( pObject )
 		{
@@ -3377,7 +3497,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			}
 		}
 	}
-	else if ( 0 == Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) )
+	else if ( V_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
 	{
 		// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
 		killer_weapon_name = "obj_sentrygun3";
@@ -4480,7 +4600,7 @@ bool CTFGameRules::PlayerMayCapturePoint( CBasePlayer *pPlayer, int iPointIndex,
 		return false;
 	}
 
-	if ( pTFPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pTFPlayer->m_Shared.IsInvulnerable() )
 	{
 		if ( pszReason )
 		{
@@ -4511,7 +4631,7 @@ bool CTFGameRules::PlayerMayBlockPoint( CBasePlayer *pPlayer, int iPointIndex, c
 		return false;
 
 	// Invuln players can block points
-	if ( pTFPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pTFPlayer->m_Shared.IsInvulnerable() )
 	{
 		if ( pszReason )
 		{
@@ -4598,6 +4718,9 @@ bool CTFGameRules::AllowThirdPersonCamera( void )
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( pPlayer )
 	{
+		if ( pPlayer->IsObserver() )
+			return false;
+
 		if ( pPlayer->m_Shared.InCond( TF_COND_ZOOMED ) )
 			return false;
 	}

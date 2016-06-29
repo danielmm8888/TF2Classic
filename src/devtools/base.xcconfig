@@ -28,7 +28,7 @@ GCC_PREPROCESSOR_DEFINITIONS = _DLL_EXT=.dylib NO_MALLOC_OVERRIDE=1 VPROF_LEVEL=
 BASE_CFLAGS= -Usprintf -Ustrncpy -UPROTECTED_THINGS_ENABLE -ftemplate-depth=512
 
 GCC_WARN_ABOUT_INVALID_OFFSETOF_MACRO = NO
-WARNING_CFLAGS = -Wno-deprecated-writable-strings -Wno-switch-enum -Wno-switch -Wno-unused-value -Wno-parentheses -Wno-logical-op-parentheses -Wno-c++11-narrowing
+WARNING_CFLAGS = -Wno-deprecated-writable-strings -Wno-switch-enum -Wno-switch -Wno-unused-value -Wno-parentheses -Wno-logical-op-parentheses -Wno-c++11-narrowing -Wno-writable-strings -Wno-inconsistent-missing-override -Wno-absolute-value
 
 // CLANG - and use the ccache wrapper
 GCC_VERSION = com.apple.compilers.llvm.clang.1_0

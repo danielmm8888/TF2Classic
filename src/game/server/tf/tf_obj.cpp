@@ -1871,6 +1871,8 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 		}
 	}
 
+	int iOldHealth = m_iHealth;
+
 	if ( flDamage )
 	{
 		// Recheck our death possibility, because our objects may have all been blown off us by now
@@ -1880,6 +1882,24 @@ int CBaseObject::OnTakeDamage( const CTakeDamageInfo &info )
 			// Reduce health
 			SetHealth( m_flHealth - flDamage );
 		}
+	}
+
+	IGameEvent *event = gameeventmanager->CreateEvent( "npc_hurt" );
+
+	if ( event )
+	{
+		CTFPlayer *pTFAttacker = ToTFPlayer( info.GetAttacker() );
+		CTFWeaponBase *pTFWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+
+		event->SetInt( "entindex", entindex() );
+		event->SetInt( "attacker_player", pTFAttacker ? pTFAttacker->GetUserID() : 0 );
+		event->SetInt( "weaponid", pTFWeapon ? pTFWeapon->GetWeaponID() : TF_WEAPON_NONE );
+		event->SetInt( "damageamount", iOldHealth - m_iHealth );
+		event->SetInt( "health", max( 0, m_iHealth ) );
+		event->SetBool( "crit", false );
+		event->SetBool( "boss", false );
+
+		gameeventmanager->FireEvent( event );
 	}
 
 	m_OnDamaged.FireOutput(info.GetAttacker(), this);

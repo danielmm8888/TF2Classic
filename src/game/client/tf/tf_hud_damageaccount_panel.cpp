@@ -62,6 +62,7 @@ public:
 
 	virtual void	FireGameEvent( IGameEvent *event );
 	void			OnDamaged( IGameEvent *event );
+	void			PlayHitSound( int iAmount, bool bKill );
 
 private:
 
@@ -86,7 +87,7 @@ private:
 
 DECLARE_HUDELEMENT( CDamageAccountPanel );
 
-ConVar hud_combattext( "hud_combattext", "0", FCVAR_ARCHIVE, "" );
+ConVar hud_combattext( "hud_combattext", "1", FCVAR_ARCHIVE, "" );
 ConVar hud_combattext_batching( "hud_combattext_batching", "0", FCVAR_ARCHIVE, "If set to 1, numbers that are too close together are merged." );
 ConVar hud_combattext_batching_window( "hud_combattext_batching_window", "0.2", FCVAR_ARCHIVE, "Maximum delay between damage events in order to batch numbers." );
 
@@ -95,6 +96,11 @@ ConVar tf_dingaling_volume( "tf_dingaling_volume", "0.75", FCVAR_ARCHIVE, "Desir
 ConVar tf_dingaling_pitchmindmg( "tf_dingaling_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
 ConVar tf_dingaling_pitchmaxdmg( "tf_dingaling_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
 ConVar tf_dingalingaling_repeat_delay( "tf_dingalingaling_repeat_delay", "0", FCVAR_ARCHIVE, "Desired repeat delay of the hit sound. Set to 0 to play a sound for every instance of damage dealt." );
+
+ConVar tf_dingalingaling_lasthit( "tf_dingalingaling_lasthit", "0", FCVAR_ARCHIVE, "If set to 1, play a sound whenever one of your attacks kills an enemy. The sound can be customized by replacing the 'tf/sound/ui/killsound.wav' file." );
+ConVar tf_dingaling_lasthit_volume( "tf_dingaling_lasthit_volume", "0.75", FCVAR_ARCHIVE, "Desired volume of the last hit sound.", true, 0.0, true, 1.0 );
+ConVar tf_dingaling_lasthit_pitchmindmg( "tf_dingaling_lasthit_pitchmindmg", "100", FCVAR_ARCHIVE, "Desired pitch of the last hit sound when a minimal damage hit (<= 10 health) is done.", true, 1, true, 255 );
+ConVar tf_dingaling_lasthit_pitchmaxdmg( "tf_dingaling_lasthit_pitchmaxdmg", "100", FCVAR_ARCHIVE, "Desired pitch of the last hit sound when a maximum damage hit (>= 150 health) is done.", true, 1, true, 255 );
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -110,13 +116,14 @@ CDamageAccountPanel::CDamageAccountPanel( const char *pElementName ) : CHudEleme
 
 	iAccountDeltaHead = 0;
 
-	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
 	}
 
 	ListenForGameEvent( "player_hurt" );
 	ListenForGameEvent( "player_healed" );
+	ListenForGameEvent( "npc_hurt" );
 }
 
 //-----------------------------------------------------------------------------
@@ -127,7 +134,7 @@ void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 	// For future reference, live TF2 apparently uses player_healed for green medic numbers.
 	const char * type = event->GetName();
 
-	if ( Q_strcmp( type, "player_hurt" ) == 0 )
+	if ( V_strcmp( type, "player_hurt" ) == 0 || V_strcmp( type, "npc_hurt" ) == 0 )
 	{
 		OnDamaged( event );
 	}
@@ -155,6 +162,11 @@ void CDamageAccountPanel::LevelInit( void )
 {
 	iAccountDeltaHead = 0;
 
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	{
+		m_AccountDeltaItems[i].m_flDieTime = 0.0f;
+	}
+
 	CHudElement::LevelInit();
 }
 
@@ -179,56 +191,58 @@ bool CDamageAccountPanel::ShouldDraw( void )
 void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pPlayer && pPlayer->IsAlive() ) 
+	if ( pPlayer && pPlayer->IsAlive() )
 	{
-		int iAttacker = event->GetInt( "attacker" );
-		int iVictim = event->GetInt( "userid" );
+		bool bIsPlayer = V_strcmp( event->GetName(), "npc_hurt" ) != 0;
+
+		int iAttacker = bIsPlayer ? event->GetInt( "attacker" ) : event->GetInt( "attacker_player" );;
+		int iVictim = bIsPlayer ? event->GetInt( "userid" ) : event->GetInt( "entindex" );
 		int iDmgAmount = event->GetInt( "damageamount" );
+		int iHealth = event->GetInt( "health" );
 
 		// Did we shoot the guy?
 		if ( iAttacker != pPlayer->GetUserID() )
 			return;
 
 		// No self-damage notifications.
-		if ( iAttacker == iVictim )
+		if ( bIsPlayer && iAttacker == iVictim )
 			return;
 
 		// Don't show anything if no damage was done.
 		if ( iDmgAmount == 0 )
 			return;
 
-		// Currently only supporting players.
-		C_TFPlayer *pVictim = ToTFPlayer( UTIL_PlayerByUserId( iVictim ) );
+		C_BaseEntity *pVictim = bIsPlayer ? UTIL_PlayerByUserId( iVictim ) : ClientEntityList().GetBaseEntity( iVictim );
 
 		if ( !pVictim )
 			return;
 
-		// Don't show damage notifications for spies disguised as our team.
-		if ( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
-			return;
+		if ( bIsPlayer )
+		{
+			C_TFPlayer *pTFVictim = ToTFPlayer( pVictim );
+
+			if ( !pTFVictim )
+				return;
+
+			// Don't show damage notifications for spies disguised as our team.
+			if ( pTFVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pTFVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
+				return;
+		}
 
 		// Play hit sound, if appliable.
-		if ( tf_dingalingaling.GetBool() )
+		bool bDinged = false;
+
+		if ( tf_dingalingaling_lasthit.GetBool() && iHealth == 0 )
 		{
-			float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
-			if ( flRepeatDelay <= 0 || gpGlobals->curtime - m_flLastHitSound > flRepeatDelay )
-			{
-				EmitSound_t params;
+			// This guy is dead, play kill sound.
+			PlayHitSound( iDmgAmount, true );
+			bDinged = true;
+		}
 
-				params.m_pSoundName = "ui/hitsound.wav";
-
-				params.m_flVolume = tf_dingaling_volume.GetFloat();
-
-				float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
-				float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
-				params.m_nPitch = RemapValClamped( (float)iDmgAmount, 10, 150, flPitchMin, flPitchMax );
-
-				CLocalPlayerFilter filter;
-
-				C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
-
-				m_flLastHitSound = gpGlobals->curtime;
-			}
+		if ( tf_dingalingaling.GetBool() && !bDinged )
+		{
+			PlayHitSound( iDmgAmount, false );
+			bDinged = true;
 		}
 
 		// Leftover from old code?
@@ -244,6 +258,16 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		if ( tr.fraction != 1.0f )
 			return;
 
+		Vector vecTextPos;
+		if ( pVictim->IsBaseObject() )
+		{
+			vecTextPos = pVictim->GetAbsOrigin() + Vector( 0, 0, pVictim->WorldAlignMaxs().z );
+		}
+		else
+		{
+			vecTextPos = pVictim->EyePosition();
+		}
+
 		if ( hud_combattext_batching.GetBool() )
 		{
 			// Cycle through deltas and search for one that belongs to this player.
@@ -258,7 +282,7 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 						// Update it's die time and damage.
 						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 						m_AccountDeltaItems[i].m_iAmount += iDmgAmount;
-						m_AccountDeltaItems[i].m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+						m_AccountDeltaItems[i].m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
 						return;
 					}
@@ -275,9 +299,52 @@ void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
 		pNewDeltaItem->m_iAmount = iDmgAmount;
 		pNewDeltaItem->m_hEntity = pVictim;
-		pNewDeltaItem->m_vDamagePos = pVictim->EyePosition() + Vector( 0, 0, 18 );
+		pNewDeltaItem->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
 		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::PlayHitSound( int iAmount, bool bKill )
+{
+	if ( !bKill )
+	{
+		float flRepeatDelay = tf_dingalingaling_repeat_delay.GetFloat();
+		if ( flRepeatDelay > 0 && gpGlobals->curtime - m_flLastHitSound <= flRepeatDelay )
+			return;
+	}
+
+	EmitSound_t params;
+
+	if ( bKill )
+	{
+		params.m_pSoundName = "ui/killsound.wav";
+
+		params.m_flVolume = tf_dingaling_lasthit_volume.GetFloat();
+
+		float flPitchMin = tf_dingaling_lasthit_pitchmindmg.GetFloat();
+		float flPitchMax = tf_dingaling_lasthit_pitchmaxdmg.GetFloat();
+		params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+	}
+	else
+	{
+		params.m_pSoundName = "ui/hitsound.wav";
+
+		params.m_flVolume = tf_dingaling_volume.GetFloat();
+
+		float flPitchMin = tf_dingaling_pitchmindmg.GetFloat();
+		float flPitchMax = tf_dingaling_pitchmaxdmg.GetFloat();
+		params.m_nPitch = RemapValClamped( (float)iAmount, 10, 150, flPitchMin, flPitchMax );
+	}
+
+	CLocalPlayerFilter filter;
+
+	C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, params ); // Ding!
+
+	if ( !bKill )
+		m_flLastHitSound = gpGlobals->curtime;
 }
 
 //-----------------------------------------------------------------------------
@@ -287,7 +354,7 @@ void CDamageAccountPanel::Paint( void )
 {
 	BaseClass::Paint();
 
-	for ( int i = 0; i<NUM_ACCOUNT_DELTA_ITEMS; i++ )
+	for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 	{
 		// update all the valid delta items
 		if ( m_AccountDeltaItems[i].m_flDieTime > gpGlobals->curtime )
@@ -305,23 +372,34 @@ void CDamageAccountPanel::Paint( void )
 				c[3] = (int)( 255.0f * ( flLifetimePercent / 0.5 ) );
 			}
 
-			int iX, iY;
-			bool bOnscreen = GetVectorInScreenSpace( m_AccountDeltaItems[i].m_vDamagePos, iX, iY );
+			int x, y;
+			bool bOnscreen = GetVectorInScreenSpace( m_AccountDeltaItems[i].m_vDamagePos, x, y );
 
 			if ( !bOnscreen )
 				continue;
 
-			float flHeight = 50.0f;
-			float flYPos = (float)iY - ( 1.0 - flLifetimePercent ) * flHeight;
+			int flHeight = 50.0f;
+			y -= (int)( ( 1.0f - flLifetimePercent ) * flHeight );
 
 			// Use BIGGER font for crits.
-			vgui::surface()->DrawSetTextFont( m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont );
-			vgui::surface()->DrawSetTextColor( c );
-			vgui::surface()->DrawSetTextPos( iX, (int)flYPos );
+			vgui::HFont hFont = m_AccountDeltaItems[i].bCrit ? m_hDeltaItemFontBig : m_hDeltaItemFont;
 
 			wchar_t wBuf[20];
+			if ( m_AccountDeltaItems[i].m_iAmount > 0 )
+			{
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"+%d", m_AccountDeltaItems[i].m_iAmount );
+			}
+			else
+			{
+				_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+			}
 
-			_snwprintf( wBuf, sizeof( wBuf ) / sizeof( wchar_t ), L"-%d", m_AccountDeltaItems[i].m_iAmount );
+			// Offset x pos so the text is centered.
+			x -= UTIL_ComputeStringWidth( hFont, wBuf ) / 2;
+
+			vgui::surface()->DrawSetTextFont( hFont );
+			vgui::surface()->DrawSetTextColor( c );
+			vgui::surface()->DrawSetTextPos( x, y );
 
 			vgui::surface()->DrawPrintText( wBuf, wcslen( wBuf ), FONT_DRAW_NONADDITIVE );
 		}

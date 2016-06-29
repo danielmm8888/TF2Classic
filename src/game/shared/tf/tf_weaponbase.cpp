@@ -114,7 +114,7 @@ void RecvProxy_WeaponSequence( const CRecvProxyData *pData, void *pStruct, void 
 
 	// Weapons carried by other players have different models on server and client
 	// so we should ignore sequence changes in such case.
-	if ( pWeapon->UsingViewModel() )
+	if ( !pWeapon->GetOwner() || pWeapon->UsingViewModel() )
 	{
 		RecvProxy_Sequence( pData, pStruct, pOut );
 	}
@@ -463,7 +463,7 @@ void CTFWeaponBase::UpdateViewModel( void )
 	{
 		if ( HasItemDefinition() )
 		{
-			pszModel = m_Item.GetPlayerDisplayModel();
+			pszModel = m_Item.GetPlayerDisplayModel( pTFPlayer->GetPlayerClass()->GetClassIndex() );
 		}
 		else
 		{
@@ -511,10 +511,11 @@ const char *CTFWeaponBase::DetermineViewModelType( const char *vModel ) const
 const char *CTFWeaponBase::GetViewModel( int iViewModel ) const
 {
 	const char *pszModelName = NULL;
+	CTFPlayer *pOwner = GetTFPlayerOwner();
 
-	if ( HasItemDefinition() )
+	if ( pOwner && HasItemDefinition() )
 	{
-		pszModelName = m_Item.GetPlayerDisplayModel();
+		pszModelName = m_Item.GetPlayerDisplayModel( pOwner->GetPlayerClass()->GetClassIndex() );
 	}
 	else
 	{
@@ -892,10 +893,13 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 int CTFWeaponBase::GetMaxClip1( void ) const
 {
 	float flMaxClip = (float)CBaseCombatWeapon::GetMaxClip1();
+	if ( flMaxClip == WEAPON_NOCLIP )
+		return (int)flMaxClip;
+
 	CALL_ATTRIB_HOOK_FLOAT( flMaxClip, mult_clipsize );
 
 	// Round to the nearest integer.
-	return (int)( flMaxClip == WEAPON_NOCLIP ? flMaxClip : flMaxClip + 0.5f );
+	return (int)( flMaxClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
@@ -905,9 +909,11 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 {
 	float flDefaultClip = (float)CBaseCombatWeapon::GetDefaultClip1();
 	CALL_ATTRIB_HOOK_FLOAT( flDefaultClip, mult_clipsize );
+	if ( flDefaultClip == WEAPON_NOCLIP )
+		return (int)flDefaultClip;
 
 	// Round to the nearest integer.
-	return (int)( flDefaultClip == WEAPON_NOCLIP ? flDefaultClip : flDefaultClip + 0.5f );
+	return (int)( flDefaultClip + 0.5f );
 }
 
 //-----------------------------------------------------------------------------
@@ -941,11 +947,17 @@ bool CTFWeaponBase::Reload( void )
 	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
 		return false;
 
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+
+	// Can't reload while cloaked.
+	if ( pOwner->m_Shared.InCond( TF_COND_STEALTHED ) )
+		return false;
+
 	// If we're not already reloading, check to see if we have ammo to reload and check to see if we are max ammo.
 	if ( m_iReloadMode == TF_RELOAD_START )
 	{
 		// If I don't have any spare ammo, I can't reload
-		if ( GetOwner()->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
+		if ( pOwner->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 )
 			return false;
 
 		if ( Clip1() >= GetMaxClip1() )
@@ -1067,9 +1079,9 @@ bool CTFWeaponBase::ReloadSingly( void )
 			return false;
 
 		// If we have ammo, remove ammo and add it to clip
-		if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+		if ( pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 		{
-			m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+			m_iClip1++;
 			pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 		}
 
@@ -1113,9 +1125,9 @@ void CTFWeaponBase::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCh
 	{
 		if ( pEvent->event == AE_WPN_INCREMENTAMMO )
 		{
-			if ( pOperator->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+			if ( pOperator->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 			{
-				m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+				m_iClip1++;
 				pOperator->RemoveAmmo( 1, m_iPrimaryAmmoType );
 			}
 
@@ -1655,31 +1667,8 @@ const char *CTFWeaponBase::GetTracerType( void )
 	{
 		if ( GetOwner() && !m_szTracerName[0] )
 		{
-			if ( TFGameRules()->IsDeathmatch() )
-			{
-				Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "dm" );
-			}
-			else
-			{
-				switch ( GetOwner()->GetTeamNumber() )
-				{
-				case TF_TEAM_RED:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red" );
-					break;
-				case TF_TEAM_BLUE:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "blue" );
-					break;
-				case TF_TEAM_GREEN:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "green" );
-					break;
-				case TF_TEAM_YELLOW:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "yellow" );
-					break;
-				default:
-					Q_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, "red" );
-					break;
-				}
-			}
+			const char *pszTeamName = GetTeamParticleName( GetOwner()->GetTeamNumber(), true );
+			V_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, pszTeamName );
 		}
 
 		//if ( !m_szTracerName[0] )
@@ -1847,7 +1836,20 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
 		if ( flAddHealth )
 		{
-			pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+			int iHealthRestored = pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+
+			if ( iHealthRestored )
+			{
+				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
+
+				if ( event )
+				{
+					event->SetInt( "amount", iHealthRestored );
+					event->SetInt( "entindex", pOwner->entindex() );
+
+					gameeventmanager->FireEvent( event );
+				}
+			}
 		}
 	}
 }
@@ -1946,7 +1948,7 @@ int	CTFWeaponBase::InternalDrawModel( int flags )
 {
 	C_TFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	bool bNotViewModel = ( ( pOwner && !pOwner->IsLocalPlayer() ) || C_BasePlayer::ShouldDrawLocalPlayer() );
-	bool bUseInvulnMaterial = ( bNotViewModel && pOwner && pOwner->m_Shared.InCond( TF_COND_INVULNERABLE ) );
+	bool bUseInvulnMaterial = ( bNotViewModel && pOwner && pOwner->m_Shared.IsInvulnerable() && !pOwner->m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) );
 	if ( bUseInvulnMaterial )
 	{
 		modelrender->ForcedMaterialOverride( *pOwner->GetInvulnMaterialRef() );
@@ -2149,6 +2151,7 @@ acttable_t CTFWeaponBase::s_acttablePrimary[] =
 	{ ACT_MP_STAND_IDLE, ACT_MP_STAND_PRIMARY, false },
 	{ ACT_MP_CROUCH_IDLE, ACT_MP_CROUCH_PRIMARY, false },
 	{ ACT_MP_DEPLOYED, ACT_MP_DEPLOYED_PRIMARY, false },
+	{ ACT_MP_CROUCH_DEPLOYED, ACT_MP_CROUCHWALK_DEPLOYED, false },
 	{ ACT_MP_RUN, ACT_MP_RUN_PRIMARY, false },
 	{ ACT_MP_WALK, ACT_MP_WALK_PRIMARY, false },
 	{ ACT_MP_AIRWALK, ACT_MP_AIRWALK_PRIMARY, false },
@@ -3147,9 +3150,9 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	{
 		CTFPlayer *pPlayer = GetTFPlayerOwner();
 
-		if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && !m_bReloadedThroughAnimEvent )
+		if ( pPlayer && pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) > 0 && m_iClip1 < GetMaxClip1() && !m_bReloadedThroughAnimEvent )
 		{
-			m_iClip1 = min( ( m_iClip1 + 1 ), GetMaxClip1() );
+			m_iClip1++;
 			pPlayer->RemoveAmmo( 1, m_iPrimaryAmmoType );
 		}
 

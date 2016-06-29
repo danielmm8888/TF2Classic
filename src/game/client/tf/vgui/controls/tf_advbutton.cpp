@@ -230,6 +230,10 @@ void CTFButton::ApplySettings(KeyValues *inResourceData)
 	m_fXShift = inResourceData->GetFloat("xshift", 0.0);
 	m_fYShift = inResourceData->GetFloat("yshift", 0.0);
 
+	SetArmedSound( "ui/buttonrollover.wav" );
+	SetDepressedSound( "ui/buttonclick.wav" );
+	SetReleasedSound( "ui/buttonclickrelease.wav" );
+
 	InvalidateLayout(false, true); // force ApplySchemeSettings to run
 }
 
@@ -261,9 +265,6 @@ void CTFButton::PerformLayout()
 	SetZPos(3);
 	SetWide(m_pParent->GetWide());
 	SetTall(m_pParent->GetTall());
-	SetArmedSound("ui/buttonrollover.wav");
-	SetDepressedSound("ui/buttonclick.wav");
-	SetReleasedSound("ui/buttonclickrelease.wav");
 }
 
 //-----------------------------------------------------------------------------

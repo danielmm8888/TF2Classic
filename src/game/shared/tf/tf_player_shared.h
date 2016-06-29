@@ -108,6 +108,7 @@ public:
 	float	GetConditionDuration( int nCond );
 
 	bool	IsCritBoosted( void );
+	bool	IsInvulnerable( void );
 
 	void	ConditionGameRulesThink( void );
 
@@ -131,6 +132,7 @@ public:
 	void	FindDisguiseTarget( void );
 	int		GetDisguiseTeam( void )				{ return m_nDisguiseTeam; }
 	int		GetDisguiseClass( void ) 			{ return m_nDisguiseClass; }
+	int		GetMaskClass( void )				{ return m_nMaskClass; }
 	int		GetDesiredDisguiseClass( void )		{ return m_nDesiredDisguiseClass; }
 	int		GetDesiredDisguiseTeam( void )		{ return m_nDesiredDisguiseTeam; }
 	EHANDLE GetDisguiseTarget( void ) 	
@@ -145,6 +147,7 @@ public:
 	}
 	int		GetDisguiseHealth( void )			{ return m_iDisguiseHealth; }
 	void	SetDisguiseHealth( int iDisguiseHealth );
+	int		AddDisguiseHealth( int iHealthToAdd, bool bOverheal = false );
 	int		GetDisguiseMaxHealth( void )		{ return m_iDisguiseMaxHealth; }
 	int		GetDisguiseMaxBuffedHealth( void );
 
@@ -298,6 +301,7 @@ private:
 //...maybe store the name instead of the index?
 	CNetworkVar( int, m_nDisguiseTeam );		// Team spy is disguised as.
 	CNetworkVar( int, m_nDisguiseClass );		// Class spy is disguised as.
+	CNetworkVar( int, m_nMaskClass );			// Fake disguise class.
 	EHANDLE m_hDisguiseTarget;					// Playing the spy is using for name disguise.
 	CNetworkVar( int, m_iDisguiseTargetIndex );
 	CNetworkVar( int, m_iDisguiseHealth );		// Health to show our enemies in player id
@@ -331,7 +335,6 @@ private:
 	float					m_flHealFraction;	// Store fractional health amounts
 	float					m_flDisguiseHealFraction;	// Same for disguised healing
 
-	float		m_flInvulnerableOffTime;
 	float		m_flChargeOffTime[TF_CHARGE_COUNT];
 	bool		m_bChargeSounds[TF_CHARGE_COUNT];
 #endif

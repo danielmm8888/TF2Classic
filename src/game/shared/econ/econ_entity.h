@@ -6,6 +6,7 @@
 
 #ifndef ECON_ENTITY_H
 #define ECON_ENTITY_H
+
 #ifdef _WIN32
 #pragma once
 #endif
@@ -48,19 +49,21 @@ public:
 
 	virtual int TranslateViewmodelHandActivity( int iActivity ) { return iActivity; }
 
-	virtual void PlayAnimForPlaybackEvent(wearableanimplayback_t iPlayback) {};
+	virtual void PlayAnimForPlaybackEvent( wearableanimplayback_t iPlayback ) {};
 
 	virtual void SetItem( CEconItemView &newItem );
-	CEconItemView *GetItem();
-	virtual bool HasItemDefinition() const;
-	virtual int GetItemID();
+	CEconItemView *GetItem( void );
+	virtual bool HasItemDefinition( void ) const;
+	virtual int GetItemID( void );
 
 	virtual void GiveTo( CBaseEntity *pEntity );
 
-	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
-	virtual CAttributeContainer *GetAttributeContainer() { return &m_AttributeManager; }
-	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer( void ) { return &m_AttributeManager; }
+	virtual CBaseEntity *GetAttributeOwner( void ) { return NULL; }
 	virtual void ReapplyProvision( void );
+
+	void UpdatePlayerModelToClass( void );
 
 	virtual void UpdateOnRemove( void );
 

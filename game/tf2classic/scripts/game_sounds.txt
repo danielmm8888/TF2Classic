@@ -987,3 +987,25 @@
 		"wave"	"items/pills/norattle/pill_heal6.wav"
 	}
 }
+
+// ------------------------------------------------------------------------------------ //
+// DEATHMATCH POWERUPS
+// ------------------------------------------------------------------------------------ //
+"PowerupCrit.Touch" // Plays if player picks up a crit powerup.
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_GUNFIRE"
+	"pitch"		"PITCH_NORM"
+	
+	"wave"		"items/powerup_crit.wav"
+}
+"PowerupUber.Touch" // Plays if player picks up a uber powerup.
+{
+	"channel"	"CHAN_ITEM"
+	"volume"	"VOL_NORM"
+	"soundlevel"	"SNDLVL_GUNFIRE"
+	"pitch"		"PITCH_NORM"
+	
+	"wave"		"items/powerup_uber.wav"
+}

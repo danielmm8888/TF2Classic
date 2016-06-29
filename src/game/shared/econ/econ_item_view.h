@@ -17,6 +17,12 @@ public:
 };
 
 
+#ifdef CLIENT_DLL
+EXTERN_RECV_TABLE( DT_ScriptCreatedItem )
+#else
+EXTERN_SEND_TABLE( DT_ScriptCreatedItem )
+#endif
+
 class CEconItemView
 {
 public:
@@ -25,10 +31,12 @@ public:
 	CEconItemView();
 	CEconItemView( int iItemID );
 
+	void Init( int iItemID );
+
 	CEconItemDefinition *GetStaticData( void ) const;
 
 	const char* GetWorldDisplayModel( int iClass = 0 ) const;
-	const char* GetPlayerDisplayModel( void ) const;
+	const char* GetPlayerDisplayModel( int iClass = 0 ) const;
 	const char* GetEntityName( void );
 	bool IsCosmetic( void );
 	int GetAnimationSlot( void );
@@ -42,10 +50,10 @@ public:
 	void SkipBaseAttributes( bool bSkip );
 	CEconItemAttribute *IterateAttributes( string_t strClass );
 
-	void SetItemDefIndex( int iItemID ) { m_iItemDefinitionIndex = iItemID; }
-	int GetItemDefIndex( void ) const { return m_iItemDefinitionIndex; }
+	void SetItemDefIndex( int iItemID );
+	int GetItemDefIndex( void ) const;
 
-protected:
+private:
 	CNetworkVar( short, m_iItemDefinitionIndex );
 
 	CNetworkVar( int, m_iEntityQuality ); // maybe an enum?

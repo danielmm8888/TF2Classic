@@ -27,11 +27,10 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual const char *GetPowerupModel( void ) { return "models/items/powerup_uber.mdl"; }
-	virtual const char *GetPickupSound( void ) { return "HealthKit.Touch"; }
+	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_uber.mdl"; }
+	virtual const char *GetDefaultPickupSound( void ) { return "PowerupUber.Touch"; }
 
-	virtual int	GetEffectDuration( void ) { return 15; }
-	virtual int	GetCondition( void ) { return TF_COND_INVULNERABLE; }
+	virtual int	GetCondition( void ) { return TF_COND_POWERUP_SHORTUBER; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 };

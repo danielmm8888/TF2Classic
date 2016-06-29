@@ -187,13 +187,18 @@ void C_BaseObject::OnDataChanged( DataUpdateType_t updateType )
 		}
 	}
 
-	if ( ( !m_bWasCarried && m_bCarried ) ||
-		( m_bWasBuilding && !m_bBuilding ) )
+	if ( m_bWasBuilding && !m_bBuilding )
 	{
-		// Force update damage effect when getting picked up or when finishing construction.
+		// Force update damage effect when finishing construction.
 		BuildingDamageLevel_t damageLevel = CalculateDamageLevel();
-		UpdateDamageEffects( m_damageLevel );
+		UpdateDamageEffects( damageLevel );
 		m_damageLevel = damageLevel;
+	}
+
+	// Kill all particles when getting picked up.
+	if ( !m_bWasCarried && m_bCarried )
+	{
+		ParticleProp()->StopParticlesInvolving( this );
 	}
 
 	if ( m_iHealth > m_iOldHealth && m_iHealth == m_iMaxHealth )

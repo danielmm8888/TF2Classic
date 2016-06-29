@@ -36,7 +36,7 @@ LINK_ENTITY_TO_CLASS( tf_weaponbase_melee, CTFWeaponBaseMelee );
 // Server specific.
 #if !defined( CLIENT_DLL ) 
 BEGIN_DATADESC( CTFWeaponBaseMelee )
-DEFINE_THINKFUNC( Smack )
+	DEFINE_THINKFUNC( Smack )
 END_DATADESC()
 #endif
 
@@ -337,7 +337,7 @@ void CTFWeaponBaseMelee::Smack( void )
 			iDmgType |= DMG_CRITICAL;
 		}
 
-		CTakeDamageInfo info( pPlayer, pPlayer, flDamage, iDmgType, iCustomDamage );
+		CTakeDamageInfo info( pPlayer, pPlayer, this, flDamage, iDmgType, iCustomDamage );
 		CalculateMeleeDamageForce( &info, vecForward, vecSwingEnd, 1.0f / flDamage * tf_meleeattackforcescale.GetFloat() );
 		trace.m_pEnt->DispatchTraceAttack( info, vecForward, &trace ); 
 		ApplyMultiDamage();
@@ -385,6 +385,10 @@ bool CTFWeaponBaseMelee::CalcIsAttackCriticalHelper( void )
 {
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
+		return false;
+
+	// Random crits are disabled in DM because the crowbar appearently has 75% crit chance.
+	if ( TFGameRules()->IsDeathmatch() )
 		return false;
 
 	int nCvarValue = tf_weapon_criticals_melee.GetInt();

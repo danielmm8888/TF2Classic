@@ -39,8 +39,9 @@ extern const char *g_aTeamParticleNames[TF_TEAM_COUNT];
 extern color32 g_aTeamColors[TF_TEAM_COUNT];
 extern color32 g_aTeamSkinColors[TF_TEAM_COUNT];
 
-const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride = false );
-const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride = false );
+const char *GetTeamParticleName( int iTeam, bool bDeathmatchOverride = false, const char **pNames = g_aTeamParticleNames );
+const char *ConstructTeamParticle( const char *pszFormat, int iTeam, bool bDeathmatchOverride = false, const char **pNames = g_aTeamParticleNames );
+void PrecacheTeamParticles( const char *pszFormat, bool bDeathmatchOverride = false, const char **pNames = g_aTeamParticleNames );
 
 #define CONTENTS_REDTEAM	CONTENTS_TEAM1
 #define CONTENTS_BLUETEAM	CONTENTS_TEAM2
@@ -356,10 +357,12 @@ enum
 	TF_WEAPON_SENTRY_ROCKET,
 	TF_WEAPON_DISPENSER,
 	TF_WEAPON_INVIS,
-	TF_WEAPON_FLAG, // ADD NEW WEAPONS AFTER THIS
+	TF_WEAPON_FLAG,
+	TF_WEAPON_FLAREGUN,
+	TF_WEAPON_COMPOUND_BOW,
+	// ADD TF2C WEAPONS AFTER THIS
 	TF_WEAPON_HUNTERRIFLE,
 	TF_WEAPON_UMBRELLA,
-	TF_WEAPON_FLAREGUN,
 	TF_WEAPON_HAMMERFISTS,
 	TF_WEAPON_CHAINSAW,
 	TF_WEAPON_HEAVYARTILLERY,
@@ -412,8 +415,10 @@ enum
 	TF_PROJECTILE_GRAPPLINGHOOK,
 	TF_PROJECTILE_SENTRY_ROCKET,
 	TF_PROJECTILE_BREAD_MONSTER,
+	// Add new projectiles here.
 	TF_PROJECTILE_NAIL,
 	TF_PROJECTILE_DART,
+	TF_PROJECTILE_MIRV,
 
 	TF_NUM_PROJECTILES
 };
@@ -572,8 +577,12 @@ enum
 };
 
 extern int condition_to_attribute_translation[];
+extern const char *g_aPowerupNames[];
+extern int g_aPowerupConds[];
 
-int ConditionExpiresFast( int nCond );
+#define TF_POWERUP_COND_COUNT ARRAYSIZE( g_aPowerupConds )
+
+bool ConditionExpiresFast( int nCond );
 
 //-----------------------------------------------------------------------------
 // Mediguns.
@@ -649,6 +658,7 @@ enum {
 // Assist-damage constants
 //-----------------------------------------------------------------------------
 #define TF_TIME_ASSIST_KILL				3.0f	// Time window for a recent damager to get credit for an assist for a kill
+#define TF_TIME_ENV_DEATH_KILL_CREDIT	5.0f
 #define TF_TIME_SUICIDE_KILL_CREDIT		10.0f	// Time window for a recent damager to get credit for a kill if target suicides
 
 //-----------------------------------------------------------------------------
@@ -1239,6 +1249,7 @@ public:
 // Unused
 #define TF_DEATH_FIRST_BLOOD	0x0010
 #define TF_DEATH_FEIGN_DEATH	0x0020
+#define TF_DEATH_GIB			0x0080
 #define TF_DEATH_PURGATORY		0x0100
 #define TF_DEATH_AUSTRALIUM		0x0400
 
@@ -1247,5 +1258,7 @@ public:
 #define TF_CAMERA_DIST 64
 #define TF_CAMERA_DIST_RIGHT 30
 #define TF_CAMERA_DIST_UP 0
+
+#define TF_SPY_MASK_MODEL "models/player/items/spy_mask.mdl"
 
 #endif // TF_SHAREDDEFS_H

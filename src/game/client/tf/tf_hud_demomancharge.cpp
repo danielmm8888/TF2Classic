@@ -17,6 +17,7 @@
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/ProgressBar.h>
 #include "tf_weaponbase.h"
+#include "engine/IEngineSound.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -39,6 +40,9 @@ public:
 
 private:
 	vgui::ContinuousProgressBar *m_pChargeMeter;
+
+	bool m_bCharging;
+	int m_iChargupSound;
 };
 
 DECLARE_HUDELEMENT( CHudDemomanChargeMeter );
@@ -56,6 +60,9 @@ CHudDemomanChargeMeter::CHudDemomanChargeMeter( const char *pElementName ) : CHu
 	SetHiddenBits( HIDEHUD_MISCSTATUS );
 
 	vgui::ivgui()->AddTickSignal( GetVPanel() );
+
+	m_bCharging = false;
+	m_iChargupSound = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -76,7 +83,7 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	if ( !pPlayer || !pPlayer->IsPlayerClass( TF_CLASS_DEMOMAN ) || !pPlayer->IsAlive() )
+	if ( !pPlayer || !pPlayer->IsAlive() )
 	{
 		return false;
 	}
@@ -88,9 +95,9 @@ bool CHudDemomanChargeMeter::ShouldDraw( void )
 		return false;
 	}
 
-	int iWeaponID = pWpn->GetWeaponID();
-
-	if ( iWeaponID != TF_WEAPON_PIPEBOMBLAUNCHER )
+	if ( !pWpn->IsWeapon( TF_WEAPON_PIPEBOMBLAUNCHER ) &&
+		!pWpn->IsWeapon( TF_WEAPON_GRENADE_MIRV ) &&
+		!pWpn->IsWeapon( TF_WEAPON_COMPOUND_BOW ) )
 	{
 		return false;
 	}
@@ -112,7 +119,19 @@ void CHudDemomanChargeMeter::OnTick( void )
 	ITFChargeUpWeapon *pChargeupWeapon = dynamic_cast< ITFChargeUpWeapon *>( pWpn );
 
 	if ( !pWpn || !pChargeupWeapon )
+	{
+		if ( m_bCharging )
+		{
+			if ( m_iChargupSound != -1 )
+			{
+				enginesound->StopSoundByGuid( m_iChargupSound );
+				m_iChargupSound = -1;
+			}
+
+			m_bCharging = false;
+		}
 		return;
+	}
 
 	if ( m_pChargeMeter )
 	{
@@ -128,10 +147,33 @@ void CHudDemomanChargeMeter::OnTick( void )
 				float flPercentCharged = min( 1.0, flTimeCharged / flChargeMaxTime );
 
 				m_pChargeMeter->SetProgress( flPercentCharged );
+
+				if ( !m_bCharging )
+				{
+					if ( pChargeupWeapon->GetChargeSound() != NULL )
+					{
+						CLocalPlayerFilter filter;
+						C_BaseEntity::EmitSound( filter, pPlayer->entindex(), pChargeupWeapon->GetChargeSound() );
+						m_iChargupSound = enginesound->GetGuidForLastSoundEmitted();
+					}
+
+					m_bCharging = true;
+				}
 			}
 			else
 			{
 				m_pChargeMeter->SetProgress( 0.0f );
+
+				if ( m_bCharging )
+				{
+					if ( m_iChargupSound != -1 )
+					{
+						enginesound->StopSoundByGuid( m_iChargupSound );
+						m_iChargupSound = -1;
+					}
+
+					m_bCharging = false;
+				}
 			}
 		}
 	}

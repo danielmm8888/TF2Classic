@@ -23,6 +23,7 @@
 #include "iinput.h"
 #include "tf_weapon_medigun.h"
 #include "ihasattributes.h"
+#include "c_tf_spymask.h"
 
 class C_MuzzleFlashModel;
 class C_BaseObject;
@@ -217,7 +218,7 @@ public:
 	CTFWeaponBase		*Weapon_GetWeaponByType( int iType );
 	virtual bool		Weapon_SlotOccupied( CBaseCombatWeapon *pWeapon );
 	virtual CBaseCombatWeapon *Weapon_GetSlot( int slot ) const;
-	C_EconEntity			*GetEntityForLoadoutSlot( int iSlot );
+	C_EconEntity		*GetEntityForLoadoutSlot( int iSlot );
 	C_EconWearable		*GetWearableForLoadoutSlot( int iSlot );
 
 	virtual void		GetStepSoundVelocities( float *velwalk, float *velrun );
@@ -226,9 +227,11 @@ public:
 	bool	DoClassSpecialSkill( void );
 	bool	CanGoInvisible( void );
 
-	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
-	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
-	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	bool	CanPickupBuilding( C_BaseObject *pObject );
+
+	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer( void ) { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner( void ) { return NULL; }
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 public:
@@ -257,6 +260,8 @@ public:
 	bool ShouldShowNemesisIcon();
 
 	virtual	IMaterial *GetHeadLabelMaterial( void );
+
+	void	UpdateSpyMask( void );
 
 protected:
 
@@ -346,8 +351,6 @@ public:
 	int				m_iOldPlayerClass;	// Used to detect player class changes
 	bool			m_bIsDisplayingNemesisIcon;
 
-	int				m_nForceTauntCam;
-
 	int				m_iSpawnCounter;
 
 	bool			m_bSaveMeParity;
@@ -385,10 +388,13 @@ public:
 
 	int GetNumActivePipebombs( void );
 
-	int				m_iSpyMaskBodygroup;
-
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
+
+	int				m_nForceTauntCam;
+	float			m_flLastDamageTime;
+
+	CHandle<C_TFSpyMask> m_hSpyMask;
 
 	CAttributeManager m_AttributeManager;
 

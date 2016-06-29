@@ -27,7 +27,6 @@ public:
 	void	Precache( void );
 	bool	MyTouch( CBasePlayer *pPlayer );
 
-	virtual int	GetEffectDuration( void ) { return 15; }
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_CLASSCHANGE; }
 
 	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }

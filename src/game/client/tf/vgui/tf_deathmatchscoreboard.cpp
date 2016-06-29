@@ -42,6 +42,7 @@
 #include "engine/IEngineSound.h"
 #include "in_buttons.h"
 #include "voice_status.h"
+#include "tf_music_manager.h"
 
 #if defined ( _X360 )
 #include "engine/imatchmaking.h"
@@ -52,7 +53,9 @@ using namespace vgui;
 #define SCOREBOARD_MAX_LIST_ENTRIES 12
 
 extern bool IsInCommentaryMode( void );
-extern const char *GetMapDisplayName(const char *mapName);
+extern const char *GetMapDisplayName( const char *mapName );
+
+vgui::IImage* GetDefaultAvatarImage( C_BasePlayer *pPlayer );
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -630,45 +633,6 @@ void CTFDeathMatchScoreBoardDialog::UpdatePlayerDetails()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFDeathMatchScoreBoardDialog::UpdatePlayerAvatar(int playerIndex, KeyValues *kv)
-{
-	// Update their avatar
-	if (kv && ShowAvatars() && steamapicontext->SteamFriends() && steamapicontext->SteamUtils())
-	{
-		player_info_t pi;
-		if (engine->GetPlayerInfo(playerIndex, &pi))
-		{
-			if (pi.friendsID)
-			{
-				CSteamID steamIDForPlayer(pi.friendsID, 1, steamapicontext->SteamUtils()->GetConnectedUniverse(), k_EAccountTypeIndividual);
-
-				// See if we already have that avatar in our list
-				int iMapIndex = m_mapAvatarsToImageList.Find(steamIDForPlayer);
-				int iImageIndex;
-				if (iMapIndex == m_mapAvatarsToImageList.InvalidIndex())
-				{
-					CAvatarImage *pImage = new CAvatarImage();
-					pImage->SetAvatarSteamID(steamIDForPlayer);
-					pImage->SetAvatarSize(32, 32);	// Deliberately non scaling
-					pImage->SetDrawFriend(false);
-					iImageIndex = m_pImageList->AddImage(pImage);
-
-					m_mapAvatarsToImageList.Insert(steamIDForPlayer, iImageIndex);
-				}
-				else
-				{
-					iImageIndex = m_mapAvatarsToImageList[iMapIndex];
-				}
-
-				kv->SetInt("avatar", iImageIndex);
-			}
-		}
-	}
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Clears score details
 //-----------------------------------------------------------------------------
 void CTFDeathMatchScoreBoardDialog::ClearPlayerDetails()
@@ -849,9 +813,11 @@ void CTFDeathMatchScoreBoardDialog::FireGameEvent(IGameEvent *event)
 		}
 		ShowPanel(true);
 
-		CLocalPlayerFilter filter;
-		C_BaseEntity::EmitSound(filter, SOUND_FROM_LOCAL_PLAYER, (bPlayerFirst ? "music.dm_winpanel_first" : "music.dm_winpanel"));		
-
+		if ( !GetTFMusicManager()->IsPlayingMusic() )
+		{
+			CLocalPlayerFilter filter;
+			C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, ( bPlayerFirst ? "music.dm_winpanel_first" : "music.dm_winpanel" ) );
+		}
 	}
 	else if (Q_strcmp("teamplay_round_start", type) == 0)
 	{

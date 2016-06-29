@@ -21,7 +21,7 @@
 BEGIN_DATADESC( CTFPowerupCustom )
 
 	DEFINE_KEYFIELD( m_iPowerupCondition, FIELD_INTEGER, "PowerupCondition" ),
-	DEFINE_KEYFIELD( m_iEffectDuration, FIELD_INTEGER, "EffectDuration" ),
+	DEFINE_KEYFIELD( m_flEffectDuration, FIELD_FLOAT, "EffectDuration" ),
 
 END_DATADESC()
 
@@ -34,11 +34,8 @@ LINK_ENTITY_TO_CLASS( item_powerup_custom, CTFPowerupCustom );
 //-----------------------------------------------------------------------------
 CTFPowerupCustom::CTFPowerupCustom()
 {	
-	m_iRespawnTime = 30;
-	m_strModelName = MAKE_STRING( "models/items/powerup_crit.mdl" );
-	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
 	m_iPowerupCondition = TF_COND_POWERUP_CRITDAMAGE;
-	m_iEffectDuration = 15;
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------

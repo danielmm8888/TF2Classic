@@ -188,53 +188,6 @@
 		}
 	}
 	
-	"gamemodelpanel"
-	{
-		"ControlName"	"CModelPanel"
-		"fieldName"		"gamemodelpanel"
-		
-		"xpos"			"c-320"
-		"ypos"			"c-90"
-		"zpos"			"2"		
-		"wide"			"250"
-		"tall"			"280"
-		"autoResize"	"0"
-		"pinCorner"		"0"
-		"visible"		"1"
-		"enabled"		"1"
-		"fov"			"28"
-				
-		"model"
-		{
-			"skin"	"0"
-			"angles_x" "0"
-			"angles_y" "175"
-			"angles_z" "0"
-			"origin_x" "190"
-			"origin_y" "0"
-			"origin_z" "-36"
-			"frame_origin_x"	"0"
-			"frame_origin_y"	"0"
-			"frame_origin_z"	"0"
-			"spotlight" "1"
-		
-			"modelname"		"models/player/merc_deathmatch.mdl"
-			
-			"attached_model"
-			{
-				"modelname" "models/weapons/w_models/w_crowbar.mdl"
-				"skin"	"0"
-			}
-			
-			"animation"
-			{
-				"name"		"MELEE"
-				"activity"	"ACT_MP_STAND_MELEE"
-				"default"	"1"
-			}			
-		}
-	}
-	
 	"weaponsetpanel"
 	{
 		"ControlName"	"CTFWeaponSetPanel"

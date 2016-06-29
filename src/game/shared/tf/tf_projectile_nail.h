@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 class CTFProjectile_Nail : public CTFBaseProjectile
 {
-	DECLARE_CLASS(CTFProjectile_Nail, CTFBaseProjectile);
+	DECLARE_CLASS( CTFProjectile_Nail, CTFBaseProjectile );
 
 public:
 
@@ -25,12 +25,12 @@ public:
 	~CTFProjectile_Nail();
 
 	// Creation.
-	static CTFProjectile_Nail *Create(const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false);
+	static CTFProjectile_Nail *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false );
 
-	virtual const char *GetProjectileModelName(void);
-	virtual float GetGravity(void);
+	virtual const char *GetProjectileModelName( void );
+	virtual float GetGravity( void );
 
-	static float	GetInitialVelocity(void) { return 1500.0; }
+	static float	GetInitialVelocity( void ) { return 1500.0; }
 };
 
 //-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ public:
 	~CTFProjectile_Syringe();
 
 	// Creation.
-	static CTFProjectile_Syringe *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false );	
+	static CTFProjectile_Syringe *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false );
 
 	virtual const char *GetProjectileModelName( void );
 	virtual float GetGravity( void );
@@ -59,7 +59,7 @@ public:
 //-----------------------------------------------------------------------------
 class CTFProjectile_Dart : public CTFBaseProjectile
 {
-	DECLARE_CLASS(CTFProjectile_Dart, CTFBaseProjectile);
+	DECLARE_CLASS( CTFProjectile_Dart, CTFBaseProjectile );
 
 public:
 
@@ -67,12 +67,12 @@ public:
 	~CTFProjectile_Dart();
 
 	// Creation.
-	static CTFProjectile_Dart *Create(const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false);
+	static CTFProjectile_Dart *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner = NULL, CBaseEntity *pScorer = NULL, bool bCritical = false );
 
-	virtual const char *GetProjectileModelName(void);
-	virtual float GetGravity(void);
+	virtual const char *GetProjectileModelName( void );
+	virtual float GetGravity( void );
 
-	static float	GetInitialVelocity(void) { return 2700.0; }
+	static float	GetInitialVelocity( void ) { return 2700.0; }
 };
 
 #endif	//TF_PROJECTILE_NAIL_H

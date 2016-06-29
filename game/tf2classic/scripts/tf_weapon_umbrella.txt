@@ -10,7 +10,7 @@
 	
 	// Attributes TF.
 	"Damage"			"35"
-	"TimeFireDelay"			"0.5"
+	"TimeFireDelay"			"0.65"
 	"TimeIdle"			"5.0"
 	"HasTeamSkins_Viewmodel"	"1"
 	"HasTeamSkins_Worldmodel"	"1"

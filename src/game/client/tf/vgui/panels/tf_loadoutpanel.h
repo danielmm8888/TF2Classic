@@ -35,7 +35,7 @@ public:
 	void SetCurrentClass(int iClass);
 	void SetCurrentSlot(int iSlot) { m_iCurrentSlot = iSlot; };
 	int  GetAnimSlot( CEconItemDefinition *pItemDef, int iClass );
-	const char *GetWeaponModel( CEconItemDefinition *pItemDef );
+	const char *GetWeaponModel( CEconItemDefinition *pItemDef, int iClass );
 	void UpdateModelWeapons( void );
 	void SetModelClass(int iClass);
 	void SetSlotAndPreset(int iSlot, int iPreset);
@@ -44,7 +44,6 @@ public:
 
 private:
 	CTFAdvModelPanel *m_pClassModelPanel;
-	CModelPanel		*m_pGameModelPanel;
 	CTFWeaponSetPanel *m_pWeaponSetPanel;
 	CTFRGBPanel		*m_pRGBPanel;
 	CUtlVector<CTFAdvItemButton*> m_pWeaponIcons;
@@ -53,7 +52,6 @@ private:
 	MESSAGE_FUNC(UpdateModelPanels, "ControlModified");
 	int	m_iCurrentClass;
 	int	m_iCurrentSlot;
-	int m_iCurrentSkin;
 };
 
 //-----------------------------------------------------------------------------

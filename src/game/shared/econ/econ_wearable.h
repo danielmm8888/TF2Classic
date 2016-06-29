@@ -6,6 +6,7 @@
 
 #ifndef ECON_WEARABLE_H
 #define ECON_WEARABLE_H
+
 #ifdef _WIN32
 #pragma once
 #endif
@@ -34,8 +35,8 @@ public:
 
 	virtual void			Spawn( void );
 	virtual bool			IsWearable( void ) { return true; }
-	virtual int				GetSkin(void);
-	virtual void			SetParticle(const char* name);
+	virtual int				GetSkin( void );
+	virtual void			SetParticle( const char* name );
 	virtual void			UpdateWearableBodyGroups( CBasePlayer *pPlayer );
 	virtual void			GiveTo( CBaseEntity *pEntity );
 
@@ -51,7 +52,7 @@ public:
 private:
 
 #ifdef GAME_DLL
-	CNetworkString(m_ParticleName, PARTICLE_MODIFY_STRING_SIZE);
+	CNetworkString( m_ParticleName, PARTICLE_MODIFY_STRING_SIZE );
 #else
 	char m_ParticleName[PARTICLE_MODIFY_STRING_SIZE];
 	CNewParticleEffect *m_pUnusualParticle;

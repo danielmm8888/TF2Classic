@@ -14,10 +14,10 @@
 
 enum powerupsize_t
 {
+	POWERUP_TINY,
 	POWERUP_SMALL,
 	POWERUP_MEDIUM,
 	POWERUP_FULL,
-	POWERUP_TINY,
 
 	POWERUP_SIZES,
 };
@@ -56,6 +56,7 @@ public:
 
 	virtual powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 
+public:
 	CNetworkVarForDerived( bool, m_bDisabled );
 	CNetworkVarForDerived( bool, m_bRespawning );
 };

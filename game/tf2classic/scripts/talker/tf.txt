@@ -653,7 +653,9 @@
 	}
 	response "SoldierTauntSecondary"
 	{
-		scene "scenes/player/soldier/low/taunt04.vcd"
+		scene "scenes/player/soldier/low/taunt02_v1.vcd"
+		scene "scenes/player/soldier/low/taunt02_v2.vcd"
+		//scene "scenes/player/soldier/low/taunt04.vcd"
 	}
 	response "SoldierTauntMelee"
 	{

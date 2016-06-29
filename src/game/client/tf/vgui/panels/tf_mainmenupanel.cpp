@@ -5,7 +5,6 @@
 #include "vgui_controls/SectionedListPanel.h"
 #include "vgui_controls/ImagePanel.h"
 #include "tf_notificationmanager.h"
-#include "c_sdkversionchecker.h"
 #include "engine/IEngineSound.h"
 #include "vgui_avatarimage.h"
 
@@ -159,9 +158,9 @@ void CTFMainMenuPanel::OnCommand(const char* command)
 	}
 	else if (!Q_strcmp(command, "testnotification"))
 	{
-		char resultString[128];
-		Q_snprintf(resultString, sizeof(resultString), "test %d", GetNotificationManager()->GetNotificationsCount());
-		MessageNotification Notification("Yoyo", resultString);
+		wchar_t resultString[128];
+		V_snwprintf(resultString, sizeof(resultString), L"test %d", GetNotificationManager()->GetNotificationsCount());
+		MessageNotification Notification(L"Yoyo", resultString, time( NULL ) );
 		GetNotificationManager()->SendNotification(Notification);
 	}
 	else if (!Q_strcmp(command, "randommusic"))
@@ -285,7 +284,7 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	if (m_pVersionLabel)
 	{
 		char verString[64];
-		Q_snprintf(verString, sizeof(verString), "Version: %s\nSDK branch: %s", GetNotificationManager()->GetVersionString(), GetSDKVersionChecker()->GetKey());
+		Q_snprintf(verString, sizeof(verString), "Version: %s", GetNotificationManager()->GetVersionString());
 		m_pVersionLabel->SetText(verString);
 	}
 };

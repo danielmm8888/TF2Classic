@@ -30,9 +30,7 @@ LINK_ENTITY_TO_CLASS( item_powerup_speedshooter, CTFPowerupSpeedshooter );
 //-----------------------------------------------------------------------------
 CTFPowerupSpeedshooter::CTFPowerupSpeedshooter()
 {
-	m_strModelName = MAKE_STRING( "models/class_menu/random_class_icon.mdl" );
-	m_strPickupSound = MAKE_STRING( "HealthKit.Touch" );
-	m_iRespawnTime = 30;
+	m_flEffectDuration = 15.0f;
 }
 
 //-----------------------------------------------------------------------------

@@ -70,6 +70,8 @@ public:
 	virtual void SetImageSize(int iWide, int iTall);
 	virtual void SetToolTip(const char *sText);
 
+	virtual void ShowInt( bool bShow ) { m_bShowInt = bShow; }
+
 	virtual void OnThink();
 	static	vgui::Label::Alignment GetAlignment(char* m_szAlignment);
 

@@ -26,7 +26,7 @@ extern ConVar tf2c_dm_max_health_boost;
 LINK_ENTITY_TO_CLASS( item_healthkit_full, CHealthKit );
 LINK_ENTITY_TO_CLASS( item_healthkit_small, CHealthKitSmall );
 LINK_ENTITY_TO_CLASS( item_healthkit_medium, CHealthKitMedium );
-LINK_ENTITY_TO_CLASS( item_healthkit_tiny, CHealthKitTiny);
+LINK_ENTITY_TO_CLASS( item_healthkit_tiny, CHealthKitTiny );
 
 //=============================================================================
 //
@@ -64,41 +64,37 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 	if ( ValidTouch( pPlayer ) )
 	{
-		if (GetPowerupSize() == POWERUP_TINY) // TF2C tiny medkit, overheals. can't pick up if hp would exceed max
+		int iHealthToAdd = ceil( pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()] );
+		bool bTiny = GetPowerupSize() == POWERUP_TINY;
+		int iHealthRestored = 0;
+
+		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+		Assert( pTFPlayer );
+
+		// Overheal pellets, well, overheal.
+		if ( bTiny )
 		{
-			if (pPlayer->GetHealth() < pPlayer->GetMaxHealth() * (tf2c_dm_max_health_boost.GetFloat() - PackRatios[GetPowerupSize()]))
-			{
-				if (pPlayer->TakeHealth(ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_IGNORE_MAXHEALTH))
-				{
-					CSingleUserRecipientFilter user(pPlayer);
-					user.MakeReliable();
-
-					UserMessageBegin(user, "ItemPickup");
-					WRITE_STRING(GetClassname());
-					MessageEnd();
-
-					if (pPlayer->GetHealth() > pPlayer->GetMaxHealth())
-					{
-						EmitSound( user, entindex(), "OverhealPillRattle.Touch" );
-					}
-					else
-					{
-						EmitSound(user, entindex(), "OverhealPillNoRattle.Touch");
-					}
-
-					bSuccess = true;
-				}
-			}
+			iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
+			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
 		}
 		else
 		{
-			if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()]), DMG_GENERIC ) )
+			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC );
+		}
+
+		if ( iHealthRestored )
+			bSuccess = true;
+
+		// Restore disguise health.
+		if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+		{
+			int iFakeHealthToAdd = ceil( pTFPlayer->m_Shared.GetDisguiseMaxHealth() * PackRatios[GetPowerupSize()] );
+			if ( pTFPlayer->m_Shared.AddDisguiseHealth( iFakeHealthToAdd, bTiny ) )
 				bSuccess = true;
+		}
 
-			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-
-			Assert( pTFPlayer );
-			
+		if ( !bTiny )
+		{
 			// Remove any negative conditions whether player got healed or not.
 			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
 			{
@@ -110,17 +106,41 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
 				bSuccess = true;
 			}
+		}
 
-			if ( bSuccess )
+		if ( bSuccess )
+		{
+			CSingleUserRecipientFilter user( pPlayer );
+			user.MakeReliable();
+
+			UserMessageBegin( user, "ItemPickup" );
+			WRITE_STRING( GetClassname() );
+			MessageEnd();
+
+			const char *pszSound = TF_HEALTHKIT_PICKUP_SOUND;
+
+			if ( bTiny )
 			{
-				CSingleUserRecipientFilter user( pPlayer );
-				user.MakeReliable();
+				if ( pPlayer->GetHealth() > pPlayer->GetMaxHealth() )
+					pszSound = "OverhealPillRattle.Touch";
+				else
+					pszSound = "OverhealPillNoRattle.Touch";
+			}
 
-				UserMessageBegin( user, "ItemPickup" );
-				WRITE_STRING( GetClassname() );
-				MessageEnd();
+			EmitSound( user, entindex(), pszSound );
 
-				EmitSound( user, entindex(), TF_HEALTHKIT_PICKUP_SOUND );
+			// Disabled for overheal pills since they'll cause too much spam.
+			if ( iHealthRestored && !bTiny )
+			{
+				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
+
+				if ( event )
+				{
+					event->SetInt( "amount", iHealthRestored );
+					event->SetInt( "entindex", pPlayer->entindex() );
+
+					gameeventmanager->FireEvent( event );
+				}
 			}
 		}
 	}

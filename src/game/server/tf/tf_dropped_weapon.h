@@ -25,7 +25,7 @@ public:
 	virtual void	Spawn( void );
 
 	bool	MyTouch( CBasePlayer *pPlayer );
-	virtual bool	ValidTouch( CBaseEntity *pPlayer );
+	virtual bool	ValidTouch( CBasePlayer *pPlayer );
 	void	SetItem( CEconItemView *pItem ){ m_Item = *pItem; }
 	virtual void EndTouch( CBaseEntity *pOther );
 	void	RemovalThink( void );
@@ -36,11 +36,9 @@ public:
 
 	static CTFDroppedWeapon *Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CTFWeaponBase *pWeapon );
 
-
 private:
 	float m_flCreationTime;
 	float m_flRemoveTime;
-	CTFWeaponInfo *m_pWeaponInfo;
 	CEconItemView m_Item;
 	
 	int m_iClip;

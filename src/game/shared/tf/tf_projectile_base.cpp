@@ -377,9 +377,7 @@ Vector CTFBaseProjectile::GetDamageForce( void )
 void CTFBaseProjectile::FlyThink( void )
 {
 	QAngle angles;
-
 	VectorAngles( GetAbsVelocity(), angles );
-
 	SetAbsAngles( angles );
 
 	SetNextThink( gpGlobals->curtime + 0.1f );

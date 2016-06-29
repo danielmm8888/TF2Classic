@@ -291,6 +291,7 @@ public:
 	void DropAmmoPack( void );
 	void DropWeapon( CTFWeaponBase *pWeapon, bool bKilled = false );
 	void DropFakeWeapon( CTFWeaponBase *pWeapon );
+	void DropPowerups( void );
 
 	bool CanDisguise( void );
 	bool CanGoInvisible( void );
@@ -354,9 +355,9 @@ public:
 	virtual void		PlayStepSound( Vector &vecOrigin, surfacedata_t *psurface, float fvol, bool force );
 	virtual bool		IsDeflectable( void ) { return true; }
 
-	virtual CAttributeManager *GetAttributeManager() { return &m_AttributeManager; }
-	virtual CAttributeContainer *GetAttributeContainer() { return NULL; }
-	virtual CBaseEntity *GetAttributeOwner() { return NULL; }
+	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }
+	virtual CAttributeContainer *GetAttributeContainer( void ) { return NULL; }
+	virtual CBaseEntity *GetAttributeOwner( void ) { return NULL; }
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 	void UpdatePlayerColor( void );
@@ -559,7 +560,9 @@ private:
 	CTFPlayerAnimState	*m_PlayerAnimState;
 	int					m_iLastWeaponFireUsercmd;				// Firing a weapon.  Last usercmd we shot a bullet on.
 	int					m_iLastSkin;
-	float				m_flLastDamageTime;
+
+	CNetworkVar( float, m_flLastDamageTime );
+
 	float				m_flNextPainSoundTime;
 	int					m_LastDamageType;
 	int					m_iDeathFlags;				// TF_DEATH_* flags with additional death info

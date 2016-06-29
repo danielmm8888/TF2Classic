@@ -5,6 +5,7 @@
 //=============================================================================//
 #ifndef TF_PROJECTILE_FLARE_H
 #define TF_PROJECTILE_FLARE_H
+
 #ifdef _WIN32
 #pragma once
 #endif
@@ -43,15 +44,15 @@ public:
 	virtual CBasePlayer *GetScorer( void );
 	virtual CBasePlayer *GetAssistant( void ) { return NULL; }
 
-	virtual int		GetWeaponID(void) const			{ return TF_WEAPON_FLAREGUN; }
+	virtual int		GetWeaponID( void ) const { return TF_WEAPON_FLAREGUN; }
 
 	void	SetScorer( CBaseEntity *pScorer );
 
 	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
 	virtual int		GetDamageType();
 
-	virtual bool IsDeflectable() { return true; }
-	virtual void Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+	virtual bool	IsDeflectable() { return true; }
+	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
 
 	// Overrides.
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
@@ -65,7 +66,7 @@ public:
 private:
 #ifdef GAME_DLL
 	CBaseHandle m_Scorer;
-	CNetworkVar( bool,	m_bCritical );
+	CNetworkVar( bool, m_bCritical );
 #else
 	bool		m_bCritical;
 #endif

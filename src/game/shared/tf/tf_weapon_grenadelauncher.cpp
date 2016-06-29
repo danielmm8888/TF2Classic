@@ -160,37 +160,7 @@ void CTFGrenadeLauncher::LaunchGrenade( void )
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
 	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
-	FireProjectile(pPlayer);
-
-#if 0
-	CBaseEntity *pPipeBomb = 
-
-	if (pPipeBomb)
-	{
-#ifdef GAME_DLL
-		// If we've gone over the max pipebomb count, detonate the oldest
-		if (m_Pipebombs.Count() >= TF_WEAPON_PIPEBOMB_COUNT)
-		{
-			CTFGrenadePipebombProjectile *pTemp = m_Pipebombs[0];
-			if (pTemp)
-			{
-				pTemp->SetTimer(gpGlobals->curtime); // explode NOW
-			}
-
-			m_Pipebombs.Remove(0);
-		}
-
-		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
-		pPipebomb->SetLauncher(this);
-
-		PipebombHandle hHandle;
-		hHandle = pPipebomb;
-		m_Pipebombs.AddToTail(hHandle);
-
-		m_iPipebombCount = m_Pipebombs.Count();
-#endif
-	}
-#endif
+	FireProjectile( pPlayer );
 
 #if !defined( CLIENT_DLL ) 
 	pPlayer->SpeakWeaponFire();

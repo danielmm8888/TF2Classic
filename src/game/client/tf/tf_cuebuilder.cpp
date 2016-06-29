@@ -10,6 +10,9 @@
 #include "c_playerresource.h"
 #include "c_tf_playerresource.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
+
 const char *g_aCueMood[MOOD_COUNT] =
 {
 	"MOOD_NEUTRAL",

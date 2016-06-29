@@ -558,7 +558,7 @@ void CCaptureFlag::FlagTouch( CBaseEntity *pOther )
 		return;
 
 	// Don't let invulnerable players pickup flags
-	if ( pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE ) )
+	if ( pPlayer->m_Shared.IsInvulnerable() )
 		return;
 
 #ifdef GAME_DLL
@@ -1454,20 +1454,6 @@ int CCaptureFlagReturnIcon::UpdateTransmitState( void )
 #endif
 
 #ifdef CLIENT_DLL
-
-typedef struct
-{
-	float maxProgress;
-
-	float vert1x;
-	float vert1y;
-	float vert2x;
-	float vert2y;
-
-	int swipe_dir_x;
-	int swipe_dir_y;
-} progress_segment_t;
-
 
 // This defines the properties of the 8 circle segments
 // in the circular progress bar.

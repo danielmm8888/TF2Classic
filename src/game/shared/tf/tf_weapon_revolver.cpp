@@ -54,22 +54,4 @@ acttable_t CTFRevolver::m_acttable[] =
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE, ACT_MP_ATTACK_CROUCH_SECONDARY2, false },
 };
 
-bool CTFRevolver::DefaultReload( int iClipSize1, int iClipSize2, int iActivity )
-{
-	// The the owning local player.
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( !pPlayer )
-		return false;
-
-	if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) )
-	{
-		if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
-		{
-			return false;
-		}
-	}
-
-	return BaseClass::DefaultReload( iClipSize1, iClipSize2, iActivity );
-}
-
 IMPLEMENT_DM_ACTTABLE( CTFRevolver );

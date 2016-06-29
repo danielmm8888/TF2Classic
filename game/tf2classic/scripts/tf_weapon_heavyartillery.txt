@@ -8,14 +8,14 @@ WeaponData
 	"ITEM_FLAG_NOITEMPICKUP" 	"1"
 		
 	// Attributes TF.
-	"Damage"		"9"
+	"Damage"		"14"
 	"Range"			"8192"
-	"BulletsPerShot"	"2"
-	"Spread"		"0.0"
-	"PunchAngle"		"20.0" 
-	"TimeFireDelay"		"0.075"
+	"BulletsPerShot"	"1"
+	"Spread"		"0.025"
+	"PunchAngle"		"6.5" 
+	"TimeFireDelay"		"0.1"
 	"ProjectileType"	"projectile_bullet"
-	"BrassModel"		"models/weapons/shells/shell_minigun.mdl"
+	"BrassModel"		"models/weapons/shells/shell_pistol.mdl"
 	"UseRapidFireCrits"	"1"
 	"TracerEffect"		"bullet_tracer01"
 	"MaxAmmo"		"100"
@@ -24,7 +24,8 @@ WeaponData
 	// Ammo & Clip.
 	"primary_ammo"		"TF_AMMO_PRIMARY"
 	"secondary_ammo"	"None"
-	clip_size		-1
+	clip_size		50
+	default_clip		50
 
 	// Buckets.
 	"bucket"		"0"
@@ -40,10 +41,15 @@ WeaponData
 	SoundData
 	{
 		"single_shot"		"Weapon_HeavyArtillery.Single"
-		"empty"			"Weapon_Shotgun.ClipEmpty"
-		"reload"		"Weapon_Shotgun.WorldReload"
+		"empty"			"Weapon_SMG.ClipEmpty"	
+		"reload"		"Weapon_SMG.WorldReload"
 		"burst"			"Weapon_HeavyArtillery.SingleCrit"
 	}
+
+	// Muzzleflash
+	"MuzzleFlashModel"	"models/effects/muzzleflash/minigunmuzzle.mdl"
+	"MuzzleFlashParticleEffect" "muzzle_pistol"
+	"MuzzleflashModelScale"	".5"
 
 	// Weapon Sprite data is loaded by the Client DLL.
 	TextureData

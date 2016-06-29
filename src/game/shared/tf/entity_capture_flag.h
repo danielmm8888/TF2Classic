@@ -88,6 +88,25 @@
 	#define CBaseAnimating C_BaseAnimating
 #endif
 
+#ifdef CLIENT_DLL
+
+typedef struct
+{
+	float maxProgress;
+
+	float vert1x;
+	float vert1y;
+	float vert2x;
+	float vert2y;
+
+	int swipe_dir_x;
+	int swipe_dir_y;
+} progress_segment_t;
+
+extern progress_segment_t Segments[8];
+
+#endif
+
 class CCaptureFlagReturnIcon: public CBaseAnimating
 {
 public:

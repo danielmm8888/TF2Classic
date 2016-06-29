@@ -49,7 +49,7 @@ void CTFAmmoPack::Spawn( void )
 	m_bAllowOwnerPickup = false;
 
 	// no ammo to start
-	memset( m_iAmmo, 0, sizeof(m_iAmmo) );
+	memset( m_iAmmo, 0, sizeof( m_iAmmo ) );
 
 	// Die in 30 seconds
 	SetContextThink( &CBaseEntity::SUB_Remove, gpGlobals->curtime + 30, "DieContext" );
@@ -71,23 +71,24 @@ CTFAmmoPack *CTFAmmoPack::Create( const Vector &vecOrigin, const QAngle &vecAngl
 	if ( pAmmoPack )
 	{
 		pAmmoPack->SetModelName( AllocPooledString( pszModelName ) );
+		pAmmoPack->m_bUseCustomAmmoCount = bUseCustomAmmoCount;
+
 		DispatchSpawn( pAmmoPack );
 	}
 
-	pAmmoPack->m_bUseCustomAmmoCount = bUseCustomAmmoCount;
 	return pAmmoPack;
 }
 
 void CTFAmmoPack::SetInitialVelocity( Vector &vecVelocity )
-{ 
+{
 	m_vecInitialVelocity = vecVelocity;
 }
 
 int CTFAmmoPack::GiveAmmo( int iCount, int iAmmoType )
 {
-	if (iAmmoType == -1 || iAmmoType >= TF_AMMO_COUNT )
+	if ( iAmmoType == -1 || iAmmoType >= TF_AMMO_COUNT )
 	{
-		Msg("ERROR: Attempting to give unknown ammo type (%d)\n", iAmmoType);
+		Msg( "ERROR: Attempting to give unknown ammo type (%d)\n", iAmmoType );
 		return 0;
 	}
 
@@ -105,15 +106,15 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 {
 	Assert( pOther );
 
-	if( !pOther->IsPlayer() )
+	if ( !pOther->IsPlayer() )
 		return;
 
-	if( !pOther->IsAlive() )
+	if ( !pOther->IsAlive() )
 		return;
 
 	//Don't let the person who threw this ammo pick it up until it hits the ground.
 	//This way we can throw ammo to people, but not touch it as soon as we throw it ourselves
-	if( GetOwnerEntity() == pOther && m_bAllowOwnerPickup == false )
+	if ( GetOwnerEntity() == pOther && m_bAllowOwnerPickup == false )
 		return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( pOther );
@@ -141,22 +142,22 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 	}
 #else
 	// Copy-paste from CAmmoPack code.
-
 	bool bSuccess = false;
 
 	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 	if ( !pTFPlayer )
 		return;
+
 	if ( !m_bUseCustomAmmoCount )
 	{
 		int iMaxPrimary = pTFPlayer->GetMaxAmmo( TF_AMMO_PRIMARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxPrimary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_PRIMARY ) )
+		if ( pPlayer->GiveAmmo( ceil( iMaxPrimary * PackRatios[POWERUP_MEDIUM] ), TF_AMMO_PRIMARY ) )
 		{
 			bSuccess = true;
 		}
 
 		int iMaxSecondary = pTFPlayer->GetMaxAmmo( TF_AMMO_SECONDARY );
-		if ( pPlayer->GiveAmmo( ceil(iMaxSecondary * PackRatios[POWERUP_MEDIUM]), TF_AMMO_SECONDARY ) )
+		if ( pPlayer->GiveAmmo( ceil( iMaxSecondary * PackRatios[POWERUP_MEDIUM] ), TF_AMMO_SECONDARY ) )
 		{
 			bSuccess = true;
 		}
@@ -168,10 +169,12 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 			bSuccess = true;
 		}
 
+
 		// Unlike medium ammo packs, restore only 25% cloak.
-		if (pTFPlayer->m_Shared.GetSpyCloakMeter() < 100.0f)
+		float flCloak = pTFPlayer->m_Shared.GetSpyCloakMeter();
+		if ( flCloak < 100.0f )
 		{
-			pTFPlayer->m_Shared.SetSpyCloakMeter(min(100.0f, pTFPlayer->m_Shared.GetSpyCloakMeter() + ceil(100.0f * 0.25f)));
+			pTFPlayer->m_Shared.SetSpyCloakMeter( min( 100.0f, flCloak + 50.0f ) );
 			bSuccess = true;
 		}
 	}
@@ -181,6 +184,7 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 		{
 			pPlayer->GiveAmmo( m_iAmmo[i], i );
 		}
+
 		bSuccess = true;
 	}
 
@@ -196,6 +200,6 @@ void CTFAmmoPack::PackTouch( CBaseEntity *pOther )
 // Purpose:
 //-----------------------------------------------------------------------------
 unsigned int CTFAmmoPack::PhysicsSolidMaskForEntity( void ) const
-{ 
+{
 	return BaseClass::PhysicsSolidMaskForEntity() | CONTENTS_DEBRIS;
 }

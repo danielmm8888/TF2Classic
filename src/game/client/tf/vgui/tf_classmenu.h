@@ -132,7 +132,7 @@ private:
 	DECLARE_CLASS_SIMPLE( CTFClassMenu_Blue, CTFClassMenu );
 
 public:
-	CTFClassMenu_Blue::CTFClassMenu_Blue( IViewPort *pViewPort ) : BaseClass( pViewPort )
+	CTFClassMenu_Blue( IViewPort *pViewPort ) : BaseClass( pViewPort )
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "scout_blue", m_pClassInfoPanel );
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "soldier_blue", m_pClassInfoPanel );
@@ -203,7 +203,7 @@ private:
 	DECLARE_CLASS_SIMPLE( CTFClassMenu_Red, CTFClassMenu );
 
 public:
-	CTFClassMenu_Red::CTFClassMenu_Red( IViewPort *pViewPort ) : BaseClass( pViewPort )
+	CTFClassMenu_Red( IViewPort *pViewPort ) : BaseClass( pViewPort )
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "scout_red", m_pClassInfoPanel );
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>( this, "soldier_red", m_pClassInfoPanel );
@@ -274,7 +274,7 @@ private:
 	DECLARE_CLASS_SIMPLE(CTFClassMenu_Green, CTFClassMenu);
 
 public:
-	CTFClassMenu_Green::CTFClassMenu_Green(IViewPort *pViewPort) : BaseClass(pViewPort)
+	CTFClassMenu_Green(IViewPort *pViewPort) : BaseClass(pViewPort)
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "scout_green", m_pClassInfoPanel);
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "soldier_green", m_pClassInfoPanel);
@@ -345,7 +345,7 @@ private:
 	DECLARE_CLASS_SIMPLE(CTFClassMenu_Yellow, CTFClassMenu);
 
 public:
-	CTFClassMenu_Yellow::CTFClassMenu_Yellow(IViewPort *pViewPort) : BaseClass(pViewPort)
+	CTFClassMenu_Yellow(IViewPort *pViewPort) : BaseClass(pViewPort)
 	{
 		m_pClassButtons[TF_CLASS_SCOUT] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "scout_yellow", m_pClassInfoPanel);
 		m_pClassButtons[TF_CLASS_SOLDIER] = new CImageMouseOverButton<CTFClassInfoPanel>(this, "soldier_yellow", m_pClassInfoPanel);

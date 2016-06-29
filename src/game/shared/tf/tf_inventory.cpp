@@ -11,6 +11,11 @@
 #include "tf_inventory.h"
 #include "econ_item_system.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "tier0/memdbgon.h"
+
+#define TF_INVENTORY_FILE "tf_inventory.txt"
+
 static CTFInventory g_TFInventory;
 
 CTFInventory *GetTFInventory()
@@ -41,6 +46,9 @@ CTFInventory::~CTFInventory()
 #endif
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Fill the item arrays with data from item schema.
+//-----------------------------------------------------------------------------
 bool CTFInventory::Init( void )
 {
 	GetItemSchema()->Init();
@@ -90,16 +98,25 @@ bool CTFInventory::Init( void )
 	return true;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::LevelInitPreEntity( void )
 {
 	GetItemSchema()->Precache();
 }
 
-int CTFInventory::GetWeapon(int iClass, int iSlot)
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CTFInventory::GetWeapon( int iClass, int iSlot )
 {
 	return Weapons[iClass][iSlot];
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 {
 	if ( CheckValidWeapon( iClass, iSlot, iNum ) == false )
@@ -108,12 +125,15 @@ CEconItemView *CTFInventory::GetItem( int iClass, int iSlot, int iNum )
 	return m_Items[iClass][iSlot][iNum];
 };
 
-bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= false*/)
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFInventory::CheckValidSlot( int iClass, int iSlot, bool bHudCheck /*= false*/ )
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
+	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
 		return false;
 
-	int iCount = (bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT);
+	int iCount = ( bHudCheck ? INVENTORY_ROWNUM : TF_LOADOUT_SLOT_COUNT );
 
 	// Array bounds check.
 	if ( iSlot >= iCount || iSlot < 0 )
@@ -126,9 +146,12 @@ bool CTFInventory::CheckValidSlot(int iClass, int iSlot, bool bHudCheck /*= fals
 	return true;
 };
 
-bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/)
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFInventory::CheckValidWeapon( int iClass, int iSlot, int iWeapon, bool bHudCheck /*= false*/ )
 {
-	if (iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT)
+	if ( iClass < TF_CLASS_UNDEFINED || iClass > TF_CLASS_COUNT )
 		return false;
 
 	int iCount = ( bHudCheck ? INVENTORY_COLNUM : m_Items[iClass][iSlot].Count() );
@@ -145,16 +168,19 @@ bool CTFInventory::CheckValidWeapon(int iClass, int iSlot, int iWeapon, bool bHu
 };
 
 #if defined( CLIENT_DLL )
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::LoadInventory()
 {
-	bool bExist = filesystem->FileExists("scripts/tf_inventory.txt", "MOD");
-	if (bExist)
+	bool bExist = filesystem->FileExists( TF_INVENTORY_FILE, "MOD" );
+	if ( bExist )
 	{
-		if (!m_pInventory)
+		if ( !m_pInventory )
 		{
-			m_pInventory = new KeyValues("Inventory");
+			m_pInventory = new KeyValues( "Inventory" );
 		}
-		m_pInventory->LoadFromFile(filesystem, "scripts/tf_inventory.txt");
+		m_pInventory->LoadFromFile( filesystem, TF_INVENTORY_FILE );
 	}
 	else
 	{
@@ -162,43 +188,52 @@ void CTFInventory::LoadInventory()
 	}
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
 void CTFInventory::SaveInventory()
 {
-	m_pInventory->SaveToFile(filesystem, "scripts/tf_inventory.txt");
+	m_pInventory->SaveToFile( filesystem, TF_INVENTORY_FILE );
 };
 
+//-----------------------------------------------------------------------------
+// Purpose: Create a default inventory file.
+//-----------------------------------------------------------------------------
 void CTFInventory::ResetInventory()
 {
-	if (m_pInventory)
+	if ( m_pInventory )
 	{
 		m_pInventory->deleteThis();
 	}
 
-	m_pInventory = new KeyValues("Inventory");
+	m_pInventory = new KeyValues( "Inventory" );
 
-	for (int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++)
+	for ( int i = TF_CLASS_UNDEFINED; i < TF_CLASS_COUNT_ALL; i++ )
 	{
-		KeyValues *pClassInv = new KeyValues(g_aPlayerClassNames_NonLocalized[i]);
-		for (int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++)
+		KeyValues *pClassInv = new KeyValues( g_aPlayerClassNames_NonLocalized[i] );
+		for ( int j = 0; j < TF_LOADOUT_SLOT_COUNT; j++ )
 		{
 			pClassInv->SetInt( g_LoadoutSlots[j], 0 );
 		}
-		m_pInventory->AddSubKey(pClassInv);
+		m_pInventory->AddSubKey( pClassInv );
 	}
 
 	SaveInventory();
 }
 
-int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CTFInventory::GetWeaponPreset( int iClass, int iSlot )
 {
-	KeyValues *pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pClass)	//cannot find class node
-	{	
+	KeyValues *pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
+	if ( !pClass )	//cannot find class node
+	{
 		ResetInventory();
 		return 0;
 	}
-	int iPreset = pClass->GetInt(g_LoadoutSlots[iSlot], -1);
-	if (iPreset == -1)	//cannot find slot node
+	int iPreset = pClass->GetInt( g_LoadoutSlots[iSlot], -1 );
+	if ( iPreset == -1 )	//cannot find slot node
 	{
 		ResetInventory();
 		return 0;
@@ -210,26 +245,31 @@ int CTFInventory::GetWeaponPreset(int iClass, int iSlot)
 	return iPreset;
 };
 
-void CTFInventory::SetWeaponPreset(int iClass, int iSlot, int iPreset)
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFInventory::SetWeaponPreset( int iClass, int iSlot, int iPreset )
 {
-	KeyValues* pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
-	if (!pClass)	//cannot find class node
+	KeyValues* pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
+	if ( !pClass )	//cannot find class node
 	{
 		ResetInventory();
-		pClass = m_pInventory->FindKey(g_aPlayerClassNames_NonLocalized[iClass]);
+		pClass = m_pInventory->FindKey( g_aPlayerClassNames_NonLocalized[iClass] );
 	}
-	pClass->SetInt(GetSlotName(iSlot), iPreset);
+	pClass->SetInt( GetSlotName( iSlot ), iPreset );
 	SaveInventory();
 }
 
-const char* CTFInventory::GetSlotName(int iSlot)
+const char* CTFInventory::GetSlotName( int iSlot )
 {
 	return g_LoadoutSlots[iSlot];
 };
 
 #endif
 
-// Legacy array, used when we're forced to use old method of giving out weapons.
+//-----------------------------------------------------------------------------
+// Purpose: Legacy array, used when we're forced to use old method of giving out weapons.
+//-----------------------------------------------------------------------------
 const int CTFInventory::Weapons[TF_CLASS_COUNT_ALL][TF_PLAYER_WEAPON_COUNT] =
 {
 	{

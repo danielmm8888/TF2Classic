@@ -567,18 +567,18 @@ void CTFFlameThrower::SecondaryAttack()
 			continue;
 
 
-		if ( pEntity->IsPlayer() && pEntity->IsAlive() )
+		if ( pEntity->IsPlayer() )
 		{
+			if ( !pEntity->IsAlive() )
+				continue;
+
 			CTFPlayer *pTFPlayer = ToTFPlayer( pEntity );
 
 			Vector vecPushDir;
 			QAngle angPushDir = angDir;
 
-			// If the victim is on the ground assume that shooter is looking at least 45 degrees up.
-			if ( pTFPlayer->GetGroundEntity() != NULL )
-			{
-				angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
-			}
+			// Push them at least 45 degrees up.
+			angPushDir[PITCH] = min( -45, angPushDir[PITCH] );
 
 			AngleVectors( angPushDir, &vecPushDir );
 
@@ -625,7 +625,16 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 	if ( !pVictim )
 		return;
 
-	if ( ( !pVictim->InSameTeam( pAttacker ) || TFGameRules()->IsDeathmatch() ) && tf2c_airblast_players.GetBool() )
+	if ( pVictim->InSameTeam( pAttacker ) && !TFGameRules()->IsDeathmatch() )
+	{
+		if ( pVictim->m_Shared.InCond( TF_COND_BURNING ) )
+		{
+			// Extinguish teammates.
+			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
+			pVictim->EmitSound( "TFPlayer.FlameOut" );
+		}
+	}
+	else if ( tf2c_airblast_players.GetBool() )
 	{
 		// Don't push players if they're too far off to the side. Ignore Z.
 		Vector vecVictimDir = pVictim->WorldSpaceCenter() - pAttacker->WorldSpaceCenter();
@@ -643,15 +652,9 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 			pVictim->SetGroundEntity( NULL );
 			pVictim->ApplyAbsVelocityImpulse( vecDir * 500 );
 			pVictim->EmitSound( "TFPlayer.AirBlastImpact" );
-		}
-	}
-	else if ( pVictim->InSameTeam( pAttacker ) )
-	{
-		if ( pVictim->m_Shared.InCond( TF_COND_BURNING ) )
-		{
-			// Extinguish teammates.
-			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
-			pVictim->EmitSound( "TFPlayer.FlameOut" );
+
+			// Add pusher as recent damager so he can get a kill credit for pushing a player to his death.
+			pVictim->AddDamagerToHistory( pAttacker );
 		}
 	}
 }
