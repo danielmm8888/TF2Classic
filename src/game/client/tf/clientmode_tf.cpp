@@ -257,7 +257,6 @@ void ClientModeTFNormal::OverrideView( CViewSetup *pSetup )
 
 		Vector camForward, camRight, camUp;
 
-
 		if ( g_ThirdPersonManager.IsOverridingThirdPerson() == false )
 		{
 			engine->GetViewAngles( camAngles );

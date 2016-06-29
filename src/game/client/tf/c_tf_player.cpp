@@ -1579,6 +1579,7 @@ C_TFPlayer::C_TFPlayer() :
 	m_bIsDisplayingNemesisIcon = false;
 
 	m_bWasTaunting = false;
+	m_flTauntOffTime = 0.0f;
 	m_angTauntPredViewAngles.Init();
 	m_angTauntEngViewAngles.Init();
 
@@ -2379,6 +2380,9 @@ void C_TFPlayer::TurnOnTauntCam( void )
 //-----------------------------------------------------------------------------
 void C_TFPlayer::TurnOffTauntCam( void )
 {
+	m_bWasTaunting = false;
+	m_flTauntOffTime = 0.0f;
+
 	if ( !IsLocalPlayer() )
 		return;	
 
@@ -2427,7 +2431,7 @@ void C_TFPlayer::HandleTaunting( void )
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
 	// Clear the taunt slot.
-	if ( !m_bWasTaunting && (
+	if ( ( !m_bWasTaunting || m_flTauntOffTime != 0.0f ) && (
 		m_Shared.InCond( TF_COND_TAUNTING ) ||
 		m_Shared.IsLoser() ||
 		m_nForceTauntCam || 
@@ -2437,6 +2441,7 @@ void C_TFPlayer::HandleTaunting( void )
 		m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
 		m_bWasTaunting = true;
+		m_flTauntOffTime = 0.0f;
 
 		// Handle the camera for the local player.
 		if ( pLocalPlayer )
@@ -2445,7 +2450,7 @@ void C_TFPlayer::HandleTaunting( void )
 		}
 	}
 
-	if ( m_bWasTaunting && (
+	if ( m_bWasTaunting && m_flTauntOffTime == 0.0f && (
 		!m_Shared.InCond( TF_COND_TAUNTING ) &&
 		!m_Shared.IsLoser() && 
 		!m_nForceTauntCam &&
@@ -2456,15 +2461,33 @@ void C_TFPlayer::HandleTaunting( void )
 		!m_Shared.InCond( TF_COND_HALLOWEEN_TINY ) &&
 		!m_Shared.InCond( TF_COND_HALLOWEEN_GHOST_MODE ) ) )
 	{
-		m_bWasTaunting = false;
+		m_flTauntOffTime = gpGlobals->curtime;
 
 		// Clear the vcd slot.
 		m_PlayerAnimState->ResetGestureSlot( GESTURE_SLOT_VCD );
+	}
 
-		// Handle the camera for the local player.
-		if ( pLocalPlayer )
+	TauntCamInterpolation();
+}
+
+//---------------------------------------------------------------------------- -
+// Purpose:
+//-----------------------------------------------------------------------------
+void C_TFPlayer::TauntCamInterpolation( void )
+{
+	if ( m_flTauntOffTime != 0.0f )
+	{
+		// Pull the camera back in over the course of half a second.
+		float flDist = RemapValClamped( gpGlobals->curtime - m_flTauntOffTime, 0.0f, 0.5f, tf_tauntcam_dist.GetFloat(), 0.0f );
+
+		// Snap the camera back into first person
+		if ( flDist == 0.0f || !m_bWasTaunting || !IsAlive() || g_ThirdPersonManager.WantToUseGameThirdPerson() )
 		{
 			TurnOffTauntCam();
+		}
+		else
+		{
+			g_ThirdPersonManager.SetDesiredCameraOffset( Vector( flDist, 0.0f, 0.0f ) );
 		}
 	}
 }
@@ -3744,6 +3767,7 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 		//ResetLatched();
 
 		// Reset the camera.
+		m_bWasTaunting = false;
 		HandleTaunting();
 
 		ResetToneMapping(1.0);
