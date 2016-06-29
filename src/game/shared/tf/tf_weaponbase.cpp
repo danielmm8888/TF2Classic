@@ -46,6 +46,7 @@ extern ConVar tf2c_muzzlelight;
 #endif
 
 ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
+ConVar tf2c_weapon_noreload( "tf2c_weapon_noreload", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Disables reloading for all weapons." );
 
 //=============================================================================
 //
@@ -898,8 +899,15 @@ int CTFWeaponBase::GetMaxClip1( void ) const
 
 	CALL_ATTRIB_HOOK_FLOAT( flMaxClip, mult_clipsize );
 
+	int iMaxClip = (int)( flMaxClip + 0.5f );
+
+	if ( tf2c_weapon_noreload.GetBool() && iMaxClip != 1 )
+	{
+		return WEAPON_NOCLIP;
+	}
+
 	// Round to the nearest integer.
-	return (int)( flMaxClip + 0.5f );
+	return iMaxClip;
 }
 
 //-----------------------------------------------------------------------------
@@ -912,8 +920,15 @@ int CTFWeaponBase::GetDefaultClip1( void ) const
 	if ( flDefaultClip == WEAPON_NOCLIP )
 		return (int)flDefaultClip;
 
+	int iDefaultClip = (int)( flDefaultClip + 0.5f );
+
+	if ( tf2c_weapon_noreload.GetBool() && iDefaultClip != 1 )
+	{
+		return WEAPON_NOCLIP;
+	}
+
 	// Round to the nearest integer.
-	return (int)( flDefaultClip + 0.5f );
+	return iDefaultClip;
 }
 
 //-----------------------------------------------------------------------------
