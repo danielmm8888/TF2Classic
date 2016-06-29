@@ -5,12 +5,12 @@
 //=============================================================================
 #ifndef TF_WEAPON_FLAREGUN_H
 #define TF_WEAPON_FLAREGUN_H
+
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include "tf_weaponbase_gun.h"
-#include "tf_weaponbase_grenadeproj.h"
 
 #ifdef CLIENT_DLL
 #define CTFFlareGun C_TFFlareGun

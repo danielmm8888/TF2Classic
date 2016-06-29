@@ -147,6 +147,26 @@ bool CTFPowerup::MyTouch( CBasePlayer *pPlayer )
 }
 
 //-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPowerup::DropSingleInstance( const Vector &vecVelocity, CBaseCombatCharacter *pOwner, float flUnknown, float flRestTime )
+{
+	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_BOUNCE );
+	SetAbsVelocity( vecVelocity );
+	SetSolid( SOLID_BBOX );
+
+	if ( flRestTime != 0.0f )
+		ActivateWhenAtRest( flRestTime );
+
+	AddSpawnFlags( SF_NORESPAWN );
+	
+	SetOwnerEntity( pOwner );
+
+	// Remove after 30 seconds.
+	SetContextThink( &CBaseEntity::SUB_Remove, gpGlobals->curtime + 30.0f, "PowerupRemoveThink" );
+}
+
+//-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFPowerup::InputEnable( inputdata_t &inputdata )

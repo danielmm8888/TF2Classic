@@ -49,6 +49,8 @@ public:
 
 	virtual float	GetRespawnDelay( void ) { return g_pGameRules->FlItemRespawnTime( this ); }
 
+	void			DropSingleInstance( const Vector &vecVelocity, CBaseCombatCharacter *pOwner, float flUnknown, float flRestTime );
+
 	// Input handlers
 	void			InputEnable( inputdata_t &inputdata );
 	void			InputDisable( inputdata_t &inputdata );

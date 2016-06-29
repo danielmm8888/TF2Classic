@@ -56,6 +56,7 @@
 #include "baseprojectile.h"
 #include "tf_weapon_flamethrower.h"
 #include "tf_basedmpowerup.h"
+#include "tf_weapon_lunchbox.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -424,7 +425,8 @@ CTFPlayer::CTFPlayer()
 
 	m_bSpeakingConceptAsDisguisedSpy = false;
 
-	ClearTauntAttack();
+	m_flTauntAttackTime = 0.0f;
+	m_iTauntAttack = TF_TAUNT_NONE;
 
 	m_nBlastJumpFlags = 0;
 	m_bBlastLaunched = false;
@@ -7142,14 +7144,20 @@ void CTFPlayer::Taunt( void )
 		}
 
 		// Setup a taunt attack if necessary.
-		if ( V_stricmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_LUNCHBOX ) )
 		{
-			m_flTauntAttackTime = gpGlobals->curtime + 2.0;
+			m_flTauntAttackTime = gpGlobals->curtime + 1.0f;
+			m_iTauntAttack = TF_TAUNT_LUNCHBOX;
+		}
+		else if ( V_stricmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 2.0f;
 			m_iTauntAttack = TF_TAUNT_PYRO;
 		}
 		else if ( V_stricmp( szResponse, "scenes/player/heavy/low/taunt03_v1.vcd" ) == 0 )
 		{
-			m_flTauntAttackTime = gpGlobals->curtime + 1.8;
+			m_flTauntAttackTime = gpGlobals->curtime + 1.8f;
 			m_iTauntAttack = TF_TAUNT_HEAVY;
 		}
 		else if ( V_strnicmp( szResponse, "scenes/player/spy/low/taunt03", 29 ) == 0 )
@@ -7288,6 +7296,18 @@ void CTFPlayer::DoTauntAttack( void )
 
 		break;
 	}
+	case TF_TAUNT_LUNCHBOX:
+	{
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_LUNCHBOX ) )
+		{
+			CTFLunchBox *pLunch = static_cast<CTFLunchBox *>( pWeapon );
+			pLunch->ApplyBiteEffects();
+
+			m_iTauntAttack = TF_TAUNT_LUNCHBOX;
+			m_flTauntAttackTime = gpGlobals->curtime + 1.0f;
+		}
+	}
 	}
 }
 
@@ -7296,6 +7316,15 @@ void CTFPlayer::DoTauntAttack( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ClearTauntAttack( void )
 {
+	if ( m_iTauntAttack == TF_TAUNT_LUNCHBOX )
+	{
+		CTFWeaponBase *pWeapon = GetActiveTFWeapon();
+		if ( pWeapon && pWeapon->IsWeapon( TF_WEAPON_LUNCHBOX ) )
+		{
+			SpeakConceptIfAllowed( MP_CONCEPT_ATE_FOOD );
+		}
+	}
+
 	m_flTauntAttackTime = 0.0f;
 	m_iTauntAttack = TF_TAUNT_NONE;
 }
@@ -7415,6 +7444,12 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 			{
 				criteriaSet.AppendCriteria( "minigunfiretime", UTIL_VarArgs("%.1f", pMinigun->GetFiringTime() ) );
 			}
+		}
+
+		CEconItemDefinition *pItemDef = pActiveWeapon->GetItem()->GetStaticData();
+		if ( pItemDef )
+		{
+			criteriaSet.AppendCriteria( "item_name", pItemDef->name );
 		}
 	}
 
