@@ -53,6 +53,13 @@ void CTFLunchBox::SecondaryAttack( void )
 		return;
 
 #ifdef GAME_DLL
+	// Remove the previous dropped lunch box.
+	if ( m_hDroppedLunch.Get() )
+	{
+		UTIL_Remove( m_hDroppedLunch.Get() );
+		m_hDroppedLunch = NULL;
+	}
+
 	// Throw a sandvich plate down on the ground.
 	Vector vecSrc, vecThrow;
 	QAngle angThrow;
@@ -76,6 +83,8 @@ void CTFLunchBox::SecondaryAttack( void )
 	vecThrow *= 500;
 
 	pPowerup->DropSingleInstance( vecThrow, pOwner, 0.3f, 0.1f );
+
+	m_hDroppedLunch = pPowerup;
 #endif
 
 	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;

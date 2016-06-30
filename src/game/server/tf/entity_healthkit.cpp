@@ -64,6 +64,12 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 	if ( ValidTouch( pPlayer ) )
 	{
+		if ( pPlayer == GetOwnerEntity() )
+		{
+			// Don't heal the player who dropped this healthkit, recharge his lunchbox instead.
+			return false;
+		}
+
 		int iHealthToAdd = ceil( pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()] );
 		bool bTiny = GetPowerupSize() == POWERUP_TINY;
 		int iHealthRestored = 0;

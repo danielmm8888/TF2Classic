@@ -32,6 +32,11 @@ public:
 	virtual void	Precache( void );
 	virtual void	ApplyBiteEffects( void );
 #endif
+
+private:
+#ifdef GAME_DLL
+	EHANDLE m_hDroppedLunch;
+#endif
 };
 
 #endif // TF_WEAPON_LUNCHBOX_H
