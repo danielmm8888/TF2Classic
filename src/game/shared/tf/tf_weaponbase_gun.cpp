@@ -72,6 +72,14 @@ CTFWeaponBaseGun::CTFWeaponBaseGun()
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::PrimaryAttack( void )
 {
+	// Check for ammunition.
+	if ( m_iClip1 <= 0 && UsesClipsForAmmo1() )
+		return;
+
+	// Are we capable of firing again?
+	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
+		return;
+
 	// Get the player owning the weapon.
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
