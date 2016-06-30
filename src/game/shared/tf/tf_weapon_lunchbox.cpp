@@ -22,7 +22,7 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( tf_weapon_lunchbox, CTFLunchBox );
 PRECACHE_WEAPON_REGISTER( tf_weapon_lunchbox );
 
-#define TF_SANVICH_PLATE_MODEL "models/items/plate.mdl"
+#define TF_SANDVICH_PLATE_MODEL "models/items/plate.mdl"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -68,17 +68,16 @@ void CTFLunchBox::SecondaryAttack( void )
 	// A bit below the eye position.
 	vecSrc.z -= 8.0f;
 
-	CTFPowerup *pPowerup = dynamic_cast<CTFPowerup *>( CBaseEntity::Create( "item_healthkit_medium", vecSrc, vec3_angle, pOwner ) );
+	CTFPowerup *pPowerup = static_cast<CTFPowerup *>( CBaseEntity::Create( "item_healthkit_medium", vecSrc, vec3_angle, pOwner ) );
 	if ( !pPowerup )
 		return;
 
-	pPowerup->SetModel( TF_SANVICH_PLATE_MODEL );
+	pPowerup->SetModel( TF_SANDVICH_PLATE_MODEL );
 	UTIL_SetSize( pPowerup, -Vector( 17, 17, 10 ), Vector( 17, 17, 10 ) );
 
 	// Throw it down.
-	angThrow[PITCH] -= 10.0f;
-	AngleVectors( angThrow, &vecThrow );
 	angThrow = pOwner->EyeAngles();
+	angThrow[PITCH] -= 10.0f;
 	AngleVectors( angThrow, &vecThrow );
 	vecThrow *= 500;
 
@@ -98,7 +97,7 @@ void CTFLunchBox::SecondaryAttack( void )
 void CTFLunchBox::Precache( void )
 {
 	UTIL_PrecacheOther( "item_healthkit_medium" );
-	PrecacheModel( TF_SANVICH_PLATE_MODEL );
+	PrecacheModel( TF_SANDVICH_PLATE_MODEL );
 
 	BaseClass::Precache();
 }

@@ -24,16 +24,16 @@ class CTFUmbrella : public CTFWeaponBaseMelee
 {
 public:
 
-	DECLARE_CLASS(CTFUmbrella, CTFWeaponBaseMelee);
+	DECLARE_CLASS( CTFUmbrella, CTFWeaponBaseMelee );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	CTFUmbrella();
-	virtual int			GetWeaponID(void) const			{ return TF_WEAPON_UMBRELLA; }
+	virtual int			GetWeaponID( void ) const { return TF_WEAPON_UMBRELLA; }
 
 private:
 
-	CTFUmbrella(const CTFUmbrella &) {}
+	CTFUmbrella( const CTFUmbrella & ) {}
 };
 
 #endif // TF_WEAPON_UMBRELLA_H
