@@ -62,6 +62,7 @@ public:
 
 	virtual void	FireGameEvent( IGameEvent *event );
 	void			OnDamaged( IGameEvent *event );
+	void			OnHealed( IGameEvent *event );
 	void			PlayHitSound( int iAmount, bool bKill );
 
 private:
@@ -138,6 +139,10 @@ void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 	{
 		OnDamaged( event );
 	}
+	else if ( V_strcmp( type, "player_healed" ) == 0 )
+	{
+		OnHealed( event );
+	}
 	else
 	{
 		CHudElement::FireGameEvent( event );
@@ -149,10 +154,10 @@ void CDamageAccountPanel::FireGameEvent( IGameEvent *event )
 //-----------------------------------------------------------------------------
 void CDamageAccountPanel::ApplySchemeSettings( IScheme *pScheme )
 {
+	BaseClass::ApplySchemeSettings( pScheme );
+
 	// load control settings...
 	LoadControlSettings( "resource/UI/HudDamageAccount.res" );
-
-	BaseClass::ApplySchemeSettings( pScheme );
 }
 
 //-----------------------------------------------------------------------------
@@ -191,117 +196,164 @@ bool CDamageAccountPanel::ShouldDraw( void )
 void CDamageAccountPanel::OnDamaged( IGameEvent *event )
 {
 	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
-	if ( pPlayer && pPlayer->IsAlive() )
+	if ( !pPlayer || !pPlayer->IsAlive() )
+		return;
+
+	bool bIsPlayer = V_strcmp( event->GetName(), "npc_hurt" ) != 0;
+
+	int iAttacker = bIsPlayer ? event->GetInt( "attacker" ) : event->GetInt( "attacker_player" );;
+	int iVictim = bIsPlayer ? event->GetInt( "userid" ) : event->GetInt( "entindex" );
+	int iDmgAmount = event->GetInt( "damageamount" );
+	int iHealth = event->GetInt( "health" );
+
+	// Did we shoot the guy?
+	if ( iAttacker != pPlayer->GetUserID() )
+		return;
+
+	// No self-damage notifications.
+	if ( bIsPlayer && iAttacker == iVictim )
+		return;
+
+	// Don't show anything if no damage was done.
+	if ( iDmgAmount == 0 )
+		return;
+
+	C_BaseEntity *pVictim = bIsPlayer ? UTIL_PlayerByUserId( iVictim ) : ClientEntityList().GetBaseEntity( iVictim );
+
+	if ( !pVictim )
+		return;
+
+	if ( bIsPlayer )
 	{
-		bool bIsPlayer = V_strcmp( event->GetName(), "npc_hurt" ) != 0;
+		C_TFPlayer *pTFVictim = ToTFPlayer( pVictim );
 
-		int iAttacker = bIsPlayer ? event->GetInt( "attacker" ) : event->GetInt( "attacker_player" );;
-		int iVictim = bIsPlayer ? event->GetInt( "userid" ) : event->GetInt( "entindex" );
-		int iDmgAmount = event->GetInt( "damageamount" );
-		int iHealth = event->GetInt( "health" );
-
-		// Did we shoot the guy?
-		if ( iAttacker != pPlayer->GetUserID() )
+		if ( !pTFVictim )
 			return;
 
-		// No self-damage notifications.
-		if ( bIsPlayer && iAttacker == iVictim )
+		// Don't show damage notifications for spies disguised as our team.
+		if ( pTFVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pTFVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
 			return;
+	}
 
-		// Don't show anything if no damage was done.
-		if ( iDmgAmount == 0 )
-			return;
+	// Play hit sound, if appliable.
+	bool bDinged = false;
 
-		C_BaseEntity *pVictim = bIsPlayer ? UTIL_PlayerByUserId( iVictim ) : ClientEntityList().GetBaseEntity( iVictim );
+	if ( tf_dingalingaling_lasthit.GetBool() && iHealth == 0 )
+	{
+		// This guy is dead, play kill sound.
+		PlayHitSound( iDmgAmount, true );
+		bDinged = true;
+	}
 
-		if ( !pVictim )
-			return;
+	if ( tf_dingalingaling.GetBool() && !bDinged )
+	{
+		PlayHitSound( iDmgAmount, false );
+		bDinged = true;
+	}
 
-		if ( bIsPlayer )
+	// Leftover from old code?
+	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "DamagedPlayer" );
+
+	// Stop here if we chose not to show hit numbers.
+	if ( !hud_combattext.GetBool() )
+		return;
+
+	// Don't show the numbers if we can't see the victim.
+	trace_t tr;
+	UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), MASK_VISIBLE, NULL, COLLISION_GROUP_NONE, &tr );
+	if ( tr.fraction != 1.0f )
+		return;
+
+	Vector vecTextPos;
+	if ( pVictim->IsBaseObject() )
+	{
+		vecTextPos = pVictim->GetAbsOrigin() + Vector( 0, 0, pVictim->WorldAlignMaxs().z );
+	}
+	else
+	{
+		vecTextPos = pVictim->EyePosition();
+	}
+
+	bool bBatch = false;
+	dmg_account_delta_t *pDelta = NULL;
+
+	if ( hud_combattext_batching.GetBool() )
+	{
+		// Cycle through deltas and search for one that belongs to this player.
+		for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
 		{
-			C_TFPlayer *pTFVictim = ToTFPlayer( pVictim );
-
-			if ( !pTFVictim )
-				return;
-
-			// Don't show damage notifications for spies disguised as our team.
-			if ( pTFVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pTFVictim->m_Shared.GetDisguiseTeam() == pPlayer->GetTeamNumber() )
-				return;
-		}
-
-		// Play hit sound, if appliable.
-		bool bDinged = false;
-
-		if ( tf_dingalingaling_lasthit.GetBool() && iHealth == 0 )
-		{
-			// This guy is dead, play kill sound.
-			PlayHitSound( iDmgAmount, true );
-			bDinged = true;
-		}
-
-		if ( tf_dingalingaling.GetBool() && !bDinged )
-		{
-			PlayHitSound( iDmgAmount, false );
-			bDinged = true;
-		}
-
-		// Leftover from old code?
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( "DamagedPlayer" );
-
-		// Stop here if we chose not to show hit numbers.
-		if ( !hud_combattext.GetBool() )
-			return;
-
-		// Don't show the numbers if we can't see the victim.
-		trace_t tr;
-		UTIL_TraceLine( pPlayer->EyePosition(), pVictim->WorldSpaceCenter(), MASK_VISIBLE, NULL, COLLISION_GROUP_NONE, &tr );
-		if ( tr.fraction != 1.0f )
-			return;
-
-		Vector vecTextPos;
-		if ( pVictim->IsBaseObject() )
-		{
-			vecTextPos = pVictim->GetAbsOrigin() + Vector( 0, 0, pVictim->WorldAlignMaxs().z );
-		}
-		else
-		{
-			vecTextPos = pVictim->EyePosition();
-		}
-
-		if ( hud_combattext_batching.GetBool() )
-		{
-			// Cycle through deltas and search for one that belongs to this player.
-			for ( int i = 0; i < NUM_ACCOUNT_DELTA_ITEMS; i++ )
+			if ( m_AccountDeltaItems[i].m_hEntity.Get() == pVictim )
 			{
-				if ( m_AccountDeltaItems[i].m_hEntity.Get() == pVictim )
+				// See if it's lifetime is inside batching window.
+				float flCreateTime = m_AccountDeltaItems[i].m_flDieTime - m_flDeltaLifetime;
+				if ( gpGlobals->curtime - flCreateTime < hud_combattext_batching_window.GetFloat() )
 				{
-					// See if it's lifetime is inside batching window.
-					float flCreateTime = m_AccountDeltaItems[i].m_flDieTime - m_flDeltaLifetime;
-					if ( gpGlobals->curtime - flCreateTime < hud_combattext_batching_window.GetFloat() )
-					{
-						// Update it's die time and damage.
-						m_AccountDeltaItems[i].m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-						m_AccountDeltaItems[i].m_iAmount -= iDmgAmount;
-						m_AccountDeltaItems[i].m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
-						m_AccountDeltaItems[i].bCrit = event->GetInt( "crit" );
-						return;
-					}
+					pDelta = &m_AccountDeltaItems[i];
+					bBatch = true;
+					break;
 				}
 			}
 		}
+	}
 
-		// create a delta item that floats off the top
-		dmg_account_delta_t *pNewDeltaItem = &m_AccountDeltaItems[iAccountDeltaHead];
-
+	if ( !pDelta )
+	{
+		pDelta = &m_AccountDeltaItems[iAccountDeltaHead];
 		iAccountDeltaHead++;
 		iAccountDeltaHead %= NUM_ACCOUNT_DELTA_ITEMS;
-
-		pNewDeltaItem->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
-		pNewDeltaItem->m_iAmount = -iDmgAmount;
-		pNewDeltaItem->m_hEntity = pVictim;
-		pNewDeltaItem->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
-		pNewDeltaItem->bCrit = event->GetInt( "crit" );
 	}
+
+	pDelta->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+	pDelta->m_iAmount = bBatch ? pDelta->m_iAmount - iDmgAmount : -iDmgAmount;
+	pDelta->m_hEntity = pVictim;
+	pDelta->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
+	pDelta->bCrit = event->GetInt( "crit" );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CDamageAccountPanel::OnHealed( IGameEvent *event )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pPlayer || !pPlayer->IsAlive() )
+		return;
+
+	if ( !hud_combattext.GetBool() )
+		return;
+
+	int iPatient = event->GetInt( "patient" );
+	int iHealer = event->GetInt( "healer" );
+	int iAmount = event->GetInt( "amount" );
+
+	// Did we heal this guy?
+	if ( pPlayer->GetUserID() != iHealer )
+		return;
+
+	// Just in case.
+	if ( iAmount == 0 )
+		return;
+
+	C_BasePlayer *pPatient = UTIL_PlayerByUserId( iPatient );
+	if ( !pPatient )
+		return;
+
+	// Don't show the numbers if we can't see the patient.
+	trace_t tr;
+	UTIL_TraceLine( pPlayer->EyePosition(), pPatient->WorldSpaceCenter(), MASK_VISIBLE, NULL, COLLISION_GROUP_NONE, &tr );
+	if ( tr.fraction != 1.0f )
+		return;
+
+	Vector vecTextPos = pPatient->EyePosition();
+	dmg_account_delta_t *pDelta = &m_AccountDeltaItems[iAccountDeltaHead];
+	iAccountDeltaHead++;
+	iAccountDeltaHead %= NUM_ACCOUNT_DELTA_ITEMS;
+
+	pDelta->m_flDieTime = gpGlobals->curtime + m_flDeltaLifetime;
+	pDelta->m_iAmount = iAmount;
+	pDelta->m_hEntity = pPatient;
+	pDelta->m_vDamagePos = vecTextPos + Vector( 0, 0, 18 );
+	pDelta->bCrit = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -362,7 +414,7 @@ void CDamageAccountPanel::Paint( void )
 			// position and alpha are determined from the lifetime
 			// color is determined by the delta - green for positive, red for negative
 
-			Color c = m_DeltaNegativeColor;
+			Color c = m_AccountDeltaItems[i].m_iAmount > 0 ? m_DeltaPositiveColor : m_DeltaNegativeColor;
 
 			float flLifetimePercent = ( m_AccountDeltaItems[i].m_flDieTime - gpGlobals->curtime ) / m_flDeltaLifetime;
 

@@ -330,6 +330,8 @@ private:
 		EHANDLE	pPlayer;
 		float	flAmount;
 		bool	bDispenserHeal;
+		float	iRecentAmount;
+		float	flNextNofityTime;
 	};
 	CUtlVector< healers_t >	m_aHealers;	
 	float					m_flHealFraction;	// Store fractional health amounts

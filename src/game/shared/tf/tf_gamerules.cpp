@@ -4107,10 +4107,10 @@ void CTFGameRules::HandleCTFCaptureBonus( int iTeam )
 		{
 			CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
 			
-			if ( !pPlayer )
+			if ( !pPlayer || !pPlayer->IsAlive() )
 				continue;
 
-			if ( pPlayer->GetTeamNumber() == iTeam && pPlayer->IsAlive() )
+			if ( pPlayer->GetTeamNumber() == iTeam )
 			{
 				pPlayer->m_Shared.AddCond( TF_COND_CRITBOOSTED_CTF_CAPTURE, flBoostTime );
 			}
@@ -4287,6 +4287,7 @@ void CTFGameRules::InternalHandleTeamWin( int iWinningTeam )
 				{
 					pPlayer->RemoveInvisibility();
 //					pPlayer->RemoveDisguise();
+					pPlayer->ClearExpression();
 
 					if ( pPlayer->HasTheFlag() )
 					{
