@@ -220,6 +220,8 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 	Vector vecDir = GetAbsVelocity();
 	CTFPlayer *pPlayer = ToTFPlayer( pOther );
 	CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( m_hLauncher.Get() );
+	trace_t trHit;
+	trHit = *pTrace;
 
 	if ( pPlayer )
 	{
@@ -275,35 +277,32 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 		AngleVectors( angHit, &vecHitDir );
 		SetAbsAngles( angHit );
 #else
+		trace_t trPlayerHit;
 		// Trace ahead to see if we're going to hit player's hitbox.
-		trace_t trHit;
-		UTIL_TraceLine( vecOrigin, vecOrigin + vecDir * gpGlobals->frametime, MASK_SHOT, this, COLLISION_GROUP_NONE, &trHit );
-		if ( trHit.m_pEnt != pOther ) // Didn't hit, keep going.
+		UTIL_TraceLine( vecOrigin, vecOrigin + vecDir * gpGlobals->frametime, MASK_SHOT, this, COLLISION_GROUP_NONE, &trPlayerHit );
+		if ( trPlayerHit.m_pEnt != pOther ) // Didn't hit, keep going.
 			return;
+
+		trHit = trPlayerHit;
 #endif
-
-		// Do damage.
-		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() | DMG_PREVENT_PHYSICS_FORCE );
-		CalculateBulletDamageForce( &info, pWeapon ? pWeapon->GetTFWpnData().iAmmoType : 0, vecDir, vecOrigin );
-		info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
-
-		pPlayer->DispatchTraceAttack( info, vecDir, &trHit );
-		ApplyMultiDamage();
-
 		pPlayer->EmitSound( "Weapon_Arrow.ImpactFlesh" );
 	}
 	else if ( pOther->IsBaseObject() )
 	{
-		CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() );
-		CalculateBulletDamageForce( &info, pWeapon->GetTFWpnData().iAmmoType, vecDir, vecOrigin );
-		
-		pOther->TakeDamage( info );
-		pOther->EmitSound( "Weapon_Arrow.ImpactMetal" );
+		EmitSound( "Weapon_Arrow.ImpactMetal" );
 	}
 	else
 	{
 		EmitSound( "Weapon_Arrow.ImpactConcrete" );
 	}
+
+	// Do damage.
+	CTakeDamageInfo info( this, pAttacker, pWeapon, GetDamage(), GetDamageType() );
+	CalculateBulletDamageForce( &info, pWeapon ? pWeapon->GetTFWpnData().iAmmoType : 0, vecDir, vecOrigin );
+	info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
+
+	pOther->DispatchTraceAttack( info, vecDir, &trHit );
+	ApplyMultiDamage();
 
 	// Remove.
 	UTIL_Remove( this );
