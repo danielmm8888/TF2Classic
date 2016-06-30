@@ -18,7 +18,7 @@
 #endif
 
 #ifdef CLIENT_DLL
-#define C_TFProjectile_Arrow CTFProjectile_Arrow
+#define CTFProjectile_Arrow C_TFProjectile_Arrow
 #endif
 
 #ifdef GAME_DLL

@@ -26,7 +26,9 @@ const char *g_pszArrowModels[] =
 	//"models/weapons/w_models/w_arrow_xmas.mdl",
 };
 
-IMPLEMENT_NETWORKCLASS_DT( CTFProjectile_Arrow, DT_TFProjectile_Arrow )
+IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Arrow, DT_TFProjectile_Arrow )
+
+BEGIN_NETWORK_TABLE( CTFProjectile_Arrow, DT_TFProjectile_Arrow )
 #ifdef CLIENT_DLL
 	RecvPropBool( RECVINFO( m_bCritical ) ),
 	RecvPropInt( RECVINFO( m_iType ) ),
