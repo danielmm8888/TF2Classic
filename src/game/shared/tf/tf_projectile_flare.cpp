@@ -166,16 +166,12 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 
 	if ( pPlayer )
 	{
-		// Hit player, do damage.
+		// Hit player, do impact sound.
 		if ( pPlayer->m_Shared.InCond( TF_COND_BURNING ) )
 		{
 			// Jeez, hardcoding this doesn't seem like a good idea.
 			m_bCritical = true;
 		}
-
-		CTakeDamageInfo info( this, pAttacker, m_hLauncher, GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
-		info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
-		pPlayer->TakeDamage( info );
 		
 		CPVSFilter filter( vecOrigin );
 		EmitSound( filter, pPlayer->entindex(), "TFPlayer.FlareImpact" );
@@ -186,6 +182,10 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		CPVSFilter filter( vecOrigin );
 		TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex() );
 	}
+
+	CTakeDamageInfo info( this, pAttacker, m_hLauncher.Get(), GetDamage(), GetDamageType(), TF_DMG_CUSTOM_BURNING );
+	info.SetReportedPosition( pAttacker ? pAttacker->GetAbsOrigin() : vec3_origin );
+	pOther->TakeDamage( info );
 
 	// Remove.
 	UTIL_Remove( this );
