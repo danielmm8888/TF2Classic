@@ -886,8 +886,6 @@ void CTFPlayer::InitialSpawn( void )
 	m_iMaxSentryKills = 0;
 	CTF_GameStats.Event_MaxSentryKills( this, 0 );
 
-	m_bIsPlayerADev = PlayerHasPowerplay();
-
 	if ( TFGameRules()->IsDeathmatch() )
 	{
 		UpdatePlayerColor();

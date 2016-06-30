@@ -3042,6 +3042,8 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	int iFov = atoi( pszFov );
 	iFov = clamp( iFov, 75, MAX_FOV );
 	pTFPlayer->SetDefaultFOV( iFov );
+
+	pTFPlayer->m_bIsPlayerADev = pTFPlayer->PlayerHasPowerplay() && ( Q_atoi( engine->GetClientConVarValue( pPlayer->entindex(), "tf2c_dev_mark" ) ) > 0 );
 }
 
 static const char *g_aTaggedConVars[] =
