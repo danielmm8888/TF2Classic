@@ -135,17 +135,6 @@ void CTFHudCondStatus::ApplySchemeSettings( IScheme *pScheme )
 void CTFHudCondStatus::ApplySettings( KeyValues *inResourceData )
 {
 	BaseClass::ApplySettings( inResourceData );
-
-	for ( KeyValues *pData = inResourceData->GetFirstSubKey(); pData != NULL; pData = pData->GetNextKey() )
-	{
-		if ( !V_stricmp( pData->GetName(), "PowerupPanel" ) )
-		{
-			for ( int i = 0; i < m_pPowerups.Count(); i++ )
-			{
-				m_pPowerups[i]->ApplySettings( pData );
-			}
-		}
-	}
 }
 
 static int DurationSort( CTFPowerupPanel* const *a, CTFPowerupPanel* const *b )

@@ -105,7 +105,7 @@ void CWeaponSpawner::Spawn( void )
 	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( m_nItemID );
 	if ( !pItemDef )
 	{
-		Warning( "tf_weaponspawner has incorrect item ID %d.\n", m_nWeaponID );
+		Warning( "tf_weaponspawner has incorrect item ID %d. DELETED\n", m_nItemID );
 		UTIL_Remove( this );
 		return;
 	}
@@ -115,6 +115,7 @@ void CWeaponSpawner::Spawn( void )
 	Precache();
 
 	SetModel( m_Item.GetWorldDisplayModel() );
+
 	BaseClass::Spawn();
 
 	// Ensures consistent trigger bounds for all weapons. (danielmm8888)
@@ -249,12 +250,7 @@ bool CWeaponSpawner::MyTouch( CBasePlayer *pPlayer )
 				// Drop a usable weapon
 				pTFPlayer->DropWeapon( pWeapon );
 
-				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
-				{
-					pWeapon->Holster();
-				}
-				pTFPlayer->Weapon_Detach( pWeapon );
-				UTIL_Remove( pWeapon );
+				pWeapon->UnEquip( pTFPlayer );
 				pWeapon = NULL;
 			}
 			else

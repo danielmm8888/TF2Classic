@@ -41,7 +41,7 @@
 #define MAX_TRACER_NAME		128
 
 CTFWeaponInfo *GetTFWeaponInfo(int iWeapon);
-CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass );
+CTFWeaponInfo *GetTFWeaponInfoForItem( CEconItemView *pItem, int iClass );
 
 class CTFPlayer;
 class CBaseObject;
@@ -152,6 +152,9 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
 	virtual void Equip( CBaseCombatCharacter *pOwner );
+#ifdef GAME_DLL
+	virtual void UnEquip( CBaseCombatCharacter *pOwner );
+#endif
 	bool IsViewModelFlipped( void );
 
 	virtual void ReapplyProvision( void );

@@ -489,10 +489,6 @@ void CTFFlameThrower::SecondaryAttack()
 	if ( !tf2c_airblast.GetBool() )
 		return;
 
-	// Are we capable of firing again?
-	if ( m_flNextSecondaryAttack > gpGlobals->curtime )
-		return;
-
 	// Get the player owning the weapon.
 	CTFPlayer *pOwner = ToTFPlayer( GetPlayerOwner() );
 	if ( !pOwner )

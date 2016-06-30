@@ -674,6 +674,26 @@ void CTFWeaponBase::Equip( CBaseCombatCharacter *pOwner )
 	}
 }
 
+#ifdef GAME_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFWeaponBase::UnEquip( CBaseCombatCharacter *pOwner )
+{
+	if ( pOwner )
+	{
+		if ( pOwner->GetActiveWeapon() == this )
+			Holster();
+
+		pOwner->Weapon_Detach( this );
+	}
+
+	UTIL_Remove( this );
+}
+
+#endif
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -3284,10 +3304,10 @@ CTFWeaponInfo *GetTFWeaponInfo( int iWeapon )
 	return pWeaponInfo;
 }
 
-CTFWeaponInfo *GetTFWeaponInfoForItem( int iItemID, int iClass )
+CTFWeaponInfo *GetTFWeaponInfoForItem( CEconItemView *pItem, int iClass )
 {
 	// Get the weapon information.
-	CEconItemDefinition *pItemDef = GetItemSchema()->GetItemDefinition( iItemID );
+	CEconItemDefinition *pItemDef = pItem->GetStaticData();
 
 	if ( !pItemDef )
 		return NULL;

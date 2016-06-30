@@ -52,10 +52,10 @@ void CTFDroppedWeapon::Spawn( void )
 
 void CTFDroppedWeapon::RemovalThink( void )
 {
-	if ( gpGlobals->curtime > m_flRemoveTime )
+	if ( gpGlobals->curtime >= m_flRemoveTime )
 		UTIL_Remove( this );
 
-	SetNextThink( gpGlobals->curtime + 1.5f );
+	SetNextThink( gpGlobals->curtime + 0.1f );
 }
 
 CTFDroppedWeapon *CTFDroppedWeapon::Create( const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CTFWeaponBase *pWeapon )
@@ -124,12 +124,7 @@ bool CTFDroppedWeapon::MyTouch( CBasePlayer *pPlayer )
 				// Drop a usable weapon.
 				pTFPlayer->DropWeapon( pWeapon );
 
-				if ( pWeapon == pTFPlayer->GetActiveTFWeapon() )
-				{
-					pWeapon->Holster();
-				}
-				pTFPlayer->Weapon_Detach( pWeapon );
-				UTIL_Remove( pWeapon );
+				pWeapon->UnEquip( pTFPlayer );
 				pWeapon = NULL;
 			}
 			else

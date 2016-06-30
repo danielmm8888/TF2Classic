@@ -72,14 +72,6 @@ CTFWeaponBaseGun::CTFWeaponBaseGun()
 //-----------------------------------------------------------------------------
 void CTFWeaponBaseGun::PrimaryAttack( void )
 {
-	// Check for ammunition.
-	if ( m_iClip1 <= 0 && m_iClip1 != -1 )
-		return;
-
-	// Are we capable of firing again?
-	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
-		return;
-
 	// Get the player owning the weapon.
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
@@ -125,14 +117,7 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 
 	// Set the idle animation times based on the sequence duration, so that we play full fire animations
 	// that last longer than the refire rate may allow.
-	if ( Clip1() > 0 )
-	{
-		SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
-	}
-	else
-	{
-		SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
-	}
+	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
 
 	AbortReload();
 }	
@@ -240,7 +225,7 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 	}
 
-	if ( m_iClip1 != -1 )
+	if ( UsesClipsForAmmo1() )
 	{
 		m_iClip1 -= m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_iAmmoPerShot;
 	}

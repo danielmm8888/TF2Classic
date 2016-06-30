@@ -517,7 +517,11 @@ bool CEconItemSchema::Init( void )
 		float flStartTime = engine->Time();
 		g_EconSchemaParser.InitParser( "scripts/items/items_game.txt", true, false );
 		float flEndTime = engine->Time();
-		Msg( "Processing item schema took %.02fms. Parsed %d items and %d attributes.\n", ( flEndTime - flStartTime ) * 1000.0f, m_Items.Count(), m_Attributes.Count() );
+		Msg( "[%s] Processing item schema took %.02fms. Parsed %d items and %d attributes.\n",
+			CBaseEntity::IsServer() ? "SERVER" : "CLIENT",
+			( flEndTime - flStartTime ) * 1000.0f,
+			m_Items.Count(),
+			m_Attributes.Count() );
 
 		m_bInited = true;
 	}

@@ -152,14 +152,6 @@ void CTFPipebombLauncher::WeaponReset( void )
 //-----------------------------------------------------------------------------
 void CTFPipebombLauncher::PrimaryAttack( void )
 {
-	// Check for ammunition.
-	if ( m_iClip1 <= 0 && m_iClip1 != WEAPON_NOCLIP )
-		return;
-
-	// Are we capable of firing again?
-	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
-		return;
-
 	if ( !CanAttack() )
 	{
 		m_flChargeBeginTime = 0;

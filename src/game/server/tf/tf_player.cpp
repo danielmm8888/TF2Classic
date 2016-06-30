@@ -1261,11 +1261,7 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		// Give the player a new builder weapon when they switch between engy and spy
 		if ( pBuilder && !ItemsMatch( pBuilder->GetItem(), pItem, pBuilder ) )
 		{
-			if ( pBuilder == GetActiveWeapon() )
-				pBuilder->Holster();
-
-			Weapon_Detach( pBuilder );
-			UTIL_Remove( pBuilder );
+			pBuilder->UnEquip( this );
 			pBuilder = NULL;
 		}
 		
@@ -1299,14 +1295,10 @@ void CTFPlayer::ManageBuilderWeapons( TFPlayerClassData_t *pData )
 		//Not supposed to be holding a builder, nuke it from orbit
 		CTFWeaponBase *pWpn = Weapon_OwnsThisID( TF_WEAPON_BUILDER );
 
-		if ( pWpn == NULL )
-			return;
-
-		if ( pWpn == GetActiveWeapon() )
-			pWpn->Holster();
-
-		Weapon_Detach( pWpn );
-		UTIL_Remove( pWpn );
+		if ( pWpn )
+		{
+			pWpn->UnEquip( this );
+		}
 	}
 }
 
@@ -1338,11 +1330,7 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 			{
 				// If this is not a weapon we're supposed to have in this loadout slot then nuke it.
 				// Either changed class or changed loadout.
-				if ( pWeapon == GetActiveWeapon() )
-					pWeapon->Holster();
-
-				Weapon_Detach( pWeapon );
-				UTIL_Remove( pWeapon );
+				pWeapon->UnEquip( this );
 			}
 			else if ( bRegenerate )
 			{
@@ -1354,6 +1342,11 @@ void CTFPlayer::ValidateWeapons( bool bRegenerate )
 					pWeapon->WeaponReset();
 				}
 			}
+		}
+		else
+		{
+			// Nuke any weapons without item definitions, they're evil!
+			pWeapon->UnEquip( this );
 		}
 	}
 }
@@ -1454,8 +1447,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 			//If we already have a weapon in this slot but is not the same type then nuke it (changed classes)
 			if ( pWeapon && pWeapon->GetWeaponID() != iWeaponID )
 			{
-				Weapon_Detach( pWeapon );
-				UTIL_Remove( pWeapon );
+				pWeapon->UnEquip( this );
 			}
 
 			pWeapon = Weapon_OwnsThisID( iWeaponID );
@@ -1488,9 +1480,7 @@ void CTFPlayer::ManageRegularWeaponsLegacy( TFPlayerClassData_t *pData )
 			//Don't nuke builders since they will be nuked if we don't need them later.
 			if ( pCarriedWeapon && pCarriedWeapon->GetWeaponID() != TF_WEAPON_BUILDER )
 			{
-				Weapon_Detach( pCarriedWeapon );
-				GetViewModel( pCarriedWeapon->m_nViewModelIndex, false )->SetWeaponModel( NULL, NULL );
-				UTIL_Remove( pCarriedWeapon );
+				pCarriedWeapon->UnEquip( this );
 			}
 		}
 	}
@@ -7162,8 +7152,13 @@ void CTFPlayer::Taunt( void )
 		}
 		else if ( V_strnicmp( szResponse, "scenes/player/spy/low/taunt03", 29 ) == 0 )
 		{
-			m_flTauntAttackTime = gpGlobals->curtime + 1.8;
+			m_flTauntAttackTime = gpGlobals->curtime + 1.8f;
 			m_iTauntAttack = TF_TAUNT_SPY1;
+		}
+		else if ( V_stricmp( szResponse, "scenes/player/sniper/low/taunt04.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime = 0.85f;
+			m_iTauntAttack = TF_TAUNT_SNIPER_STUN;
 		}
 	}
 
@@ -7450,6 +7445,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 		if ( pItemDef )
 		{
 			criteriaSet.AppendCriteria( "item_name", pItemDef->name );
+			criteriaSet.AppendCriteria( "item_type_name", pItemDef->item_type_name );
 		}
 	}
 
