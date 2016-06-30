@@ -26,17 +26,17 @@ class CTFHudBetaStamp : public CHudElement, public vgui::EditablePanel
 
 public:
 
-	CTFHudBetaStamp(const char *pElementName);
+	CTFHudBetaStamp( const char *pElementName );
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
-	virtual void PerformLayout(void);
-	virtual bool ShouldDraw(void);
-	void OnThink();
+	virtual void PerformLayout( void );
+	virtual bool ShouldDraw( void );
+	void OnThink( void );
 
 private:
 	vgui::ImagePanel *m_pBetaImage;
 
-	bool			bGlowing;
+	bool			m_bGlowing;
 	bool			m_bAnimationIn;
 	float			m_flAnimationThink;
 };
