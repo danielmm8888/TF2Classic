@@ -257,6 +257,8 @@ void CTFWeaponMirv::LaunchGrenade( void )
 	}
 
 	m_flChargeBeginTime = 0;
+
+	StartEffectBarRegen();
 }
 
 //-----------------------------------------------------------------------------

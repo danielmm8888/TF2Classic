@@ -149,6 +149,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual int	 GetPosition( void ) const;
 #endif
 	virtual void Drop( const Vector &vecVelocity );
+	virtual bool CanHolster( void ) const;
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo = NULL );
 	virtual bool Deploy( void );
 	virtual void Equip( CBaseCombatCharacter *pOwner );
@@ -191,6 +192,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	// Activities.
 	virtual void ItemBusyFrame( void );
 	virtual void ItemPostFrame( void );
+	virtual void ItemHolsterFrame( void );
 
 	virtual void SetWeaponVisible( bool visible );
 
@@ -250,6 +252,12 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	float				GetLastFireTime( void ) { return m_flLastFireTime; }
 
+	virtual bool	HasChargeBar( void ) { return false; }
+	void			StartEffectBarRegen( void );
+	void			EffectBarRegenFinished( void );
+	void			CheckEffectBarRegen( void );
+	float			GetEffectBarProgress( void );
+
 // Server specific.
 #if !defined( CLIENT_DLL )
 
@@ -307,16 +315,18 @@ protected:
 	bool ReloadSingly( void );
 	void ReloadSinglyPostFrame( void );
 
+	virtual float InternalGetEffectBarRechargeTime( void ) { return 0.0f; }
+
 protected:
 
 	int				m_iWeaponMode;
-	CNetworkVar(	int,	m_iReloadMode );
+	CNetworkVar( int, m_iReloadMode );
 	CTFWeaponInfo	*m_pWeaponInfo;
 	bool			m_bInAttack;
 	bool			m_bInAttack2;
 	bool			m_bCurrentAttackIsCrit;
 
-	CNetworkVar(	bool,	m_bLowered );
+	CNetworkVar( bool, m_bLowered );
 
 	int				m_iAltFireHint;
 
@@ -327,17 +337,18 @@ protected:
 	int				m_iLastCritCheckFrame;
 	int				m_iCurrentSeed;
 
-	CNetworkVar(	float,	m_flLastFireTime );
-
 	char			m_szTracerName[MAX_TRACER_NAME];
 
-	CNetworkVar(	bool, m_bResetParity );
+	CNetworkVar( bool, m_bResetParity );
 
 #ifdef CLIENT_DLL
 	bool m_bOldResetParity;
 #endif
 
-	CNetworkVar(	bool,	m_bReloadedThroughAnimEvent );
+	CNetworkVar( bool, m_bReloadedThroughAnimEvent );
+	CNetworkVar( float, m_flLastFireTime );
+	CNetworkVar( float, m_flEffectBarRegenTime );
+
 private:
 	CTFWeaponBase( const CTFWeaponBase & );
 };

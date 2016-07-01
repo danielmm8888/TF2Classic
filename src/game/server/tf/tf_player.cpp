@@ -742,6 +742,7 @@ void CTFPlayer::Precache()
 	PrecacheScriptSound( "TFPlayer.AttackerPain" );
 	PrecacheScriptSound( "TFPlayer.SaveMe" );
 	PrecacheScriptSound( "Camera.SnapShot" );
+	PrecacheScriptSound( "TFPlayer.ReCharged" );
 
 	PrecacheScriptSound( "Game.YourTeamLost" );
 	PrecacheScriptSound( "Game.YourTeamWon" );
@@ -5888,69 +5889,6 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound, EAmmoS
 int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 {
 	return GiveAmmo( iCount, iAmmoIndex, bSuppressSound, TF_AMMO_SOURCE_AMMOPACK );
-}
-
-int CTFPlayer::GetMaxAmmo( int iAmmoIndex, int iClassNumber /*= -1*/ )
-{
-	if ( !GetPlayerClass()->GetData() )
-		return 0;
-
-	int iMaxAmmo = 0;
-
-	if ( iClassNumber != -1 )
-	{
-		iMaxAmmo = GetPlayerClassData( iClassNumber )->m_aAmmoMax[iAmmoIndex];
-	}
-	else
-	{
-		iMaxAmmo = GetPlayerClass()->GetData()->m_aAmmoMax[iAmmoIndex];
-	}
-
-	// If we have a weapon that overrides max ammo, use its value.
-	// BUG: If player has multiple weapons using same ammo type then only the first one's value is used.
-	for ( int i = 0; i < WeaponCount(); i++ )
-	{
-		CTFWeaponBase *pWpn = (CTFWeaponBase *)GetWeapon( i );
-
-		if ( !pWpn )
-			continue;
-
-		if ( pWpn->GetPrimaryAmmoType() != iAmmoIndex )
-			continue;
-
-		int iCustomMaxAmmo = pWpn->GetMaxAmmo();
-		if ( iCustomMaxAmmo )
-		{
-			iMaxAmmo = iCustomMaxAmmo;
-			break;
-		}
-	}
-
-	switch ( iAmmoIndex )
-	{
-	case TF_AMMO_PRIMARY:
-		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_primary );
-		break;
-
-	case TF_AMMO_SECONDARY:
-		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_secondary );
-		break;
-
-	case TF_AMMO_METAL:
-		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_metal );
-		break;
-
-	case TF_AMMO_GRENADES1:
-		CALL_ATTRIB_HOOK_INT( iMaxAmmo, mult_maxammo_grenades1 );
-		break;
-
-	case 6:
-	default:
-		iMaxAmmo = 1;
-		break;
-	}
-
-	return iMaxAmmo;
 }
 
 //-----------------------------------------------------------------------------

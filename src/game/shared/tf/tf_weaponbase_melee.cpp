@@ -107,7 +107,8 @@ void CTFWeaponBaseMelee::Spawn()
 // -----------------------------------------------------------------------------
 bool CTFWeaponBaseMelee::CanHolster( void ) const
 {
-	if ( GetTFPlayerOwner()->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner && pOwner->m_Shared.InCond( TF_COND_CANNOT_SWITCH_FROM_MELEE ) )
 		return false;
 
 	return BaseClass::CanHolster();

@@ -45,6 +45,9 @@ public:
 	virtual float	GetProjectileSpeed( void );
 	virtual void	WeaponReset( void );
 
+	virtual bool	HasChargeBar( void ) { return true; }
+	virtual float	InternalGetEffectBarRechargeTime( void ) { return 8.0f; }
+
 public:
 	// ITFChargeUpWeapon
 	virtual float GetChargeBeginTime( void ) { return m_flChargeBeginTime; }

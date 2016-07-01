@@ -64,53 +64,51 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 	if ( ValidTouch( pPlayer ) )
 	{
-		if ( pPlayer == GetOwnerEntity() )
-		{
-			// Don't heal the player who dropped this healthkit, recharge his lunchbox instead.
-			return false;
-		}
+		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
+		Assert( pTFPlayer );
 
 		int iHealthToAdd = ceil( pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()] );
 		bool bTiny = GetPowerupSize() == POWERUP_TINY;
 		int iHealthRestored = 0;
 
-		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
-		Assert( pTFPlayer );
-
-		// Overheal pellets, well, overheal.
-		if ( bTiny )
+		// Don't heal the player who dropped this healthkit, recharge his lunchbox instead.
+		if ( pTFPlayer != GetOwnerEntity() )
 		{
-			iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
-			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
-		}
-		else
-		{
-			iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC );
-		}
-
-		if ( iHealthRestored )
-			bSuccess = true;
-
-		// Restore disguise health.
-		if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
-		{
-			int iFakeHealthToAdd = ceil( pTFPlayer->m_Shared.GetDisguiseMaxHealth() * PackRatios[GetPowerupSize()] );
-			if ( pTFPlayer->m_Shared.AddDisguiseHealth( iFakeHealthToAdd, bTiny ) )
-				bSuccess = true;
-		}
-
-		if ( !bTiny )
-		{
-			// Remove any negative conditions whether player got healed or not.
-			if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+			// Overheal pellets, well, overheal.
+			if ( bTiny )
 			{
-				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
-				bSuccess = true;
+				iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
+				iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
 			}
-			if ( pTFPlayer->m_Shared.InCond( TF_COND_SLOWED ) )
+			else
 			{
-				pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
+				iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_GENERIC );
+			}
+
+			if ( iHealthRestored )
 				bSuccess = true;
+
+			// Restore disguise health.
+			if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
+			{
+				int iFakeHealthToAdd = ceil( pTFPlayer->m_Shared.GetDisguiseMaxHealth() * PackRatios[GetPowerupSize()] );
+				if ( pTFPlayer->m_Shared.AddDisguiseHealth( iFakeHealthToAdd, bTiny ) )
+					bSuccess = true;
+			}
+
+			if ( !bTiny )
+			{
+				// Remove any negative conditions whether player got healed or not.
+				if ( pTFPlayer->m_Shared.InCond( TF_COND_BURNING ) )
+				{
+					pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );
+					bSuccess = true;
+				}
+				if ( pTFPlayer->m_Shared.InCond( TF_COND_SLOWED ) )
+				{
+					pTFPlayer->m_Shared.RemoveCond( TF_COND_SLOWED );
+					bSuccess = true;
+				}
 			}
 		}
 
@@ -147,6 +145,16 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 					gameeventmanager->FireEvent( event );
 				}
+			}
+		}
+		else
+		{
+			// Recharge lunchbox if player's at full health.
+			CTFWeaponBase *pLunch = pTFPlayer->Weapon_OwnsThisID( TF_WEAPON_LUNCHBOX );
+			if ( pLunch && pLunch->GetEffectBarProgress() < 1.0f )
+			{
+				pLunch->EffectBarRegenFinished();
+				bSuccess = true;
 			}
 		}
 	}

@@ -9,6 +9,8 @@
 #ifdef GAME_DLL
 #include "tf_player.h"
 #include "tf_powerup.h"
+#else
+#include "c_tf_player.h"
 #endif
 
 CREATE_SIMPLE_WEAPON_TABLE( TFLunchBox, tf_weapon_lunchbox )
@@ -77,7 +79,11 @@ void CTFLunchBox::SecondaryAttack( void )
 	m_hDroppedLunch = pPowerup;
 #endif
 
-	m_flNextSecondaryAttack = gpGlobals->curtime + 1.0f;
+	// Switch away from it immediately, don't want it to stick around.
+	pOwner->RemoveAmmo( 1, m_iPrimaryAmmoType );
+	pOwner->SwitchToNextBestWeapon( this );
+
+	StartEffectBarRegen();
 }
 
 #ifdef GAME_DLL

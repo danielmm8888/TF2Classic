@@ -228,6 +228,8 @@ public:
 	bool	DoClassSpecialSkill( void );
 	bool	CanGoInvisible( void );
 
+	int		GetMaxAmmo( int iAmmoIndex, int iClassNumber = -1 );
+
 	bool	CanPickupBuilding( C_BaseObject *pObject );
 
 	virtual CAttributeManager *GetAttributeManager( void ) { return &m_AttributeManager; }

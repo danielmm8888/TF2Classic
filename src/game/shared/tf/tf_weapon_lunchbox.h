@@ -25,8 +25,13 @@ public:
 
 	virtual int GetWeaponID() const { return TF_WEAPON_LUNCHBOX; }
 
+	virtual bool	ShouldBlockPrimaryFire( void ) { return true; }
+
 	virtual void	PrimaryAttack( void );
 	virtual void	SecondaryAttack( void );
+
+	virtual bool	HasChargeBar( void ) { return true; }
+	virtual float	InternalGetEffectBarRechargeTime( void ) { return 30.0f; }
 
 #ifdef GAME_DLL
 	virtual void	Precache( void );
