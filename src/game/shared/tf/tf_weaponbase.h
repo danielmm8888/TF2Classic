@@ -344,6 +344,21 @@ private:
 
 #define WEAPON_RANDOM_RANGE 10000
 
+
+#define CREATE_SIMPLE_WEAPON_TABLE( WpnName, entityname )			\
+																	\
+	IMPLEMENT_NETWORKCLASS_ALIASED( WpnName, DT_##WpnName )	\
+															\
+	BEGIN_NETWORK_TABLE( C##WpnName, DT_##WpnName )			\
+	END_NETWORK_TABLE()										\
+															\
+	BEGIN_PREDICTION_DATA( C##WpnName )						\
+	END_PREDICTION_DATA()									\
+															\
+	LINK_ENTITY_TO_CLASS( entityname, C##WpnName );			\
+	PRECACHE_WEAPON_REGISTER( entityname );
+
+
 // Mercenary needs a different activity set for each weapon so use these in stock weapons code.
 #define DECLARE_DM_ACTTABLE()		static acttable_t m_acttable[];\
 	virtual Activity ActivityOverride( Activity baseAct, bool *pRequired ) OVERRIDE;

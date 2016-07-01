@@ -37,9 +37,11 @@ public:
 
 	CTFWeaponBaseGun();
 
+	virtual void ItemPostFrame( void );
 	virtual void PrimaryAttack();
 	virtual void SecondaryAttack( void );
 	virtual bool Holster( CBaseCombatWeapon *pSwitchingTo );
+	virtual void WeaponReset( void );
 
 	// Derived classes call this to fire a bullet.
 	//bool TFBaseGunFire( void );
@@ -73,6 +75,7 @@ public:
 	virtual void PlayWeaponShootSound( void );
 
 private:
+	CNetworkVar( int, m_iBurstSize );
 
 	CTFWeaponBaseGun( const CTFWeaponBaseGun & );
 };

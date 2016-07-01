@@ -10,6 +10,7 @@
 #include "effect_dispatch_data.h"
 #include "takedamageinfo.h"
 #include "tf_projectile_nail.h"
+#include "in_buttons.h"
 
 #if !defined( CLIENT_DLL )	// Server specific.
 
@@ -37,20 +38,28 @@
 //
 // TFWeaponBase Gun tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED(TFWeaponBaseGun, DT_TFWeaponBaseGun)
+IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponBaseGun, DT_TFWeaponBaseGun )
 
-BEGIN_NETWORK_TABLE(CTFWeaponBaseGun, DT_TFWeaponBaseGun)
+BEGIN_NETWORK_TABLE( CTFWeaponBaseGun, DT_TFWeaponBaseGun )
+#ifdef CLIENT_DLL
+	RecvPropInt( RECVINFO( m_iBurstSize ) ),
+#else
+	SendPropInt( SENDINFO( m_iBurstSize ), -1, SPROP_UNSIGNED ),
+#endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA(CTFWeaponBaseGun)
+BEGIN_PREDICTION_DATA( CTFWeaponBaseGun )
+#ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_iBurstSize, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
+#endif
 END_PREDICTION_DATA()
 
 // Server specific.
 #if !defined( CLIENT_DLL ) 
 BEGIN_DATADESC( CTFWeaponBaseGun )
-DEFINE_THINKFUNC( ZoomOutIn ),
-DEFINE_THINKFUNC( ZoomOut ),
-DEFINE_THINKFUNC( ZoomIn ),
+	DEFINE_THINKFUNC( ZoomOutIn ),
+	DEFINE_THINKFUNC( ZoomOut ),
+	DEFINE_THINKFUNC( ZoomIn ),
 END_DATADESC()
 #endif
 
@@ -67,6 +76,39 @@ CTFWeaponBaseGun::CTFWeaponBaseGun()
 	m_iWeaponMode = TF_WEAPON_PRIMARY_MODE;
 }
 
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGun::ItemPostFrame( void )
+{
+	int iOldBurstSize = m_iBurstSize;
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		if ( m_iBurstSize > 0 )
+		{
+			// Fake the fire button.
+			pOwner->m_nButtons |= IN_ATTACK;
+		}
+	}
+
+	BaseClass::ItemPostFrame();
+
+	// Stop burst if we run out of ammo.
+	if ( ( UsesClipsForAmmo1() && m_iClip1 <= 0 ) ||
+		( !UsesClipsForAmmo1() && pOwner->GetAmmoCount( m_iPrimaryAmmoType ) <= 0 ) ) 
+	{
+		m_iBurstSize = 0;
+	}
+
+	if ( iOldBurstSize > 0 && m_iBurstSize == 0 )
+	{
+		// Delay the next burst.
+		m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_flBurstDelay;
+	}
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -76,10 +118,6 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 	if ( m_iClip1 <= 0 && UsesClipsForAmmo1() )
 		return;
 
-	// Are we capable of firing again?
-	if ( m_flNextPrimaryAttack > gpGlobals->curtime )
-		return;
-
 	// Get the player owning the weapon.
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
@@ -87,6 +125,17 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 
 	if ( !CanAttack() )
 		return;
+
+	if ( m_pWeaponInfo->GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nBurstSize > 0 && m_iBurstSize == 0 )
+	{
+		// Start the burst.
+		m_iBurstSize = m_pWeaponInfo->GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nBurstSize;
+	}
+
+	if ( m_iBurstSize > 0 )
+	{
+		m_iBurstSize--;
+	}
 
 	CalcIsAttackCritical();
 
@@ -709,7 +758,21 @@ bool CTFWeaponBaseGun::Holster( CBaseCombatWeapon *pSwitchingTo )
 
 #endif
 
+	// Stop the burst.
+	m_iBurstSize = 0;
+
 	return BaseClass::Holster( pSwitchingTo );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFWeaponBaseGun::WeaponReset( void )
+{
+	// Stop the burst.
+	m_iBurstSize = 0;
+
+	BaseClass::WeaponReset();
 }
 
 //-----------------------------------------------------------------------------
