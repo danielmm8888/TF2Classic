@@ -2092,7 +2092,17 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 		}
 		else
 		{
-			m_hCritEffectHost = m_pOuter->GetActiveWeapon();
+			C_BaseCombatWeapon *pWeapon = m_pOuter->GetActiveWeapon();
+
+			// Don't add crit effect to weapons without a model.
+			if ( pWeapon && pWeapon->GetWorldModelIndex() != 0 )
+			{
+				m_hCritEffectHost = pWeapon;
+			}
+			else
+			{
+				m_hCritEffectHost = m_pOuter;
+			}
 		}
 
 		if ( m_hCritEffectHost.Get() )

@@ -2381,8 +2381,6 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
-
-	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2429,8 +2427,6 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	{
 		m_hItem->UpdateVisibility();
 	}
-
-	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -2524,6 +2520,8 @@ void C_TFPlayer::ThirdPersonSwitch( bool bThirdPerson )
 			g_ThirdPersonManager.SetDesiredCameraOffset( vecOffset );
 		}
 	}
+
+	m_Shared.UpdateCritBoostEffect();
 }
 
 //-----------------------------------------------------------------------------
@@ -3817,22 +3815,15 @@ void C_TFPlayer::ClientPlayerRespawn( void )
 void C_TFPlayer::CreateSaveMeEffect( void )
 {
 	// Don't create them for the local player
-	if ( IsLocalPlayer() && !ShouldDrawLocalPlayer() )
+	if ( !ShouldDrawThisPlayer() )
 		return;
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 
-	// If I'm disguised as the enemy, play to all players
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && m_Shared.GetDisguiseTeam() != GetTeamNumber() )
-	{
-		// play to all players
-	}
-	else
-	{
-		// only play to teammates
-		if ( pLocalPlayer && pLocalPlayer->GetTeamNumber() != GetTeamNumber() )
-			return;
-	}
+	// Only show the bubble to teammates and players who are on the our disguise team.
+	if ( GetTeamNumber() != pLocalPlayer->GetTeamNumber() &&
+		!( m_Shared.InCond( TF_COND_DISGUISED ) && m_Shared.GetDisguiseTeam() == pLocalPlayer->GetTeamNumber() ) )
+		return;
 
 	if ( m_pSaveMeEffect )
 	{
@@ -4450,7 +4441,7 @@ void C_TFPlayer::UpdateTypingBubble( void )
 	if ( IsLocalPlayer() )
 		return;
 
-	if ( m_bTyping && IsAlive() && !m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_bTyping && IsAlive() && ( !m_Shared.InCond( TF_COND_STEALTHED ) || !IsEnemyPlayer() ) )
 	{
 		if ( !m_pTypingEffect )
 		{

@@ -14,9 +14,9 @@
 #include "debugoverlay_shared.h"
 #endif
 
+#ifdef GAME_DLL
 ConVar tf_debug_arrows( "tf_debug_arrows", "0", FCVAR_CHEAT );
-
-#define TF_ARROW_FIX
+#endif
 
 const char *g_pszArrowModels[] =
 {
@@ -227,7 +227,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 
 	if ( pPlayer )
 	{
-#ifndef TF_ARROW_FIX
+#if 0
 		CStudioHdr *pStudioHdr = pPlayer->GetModelPtr();
 		if ( !pStudioHdr )
 			return;

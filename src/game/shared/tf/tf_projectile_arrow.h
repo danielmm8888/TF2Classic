@@ -39,9 +39,9 @@ public:
 
 	void	SetType( int iType ) { m_iType = iType; }
 
-#ifdef GAME_DLL
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_COMPOUND_BOW; }
 
+#ifdef GAME_DLL
 	static CTFProjectile_Arrow *Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, float flSpeed, float flGravity, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType );
 
 	// IScorer interface
