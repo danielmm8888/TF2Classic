@@ -1677,12 +1677,19 @@ CBaseEntity* CTFPlayer::EntSelectSpawnPoint()
 	case TF_TEAM_GREEN:
 	case TF_TEAM_YELLOW:
 		{
+			bool bSuccess = false;
 			if ( !TFGameRules()->IsDeathmatch() )
+			{
 				pSpawnPointName = "info_player_teamspawn";
+				bSuccess = SelectSpawnSpot( pSpawnPointName, pSpot );
+			}
 			else
+			{
 				pSpawnPointName = "info_player_deathmatch";
+				bSuccess = SelectFurthestSpawnSpot( pSpawnPointName, pSpot );
+			}
 
-			if ( SelectSpawnSpot( pSpawnPointName, pSpot ) )
+			if ( bSuccess )
 			{
 				g_pLastSpawnPoints[ GetTeamNumber() ] = pSpot;
 			}
@@ -1797,6 +1804,121 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 	} 
 	// Continue until a valid spawn point is found or we hit the start.
 	while ( pSpot != pFirstSpot ); 
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot )
+{
+	// Get an initial spawn point.
+	pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	if ( !pSpot )
+	{
+		// Sometimes the first spot can be NULL????
+		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+
+	// Sometimes some DM maps are missing the info_player_deathmatch spawn points.
+	// falback onto the regular info_player_teamspawn entities
+	if ( !pSpot && TFGameRules()->IsDeathmatch() )
+	{
+		pEntClassName = "info_player_teamspawn";
+		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+
+	if ( !pSpot )
+	{
+		// Still NULL? That means there're no spawn points at all, bail.
+		return false;
+	}
+
+	if ( TFGameRules()->IsDeathmatch() )
+	{
+		// Randomize the start spot in DM.
+		for ( int i = random->RandomInt( 0, 4 ); i > 0; i-- )
+			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+
+	// Find spawn point that is furthest from all other players.
+	CBaseEntity *pFirstSpot = pSpot;
+	float flFurthest = 0.0f;
+	CBaseEntity *pFurthest = NULL;
+	do
+	{
+		if ( pSpot )
+		{
+			// Check to see if this is a valid team spawn (player is on this team, etc.).
+			if ( TFGameRules()->IsSpawnPointValid( pSpot, this, true ) )
+			{
+				// Check for a bad spawn entity.
+				if ( pSpot->GetAbsOrigin() == vec3_origin )
+				{
+					pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+					continue;
+				}
+
+				bool bOtherPlayersPresent = false;
+				// Check distance from other players.
+				for ( int i = 1; i < gpGlobals->maxClients; i++ )
+				{
+					CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+					if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() )
+						continue;
+
+					bOtherPlayersPresent = true;
+
+					float flDistSqr = ( pPlayer->GetAbsOrigin() - pSpot->GetAbsOrigin() ).LengthSqr();
+					if ( flDistSqr > flFurthest )
+					{
+						flFurthest = flDistSqr;
+						pFurthest = pSpot;
+					}
+				}
+
+				// If there are no other players just pick the first valid spawn point.
+				if ( !bOtherPlayersPresent )
+				{
+					pFurthest = pSpot;
+					break;
+				}
+			}
+		}
+
+		// Get the next spawning point to check.
+		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+	}
+	// Continue until a valid spawn point is found or we hit the start.
+	while ( pSpot != pFirstSpot );
+
+	if ( pFurthest )
+	{
+		if ( TFGameRules()->IsDeathmatch() )
+		{
+			// We're spawning on a busy spawn point so kill off anyone occupying it.
+			edict_t	*edPlayer;
+			edPlayer = edict();
+			CBaseEntity *ent = NULL;
+			for ( CEntitySphereQuery sphere( pFurthest->GetAbsOrigin(), 128 ); ( ent = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
+			{
+				// if ent is a client, telefrag 'em (unless they are ourselves)
+				if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
+				{
+					CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_TELEFRAG );
+					ent->TakeDamage( info );
+				}
+			}
+		}
+
+		pSpot = pFurthest;
+		if ( flFurthest != 0.0f )
+			Msg( "Picked the furthest spawn point %.f units away from other players.\n", sqrtf( flFurthest ) );
+
+		// Found a valid spawn point.
+		return true;
+	}
 
 	return false;
 }

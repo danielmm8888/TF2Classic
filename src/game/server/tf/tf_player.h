@@ -467,6 +467,7 @@ private:
 	void				InitClass( void );
 	void				GiveDefaultItems();
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
+	bool				SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();
 
