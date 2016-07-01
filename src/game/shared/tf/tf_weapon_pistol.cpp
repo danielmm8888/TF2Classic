@@ -19,43 +19,11 @@
 //
 // Weapon Pistol tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol, DT_WeaponPistol )
-
-BEGIN_NETWORK_TABLE_NOBASE( CTFPistol, DT_PistolLocalData )
-END_NETWORK_TABLE()
-
-BEGIN_NETWORK_TABLE( CTFPistol, DT_WeaponPistol )
-#if !defined( CLIENT_DLL )
-	SendPropDataTable( "PistolLocalData", 0, &REFERENCE_SEND_TABLE( DT_PistolLocalData ), SendProxy_SendLocalWeaponDataTable ),
-#else
-	RecvPropDataTable( "PistolLocalData", 0, 0, &REFERENCE_RECV_TABLE( DT_PistolLocalData ) ),
-#endif
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFPistol )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_pistol, CTFPistol );
-PRECACHE_WEAPON_REGISTER( tf_weapon_pistol );
-
-// Server specific.
-#ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFPistol )
-END_DATADESC()
-#endif
+CREATE_SIMPLE_WEAPON_TABLE( TFPistol, tf_weapon_pistol )
 
 //============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol_Scout, DT_WeaponPistol_Scout )
-
-BEGIN_NETWORK_TABLE( CTFPistol_Scout, DT_WeaponPistol_Scout )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFPistol_Scout )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_pistol_scout, CTFPistol_Scout );
-PRECACHE_WEAPON_REGISTER( tf_weapon_pistol_scout );
+CREATE_SIMPLE_WEAPON_TABLE( TFPistol_Scout, tf_weapon_pistol_scout )
 
 //=============================================================================
 //

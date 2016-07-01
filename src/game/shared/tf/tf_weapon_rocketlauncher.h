@@ -29,11 +29,6 @@ public:
 	DECLARE_NETWORKCLASS(); 
 	DECLARE_PREDICTABLE();
 
-	// Server specific.
-#ifdef GAME_DLL
-	DECLARE_DATADESC();
-#endif
-
 	CTFRocketLauncher();
 	~CTFRocketLauncher();
 
@@ -48,13 +43,10 @@ public:
 
 #ifdef CLIENT_DLL
 	virtual void CreateMuzzleFlashEffects( C_BaseEntity *pAttachEnt, int nIndex );
-	//virtual void DrawCrosshair( void );
 #endif
 
 private:
 	float	m_flShowReloadHintAt;
-
-	//CNetworkVar( bool, m_bLockedOn );
 
 	CTFRocketLauncher( const CTFRocketLauncher & ) {}
 };

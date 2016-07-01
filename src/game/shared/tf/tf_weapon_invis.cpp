@@ -21,22 +21,7 @@ extern ConVar tf_spy_invis_unstealth_time;
 //
 // TFWeaponBase Melee tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponInvis, DT_TFWeaponInvis )
-
-BEGIN_NETWORK_TABLE( CTFWeaponInvis, DT_TFWeaponInvis )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFWeaponInvis )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_invis, CTFWeaponInvis );
-PRECACHE_WEAPON_REGISTER( tf_weapon_invis );
-
-// Server specific.
-#if !defined( CLIENT_DLL ) 
-	BEGIN_DATADESC( CTFWeaponInvis )
-	END_DATADESC()
-#endif
+CREATE_SIMPLE_WEAPON_TABLE( TFWeaponInvis, tf_weapon_invis )
 
 //-----------------------------------------------------------------------------
 // Purpose: Use the offhand view model

@@ -10,24 +10,9 @@
 //
 // Weapon Grenade Launcher tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFGrenadeLauncher, DT_WeaponGrenadeLauncher )
-
-BEGIN_NETWORK_TABLE( CTFGrenadeLauncher, DT_WeaponGrenadeLauncher )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFGrenadeLauncher )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_grenadelauncher, CTFGrenadeLauncher );
-PRECACHE_WEAPON_REGISTER( tf_weapon_grenadelauncher );
+CREATE_SIMPLE_WEAPON_TABLE( TFGrenadeLauncher, tf_weapon_grenadelauncher )
 
 //=============================================================================
-
-// Server specific.
-#ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFGrenadeLauncher )
-END_DATADESC()
-#endif
 
 #define TF_GRENADE_LAUNCER_VEL 1200
 

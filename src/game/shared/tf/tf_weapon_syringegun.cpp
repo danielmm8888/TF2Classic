@@ -18,22 +18,7 @@
 //
 // Weapon Syringe Gun tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFSyringeGun, DT_WeaponSyringeGun )
-
-BEGIN_NETWORK_TABLE( CTFSyringeGun, DT_WeaponSyringeGun )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFSyringeGun )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_syringegun_medic, CTFSyringeGun );
-PRECACHE_WEAPON_REGISTER( tf_weapon_syringegun_medic );
-
-// Server specific.
-#ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFSyringeGun )
-END_DATADESC()
-#endif
+CREATE_SIMPLE_WEAPON_TABLE( TFSyringeGun, tf_weapon_syringegun_medic )
 
 //=============================================================================
 //

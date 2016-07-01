@@ -30,12 +30,6 @@ END_NETWORK_TABLE()
 BEGIN_PREDICTION_DATA( CTFWeaponPDA )
 END_PREDICTION_DATA()
 
-// Server specific.
-#if !defined( CLIENT_DLL ) 
-BEGIN_DATADESC( CTFWeaponPDA )
-END_DATADESC()
-#endif
-
 CTFWeaponPDA::CTFWeaponPDA()
 {
 }
@@ -117,42 +111,15 @@ bool CTFWeaponPDA::ShouldShowControlPanels( void )
 
 //==============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponPDA_Engineer_Build, DT_TFWeaponPDA_Engineer_Build )
-
-BEGIN_NETWORK_TABLE( CTFWeaponPDA_Engineer_Build, DT_TFWeaponPDA_Engineer_Build )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFWeaponPDA_Engineer_Build )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_pda_engineer_build, CTFWeaponPDA_Engineer_Build );
-PRECACHE_WEAPON_REGISTER( tf_weapon_pda_engineer_build );
+CREATE_SIMPLE_WEAPON_TABLE( TFWeaponPDA_Engineer_Build, tf_weapon_pda_engineer_build )
 
 //==============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponPDA_Engineer_Destroy, DT_TFWeaponPDA_Engineer_Destroy )
-
-BEGIN_NETWORK_TABLE( CTFWeaponPDA_Engineer_Destroy, DT_TFWeaponPDA_Engineer_Destroy )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFWeaponPDA_Engineer_Destroy )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_pda_engineer_destroy, CTFWeaponPDA_Engineer_Destroy );
-PRECACHE_WEAPON_REGISTER( tf_weapon_pda_engineer_destroy );
+CREATE_SIMPLE_WEAPON_TABLE( TFWeaponPDA_Engineer_Destroy, tf_weapon_pda_engineer_destroy )
 
 //==============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFWeaponPDA_Spy, DT_TFWeaponPDA_Spy )
-
-BEGIN_NETWORK_TABLE( CTFWeaponPDA_Spy, DT_TFWeaponPDA_Spy )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFWeaponPDA_Spy )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_pda_spy, CTFWeaponPDA_Spy );
-PRECACHE_WEAPON_REGISTER( tf_weapon_pda_spy );
+CREATE_SIMPLE_WEAPON_TABLE( TFWeaponPDA_Spy, tf_weapon_pda_spy )
 
 #ifdef CLIENT_DLL
 

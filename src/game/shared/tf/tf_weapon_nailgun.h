@@ -24,19 +24,14 @@ class CTFNailgun : public CTFWeaponBaseGun
 public:
 
 	DECLARE_CLASS( CTFNailgun, CTFWeaponBaseGun );
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
-
-	// Server specific.
-#ifdef GAME_DLL
-	DECLARE_DATADESC();
-#endif
 
 	CTFNailgun() {}
 	~CTFNailgun() {}
 
 	virtual void	Precache();
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_NAILGUN; }
+	virtual int		GetWeaponID( void ) const { return TF_WEAPON_NAILGUN; }
 
 private:
 

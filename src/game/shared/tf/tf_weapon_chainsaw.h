@@ -27,13 +27,13 @@ public:
 	DECLARE_PREDICTABLE();
 
 	CTFChainsaw();
-	virtual int			GetWeaponID(void) const			{ return TF_WEAPON_CHAINSAW; }
+	virtual int			GetWeaponID( void ) const { return TF_WEAPON_CHAINSAW; }
 	virtual void		PrimaryAttack();
 
 private:
 	bool bIsAttacking;
 
-	CTFChainsaw(const CTFChainsaw &) {}
+	CTFChainsaw( const CTFChainsaw & ) {}
 };
 
 #endif // TF_WEAPON_CHAINSAW_H

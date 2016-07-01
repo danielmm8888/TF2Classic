@@ -24,8 +24,8 @@ class CTFHammerfists : public CTFWeaponBaseMelee
 {
 public:
 
-	DECLARE_CLASS(CTFHammerfists, CTFWeaponBaseMelee);
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_CLASS( CTFHammerfists, CTFWeaponBaseMelee );
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	CTFHammerfists();
@@ -40,9 +40,9 @@ public:
 
 	virtual void		DoViewModelAnimation( void );
 
-	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_HAMMERFISTS; }
+	virtual int			GetWeaponID( void ) const { return TF_WEAPON_HAMMERFISTS; }
 
-private: 
+private:
 	void Punch( void );
 
 };

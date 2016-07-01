@@ -20,16 +20,7 @@
 //
 // Weapon Shovel tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFShovel, DT_TFWeaponShovel )
-
-BEGIN_NETWORK_TABLE( CTFShovel, DT_TFWeaponShovel )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFShovel )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_shovel, CTFShovel );
-PRECACHE_WEAPON_REGISTER( tf_weapon_shovel );
+CREATE_SIMPLE_WEAPON_TABLE( TFShovel, tf_weapon_shovel )
 
 //=============================================================================
 //

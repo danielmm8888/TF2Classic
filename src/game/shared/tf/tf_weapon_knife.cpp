@@ -22,16 +22,7 @@
 //
 // Weapon Knife tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFKnife, DT_TFWeaponKnife )
-
-BEGIN_NETWORK_TABLE( CTFKnife, DT_TFWeaponKnife )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFKnife )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_knife, CTFKnife );
-PRECACHE_WEAPON_REGISTER( tf_weapon_knife );
+CREATE_SIMPLE_WEAPON_TABLE( TFKnife, tf_weapon_knife )
 
 //=============================================================================
 //

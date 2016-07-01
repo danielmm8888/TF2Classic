@@ -11,16 +11,7 @@
 #include "tf_powerup.h"
 #endif
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFLunchBox, DT_WeaponLunchBox )
-
-BEGIN_NETWORK_TABLE( CTFLunchBox, DT_WeaponLunchBox )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFLunchBox )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_lunchbox, CTFLunchBox );
-PRECACHE_WEAPON_REGISTER( tf_weapon_lunchbox );
+CREATE_SIMPLE_WEAPON_TABLE( TFLunchBox, tf_weapon_lunchbox )
 
 #define TF_SANDVICH_PLATE_MODEL "models/items/plate.mdl"
 

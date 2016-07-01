@@ -14,23 +14,14 @@
 #include "c_tf_player.h"
 #endif
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFHammerfists, DT_TFWeaponHammerfists )
-
-BEGIN_NETWORK_TABLE( CTFHammerfists, DT_TFWeaponHammerfists )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFHammerfists )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_hammerfists, CTFHammerfists );
-PRECACHE_WEAPON_REGISTER( tf_weapon_hammerfists );
+CREATE_SIMPLE_WEAPON_TABLE( TFHammerfists, tf_weapon_hammerfists )
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor.
 //-----------------------------------------------------------------------------
 CTFHammerfists::CTFHammerfists()
 {
-	
+
 }
 
 //-----------------------------------------------------------------------------
@@ -38,7 +29,7 @@ CTFHammerfists::CTFHammerfists()
 //-----------------------------------------------------------------------------
 CTFHammerfists::~CTFHammerfists()
 {
-	
+
 }
 
 

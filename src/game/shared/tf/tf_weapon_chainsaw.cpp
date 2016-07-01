@@ -20,16 +20,7 @@
 //
 // Weapon Chainsaw tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFChainsaw, DT_TFWeaponChainsaw )
-
-BEGIN_NETWORK_TABLE( CTFChainsaw, DT_TFWeaponChainsaw )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFChainsaw )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_chainsaw, CTFChainsaw );
-PRECACHE_WEAPON_REGISTER( tf_weapon_chainsaw );
+CREATE_SIMPLE_WEAPON_TABLE( TFChainsaw, tf_weapon_chainsaw )
 
 //=============================================================================
 //
@@ -44,7 +35,7 @@ CTFChainsaw::CTFChainsaw()
 }
 
 
-void CTFChainsaw::PrimaryAttack(void)
+void CTFChainsaw::PrimaryAttack( void )
 {
 	// Get the current player.
 	CTFPlayer *pPlayer = GetTFPlayerOwner();

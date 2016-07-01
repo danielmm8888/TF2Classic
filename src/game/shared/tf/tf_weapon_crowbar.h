@@ -25,11 +25,11 @@ class CTFCrowbar : public CTFWeaponBaseMelee
 public:
 
 	DECLARE_CLASS( CTFCrowbar, CTFWeaponBaseMelee );
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	CTFCrowbar();
-	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_CROWBAR; }
+	virtual int			GetWeaponID( void ) const { return TF_WEAPON_CROWBAR; }
 
 private:
 

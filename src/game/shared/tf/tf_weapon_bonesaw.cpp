@@ -18,16 +18,7 @@
 // Weapon Bonesaw tables.
 //
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFBonesaw, DT_TFWeaponBonesaw )
-
-BEGIN_NETWORK_TABLE( CTFBonesaw, DT_TFWeaponBonesaw )
-END_NETWORK_TABLE()
-
-BEGIN_PREDICTION_DATA( CTFBonesaw )
-END_PREDICTION_DATA()
-
-LINK_ENTITY_TO_CLASS( tf_weapon_bonesaw, CTFBonesaw );
-PRECACHE_WEAPON_REGISTER( tf_weapon_bonesaw );
+CREATE_SIMPLE_WEAPON_TABLE( TFBonesaw, tf_weapon_bonesaw )
 
 #ifdef CLIENT_DLL
 void CTFBonesaw::OnDataChanged( DataUpdateType_t updateType )
