@@ -48,6 +48,10 @@ extern ConVar tf2c_muzzlelight;
 ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
 ConVar tf2c_weapon_noreload( "tf2c_weapon_noreload", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Disables reloading for all weapons." );
 
+#ifdef GAME_DLL
+ConVar tf_debug_criticals( "tf_debug_criticals", "0", FCVAR_CHEAT );
+#endif
+
 //=============================================================================
 //
 // Global functions.
@@ -884,13 +888,27 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 		// calculate the chance per second of non-crit fire that we should transition into critting such that on average we achieve the total crit chance we want
 		float flStartCritChance = 1 / flNonCritDuration;
 
+#ifdef GAME_DLL
+		if ( tf_debug_criticals.GetBool() )
+		{
+			Msg( "Rolling crit: %.02f%% chance... ", flTotalCritChance * 100.0f );
+		}
+#endif
+
 		// see if we should start firing crit shots
-		int iRandom = RandomInt( 0, WEAPON_RANDOM_RANGE - 1 );
-		if ( iRandom <= flStartCritChance * WEAPON_RANDOM_RANGE )
+		bool bSuccess = RandomInt( 0, WEAPON_RANDOM_RANGE - 1 ) <= ( flStartCritChance * WEAPON_RANDOM_RANGE );
+
+		if ( bSuccess )
 		{
 			m_flCritTime = gpGlobals->curtime + TF_DAMAGE_CRIT_DURATION_RAPID;
-			return true;
 		}
+
+#ifdef GAME_DLL
+		if ( tf_debug_criticals.GetBool() )
+		{
+			Msg( "%s\n", bSuccess ? "SUCCESS" : "FAILURE" );
+		}
+#endif
 
 		return false;
 	}
@@ -904,7 +922,23 @@ bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 		if ( flCritChance == 0.0f )
 			return false;
 
-		return ( RandomInt( 0.0, WEAPON_RANDOM_RANGE - 1 ) < flCritChance * WEAPON_RANDOM_RANGE );
+#ifdef GAME_DLL
+		if ( tf_debug_criticals.GetBool() )
+		{
+			Msg( "Rolling crit: %.02f%% chance... ", flCritChance * 100.0f );
+		}
+#endif
+
+		bool bSuccess = ( RandomInt( 0.0, WEAPON_RANDOM_RANGE - 1 ) < flCritChance * WEAPON_RANDOM_RANGE );
+
+#ifdef GAME_DLL
+		if ( tf_debug_criticals.GetBool() )
+		{
+			Msg( "%s\n", bSuccess ? "SUCCESS" : "FAILURE" );
+		}
+#endif
+
+		return bSuccess;
 	}
 }
 
