@@ -23,7 +23,7 @@ struct WeaponData_t
 	int		m_nDamage;
 	int		m_nBulletsPerShot;
 	int		m_nBurstSize;
-	int		m_flBurstDelay;
+	float	m_flBurstDelay;
 	float	m_flRange;
 	float	m_flSpread;
 	float	m_flPunchAngle;
