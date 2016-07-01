@@ -23,12 +23,7 @@
 #include "tf_gamestats.h"
 #endif
 
-// TODO: Hardcode these eventually. (Nicknine)
-ConVar tf2c_mirv_min_charge_velocity( "tf2c_mirv_min_charge_velocity", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
-ConVar tf2c_mirv_max_charge_velocity( "tf2c_mirv_max_charge_velocity", "2600", FCVAR_REPLICATED | FCVAR_CHEAT );
-
-#define TF_MIRV_MIN_CHARGE_VEL tf2c_mirv_min_charge_velocity.GetFloat() // 900
-#define TF_MIRV_MAX_CHARGE_VEL tf2c_mirv_max_charge_velocity.GetFloat() // 2400
+#define TF_MIRV_VEL 600
 
 //=============================================================================
 //
@@ -44,20 +39,14 @@ BEGIN_NETWORK_TABLE( CTFWeaponMirv, DT_WeaponMirv )
 #endif
 END_NETWORK_TABLE()
 
-#ifdef CLIENT_DLL
 BEGIN_PREDICTION_DATA( CTFWeaponMirv )
+#ifdef CLIENT_DLL
 	DEFINE_PRED_FIELD( m_flChargeBeginTime, FIELD_FLOAT, FTYPEDESC_INSENDTABLE ),
-END_PREDICTION_DATA()
 #endif
+END_PREDICTION_DATA()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv, CTFWeaponMirv );
 PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv );
-
-// Server specific.
-#ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFWeaponMirv )
-END_DATADESC()
-#endif
 
 //=============================================================================
 //
@@ -293,13 +282,7 @@ void CTFWeaponMirv::BlipSound( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponMirv::GetProjectileSpeed( void )
 {
-	float flForwardSpeed = RemapValClamped( ( gpGlobals->curtime - m_flChargeBeginTime ),
-		0.0f,
-		TF_MIRV_TIMER,
-		TF_MIRV_MIN_CHARGE_VEL,
-		TF_MIRV_MAX_CHARGE_VEL );
-
-	return flForwardSpeed;
+	return TF_MIRV_VEL;
 }
 
 //-----------------------------------------------------------------------------
