@@ -4447,7 +4447,7 @@ void C_TFPlayer::UpdateSpyMask( void )
 void C_TFPlayer::UpdateTypingBubble( void )
 {
 	// Don't show the bubble for local player.
-	if ( !IsLocalPlayer() )
+	if ( IsLocalPlayer() )
 		return;
 
 	if ( m_bTyping && IsAlive() && !m_Shared.InCond( TF_COND_STEALTHED ) )
