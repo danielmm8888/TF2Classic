@@ -1265,4 +1265,6 @@ public:
 
 #define TF_SPY_MASK_MODEL "models/player/items/spy_mask.mdl"
 
+#define IN_TYPING ( 1 << 31 )
+
 #endif // TF_SHAREDDEFS_H

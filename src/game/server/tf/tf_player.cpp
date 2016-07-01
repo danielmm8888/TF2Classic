@@ -344,6 +344,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
 	SendPropInt( SENDINFO( m_nForceTauntCam ), 2, SPROP_UNSIGNED ),
 	SendPropTime( SENDINFO( m_flLastDamageTime ) ),
+	SendPropBool( SENDINFO( m_bTyping ) ),
 
 END_SEND_TABLE()
 
@@ -717,6 +718,9 @@ void CTFPlayer::PostThink()
 		m_flTauntAttackTime = 0.0f;
 		DoTauntAttack();
 	}
+
+	// Check if player is typing.
+	m_bTyping = ( m_nButtons & IN_TYPING ) != 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -765,6 +769,7 @@ void CTFPlayer::Precache()
 	PrecacheParticleSystem( "water_playerdive" );
 	PrecacheParticleSystem( "water_playeremerge" );
 	PrecacheParticleSystem( "rocketjump_smoke" );
+	PrecacheParticleSystem( "speech_typing" );
 					 
 	BaseClass::Precache();
 }

@@ -264,6 +264,8 @@ public:
 
 	void	UpdateSpyMask( void );
 
+	void	UpdateTypingBubble( void );
+
 protected:
 
 	void ResetFlexWeights( CStudioHdr *pStudioHdr );
@@ -329,6 +331,7 @@ private:
 
 	// Medic callout particle effect
 	CNewParticleEffect	*m_pSaveMeEffect;
+	CNewParticleEffect	*m_pTypingEffect;
 
 	bool m_bUpdateObjectHudState;
 
@@ -395,6 +398,8 @@ public:
 
 	int				m_nForceTauntCam;
 	float			m_flLastDamageTime;
+
+	bool			m_bTyping;
 
 	CHandle<C_TFSpyMask> m_hSpyMask;
 
