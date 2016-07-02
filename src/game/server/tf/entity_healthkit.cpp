@@ -71,7 +71,7 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 		bool bTiny = GetPowerupSize() == POWERUP_TINY;
 		int iHealthRestored = 0;
 
-		// Don't heal the player who dropped this healthkit, recharge his lunchbox instead.
+		// Don't heal the player who dropped this healthkit.
 		if ( pTFPlayer != GetOwnerEntity() )
 		{
 			// Overheal pellets, well, overheal.
@@ -136,14 +136,28 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			// Disabled for overheal pills since they'll cause too much spam.
 			if ( iHealthRestored && !bTiny )
 			{
-				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
-
-				if ( event )
+				IGameEvent *event_healonhit = gameeventmanager->CreateEvent( "player_healonhit" );
+				if ( event_healonhit )
 				{
-					event->SetInt( "amount", iHealthRestored );
-					event->SetInt( "entindex", pPlayer->entindex() );
+					event_healonhit->SetInt( "amount", iHealthRestored );
+					event_healonhit->SetInt( "entindex", pPlayer->entindex() );
 
-					gameeventmanager->FireEvent( event );
+					gameeventmanager->FireEvent( event_healonhit );
+				}
+
+				// Show healing to the one who dropped the healthkit.
+				CBasePlayer *pOwner = ToBasePlayer( GetOwnerEntity() );
+				if ( pOwner )
+				{
+					IGameEvent *event_healed = gameeventmanager->CreateEvent( "player_healed" );
+					if ( event_healed )
+					{
+						event_healed->SetInt( "patient", pPlayer->GetUserID() );
+						event_healed->SetInt( "healer", pOwner->GetUserID() );
+						event_healed->SetInt( "amount", iHealthRestored );
+
+						gameeventmanager->FireEvent( event_healed );
+					}
 				}
 			}
 		}
@@ -153,6 +167,8 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			CTFWeaponBase *pLunch = pTFPlayer->Weapon_OwnsThisID( TF_WEAPON_LUNCHBOX );
 			if ( pLunch && pLunch->GetEffectBarProgress() < 1.0f )
 			{
+				CDisablePredictionFiltering disabler;
+
 				pLunch->EffectBarRegenFinished();
 				bSuccess = true;
 			}
