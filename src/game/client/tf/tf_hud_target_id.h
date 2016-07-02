@@ -67,6 +67,8 @@ protected:
 	CTFSpectatorGUIHealth	*m_pTargetHealth;
 
 	int m_iRenderPriority;
+
+	CPanelAnimationVarAliasType( int, m_iAvatarOffset, "avatar_offset", "0", "proportional_int" );
 };
 
 class CMainTargetID : public CTargetID

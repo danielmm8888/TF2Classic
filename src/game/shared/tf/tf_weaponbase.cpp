@@ -1809,14 +1809,6 @@ void CTFWeaponBase::EffectBarRegenFinished( void )
 	pOwner->GiveAmmo( 1, m_iPrimaryAmmoType, true, TF_AMMO_SOURCE_RESUPPLY );
 #endif
 
-	// TODO: Move this to HUD code.
-	CSingleUserRecipientFilter filter( pOwner );
-	if ( IsPredicted() && CBaseEntity::GetPredictionPlayer() )
-	{
-		filter.UsePredictionRules();
-	}
-	EmitSound( filter, pOwner->entindex(), "TFPlayer.ReCharged" );
-
 	// Keep recharging until we're full on ammo.
 #ifdef GAME_DLL
 	if ( pOwner->GetAmmoCount( m_iPrimaryAmmoType ) < pOwner->GetMaxAmmo( m_iPrimaryAmmoType ) )

@@ -189,10 +189,11 @@ void CTFHudCondStatus::OnTick( void )
 		bool bWasVisible = m_pPowerups[i]->IsVisible();
 		bool bVisible = m_pPowerups[i]->m_flDuration != 0.0f;
 
-		m_pPowerups[i]->SetVisible( bVisible );
-
 		if ( bVisible != bWasVisible )
+		{
+			m_pPowerups[i]->SetVisible( bVisible );
 			bUpdateLayout = true;
+		}
 	}
 
 	if ( bUpdateLayout )

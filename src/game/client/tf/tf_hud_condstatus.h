@@ -44,7 +44,7 @@ class CTFHudCondStatus : public CHudElement, public vgui::EditablePanel
 
 public:
 	CTFHudCondStatus( const char *pElementName );
-	virtual ~CTFHudCondStatus();
+	~CTFHudCondStatus();
 
 	virtual void ApplySchemeSettings( vgui::IScheme *pScheme );
 	virtual void ApplySettings( KeyValues *inResourceData );

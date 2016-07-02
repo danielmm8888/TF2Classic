@@ -47,6 +47,7 @@ public:
 
 	virtual bool	HasChargeBar( void ) { return true; }
 	virtual float	InternalGetEffectBarRechargeTime( void ) { return 8.0f; }
+	virtual const char	*GetEffectLabelText( void ) { return "#TF_MIRV"; }
 
 public:
 	// ITFChargeUpWeapon

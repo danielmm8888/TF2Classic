@@ -32,6 +32,7 @@ public:
 
 	virtual bool	HasChargeBar( void ) { return true; }
 	virtual float	InternalGetEffectBarRechargeTime( void ) { return 30.0f; }
+	virtual const char	*GetEffectLabelText( void ) { return "#TF_Sandwich"; }
 
 #ifdef GAME_DLL
 	virtual void	Precache( void );

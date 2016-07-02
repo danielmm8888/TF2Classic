@@ -252,11 +252,12 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	float				GetLastFireTime( void ) { return m_flLastFireTime; }
 
-	virtual bool	HasChargeBar( void ) { return false; }
-	void			StartEffectBarRegen( void );
-	void			EffectBarRegenFinished( void );
-	void			CheckEffectBarRegen( void );
-	float			GetEffectBarProgress( void );
+	virtual bool		HasChargeBar( void ) { return false; }
+	void				StartEffectBarRegen( void );
+	void				EffectBarRegenFinished( void );
+	void				CheckEffectBarRegen( void );
+	float				GetEffectBarProgress( void );
+	virtual const char	*GetEffectLabelText( void ) { return ""; }
 
 // Server specific.
 #if !defined( CLIENT_DLL )
