@@ -167,8 +167,6 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			CTFWeaponBase *pLunch = pTFPlayer->Weapon_OwnsThisID( TF_WEAPON_LUNCHBOX );
 			if ( pLunch && pLunch->GetEffectBarProgress() < 1.0f )
 			{
-				CDisablePredictionFiltering disabler;
-
 				pLunch->EffectBarRegenFinished();
 				bSuccess = true;
 			}

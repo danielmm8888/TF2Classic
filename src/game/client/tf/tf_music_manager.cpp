@@ -400,16 +400,10 @@ DECLARE_HUDELEMENT( CHudMusicManager );
 // Purpose: 
 // Input  : *parent - 
 //-----------------------------------------------------------------------------
-CHudMusicManager::CHudMusicManager( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "CHudMusicManager" )
+CHudMusicManager::CHudMusicManager( const char *pElementName ) : CHudElement( pElementName ), BaseClass( NULL, "HudMusicManager" )
 {
 	Panel *pParent = g_pClientMode->GetViewport();
 	SetParent( pParent );
-
-	SetVisible( false );
-	SetCursor( null );
-
-	SetFgColor( Color( 0, 0, 0, 255 ) );
-	SetPaintBackgroundEnabled( false );
 
 	m_hFont = 0;
 }
@@ -426,8 +420,8 @@ void CHudMusicManager::ApplySchemeSettings( vgui::IScheme *pScheme )
 	BaseClass::ApplySchemeSettings( pScheme );
 
 	m_hFont = pScheme->GetFont( "Default" );
-	Assert( m_hFont );
 
+	SetPaintBackgroundEnabled( false );
 	SetSize( ScreenWidth(), ScreenHeight() );
 }
 

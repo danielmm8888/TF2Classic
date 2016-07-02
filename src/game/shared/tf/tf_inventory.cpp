@@ -167,6 +167,18 @@ bool CTFInventory::CheckValidWeapon( int iClass, int iSlot, int iWeapon, bool bH
 	return true;
 };
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+int CTFInventory::NumWeapons( int iClass, int iSlot )
+{
+	// Slot must contain a base item.
+	if ( m_Items[iClass][iSlot][0] == NULL )
+		return 0;
+
+	return m_Items[iClass][iSlot].Count();
+}
+
 #if defined( CLIENT_DLL )
 //-----------------------------------------------------------------------------
 // Purpose:

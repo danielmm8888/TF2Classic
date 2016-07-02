@@ -88,12 +88,15 @@ void CHudItemEffectMeter::UpdateStatus( void )
 		return;
 	}
 
+	// Find a weapon in the loadout slot we're tied to.
 	C_EconEntity *pEntity = pPlayer->GetEntityForLoadoutSlot( m_iSlot );
 	if ( pEntity && pEntity->IsBaseCombatWeapon() )
 	{
 		if ( pEntity != m_pWeapon )
 		{
+			// Weapon changed, reset the label and progress.
 			m_pWeapon = static_cast<C_TFWeaponBase *>( pEntity );
+			m_flOldCharge = m_pWeapon->GetEffectBarProgress();
 
 			if ( m_pEffectMeterLabel )
 			{
@@ -158,8 +161,8 @@ public:
 private:
 	CUtlVector<CHudItemEffectMeter *> m_pEffectBars;
 	
-	CPanelAnimationVarAliasType( int, m_iXOffset, "x_offset", "40", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iYOffset, "y_offset", "40", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iXOffset, "x_offset", "50", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iYOffset, "y_offset", "0", "proportional_int" );
 };
 
 DECLARE_HUDELEMENT( CHudItemEffects );
