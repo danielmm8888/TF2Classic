@@ -430,6 +430,9 @@ void CTargetID::UpdateID( void )
 		// Setup avatar
 		if ( tf_hud_target_id_show_avatars.GetBool() && pAvatarPlayer && m_pAvatar )
 		{
+			if ( !m_pAvatar->IsVisible() )
+				m_pAvatar->SetVisible( true );
+
 			m_pAvatar->SetDefaultAvatar( GetDefaultAvatarImage( pAvatarPlayer ) );
 			m_pAvatar->SetPlayer( pAvatarPlayer );
 			m_pAvatar->SetShouldDrawFriendIcon( false );
@@ -439,8 +442,10 @@ void CTargetID::UpdateID( void )
 		else
 		{
 			// Avatars are off, wipe it.
-			if ( m_pAvatar )
-				m_pAvatar->SetPlayer( NULL );
+			if ( m_pAvatar && m_pAvatar->IsVisible() )
+			{
+				m_pAvatar->SetVisible( false );
+			}
 
 			m_pTargetNameLabel->SetTextInset( 0, 0 );
 		}
