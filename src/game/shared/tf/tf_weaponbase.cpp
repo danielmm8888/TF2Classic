@@ -319,12 +319,12 @@ void CTFWeaponBase::Precache()
 		PrecacheTeamParticles( pTFInfo->m_szExplosionEffect_Crit );
 	}
 
-	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
+	if ( pTFInfo->m_szExplosionPlayerEffect_Crit[0] )
 	{
 		PrecacheTeamParticles( pTFInfo->m_szExplosionPlayerEffect_Crit );
 	}
 
-	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
+	if ( pTFInfo->m_szExplosionWaterEffect_Crit[0] )
 	{
 		PrecacheTeamParticles( pTFInfo->m_szExplosionWaterEffect_Crit );
 	}
@@ -332,33 +332,13 @@ void CTFWeaponBase::Precache()
 	// Tracers
 	if ( pTFInfo->m_szTracerEffect[0] )
 	{
-		char pTracerEffect[128];
-		char pTracerEffectCrit[128];
+		char szTracerEffect[128];
+		char szTracerEffectCrit[128];
 
-		Q_snprintf( pTracerEffect, sizeof( pTracerEffect ), "%s_red", pTFInfo->m_szTracerEffect );
-		Q_snprintf( pTracerEffectCrit, sizeof( pTracerEffectCrit ), "%s_red_crit", pTFInfo->m_szTracerEffect );
-		PrecacheParticleSystem( pTracerEffect );
-		PrecacheParticleSystem( pTracerEffectCrit );
-
-		Q_snprintf( pTracerEffect, sizeof( pTracerEffect ), "%s_blue", pTFInfo->m_szTracerEffect );
-		Q_snprintf( pTracerEffectCrit, sizeof( pTracerEffectCrit ), "%s_blue_crit", pTFInfo->m_szTracerEffect );
-		PrecacheParticleSystem( pTracerEffect );
-		PrecacheParticleSystem( pTracerEffectCrit );
-
-		Q_snprintf( pTracerEffect, sizeof( pTracerEffect ), "%s_green", pTFInfo->m_szTracerEffect );
-		Q_snprintf( pTracerEffectCrit, sizeof( pTracerEffectCrit ), "%s_green_crit", pTFInfo->m_szTracerEffect );
-		PrecacheParticleSystem( pTracerEffect );
-		PrecacheParticleSystem( pTracerEffectCrit );
-
-		Q_snprintf( pTracerEffect, sizeof( pTracerEffect ), "%s_yellow", pTFInfo->m_szTracerEffect );
-		Q_snprintf( pTracerEffectCrit, sizeof( pTracerEffectCrit ), "%s_yellow_crit", pTFInfo->m_szTracerEffect );
-		PrecacheParticleSystem( pTracerEffect );
-		PrecacheParticleSystem( pTracerEffectCrit );
-
-		Q_snprintf( pTracerEffect, sizeof( pTracerEffect ), "%s_dm", pTFInfo->m_szTracerEffect );
-		Q_snprintf( pTracerEffectCrit, sizeof( pTracerEffectCrit ), "%s_dm_crit", pTFInfo->m_szTracerEffect );
-		PrecacheParticleSystem( pTracerEffect );
-		PrecacheParticleSystem( pTracerEffectCrit );
+		V_snprintf( szTracerEffect, sizeof( szTracerEffect ), "%s_%%s", pTFInfo->m_szTracerEffect );
+		V_snprintf( szTracerEffectCrit, sizeof( szTracerEffectCrit ), "%s_%%s_crit", pTFInfo->m_szTracerEffect );
+		PrecacheTeamParticles( szTracerEffect, true );
+		PrecacheTeamParticles( szTracerEffectCrit, true );
 	}
 }
 
@@ -1789,11 +1769,6 @@ const char *CTFWeaponBase::GetTracerType( void )
 			const char *pszTeamName = GetTeamParticleName( GetOwner()->GetTeamNumber(), true );
 			V_snprintf( m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, pszTeamName );
 		}
-
-		//if ( !m_szTracerName[0] )
-		//{
-		//	Q_snprintf(m_szTracerName, MAX_TRACER_NAME, "%s_%s", GetTFWpnData().m_szTracerEffect, tempString);
-		//}
 
 		return m_szTracerName;
 	}
