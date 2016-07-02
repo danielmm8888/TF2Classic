@@ -174,6 +174,51 @@ float CAttributeManager::ApplyAttributeFloat( float flValue, const CBaseEntity *
 	return flValue;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: Search for an attribute on our providers.
+//-----------------------------------------------------------------------------
+string_t CAttributeManager::ApplyAttributeString( string_t strValue, const CBaseEntity *pEntity, string_t strAttributeClass )
+{
+	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
+	{
+		return strValue;
+	}
+
+	// Safeguard to prevent potential infinite loops.
+	m_bParsingMyself = true;
+
+	for ( int i = 0; i < m_AttributeProviders.Count(); i++ )
+	{
+		CBaseEntity *pProvider = m_AttributeProviders[i].Get();
+
+		if ( !pProvider || pProvider == pEntity )
+			continue;
+
+		IHasAttributes *pAttributes = pProvider->GetHasAttributesInterfacePtr();
+
+		if ( pAttributes )
+		{
+			strValue = pAttributes->GetAttributeManager()->ApplyAttributeString( strValue, pEntity, strAttributeClass );
+		}
+	}
+
+	IHasAttributes *pAttributes = m_hOuter->GetHasAttributesInterfacePtr();
+	CBaseEntity *pOwner = pAttributes->GetAttributeOwner();
+
+	if ( pOwner )
+	{
+		IHasAttributes *pOwnerAttrib = pOwner->GetHasAttributesInterfacePtr();
+		if ( pOwnerAttrib )
+		{
+			strValue = pOwnerAttrib->GetAttributeManager()->ApplyAttributeString( strValue, pEntity, strAttributeClass );
+		}
+	}
+
+	m_bParsingMyself = false;
+
+	return strValue;
+}
+
 
 //=============================================================================
 // CAttributeContainer
@@ -244,7 +289,31 @@ float CAttributeContainer::ApplyAttributeFloat( float flValue, const CBaseEntity
 
 	m_bParsingMyself = false;
 
-	flValue = BaseClass::ApplyAttributeFloat( flValue, pEntity, strAttributeClass );
+	return BaseClass::ApplyAttributeFloat( flValue, pEntity, strAttributeClass );
+}
 
-	return flValue;
+//-----------------------------------------------------------------------------
+// Purpose: Search for an attribute and apply its value.
+//-----------------------------------------------------------------------------
+string_t CAttributeContainer::ApplyAttributeString( string_t strValue, const CBaseEntity *pEntity, string_t strAttributeClass )
+{
+	if ( m_bParsingMyself || m_hOuter.Get() == NULL )
+		return strValue;
+
+	m_bParsingMyself = true;;
+
+	// This should only ever be used by econ entities.
+	CEconEntity *pEconEnt = assert_cast<CEconEntity *>( m_hOuter.Get() );
+	CEconItemView *pItem = pEconEnt->GetItem();
+
+	CEconItemAttribute *pAttribute = pItem->IterateAttributes( strAttributeClass );
+
+	if ( pAttribute )
+	{
+		strValue = AllocPooledString( pAttribute->value_string.Get() );
+	}
+
+	m_bParsingMyself = false;
+
+	return BaseClass::ApplyAttributeString( strValue, pEntity, strAttributeClass );
 }

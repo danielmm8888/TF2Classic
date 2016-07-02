@@ -231,6 +231,7 @@ public:
 			GET_STRING_DEFAULT( pAttribute, pSubData, name, ( unnamed ) );
 			GET_STRING( pAttribute, pSubData, attribute_class );
 			GET_STRING( pAttribute, pSubData, description_string );
+			pAttribute->string_attribute = ( V_stricmp( pSubData->GetString( "attribute_type" ), "string" ) == 0 );
 
 			const char *pszFormat = pSubData->GetString( "description_format" );
 			pAttribute->description_format = UTIL_StringFieldToInt( pszFormat, g_AttributeDescriptionFormats, ARRAYSIZE( g_AttributeDescriptionFormats ) );
@@ -449,8 +450,18 @@ public:
 					if ( iAttributeID == -1 )
 						continue;
 
-					CEconItemAttribute attribute( iAttributeID, pAttribData->GetFloat( "value" ), pAttribData->GetString( "attribute_class" ) );
-					pItem->attributes.AddToTail( attribute );
+					EconAttributeDefinition *pAttribDef = GetItemSchema()->GetAttributeDefinition( iAttributeID );
+
+					if ( pAttribDef->string_attribute )
+					{
+						CEconItemAttribute attribute( iAttributeID, pAttribData->GetString( "value" ), pAttribData->GetString( "attribute_class" ) );
+						pItem->attributes.AddToTail( attribute );
+					}
+					else
+					{
+						CEconItemAttribute attribute( iAttributeID, pAttribData->GetFloat( "value" ), pAttribData->GetString( "attribute_class" ) );
+						pItem->attributes.AddToTail( attribute );
+					}
 				}
 			}
 			else if ( !V_stricmp( pSubData->GetName(), "visuals_mvm_boss" ) )
@@ -534,6 +545,8 @@ bool CEconItemSchema::Init( void )
 //-----------------------------------------------------------------------------
 void CEconItemSchema::Precache( void )
 {
+	string_t strPrecacheAttribute = AllocPooledString( "custom_projectile_model" );
+
 	// Precache everything from schema.
 	FOR_EACH_MAP( m_Items, i )
 	{
@@ -574,6 +587,12 @@ void CEconItemSchema::Precache( void )
 		{
 			CEconItemAttribute *pAttribute = &pItem->attributes[i];
 			pAttribute->m_strAttributeClass = AllocPooledString( pAttribute->attribute_class );
+
+			// Special case for custom_projectile_model attribute.
+			if ( pAttribute->m_strAttributeClass == strPrecacheAttribute )
+			{
+				CBaseEntity::PrecacheModel( pAttribute->value_string.Get() );
+			}
 		}
 	}
 }

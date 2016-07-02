@@ -235,6 +235,13 @@ void CTFWeaponBaseGrenadeProj::InitGrenade( const Vector &velocity, const Angula
 		SetDamageRadius( pTFWeapon->GetTFWpnData().m_flDamageRadius );
 	}
 
+	string_t strModelOverride = NULL_STRING;
+	CALL_ATTRIB_HOOK_STRING_ON_OTHER( m_hLauncher.Get(), strModelOverride, custom_projectile_model );
+	if ( strModelOverride != NULL_STRING )
+	{
+		SetModel( STRING( strModelOverride ) );
+	}
+
 	ChangeTeam( pOwner->GetTeamNumber() );
 
 	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();

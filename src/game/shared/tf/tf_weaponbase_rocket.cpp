@@ -131,6 +131,13 @@ void CTFBaseRocket::Spawn( void )
 	//Derived classes must have set model.
 	Assert( GetModel() );
 
+	string_t strModelOverride = NULL_STRING;
+	CALL_ATTRIB_HOOK_STRING_ON_OTHER( m_hLauncher.Get(), strModelOverride, custom_projectile_model );
+	if ( strModelOverride != NULL_STRING )
+	{
+		SetModel( STRING( strModelOverride ) );
+	}
+
 	SetSolid( SOLID_BBOX );
 	SetMoveType( MOVETYPE_FLY, MOVECOLLIDE_FLY_CUSTOM );
 	AddEFlags( EFL_NO_WATER_VELOCITY_CHANGE );
@@ -252,7 +259,7 @@ CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClass
 	pRocket->SetLauncher( pWeapon );
 
 	// Spawn.
-	pRocket->Spawn();
+	DispatchSpawn( pRocket );
 
 	float flGravity = 0.0f;
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flGravity, mod_rocket_gravity );
