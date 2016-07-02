@@ -109,6 +109,9 @@ public:
 	char	m_szExplosionEffect[128];
 	char	m_szExplosionPlayerEffect[128];
 	char	m_szExplosionWaterEffect[128];
+	char	m_szExplosionEffect_Crit[128];
+	char	m_szExplosionPlayerEffect_Crit[128];
+	char	m_szExplosionWaterEffect_Crit[128];
 
 	bool	m_bDontDrop;
 

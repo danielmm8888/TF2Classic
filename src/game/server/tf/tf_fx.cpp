@@ -111,6 +111,8 @@ public:
 	int m_iWeaponID;
 	int m_iItemID;
 	int m_nEntIndex;
+	int m_iTeamNum;
+	bool m_bCritical;
 };
 
 // Singleton to fire explosion objects
@@ -127,6 +129,8 @@ CTETFExplosion::CTETFExplosion( const char *name ) : CBaseTempEntity( name )
 	m_iWeaponID = TF_WEAPON_NONE;
 	m_iItemID = -1;
 	m_nEntIndex = 0;
+	m_iTeamNum = TEAM_UNASSIGNED;
+	m_bCritical = false;
 }
 
 IMPLEMENT_SERVERCLASS_ST( CTETFExplosion, DT_TETFExplosion )
@@ -136,15 +140,19 @@ IMPLEMENT_SERVERCLASS_ST( CTETFExplosion, DT_TETFExplosion )
 	SendPropVector( SENDINFO_NOCHECK( m_vecNormal ), 6, 0, -1.0f, 1.0f ),
 	SendPropInt( SENDINFO_NOCHECK( m_iWeaponID ), Q_log2( TF_WEAPON_COUNT )+1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO_NOCHECK( m_iItemID ) ),
+	SendPropInt( SENDINFO_NOCHECK( m_iTeamNum ), 3, SPROP_UNSIGNED ),
+	SendPropBool( SENDINFO_NOCHECK( m_bCritical ) ),
 	SendPropInt( SENDINFO_NAME( m_nEntIndex, entindex ), MAX_EDICT_BITS ),
 END_SEND_TABLE()
 
-void TE_TFExplosion( IRecipientFilter &filter, float flDelay, const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, int nEntIndex, int iItemID /*= -1*/ )
+void TE_TFExplosion( IRecipientFilter &filter, float flDelay, const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, int nEntIndex, int iTeam /*= TEAM_UNASSIGNED*/, bool bCrit /*= false*/, int iItemID /*= -1*/ )
 {
 	VectorCopy( vecOrigin, g_TETFExplosion.m_vecOrigin );
 	VectorCopy( vecNormal, g_TETFExplosion.m_vecNormal );
 	g_TETFExplosion.m_iWeaponID	= iWeaponID;	
 	g_TETFExplosion.m_nEntIndex	= nEntIndex;
+	g_TETFExplosion.m_iTeamNum = iTeam;
+	g_TETFExplosion.m_bCritical = bCrit;
 
 	// Send it over the wire
 	g_TETFExplosion.Create( filter, flDelay );

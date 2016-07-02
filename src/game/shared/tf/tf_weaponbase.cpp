@@ -280,37 +280,57 @@ void CTFWeaponBase::Precache()
 
 	const CTFWeaponInfo *pTFInfo = &GetTFWpnData();
 
-	if ( pTFInfo->m_szExplosionSound && pTFInfo->m_szExplosionSound[0] )
+	// Explosion sound.
+	if ( pTFInfo->m_szExplosionSound[0] )
 	{
-		CBaseEntity::PrecacheScriptSound( pTFInfo->m_szExplosionSound );
+		PrecacheScriptSound( pTFInfo->m_szExplosionSound );
 	}
 
+	// Eject brass shells model.
 	if ( pTFInfo->m_szBrassModel[0] )
 	{
 		PrecacheModel( pTFInfo->m_szBrassModel );
 	}
 
-	if ( pTFInfo->m_szMuzzleFlashParticleEffect && pTFInfo->m_szMuzzleFlashParticleEffect[0] )
+	// Muzzle particle.
+	if ( pTFInfo->m_szMuzzleFlashParticleEffect[0] )
 	{
 		PrecacheParticleSystem( pTFInfo->m_szMuzzleFlashParticleEffect );
 	}
 
-	if ( pTFInfo->m_szExplosionEffect && pTFInfo->m_szExplosionEffect[0] )
+	// Explosion particles.
+	if ( pTFInfo->m_szExplosionEffect[0] )
 	{
 		PrecacheParticleSystem( pTFInfo->m_szExplosionEffect );
 	}
 
-	if ( pTFInfo->m_szExplosionPlayerEffect && pTFInfo->m_szExplosionPlayerEffect[0] )
+	if ( pTFInfo->m_szExplosionPlayerEffect[0] )
 	{
 		PrecacheParticleSystem( pTFInfo->m_szExplosionPlayerEffect );
 	}
 
-	if ( pTFInfo->m_szExplosionWaterEffect && pTFInfo->m_szExplosionWaterEffect[0] )
+	if ( pTFInfo->m_szExplosionWaterEffect[0] )
 	{
 		PrecacheParticleSystem( pTFInfo->m_szExplosionWaterEffect );
 	}
 
-	if ( pTFInfo->m_szTracerEffect && pTFInfo->m_szTracerEffect[0] )
+	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
+	{
+		PrecacheTeamParticles( pTFInfo->m_szExplosionEffect_Crit );
+	}
+
+	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
+	{
+		PrecacheTeamParticles( pTFInfo->m_szExplosionPlayerEffect_Crit );
+	}
+
+	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
+	{
+		PrecacheTeamParticles( pTFInfo->m_szExplosionWaterEffect_Crit );
+	}
+
+	// Tracers
+	if ( pTFInfo->m_szTracerEffect[0] )
 	{
 		char pTracerEffect[128];
 		char pTracerEffectCrit[128];

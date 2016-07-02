@@ -202,25 +202,22 @@ CON_COMMAND_F( bot, "Add a bot.", FCVAR_CHEAT )
 
 		char const *pName = args.FindArg( "-name" );
 
-		// Pick random color if one is not specified.
+		// Pick a random color if one is not specified.
 		Vector vecColor = vec3_origin;
 		int iRespawnParticle = 1;
 		if ( TFGameRules()->IsDeathmatch() )
 		{
-			float flColors[3];
-
 			pVal = args.FindArg( "-color" );
 			if ( pVal )
 			{
-				UTIL_StringToVector( flColors, pVal );
+				UTIL_StringToVector( vecColor.Base(), pVal );
 			}
 			else
 			{
-				for ( int i = 0; i < ARRAYSIZE( flColors ); i++ )
-					flColors[i] = (float)RandomInt( 0, 255 );
+				for ( int i = 0; i < 3; i++ )
+					vecColor[i] = floorf( RandomFloat( 1, 255 ) );
 			}
 
-			vecColor.Init( flColors[0], flColors[1], flColors[2] );
 			vecColor /= 255.0f;
 
 			pVal = args.FindArg( "-respawn" );

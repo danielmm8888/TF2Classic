@@ -50,6 +50,9 @@ CTFWeaponInfo::CTFWeaponInfo()
 	m_szExplosionEffect[0] = '\0';
 	m_szExplosionPlayerEffect[0] = '\0';
 	m_szExplosionWaterEffect[0] = '\0';
+	m_szExplosionEffect_Crit[0] = '\0';
+	m_szExplosionPlayerEffect_Crit[0] = '\0';
+	m_szExplosionWaterEffect_Crit[0] = '\0';
 
 	m_iWeaponType = TF_WPN_TYPE_PRIMARY;
 
@@ -214,6 +217,24 @@ void CTFWeaponInfo::Parse( KeyValues *pKeyValuesData, const char *szWeaponName )
 	if ( pszEffect )
 	{
 		Q_strncpy( m_szExplosionWaterEffect, pszEffect, sizeof( m_szExplosionWaterEffect ) );
+	}
+
+	pszEffect = pKeyValuesData->GetString( "ExplosionEffect_Crit", NULL );
+	if ( pszEffect )
+	{
+		Q_strncpy( m_szExplosionEffect_Crit, pszEffect, sizeof( m_szExplosionEffect_Crit ) );
+	}
+
+	pszEffect = pKeyValuesData->GetString( "ExplosionPlayerEffect_Crit", NULL );
+	if ( pszEffect )
+	{
+		Q_strncpy( m_szExplosionPlayerEffect_Crit, pszEffect, sizeof( m_szExplosionPlayerEffect_Crit ) );
+	}
+
+	pszEffect = pKeyValuesData->GetString( "ExplosionWaterEffect_Crit", NULL );
+	if ( pszEffect )
+	{
+		Q_strncpy( m_szExplosionWaterEffect_Crit, pszEffect, sizeof( m_szExplosionWaterEffect_Crit ) );
 	}
 
 	m_bDontDrop = ( pKeyValuesData->GetInt( "DontDrop", 0 ) > 0 );

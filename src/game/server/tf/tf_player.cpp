@@ -1832,7 +1832,7 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 	}
 
 	// Sometimes some DM maps are missing the info_player_deathmatch spawn points.
-	// falback onto the regular info_player_teamspawn entities
+	// Fall back to the regular info_player_teamspawn entities.
 	if ( !pSpot && TFGameRules()->IsDeathmatch() )
 	{
 		pEntClassName = "info_player_teamspawn";
@@ -1923,8 +1923,6 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 		}
 
 		pSpot = pFurthest;
-		if ( flFurthest != 0.0f )
-			Msg( "Picked the furthest spawn point %.f units away from other players.\n", sqrtf( flFurthest ) );
 
 		// Found a valid spawn point.
 		return true;
