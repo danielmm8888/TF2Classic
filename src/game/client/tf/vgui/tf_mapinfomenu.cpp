@@ -431,48 +431,48 @@ struct s_MapTypeInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	//---------------------- CTF maps ----------------------
-	"ctf_2fort", "2Fort", "#Gametype_CTF", "Valve",
-	"ctf_well", "Well", "#Gametype_CTF", "Valve",
-	//  "ctf_doublecross",      "Double Cross",     "#Gametype_CTF",                "Valve",
-	"ctf_turbine", "Turbine", "#Gametype_CTF", "Flobster",
-	"ctf_landfall"          "Landfall", "#Gametype_CTF", "Dr. Spud",
-	//---------------------- CP maps ----------------------
-	"cp_dustbowl", "Dustbowl", "#Gametype_AttackDefense", "Valve",
-	"cp_gravelpit", "Gravel Pit"        "#Gametype_AttackDefense", "Valve",
-	"cp_gorge", "Gorge", "#Gametype_AttackDefense", "Valve",
-	//  "cp_mountainlab",       "Mountain Lab",     "#Gametype_AttackDefense",      "Valve, 3Dnj",
-	"cp_furnace_rc", "Furnace Creek", "#Gametype_AttackDefense", "YM, Nineaxis",
-	"cp_amaranth", "Amaranth", "#Gametype_AttackDefense", "Berry, TheoF114",
-	"cp_granary", "Granary", "#Gametype_CP", "Valve",
-	"cp_well", "Well", "#Gametype_CP", "Valve",
-	//  "cp_foundry",           "Foundry",          "#Gametype_CP",                 "Valve",
-	"cp_badlands", "Badlands", "#Gametype_CP", "Valve",
-	"cp_powerhouse", "Powerhouse", "#Gametype_CP", "Valve",
-	"cp_tidal_v4", "Tidal", "#Gametype_CP", "Heyo",
-	"cp_hydro", "Hydro (CP)", "#Gametype_CP_Domination", "Snowshoe, Valve",
-	//---------------------- TC maps ----------------------
-	"tc_hydro", "Hydro", "#TF_TerritoryControl", "Valve",
-	//---------------------- PL maps ----------------------
-	"pl_goldrush", "Gold Rush", "#Gametype_Escort", "Valve",
-	"pl_badwater", "Badwater Basin", "#Gametype_Escort", "Valve",
-	//  "pl_thundermountain",   "Thunder Mountain", "#Gametype_Escort",             "Valve",
-	"pl_barnblitz", "Barnblitz", "#Gametype_Escort", "Valve",
-	"pl_upward", "Upward", "#Gametype_EscortRace", "Valve",
-	"plr_pipeline", "Pipeline", "#Gametype_EscortRace", "Valve",
-	"plr_hightower", "Hightower", "#Gametype_EscortRace", "Valve",
-	//---------------------- KOTH maps ----------------------  
-	//  "koth_king",            "Kong King",        "#Gametype_Koth",               "3Dnj",
-	"koth_nucleus", "Nucleus", "#Gametype_Koth", "Valve",
-	"koth_sawmill", "Sawmill (KOTH)", "#Gametype_Koth", "Valve",
-	//---------------------- ARENA maps ----------------------
-	"arena_sawmill", "Sawmill (Arena)", "#Gametype_Arena", "Valve",
-	//---------------------- DM maps ----------------------
-	"dm_wiseau"             "Wiseau", "#Gametype_Deathmatch", "MacD11, iiboharz",
-	"dm_grain"              "Grain", "#Gametype_Deathmatch", "Muddy",
-	"dm_parley"             "Parley", "#Gametype_Deathmatch", "DrPyspy",
-	"dm_ravine"             "Ravine", "#Gametype_Deathmatch", "Snowshoe, Valve",
-	"dm_2fort"              "2Fort (DM)", "#Gametype_Deathmatch", "iiboharz, Valve",
+    //---------------------- CTF maps ----------------------
+    "ctf_2fort",            "2Fort",            "#Gametype_CTF",                "Valve",
+    "ctf_well",             "Well",             "#Gametype_CTF",                "Valve",
+//  "ctf_doublecross",      "Double Cross",     "#Gametype_CTF",                "Valve",
+    "ctf_turbine",          "Turbine",          "#Gametype_CTF",                "Flobster",
+    "ctf_landfall"          "Landfall",         "#Gametype_CTF",                "Dr. Spud",
+    //---------------------- CP maps ----------------------
+    "cp_dustbowl",          "Dustbowl",         "#Gametype_AttackDefense",      "Valve",
+    "cp_gravelpit",         "Gravel Pit"        "#Gametype_AttackDefense",      "Valve",
+    "cp_gorge",             "Gorge",            "#Gametype_AttackDefense",      "Valve",
+//  "cp_mountainlab",       "Mountain Lab",     "#Gametype_AttackDefense",      "Valve, 3Dnj",
+    "cp_furnace_rc",        "Furnace Creek",    "#Gametype_AttackDefense",      "YM, Nineaxis",
+    "cp_amaranth",          "Amaranth",         "#Gametype_AttackDefense",      "Berry, TheoF114",
+    "cp_granary",           "Granary",          "#Gametype_CP",                 "Valve",
+    "cp_well",              "Well",             "#Gametype_CP",                 "Valve",
+//  "cp_foundry",           "Foundry",          "#Gametype_CP",                 "Valve",
+    "cp_badlands",          "Badlands",         "#Gametype_CP",                 "Valve",
+    "cp_powerhouse",        "Powerhouse",       "#Gametype_CP",                 "Valve",
+    "cp_tidal_v4",          "Tidal",            "#Gametype_CP",                 "Heyo",
+    "cp_hydro",             "Hydro (CP)",       "#Gametype_CP_Domination",      "Snowshoe, Valve",
+    //---------------------- TC maps ----------------------
+    "tc_hydro",             "Hydro",            "#TF_TerritoryControl",         "Valve",
+    //---------------------- PL maps ----------------------
+    "pl_goldrush",          "Gold Rush",        "#Gametype_Escort",             "Valve",
+    "pl_badwater",          "Badwater Basin",   "#Gametype_Escort",             "Valve",
+//  "pl_thundermountain",   "Thunder Mountain", "#Gametype_Escort",             "Valve",
+    "pl_barnblitz",         "Barnblitz",        "#Gametype_Escort",             "Valve",
+    "pl_upward",            "Upward",           "#Gametype_EscortRace",         "Valve",
+    "plr_pipeline",         "Pipeline",         "#Gametype_EscortRace",         "Valve",
+    "plr_hightower",        "Hightower",        "#Gametype_EscortRace",         "Valve",
+    //---------------------- KOTH maps ----------------------  
+//  "koth_king",            "Kong King",        "#Gametype_Koth",               "3Dnj",
+    "koth_nucleus",         "Nucleus",          "#Gametype_Koth",               "Valve",
+    "koth_sawmill",         "Sawmill (KOTH)",   "#Gametype_Koth",               "Valve",
+    //---------------------- ARENA maps ----------------------
+    "arena_sawmill",        "Sawmill (Arena)",  "#Gametype_Arena",              "Valve",
+    //---------------------- DM maps ----------------------
+    "dm_wiseau",             "Wiseau",           "#Gametype_Deathmatch",         "MacD11, iiboharz",
+    "dm_grain",              "Grain",            "#Gametype_Deathmatch",         "Muddy",
+    "dm_parley",             "Parley",           "#Gametype_Deathmatch",         "DrPyspy",
+    "dm_ravine",             "Ravine",           "#Gametype_Deathmatch",         "Snowshoe, Valve",
+    "dm_2fort",              "2Fort (DM)",       "#Gametype_Deathmatch",         "iiboharz, Valve",
 };
 
 static s_MapTypeInfo s_MapTypes[] = {
