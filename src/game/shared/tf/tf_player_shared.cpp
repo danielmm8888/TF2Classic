@@ -2569,6 +2569,34 @@ void CTFPlayerShared::ResetAirDucks( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
+int CTFPlayerShared::GetSequenceForDeath( CBaseAnimating *pAnim, int iDamageCustom )
+{
+	const char *pszSequence = NULL;
+
+	switch( iDamageCustom )
+	{
+	case TF_DMG_CUSTOM_BACKSTAB:
+		pszSequence = "primary_death_backstab";
+		break;
+	case TF_DMG_CUSTOM_HEADSHOT:
+		pszSequence = "primary_death_headshot";
+		break;
+	case TF_DMG_CUSTOM_BURNING:
+		pszSequence = "primary_death_burning";
+		break;
+	}
+
+	if ( pszSequence != NULL )
+	{
+		return pAnim->LookupSequence( pszSequence );
+	}
+
+	return -1;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
 float CTFPlayerShared::GetCritMult( void )
 {
 	float flRemapCritMul = RemapValClamped( m_iCritMult, 0, 255, 1.0, TF_DAMAGE_CRITMOD_MAXMULT );

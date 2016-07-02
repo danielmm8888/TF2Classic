@@ -1871,7 +1871,7 @@ float CTFWeaponBase::GetEffectBarProgress( void )
 	{
 		float flTimeLeft = m_flEffectBarRegenTime - gpGlobals->curtime;
 		float flRechargeTime = InternalGetEffectBarRechargeTime();
-		return ( ( flRechargeTime - flTimeLeft ) / flRechargeTime );
+		return clamp( ( ( flRechargeTime - flTimeLeft ) / flRechargeTime ), 0.0f, 1.0f );
 	}
 
 	return 1.0f;

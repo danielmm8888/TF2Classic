@@ -195,6 +195,8 @@ ConVar cl_ragdoll_fade_time( "cl_ragdoll_fade_time", "15", FCVAR_CLIENTDLL );
 ConVar cl_ragdoll_forcefade( "cl_ragdoll_forcefade", "0", FCVAR_CLIENTDLL );
 ConVar cl_ragdoll_pronecheck_distance( "cl_ragdoll_pronecheck_distance", "64", FCVAR_GAMEDLL );
 
+ConVar tf_always_deathanim( "tf_always_deathanim", "0", FCVAR_CHEAT, "Force death anims to always play." );
+
 class C_TFRagdoll : public C_BaseFlex
 {
 public:
@@ -226,6 +228,7 @@ public:
 	float GetBurnStartTime() { return m_flBurnEffectStartTime; }
 
 	virtual void SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeightCount, float *pFlexWeights, float *pFlexDelayedWeights );
+	virtual float FrameAdvance( float flInterval = 0.0f );
 
 private:
 	
@@ -244,21 +247,24 @@ private:
 	bool  m_bFadingOut;
 	bool  m_bGib;
 	bool  m_bBurning;
+	int   m_iDamageCustom;
 	int	  m_iTeam;
 	int	  m_iClass;
 	float m_flBurnEffectStartTime;	// start time of burning, or 0 if not burning
+	float m_flDeathAnimEndTIme;
 };
 
 IMPLEMENT_CLIENTCLASS_DT_NOBASE( C_TFRagdoll, DT_TFRagdoll, CTFRagdoll )
-	RecvPropVector( RECVINFO(m_vecRagdollOrigin) ),
+	RecvPropVector( RECVINFO( m_vecRagdollOrigin ) ),
 	RecvPropInt( RECVINFO( m_iPlayerIndex ) ),
-	RecvPropVector( RECVINFO(m_vecForce) ),
-	RecvPropVector( RECVINFO(m_vecRagdollVelocity) ),
+	RecvPropVector( RECVINFO( m_vecForce ) ),
+	RecvPropVector( RECVINFO( m_vecRagdollVelocity ) ),
 	RecvPropInt( RECVINFO( m_nForceBone ) ),
 	RecvPropBool( RECVINFO( m_bGib ) ),
 	RecvPropBool( RECVINFO( m_bBurning ) ),
+	RecvPropInt( RECVINFO( m_iDamageCustom ) ),
 	RecvPropInt( RECVINFO( m_iTeam ) ),
-	RecvPropInt( RECVINFO( m_iClass ) )
+	RecvPropInt( RECVINFO( m_iClass ) ),
 END_RECV_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -272,10 +278,12 @@ C_TFRagdoll::C_TFRagdoll()
 	m_bFadingOut = false;
 	m_bGib = false;
 	m_bBurning = false;
+	m_iDamageCustom = 0;
 	m_flBurnEffectStartTime = 0.0f;
 	m_iTeam = -1;
 	m_iClass = -1;
 	m_nForceBone = -1;
+	m_flDeathAnimEndTIme = 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -370,6 +378,43 @@ void C_TFRagdoll::ImpactTrace(trace_t *pTrace, int iDamageType, const char *pCus
 	m_pRagdoll->ResetRagdollSleepAfterTime();
 }
 
+// ---------------------------------------------------------------------------- -
+// Purpose: 
+// Input  : flInterval - 
+// Output : float
+//-----------------------------------------------------------------------------
+float C_TFRagdoll::FrameAdvance( float flInterval )
+{
+	float flRet = BaseClass::FrameAdvance( flInterval );
+
+	// Turn into a ragdoll once animation is over.
+	if ( m_flDeathAnimEndTIme != 0.0f && gpGlobals->curtime >= m_flDeathAnimEndTIme )
+	{
+		if ( cl_ragdoll_physics_enable.GetBool() )
+		{
+			m_flDeathAnimEndTIme = 0.0f;
+
+			// Make us a ragdoll..
+			m_nRenderFX = kRenderFxRagdoll;
+
+			matrix3x4_t boneDelta0[MAXSTUDIOBONES];
+			matrix3x4_t boneDelta1[MAXSTUDIOBONES];
+			matrix3x4_t currentBones[MAXSTUDIOBONES];
+			const float boneDt = 0.05f;
+
+			GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
+			InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
+			SetAbsVelocity( vec3_origin );
+		}
+		else
+		{
+			ClientLeafSystem()->SetRenderGroup( GetRenderHandle(), RENDER_GROUP_TRANSLUCENT_ENTITY );
+		}
+	}
+
+	return flRet;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  :  - 
@@ -396,7 +441,7 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		}
 		else
 		{
-			switch (m_iTeam)
+			switch ( m_iTeam )
 			{
 			case TF_TEAM_RED:
 				m_nSkin = 0;
@@ -444,9 +489,9 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		{
 			// This is the local player, so set them in a default
 			// pose and slam their velocity, angles and origin
-			SetAbsOrigin(pPlayer->GetRenderOrigin());
-			SetAbsAngles(pPlayer->GetRenderAngles());
-			SetAbsVelocity(m_vecRagdollVelocity);
+			SetAbsOrigin( pPlayer->GetRenderOrigin() );
+			SetAbsAngles( pPlayer->GetRenderAngles() );
+			SetAbsVelocity( m_vecRagdollVelocity );
 
 			// Hack! Find a neutral standing pose or use the idle.
 			int iSeq = LookupSequence( "RagdollSpawn" );
@@ -473,50 +518,82 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 		Interp_Reset( GetVarMapping() );
 	}
 
-	// Turn it into a ragdoll.
-	if ( cl_ragdoll_physics_enable.GetBool() )
+	bool bPlayDeathAnim = false;
+	if ( pPlayer && ( tf_always_deathanim.GetBool() || RandomFloat() < 0.25f ) )
 	{
-		// Make us a ragdoll..
-		m_nRenderFX = kRenderFxRagdoll;
-
-		matrix3x4_t boneDelta0[MAXSTUDIOBONES];
-		matrix3x4_t boneDelta1[MAXSTUDIOBONES];
-		matrix3x4_t currentBones[MAXSTUDIOBONES];
-		const float boneDt = 0.05f;
-
-		// We have to make sure that we're initting this client ragdoll off of the same model.
-		// GetRagdollInitBoneArrays uses the *player* Hdr, which may be a different model than
-		// the ragdoll Hdr, if we try to create a ragdoll in the same frame that the player
-		// changes their player model.
-		CStudioHdr *pRagdollHdr = GetModelPtr();
-		CStudioHdr *pPlayerHdr = NULL;
-		if ( pPlayer )
-			pPlayerHdr = pPlayer->GetModelPtr();
-
-		bool bChangedModel = false;
-
-		if ( pRagdollHdr && pPlayerHdr )
+		int iSeq = pPlayer->m_Shared.GetSequenceForDeath( this, m_iDamageCustom );
+		if ( iSeq != -1 )
 		{
-			bChangedModel = pRagdollHdr->GetVirtualModel() != pPlayerHdr->GetVirtualModel();
+			bPlayDeathAnim = true;
 
-			Assert( !bChangedModel && "C_TFRagdoll::CreateTFRagdoll: Trying to create ragdoll with a different model than the player it's based on" );
+			// Doing this here since the server doesn't send the value over.
+			ForceClientSideAnimationOn();
+
+			// Slame velocity when doing death animation.
+			SetAbsOrigin( pPlayer->GetNetworkOrigin() );
+			SetAbsAngles( pPlayer->GetRenderAngles() );
+			SetAbsVelocity( vec3_origin );
+			m_vecForce = vec3_origin;
+
+			ClientLeafSystem()->SetRenderGroup( GetRenderHandle(), RENDER_GROUP_OPAQUE_ENTITY );
+			UpdateVisibility();
+
+			SetSequence( iSeq );
+			m_flDeathAnimEndTIme = gpGlobals->curtime + SequenceDuration();
+
+			SetCycle( 0.0f );
+
+			ResetSequenceInfo();
 		}
+	}
 
-		if ( pPlayer && !pPlayer->IsDormant() && !bChangedModel )
+	// Turn it into a ragdoll.
+	if ( !bPlayDeathAnim )
+	{
+		if ( cl_ragdoll_physics_enable.GetBool() )
 		{
-			pPlayer->GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
+			// Make us a ragdoll..
+			m_nRenderFX = kRenderFxRagdoll;
+
+			matrix3x4_t boneDelta0[MAXSTUDIOBONES];
+			matrix3x4_t boneDelta1[MAXSTUDIOBONES];
+			matrix3x4_t currentBones[MAXSTUDIOBONES];
+			const float boneDt = 0.05f;
+
+			// We have to make sure that we're initting this client ragdoll off of the same model.
+			// GetRagdollInitBoneArrays uses the *player* Hdr, which may be a different model than
+			// the ragdoll Hdr, if we try to create a ragdoll in the same frame that the player
+			// changes their player model.
+			CStudioHdr *pRagdollHdr = GetModelPtr();
+			CStudioHdr *pPlayerHdr = NULL;
+			if ( pPlayer )
+				pPlayerHdr = pPlayer->GetModelPtr();
+
+			bool bChangedModel = false;
+
+			if ( pRagdollHdr && pPlayerHdr )
+			{
+				bChangedModel = pRagdollHdr->GetVirtualModel() != pPlayerHdr->GetVirtualModel();
+
+				Assert( !bChangedModel && "C_TFRagdoll::CreateTFRagdoll: Trying to create ragdoll with a different model than the player it's based on" );
+			}
+
+			if ( pPlayer && !pPlayer->IsDormant() && !bChangedModel )
+			{
+				pPlayer->GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
+			}
+			else
+			{
+				GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
+			}
+
+			InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
 		}
 		else
 		{
-			GetRagdollInitBoneArrays( boneDelta0, boneDelta1, currentBones, boneDt );
+			ClientLeafSystem()->SetRenderGroup( GetRenderHandle(), RENDER_GROUP_TRANSLUCENT_ENTITY );
 		}
-
-		InitAsClientRagdoll( boneDelta0, boneDelta1, currentBones, boneDt );
 	}
-	else
-	{
-		ClientLeafSystem()->SetRenderGroup( GetRenderHandle(), RENDER_GROUP_TRANSLUCENT_ENTITY );
-	}		
 
 	if ( m_bBurning )
 	{

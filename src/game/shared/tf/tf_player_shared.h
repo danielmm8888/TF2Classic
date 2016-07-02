@@ -241,6 +241,8 @@ public:
 	bool	ShouldShowRecentlyTeleported( void );
 #endif
 
+	int GetSequenceForDeath( CBaseAnimating *pAnim, int iDamageCustom );
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );

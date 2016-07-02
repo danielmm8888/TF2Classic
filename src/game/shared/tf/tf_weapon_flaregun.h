@@ -1,6 +1,6 @@
 //====== Copyright © 1996-2013, Valve Corporation, All rights reserved. =======
 //
-// Purpose: A remake of Pyro's flaregun from live TF2s
+// Purpose: A remake of Pyro's Flare Gun from live TF2
 //
 //=============================================================================
 #ifndef TF_WEAPON_FLAREGUN_H

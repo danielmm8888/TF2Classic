@@ -4295,6 +4295,13 @@ void CTFGameRules::InternalHandleTeamWin( int iWinningTeam )
 					{
 						pPlayer->DropFlag();
 					}
+
+					// Hide their weapon.
+					CTFWeaponBase *pWeapon = pPlayer->GetActiveTFWeapon();
+					if ( pWeapon )
+					{
+						pWeapon->SetWeaponVisible( false );
+					}
 				}
 				else if ( pPlayer->IsAlive() )
 				{
