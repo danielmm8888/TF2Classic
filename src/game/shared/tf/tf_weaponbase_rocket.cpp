@@ -383,14 +383,6 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		SetAbsOrigin( pTrace->endpos + ( pTrace->plane.normal * 1.0f ) );
 	}
 
-	// Play explosion sound and effect.
-	Vector vecOrigin = GetAbsOrigin();
-	CPVSFilter filter( vecOrigin );
-	bool bCrit = ( GetDamageType() & DMG_CRITICAL ) != 0;
-	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex(), GetTeamNumber(), bCrit, iItemID );
-	CSoundEnt::InsertSound( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
-
-	// Damage.
 	CBaseEntity *pAttacker = GetOwnerEntity();
 	IScorer *pScorerInterface = dynamic_cast<IScorer*>( pAttacker );
 	if ( pScorerInterface )
@@ -398,6 +390,14 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		pAttacker = pScorerInterface->GetScorer();
 	}
 
+	// Play explosion sound and effect.
+	Vector vecOrigin = GetAbsOrigin();
+	CPVSFilter filter( vecOrigin );
+	bool bCrit = ( GetDamageType() & DMG_CRITICAL ) != 0;
+	TE_TFExplosion( filter, 0.0f, vecOrigin, pTrace->plane.normal, GetWeaponID(), pOther->entindex(), ToBasePlayer( pAttacker ), GetTeamNumber(), bCrit, iItemID );
+	CSoundEnt::InsertSound( SOUND_COMBAT, vecOrigin, 1024, 3.0 );
+
+	// Damage.
 	float flRadius = GetRadius();
 
 	CTFRadiusDamageInfo radiusInfo;

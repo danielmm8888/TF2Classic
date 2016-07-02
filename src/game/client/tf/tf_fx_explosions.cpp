@@ -13,13 +13,14 @@
 #include "c_basetempentity.h"
 #include "tier0/vprof.h"
 #include "econ_item_system.h"
+#include "tf_gamerules.h"
 
 //--------------------------------------------------------------------------------------------------------------
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, ClientEntityHandle_t hEntity, int iTeam, bool bCrit, int iItemID )
+void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int iWeaponID, ClientEntityHandle_t hEntity, C_TFPlayer *pPlayer, int iTeam, bool bCrit, int iItemID )
 {
 	// Get the weapon information.
 	CTFWeaponInfo *pWeaponInfo = NULL;
@@ -61,6 +62,8 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 		bInAir = false;
 	}
 
+	bool bDeathmatchOverride = ( pPlayer && TFGameRules()->IsDeathmatch() );
+
 	// Base explosion effect and sound.
 	const char *pszEffect = "explosion";
 	const char *pszSound = "BaseExplosionEffect.Sound";
@@ -72,7 +75,7 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 		{
 			if ( bCrit && pWeaponInfo->m_szExplosionWaterEffect_Crit[0] )
 			{
-				pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionWaterEffect_Crit, iTeam, false );
+				pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionWaterEffect_Crit, iTeam, bDeathmatchOverride );
 			}
 			else if ( pWeaponInfo->m_szExplosionWaterEffect[0] )
 			{
@@ -85,7 +88,7 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 			{
 				if ( bCrit && pWeaponInfo->m_szExplosionPlayerEffect_Crit[0] )
 				{
-					pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionPlayerEffect_Crit, iTeam, false );
+					pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionPlayerEffect_Crit, iTeam, bDeathmatchOverride );
 				}
 				else if ( pWeaponInfo->m_szExplosionPlayerEffect[0] )
 				{
@@ -96,7 +99,7 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 			{
 				if ( bCrit && pWeaponInfo->m_szExplosionEffect_Crit[0] )
 				{
-					pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionEffect_Crit, iTeam, false );
+					pszEffect = ConstructTeamParticle( pWeaponInfo->m_szExplosionEffect_Crit, iTeam, bDeathmatchOverride );
 				}
 				else if ( pWeaponInfo->m_szExplosionEffect[0] )
 				{
@@ -125,7 +128,14 @@ void TFExplosionCallback( const Vector &vecOrigin, const Vector &vecNormal, int 
 	CLocalPlayerFilter filter;
 	C_BaseEntity::EmitSound( filter, SOUND_FROM_WORLD, pszSound, &vecOrigin );
 
-	DispatchParticleEffect( pszEffect, vecOrigin, angExplosion );
+	if ( bDeathmatchOverride )
+	{
+		DispatchParticleEffect( pszEffect, vecOrigin, angExplosion, pPlayer->m_vecPlayerColor, vec3_origin, true );
+	}
+	else
+	{
+		DispatchParticleEffect( pszEffect, vecOrigin, angExplosion );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -144,12 +154,13 @@ public:
 
 public:
 
-	Vector		m_vecOrigin;
-	Vector		m_vecNormal;
-	int			m_iWeaponID;
-	int			m_iItemID;
-	int			m_iTeamNum;
-	bool		m_bCritical;
+	Vector			m_vecOrigin;
+	Vector			m_vecNormal;
+	int				m_iWeaponID;
+	int				m_iItemID;
+	C_TFPlayer	*m_pPlayer;
+	int				m_iTeamNum;
+	bool			m_bCritical;
 	ClientEntityHandle_t m_hEntity;
 };
 
@@ -162,6 +173,7 @@ C_TETFExplosion::C_TETFExplosion( void )
 	m_vecNormal.Init();
 	m_iWeaponID = TF_WEAPON_NONE;
 	m_iItemID = -1;
+	m_pPlayer = NULL;
 	m_iTeamNum = TEAM_UNASSIGNED;
 	m_bCritical = false;
 	m_hEntity = INVALID_EHANDLE_INDEX;
@@ -174,13 +186,19 @@ void C_TETFExplosion::PostDataUpdate( DataUpdateType_t updateType )
 {
 	VPROF( "C_TETFExplosion::PostDataUpdate" );
 
-	TFExplosionCallback( m_vecOrigin, m_vecNormal, m_iWeaponID, m_hEntity, m_iTeamNum, m_bCritical, m_iItemID );
+	TFExplosionCallback( m_vecOrigin, m_vecNormal, m_iWeaponID, m_hEntity, m_pPlayer, m_iTeamNum, m_bCritical, m_iItemID );
 }
 
 static void RecvProxy_ExplosionEntIndex( const CRecvProxyData *pData, void *pStruct, void *pOut )
 {
 	int nEntIndex = pData->m_Value.m_Int;
 	((C_TETFExplosion*)pStruct)->m_hEntity = (nEntIndex < 0) ? INVALID_EHANDLE_INDEX : ClientEntityList().EntIndexToHandle( nEntIndex );
+}
+
+static void RecvProxy_ExplosionUserID( const CRecvProxyData *pData, void *pStruct, void *pOut )
+{
+	int iUserID = pData->m_Value.m_Int;
+	( (C_TETFExplosion*)pStruct )->m_pPlayer = ( iUserID > 0 ) ? ToTFPlayer( UTIL_PlayerByUserId( iUserID ) ) : NULL;
 }
 
 IMPLEMENT_CLIENTCLASS_EVENT_DT( C_TETFExplosion, DT_TETFExplosion, CTETFExplosion )
@@ -190,6 +208,7 @@ IMPLEMENT_CLIENTCLASS_EVENT_DT( C_TETFExplosion, DT_TETFExplosion, CTETFExplosio
 	RecvPropVector( RECVINFO( m_vecNormal ) ),
 	RecvPropInt( RECVINFO( m_iWeaponID ) ),
 	RecvPropInt( RECVINFO( m_iItemID ) ),
+	RecvPropInt( "m_iUserID", 0, SIZEOF_IGNORE, 0, RecvProxy_ExplosionUserID ),
 	RecvPropInt( RECVINFO( m_iTeamNum ) ),
 	RecvPropBool( RECVINFO( m_bCritical ) ),
 	RecvPropInt( "entindex", 0, SIZEOF_IGNORE, 0, RecvProxy_ExplosionEntIndex ),

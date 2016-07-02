@@ -316,17 +316,17 @@ void CTFWeaponBase::Precache()
 
 	if ( pTFInfo->m_szExplosionEffect_Crit[0] )
 	{
-		PrecacheTeamParticles( pTFInfo->m_szExplosionEffect_Crit );
+		PrecacheTeamParticles( pTFInfo->m_szExplosionEffect_Crit, true );
 	}
 
 	if ( pTFInfo->m_szExplosionPlayerEffect_Crit[0] )
 	{
-		PrecacheTeamParticles( pTFInfo->m_szExplosionPlayerEffect_Crit );
+		PrecacheTeamParticles( pTFInfo->m_szExplosionPlayerEffect_Crit, true );
 	}
 
 	if ( pTFInfo->m_szExplosionWaterEffect_Crit[0] )
 	{
-		PrecacheTeamParticles( pTFInfo->m_szExplosionWaterEffect_Crit );
+		PrecacheTeamParticles( pTFInfo->m_szExplosionWaterEffect_Crit, true );
 	}
 
 	// Tracers
