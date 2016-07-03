@@ -1999,37 +1999,39 @@ void CTFWeaponBase::ApplyOnHitAttributes( CTFPlayer *pVictim, const CTakeDamageI
 		return;
 
 	// Afterburn shouldn't trigger on-hit effects.
-	if ( !( info.GetDamageType() & DMG_BURN ) )
+	// Disguised spies shouldn't trigger on-hit effects.
+	if ( ( info.GetDamageType() & DMG_BURN ) ||
+		( pVictim->m_Shared.InCond( TF_COND_DISGUISED ) && pVictim->m_Shared.GetDisguiseTeam() == pOwner->GetTeamNumber() ) )
+		return;
+
+	float flAddCharge = 0.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flAddCharge, add_onhit_ubercharge );
+	if ( flAddCharge )
 	{
-		float flAddCharge = 0.0f;
-		CALL_ATTRIB_HOOK_FLOAT( flAddCharge, add_onhit_ubercharge );
-		if ( flAddCharge )
-		{
-			CWeaponMedigun *pMedigun = pOwner->GetMedigun();
+		CWeaponMedigun *pMedigun = pOwner->GetMedigun();
 
-			if ( pMedigun )
-			{
-				pMedigun->AddCharge( flAddCharge );
-			}
+		if ( pMedigun )
+		{
+			pMedigun->AddCharge( flAddCharge );
 		}
+	}
 
-		float flAddHealth = 0.0f;
-		CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
-		if ( flAddHealth )
+	float flAddHealth = 0.0f;
+	CALL_ATTRIB_HOOK_FLOAT( flAddHealth, add_onhit_addhealth );
+	if ( flAddHealth )
+	{
+		int iHealthRestored = pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+
+		if ( iHealthRestored )
 		{
-			int iHealthRestored = pOwner->TakeHealth( flAddHealth, DMG_GENERIC );
+			IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
 
-			if ( iHealthRestored )
+			if ( event )
 			{
-				IGameEvent *event = gameeventmanager->CreateEvent( "player_healonhit" );
+				event->SetInt( "amount", iHealthRestored );
+				event->SetInt( "entindex", pOwner->entindex() );
 
-				if ( event )
-				{
-					event->SetInt( "amount", iHealthRestored );
-					event->SetInt( "entindex", pOwner->entindex() );
-
-					gameeventmanager->FireEvent( event );
-				}
+				gameeventmanager->FireEvent( event );
 			}
 		}
 	}
