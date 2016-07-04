@@ -50,7 +50,6 @@ CTFBaseDMPowerup *CTFBaseDMPowerup::Create( const Vector &vecOrigin, const QAngl
 
 		DispatchSpawn( pPowerup );
 
-		pPowerup->RemoveSolidFlags( FSOLID_NOT_SOLID );
 		pPowerup->SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
 
 		pPowerup->SetThink( &CBaseEntity::SUB_Remove );

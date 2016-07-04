@@ -36,7 +36,7 @@ class CTFBaseRocket : public CBaseProjectile
 //
 public:
 
-	DECLARE_CLASS( CTFBaseRocket, CBaseAnimating );
+	DECLARE_CLASS( CTFBaseRocket, CBaseProjectile );
 	DECLARE_NETWORKCLASS();
 
 			CTFBaseRocket();

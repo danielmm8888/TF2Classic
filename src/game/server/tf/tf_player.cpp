@@ -1369,7 +1369,6 @@ void CTFPlayer::ValidateWearables( void )
 	for ( int i = 0; i < GetNumWearables(); i++ )
 	{
 		CTFWearable *pWearable = static_cast<CTFWearable *>( GetWearable( i ) );
-
 		if ( !pWearable )
 			continue;
 
@@ -1385,7 +1384,7 @@ void CTFPlayer::ValidateWearables( void )
 				// Not supposed to carry this wearable, nuke it.
 				RemoveWearable( pWearable );
 			}
-			else
+			else if ( m_bRegenerating == false )
 			{
 				pWearable->UpdateModelToClass();
 			}
@@ -4047,7 +4046,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		event->SetInt( "userid", GetUserID() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
 		event->SetInt( "damageamount", ( iOldHealth - m_iHealth ) );
-		event->SetInt( "crit", info.GetDamageType() & DMG_CRITICAL ? 1 : 0 );
+		event->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) != 0 );
 
 		// HLTV event priority, not transmitted
 		event->SetInt( "priority", 5 );	
@@ -4458,7 +4457,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// Remove all items...
 	RemoveAllItems( true );
 
-	for ( int iWeapon = 0; iWeapon < TF_PLAYER_WEAPON_COUNT; ++iWeapon )
+	for ( int iWeapon = 0; iWeapon < WeaponCount(); ++iWeapon )
 	{
 		CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 
@@ -8192,7 +8191,7 @@ CON_COMMAND_F( give_econ, "Give ECON item with specified ID from item schema.\nF
 		}
 		else
 		{
-			Assert( false );
+			AssertMsg( false, "Player has unknown entity in loadout slot %d.", iSlot );
 			UTIL_Remove( pEntity );
 		}
 	}

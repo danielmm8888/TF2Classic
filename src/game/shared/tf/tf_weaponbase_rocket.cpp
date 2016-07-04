@@ -500,6 +500,8 @@ void CTFBaseRocket::IncremenentDeflected( void )
 void CTFBaseRocket::SetLauncher( CBaseEntity *pLauncher )
 {
 	m_hLauncher = pLauncher;
+
+	BaseClass::SetLauncher( pLauncher );
 }
 
 void CTFBaseRocket::FlyThink( void )

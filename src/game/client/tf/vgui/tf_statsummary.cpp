@@ -174,7 +174,7 @@ static const char* const s_BackgroundsWidescreen[] = {
 //-----------------------------------------------------------------------------
 void CTFStatsSummaryPanel::SetDefaultSelections()
 {
-	m_iSelectedClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_CLASS_ENGINEER ); //TF_CLASS_UNDEFINED;
+	m_iSelectedClass = random->RandomInt( TF_FIRST_NORMAL_CLASS, TF_LAST_NORMAL_CLASS ); //TF_CLASS_UNDEFINED;
 	m_iSelectedBackground = random->RandomInt( 1, ARRAYSIZE(s_Backgrounds) );
 }
 
@@ -235,7 +235,7 @@ void CTFStatsSummaryPanel::UpdateDialog()
 	m_iTotalSpawns = 0;
 
 	// if we don't have stats for any class, add empty stat entries for them 
-	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_CLASS_ENGINEER; iClass++ )
+	for ( int iClass = TF_FIRST_NORMAL_CLASS; iClass <= TF_LAST_NORMAL_CLASS; iClass++ )
 	{
 		int j;
 		for ( j = 0; j < m_aClassStats.Count(); j++ )

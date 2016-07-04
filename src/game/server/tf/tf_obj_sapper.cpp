@@ -265,13 +265,7 @@ int CObjectSapper::OnTakeDamage( const CTakeDamageInfo &info )
 int CObjectSapper::GetBaseHealth( void )
 {
 	int iBaseHealth = obj_sapper_health.GetInt();
-
-	CTFPlayer *pPlayer = GetOwner();
-	if ( !pPlayer )
-		return iBaseHealth;
-
-	CALL_ATTRIB_HOOK_INT_ON_OTHER( pPlayer, iBaseHealth, mult_sapper_health );
-
+	CALL_ATTRIB_HOOK_INT_ON_OTHER( GetOwner(), iBaseHealth, mult_sapper_health );
 	return iBaseHealth;
 }
 

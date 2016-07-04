@@ -572,10 +572,7 @@ int CObjectDispenser::GetBaseHealth( void )
 float CObjectDispenser::GetDispenserRadius( void )
 {
 	float flRadius = 64.0f;
-
-	if ( GetOwner() )
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), flRadius, mult_dispenser_radius );
-
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwner(), flRadius, mult_dispenser_radius );
 	return flRadius;
 }
 
