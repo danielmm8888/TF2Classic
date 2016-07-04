@@ -274,7 +274,7 @@ void CTFWeaponMirv::BlipSound( void )
 			filter.UsePredictionRules();
 		}
 		
-		EmitSound( TF_MIRV_BLIP_SOUND );
+		EmitSound( filter, GetOwner()->entindex(), TF_MIRV_BLIP_SOUND );
 		m_flNextBlipTime = gpGlobals->curtime + TF_MIRV_BLIP_FREQUENCY;
 	}
 }
