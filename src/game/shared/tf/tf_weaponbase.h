@@ -256,7 +256,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	void				StartEffectBarRegen( void );
 	void				EffectBarRegenFinished( void );
 	void				CheckEffectBarRegen( void );
-	float				GetEffectBarProgress( void );
+	virtual float		GetEffectBarProgress( void );
 	virtual const char	*GetEffectLabelText( void ) { return ""; }
 
 // Server specific.

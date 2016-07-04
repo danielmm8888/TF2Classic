@@ -40,7 +40,8 @@ private:
 	vgui::ContinuousProgressBar *m_pCloakMeter;
 };
 
-DECLARE_HUDELEMENT( CHudSpyCloakMeter );
+// Disabled for the new charge meter.
+//DECLARE_HUDELEMENT( CHudSpyCloakMeter );
 
 //-----------------------------------------------------------------------------
 // Purpose: 

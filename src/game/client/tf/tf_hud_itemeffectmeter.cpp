@@ -135,7 +135,7 @@ void CHudItemEffectMeter::UpdateStatus( void )
 		m_pEffectMeter->SetProgress( flCharge );
 		
 		// Play a ding when full charged.
-		if ( m_flOldCharge < 1.0f && flCharge == 1.0f )
+		if ( m_flOldCharge < 1.0f && flCharge == 1.0f && !m_pWeapon->IsWeapon( TF_WEAPON_INVIS ) )
 		{
 			CLocalPlayerFilter filter;
 			C_BaseEntity::EmitSound( filter, SOUND_FROM_LOCAL_PLAYER, "TFPlayer.Recharged" );
@@ -173,7 +173,7 @@ CHudItemEffects::CHudItemEffects( const char *pElementName ) : CHudElement( pEle
 	SetParent( pParent );
 
 	// Create effect bars for primary, secondary and melee slots.
-	for ( int i = 0; i < 3; i++ )
+	for ( int i = 0; i < TF_PLAYER_WEAPON_COUNT; i++ )
 	{
 		CHudItemEffectMeter *pMeter = new CHudItemEffectMeter( this, "HudItemEffectMeter" );
 		pMeter->SetSlot( i );

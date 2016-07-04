@@ -102,6 +102,17 @@ void CTFWeaponInvis::ItemBusyFrame( void )
 	// do nothing
 }
 
+float CTFWeaponInvis::GetEffectBarProgress( void )
+{
+	CTFPlayer *pOwner = GetTFPlayerOwner();
+	if ( pOwner )
+	{
+		return ( pOwner->m_Shared.GetSpyCloakMeter() / 100.0f );
+	}
+
+	return 1.0f;
+}
+
 #ifndef CLIENT_DLL
 
 void CTFWeaponInvis::GetControlPanelInfo( int nPanelIndex, const char *&pPanelName )
