@@ -72,7 +72,7 @@ protected:
 	CEconItemView m_Item;
 
 private:
-	CAttributeContainer m_AttributeManager;
+	CNetworkVarEmbedded( CAttributeContainer, m_AttributeManager );
 };
 
 #endif

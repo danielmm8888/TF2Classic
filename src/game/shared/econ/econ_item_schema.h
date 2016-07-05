@@ -33,14 +33,15 @@ enum
 #define CALL_ATTRIB_HOOK_FLOAT(value, name)			\
 		value = CAttributeManager::AttribHookValue<float>(value, #name, this)
 
+#define CALL_ATTRIB_HOOK_STRING(value, name)		\
+		value = CAttributeManager::AttribHookValue<string_t>(value, #name, this)
+
+
 #define CALL_ATTRIB_HOOK_INT_ON_OTHER(ent, value, name)			\
 		value = CAttributeManager::AttribHookValue<int>(value, #name, ent)
 
 #define CALL_ATTRIB_HOOK_FLOAT_ON_OTHER(ent, value, name)			\
 		value = CAttributeManager::AttribHookValue<float>(value, #name, ent)
-
-#define CALL_ATTRIB_HOOK_STRING(value, name)		\
-		value = CAttributeManager::AttribHookValue<string_t>(value, #name, this)
 
 #define CALL_ATTRIB_HOOK_STRING_ON_OTHER(ent, value, name)		\
 		value = CAttributeManager::AttribHookValue<string_t>(value, #name, ent)
