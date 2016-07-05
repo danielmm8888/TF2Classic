@@ -374,7 +374,6 @@ void CObjectDispenser::Precache()
 	PrecacheVGuiScreen( "screen_obj_dispenser_green" );
 	PrecacheVGuiScreen( "screen_obj_dispenser_yellow" );
 
-
 	PrecacheScriptSound( "Building_Dispenser.Idle" );
 	PrecacheScriptSound( "Building_Dispenser.GenerateMetal" );
 	PrecacheScriptSound( "Building_Dispenser.Heal" );
@@ -556,7 +555,6 @@ bool CObjectDispenser::DispenseAmmo( CTFPlayer *pPlayer )
 
 	if ( iTotalPickedUp > 0 )
 	{
-		EmitSound( "BaseCombatCharacter.AmmoPickup" );
 		return true;
 	}
 
