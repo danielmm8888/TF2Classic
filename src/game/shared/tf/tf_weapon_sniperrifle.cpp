@@ -27,6 +27,8 @@
 
 // forward declarations
 void ToolFramework_RecordMaterialParams( IMaterial *pMaterial );
+
+ConVar tf_sniper_fullcharge_bell( "tf_sniper_fullcharge_bell", "0", FCVAR_ARCHIVE );
 #endif
 
 #define TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC	50.0
@@ -176,6 +178,8 @@ bool CTFSniperRifle::Holster( CBaseCombatWeapon *pSwitchingTo )
 #ifdef GAME_DLL
 	// Destroy the sniper dot.
 	DestroySniperDot();
+#else
+	m_bDinged = false;
 #endif
 
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
@@ -315,6 +319,18 @@ void CTFSniperRifle::ItemPostFrame( void )
 		if ( pPlayer->m_Shared.InCond( TF_COND_AIMING ) && !m_bRezoomAfterShot )
 		{
 			m_flChargedDamage = min( m_flChargedDamage + gpGlobals->frametime * TF_WEAPON_SNIPERRIFLE_CHARGE_PER_SEC, TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX );
+
+#ifdef CLIENT_DLL
+			if ( m_flChargedDamage >= TF_WEAPON_SNIPERRIFLE_DAMAGE_MAX && !m_bDinged )
+			{
+				m_bDinged = true;
+				if ( tf_sniper_fullcharge_bell.GetBool() )
+				{
+					CSingleUserRecipientFilter filter( pPlayer );
+					C_BaseEntity::EmitSound( filter, pPlayer->entindex(), "TFPlayer.Recharged" );
+				}
+			}
+#endif
 		}
 		else
 		{
@@ -453,6 +469,8 @@ void CTFSniperRifle::ZoomOut( void )
 	// Destroy the sniper dot.
 	DestroySniperDot();
 	pPlayer->ClearExpression();
+#else
+	m_bDinged = false;
 #endif
 
 	// if we are thinking about zooming, cancel it
