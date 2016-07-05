@@ -56,12 +56,9 @@ public:
 	virtual const char *GetChargeSound( void ) { return "Weapon_Grenade_Mirv.ChargeUp"; }
 
 	void			LaunchGrenade( void );
-	void			BlipSound( void );
 
 private:
 	CNetworkVar( float, m_flChargeBeginTime );
-	float	m_flLastDenySoundTime;
-	float	m_flNextBlipTime;
 
 	CTFWeaponMirv( const CTFWeaponMirv & ) {}
 };

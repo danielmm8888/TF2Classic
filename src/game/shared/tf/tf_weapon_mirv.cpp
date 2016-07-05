@@ -23,7 +23,9 @@
 #include "tf_gamestats.h"
 #endif
 
-#define TF_MIRV_VEL 600
+#define TF_MIRV_MIN_CHARGE_VEL 600
+#define TF_MIRV_MAX_CHARGE_VEL 2400
+#define TF_MIRV_MAX_CHARGE_TIME 4.0f
 
 //=============================================================================
 //
@@ -59,8 +61,6 @@ PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv );
 //-----------------------------------------------------------------------------
 CTFWeaponMirv::CTFWeaponMirv()
 {
-	m_flLastDenySoundTime = 0.0f;
-	m_flNextBlipTime = 0.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -125,11 +125,6 @@ void CTFWeaponMirv::WeaponReset( void )
 void CTFWeaponMirv::ItemPostFrame( void )
 {
 	BaseClass::ItemPostFrame();
-
-	if ( m_flChargeBeginTime != 0.0f )
-	{
-		BlipSound();
-	}
 }
 
 //-----------------------------------------------------------------------------
@@ -160,15 +155,12 @@ void CTFWeaponMirv::PrimaryAttack( void )
 		m_flChargeBeginTime = gpGlobals->curtime;
 
 		SendWeaponAnim( ACT_VM_PULLBACK );
-
-		m_flNextBlipTime = gpGlobals->curtime;
-		BlipSound();
 	}
 	else
 	{
 		float flTotalChargeTime = gpGlobals->curtime - m_flChargeBeginTime;
 
-		if ( flTotalChargeTime >= TF_MIRV_TIMER )
+		if ( flTotalChargeTime >= TF_MIRV_MAX_CHARGE_TIME )
 		{
 			LaunchGrenade();
 		}
@@ -213,26 +205,7 @@ void CTFWeaponMirv::LaunchGrenade( void )
 	if ( pProjectile )
 	{
 #ifdef GAME_DLL
-		// Save the charge time to scale the detonation timer.
-		float flTimer = TF_MIRV_TIMER - ( gpGlobals->curtime - m_flChargeBeginTime );
-		pProjectile->SetDetonateTimerLength( flTimer );
-		pProjectile->SetNextBlipTime( m_flNextBlipTime );
-
-		// Slam velocity if the grenade is blowing up into our face.
-		if ( flTimer <= 0.0f )
-		{
-			pProjectile->SetThink( &CTFWeaponBaseGrenadeProj::DetonateThink );
-			pProjectile->SetNextThink( gpGlobals->curtime );
-			
-			if ( pProjectile->VPhysicsGetObject() )
-			{
-				pProjectile->VPhysicsGetObject()->SetVelocityInstantaneous( &vec3_origin, &vec3_origin );
-			}
-			else
-			{
-				pProjectile->SetAbsVelocity( vec3_origin );
-			}
-		}
+		pProjectile->SetDetonateTimerLength( TF_MIRV_TIMER );
 #endif
 	}
 
@@ -245,8 +218,6 @@ void CTFWeaponMirv::LaunchGrenade( void )
 	float flDelay = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
 	CALL_ATTRIB_HOOK_FLOAT( flDelay, mult_postfiredelay );
 	m_flNextPrimaryAttack = gpGlobals->curtime + flDelay;
-
-	m_flLastDenySoundTime = gpGlobals->curtime;
 
 	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
 
@@ -264,27 +235,10 @@ void CTFWeaponMirv::LaunchGrenade( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFWeaponMirv::BlipSound( void )
-{
-	if ( gpGlobals->curtime >= m_flNextBlipTime )
-	{
-		CPASAttenuationFilter filter( GetOwner(), TF_MIRV_BLIP_SOUND );
-		if ( IsPredicted() && CBaseEntity::GetPredictionPlayer() )
-		{
-			filter.UsePredictionRules();
-		}
-		
-		EmitSound( filter, GetOwner()->entindex(), TF_MIRV_BLIP_SOUND );
-		m_flNextBlipTime = gpGlobals->curtime + TF_MIRV_BLIP_FREQUENCY;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 float CTFWeaponMirv::GetProjectileSpeed( void )
 {
-	return TF_MIRV_VEL;
+	float flCharge = gpGlobals->curtime - m_flChargeBeginTime;
+	return RemapValClamped( flCharge, 0.0f, TF_MIRV_MAX_CHARGE_TIME, TF_MIRV_MIN_CHARGE_VEL, TF_MIRV_MAX_CHARGE_VEL );
 }
 
 //-----------------------------------------------------------------------------
@@ -292,5 +246,5 @@ float CTFWeaponMirv::GetProjectileSpeed( void )
 //-----------------------------------------------------------------------------
 float CTFWeaponMirv::GetChargeMaxTime( void )
 {
-	return TF_MIRV_TIMER;
+	return TF_MIRV_MAX_CHARGE_TIME;
 }
