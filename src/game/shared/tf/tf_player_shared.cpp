@@ -832,6 +832,12 @@ void CTFPlayerShared::ConditionGameRulesThink( void )
 		float fTotalHealAmount = 0.0f;
 		for ( int i = 0; i < m_aHealers.Count(); i++ )
 		{
+			// Dispensers refill cloak.
+			if ( m_aHealers[i].bDispenserHeal )
+			{
+				m_flCloakMeter = min( m_flCloakMeter + m_aHealers[i].flAmount * gpGlobals->frametime, 100.0f );
+			}
+
 			// Dispensers don't heal above 100%
 			if ( bHasFullHealth && m_aHealers[i].bDispenserHeal )
 			{
