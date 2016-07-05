@@ -1871,7 +1871,7 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 
 				bool bOtherPlayersPresent = false;
 				// Check distance from other players.
-				for ( int i = 1; i < gpGlobals->maxClients; i++ )
+				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 				{
 					CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 					if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() )
