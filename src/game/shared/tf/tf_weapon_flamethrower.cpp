@@ -410,6 +410,7 @@ void CTFFlameThrower::PrimaryAttack()
 #endif
 
 	float flFiringInterval = m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
+	CALL_ATTRIB_HOOK_FLOAT( flFiringInterval, mult_postfiredelay );
 
 	// Don't attack if we're underwater
 	if ( pOwner->GetWaterLevel() != WL_Eyes )
@@ -487,6 +488,11 @@ void CTFFlameThrower::PrimaryAttack()
 void CTFFlameThrower::SecondaryAttack()
 {
 	if ( !tf2c_airblast.GetBool() )
+		return;
+
+	int iNoAirblast = 0;
+	CALL_ATTRIB_HOOK_FLOAT( iNoAirblast, set_flamethrower_push_disabled );
+	if ( iNoAirblast )
 		return;
 
 	// Get the player owning the weapon.
@@ -1058,8 +1064,9 @@ void CTFFlameEntity::Spawn( void )
 	SetMoveType( MOVETYPE_NOCLIP, MOVECOLLIDE_DEFAULT );
 	AddEFlags( EFL_NO_WATER_VELOCITY_CHANGE );
 
-	float iBoxSize = tf_flamethrower_boxsize.GetFloat();
-	UTIL_SetSize( this, -Vector( iBoxSize, iBoxSize, iBoxSize ), Vector( iBoxSize, iBoxSize, iBoxSize ) );
+	float flBoxSize = tf_flamethrower_boxsize.GetFloat();
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( GetOwnerEntity(), flBoxSize, mult_flame_size );
+	UTIL_SetSize( this, -Vector( flBoxSize, flBoxSize, flBoxSize ), Vector( flBoxSize, flBoxSize, flBoxSize ) );
 
 	// Setup attributes.
 	m_takedamage = DAMAGE_NO;
