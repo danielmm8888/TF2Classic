@@ -76,7 +76,7 @@ TFStatType_t g_statPriority[] = { TFSTAT_HEADSHOTS, TFSTAT_BACKSTABS, TFSTAT_MAX
 	TFSTAT_DAMAGE, TFSTAT_DOMINATIONS, TFSTAT_INVULNS, TFSTAT_BUILDINGSDESTROYED, TFSTAT_CAPTURES, TFSTAT_DEFENSES, TFSTAT_REVENGE, TFSTAT_TELEPORTS, TFSTAT_BUILDINGSBUILT, 
 	TFSTAT_HEALTHLEACHED, TFSTAT_POINTSSCORED, TFSTAT_PLAYTIME };
 // stat types that we don't display records for, kept in this list just so we can assert all stats appear in one list or the other
-TFStatType_t g_statUnused[] = { TFSTAT_DEATHS, TFSTAT_UNDEFINED, TFSTAT_SHOTS_FIRED, TFSTAT_SHOTS_HIT, TFSTAT_SUICIDES, TFSTAT_ENV_DEATHS };
+TFStatType_t g_statUnused[] = { TFSTAT_DEATHS, TFSTAT_UNDEFINED, TFSTAT_SHOTS_FIRED, TFSTAT_SHOTS_HIT, TFSTAT_SUICIDES, TFSTAT_ENV_DEATHS, TFSTAT_BONUS };
 
 // localization keys for stat panel text, must be in same order as TFStatType_t
 const char *g_szLocalizedRecordText[] =
@@ -103,6 +103,9 @@ const char *g_szLocalizedRecordText[] =
 	"#StatPanel_BuildingsBuilt",
 	"#StatPanel_SentryKills",		
 	"#StatPanel_Teleports"
+	"[environmental deaths]",
+	"[suicides]",
+	"[bonus]"
 };
 
 

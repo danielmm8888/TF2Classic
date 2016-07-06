@@ -683,7 +683,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails( void )
 		m_pLocalPlayerStatsPanel->SetDialogVariable( "teleports", roundStats.m_iStat[TFSTAT_TELEPORTS] );
 		m_pLocalPlayerStatsPanel->SetDialogVariable( "headshots", roundStats.m_iStat[TFSTAT_HEADSHOTS] );
 		m_pLocalPlayerStatsPanel->SetDialogVariable( "backstabs", roundStats.m_iStat[TFSTAT_BACKSTABS] );
-		m_pLocalPlayerStatsPanel->SetDialogVariable( "bonus", 0 );
+		m_pLocalPlayerStatsPanel->SetDialogVariable( "bonus", roundStats.m_iStat[TFSTAT_BONUS] );
 		m_pLocalPlayerStatsPanel->SetDialogVariable( "support", 0 );
 		m_pLocalPlayerStatsPanel->SetDialogVariable( "damage", roundStats.m_iStat[TFSTAT_DAMAGE] );
 
@@ -697,7 +697,7 @@ void CTFClientScoreBoardDialog::UpdatePlayerDetails( void )
 
 	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
 	int iTeam = pLocalPlayer->GetTeamNumber();
-	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_MERCENARY ) )
+	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_COUNT_ALL ) )
 	{
 		m_pClassImage->SetClass( iTeam, iClass, 0 );
 		m_pClassImage->SetVisible( true );

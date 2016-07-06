@@ -589,6 +589,7 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerDetails()
 	SetDialogVariable( "teleports", roundStats.m_iStat[TFSTAT_TELEPORTS] );
 	SetDialogVariable( "headshots", roundStats.m_iStat[TFSTAT_HEADSHOTS] );
 	SetDialogVariable( "backstabs", roundStats.m_iStat[TFSTAT_BACKSTABS] );
+	SetDialogVariable( "bonus", roundStats.m_iStat[TFSTAT_BONUS] );
 	SetDialogVariable( "playername", tf_PR->GetPlayerName( playerIndex ) );
 	SetDialogVariable( "playerscore", GetPointsString( tf_PR->GetTotalScore( playerIndex ) ) );
 	Color clr = g_PR->GetTeamColor( g_PR->GetTeam( playerIndex ) );
@@ -597,7 +598,7 @@ void CTFFourTeamScoreBoardDialog::UpdatePlayerDetails()
 
 	int iClass = pLocalPlayer->m_Shared.GetDesiredPlayerClassIndex();
 	int iTeam = pLocalPlayer->GetTeamNumber();
-	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_MERCENARY ) )
+	if ( ( iTeam >= FIRST_GAME_TEAM ) && ( iClass >= TF_FIRST_NORMAL_CLASS ) && ( iClass < TF_CLASS_COUNT_ALL ) )
 	{
 		m_pClassImage->SetClass( iTeam, iClass, 0 );
 		m_pClassImage->SetVisible( true );

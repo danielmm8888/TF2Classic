@@ -634,6 +634,8 @@ void CTFFlameThrower::DeflectPlayer( CTFPlayer *pVictim, CTFPlayer *pAttacker, V
 			// Extinguish teammates.
 			pVictim->m_Shared.RemoveCond( TF_COND_BURNING );
 			pVictim->EmitSound( "TFPlayer.FlameOut" );
+
+			CTF_GameStats.Event_PlayerAwardBonusPoints( pAttacker, pVictim, 1 );
 		}
 	}
 	else if ( tf2c_airblast_players.GetBool() )

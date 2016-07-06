@@ -962,6 +962,7 @@ typedef enum
 #define TF_SCORE_KILL_ASSISTS_PER_POINT			2
 #define TF_SCORE_TELEPORTS_PER_POINT			2	
 #define TF_SCORE_HEAL_HEALTHUNITS_PER_POINT		600
+#define TF_SCORE_BONUS_PER_POINT				1
 
 //-------------------------
 // Shared Teleporter State

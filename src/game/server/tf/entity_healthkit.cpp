@@ -11,6 +11,7 @@
 #include "tf_team.h"
 #include "engine/IEngineSound.h"
 #include "entity_healthkit.h"
+#include "tf_gamestats.h"
 
 //=============================================================================
 //
@@ -132,6 +133,13 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			}
 
 			EmitSound( user, entindex(), pszSound );
+
+			CTFPlayer *pTFOwner = ToTFPlayer( GetOwnerEntity() );
+			if ( pTFOwner && pTFOwner->InSameTeam( pTFPlayer ) )
+			{
+				// BONUS DUCKS!
+				CTF_GameStats.Event_PlayerAwardBonusPoints( pTFOwner, pPlayer, 1 );
+			}
 
 			// Disabled for overheal pills since they'll cause too much spam.
 			if ( iHealthRestored && !bTiny )

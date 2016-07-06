@@ -4681,7 +4681,8 @@ int CTFGameRules::CalcPlayerScore( RoundStats_t *pRoundStats )
 			(pRoundStats->m_iStat[TFSTAT_KILLASSISTS] / TF_SCORE_KILL_ASSISTS_PER_POINT) +
 			(pRoundStats->m_iStat[TFSTAT_TELEPORTS] / TF_SCORE_TELEPORTS_PER_POINT) +
 			(pRoundStats->m_iStat[TFSTAT_INVULNS] / TF_SCORE_INVULN) +
-			(pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE);
+			(pRoundStats->m_iStat[TFSTAT_REVENGE] / TF_SCORE_REVENGE) +
+			(pRoundStats->m_iStat[TFSTAT_BONUS] / TF_SCORE_BONUS_PER_POINT);
 		return max(iScore, 0);
 	}
 }

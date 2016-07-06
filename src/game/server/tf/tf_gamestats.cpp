@@ -34,6 +34,7 @@ const char *g_aClassNames[] =
 	"TF_CLASS_SPY",
 	"TF_CLASS_ENGINEER",
 	"TF_CLASS_CIVILIAN",
+	"TF_CLASS_MERCENARY"
 };
 
 //-----------------------------------------------------------------------------
@@ -902,6 +903,28 @@ void CTFGameStats::Event_PlayerKilled( CBasePlayer *pPlayer, const CTakeDamageIn
 			m_reportedStats.m_pCurrentGame->m_aClassStats[iClass].iTotalTime += (int) ( gpGlobals->curtime - pTFPlayer->GetSpawnTime() );
 		}
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameStats::Event_PlayerAwardBonusPoints( CTFPlayer *pPlayer, CBaseEntity *pAwarder, int iAmount )
+{
+	IncrementStat( pPlayer, TFSTAT_BONUS, iAmount );
+
+#if 0
+	if ( pAwarder )
+	{
+		CSingleUserRecipientFilter filter( pPlayer );
+		filter.MakeReliable();
+
+		UserMessageBegin( filter, "PlayerBonusPoints" );
+			WRITE_BYTE( iAmount );
+			WRITE_BYTE( pPlayer->entindex() );
+			WRITE_BYTE( pAwarder->entindex() );
+		MessageEnd();
+	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

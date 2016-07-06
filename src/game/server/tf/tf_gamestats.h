@@ -73,6 +73,7 @@ public:
 	void Event_PlayerDominatedOther( CTFPlayer *pAttacker );
 	void Event_PlayerRevenge( CTFPlayer *pAttacker );
 	void Event_MaxSentryKills( CTFPlayer *pAttacker, int iMaxKills );
+	void Event_PlayerAwardBonusPoints( CTFPlayer *pPlayer, CBaseEntity *pAwarder, int iAmount );
 
 	virtual void FrameUpdatePostEntityThink();
 
