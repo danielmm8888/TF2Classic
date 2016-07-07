@@ -3909,6 +3909,12 @@ void C_TFPlayer::CreateSaveMeEffect( void )
 	}
 
 	m_pSaveMeEffect = ParticleProp()->Create( "speech_mediccall", PATTACH_POINT_FOLLOW, "head" );
+	if ( m_pSaveMeEffect )
+	{
+		// Set "redness" of the bubble based on player's health.
+		float flHealthRatio = clamp( (float)GetHealth() / (float)GetMaxHealth(), 0.0f, 1.0f );
+		m_pSaveMeEffect->SetControlPoint( 1, Vector( flHealthRatio ) );
+	}
 
 	// If the local player is a medic, add this player to our list of medic callers
 	if ( pLocalPlayer && pLocalPlayer->IsPlayerClass( TF_CLASS_MEDIC ) && pLocalPlayer->IsAlive() == true )

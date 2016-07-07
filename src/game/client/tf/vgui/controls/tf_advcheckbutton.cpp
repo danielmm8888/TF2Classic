@@ -149,7 +149,7 @@ void CTFAdvCheckButton::OnThink()
 //-----------------------------------------------------------------------------
 void CTFAdvCheckButton::GetCommandValue()
 {
-	if (Q_strcmp(GetCommandString(), EMPTY_STRING))
+	if ( GetCommandString()[0] != '\0' )
 	{
 		ConVarRef CheckButtonCommand(GetCommandString());
 		//Msg("Command %s %s\n", GetCommandString(), CheckButtonCommand.GetString());
