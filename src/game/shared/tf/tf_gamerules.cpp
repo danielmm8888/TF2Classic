@@ -5345,6 +5345,20 @@ bool CTFGameRules::ShouldBalanceTeams( void )
 	return BaseClass::ShouldBalanceTeams();
 }
 
+bool CTFGameRules::IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer )
+{
+#ifdef CLIENT_DLL
+	pPlayer = C_BasePlayer::GetLocalPlayer();
+#endif
+
+	if ( pPlayer && !pPlayer->IsAlive() && pPlayer->GetTeamNumber() <= LAST_SHARED_TEAM )
+	{
+		return true;
+	}
+
+	return false;
+}
+
 #ifdef CLIENT_DLL
 const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
 {

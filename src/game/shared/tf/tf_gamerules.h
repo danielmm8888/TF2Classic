@@ -296,7 +296,7 @@ public:
 
 	virtual bool	IsMultiplayer( void ){ return true; };
 
-	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
+	virtual bool	IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer );
 
 	virtual bool	IsFourTeamGame( void ){ return m_bFourTeamMode; };
 	virtual bool	IsDeathmatch( void ){ return m_nGameType == TF_GAMETYPE_DM; };
