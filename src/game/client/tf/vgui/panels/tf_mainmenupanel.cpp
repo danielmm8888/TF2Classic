@@ -181,7 +181,7 @@ void CTFMainMenuPanel::OnTick()
 	{
 		if ((m_psMusicStatus == MUSIC_FIND || m_psMusicStatus == MUSIC_STOP_FIND) && !enginesound->IsSoundStillPlaying(m_nSongGuid))
 		{
-			Q_strncpy(m_pzMusicLink, GetRandomMusic(), sizeof(m_pzMusicLink));
+			GetRandomMusic(m_pzMusicLink, sizeof(m_pzMusicLink));
 			m_psMusicStatus = MUSIC_PLAY;
 		}
 		else if ((m_psMusicStatus == MUSIC_PLAY || m_psMusicStatus == MUSIC_STOP_PLAY)&& m_pzMusicLink[0] != '\0')
@@ -289,40 +289,29 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	}
 };
 
-char* CTFMainMenuPanel::GetRandomMusic()
+void CTFMainMenuPanel::GetRandomMusic(char *pszBuf, int iBufLength)
 {
-	char* pszBasePath = "sound/ui/gamestartup";
-	int iCount = 0;
+	Assert(iBufLength);
 
-	for (int i = 0; i < 27; i++)
+	char szPath[MAX_PATH];
+
+	// Check that there's music available
+	if (!g_pFullFileSystem->FileExists("sound/ui/gamestartup1.mp3"))
 	{
-		char szPath[MAX_PATH];
-		char szNumber[5];
-		Q_snprintf(szNumber, sizeof(szNumber), "%d", iCount + 1);
-		Q_strncpy(szPath, pszBasePath, sizeof(szPath));
-		Q_strncat(szPath, szNumber, sizeof(szPath));
-		Q_strncat(szPath, ".mp3", sizeof(szPath));
-		if (!g_pFullFileSystem->FileExists(szPath))
-		{
-			if (iCount)
-				break;
-			else
-				return "";
-		}
-		iCount++;
+		Assert(false);
+		*pszBuf = '\0';
 	}
 
-	char* pszSoundPath = "ui/gamestartup";
-	int iRand = rand() % iCount;
-	char szPath[MAX_PATH];
-	char szNumber[5];
-	Q_snprintf(szNumber, sizeof(szNumber), "%d", iRand + 1);
-	Q_strncpy(szPath, pszSoundPath, sizeof(szPath));
-	Q_strncat(szPath, szNumber, sizeof(szPath));
-	Q_strncat(szPath, ".mp3", sizeof(szPath));
-	char *szResult = (char*)malloc(sizeof(szPath));
-	Q_strncpy(szResult, szPath, sizeof(szPath));
-	return szResult;	
+	// Discover tracks, 1 through n
+	int iLastTrack = 0;
+	do
+	{
+		Q_snprintf(szPath, sizeof(szPath), "sound/ui/gamestartup%d.mp3", ++iLastTrack);
+	} while (g_pFullFileSystem->FileExists(szPath));
+
+	// Pick a random one
+	Q_snprintf(szPath, sizeof(szPath), "ui/gamestartup%d.mp3", RandomInt(1, iLastTrack - 1));
+	Q_strncpy(pszBuf, szPath, iBufLength);
 }
 
 void CTFMainMenuPanel::SetServerlistSize(int size)
