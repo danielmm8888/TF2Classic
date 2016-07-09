@@ -852,6 +852,10 @@ void C_BaseObject::GetTargetIDDataString( wchar_t *sDataString, int iMaxLenInByt
 {
 	sDataString[0] = '\0';
 
+	// Don't show anything if the building cannot be upgraded at all.
+	if ( m_iHighestUpgradeLevel <= 1 )
+		return;
+
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
 	if ( !pLocalPlayer )
 		return;

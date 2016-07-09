@@ -198,7 +198,11 @@ void CBuildingStatusItem::PerformLayout( void )
 		{
 			m_pBuildingPanel->SetVisible( false );
 			m_pRunningPanel->SetVisible( true );
-			m_pLevelIcons[pObj->GetUpgradeLevel() - 1]->SetVisible( true );
+
+			if ( IsUpgradable() )
+			{
+				m_pLevelIcons[pObj->GetUpgradeLevel() - 1]->SetVisible( true );
+			}
 		}
 	}
 	else
@@ -437,6 +441,20 @@ int CBuildingStatusItem::GetRepresentativeObjectMode( void )
 int CBuildingStatusItem::GetObjectPriority( void )
 {
 	return GetObjectInfo( GetRepresentativeObjectType() )->m_iDisplayPriority;	
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CBuildingStatusItem::IsUpgradable( void )
+{
+	C_BaseObject *pObject = GetRepresentativeObject();
+	if ( pObject && pObject->GetMaxUpgradeLevel() > 1 )
+	{
+		return true;
+	}
+
+	return false;
 }
 
 //============================================================================
@@ -804,8 +822,8 @@ void CBuildingStatusItem_Dispenser::PerformLayout( void )
 	m_pUpgradeProgress->SetProgress(flUpgrade);
 
 	// upgrade label only in 1 or 2
-	m_pUpgradeIcon->SetVisible( iUpgradeLevel < 3 );
-	m_pUpgradeProgress->SetVisible( iUpgradeLevel < 3 );
+	m_pUpgradeIcon->SetVisible( iUpgradeLevel < 3 && IsUpgradable() );
+	m_pUpgradeProgress->SetVisible( iUpgradeLevel < 3 && IsUpgradable() );
 
 }
 
@@ -861,8 +879,8 @@ void CBuildingStatusItem_TeleporterEntrance::OnTick( void )
 		m_pUpgradeProgress->SetProgress( flUpgrade );
 
 		// upgrade label only in 1 or 2
-		m_pUpgradeIcon->SetVisible( iUpgradeLevel < 3 );
-		m_pUpgradeProgress->SetVisible( iUpgradeLevel < 3 );
+		m_pUpgradeIcon->SetVisible( iUpgradeLevel < 3 && IsUpgradable() );
+		m_pUpgradeProgress->SetVisible( iUpgradeLevel < 3 && IsUpgradable() );
 	}
 
 	BaseClass::OnTick();
@@ -919,16 +937,16 @@ void CBuildingStatusItem_TeleporterExit::PerformLayout(void)
 	// upgrade progress
 	int iMetal = pTeleporter->GetUpgradeMetal();
 	int iMetalRequired = pTeleporter->GetUpgradeMetalRequired();
-	float flUpgrade = (float)iMetal / (float)iMetalRequired;
+	float flUpgrade = (float)iMetal / (float)iMetalRequired;;
 
 	if ( m_pUpgradeProgress )
 	{ 
 		m_pUpgradeProgress->SetProgress( flUpgrade );
-		m_pUpgradeProgress->SetVisible( pTeleporter->GetUpgradeLevel() < 3 );
+		m_pUpgradeProgress->SetVisible( pTeleporter->GetUpgradeLevel() < 3 && IsUpgradable() );
 	}
 		
 	if ( m_pUpgradeIcon )
-		m_pUpgradeIcon->SetVisible( pTeleporter->GetUpgradeLevel() < 3 );
+		m_pUpgradeIcon->SetVisible( pTeleporter->GetUpgradeLevel() < 3 && IsUpgradable() );
 }
 
 //============================================================================

@@ -235,6 +235,7 @@ void C_ObjectSentrygun::GetTargetIDString( wchar_t *sIDString, int iMaxLenInByte
 {
 	return BaseClass::GetTargetIDString( sIDString, iMaxLenInBytes );
 
+#if 0
 	sIDString[0] = '\0';
 
 	C_TFPlayer *pLocalPlayer = C_TFPlayer::GetLocalTFPlayer();
@@ -292,6 +293,7 @@ void C_ObjectSentrygun::GetTargetIDString( wchar_t *sIDString, int iMaxLenInByte
 				wszHealthText );
 		}
 	}
+#endif
 }
 
 //-----------------------------------------------------------------------------

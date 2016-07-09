@@ -141,6 +141,7 @@ public:
 	// Upgrades
 	int GetUpgradeLevel( void ) { return m_iUpgradeLevel; }
 	int GetUpgradeMetal( void ) { return m_iUpgradeMetal; }
+	int GetMaxUpgradeLevel( void ) { return m_iHighestUpgradeLevel; }
 
 	int GetUpgradeMetalRequired( void ) { return SENTRYGUN_UPGRADE_METAL; }
 

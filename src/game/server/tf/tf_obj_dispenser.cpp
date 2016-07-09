@@ -416,7 +416,7 @@ char *CObjectDispenser::GetPlacementModel( void )
 //-----------------------------------------------------------------------------
 int CObjectDispenser::GetMaxUpgradeLevel(void)
 {
-	return 3;
+	return ( tf2c_building_upgrades.GetBool() ? 3 : 1 );
 }
 
 //-----------------------------------------------------------------------------
