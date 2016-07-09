@@ -216,7 +216,7 @@ void VGui_CreateGlobalPanels( void )
 	loadingdisc->Create( gameToolParent );
 	messagechars->Create( gameToolParent );
 
-#if 1
+#ifdef TF_CLASSIC_CLIENT
 	if ( CommandLine()->CheckParm( "-nonewmenu" ) == NULL )
 	{
 		MainMenu->Create( NULL );
