@@ -48,6 +48,8 @@ public:
 	void UpdateServerInfo();
 
 private:
+	void GetRandomMusic(char *pszBuf, int iBufLength);
+
 	CExLabel			*m_pVersionLabel;
 	CTFAdvButton		*m_pNotificationButton;
 	CAvatarImagePanel	*m_pProfileAvatar; 
@@ -58,7 +60,6 @@ private:
 	char				m_pzMusicLink[64];	
 	int					m_nSongGuid;
 	MusicStatus			m_psMusicStatus;
-	char*				GetRandomMusic();
 
 	CSteamID			m_SteamID;
 	CTFBlogPanel		*m_pBlogPanel;
