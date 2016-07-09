@@ -121,14 +121,21 @@ bool CTFNotificationManager::Init()
 		Q_strncpy( filter.m_szKey, "gamedir", sizeof( filter.m_szKey ) );
 		Q_strncpy( filter.m_szValue, "tf2classic", sizeof( filter.m_szKey ) ); // change "tf2classic" to engine->GetGameDirectory() before the release
 		m_ServerFilters.AddToTail( filter );
-		//Do it only once
-		AddRequest( REQUEST_SERVERLIST );
+
+		if ( MAINMENU_ROOT )
+		{
+			//Do it only once
+			AddRequest( REQUEST_SERVERLIST );
+		}
 	}
 	return true;
 }
 
 void CTFNotificationManager::Update( float frametime )
 {
+	if ( !MAINMENU_ROOT )
+		return;
+
 	if ( gpGlobals->curtime - m_flLastCheck > tf2c_checkfrequency.GetFloat() )
 	{
 		m_flLastCheck = gpGlobals->curtime;
