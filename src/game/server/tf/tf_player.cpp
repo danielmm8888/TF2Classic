@@ -821,6 +821,7 @@ void CTFPlayer::PrecachePlayerModels( void )
 	}
 
 	PrecacheModel( TF_SPY_MASK_MODEL );
+	PrecacheModel( TF_POWERUP_SHIELD_MODEL );
 
 	// Precache player class sounds
 	for ( i = TF_FIRST_NORMAL_CLASS; i < TF_CLASS_COUNT_ALL; ++i )
@@ -852,13 +853,6 @@ bool CTFPlayer::IsReadyToSpawn( void )
 	{
 		return false;
 	}
-
-	/*CEconWearable *pWearable = (CEconWearable*)CreateEntityByName( "econ_wearable" );
-	pWearable->SetSpecialParticleEffect( UEFF_SUPERRARE_GREENENERGY );
-	PrecacheModel( "models/player/items/scout/batter_helmet.mdl" );
-	pWearable->SetModel( "models/player/items/scout/batter_helmet.mdl" );
-
-	EquipWearable( pWearable );*/
 
 	return ( StateGet() != TF_STATE_DYING );
 }
@@ -4010,6 +4004,13 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 			{
 				CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flDamage, blast_dmg_to_self );
 			}
+		}
+	}
+	else
+	{
+		if ( m_Shared.InCond( TF_COND_POWERUP_SHIELD ) )
+		{
+			flDamage *= 0.4f;
 		}
 	}
 

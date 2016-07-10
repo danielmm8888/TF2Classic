@@ -259,6 +259,7 @@ private:
 	void OnAddHalloweenGiant( void );
 	void OnAddHalloweenTiny( void );
 	void OnAddRagemode( void );
+	void OnAddShield( void );
 
 	void OnRemoveZoomed( void );
 	void OnRemoveBurning( void );
@@ -273,6 +274,7 @@ private:
 	void OnRemoveHalloweenGiant( void );
 	void OnRemoveHalloweenTiny( void );
 	void OnRemoveRagemode( void );
+	void OnRemoveShield( void );
 
 	float GetCritMult( void );
 
@@ -394,6 +396,8 @@ private:
 	CNewParticleEffect *m_pCritEffects[2];
 	EHANDLE m_hCritEffectHost;
 	CSoundPatch *m_pCritSound;
+
+	CHandle<C_BaseAnimating> m_hPowerupShield;
 
 	int	m_nOldDisguiseClass;
 	int m_nOldDisguiseTeam;

@@ -436,8 +436,7 @@ bool CTFPlayerShared::IsInvulnerable( void )
 	if ( InCond( TF_COND_INVULNERABLE ) ||
 		InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) ||
 		InCond( TF_COND_INVULNERABLE_USER_BUFF ) ||
-		InCond( TF_COND_INVULNERABLE_CARD_EFFECT ) ||
-		InCond( TF_COND_POWERUP_SHORTUBER  ) )
+		InCond( TF_COND_INVULNERABLE_CARD_EFFECT ) )
 		return true;
 
 	return false;
@@ -619,7 +618,6 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 	case TF_COND_INVULNERABLE:
 	case TF_COND_INVULNERABLE_USER_BUFF:
 	case TF_COND_INVULNERABLE_CARD_EFFECT:
-	case TF_COND_POWERUP_SHORTUBER:
 		OnAddInvulnerable();
 		break;
 
@@ -666,6 +664,11 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 
 	case TF_COND_POWERUP_RAGEMODE:
 		OnAddRagemode();
+		break;
+
+	case TF_COND_POWERUP_SHIELD:
+		OnAddShield();
+		break;
 
 	default:
 		break;
@@ -710,7 +713,6 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 	case TF_COND_INVULNERABLE:
 	case TF_COND_INVULNERABLE_USER_BUFF:
 	case TF_COND_INVULNERABLE_CARD_EFFECT:
-	case TF_COND_POWERUP_SHORTUBER:
 		OnRemoveInvulnerable();
 		break;
 
@@ -741,6 +743,11 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 
 	case TF_COND_POWERUP_RAGEMODE:
 		OnRemoveRagemode();
+		break;
+
+	case TF_COND_POWERUP_SHIELD:
+		OnRemoveShield();
+		break;
 
 	default:
 		break;
@@ -1403,6 +1410,47 @@ void CTFPlayerShared::OnRemoveRagemode( void )
 	if ( m_pOuter->IsLocalPlayer() )
 	{
 		view->SetScreenOverlayMaterial( NULL );
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddShield( void )
+{
+#ifdef GAME_DLL
+
+#else
+	if ( !m_hPowerupShield.Get() )
+	{
+		C_BaseAnimating *pShield = new C_BaseAnimating();
+		if ( !pShield->InitializeAsClientEntity( TF_POWERUP_SHIELD_MODEL, RENDER_GROUP_TRANSLUCENT_ENTITY ) )
+		{
+			pShield->Release();
+			return;
+		}
+
+		pShield->AddEffects( EF_NOSHADOW | EF_BONEMERGE_FASTCULL );
+		pShield->FollowEntity( m_pOuter );
+
+		m_hPowerupShield = pShield;
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveShield( void )
+{
+#ifdef GAME_DLL
+
+#else
+	if ( m_hPowerupShield.Get() )
+	{
+		m_hPowerupShield->Release();
+		m_hPowerupShield = NULL;
 	}
 #endif
 }

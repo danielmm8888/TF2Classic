@@ -569,7 +569,7 @@ enum
 
 	// Powerup conditions
 	TF_COND_POWERUP_CRITDAMAGE,
-	TF_COND_POWERUP_SHORTUBER,
+	TF_COND_POWERUP_SHIELD,
 	TF_COND_POWERUP_FASTRELOAD,
 	TF_COND_POWERUP_CLOAK,
 	TF_COND_POWERUP_RAGEMODE,
@@ -1266,6 +1266,7 @@ public:
 #define TF_CAMERA_DIST_UP 0
 
 #define TF_SPY_MASK_MODEL "models/player/items/spy_mask.mdl"
+#define TF_POWERUP_SHIELD_MODEL "models/items/powerup_merc_shield.mdl"
 
 #define IN_TYPING ( 1 << 31 )
 
