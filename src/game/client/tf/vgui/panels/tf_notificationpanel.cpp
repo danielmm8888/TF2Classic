@@ -17,6 +17,7 @@ CTFNotificationPanel::CTFNotificationPanel( vgui::Panel* parent, const char *pan
 
 	m_pPrevButton = NULL;
 	m_pNextButton = NULL;
+	m_pMessageLabel = NULL;
 }
 
 //-----------------------------------------------------------------------------
@@ -45,6 +46,9 @@ void CTFNotificationPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	m_pPrevButton = dynamic_cast<CTFAdvButton *>( FindChildByName( "PrevButton" ) );
 	m_pNextButton = dynamic_cast<CTFAdvButton *>( FindChildByName( "NextButton" ) );
+	m_pMessageLabel = dynamic_cast<CExLabel *>( FindChildByName( "MessageLabel" ) );
+
+	m_iMinHeight = GetTall();
 
 	UpdateLabels();
 }
@@ -92,12 +96,16 @@ void CTFNotificationPanel::UpdateLabels()
 	Q_snprintf( sCount, sizeof( sCount ), "(%d/%d)", m_iCurrent + 1, m_iCount );
 	SetDialogVariable( "count", sCount );
 
-	MessageNotification* pNotification = GetNotificationManager()->GetNotification( m_iCurrent );
+	MessageNotification *pNotification = GetNotificationManager()->GetNotification( m_iCurrent );
 
 	SetDialogVariable( "title", pNotification->wszTitle );
 	SetDialogVariable( "message", pNotification->wszMessage );
 	SetDialogVariable( "timestamp", pNotification->wszDate );
-	pNotification->bUnread = !IsVisible();
+	
+	if ( IsVisible() )
+	{
+		pNotification->bUnread = false;
+	}
 }
 
 void CTFNotificationPanel::RemoveCurrent()

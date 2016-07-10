@@ -32,7 +32,9 @@ public:
 private:
 	CTFAdvButton	*m_pPrevButton;
 	CTFAdvButton	*m_pNextButton;
+	CExLabel		*m_pMessageLabel;
 
+	int				m_iMinHeight;
 	int				m_iCurrent;
 	int				m_iCount;
 };

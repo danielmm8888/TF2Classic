@@ -29,7 +29,7 @@ enum RequestType
 
 struct MessageNotification
 {
-	MessageNotification( void );
+	MessageNotification();
 	MessageNotification( const char *Title, const char *Message, time_t timeVal );
 	MessageNotification( const wchar_t *Title, const wchar_t *Message, time_t timeVal );
 
@@ -40,6 +40,7 @@ struct MessageNotification
 	wchar_t wszDate[32];
 	wchar_t wszMessage[TF_NOTIFICATION_MESSAGE_SIZE];
 	bool bUnread;
+	bool bLocal;
 };
 
 //-----------------------------------------------------------------------------
@@ -69,7 +70,8 @@ public:
 	virtual int GetUnreadNotificationsCount();
 	virtual void RemoveNotification( int iIndex );
 	virtual bool IsOutdated() { return m_bOutdated; };
-	virtual char *GetVersionString();
+	const char *GetVersionName( void );
+	time_t GetVersionTimeStamp( void );
 
 	uint32 GetServerFilters( MatchMakingKeyValuePair_t **pFilters );
 	// Server has responded ok with updated data

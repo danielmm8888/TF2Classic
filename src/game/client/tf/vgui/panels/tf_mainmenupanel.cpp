@@ -284,7 +284,7 @@ void CTFMainMenuPanel::SetVersionLabel()  //GetVersionString
 	if (m_pVersionLabel)
 	{
 		char verString[64];
-		Q_snprintf(verString, sizeof(verString), "Version: %s", GetNotificationManager()->GetVersionString());
+		Q_snprintf(verString, sizeof(verString), "Version: %s", GetNotificationManager()->GetVersionName());
 		m_pVersionLabel->SetText(verString);
 	}
 };

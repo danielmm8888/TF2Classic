@@ -13,6 +13,7 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
+#define TF_VERSION_TEST_TIME "1473033600"
 #define TF_NOTIFICATION_TEST_TIME "1456596000"
 
 const char *g_aRequestURLs[REQUEST_COUNT] =
@@ -22,13 +23,14 @@ const char *g_aRequestURLs[REQUEST_COUNT] =
 	"http://services.0x13.io/tf2c/servers/official/"
 };
 
-MessageNotification::MessageNotification( void )
+MessageNotification::MessageNotification()
 {
 	timeStamp = 0;
 	wszTitle[0] = '\0';
 	wszMessage[0] = '\0';
 	wszDate[0] = '\0';
 	bUnread = true;
+	bLocal = false;
 };
 
 MessageNotification::MessageNotification( const char *Title, const char *Message, time_t timeVal )
@@ -36,6 +38,7 @@ MessageNotification::MessageNotification( const char *Title, const char *Message
 	g_pVGuiLocalize->ConvertANSIToUnicode( Title, wszTitle, sizeof( wszTitle ) );
 	g_pVGuiLocalize->ConvertANSIToUnicode( Message, wszMessage, sizeof( wszMessage ) );
 	bUnread = true;
+	bLocal = false;
 	SetTimeStamp( timeVal );
 };
 
@@ -44,6 +47,7 @@ MessageNotification::MessageNotification( const wchar_t *Title, const wchar_t *M
 	V_wcsncpy( wszTitle, Title, sizeof( wszTitle ) );
 	V_wcsncpy( wszMessage, Message, sizeof( wszMessage ) );
 	bUnread = true;
+	bLocal = false;
 	SetTimeStamp( timeVal );
 };
 
@@ -211,10 +215,10 @@ void CTFNotificationManager::OnHTTPRequestCompleted( HTTPRequestCompleted_t *Cal
 		uint32 iBodysize;
 		m_SteamHTTP->GetHTTPResponseBodySize( CallResult->m_hRequest, &iBodysize );
 
-		uint8 iBodybuffer[256];
+		uint8 iBodybuffer[2048];
 		m_SteamHTTP->GetHTTPResponseBodyData( CallResult->m_hRequest, iBodybuffer, iBodysize );
 
-		char result[TF_NOTIFICATION_TITLE_SIZE + TF_NOTIFICATION_MESSAGE_SIZE];
+		char result[2048];
 		V_strncpy( result, (char *)iBodybuffer, min( (int)( iBodysize + 1 ), sizeof( result ) ) );
 
 		switch ( iRequestType )
@@ -243,22 +247,32 @@ void CTFNotificationManager::OnVersionCheckCompleted( const char* pMessage )
 	if ( pMessage[0] == '\0' )
 		return;
 
-	if ( Q_strcmp( GetVersionString(), pMessage ) < 0 )
+	// TODO: Get version timestamp from HTML here.
+	time_t timeCurrent = GetVersionTimeStamp();
+	time_t timeLatest = V_atoi64( TF_VERSION_TEST_TIME );
+	if ( timeCurrent < timeLatest )
 	{
 		if ( m_bOutdated )
 			return;
 
 		m_bOutdated = true;
-		wchar_t wszVersion[16];
-
-		g_pVGuiLocalize->ConvertANSIToUnicode( pMessage, wszVersion, sizeof( wszVersion ) );
 
 		MessageNotification Notification;
 		V_wcsncpy( Notification.wszTitle, g_pVGuiLocalize->Find( "#TF_GameOutdatedTitle" ), sizeof( Notification.wszTitle ) );
-		g_pVGuiLocalize->ConstructString( Notification.wszMessage, sizeof( Notification.wszMessage ), g_pVGuiLocalize->Find( "#TF_GameOutdated" ), 1, wszVersion );
+
+		wchar_t wszVersion[16];
+		g_pVGuiLocalize->ConvertANSIToUnicode( pMessage, wszVersion, sizeof( wszVersion ) );
+
+		char szDate[64];
+		wchar_t wszDate[64];
+		BGetLocalFormattedDate( timeLatest, szDate, sizeof( szDate ) );
+		g_pVGuiLocalize->ConvertANSIToUnicode( szDate, wszDate, sizeof( wszDate ) );
+
+		g_pVGuiLocalize->ConstructString( Notification.wszMessage, sizeof( Notification.wszMessage ), g_pVGuiLocalize->Find( "#TF_GameOutdated" ), 2, wszVersion, wszDate );
 
 		// Urgent - set time to now.
 		Notification.SetTimeStamp( time( NULL ) );
+		Notification.bLocal = true;
 
 		SendNotification( Notification );
 	}
@@ -268,19 +282,20 @@ void CTFNotificationManager::OnVersionCheckCompleted( const char* pMessage )
 	}
 }
 
-void CTFNotificationManager::OnMessageCheckCompleted( const char* pMessage )
+void CTFNotificationManager::OnMessageCheckCompleted( const char *pszPage )
 {
-	if ( pMessage[0] == '\0' )
+	if ( pszPage[0] == '\0' )
 		return;
 
-	const char *sChar = strchr( pMessage, '\n' );
+	const char *pMessage = strchr( pszPage, '\n' );
 
-	if ( !sChar )
+	if ( !pMessage )
 	{
 		Warning( "Incorrect notification message format.\n" );
 		return;
 	}
 
+	// ConVar does not support int64 so we have to work around it.
 	time_t timePrevious = V_atoi64( tf2c_latest_notification.GetString() );
 	time_t timeNew = V_atoi64( TF_NOTIFICATION_TEST_TIME );
 
@@ -292,9 +307,9 @@ void CTFNotificationManager::OnMessageCheckCompleted( const char* pMessage )
 	char szTitle[TF_NOTIFICATION_TITLE_SIZE];
 	char szMessage[TF_NOTIFICATION_MESSAGE_SIZE];
 
-	V_strncpy( szTitle, pMessage, min( sChar - pMessage + 1, sizeof( szTitle ) ) );
-	V_strncpy( szMessage, sChar + 1, sizeof( szMessage ) );
-	V_strncpy( m_pzLastMessage, pMessage, sizeof( m_pzLastMessage ) );
+	V_strncpy( szTitle, pszPage, min( pMessage - pszPage + 1, sizeof( szTitle ) ) );
+	V_strncpy( szMessage, pMessage + 1, sizeof( szMessage ) );
+	V_strncpy( m_pzLastMessage, pszPage, sizeof( m_pzLastMessage ) );
 
 	MessageNotification Notification( szTitle, szMessage, timeNew );
 	SendNotification( Notification );
@@ -453,26 +468,66 @@ int CTFNotificationManager::GetUnreadNotificationsCount()
 	return iCount;
 };
 
-char* CTFNotificationManager::GetVersionString()
+#define VERSION_NAME_KEY "VersionName="
+#define VERSION_TIME_KEY "VersionTime="
+
+const char *CTFNotificationManager::GetVersionName( void )
 {
-	char verString[30];
 	if ( g_pFullFileSystem->FileExists( "version.txt" ) )
 	{
+		static char szVersion[32];
+		static int iKeyLen = V_strlen( VERSION_NAME_KEY );
+
+		char szFile[2048];
 		FileHandle_t fh = filesystem->Open( "version.txt", "r", "MOD" );
-		int file_len = filesystem->Size( fh );
-		char* GameInfo = new char[file_len + 1];
-
-		filesystem->Read( (void*)GameInfo, file_len, fh );
-		GameInfo[file_len] = 0; // null terminator
-
+		int iFileLen = min( filesystem->Size( fh ), sizeof( szFile ) );
+		filesystem->Read( szFile, iFileLen, fh );
+		szFile[iFileLen - 1] = '\0'; // Gotta put null terminator at the end.
 		filesystem->Close( fh );
 
-		Q_snprintf( verString, sizeof( verString ), GameInfo + 8 );
+		char szToken[256];
+		const char *pFile = engine->ParseFile( szFile, szToken, sizeof( szToken ) );
+		while ( szToken[0] != '\0' )
+		{
+			if ( V_strnicmp( szToken, VERSION_NAME_KEY, iKeyLen ) == 0 )
+			{
+				V_strncpy( szVersion, szToken + iKeyLen, sizeof( szVersion ) );
+				return szVersion;
+			}
 
-		delete[] GameInfo;
+			pFile = engine->ParseFile( pFile, szToken, sizeof( szToken ) );
+		}
 	}
 
-	char *szResult = (char*)malloc( sizeof( verString ) );
-	Q_strncpy( szResult, verString, sizeof( verString ) );
-	return szResult;
+	return "";
+}
+
+time_t CTFNotificationManager::GetVersionTimeStamp( void )
+{
+	if ( g_pFullFileSystem->FileExists( "version.txt" ) )
+	{
+		static char szVersion[32];
+		static int iKeyLen = V_strlen( VERSION_TIME_KEY );
+
+		char szFile[2048];
+		FileHandle_t fh = filesystem->Open( "version.txt", "r", "MOD" );
+		int iFileLen = min( filesystem->Size( fh ), sizeof( szFile ) );
+		filesystem->Read( szFile, iFileLen, fh );
+		szFile[iFileLen - 1] = '\0'; // Gotta put null terminator at the end.
+		filesystem->Close( fh );
+
+		char szToken[256];
+		const char *pFile = engine->ParseFile( szFile, szToken, sizeof( szToken ) );
+		while ( szToken[0] != '\0' )
+		{
+			if ( V_strnicmp( szToken, VERSION_TIME_KEY, iKeyLen ) == 0 )
+			{
+				return V_atoi64( szToken + iKeyLen );
+			}
+
+			pFile = engine->ParseFile( pFile, szToken, sizeof( szToken ) );
+		}
+	}
+
+	return 0;
 }
