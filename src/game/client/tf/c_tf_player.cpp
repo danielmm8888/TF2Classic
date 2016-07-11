@@ -2355,6 +2355,10 @@ bool C_TFPlayer::IsEnemyPlayer( void )
 	if ( !pLocalPlayer )
 		return false;
 
+	// In Deathmatch, everyone is an enemy. Except for ourselves.
+	if ( TFGameRules()->IsDeathmatch() && pLocalPlayer != this && pLocalPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
+		return true;
+
 	switch ( pLocalPlayer->GetTeamNumber() )
 	{
 	case TF_TEAM_RED:
@@ -4412,17 +4416,14 @@ void C_TFPlayer::ComputeFxBlend( void )
 {
 	BaseClass::ComputeFxBlend();
 
-	if ( GetPlayerClass()->IsClass( TF_CLASS_SPY ) )
+	float flInvisible = GetPercentInvisible();
+	if ( flInvisible != 0.0f )
 	{
-		float flInvisible = GetPercentInvisible();
-		if ( flInvisible != 0.0f )
+		// Tell our shadow
+		ClientShadowHandle_t hShadow = GetShadowHandle();
+		if ( hShadow != CLIENTSHADOW_INVALID_HANDLE )
 		{
-			// Tell our shadow
-			ClientShadowHandle_t hShadow = GetShadowHandle();
-			if ( hShadow != CLIENTSHADOW_INVALID_HANDLE )
-			{
-				g_pClientShadowMgr->SetFalloffBias( hShadow, flInvisible * 255 );
-			}
+			g_pClientShadowMgr->SetFalloffBias( hShadow, flInvisible * 255 );
 		}
 	}
 }
