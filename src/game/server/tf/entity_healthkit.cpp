@@ -21,13 +21,11 @@
 #define TF_HEALTHKIT_MODEL			"models/items/healthkit.mdl"
 #define TF_HEALTHKIT_PICKUP_SOUND	"HealthKit.Touch"
 
-extern ConVar tf_max_health_boost;
-extern ConVar tf2c_dm_max_health_boost;
-
 LINK_ENTITY_TO_CLASS( item_healthkit_full, CHealthKit );
 LINK_ENTITY_TO_CLASS( item_healthkit_small, CHealthKitSmall );
 LINK_ENTITY_TO_CLASS( item_healthkit_medium, CHealthKitMedium );
 LINK_ENTITY_TO_CLASS( item_healthkit_tiny, CHealthKitTiny );
+LINK_ENTITY_TO_CLASS( item_healthkit_mega, CHealthKitMega );
 
 //=============================================================================
 //
@@ -70,13 +68,14 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 		int iHealthToAdd = ceil( pPlayer->GetMaxHealth() * PackRatios[GetPowerupSize()] );
 		bool bTiny = GetPowerupSize() == POWERUP_TINY;
+		bool bMega = GetPowerupSize() == POWERUP_MEGA;
 		int iHealthRestored = 0;
 
 		// Don't heal the player who dropped this healthkit.
 		if ( pTFPlayer != GetOwnerEntity() )
 		{
 			// Overheal pellets, well, overheal.
-			if ( bTiny )
+			if ( bTiny || bMega )
 			{
 				iHealthToAdd = clamp( iHealthToAdd, 0, pTFPlayer->m_Shared.GetMaxBuffedHealth() - pTFPlayer->GetHealth() );
 				iHealthRestored = pPlayer->TakeHealth( iHealthToAdd, DMG_IGNORE_MAXHEALTH );
@@ -93,7 +92,7 @@ bool CHealthKit::MyTouch( CBasePlayer *pPlayer )
 			if ( pTFPlayer->m_Shared.InCond( TF_COND_DISGUISED ) )
 			{
 				int iFakeHealthToAdd = ceil( pTFPlayer->m_Shared.GetDisguiseMaxHealth() * PackRatios[GetPowerupSize()] );
-				if ( pTFPlayer->m_Shared.AddDisguiseHealth( iFakeHealthToAdd, bTiny ) )
+				if ( pTFPlayer->m_Shared.AddDisguiseHealth( iFakeHealthToAdd, ( bTiny || bMega ) ) )
 					bSuccess = true;
 			}
 
