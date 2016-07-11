@@ -164,14 +164,14 @@ bool CTargetID::ShouldDraw( void )
 				bool bDisguisedEnemy = false;
 				if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && // they're disguised
 					!pPlayer->m_Shared.InCond( TF_COND_DISGUISING ) && // they're not in the process of disguising
-					!pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) ) // they're not cloaked
+					!pPlayer->m_Shared.IsStealthed() ) // they're not cloaked
 				{
 					bDisguisedEnemy = ( ToTFPlayer( pPlayer->m_Shared.GetDisguiseTarget() ) != NULL );
 				}
 
 				bReturn = ( !pPlayer->IsEnemyPlayer() ||
 					( bDisguisedEnemy && pPlayer->m_Shared.GetDisguiseTeam() == pLocalTFPlayer->GetTeamNumber() ) ||
-					( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) ) );
+					( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.IsStealthed() ) );
 			}
 			else if ( pEnt->IsBaseObject() && (pLocalTFPlayer->InSameTeam( pEnt ) || pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) || pLocalTFPlayer->GetTeamNumber() == TEAM_SPECTATOR) )
 			{
@@ -289,7 +289,7 @@ void CTargetID::UpdateID( void )
 			// determine if the target is a disguised spy (either friendly or enemy)
 			if ( pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) && // they're disguised
 				//!pPlayer->m_Shared.InCond( TF_COND_DISGUISING ) && // they're not in the process of disguising
-				!pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) ) // they're not cloaked
+				!pPlayer->m_Shared.IsStealthed() ) // they're not cloaked
 			{
 				bDisguisedTarget = true;
 				pDisguiseTarget = ToTFPlayer( pPlayer->m_Shared.GetDisguiseTarget() );
@@ -351,7 +351,7 @@ void CTargetID::UpdateID( void )
 				printFormatString = "#TF_playerid_sameteam";
 				bShowHealth = true;
 			}
-			else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+			else if ( pLocalTFPlayer->IsPlayerClass( TF_CLASS_SPY ) && !pPlayer->m_Shared.IsStealthed() )
 			{
 				// Spy can see enemy's health.
 				printFormatString = "#TF_playerid_diffteam";

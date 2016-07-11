@@ -1061,7 +1061,7 @@ public:
 
 EXPOSE_INTERFACE( CProxyBurnLevel, IMaterialProxy, "BurnLevel" IMATERIAL_PROXY_INTERFACE_VERSION );
 
-Vector g_aUrineLevels[TF_TEAM_COUNT] =
+const Vector g_aUrineLevels[TF_TEAM_COUNT] =
 {
 	Vector( 1, 1, 1 ),
 	Vector( 1, 1, 1 ),
@@ -3791,7 +3791,7 @@ bool C_TFPlayer::IsPlayerClass( int iClass )
 void C_TFPlayer::AddDecal( const Vector& rayStart, const Vector& rayEnd,
 							const Vector& decalCenter, int hitbox, int decalIndex, bool doTrace, trace_t& tr, int maxLODToDecal )
 {
-	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_Shared.IsStealthed() )
 	{
 		return;
 	}
@@ -4246,7 +4246,7 @@ bool C_TFPlayer::ShouldShowNemesisIcon()
 	// and is not dead, cloaked or disguised
 	if ( IsNemesisOfLocalPlayer() && g_PR && g_PR->IsConnected( entindex() ) )
 	{
-		bool bStealthed = m_Shared.InCond( TF_COND_STEALTHED );
+		bool bStealthed = m_Shared.IsStealthed();
 		bool bDisguised = m_Shared.InCond( TF_COND_DISGUISED );
 		bool bTournamentHide = TFGameRules()->IsInTournamentMode() && tf_tournament_hide_domination_icons.GetBool();
 		if ( IsAlive() && !bStealthed && !bDisguised && !bTournamentHide )
@@ -4493,7 +4493,7 @@ void C_TFPlayer::UpdateTypingBubble( void )
 	if ( IsLocalPlayer() )
 		return;
 
-	if ( m_bTyping && IsAlive() && ( !m_Shared.InCond( TF_COND_STEALTHED ) || !IsEnemyPlayer() ) )
+	if ( m_bTyping && IsAlive() && ( !m_Shared.IsStealthed() || !IsEnemyPlayer() ) )
 	{
 		if ( !m_pTypingEffect )
 		{

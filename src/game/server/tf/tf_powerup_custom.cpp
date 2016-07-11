@@ -5,12 +5,6 @@
 //
 //=============================================================================//
 #include "cbase.h"
-#include "items.h"
-#include "tf_gamerules.h"
-#include "tf_shareddefs.h"
-#include "tf_player.h"
-#include "tf_team.h"
-#include "engine/IEngineSound.h"
 #include "tf_powerup_custom.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -36,28 +30,4 @@ CTFPowerupCustom::CTFPowerupCustom()
 {	
 	m_iPowerupCondition = TF_COND_POWERUP_CRITDAMAGE;
 	m_flEffectDuration = 15.0f;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Spawn function 
-//-----------------------------------------------------------------------------
-void CTFPowerupCustom::Spawn( void )
-{
-	BaseClass::Spawn();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Precache 
-//-----------------------------------------------------------------------------
-void CTFPowerupCustom::Precache( void )
-{
-	BaseClass::Precache();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Touch function
-//-----------------------------------------------------------------------------
-bool CTFPowerupCustom::MyTouch( CBasePlayer *pPlayer )
-{
-	return BaseClass::MyTouch( pPlayer );
 }

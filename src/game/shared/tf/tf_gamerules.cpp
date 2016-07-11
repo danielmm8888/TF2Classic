@@ -4599,7 +4599,7 @@ bool CTFGameRules::PlayerMayCapturePoint( CBasePlayer *pPlayer, int iPointIndex,
 	}
 
 	// Disguised and invisible spies cannot capture points
-	if ( pTFPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( pTFPlayer->m_Shared.IsStealthed() )
 	{
 		if ( pszReason )
 		{

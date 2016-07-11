@@ -23,15 +23,9 @@ public:
 
 	CTFPowerupClasschange();
 
-	void	Spawn( void );
-	void	Precache( void );
-	bool	MyTouch( CBasePlayer *pPlayer );
-
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_CLASSCHANGE; }
 
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 private:
-
 	int		m_nClassIndex;
 
 };

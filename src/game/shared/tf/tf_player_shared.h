@@ -109,6 +109,7 @@ public:
 
 	bool	IsCritBoosted( void );
 	bool	IsInvulnerable( void );
+	bool	IsStealthed( void );
 
 	void	ConditionGameRulesThink( void );
 
@@ -191,7 +192,7 @@ public:
 	const Vector &GetSeparationVelocity( void ) const { return m_vSeparationVelocity; }
 	void	SetSeparationVelocity( const Vector &vSeparationVelocity ) { m_vSeparationVelocity = vSeparationVelocity; }
 
-	void	FadeInvis( float flInvisFadeTime );
+	void	FadeInvis( float flInvisFadeTime, bool bNoAttack = false );
 	float	GetPercentInvisible( void );
 	void	NoteLastDamageTime( int nDamage );
 	void	OnSpyTouchedByEnemy( void );

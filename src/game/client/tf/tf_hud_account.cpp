@@ -307,10 +307,10 @@ void CHealthAccountPanel::FireGameEvent( IGameEvent *event )
 			// Show a particle to indicate that player got healed.
 			int iTeam = pPlayer->GetTeamNumber();
 
-			if ( pPlayer->IsPlayerClass( TF_CLASS_SPY ) && pPlayer->IsEnemyPlayer() )
+			if ( pPlayer->IsEnemyPlayer() )
 			{
 				// Don't give away cloaked spies.
-				if ( pPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+				if ( pPlayer->m_Shared.IsStealthed() )
 					return;
 
 				// Show their disguise team color.

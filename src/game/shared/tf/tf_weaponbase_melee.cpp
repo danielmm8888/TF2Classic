@@ -149,6 +149,8 @@ void CTFWeaponBaseMelee::PrimaryAttack()
 	Swing( pPlayer );
 
 #if !defined( CLIENT_DLL ) 
+	pPlayer->RemoveInvisibility();
+	pPlayer->RemoveDisguise();
 	pPlayer->RemoveSpawnProtection();
 
 	pPlayer->SpeakWeaponFire();

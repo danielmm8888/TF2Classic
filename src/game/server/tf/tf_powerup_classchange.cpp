@@ -5,12 +5,6 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include "items.h"
-#include "tf_gamerules.h"
-#include "tf_shareddefs.h"
-#include "tf_player.h"
-#include "tf_team.h"
-#include "engine/IEngineSound.h"
 #include "tf_powerup_classchange.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -33,28 +27,4 @@ CTFPowerupClasschange::CTFPowerupClasschange()
 {	
 	m_nClassIndex = TF_CLASS_SCOUT;
 	m_flEffectDuration = 15.0f;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Spawn function 
-//-----------------------------------------------------------------------------
-void CTFPowerupClasschange::Spawn( void )
-{
-	BaseClass::Spawn();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Precache 
-//-----------------------------------------------------------------------------
-void CTFPowerupClasschange::Precache( void )
-{
-	BaseClass::Precache();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Touch function
-//-----------------------------------------------------------------------------
-bool CTFPowerupClasschange::MyTouch( CBasePlayer *pPlayer )
-{
-	return BaseClass::MyTouch( pPlayer );
 }

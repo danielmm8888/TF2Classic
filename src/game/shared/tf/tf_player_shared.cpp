@@ -443,6 +443,19 @@ bool CTFPlayerShared::IsInvulnerable( void )
 	return false;
 }
 
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayerShared::IsStealthed( void )
+{
+	if ( InCond( TF_COND_STEALTHED ) ||
+		InCond( TF_COND_STEALTHED_USER_BUFF ) ||
+		InCond( TF_COND_POWERUP_CLOAK ) )
+		return true;
+
+	return false;
+}
+
 void CTFPlayerShared::DebugPrintConditions( void )
 {
 #ifndef CLIENT_DLL
@@ -613,6 +626,8 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 		break;
 
 	case TF_COND_STEALTHED:
+	case TF_COND_STEALTHED_USER_BUFF:
+	case TF_COND_POWERUP_CLOAK:
 		OnAddStealthed();
 		break;
 
@@ -699,8 +714,14 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 #endif
 		break;
 
-	case TF_COND_STEALTHED:
+	case TF_COND_POWERUP_CLOAK:
 		OnRemoveStealthed();
+		break;
+
+	case TF_COND_STEALTHED:
+	case TF_COND_STEALTHED_USER_BUFF:
+		OnRemoveStealthed();
+		FadeInvis( tf_spy_invis_unstealth_time.GetFloat(), false );
 		break;
 
 	case TF_COND_DISGUISED:
@@ -1077,7 +1098,8 @@ void CTFPlayerShared::ConditionThink( void )
 
 			if ( m_flCloakMeter <= 0.0f )
 			{
-				FadeInvis( tf_spy_invis_unstealth_time.GetFloat() );
+				RemoveCond( TF_COND_STEALTHED );
+				FadeInvis( tf_spy_invis_unstealth_time.GetFloat(), true );
 			}
 		}
 		else
@@ -1113,7 +1135,7 @@ void CTFPlayerShared::OnAddDisguising( void )
 		m_pOuter->ParticleProp()->StopEmission( m_pOuter->m_pDisguisingEffect );
 	}
 
-	if ( ( !m_pOuter->IsLocalPlayer() || !m_pOuter->InFirstPersonView() ) && ( !InCond( TF_COND_STEALTHED ) || !m_pOuter->IsEnemyPlayer() ) )
+	if ( ( !m_pOuter->IsLocalPlayer() || !m_pOuter->InFirstPersonView() ) && ( !IsStealthed() || !m_pOuter->IsEnemyPlayer() ) )
 	{
 		const char *pszEffectName = ConstructTeamParticle( "spy_start_disguise_%s", m_pOuter->GetTeamNumber() );
 
@@ -1433,6 +1455,7 @@ void CTFPlayerShared::OnAddShield( void )
 		}
 
 		pShield->AddEffects( EF_NOSHADOW | EF_BONEMERGE_FASTCULL );
+		pShield->SetOwnerEntity( m_pOuter );
 		pShield->FollowEntity( m_pOuter );
 
 		m_hPowerupShield = pShield;
@@ -1781,15 +1804,9 @@ void CTFPlayerShared::OnSpyTouchedByEnemy( void )
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-void CTFPlayerShared::FadeInvis( float flInvisFadeTime )
+void CTFPlayerShared::FadeInvis( float flInvisFadeTime, bool bNoAttack /*= false*/ )
 {
-	RemoveCond( TF_COND_STEALTHED );
-
-	if ( flInvisFadeTime < 0.15 )
-	{
-		// this was a force respawn, they can attack whenever
-	}
-	else
+	if ( bNoAttack )
 	{
 		// next attack in some time
 		m_flStealthNoAttackExpire = gpGlobals->curtime + tf_spy_cloak_no_attack_time.GetFloat();
@@ -1814,7 +1831,7 @@ void CTFPlayerShared::InvisibilityThink( void )
 	// Go invisible or appear.
 	if ( m_flInvisChangeCompleteTime > gpGlobals->curtime )
 	{
-		if ( InCond( TF_COND_STEALTHED ) )
+		if ( IsStealthed() )
 		{
 			flTargetInvis = 1.0f - ( ( m_flInvisChangeCompleteTime - gpGlobals->curtime ) );
 		}
@@ -1825,7 +1842,7 @@ void CTFPlayerShared::InvisibilityThink( void )
 	}
 	else
 	{
-		if ( InCond( TF_COND_STEALTHED ) )
+		if ( IsStealthed() )
 		{
 			flTargetInvis = 1.0f;
 		}
@@ -2113,7 +2130,7 @@ void CTFPlayerShared::UpdateCritBoostEffect( bool bForceHide /*= false*/ )
 		{
 			bShouldShow = false;
 		}
-		else if ( InCond( TF_COND_STEALTHED ) )
+		else if ( IsStealthed() )
 		{
 			bShouldShow = false;
 		}
@@ -2552,7 +2569,7 @@ CTFWeaponBase *CTFPlayerShared::GetActiveTFWeapon() const
 //-----------------------------------------------------------------------------
 bool CTFPlayerShared::IsAlly( CBaseEntity *pEntity )
 {
-	return ( pEntity->GetTeamNumber() == m_pOuter->GetTeamNumber() );
+	return ( pEntity->GetTeamNumber() == m_pOuter->GetTeamNumber() && !TFGameRules()->IsDeathmatch() );
 }
 
 //-----------------------------------------------------------------------------
@@ -3070,7 +3087,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 
 	// Slow us down if we're disguised as a slower class
 	// unless we're cloaked..
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && !m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) && !m_Shared.IsStealthed() )
 	{
 		float flMaxDisguiseSpeed = GetPlayerClassData( m_Shared.GetDisguiseClass() )->m_flMaxSpeed;
 		maxfbspeed = min( flMaxDisguiseSpeed, maxfbspeed );
@@ -3114,7 +3131,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		maxfbspeed *= 0.9f;
 	}
 
-	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( m_Shared.IsStealthed() )
 	{
 		if ( maxfbspeed > tf_spy_max_cloaked_speed.GetFloat() )
 			maxfbspeed = tf_spy_max_cloaked_speed.GetFloat();
@@ -3431,6 +3448,7 @@ bool CTFPlayer::CanAttack( void )
 
 	Assert( pRules );
 
+	// Only regular cloak prevents us from firing.
 	if ( m_Shared.GetStealthNoAttackExpireTime() > gpGlobals->curtime || m_Shared.InCond( TF_COND_STEALTHED ) )
 	{
 #ifdef CLIENT_DLL
@@ -3575,7 +3593,8 @@ bool CTFPlayer::DoClassSpecialSkill( void )
 			if ( m_Shared.InCond( TF_COND_STEALTHED ) )
 			{
 #ifdef GAME_DLL
-				m_Shared.FadeInvis( tf_spy_invis_unstealth_time.GetFloat() );
+				m_Shared.RemoveCond( TF_COND_STEALTHED );
+				m_Shared.FadeInvis( tf_spy_invis_unstealth_time.GetFloat(), true );
 #endif
 				bDoSkill = true;
 			}

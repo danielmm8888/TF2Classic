@@ -26,16 +26,10 @@ public:
 
 	CTFPowerupCritdamage();
 
-	void	Spawn( void );
-	void	Precache( void );
-	bool	MyTouch( CBasePlayer *pPlayer );
-
 	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_crit.mdl"; }
 	virtual const char *GetDefaultPickupSound( void ) { return "PowerupCrit.Touch"; }
 
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_CRITDAMAGE; }
-
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 };
 
 #endif // POWERUP_CRITDAMAGE_H

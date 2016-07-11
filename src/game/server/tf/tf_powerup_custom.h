@@ -30,13 +30,7 @@ public:
 
 	CTFPowerupCustom();
 
-	void	Spawn( void );
-	void	Precache( void );
-	bool	MyTouch( CBasePlayer *pPlayer );
-
 	virtual int	GetCondition( void ) { return m_iPowerupCondition; }
-
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 
 private:
 	int		m_iPowerupCondition;

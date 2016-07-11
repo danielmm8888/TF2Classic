@@ -150,7 +150,8 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 			WRITE_STRING( GetClassname() );
 		MessageEnd();
 
-		pPlayer->EmitSound( STRING( m_strPickupSound ) );
+		if ( m_strPickupSound != NULL_STRING )
+			pPlayer->EmitSound( STRING( m_strPickupSound ) );
 
 		bSuccess = true;
 	}

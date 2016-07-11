@@ -6596,11 +6596,20 @@ void CTFPlayer::Weapon_Drop( CBaseCombatWeapon *pWeapon, const Vector *pvecTarge
 //-----------------------------------------------------------------------------
 void CTFPlayer::RemoveInvisibility( void )
 {
-	if ( !m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( !m_Shared.IsStealthed() )
 		return;
 
-	// remove quickly
-	m_Shared.FadeInvis( 0.5 );
+	if ( m_Shared.InCond( TF_COND_STEALTHED ) )
+	{
+		// remove quickly
+		m_Shared.RemoveCond( TF_COND_STEALTHED );
+		m_Shared.FadeInvis( 0.5f );
+	}
+	else
+	{
+		// Blink cloak.
+		m_Shared.OnSpyTouchedByEnemy();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -7128,7 +7137,7 @@ void CTFPlayer::CheckUncoveringSpies( CTFPlayer *pTouchedPlayer )
 	}
 
 	// Only uncover if they're stealthed
-	if ( !pTouchedPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+	if ( !pTouchedPlayer->m_Shared.IsStealthed() )
 	{
 		return;
 	}
@@ -7525,7 +7534,7 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 				if ( !InSameTeam(pTFPlayer) )
 				{
 					// Prevent spotting stealthed enemies who haven't been exposed recently
-					if ( pTFPlayer->m_Shared.InCond( TF_COND_STEALTHED ) )
+					if ( pTFPlayer->m_Shared.IsStealthed() )
 					{
 						if ( pTFPlayer->m_Shared.GetLastStealthExposedTime() < (gpGlobals->curtime - 3.0) )
 						{

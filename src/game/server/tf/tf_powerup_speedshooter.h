@@ -24,15 +24,7 @@ public:
 
 	CTFPowerupSpeedshooter();
 
-	void	Spawn( void );
-	void	Precache( void );
-	bool	MyTouch( CBasePlayer *pPlayer );
-
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_FASTRELOAD; }
-
-	powerupsize_t	GetPowerupSize( void ) { return POWERUP_FULL; }
 };
 
 #endif // POWERUP_SPEEDSHOOTER_H
-
-
