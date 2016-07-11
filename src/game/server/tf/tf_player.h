@@ -455,8 +455,6 @@ public:
 	CEconEntity			*GetEntityForLoadoutSlot( int iSlot );
 	CEconWearable		*GetWearableForLoadoutSlot( int iSlot );
 
-	float	m_flSpawnProtectTime;
-
 	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 
 private:

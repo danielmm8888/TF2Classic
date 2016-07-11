@@ -959,7 +959,9 @@ public:
 
 		if ( pPlayer )
 		{
-			if ( pPlayer->m_Shared.IsInvulnerable() && !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) )
+			if ( pPlayer->m_Shared.IsInvulnerable() &&
+				!pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_WEARINGOFF ) &&
+				( !pPlayer->m_Shared.InCond( TF_COND_INVULNERABLE_SPAWN_PROTECT ) || pPlayer->m_Shared.GetConditionDuration( TF_COND_INVULNERABLE_SPAWN_PROTECT ) > 1.0f ) )
 			{
 				m_pResult->SetFloatValue( 1.0 );
 			}
@@ -1188,7 +1190,7 @@ public:
 				vecColor = critColor;
 			}
 			else if ( !pPlayer->m_Shared.InCond( TF_COND_DISGUISED ) ||
-				pPlayer->InSameTeam( C_TFPlayer::GetLocalTFPlayer() ) ||
+				!pPlayer->IsEnemyPlayer() ||
 				pPlayer->GetTeamNumber() == pPlayer->m_Shared.GetDisguiseTeam() )
 			{
 				switch ( pPlayer->GetTeamNumber() )
@@ -2091,7 +2093,7 @@ void C_TFPlayer::InitInvulnerableMaterial( void )
 
 	int iVisibleTeam = GetTeamNumber();
 	// if this player is disguised and on the other team, use disguise team
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && !InSameTeam( pLocalPlayer ) )
+	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
 	{
 		iVisibleTeam = m_Shared.GetDisguiseTeam();
 	}

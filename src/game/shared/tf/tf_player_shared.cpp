@@ -436,7 +436,8 @@ bool CTFPlayerShared::IsInvulnerable( void )
 	if ( InCond( TF_COND_INVULNERABLE ) ||
 		InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) ||
 		InCond( TF_COND_INVULNERABLE_USER_BUFF ) ||
-		InCond( TF_COND_INVULNERABLE_CARD_EFFECT ) )
+		InCond( TF_COND_INVULNERABLE_CARD_EFFECT ) ||
+		InCond( TF_COND_INVULNERABLE_SPAWN_PROTECT ) )
 		return true;
 
 	return false;

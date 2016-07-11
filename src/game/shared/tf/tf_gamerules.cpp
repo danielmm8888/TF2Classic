@@ -93,8 +93,6 @@ ConVar tf_birthday( "tf_birthday", "0", FCVAR_NOTIFY | FCVAR_REPLICATED );
 ConVar tf2c_falldamage_disablespread( "tf2c_falldamage_disablespread", "0", FCVAR_REPLICATED | FCVAR_NOTIFY, "Toggles random 20% fall damage spread." );
 ConVar tf2c_allow_thirdperson( "tf2c_allow_thirdperson", "0", FCVAR_NOTIFY | FCVAR_REPLICATED, "Allow players to switch to third person mode." );
 
-ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "Time (in seconds) that the DM spawn protection lasts" );
-
 #ifdef GAME_DLL
 // TF overrides the default value of this convar
 ConVar mp_waitingforplayers_time( "mp_waitingforplayers_time", (IsX360()?"15":"30"), FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY, "WaitingForPlayers time length in seconds" );
@@ -5301,25 +5299,6 @@ const char *CTFGameRules::GetGameDescription(void)
 		default:
 			return "TF2C";
 			break;
-	}
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFGameRules::PlayerSpawn(CBasePlayer *pPlayer)
-{
-	BaseClass::PlayerSpawn(pPlayer);
-	if ( IsDeathmatch() )
-	{
-		CTFPlayer *pTFPlayer = ToTFPlayer(pPlayer);
-		float flSpawnProtectTime = gpGlobals->curtime + tf2c_dm_spawnprotecttime.GetFloat();
-		pTFPlayer->AddFlag( FL_GODMODE );
-		pTFPlayer->m_nRenderFX = kRenderFxExplode;
-		pTFPlayer->AddEffects( EF_ITEM_BLINK );
-		pTFPlayer->GetViewModel()->m_nRenderFX = kRenderFxExplode;
-		pTFPlayer->GetViewModel()->AddEffects( EF_ITEM_BLINK );
-		pTFPlayer->m_flSpawnProtectTime = flSpawnProtectTime;
 	}
 }
 

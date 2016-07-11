@@ -114,6 +114,7 @@ ConVar tf2c_random_weapons( "tf2c_random_weapons", "0", FCVAR_NOTIFY, "Makes pla
 ConVar tf2c_allow_special_classes( "tf2c_allow_special_classes", "0", FCVAR_NOTIFY, "Enables gamemode specific classes (Civilian, Mercenary, ...) in normal gameplay." );
 ConVar tf2c_force_stock_weapons( "tf2c_force_stock_weapons", "0", FCVAR_NOTIFY, "Forces players to use the stock loadout." );
 ConVar tf2c_legacy_weapons( "tf2c_legacy_weapons", "0", FCVAR_DEVELOPMENTONLY, "Disables all new weapons as well as Econ Item System." );
+ConVar tf2c_dm_spawnprotecttime( "tf2c_dm_spawnprotecttime", "5", FCVAR_REPLICATED | FCVAR_NOTIFY, "Time (in seconds) that the DM spawn protection lasts" );
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -499,19 +500,6 @@ void CTFPlayer::TFPlayerThink()
 		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_L" );
 		DispatchParticleEffect( "rocketjump_smoke", PATTACH_POINT_FOLLOW, this, "foot_R" );
 		m_bJumpEffect = true;
-	}
-
-	if ( TFGameRules()->IsDeathmatch() && IsAlive() && m_flSpawnProtectTime )
-	{
-		if ( ( gpGlobals->curtime > m_flSpawnProtectTime ) || ( m_nButtons & IN_ATTACK ) )
-		{
-			RemoveFlag( FL_GODMODE );
-			m_nRenderFX = kRenderFxNone;
-			RemoveEffects( EF_ITEM_BLINK );
-			GetViewModel()->m_nRenderFX = kRenderFxNone;
-			GetViewModel()->RemoveEffects( EF_ITEM_BLINK );
-			m_flSpawnProtectTime = 0;
-		}
 	}
 
 	SetContextThink( &CTFPlayer::TFPlayerThink, gpGlobals->curtime, "TFPlayerThink" );
@@ -972,6 +960,11 @@ void CTFPlayer::Spawn()
 		if ( m_Shared.GetNumHealers() > 0 )
 		{
 			m_Shared.AddCond( TF_COND_HEALTH_BUFF );
+		}
+
+		if ( TFGameRules()->IsDeathmatch() )
+		{
+			m_Shared.AddCond( TF_COND_INVULNERABLE_SPAWN_PROTECT, tf2c_dm_spawnprotecttime.GetFloat() );
 		}
 
 		if ( !m_bSeenRoundInfo )
