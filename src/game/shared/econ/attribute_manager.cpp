@@ -26,6 +26,24 @@ BEGIN_NETWORK_TABLE_NOBASE( CAttributeManager, DT_AttributeManager )
 #endif
 END_NETWORK_TABLE()
 
+
+template <>
+string_t CAttributeManager::AttribHookValue<string_t>( string_t strValue, const char *pszClass, const CBaseEntity *pEntity )
+{
+	if ( !pEntity )
+		return strValue;
+
+	IHasAttributes *pAttribInteface = pEntity->GetHasAttributesInterfacePtr();
+
+	if ( pAttribInteface )
+	{
+		string_t strAttributeClass = AllocPooledString_StaticConstantStringPointer( pszClass );
+		strValue = pAttribInteface->GetAttributeManager()->ApplyAttributeString( strValue, pEntity, strAttributeClass );
+	}
+
+	return strValue;
+}
+
 CAttributeManager::CAttributeManager()
 {
 	m_bParsingMyself = false;
