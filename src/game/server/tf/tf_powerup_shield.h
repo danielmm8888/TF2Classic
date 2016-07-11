@@ -23,7 +23,7 @@ public:
 
 	CTFPowerupShield();
 
-	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_uber.mdl"; }
+	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_shield.mdl"; }
 	virtual const char *GetDefaultPickupSound( void ) { return "PowerupUber.Touch"; }
 
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_SHIELD; }
