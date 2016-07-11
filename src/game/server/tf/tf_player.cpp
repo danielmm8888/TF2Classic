@@ -3482,7 +3482,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	m_lastDamageAmount = info.GetDamage();
 	m_LastDamageType = info.GetDamageType();
 
-	if ( IsPlayerClass( TF_CLASS_SPY ) && !( info.GetDamageType() & DMG_FALL ) )
+	if ( !( info.GetDamageType() & DMG_FALL ) )
 	{
 		m_Shared.NoteLastDamageTime( m_lastDamageAmount );
 	}

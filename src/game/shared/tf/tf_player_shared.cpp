@@ -714,12 +714,12 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 #endif
 		break;
 
-	case TF_COND_POWERUP_CLOAK:
+	case TF_COND_STEALTHED:
 		OnRemoveStealthed();
 		break;
 
-	case TF_COND_STEALTHED:
 	case TF_COND_STEALTHED_USER_BUFF:
+	case TF_COND_POWERUP_CLOAK:
 		OnRemoveStealthed();
 		FadeInvis( tf_spy_invis_unstealth_time.GetFloat(), false );
 		break;
@@ -1784,6 +1784,9 @@ bool CTFPlayerShared::IsPlayerDominatingMe( int iPlayerIndex )
 //-----------------------------------------------------------------------------
 void CTFPlayerShared::NoteLastDamageTime( int nDamage )
 {
+	if ( !IsStealthed() )
+		return;
+
 	// we took damage
 	if ( nDamage > 5 )
 	{
