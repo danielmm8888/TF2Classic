@@ -2048,29 +2048,36 @@ void C_TFPlayer::InitInvulnerableMaterial( void )
 
 	const char *pszMaterial = NULL;
 
-	int iVisibleTeam = GetTeamNumber();
-	// if this player is disguised and on the other team, use disguise team
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+	if ( TFGameRules()->IsDeathmatch() )
 	{
-		iVisibleTeam = m_Shared.GetDisguiseTeam();
+		pszMaterial = "models/effects/invulnfx_custom.vmt";
 	}
-
-	switch ( iVisibleTeam )
+	else
 	{
-	case TF_TEAM_RED:
-		pszMaterial = "models/effects/invulnfx_red.vmt";
-		break;
-	case TF_TEAM_BLUE:	
-		pszMaterial = "models/effects/invulnfx_blue.vmt";
-		break;
-	case TF_TEAM_GREEN:
-		pszMaterial = "models/effects/invulnfx_green.vmt";
-		break;
-	case TF_TEAM_YELLOW:
-		pszMaterial = "models/effects/invulnfx_yellow.vmt";
-		break;
-	default:
-		break;
+		int iVisibleTeam = GetTeamNumber();
+		// if this player is disguised and on the other team, use disguise team
+		if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+		{
+			iVisibleTeam = m_Shared.GetDisguiseTeam();
+		}
+
+		switch ( iVisibleTeam )
+		{
+		case TF_TEAM_RED:
+			pszMaterial = "models/effects/invulnfx_red.vmt";
+			break;
+		case TF_TEAM_BLUE:
+			pszMaterial = "models/effects/invulnfx_blue.vmt";
+			break;
+		case TF_TEAM_GREEN:
+			pszMaterial = "models/effects/invulnfx_green.vmt";
+			break;
+		case TF_TEAM_YELLOW:
+			pszMaterial = "models/effects/invulnfx_yellow.vmt";
+			break;
+		default:
+			break;
+		}
 	}
 
 	if ( pszMaterial )
@@ -3715,18 +3722,24 @@ int C_TFPlayer::GetSkin()
 	if ( !pLocalPlayer )
 		return 0;
 
-	int iVisibleTeam = GetTeamNumber();
-
-	// if this player is disguised and on the other team, use disguise team
-	if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
-	{
-		iVisibleTeam = m_Shared.GetDisguiseTeam();
-	}
-
 	int nSkin;
 
-	switch( iVisibleTeam )
+	if ( TFGameRules()->IsDeathmatch() )
 	{
+		nSkin = 8;
+	}
+	else
+	{
+		int iVisibleTeam = GetTeamNumber();
+
+		// if this player is disguised and on the other team, use disguise team
+		if ( m_Shared.InCond( TF_COND_DISGUISED ) && IsEnemyPlayer() )
+		{
+			iVisibleTeam = m_Shared.GetDisguiseTeam();
+		}
+
+		switch ( iVisibleTeam )
+		{
 		case TF_TEAM_RED:
 			nSkin = 0;
 			break;
@@ -3746,17 +3759,13 @@ int C_TFPlayer::GetSkin()
 		default:
 			nSkin = 0;
 			break;
+		}
 	}
-
-	if ( TFGameRules()->IsDeathmatch() )
-		nSkin = 8;
 
 	// 3 and 4 are invulnerable
 	if ( m_Shared.IsInvulnerable() && ( !m_Shared.InCond( TF_COND_INVULNERABLE_HIDE_UNLESS_DAMAGE ) || gpGlobals->curtime - m_flLastDamageTime < 2.0f ) )
 	{
-		nSkin += 2;
-		if ( TFGameRules()->IsDeathmatch() )
-			nSkin = 9;
+		nSkin = TFGameRules()->IsDeathmatch() ? 9 : nSkin + 2;
 	}
 
 	return nSkin;
