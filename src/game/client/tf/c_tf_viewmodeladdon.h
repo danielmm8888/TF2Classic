@@ -29,6 +29,9 @@ public:
 	virtual bool			IsViewModel() const { return true; }
 	virtual RenderGroup_t	GetRenderGroup( void ) { return RENDER_GROUP_VIEW_MODEL_TRANSLUCENT; }
 
+	virtual C_BaseEntity	*GetItemTintColorOwner( void ) { return GetOwner(); }
+
+private:
 	CHandle< C_TFViewModel > m_viewmodel;
 };
 

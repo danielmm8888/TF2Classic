@@ -66,6 +66,8 @@ public:
 	virtual void			OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void			OnDataChanged( DataUpdateType_t type );
 
+	virtual C_BaseEntity	*GetItemTintColorOwner( void ) { return GetThrower(); }
+
 	float					m_flSpawnTime;
 	bool					m_bCritical;
 	int						m_iOldTeamNum;

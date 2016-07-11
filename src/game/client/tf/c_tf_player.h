@@ -264,9 +264,11 @@ public:
 
 	virtual	IMaterial *GetHeadLabelMaterial( void );
 
-	void	UpdateSpyMask( void );
+	void UpdateSpyMask( void );
 
-	void	UpdateTypingBubble( void );
+	void UpdateTypingBubble( void );
+
+	virtual const Vector &GetItemTintColor( void ) { return m_vecPlayerColor; }
 
 protected:
 

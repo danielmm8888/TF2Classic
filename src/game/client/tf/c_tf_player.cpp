@@ -229,6 +229,11 @@ public:
 
 	virtual void SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeightCount, float *pFlexWeights, float *pFlexDelayedWeights );
 	virtual float FrameAdvance( float flInterval = 0.0f );
+	virtual C_BaseEntity *GetItemTintColorOwner( void )
+	{
+		EHANDLE hPlayer = GetPlayerHandle();
+		return hPlayer.Get();
+	}
 
 private:
 	
@@ -426,7 +431,7 @@ void C_TFRagdoll::CreateTFRagdoll(void)
 	EHANDLE hPlayer = GetPlayerHandle();
 	if ( hPlayer )
 	{
-		pPlayer = dynamic_cast<C_TFPlayer*>( hPlayer.Get() );
+		pPlayer = ToTFPlayer( hPlayer.Get() );
 	}
 
 	TFPlayerClassData_t *pData = GetPlayerClassData( m_iClass );
@@ -1243,70 +1248,22 @@ public:
 		if ( !pEntity )
 			return;
 
-		CModelPanelModel *pPanelModel = dynamic_cast<CModelPanelModel *>( pEntity );
-		if ( pPanelModel )
-		{
-			m_pResult->SetVecValue( pPanelModel->m_vecModelColor.x, pPanelModel->m_vecModelColor.y, pPanelModel->m_vecModelColor.z );
-			return;
-		}
-
 		if ( TFGameRules() && TFGameRules()->IsDeathmatch() )
 		{
-			// Player?
-			C_TFPlayer *pPlayer = ToTFPlayer( pEntity );
+			Vector vecColor = pEntity->GetItemTintColor();
 
-			// Ragdoll?
-			if ( !pPlayer )
+			if ( vecColor == vec3_origin )
 			{
-				C_TFRagdoll *pRagdoll = dynamic_cast<C_TFRagdoll *>( pEntity );
-				if ( pRagdoll )
+				// Entity doesn't have its own color, get the controlling entity.
+				C_BaseEntity *pOwner = pEntity->GetItemTintColorOwner();
+				if ( pOwner )
 				{
-					EHANDLE hPlayer = pRagdoll->GetPlayerHandle();
-					pPlayer = ToTFPlayer( hPlayer.Get() );
-				}
-			}
-			
-			// Weapon?
-			if ( !pPlayer )
-			{
-				C_BaseCombatWeapon *pWeapon = pEntity->MyCombatWeaponPointer();
-				if ( pWeapon )
-				{
-					pPlayer = ToTFPlayer( pWeapon->GetOwner() );
+					vecColor = pOwner->GetItemTintColor();
 				}
 			}
 
-			// Viewmodel?
-			if ( !pPlayer )
-			{
-				C_BaseViewModel *pVM = dynamic_cast<C_BaseViewModel *>( pEntity );
-				if ( !pPlayer && pVM )
-				{
-					pPlayer = ToTFPlayer( pVM->GetOwner() );
-				}
-			}
-
-			// Pill?
-			if ( !pPlayer )
-			{
-				C_TFWeaponBaseGrenadeProj *pGrenade = dynamic_cast<C_TFWeaponBaseGrenadeProj *>( pEntity );
-				if ( pGrenade )
-				{
-					pPlayer = ToTFPlayer( pGrenade->GetThrower() );
-				}
-			}
-
-			// Something else?
-			if ( !pPlayer )
-			{
-				pPlayer = ToTFPlayer( pEntity->GetOwnerEntity() );
-			}
-
-			if ( pPlayer )
-			{
-				m_pResult->SetVecValue( pPlayer->m_vecPlayerColor.x, pPlayer->m_vecPlayerColor.y, pPlayer->m_vecPlayerColor.z );
-				return;
-			}
+			m_pResult->SetVecValue( vecColor.x, vecColor.y, vecColor.z );
+			return;
 		}
 
 		m_pResult->SetVecValue( 1, 1, 1 );

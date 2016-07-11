@@ -29,6 +29,10 @@ public:
 	virtual bool IsMenuModel() const{ return true; }
 
 #ifdef TF_CLASSIC_CLIENT
+	virtual const Vector &GetItemTintColor( void ) { return m_vecModelColor; }
+	void SetModelColor( const Vector &vecColor ) { m_vecModelColor = vecColor; }
+
+private:
 	Vector m_vecModelColor;
 #endif
 };

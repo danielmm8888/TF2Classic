@@ -1704,6 +1704,12 @@ protected:
 	RenderMode_t m_PreviousRenderMode;
 	color32 m_PreviousRenderColor;
 #endif
+
+#ifdef TF_CLASSIC_CLIENT
+public:
+	virtual const Vector	&GetItemTintColor( void ) { return vec3_origin; }
+	virtual C_BaseEntity	*GetItemTintColorOwner( void ) { return GetOwnerEntity(); }
+#endif
 };
 
 EXTERN_RECV_TABLE(DT_BaseEntity);
