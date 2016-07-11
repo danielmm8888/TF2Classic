@@ -149,6 +149,8 @@ void CTFWeaponBaseMelee::PrimaryAttack()
 	Swing( pPlayer );
 
 #if !defined( CLIENT_DLL ) 
+	pPlayer->RemoveSpawnProtection();
+
 	pPlayer->SpeakWeaponFire();
 	CTF_GameStats.Event_PlayerFiredWeapon( pPlayer, IsCurrentAttackACritical() );
 #endif

@@ -298,7 +298,6 @@ public:
 	void RemoveInvisibility( void );
 
 	void RemoveDisguise( void );
-	void PrintTargetWeaponInfo( void );
 
 	bool DoClassSpecialSkill( void );
 
@@ -361,6 +360,7 @@ public:
 	virtual void ReapplyProvision( void ) { /*Do nothing*/ };
 
 	void UpdatePlayerColor( void );
+	void RemoveSpawnProtection( void );
 
 	// Entity inputs
 	void	InputIgnitePlayer( inputdata_t &inputdata );

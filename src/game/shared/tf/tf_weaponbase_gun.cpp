@@ -142,6 +142,7 @@ void CTFWeaponBaseGun::PrimaryAttack( void )
 #ifndef CLIENT_DLL
 	pPlayer->RemoveInvisibility();
 	pPlayer->RemoveDisguise();
+	pPlayer->RemoveSpawnProtection();
 
 	// Minigun has custom handling
 	if ( GetWeaponID() != TF_WEAPON_MINIGUN )

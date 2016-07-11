@@ -8358,3 +8358,14 @@ void CTFPlayer::UpdatePlayerColor( void )
 
 	m_vecPlayerColor = vecNewColor;
 }
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::RemoveSpawnProtection( void )
+{
+	if ( m_Shared.InCond( TF_COND_INVULNERABLE_SPAWN_PROTECT ) )
+	{
+		m_Shared.RemoveCond( TF_COND_INVULNERABLE_SPAWN_PROTECT );
+	}
+}
