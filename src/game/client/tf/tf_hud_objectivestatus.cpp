@@ -873,9 +873,9 @@ void CTFHudObjectiveStatus::SetVisiblePanels( void )
 
 		case TF_GAMETYPE_DM:
 			// turn on the DM specific HUD
-			if ( m_pDMPanel && !m_pDMPanel->IsVisible() )
+			if ( m_pDMPanel && GetLocalPlayerTeam() >= FIRST_GAME_TEAM && !m_pDMPanel->IsVisible() )
 			{
-				m_pDMPanel->SetVisible(true);
+				m_pDMPanel->SetVisible( true );
 			}
 			break;
 
@@ -900,7 +900,7 @@ void CTFHudObjectiveStatus::TurnOffPanels()
 	}
 
 	// turn off the DM score panel
-	if ( m_pDMPanel && m_pDMPanel->IsVisible()  )
+	if ( m_pDMPanel && m_pDMPanel->IsVisible() )
 	{
 		m_pDMPanel->SetVisible( false );
 	}

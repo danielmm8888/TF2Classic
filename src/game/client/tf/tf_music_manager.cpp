@@ -356,12 +356,8 @@ int CTFMusicManager::GetMusicPower( void )
 //-----------------------------------------------------------------------------
 bool CTFMusicManager::CanPlayMusic( void )
 {
-	C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
-	if ( !pPlayer )
-		return false;
-
 	// Don't play music for spectators.
-	if ( pPlayer->GetTeamNumber() < FIRST_GAME_TEAM )
+	if ( GetLocalPlayerTeam() < FIRST_GAME_TEAM )
 		return false;
 
 	if ( TFGameRules() )
