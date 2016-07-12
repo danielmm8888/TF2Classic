@@ -4,8 +4,8 @@
 //
 //=============================================================================//
 
-#ifndef POWERUP_SHORTUBER_H
-#define POWERUP_SHORTUBER_H
+#ifndef POWERUP_SHIELD_H
+#define POWERUP_SHIELD_H
 
 #ifdef _WIN32
 #pragma once
@@ -29,4 +29,4 @@ public:
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_SHIELD; }
 };
 
-#endif // POWERUP_SHORTUBER_H
+#endif // POWERUP_SHIELD_H

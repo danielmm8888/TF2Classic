@@ -261,6 +261,7 @@ private:
 	void OnAddHalloweenTiny( void );
 	void OnAddRagemode( void );
 	void OnAddShield( void );
+	void OnAddSpeedBoost( void );
 
 	void OnRemoveZoomed( void );
 	void OnRemoveBurning( void );
@@ -276,6 +277,7 @@ private:
 	void OnRemoveHalloweenTiny( void );
 	void OnRemoveRagemode( void );
 	void OnRemoveShield( void );
+	void OnRemoveSpeedBoost( void );
 
 	float GetCritMult( void );
 

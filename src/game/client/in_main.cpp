@@ -69,6 +69,16 @@ ConVar cl_sidespeed( "cl_sidespeed", "400", FCVAR_CHEAT );
 ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_ARCHIVE|FCVAR_CHEAT );
 ConVar cl_forwardspeed( "cl_forwardspeed", "400", FCVAR_ARCHIVE|FCVAR_CHEAT );
 ConVar cl_backspeed( "cl_backspeed", "400", FCVAR_ARCHIVE|FCVAR_CHEAT );
+#elif defined( TF_CLASSIC_CLIENT )
+// These values are below TF2 max speed of 520.
+// Live TF2 somehow ignores these values entirely when computing keyboard movement
+// yet you can still do precise movement with mouse and gamepad.
+// I'm changing cvar values until I can figure out a proper way. (Nicknine)
+// Mirrored on server in player.cpp.
+ConVar cl_sidespeed( "cl_sidespeed", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar cl_forwardspeed( "cl_forwardspeed", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
+ConVar cl_backspeed( "cl_backspeed", "600", FCVAR_REPLICATED | FCVAR_CHEAT );
 #else
 ConVar cl_sidespeed( "cl_sidespeed", "450", FCVAR_REPLICATED | FCVAR_CHEAT );
 ConVar cl_upspeed( "cl_upspeed", "320", FCVAR_REPLICATED | FCVAR_CHEAT );

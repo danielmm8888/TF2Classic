@@ -101,6 +101,8 @@ $Project "Server (TF)"
 				$File	"tf\tf_powerup_ragemode.h"
 				$File	"tf\tf_powerup_shield.cpp"
 				$File	"tf\tf_powerup_shield.h"
+				$File	"tf\tf_powerup_speedboost.cpp"
+				$File	"tf\tf_powerup_speedboost.h"
 			}
 			$File	"tf\entity_ammopack.cpp"
 			$File	"tf\entity_ammopack.h"

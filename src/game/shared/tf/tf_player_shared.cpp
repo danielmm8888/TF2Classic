@@ -685,6 +685,10 @@ void CTFPlayerShared::OnConditionAdded( int nCond )
 	case TF_COND_POWERUP_SHIELD:
 		OnAddShield();
 		break;
+		
+	case TF_COND_POWERUP_SPEEDBOOST:
+		OnAddSpeedBoost();
+		break;
 
 	default:
 		break;
@@ -769,6 +773,10 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 
 	case TF_COND_POWERUP_SHIELD:
 		OnRemoveShield();
+		break;
+
+	case TF_COND_POWERUP_SPEEDBOOST:
+		OnRemoveSpeedBoost();
 		break;
 
 	default:
@@ -1477,6 +1485,27 @@ void CTFPlayerShared::OnRemoveShield( void )
 		m_hPowerupShield = NULL;
 	}
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnAddSpeedBoost( void )
+{
+	m_pOuter->TeamFortress_SetSpeed();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayerShared::OnRemoveSpeedBoost( void )
+{
+#ifdef GAME_DLL
+	CSingleUserRecipientFilter filter( m_pOuter );
+	m_pOuter->EmitSound( filter, m_pOuter->entindex(), "PowerupSpeedBoost.WearOff" );
+#endif
+
+	m_pOuter->TeamFortress_SetSpeed();
 }
 
 //-----------------------------------------------------------------------------
@@ -3088,6 +3117,12 @@ void CTFPlayer::TeamFortress_SetSpeed()
 
 	CALL_ATTRIB_HOOK_FLOAT( maxfbspeed, mult_player_movespeed );
 
+	// 50% speed boost from the power-up.
+	if ( m_Shared.InCond( TF_COND_POWERUP_SPEEDBOOST ) )
+	{
+		maxfbspeed *= 1.5f;
+	}
+
 	// Slow us down if we're disguised as a slower class
 	// unless we're cloaked..
 	if ( m_Shared.InCond( TF_COND_DISGUISED ) && !m_Shared.IsStealthed() )
@@ -3128,7 +3163,7 @@ void CTFPlayer::TeamFortress_SetSpeed()
 		}
 	}
 
-	// Engineer moves slower while a hauling an object.
+	// Engineer moves slower while a hauling a building.
 	if ( playerclass == TF_CLASS_ENGINEER && m_Shared.IsCarryingObject() )
 	{
 		maxfbspeed *= 0.9f;
