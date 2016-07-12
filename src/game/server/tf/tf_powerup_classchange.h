@@ -31,5 +31,3 @@ private:
 };
 
 #endif // POWERUP_CLASSCHANGE_H
-
-

@@ -655,7 +655,7 @@ enum {
 // Class data
 //-----------------------------------------------------------------------------
 #define TF_MEDIC_REGEN_TIME			1.0		// Number of seconds between each regen.
-#define TF_MEDIC_REGEN_AMOUNT		1 		// Amount of health regenerated each regen.
+#define TF_MEDIC_REGEN_AMOUNT		3 		// Amount of health regenerated each regen.
 
 //-----------------------------------------------------------------------------
 // Assist-damage constants
@@ -1253,7 +1253,7 @@ public:
 	}
 };
 
-// Unused
+// Unused death flags
 #define TF_DEATH_FIRST_BLOOD	0x0010
 #define TF_DEATH_FEIGN_DEATH	0x0020
 #define TF_DEATH_GIB			0x0080
@@ -1262,12 +1262,15 @@ public:
 
 #define HUD_ALERT_SCRAMBLE_TEAMS 0
 
+// Third person camera settings
 #define TF_CAMERA_DIST 64
 #define TF_CAMERA_DIST_RIGHT 30
 #define TF_CAMERA_DIST_UP 0
 
+// Player attached models
 #define TF_SPY_MASK_MODEL "models/player/items/spy_mask.mdl"
 #define TF_POWERUP_SHIELD_MODEL "models/items/powerup_merc_shield.mdl"
+
 
 #define IN_TYPING ( 1 << 31 )
 

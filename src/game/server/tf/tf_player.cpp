@@ -516,9 +516,9 @@ void CTFPlayer::MedicRegenThink( void )
 		{
 			// Heal faster if we haven't been in combat for a while
 			float flTimeSinceDamage = gpGlobals->curtime - GetLastDamageTime();
-			float flScale = RemapValClamped( flTimeSinceDamage, 5, 10, 3.0, 6.0 );
+			float flScale = RemapValClamped( flTimeSinceDamage, 5, 10, 1.0, 2.0 );
 
-			int iHealAmount = ceil(TF_MEDIC_REGEN_AMOUNT * flScale);
+			int iHealAmount = ceil( TF_MEDIC_REGEN_AMOUNT * flScale );
 			TakeHealth( iHealAmount, DMG_GENERIC );
 		}
 
@@ -4393,7 +4393,10 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 	// we want the rag doll to burn if the player was burning and was not a pryo (who only burns momentarily)
 	bool bBurning = m_Shared.InCond( TF_COND_BURNING ) && ( TF_CLASS_PYRO != GetPlayerClass()->GetClassIndex() );
 
-	DropPowerups();
+	if( TFGameRules()->IsDeathmatch() )
+	{
+		DropPowerups();
+	}
 
 	// Remove all conditions...
 	m_Shared.RemoveAllCond( NULL );
@@ -5359,7 +5362,7 @@ void CTFPlayer::RemoveOwnedProjectiles( void )
 
 		if ( bOwner )
 		{
-			pProjectile->SetThink( &BaseClass::SUB_Remove );
+			pProjectile->SetThink( &CBaseEntity::SUB_Remove );
 			pProjectile->SetNextThink( gpGlobals->curtime );
 			pProjectile->SetTouch( NULL );
 			pProjectile->AddEffects( EF_NODRAW );
@@ -5373,7 +5376,7 @@ void CTFPlayer::RemoveOwnedProjectiles( void )
 
 		if ( pFlame->GetAttacker() == this )
 		{
-			pFlame->SetThink( &BaseClass::SUB_Remove );
+			pFlame->SetThink( &CBaseEntity::SUB_Remove );
 			pFlame->SetNextThink( gpGlobals->curtime );
 		}
 	}

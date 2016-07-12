@@ -29,5 +29,3 @@ public:
 };
 
 #endif // POWERUP_CLOAK_H
-
-

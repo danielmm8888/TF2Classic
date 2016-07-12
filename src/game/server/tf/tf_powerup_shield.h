@@ -30,5 +30,3 @@ public:
 };
 
 #endif // POWERUP_SHORTUBER_H
-
-

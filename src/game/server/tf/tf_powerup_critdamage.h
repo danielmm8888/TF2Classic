@@ -33,5 +33,3 @@ public:
 };
 
 #endif // POWERUP_CRITDAMAGE_H
-
-

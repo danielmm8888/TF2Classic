@@ -134,16 +134,28 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 {
 	bool bSuccess = false;
 
-	CTFPlayer *pTFPlayer = dynamic_cast<CTFPlayer*>( pPlayer );
+	CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 	if ( pTFPlayer && ValidTouch( pPlayer ) )
 	{
 		// Add the condition and duration from derived classes
 		pTFPlayer->m_Shared.AddCond( GetCondition(), GetEffectDuration() );
 
 		// Give full health
-		SetHealth( GetMaxHealth() );
+		int iHealthRestored = pTFPlayer->TakeHealth( pTFPlayer->GetMaxHealth(), DMG_GENERIC );
 
-		CSingleUserRecipientFilter user( pPlayer );
+		if ( iHealthRestored )
+		{
+			IGameEvent *event_healonhit = gameeventmanager->CreateEvent( "player_healonhit" );
+			if ( event_healonhit )
+			{
+				event_healonhit->SetInt( "amount", iHealthRestored );
+				event_healonhit->SetInt( "entindex", pTFPlayer->entindex() );
+
+				gameeventmanager->FireEvent( event_healonhit );
+			}
+		}
+
+		CSingleUserRecipientFilter user( pTFPlayer );
 		user.MakeReliable();
 
 		UserMessageBegin( user, "ItemPickup" );
@@ -151,7 +163,7 @@ bool CTFBaseDMPowerup::MyTouch( CBasePlayer *pPlayer )
 		MessageEnd();
 
 		if ( m_strPickupSound != NULL_STRING )
-			pPlayer->EmitSound( STRING( m_strPickupSound ) );
+			pTFPlayer->EmitSound( STRING( m_strPickupSound ) );
 
 		bSuccess = true;
 	}

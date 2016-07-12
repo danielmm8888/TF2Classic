@@ -28,5 +28,3 @@ public:
 };
 
 #endif // POWERUP_RAGEMODE_H
-
-
