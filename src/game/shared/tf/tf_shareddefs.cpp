@@ -734,21 +734,19 @@ int g_aPowerupConds[] =
 {
 	TF_COND_POWERUP_CRITDAMAGE,
 	TF_COND_POWERUP_SHIELD,
-	TF_COND_POWERUP_FASTRELOAD,
+	TF_COND_POWERUP_SPEEDBOOST,
 	TF_COND_POWERUP_CLOAK,
 	TF_COND_POWERUP_RAGEMODE,
-	TF_COND_POWERUP_CLASSCHANGE,
 	TF_COND_LAST
 };
 
 const char *g_aPowerupNames[] =
 {
 	"item_powerup_critdamage", // TF_COND_POWERUP_CRITDAMAGE,
-	"item_powerup_shield", // TF_COND_POWERUP_SHORTUBER,
-	"item_powerup_speedshooter", // TF_COND_POWERUP_FASTRELOAD,
+	"item_powerup_shield", // TF_COND_POWERUP_SHIELD,
+	"item_powerup_speedboost", // TF_COND_POWERUP_SPEEDBOOST,
 	"item_powerup_cloak", // TF_COND_POWERUP_CLOAK,
 	"item_powerup_ragemode", // TF_COND_POWERUP_RAGEMODE,
-	"item_powerup_classchange", // TF_COND_POWERUP_CLASSCHANGE,
 };
 
 COMPILE_TIME_ASSERT( ( ARRAYSIZE( g_aPowerupConds ) - 1 ) == ARRAYSIZE( g_aPowerupNames ) );
