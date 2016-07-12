@@ -419,6 +419,7 @@ const char *g_aWeaponNames[] =
 	"TF_WEAPON_CHAINSAW",
 	"TF_WEAPON_HEAVYARTILLERY",
 	"TF_WEAPON_ASSAULTRIFLE",
+	"TF_WEAPON_DISPLACER",
 
 	"TF_WEAPON_COUNT",	// end marker, do not add below here
 };
@@ -490,6 +491,7 @@ int g_aWeaponDamageTypes[] =
 	DMG_SLASH,		// TF_WEAPON_CHAINSAW
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_HEAVYARTILLERY
 	DMG_BULLET | DMG_USEDISTANCEMOD,		// TF_WEAPON_ASSAULTRIFLE
+	DMG_BLAST | DMG_HALF_FALLOFF | DMG_USEDISTANCEMOD,	// TF_WEAPON_DISPLACER
 
 	// This is a special entry that must match with TF_WEAPON_COUNT
 	// to protect against updating the weapon list without updating this list

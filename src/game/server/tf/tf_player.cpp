@@ -1808,7 +1808,7 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
-bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot )
+bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot, bool bTelefrag /*= true*/ )
 {
 	// Get an initial spawn point.
 	pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
@@ -1862,7 +1862,7 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 				{
 					CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-					if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() )
+					if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() || ( InSameTeam( pPlayer ) && !TFGameRules()->IsDeathmatch() ) )
 						continue;
 
 					bOtherPlayersPresent = true;
@@ -1892,16 +1892,14 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 
 	if ( pFurthest )
 	{
-		if ( TFGameRules()->IsDeathmatch() )
+		if ( bTelefrag )
 		{
 			// We're spawning on a busy spawn point so kill off anyone occupying it.
-			edict_t	*edPlayer;
-			edPlayer = edict();
 			CBaseEntity *ent = NULL;
 			for ( CEntitySphereQuery sphere( pFurthest->GetAbsOrigin(), 128 ); ( ent = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
 			{
 				// if ent is a client, telefrag 'em (unless they are ourselves)
-				if ( ent->IsPlayer() && !( ent->edict() == edPlayer ) )
+				if ( ent->IsPlayer() && ent != this && ( !InSameTeam( ent ) || TFGameRules()->IsDeathmatch() ) )
 				{
 					CTakeDamageInfo info( this, this, 1000, DMG_CRUSH, TF_DMG_TELEFRAG );
 					ent->TakeDamage( info );

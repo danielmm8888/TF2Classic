@@ -457,6 +457,8 @@ public:
 
 	bool CalculateAmmoPackPositionAndAngles( CTFWeaponBase *pWeapon, Vector &vecOrigin, QAngle &vecAngles );
 
+	bool				SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot, bool bTelefrag = true );
+
 private:
 
 	int					GetAutoTeam( void );
@@ -465,7 +467,6 @@ private:
 	void				InitClass( void );
 	void				GiveDefaultItems();
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
-	bool				SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();
 

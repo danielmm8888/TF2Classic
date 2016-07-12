@@ -35,13 +35,13 @@ public:
 	void InputDisable( inputdata_t &inputdata );
 	void InputRoundSpawn( inputdata_t &inputdata );
 
-	int DrawDebugTextOverlays(void);
+	int DrawDebugTextOverlays( void );
 
 	CHandle<CTeamControlPoint> GetControlPoint( void ) { return m_hControlPoint; }
 	CHandle<CTeamControlPointRound> GetRoundBlueSpawn( void ) { return m_hRoundBlueSpawn; }
 	CHandle<CTeamControlPointRound> GetRoundRedSpawn( void ) { return m_hRoundRedSpawn; }
-	CHandle<CTeamControlPointRound> GetRoundGreenSpawn(void) { return m_hRoundGreenSpawn; }
-	CHandle<CTeamControlPointRound> GetRoundYellowSpawn(void) { return m_hRoundYellowSpawn; }
+	CHandle<CTeamControlPointRound> GetRoundGreenSpawn( void ) { return m_hRoundGreenSpawn; }
+	CHandle<CTeamControlPointRound> GetRoundYellowSpawn( void ) { return m_hRoundYellowSpawn; }
 
 private:
 	bool	m_bDisabled;		// Enabled/Disabled?
