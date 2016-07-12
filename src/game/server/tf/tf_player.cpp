@@ -1845,42 +1845,53 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 	CBaseEntity *pFurthest = NULL;
 	do
 	{
-		if ( pSpot )
+
+		if ( !pSpot )
 		{
-			// Check to see if this is a valid team spawn (player is on this team, etc.).
-			if ( TFGameRules()->IsSpawnPointValid( pSpot, this, true ) )
+			// Get the next spawning point to check.
+			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+			continue;
+		}
+
+		// Check to see if this is a valid team spawn (player is on this team, etc.).
+		if ( TFGameRules()->IsSpawnPointValid( pSpot, this, true ) )
+		{
+			// Check for a bad spawn entity.
+			if ( pSpot->GetAbsOrigin() == vec3_origin )
 			{
-				// Check for a bad spawn entity.
-				if ( pSpot->GetAbsOrigin() == vec3_origin )
-				{
-					pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+				pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+				continue;
+			}
+
+			// Check distance from other players.
+			bool bOtherPlayersPresent = false;
+			float flClosestPlayerDist = FLT_MAX;
+			for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+			{
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+				if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() || ( InSameTeam( pPlayer ) && !TFGameRules()->IsDeathmatch() ) )
 					continue;
-				}
 
-				bool bOtherPlayersPresent = false;
-				// Check distance from other players.
-				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				bOtherPlayersPresent = true;
+
+				float flDistSqr = ( pPlayer->GetAbsOrigin() - pSpot->GetAbsOrigin() ).LengthSqr();
+				if ( flDistSqr < flClosestPlayerDist )
 				{
-					CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-					if ( !pPlayer || pPlayer == this || !pPlayer->IsAlive() || ( InSameTeam( pPlayer ) && !TFGameRules()->IsDeathmatch() ) )
-						continue;
-
-					bOtherPlayersPresent = true;
-
-					float flDistSqr = ( pPlayer->GetAbsOrigin() - pSpot->GetAbsOrigin() ).LengthSqr();
-					if ( flDistSqr > flFurthest )
-					{
-						flFurthest = flDistSqr;
-						pFurthest = pSpot;
-					}
+					flClosestPlayerDist = flDistSqr;
 				}
+			}
 
-				// If there are no other players just pick the first valid spawn point.
-				if ( !bOtherPlayersPresent )
-				{
-					pFurthest = pSpot;
-					break;
-				}
+			// If there are no other players just pick the first valid spawn point.
+			if ( !bOtherPlayersPresent )
+			{
+				pFurthest = pSpot;
+				break;
+			}
+
+			if ( flClosestPlayerDist > flFurthest )
+			{
+				flFurthest = flClosestPlayerDist;
+				pFurthest = pSpot;
 			}
 		}
 
