@@ -19,18 +19,23 @@
 //
 // TF Mirv Grenade Projectile and Bombs (Server specific.)
 //
-#ifdef GAME_DLL
+#ifdef CLIENT_DLL
+#define CTFGrenadeMirvProjectile C_TFGrenadeMirvProjectile
+#endif
 
 class CTFGrenadeMirvProjectile : public CTFWeaponBaseGrenadeProj
 {
 public:
 	DECLARE_CLASS( CTFGrenadeMirvProjectile, CTFWeaponBaseGrenadeProj );
+	DECLARE_NETWORKCLASS();
 
 	CTFGrenadeMirvProjectile();
+	~CTFGrenadeMirvProjectile();
 
 	// Unique identifier.
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_MIRV; }
-
+	
+#ifdef GAME_DLL
 	// Creation.
 	static CTFGrenadeMirvProjectile *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
 		                                     const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, CBaseEntity *pWeapon );
@@ -42,32 +47,47 @@ public:
 	virtual void	BounceSound( void );
 	virtual void	Detonate( void );
 	virtual void	Explode( trace_t *pTrace, int bitsDamageType );
+	virtual bool	IsDeflectable( void ) { return !m_bDefused; }
+
 	void			BlipSound( void );
 
-	DECLARE_DATADESC();
+#else
+
+	virtual void	OnDataChanged( DataUpdateType_t updateType );
+	virtual void	CreateTrails( void );
+
+#endif
 
 private:
+#ifdef GAME_DLL
 	bool	m_bPlayedLeadIn;
+	bool	m_bDefused;
+#endif
 };
+
+#ifdef CLIENT_DLL
+#define CTFGrenadeMirvBomb C_TFGrenadeMirvBomb
+#endif
 
 class CTFGrenadeMirvBomb : public CTFWeaponBaseGrenadeProj
 {
 public:
-
 	DECLARE_CLASS( CTFGrenadeMirvBomb, CTFWeaponBaseGrenadeProj );
-
-	// Creation.
-	static CTFGrenadeMirvBomb *Create( const Vector &position, const QAngle &angles, const Vector &velocity, 
-		                               const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, float timer );
+	DECLARE_NETWORKCLASS();
 
 	virtual int			GetWeaponID( void ) const			{ return TF_WEAPON_GRENADE_MIRV; }
+
+#ifdef GAME_DLL
+	// Creation.
+	static CTFGrenadeMirvBomb *Create( const Vector &position, const QAngle &angles, const Vector &velocity,
+		const AngularImpulse &angVelocity, CBaseCombatCharacter *pOwner, float timer );
 
 	virtual void	Spawn( void );
 	virtual void	Precache( void );
 	virtual void	UpdateOnRemove( void );
 	virtual void	BounceSound( void );
-};
 
 #endif
+};
 
 #endif // TF_WEAPON_GRENADE_MIRV_H

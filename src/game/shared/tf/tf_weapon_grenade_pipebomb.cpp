@@ -121,8 +121,7 @@ void CTFGrenadePipebombProjectile::OnDataChanged( DataUpdateType_t updateType )
 
 		CreateTrails();
 	}
-
-	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	else if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
 	{
 		ParticleProp()->StopEmission();
 		CreateTrails();

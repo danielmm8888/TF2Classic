@@ -56,6 +56,7 @@ public:
 
 	// Overrides.
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
+
 #else
 
 	virtual void	OnDataChanged( DataUpdateType_t updateType );

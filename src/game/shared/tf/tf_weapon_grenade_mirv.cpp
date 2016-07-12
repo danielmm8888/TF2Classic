@@ -25,16 +25,31 @@
 //
 // TF Mirv Grenade Projectile functions (Server specific).
 //
-#ifdef GAME_DLL
-
-BEGIN_DATADESC( CTFGrenadeMirvProjectile )
-END_DATADESC()
-
-#define GRENADE_MODEL "models/weapons/w_models/w_grenade_mirv.mdl"
+IMPLEMENT_NETWORKCLASS_ALIASED( TFGrenadeMirvProjectile, DT_TFProjectile_Mirv );
+BEGIN_NETWORK_TABLE( CTFGrenadeMirvProjectile, DT_TFProjectile_Mirv )
+END_NETWORK_TABLE()
 
 LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv_projectile, CTFGrenadeMirvProjectile );
 PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_projectile );
 
+CTFGrenadeMirvProjectile::CTFGrenadeMirvProjectile()
+{
+#ifdef GAME_DLL
+	m_bPlayedLeadIn = false;
+	m_bDefused = false;
+#endif
+}
+
+CTFGrenadeMirvProjectile::~CTFGrenadeMirvProjectile()
+{
+#ifdef CLIENT_DLL
+	ParticleProp()->StopEmission();
+#endif
+}
+
+#ifdef GAME_DLL
+
+#define GRENADE_MODEL "models/weapons/w_models/w_grenade_mirv.mdl"
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -45,11 +60,6 @@ CTFGrenadeMirvProjectile* CTFGrenadeMirvProjectile::Create( const Vector &positi
 {
 	CTFGrenadeMirvProjectile *pGrenade = static_cast<CTFGrenadeMirvProjectile *>( CTFWeaponBaseGrenadeProj::Create( "tf_weapon_grenade_mirv_projectile", position, angles, velocity, angVelocity, pOwner, pWeapon ) );
 	return pGrenade;
-}
-
-CTFGrenadeMirvProjectile::CTFGrenadeMirvProjectile()
-{
-	m_bPlayedLeadIn = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -75,6 +85,8 @@ void CTFGrenadeMirvProjectile::Precache()
 	PrecacheScriptSound( MIRV_LEADIN_SOUND );
 	PrecacheScriptSound( TF_MIRV_BLIP_SOUND );
 
+	PrecacheTeamParticles( "MIRV_trail_%s" );
+
 	BaseClass::Precache();
 }
 
@@ -92,7 +104,9 @@ int CTFGrenadeMirvProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	// Wrench hit defuses the dynamite pack.
 	if ( info.GetDamageCustom() == TF_DMG_WRENCH_FIX )
 	{
+		m_bDefused = true;
 		EmitSound( "Weapon_Grenade_Mirv.Disarm" );
+		StopParticleEffects( this );
 
 		SetThink( &CBaseEntity::SUB_Remove );
 		SetNextThink( gpGlobals->curtime + 5.0f );
@@ -132,8 +146,6 @@ void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 {
 	// Pass through.
 	BaseClass::Explode( pTrace, bitsDamageType );
-// Server specific.
-#ifdef GAME_DLL
 
 	// Create the bomblets.
 	for ( int iBomb = 0; iBomb < TF_WEAPON_GRENADE_MIRV_BOMB_COUNT; ++iBomb )
@@ -150,8 +162,6 @@ void CTFGrenadeMirvProjectile::Explode( trace_t *pTrace, int bitsDamageType )
 		pBomb->SetDamage( GetDamage() * 0.5f );
 		pBomb->SetDamageRadius( GetDamageRadius() );
 	}
-
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -174,19 +184,48 @@ void CTFGrenadeMirvProjectile::BlipSound( void )
 	}
 }
 
+#else
+
+void CTFGrenadeMirvProjectile::OnDataChanged( DataUpdateType_t updateType )
+{
+	if ( updateType == DATA_UPDATE_CREATED )
+	{
+		CreateTrails();
+	}
+	else if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	{
+		ParticleProp()->StopEmission();
+		CreateTrails();
+	}
+}
+
+void CTFGrenadeMirvProjectile::CreateTrails( void )
+{
+	const char *pszParticle = ConstructTeamParticle( "MIRV_trail_%s", GetTeamNumber(), false );
+	ParticleProp()->Create( pszParticle, PATTACH_ABSORIGIN_FOLLOW );
+}
+
+#endif
+
 //=============================================================================
 //
 // TF Mirv Bomb functions (Server specific).
 //
+
+IMPLEMENT_NETWORKCLASS_ALIASED( TFGrenadeMirvBomb, DT_TFProjectile_MirvBomb );
+BEGIN_NETWORK_TABLE( CTFGrenadeMirvBomb, DT_TFProjectile_MirvBomb )
+END_NETWORK_TABLE()
+
+LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv_bomb, CTFGrenadeMirvBomb );
+PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_bomb );
+
+#ifdef GAME_DLL
 
 #define GRENADE_MODEL_BOMBLET "models/weapons/w_models/w_grenade_bomblet.mdl"
 
 #define TF_WEAPON_GRENADE_MIRV_BOMB_GRAVITY		0.5f
 #define TF_WEAPON_GRENADE_MIRV_BOMB_FRICTION	0.8f
 #define TF_WEAPON_GRENADE_MIRV_BOMB_ELASTICITY	0.45f
-
-LINK_ENTITY_TO_CLASS( tf_weapon_grenade_mirv_bomb, CTFGrenadeMirvBomb );
-PRECACHE_WEAPON_REGISTER( tf_weapon_grenade_mirv_bomb );
 
 //-----------------------------------------------------------------------------
 // Purpose:

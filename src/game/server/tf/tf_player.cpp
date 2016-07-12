@@ -5973,9 +5973,11 @@ void CTFPlayer::CheatImpulseCommands( int iImpulse )
 				extern int gEvilImpulse101;
 				gEvilImpulse101 = true;
 
-				GiveAmmo( 1000, TF_AMMO_PRIMARY );
-				GiveAmmo( 1000, TF_AMMO_SECONDARY );
-				GiveAmmo( 1000, TF_AMMO_METAL );
+				for ( int i = TF_AMMO_PRIMARY; i < TF_AMMO_COUNT; i++ )
+				{
+					GiveAmmo( GetMaxAmmo( i ), i, false, TF_AMMO_SOURCE_RESUPPLY );
+				}
+
 				TakeHealth( 999, DMG_GENERIC );
 
 				// Refill clip in all weapons.
