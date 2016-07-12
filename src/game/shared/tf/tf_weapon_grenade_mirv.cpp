@@ -92,6 +92,8 @@ int CTFGrenadeMirvProjectile::OnTakeDamage( const CTakeDamageInfo &info )
 	// Wrench hit defuses the dynamite pack.
 	if ( info.GetDamageCustom() == TF_DMG_WRENCH_FIX )
 	{
+		EmitSound( "Weapon_Grenade_Mirv.Disarm" );
+
 		SetThink( &CBaseEntity::SUB_Remove );
 		SetNextThink( gpGlobals->curtime + 5.0f );
 
