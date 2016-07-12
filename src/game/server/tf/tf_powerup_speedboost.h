@@ -23,7 +23,7 @@ public:
 
 	CTFPowerupSpeedBoost();
 
-	//virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_speedboost.mdl"; }
+	virtual const char *GetDefaultPowerupModel( void ) { return "models/items/powerup_speed.mdl"; }
 	virtual const char *GetDefaultPickupSound( void ) { return "PowerupSpeedBoost.Touch"; }
 
 	virtual int	GetCondition( void ) { return TF_COND_POWERUP_SPEEDBOOST; }
