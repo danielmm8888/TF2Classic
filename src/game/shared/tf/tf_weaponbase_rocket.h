@@ -98,7 +98,9 @@ public:
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual int		GetDamageType();
 	virtual void	SetDamage(float flDamage) { m_flDamage = flDamage; }
-	virtual float	GetRadius();	
+	virtual bool	UseStockSelfDamage( void ) { return true; }
+	virtual float	GetRadius( void );
+	virtual float	GetSelfDamageRadius( void );
 	void			DrawRadius( float flRadius );
 	virtual float	GetRocketSpeed( void );
 

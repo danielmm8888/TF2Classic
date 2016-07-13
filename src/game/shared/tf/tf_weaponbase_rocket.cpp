@@ -427,7 +427,8 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	radiusInfo.info.Set( this, pAttacker, m_hLauncher.Get(), vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
 	radiusInfo.m_vecSrc = vecOrigin;
 	radiusInfo.m_flRadius = flRadius;
-	radiusInfo.m_flSelfDamageRadius = 121.0f; // Original rocket radius?
+	radiusInfo.m_flSelfDamageRadius = GetSelfDamageRadius();
+	radiusInfo.m_bStockSelfDamage = UseStockSelfDamage();
 
 	TFGameRules()->RadiusDamage( radiusInfo );
 
@@ -441,11 +442,6 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	if ( !pOther->IsPlayer() )
 	{
 		UTIL_DecalTrace( pTrace, "Scorch" );
-	}
-
-	if ( m_hLauncher.Get() )
-	{
-		m_hLauncher->DeathNotice( this );
 	}
 
 	// Remove the rocket.
@@ -474,6 +470,15 @@ float CTFBaseRocket::GetRadius( void )
 	float flRadius = TF_ROCKET_RADIUS;
 	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( m_hLauncher.Get(), flRadius, mult_explosion_radius );
 	return flRadius;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+float CTFBaseRocket::GetSelfDamageRadius( void )
+{
+	// Original rocket radius?
+	return 121.0f;
 }
 
 //-----------------------------------------------------------------------------

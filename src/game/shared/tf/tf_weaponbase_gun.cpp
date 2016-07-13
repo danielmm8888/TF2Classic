@@ -25,6 +25,7 @@
 	#include "tf_projectile_flare.h"
 	#include "tf_projectile_arrow.h"
 	#include "tf_weapon_grenade_mirv.h"
+	#include "tf_projectile_plasma.h"
 	#include "te.h"
 
 #else	// Client specific.
@@ -219,7 +220,15 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 		break;
 
 	case TF_PROJECTILE_ROCKET:
-		pProjectile = FireRocket( pPlayer );
+	case TF_PROJECTILE_FLARE:
+	case TF_PROJECTILE_ARROW:
+	case TF_PROJECTILE_HEALING_BOLT:
+	case TF_PROJECTILE_BUILDING_REPAIR_BOLT:
+	case TF_PROJECTILE_FESTITIVE_ARROW:
+	case TF_PROJECTILE_FESTITIVE_HEALING_BOLT:
+	case TF_PROJECTILE_GRAPPLINGHOOK:
+	case TF_PROJECTILE_PLASMA:
+		pProjectile = FireRocket( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
@@ -236,21 +245,8 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 
 	case TF_PROJECTILE_PIPEBOMB:
 	case TF_PROJECTILE_CANNONBALL:
-		pProjectile = FireGrenade( pPlayer, iProjectile );
-		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-		break;
-
 	case TF_PROJECTILE_PIPEBOMB_REMOTE:
 	case TF_PROJECTILE_PIPEBOMB_REMOTE_PRACTICE:
-		pProjectile = FireGrenade( pPlayer, iProjectile );
-		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-		break;
-
-	case TF_PROJECTILE_FLARE:
-		pProjectile = FireFlare( pPlayer );
-		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-		break;
-
 	case TF_PROJECTILE_MIRV:
 		pProjectile = FireGrenade( pPlayer, iProjectile );
 		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
@@ -264,16 +260,6 @@ CBaseEntity *CTFWeaponBaseGun::FireProjectile( CTFPlayer *pPlayer )
 	case TF_PROJECTILE_BREADMONSTER_JARATE:
 	case TF_PROJECTILE_BREADMONSTER_MADMILK:
 		// TO-DO: Implement 'grenade' support
-		break;
-
-	case TF_PROJECTILE_ARROW:
-	case TF_PROJECTILE_HEALING_BOLT:
-	case TF_PROJECTILE_BUILDING_REPAIR_BOLT:
-	case TF_PROJECTILE_FESTITIVE_ARROW:
-	case TF_PROJECTILE_FESTITIVE_HEALING_BOLT:
-	case TF_PROJECTILE_GRAPPLINGHOOK:
-		pProjectile = FireArrow( pPlayer, iProjectile );
-		pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 		break;
 
 	case TF_PROJECTILE_NONE:
@@ -495,7 +481,7 @@ void CTFWeaponBaseGun::GetProjectileFireSetup( CTFPlayer *pPlayer, Vector vecOff
 //-----------------------------------------------------------------------------
 // Purpose: Fire a rocket
 //-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
+CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer, int iType )
 {
 	PlayWeaponShootSound();
 
@@ -509,14 +495,46 @@ CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
 	{
 		vecOffset.z = 8.0f;
 	}
+	if ( IsWeapon( TF_WEAPON_COMPOUND_BOW ) )
+	{
+		// Valve were apparently too lazy to fix the viewmodel and just flipped it through the code.
+		vecOffset.y *= -1.0f;
+	}
+
 	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
 
-	CTFProjectile_Rocket *pProjectile = CTFProjectile_Rocket::Create( this, vecSrc, angForward, pPlayer, pPlayer );
+	CTFBaseRocket *pProjectile = NULL;
+
+	switch ( iType )
+	{
+	case TF_PROJECTILE_ROCKET:
+		pProjectile = CTFProjectile_Rocket::Create( this, vecSrc, angForward, pPlayer, pPlayer );
+		break;
+	case TF_PROJECTILE_FLARE:
+		pProjectile = CTFProjectile_Flare::Create( this, vecSrc, angForward, pPlayer, pPlayer );
+		break;
+	case TF_PROJECTILE_ARROW:
+	case TF_PROJECTILE_HEALING_BOLT:
+	case TF_PROJECTILE_BUILDING_REPAIR_BOLT:
+	case TF_PROJECTILE_FESTITIVE_ARROW:
+	case TF_PROJECTILE_FESTITIVE_HEALING_BOLT:
+	//case TF_PROJECTILE_GRAPPLINGHOOK:
+		pProjectile = CTFProjectile_Arrow::Create( this, vecSrc, angForward, GetProjectileSpeed(), GetProjectileGravity(), pPlayer, pPlayer, iType );
+		break;
+	case TF_PROJECTILE_PLASMA:
+		pProjectile = CTFProjectile_Plasma::Create( this, vecSrc, angForward, pPlayer, pPlayer );
+		break;
+	default:
+		Assert( false );
+		break;
+	}
+
 	if ( pProjectile )
 	{
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
 	}
+
 	return pProjectile;
 
 #endif
@@ -623,69 +641,6 @@ CBaseEntity *CTFWeaponBaseGun::FireGrenade( CTFPlayer *pPlayer, int iType )
 
 	return pProjectile;
 
-#endif
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Fire a flare
-//-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireFlare(CTFPlayer *pPlayer)
-{
-	PlayWeaponShootSound();
-
-#ifdef GAME_DLL
-	Vector vecSrc;
-	QAngle angForward;
-	Vector vecOffset( 23.5f, 12.0f, -3.0f );
-	if ( pPlayer->GetFlags() & FL_DUCKING )
-	{
-		vecOffset.z = 8.0f;
-	}
-	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false );
-
-	CTFProjectile_Flare *pProjectile = CTFProjectile_Flare::Create( this, vecSrc, angForward, pPlayer, pPlayer );
-	if ( pProjectile )
-	{
-		pProjectile->SetCritical( IsCurrentAttackACrit() );
-		pProjectile->SetDamage( GetProjectileDamage() );
-	}
-	return pProjectile;
-#endif
-
-	return NULL;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: Fire a flare
-//-----------------------------------------------------------------------------
-CBaseEntity *CTFWeaponBaseGun::FireArrow( CTFPlayer *pPlayer, int iType )
-{
-	PlayWeaponShootSound();
-
-#ifdef GAME_DLL
-	Vector vecSrc;
-	QAngle angForward;
-	Vector vecOffset( 23.5f, 12.0f, -3.0f );
-	if ( pPlayer->GetFlags() & FL_DUCKING )
-	{
-		vecOffset.z = 8.0f;
-	}
-	if ( IsWeapon( TF_WEAPON_COMPOUND_BOW ) )
-	{
-		// Valve were apparently too lazy to fix the viewmodel and just flipped it through the code.
-		vecOffset.y *= -1.0f;
-	}
-	GetProjectileFireSetup( pPlayer, vecOffset, &vecSrc, &angForward, false, true );
-
-	CTFProjectile_Arrow *pProjectile = CTFProjectile_Arrow::Create( this, vecSrc, angForward, GetProjectileSpeed(), GetProjectileGravity(), pPlayer, pPlayer, iType );
-	if ( pProjectile )
-	{
-		pProjectile->SetCritical( IsCurrentAttackACrit() );
-		pProjectile->SetDamage( GetProjectileDamage() );
-	}
-	return pProjectile;
 #endif
 
 	return NULL;

@@ -548,6 +548,7 @@ const char *g_szProjectileNames[] =
 	"projectile_nail",
 	"projectile_dart",
 	"projectile_mirv",
+	"projectile_plasma",
 };
 
 // these map to the projectiles named in g_szProjectileNames

@@ -68,6 +68,7 @@ public:
 	float m_flSelfDamageRadius;
 	int m_iClassIgnore;
 	CBaseEntity *m_pEntityIgnore;
+	bool m_bStockSelfDamage;
 };
 #endif
 

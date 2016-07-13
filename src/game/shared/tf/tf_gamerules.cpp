@@ -1981,6 +1981,7 @@ CTFRadiusDamageInfo::CTFRadiusDamageInfo()
 	m_iClassIgnore = CLASS_NONE;
 	m_pEntityIgnore = NULL;
 	m_flSelfDamageRadius = 0.0f;
+	m_bStockSelfDamage = true;
 }
 
 ConVar tf_fixedup_damage_radius( "tf_fixedup_damage_radius", "1", FCVAR_DEVELOPMENTONLY );
@@ -2165,11 +2166,14 @@ void CTFGameRules::RadiusDamage( CTFRadiusDamageInfo &radiusInfo )
 	{
 		if ( pAttacker )
 		{
-			// Get stock damage.
-			CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
-			if ( pWeapon )
+			if ( radiusInfo.m_bStockSelfDamage )
 			{
-				info.SetDamage( (float)pWeapon->GetTFWpnData().GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nDamage );
+				// Get stock damage.
+				CTFWeaponBase *pWeapon = dynamic_cast<CTFWeaponBase *>( info.GetWeapon() );
+				if ( pWeapon )
+				{
+					info.SetDamage( (float)pWeapon->GetTFWpnData().GetWeaponData( TF_WEAPON_PRIMARY_MODE ).m_nDamage );
+				}
 			}
 
 			// Use stock radius.

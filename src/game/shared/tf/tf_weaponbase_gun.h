@@ -55,11 +55,9 @@ public:
 	void				GetProjectileReflectSetup( CTFPlayer *pPlayer, const Vector &vecPos, Vector *vecDeflect, bool bHitTeammates = true, bool bUseHitboxes = false );
 
 	void FireBullet( CTFPlayer *pPlayer );
-	CBaseEntity *FireRocket( CTFPlayer *pPlayer );
+	CBaseEntity *FireRocket( CTFPlayer *pPlayer, int iType );
 	CBaseEntity *FireNail( CTFPlayer *pPlayer, int iSpecificNail );
 	CBaseEntity *FireGrenade( CTFPlayer *pPlayer, int iType );
-	CBaseEntity *FireFlare( CTFPlayer *pPlayer );
-	CBaseEntity *FireArrow( CTFPlayer *pPlayer, int iType );
 
 	virtual float GetWeaponSpread( void );
 	virtual float GetProjectileSpeed( void );
