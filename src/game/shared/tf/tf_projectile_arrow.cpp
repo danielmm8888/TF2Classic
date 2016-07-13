@@ -27,14 +27,11 @@ const char *g_pszArrowModels[] =
 };
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Arrow, DT_TFProjectile_Arrow )
-
 BEGIN_NETWORK_TABLE( CTFProjectile_Arrow, DT_TFProjectile_Arrow )
 #ifdef CLIENT_DLL
-	RecvPropBool( RECVINFO( m_bCritical ) ),
 	RecvPropInt( RECVINFO( m_iType ) ),
 #else
-	SendPropBool( SENDINFO( m_bCritical ) ),
-	SendPropInt( SENDINFO( m_iType ), 3, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_iType ), 6, SPROP_UNSIGNED ),
 #endif
 END_NETWORK_TABLE()
 
@@ -64,28 +61,13 @@ CTFProjectile_Arrow::~CTFProjectile_Arrow()
 
 CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, float flSpeed, float flGravity, CBaseEntity *pOwner, CBaseEntity *pScorer, int iType )
 {
-	CTFProjectile_Arrow *pArrow = static_cast<CTFProjectile_Arrow *>( CBaseEntity::CreateNoSpawn( "tf_projectile_arrow", vecOrigin, vecAngles, pOwner ) );
+	CTFProjectile_Arrow *pArrow = static_cast<CTFProjectile_Arrow *>( CTFBaseRocket::Create( pWeapon, "tf_projectile_arrow", vecOrigin, vecAngles, pOwner ) );
 
 	if ( pArrow )
 	{
-		// Set team.
-		pArrow->ChangeTeam( pOwner->GetTeamNumber() );
-
-		// Set scorer.
-		pArrow->SetScorer( pScorer );
-
-		// Set firing weapon.
-		pArrow->SetLauncher( pWeapon );
-
-		// Set arrow type.
-		pArrow->SetType( iType );
-
-		// Spawn.
-		DispatchSpawn( pArrow );
-
-		// Setup the initial velocity.
-		Vector vecForward, vecRight, vecUp;
-		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
+		// Overriding speed.
+		Vector vecForward;
+		AngleVectors( vecAngles, &vecForward );
 
 		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flSpeed, mult_projectile_speed );
 
@@ -93,14 +75,11 @@ CTFProjectile_Arrow *CTFProjectile_Arrow::Create( CBaseEntity *pWeapon, const Ve
 		pArrow->SetAbsVelocity( vecVelocity );
 		pArrow->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
-		// Setup the initial angles.
-		QAngle angles;
-		VectorAngles( vecVelocity, angles );
-		pArrow->SetAbsAngles( angles );
-
 		pArrow->SetGravity( flGravity );
 
-		return pArrow;
+		pArrow->SetScorer( pScorer );
+
+		pArrow->SetType( iType );
 	}
 
 	return pArrow;
@@ -155,12 +134,10 @@ void CTFProjectile_Arrow::Spawn( void )
 
 	BaseClass::Spawn();
 
-#ifdef TF_ARROW_FIX
 	SetSolidFlags( FSOLID_NOT_SOLID | FSOLID_TRIGGER );
-#endif
 
 	SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_CUSTOM );
-	SetGravity( 0.3f ); // TODO: Check again later.
+	SetGravity( 0.3f );
 
 	UTIL_SetSize( this, -Vector( 1, 1, 1 ), Vector( 1, 1, 1 ) );
 
@@ -169,22 +146,6 @@ void CTFProjectile_Arrow::Spawn( void )
 	SetTouch( &CTFProjectile_Arrow::ArrowTouch );
 
 	// TODO: Set skin here...
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CTFProjectile_Arrow::SetScorer( CBaseEntity *pScorer )
-{
-	m_Scorer = pScorer;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-CBasePlayer *CTFProjectile_Arrow::GetScorer( void )
-{
-	return dynamic_cast<CBasePlayer *>( m_Scorer.Get() );
 }
 
 //-----------------------------------------------------------------------------
@@ -316,10 +277,7 @@ void CTFProjectile_Arrow::ArrowTouch( CBaseEntity *pOther )
 int	CTFProjectile_Arrow::GetDamageType()
 {
 	int iDmgType = BaseClass::GetDamageType();
-	if ( m_bCritical )
-	{
-		iDmgType |= DMG_CRITICAL;
-	}
+
 	if ( CanHeadshot() )
 	{
 		iDmgType |= DMG_USE_HITLOCATIONS;
@@ -333,21 +291,7 @@ int	CTFProjectile_Arrow::GetDamageType()
 //-----------------------------------------------------------------------------
 void CTFProjectile_Arrow::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
 {
-	// Get arrow's speed.
-	float flVel = GetAbsVelocity().Length();
-
-	QAngle angForward;
-	VectorAngles( vecDir, angForward );
-
-	// Now change arrow's direction.
-	SetAbsAngles( angForward );
-	SetAbsVelocity( vecDir * flVel );
-
-	// And change owner.
-	IncremenentDeflected();
-	SetOwnerEntity( pDeflectedBy );
-	ChangeTeam( pDeflectedBy->GetTeamNumber() );
-	SetScorer( pDeflectedBy );
+	BaseClass::Deflected( pDeflectedBy, vecDir );
 
 	// Change trail color.
 	if ( m_hSpriteTrail.Get() )

@@ -18,9 +18,7 @@ LINK_ENTITY_TO_CLASS( tf_projectile_rocket, CTFProjectile_Rocket );
 PRECACHE_REGISTER( tf_projectile_rocket );
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Rocket, DT_TFProjectile_Rocket )
-
 BEGIN_NETWORK_TABLE( CTFProjectile_Rocket, DT_TFProjectile_Rocket )
-	SendPropBool( SENDINFO( m_bCritical ) ),
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -58,56 +56,4 @@ void CTFProjectile_Rocket::Precache()
 	PrecacheParticleSystem( "rockettrail" );
 
 	BaseClass::Precache();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CTFProjectile_Rocket::SetScorer( CBaseEntity *pScorer )
-{
-	m_Scorer = pScorer;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-CBasePlayer *CTFProjectile_Rocket::GetScorer( void )
-{
-	return dynamic_cast<CBasePlayer *>( m_Scorer.Get() );
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-int	CTFProjectile_Rocket::GetDamageType()
-{
-	int iDmgType = BaseClass::GetDamageType();
-	if ( m_bCritical )
-	{
-		iDmgType |= DMG_CRITICAL;
-	}
-
-	return iDmgType;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFProjectile_Rocket::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
-{
-	// Get rocket's speed.
-	float flVel = GetAbsVelocity().Length();
-
-	QAngle angForward;
-	VectorAngles( vecDir, angForward );
-
-	// Now change rocket's direction.
-	SetAbsAngles( angForward );
-	SetAbsVelocity( vecDir * flVel );
-
-	// And change owner.
-	IncremenentDeflected();
-	SetOwnerEntity( pDeflectedBy );
-	ChangeTeam( pDeflectedBy->GetTeamNumber() );
-	SetScorer( pDeflectedBy );
 }

@@ -26,13 +26,10 @@ public:
 	C_TFProjectile_Rocket();
 	~C_TFProjectile_Rocket();
 
-	virtual void	OnDataChanged(DataUpdateType_t updateType);
+	virtual void	OnDataChanged( DataUpdateType_t updateType );
 
 	virtual void	CreateRocketTrails( void );
 	virtual const char *GetTrailParticleName( void ) { return "rockettrail"; }
-
-private:
-	bool	m_bCritical;
 };
 
 #endif // C_TF_PROJECTILE_ROCKET_H

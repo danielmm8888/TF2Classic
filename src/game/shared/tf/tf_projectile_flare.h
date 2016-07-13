@@ -11,20 +11,13 @@
 #endif
 
 #include "tf_weaponbase_rocket.h"
-#ifdef GAME_DLL
-#include "iscorer.h"
-#endif
 
 // Client specific.
 #ifdef CLIENT_DLL
 #define CTFProjectile_Flare C_TFProjectile_Flare
 #endif
 
-#ifdef GAME_DLL
-class CTFProjectile_Flare : public CTFBaseRocket, public IScorer
-#else
-class C_TFProjectile_Flare : public C_TFBaseRocket
-#endif
+class CTFProjectile_Flare : public CTFBaseRocket
 {
 public:
 	DECLARE_CLASS( CTFProjectile_Flare, CTFBaseRocket );
@@ -40,19 +33,8 @@ public:
 	virtual void	Spawn();
 	virtual void	Precache();
 
-	// IScorer interface
-	virtual CBasePlayer *GetScorer( void );
-	virtual CBasePlayer *GetAssistant( void ) { return NULL; }
-
 	virtual int		GetWeaponID( void ) const { return TF_WEAPON_FLAREGUN; }
-
-	void	SetScorer( CBaseEntity *pScorer );
-
-	void	SetCritical( bool bCritical ) { m_bCritical = bCritical; }
-	virtual int		GetDamageType();
-
-	virtual bool	IsDeflectable() { return true; }
-	virtual void	Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir );
+	virtual float	GetRocketSpeed( void );
 
 	// Overrides.
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
@@ -62,14 +44,6 @@ public:
 	virtual void	OnDataChanged( DataUpdateType_t updateType );
 	virtual void	CreateTrails( void );
 
-#endif
-
-private:
-#ifdef GAME_DLL
-	CBaseHandle m_Scorer;
-	CNetworkVar( bool, m_bCritical );
-#else
-	bool		m_bCritical;
 #endif
 
 };

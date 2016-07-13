@@ -1840,10 +1840,17 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 	}
 
 	// Find spawn point that is furthest from all other players.
+	CBaseEntity *pFirstSpot = pSpot;
 	float flFurthest = 0.0f;
 	CBaseEntity *pFurthest = NULL;
 	do
 	{
+		if ( !pSpot )
+		{
+			pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
+			continue;
+		}
+
 		// Check to see if this is a valid team spawn (player is on this team, etc.).
 		if ( TFGameRules()->IsSpawnPointValid( pSpot, this, true ) )
 		{
@@ -1889,7 +1896,8 @@ bool CTFPlayer::SelectFurthestSpawnSpot( const char *pEntClassName, CBaseEntity*
 		// Get the next spawning point to check.
 		pSpot = gEntList.FindEntityByClassname( pSpot, pEntClassName );
 	}
-	while ( pSpot != NULL );
+	// Continue until a valid spawn point is found or we hit the start.
+	while ( pSpot != pFirstSpot );
 
 	if ( pFurthest )
 	{

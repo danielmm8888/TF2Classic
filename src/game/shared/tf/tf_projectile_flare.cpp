@@ -25,11 +25,6 @@ PRECACHE_REGISTER( tf_projectile_flare );
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Flare, DT_TFProjectile_Flare )
 BEGIN_NETWORK_TABLE( CTFProjectile_Flare, DT_TFProjectile_Flare )
-#ifdef GAME_DLL
-	SendPropBool( SENDINFO( m_bCritical ) ),
-#else
-	RecvPropBool( RECVINFO( m_bCritical ) ),
-#endif
 END_NETWORK_TABLE()
 
 //-----------------------------------------------------------------------------
@@ -68,8 +63,6 @@ void CTFProjectile_Flare::Precache()
 	BaseClass::Precache();
 }
 
-
-
 //-----------------------------------------------------------------------------
 // Purpose: Spawn function
 //-----------------------------------------------------------------------------
@@ -82,55 +75,11 @@ void CTFProjectile_Flare::Spawn()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CTFProjectile_Flare::SetScorer( CBaseEntity *pScorer )
-{
-	m_Scorer = pScorer;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-CBasePlayer *CTFProjectile_Flare::GetScorer( void )
-{
-	return dynamic_cast<CBasePlayer *>( m_Scorer.Get() );
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int	CTFProjectile_Flare::GetDamageType() 
-{ 
-	int iDmgType = BaseClass::GetDamageType();
-	if ( m_bCritical )
-	{
-		iDmgType |= DMG_CRITICAL;
-	}
-
-	return iDmgType;
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTFProjectile_Flare::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+float CTFProjectile_Flare::GetRocketSpeed( void )
 {
-	// Get rocket's speed.
-	float flVel = GetAbsVelocity().Length();
-
-	QAngle angForward;
-	VectorAngles( vecDir, angForward );
-
-	// Now change rocket's direction.
-	SetAbsAngles( angForward );
-	SetAbsVelocity( vecDir * flVel );
-
-	// And change owner.
-	IncremenentDeflected();
-	SetOwnerEntity( pDeflectedBy );
-	ChangeTeam( pDeflectedBy->GetTeamNumber() );
-	SetScorer( pDeflectedBy );
+	return 2000.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -196,42 +145,17 @@ void CTFProjectile_Flare::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 CTFProjectile_Flare *CTFProjectile_Flare::Create( CBaseEntity *pWeapon, const Vector &vecOrigin, const QAngle &vecAngles, CBaseEntity *pOwner, CBaseEntity *pScorer )
 {
-	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare *>( CBaseEntity::CreateNoSpawn( "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
+	CTFProjectile_Flare *pFlare = static_cast<CTFProjectile_Flare *>( CTFBaseRocket::Create( pWeapon, "tf_projectile_flare", vecOrigin, vecAngles, pOwner ) );
 
 	if ( pFlare )
 	{
-		// Set team.
-		pFlare->ChangeTeam( pOwner->GetTeamNumber() );
-
 		// Set scorer.
 		pFlare->SetScorer( pScorer );
-
-		// Set firing weapon.
-		pFlare->SetLauncher( pWeapon );
-
-		// Spawn.
-		DispatchSpawn( pFlare );
-
-		// Setup the initial velocity.
-		Vector vecForward, vecRight, vecUp;
-		AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
-
-		float flVelocity = 2000.0f;
-		CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
-
-		Vector vecVelocity = vecForward * flVelocity;
-		pFlare->SetAbsVelocity( vecVelocity );
-		pFlare->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
-
-		// Setup the initial angles.
-		QAngle angles;
-		VectorAngles( vecVelocity, angles );
-		pFlare->SetAbsAngles( angles );
-		return pFlare;
 	}
 
 	return pFlare;
 }
+
 #else
 
 //-----------------------------------------------------------------------------
@@ -245,9 +169,8 @@ void CTFProjectile_Flare::OnDataChanged( DataUpdateType_t updateType )
 	{
 		CreateTrails();		
 	}
-
 	// Watch team changes and change trail accordingly.
-	if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
+	else if ( m_iOldTeamNum && m_iOldTeamNum != m_iTeamNum )
 	{
 		ParticleProp()->StopEmission();
 		CreateTrails();
@@ -267,4 +190,5 @@ void CTFProjectile_Flare::CreateTrails( void )
 
 	ParticleProp()->Create( pszEffectName, PATTACH_ABSORIGIN_FOLLOW );
 }
+
 #endif

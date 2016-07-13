@@ -17,6 +17,9 @@ extern void SendProxy_Origin( const SendProp *pProp, const void *pStruct, const 
 extern void SendProxy_Angles( const SendProp *pProp, const void *pStruct, const void *pData, DVariant *pOut, int iElement, int objectID );
 #endif
 
+#define TF_ROCKET_RADIUS	146.0f	// Matches grenade radius.
+#define TF_ROCKET_SPEED		1100.0f
+
 //=============================================================================
 //
 // TF Base Rocket tables.
@@ -37,6 +40,8 @@ BEGIN_NETWORK_TABLE( CTFBaseRocket, DT_TFBaseRocket )
 
 	RecvPropVector( RECVINFO( m_vecVelocity ), 0, RecvProxy_LocalVelocity ),
 
+	RecvPropBool( RECVINFO( m_bCritical ) ),
+
 	// Server specific.
 #else
 	SendPropVector( SENDINFO( m_vInitialVelocity ), 12 /*nbits*/, 0 /*flags*/, -3000 /*low value*/, 3000 /*high value*/ ),
@@ -51,6 +56,8 @@ BEGIN_NETWORK_TABLE( CTFBaseRocket, DT_TFBaseRocket )
 	SendPropEHandle( SENDINFO( m_hLauncher ) ),
 
 	SendPropVector( SENDINFO( m_vecVelocity ), -1, SPROP_NOSCALE | SPROP_CHANGES_OFTEN ),
+
+	SendPropBool( SENDINFO( m_bCritical ) ),
 #endif
 END_NETWORK_TABLE()
 
@@ -273,10 +280,10 @@ CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClass
 	Vector vecForward, vecRight, vecUp;
 	AngleVectors( vecAngles, &vecForward, &vecRight, &vecUp );
 
-	float flVelocity = 1100.0f;
-	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flVelocity, mult_projectile_speed );
+	float flSpeed = pRocket->GetRocketSpeed();
+	CALL_ATTRIB_HOOK_FLOAT_ON_OTHER( pWeapon, flSpeed, mult_projectile_speed );
 
-	Vector vecVelocity = vecForward * flVelocity;
+	Vector vecVelocity = vecForward * flSpeed;
 	pRocket->SetAbsVelocity( vecVelocity );
 	pRocket->SetupInitialTransmittedGrenadeVelocity( vecVelocity );
 
@@ -289,6 +296,22 @@ CTFBaseRocket *CTFBaseRocket::Create( CBaseEntity *pWeapon, const char *pszClass
 	pRocket->ChangeTeam( pOwner->GetTeamNumber() );
 
 	return pRocket;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFBaseRocket::SetScorer( CBaseEntity *pScorer )
+{
+	m_hScorer = pScorer;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+CBasePlayer *CTFBaseRocket::GetScorer( void )
+{
+	return ToBasePlayer( m_hScorer.Get() );
 }
 
 //-----------------------------------------------------------------------------
@@ -401,7 +424,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 	float flRadius = GetRadius();
 
 	CTFRadiusDamageInfo radiusInfo;
-	radiusInfo.info.Set( this, pAttacker, m_hLauncher, vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
+	radiusInfo.info.Set( this, pAttacker, m_hLauncher.Get(), vec3_origin, vecOrigin, GetDamage(), GetDamageType() );
 	radiusInfo.m_vecSrc = vecOrigin;
 	radiusInfo.m_flRadius = flRadius;
 	radiusInfo.m_flSelfDamageRadius = 121.0f; // Original rocket radius?
@@ -420,8 +443,27 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		UTIL_DecalTrace( pTrace, "Scorch" );
 	}
 
+	if ( m_hLauncher.Get() )
+	{
+		m_hLauncher->DeathNotice( this );
+	}
+
 	// Remove the rocket.
 	UTIL_Remove( this );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+int	CTFBaseRocket::GetDamageType()
+{
+	int iDmgType = g_aWeaponDamageTypes[GetWeaponID()];
+	if ( m_bCritical )
+	{
+		iDmgType |= DMG_CRITICAL;
+	}
+
+	return iDmgType;
 }
 
 //-----------------------------------------------------------------------------
@@ -484,6 +526,36 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 
 		lastEdge = edge;
 	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+float CTFBaseRocket::GetRocketSpeed( void )
+{
+	return TF_ROCKET_SPEED;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFBaseRocket::Deflected( CBaseEntity *pDeflectedBy, Vector &vecDir )
+{
+	// Get rocket's speed.
+	float flSpeed = GetAbsVelocity().Length();
+
+	QAngle angForward;
+	VectorAngles( vecDir, angForward );
+
+	// Now change rocket's direction.
+	SetAbsAngles( angForward );
+	SetAbsVelocity( vecDir * flSpeed );
+
+	// And change owner.
+	IncremenentDeflected();
+	SetOwnerEntity( pDeflectedBy );
+	ChangeTeam( pDeflectedBy->GetTeamNumber() );
+	SetScorer( pDeflectedBy );
 }
 
 //-----------------------------------------------------------------------------
