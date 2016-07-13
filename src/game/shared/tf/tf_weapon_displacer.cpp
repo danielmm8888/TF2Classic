@@ -1,12 +1,12 @@
 //=============================================================================
 //
-// Purpose: BFG 11K
+// Purpose: MLG
 //
 //=============================================================================
 #include "cbase.h"
 #include "tf_weapon_displacer.h"
 #include "tf_gamerules.h"
-#include "IEffects.h"
+#include "particle_parse.h"
 
 #ifdef GAME_DLL
 #include "tf_player.h"
@@ -50,12 +50,20 @@ extern EHANDLE g_pLastSpawnPoints[TF_TEAM_COUNT];
 // Weapon Displacer functions.
 //
 
+CTFWeaponDisplacer::CTFWeaponDisplacer()
+{
+	m_bPlayedTeleportEffect = false;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTFWeaponDisplacer::Precache( void )
 {
-	// Precache particles here.
+	// TEMP!!!
+	PrecacheTeamParticles( "teleported_%s" );
+	PrecacheTeamParticles( "teleportedin_%s" );
+	PrecacheTeamParticles( "player_sparkles_%s" );
 
 	BaseClass::Precache();
 }
@@ -68,6 +76,7 @@ void CTFWeaponDisplacer::WeaponReset( void )
 	m_flBlastTime = 0.0f;
 	m_flTeleportTime = 0.0f;
 	m_bLockedOn = false;
+	m_bPlayedTeleportEffect = false;
 
 #ifdef GAME_DLL
 	m_hTeleportSpot = NULL;
@@ -117,9 +126,25 @@ void CTFWeaponDisplacer::ItemPostFrame( void )
 		m_flBlastTime = 0.0f;
 		BaseClass::PrimaryAttack();
 	}
-	else if ( m_flTeleportTime != 0.0f && gpGlobals->curtime >= m_flTeleportTime )
+	else if ( m_flTeleportTime != 0.0f )
 	{
-		FinishTeleport();
+		if ( gpGlobals->curtime >= m_flTeleportTime )
+		{
+			FinishTeleport();
+		}
+		else if ( !m_bPlayedTeleportEffect && m_flTeleportTime - gpGlobals->curtime <= 0.1f )
+		{
+			m_bPlayedTeleportEffect = true;
+
+			// Create an effect right before the teleport.
+			// TODO: Will need a new particle that will follow player from pressing alt-fire to teleporting.
+			CTFPlayer *pPlayer = GetTFPlayerOwner();
+			if ( pPlayer )
+			{
+				const char *pszSparklesEffect = ConstructTeamParticle( "player_sparkles_%s", pPlayer->GetTeamNumber() );
+				DispatchParticleEffect( pszSparklesEffect, PATTACH_ABSORIGIN, pPlayer );
+			}
+		}
 	}
 
 	BaseClass::ItemPostFrame();
@@ -178,6 +203,13 @@ void CTFWeaponDisplacer::SecondaryAttack( void )
 
 	if ( pPlayer->SelectFurthestSpawnSpot( "info_player_deathmatch", pSpot, false ) )
 	{
+		// Need to remove prediction filtering since this code only runs on server side.
+		CDisablePredictionFiltering disabler;
+
+		// Create a warning effect for other players at the chosen destination.
+		const char *pszTeleportedEffect = ConstructTeamParticle( "teleported_%s", pPlayer->GetTeamNumber() );
+		DispatchParticleEffect( pszTeleportedEffect, pSpot->GetAbsOrigin(), vec3_angle );
+
 		g_pLastSpawnPoints[pPlayer->GetTeamNumber()] = pSpot;
 		m_hTeleportSpot = pSpot;
 		m_bLockedOn = true;
@@ -186,6 +218,7 @@ void CTFWeaponDisplacer::SecondaryAttack( void )
 
 	WeaponSound( SPECIAL3 );
 
+	m_bPlayedTeleportEffect = false;
 	m_flTeleportTime = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flSmackDelay;
 }
 
@@ -214,10 +247,30 @@ void CTFWeaponDisplacer::FinishTeleport( void )
 #endif
 		{
 #ifdef GAME_DLL
+			// Need to remove prediction filtering since this code only runs on server side.
+			CDisablePredictionFiltering *pDisabler = new CDisablePredictionFiltering();
+
+			CBaseEntity *ent = NULL;
+			for ( CEntitySphereQuery sphere( m_hTeleportSpot->GetAbsOrigin(), 128 ); ( ent = sphere.GetCurrentEntity() ) != NULL; sphere.NextEntity() )
+			{
+				// if ent is a client, telefrag 'em (unless they are ourselves)
+				if ( ent->IsPlayer() && ent != pPlayer && ( !ent->InSameTeam( pPlayer ) || TFGameRules()->IsDeathmatch() ) )
+				{
+					CTakeDamageInfo info( pPlayer, pPlayer, 1000, DMG_CRUSH, TF_DMG_TELEFRAG );
+					ent->TakeDamage( info );
+				}
+			}
+
 			pPlayer->Teleport( &m_hTeleportSpot->GetAbsOrigin(), &m_hTeleportSpot->GetAbsAngles(), &vec3_origin );
+
+			const char *pszTeleportedEffect = ConstructTeamParticle( "teleportedin_%s", pPlayer->GetTeamNumber() );
+			DispatchParticleEffect( pszTeleportedEffect, m_hTeleportSpot->GetAbsOrigin(), vec3_angle );
+
+			delete pDisabler;
 #endif
+
 			WeaponSound( WPN_DOUBLE );
-			pPlayer->RemoveAmmo( m_pWeaponInfo->GetWeaponData( TF_WEAPON_SECONDARY_MODE ).m_iAmmoPerShot, m_iSecondaryAmmoType );
+			pPlayer->RemoveAmmo( m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_iAmmoPerShot, m_iSecondaryAmmoType );
 		}
 	}
 
@@ -227,5 +280,5 @@ void CTFWeaponDisplacer::FinishTeleport( void )
 
 	m_flTeleportTime = 0.0f;
 	m_bLockedOn = false;
-	m_flNextSecondaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( TF_WEAPON_SECONDARY_MODE ).m_flTimeFireDelay;
+	m_flNextSecondaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
 }

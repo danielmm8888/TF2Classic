@@ -1,6 +1,6 @@
 //=============================================================================
 //
-// Purpose: BFG 11K
+// Purpose: MLG
 //
 //=============================================================================
 #ifndef TF_WEAPON_DISPLACER_H
@@ -18,9 +18,12 @@
 
 class CTFWeaponDisplacer : public CTFWeaponBaseGun
 {
+public:
 	DECLARE_CLASS( CTFWeaponDisplacer, CTFWeaponBaseGun );
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
+
+	CTFWeaponDisplacer();
 
 	virtual int GetWeaponID( void ) const { return TF_WEAPON_DISPLACER; }
 
@@ -43,6 +46,8 @@ private:
 #ifdef GAME_DLL
 	EHANDLE m_hTeleportSpot;
 #endif
+
+	bool m_bPlayedTeleportEffect;
 };
 
 #endif // TF_WEAPON_DISPLACER_H
