@@ -26,10 +26,9 @@
 //
 // TF Base Rocket.
 //
+class CTFBaseRocket : public CBaseProjectile
 #ifdef GAME_DLL
-class CTFBaseRocket : public CBaseProjectile, public IScorer
-#else
-class C_TFBaseRocket : public C_BaseProjectile
+	, public IScorer
 #endif
 {
 
@@ -95,8 +94,8 @@ public:
 	virtual void	Explode( trace_t *pTrace, CBaseEntity *pOther );
 
 	void			SetCritical( bool bCritical ) { m_bCritical = bCritical; }
-	virtual float	GetDamage() { return m_flDamage; }
-	virtual int		GetDamageType();
+	virtual float	GetDamage( void ) { return m_flDamage; }
+	virtual int		GetDamageType( void );
 	virtual void	SetDamage(float flDamage) { m_flDamage = flDamage; }
 	virtual bool	UseStockSelfDamage( void ) { return true; }
 	virtual float	GetRadius( void );

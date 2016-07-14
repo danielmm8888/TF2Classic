@@ -16,6 +16,8 @@
 
 #define TF_WEAPON_PLASMA_MODEL "models/weapons/w_models/w_rocket.mdl"
 
+ConVar tf_debug_plasma( "tf_debug_plasma", "0", FCVAR_CHEAT );
+
 IMPLEMENT_NETWORKCLASS_ALIASED( TFProjectile_Plasma, DT_TFProjectile_Plasma );
 BEGIN_NETWORK_TABLE( CTFProjectile_Plasma, DT_TFProjectile_Plasma )
 END_NETWORK_TABLE()
@@ -100,7 +102,10 @@ void CTFProjectile_Plasma::Explode( trace_t *pTrace, CBaseEntity *pOther )
 		pBomb->SetAbsVelocity( vecDir * RandomFloat( 250, 750 ) );
 		pBomb->SetAbsAngles( angles );
 
-		NDebugOverlay::Line( pBomb->GetAbsOrigin(), pBomb->GetAbsOrigin() + vecDir * 50.0f, 0, 255, 0, true, 10.0f );
+		if ( tf_debug_plasma.GetBool() )
+		{
+			NDebugOverlay::Line( pBomb->GetAbsOrigin(), pBomb->GetAbsOrigin() + vecDir * 50.0f, 0, 255, 0, true, 10.0f );
+		}
 
 		pBomb->SetDamage( GetDamage() / 3 );
 		pBomb->SetCritical( m_bCritical );

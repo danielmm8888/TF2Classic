@@ -451,7 +451,7 @@ void CTFBaseRocket::Explode( trace_t *pTrace, CBaseEntity *pOther )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-int	CTFBaseRocket::GetDamageType()
+int	CTFBaseRocket::GetDamageType( void )
 {
 	int iDmgType = g_aWeaponDamageTypes[GetWeaponID()];
 	if ( m_bCritical )
