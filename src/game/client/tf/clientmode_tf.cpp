@@ -21,7 +21,7 @@
 #include "ivmodemanager.h"
 #include "buymenu.h" 
 #include "filesystem.h"
-#include "vgui/ivgui.h"
+#include "vgui/IVGui.h"
 #include "hud_chat.h"
 #include "view_shared.h"
 #include "view.h"
