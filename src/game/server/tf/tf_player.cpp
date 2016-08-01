@@ -3529,7 +3529,7 @@ void CTFPlayer::Event_Killed( const CTakeDamageInfo &info )
 		if ( iLives > 1 )
 		{
 			char szLivesCount[16];
-			itoa( iLives, szLivesCount, 10 );
+			V_snprintf( szLivesCount, sizeof( szLivesCount ), "%d", iLives );
 			ClientPrint( this, HUD_PRINTTALK, "#game_lives_left", szLivesCount );
 		}
 		else if ( iLives == 1 )
