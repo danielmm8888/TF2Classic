@@ -14,9 +14,9 @@
 #include <vgui_controls/Frame.h>
 #include <vgui/IScheme.h>
 #include <game/client/iviewport.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <KeyValues.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"

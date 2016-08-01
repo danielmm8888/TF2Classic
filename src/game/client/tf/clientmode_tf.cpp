@@ -14,12 +14,12 @@
 #include "clientmode_tf.h"
 #include "cdll_client_int.h"
 #include "iinput.h"
-#include "vgui/isurface.h"
-#include "vgui/ipanel.h"
-#include "GameUI/igameui.h"
+#include "vgui/ISurface.h"
+#include "vgui/IPanel.h"
+#include "GameUI/IGameUI.h"
 #include <vgui_controls/AnimationController.h>
 #include "ivmodemanager.h"
-#include "BuyMenu.h"
+#include "buymenu.h" 
 #include "filesystem.h"
 #include "vgui/ivgui.h"
 #include "hud_chat.h"
@@ -31,7 +31,7 @@
 #include "dlight.h"
 #include <imapoverview.h>
 #include "c_playerresource.h"
-#include <keyvalues.h>
+#include <KeyValues.h>
 #include "text_message.h"
 #include "panelmetaclassmgr.h"
 #include "c_tf_player.h"

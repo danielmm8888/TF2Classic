@@ -16,8 +16,8 @@
 #include <vgui/ILocalize.h>
 #include "vgui_controls/controls.h"
 #include "hud_crosshair.h"
-#include "FunctionProxy.h"
-#include "materialsystem/IMaterialVar.h"
+#include "functionproxy.h"
+#include "materialsystem/imaterialvar.h"
 #include "toolframework_client.h"
 #include "input.h"
 
