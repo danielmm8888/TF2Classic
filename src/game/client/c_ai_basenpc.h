@@ -52,6 +52,7 @@ public:
 	virtual int				GetMaxHealth() const { return m_iMaxHealth; }
 
 	const char				*GetClassname( void ) { return m_szClassname; }
+
 #ifdef TF_CLASSIC_CLIENT
 	virtual int				InternalDrawModel( int flags );
 	virtual void AddDecal( const Vector& rayStart, const Vector& rayEnd,

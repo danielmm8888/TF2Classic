@@ -434,9 +434,7 @@ void ClientModeShared::OverrideView( CViewSetup *pSetup )
 	if( ::input->CAM_IsThirdPerson() )
 	{
 		const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
-
-		//Vector cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
-		Vector cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
+		Vector cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
 
 		cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
 

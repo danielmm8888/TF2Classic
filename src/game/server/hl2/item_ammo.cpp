@@ -31,7 +31,7 @@ bool ITEM_GiveTFAmmo( CBasePlayer *pPlayer, float flCount, bool bSuppressSound =
 	if ( !pTFPlayer )
 		return false;
 
-	for ( int i = TF_AMMO_PRIMARY; i < TF_AMMO_GRENADES1; i++ )
+	for ( int i = TF_AMMO_PRIMARY; i <= TF_AMMO_METAL; i++ )
 	{
 		int iMaxAmmo = pTFPlayer->GetPlayerClass()->GetData()->m_aAmmoMax[i];
 
@@ -56,14 +56,16 @@ public:
 	{
 		Precache();
 		SetModel( GetPowerupModel() );
+
 		BaseClass::Spawn();
 	}
 
 	void Precache( void )
 	{
-		BaseClass::Precache();
 		PrecacheModel( GetPowerupModel() );
 		PrecacheScriptSound( TF_AMMOPACK_PICKUP_SOUND );
+
+		BaseClass::Precache();
 	}
 
 	bool MyTouch( CBasePlayer *pPlayer )

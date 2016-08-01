@@ -413,6 +413,8 @@ public:
 	// Taunts.
 	void				Taunt( void );
 	bool				IsTaunting( void ) { return m_Shared.InCond( TF_COND_TAUNTING ); }
+	void				DoTauntAttack( void );
+	void				ClearTauntAttack( void );
 	QAngle				m_angTauntCamera;
 
 	virtual float		PlayScene( const char *pszScene, float flDelay = 0.0f, AI_Response *response = NULL, IRecipientFilter *filter = NULL );
@@ -572,6 +574,9 @@ private:
 
 	bool 				m_bMedigunAutoHeal;
 	bool				m_bAutoRezoom;	// does the player want to re-zoom after each shot for sniper rifles
+
+	float				m_flTauntAttackTime;
+	int					m_iTauntAttack;
 
 	EHANDLE				m_hTempSpawnSpot;
 

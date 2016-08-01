@@ -581,9 +581,8 @@ void CTFStatsSummaryPanel::SetValueAsClass( const char *pDialogVariable, int iVa
 		wchar_t *wzLocalizedClassName = g_pVGuiLocalize->Find( g_aPlayerClassNames[iPlayerClass] );
 		wchar_t wzVal[16];
 		wchar_t wzMsg[128];
-#ifdef _WIN32 // TODO: Find a posix equivelant to _itow_s
-		_itow_s( iValue, wzVal, ARRAYSIZE( wzVal ), 10 );
-#endif
+
+		V_snwprintf( wzVal, sizeof( wzVal ) / sizeof( wchar_t ), L"%d", iValue );
 		g_pVGuiLocalize->ConstructString( wzMsg, sizeof( wzMsg ), wzScoreAsClassFmt, 2, wzVal, wzLocalizedClassName );
 		m_pPlayerData->SetDialogVariable( pDialogVariable, wzMsg );
 	}

@@ -75,8 +75,12 @@ public:
 	void	Precache( void );
 	bool	CreateVPhysics( void );
 	bool	KeyValue( const char *szKeyName, const char *szValue );
-	virtual int ShouldTransmit( const CCheckTransmitInfo *pInfo );
+
+#ifdef TF_CLASSIC
 	virtual int UpdateTransmitState( void );
+	virtual int ShouldTransmit( const CCheckTransmitInfo *pInfo );
+#endif
+
 	void	UpdateOnRemove();
 
 	void	SetYawRate( float flYawRate ) { m_yawRate = flYawRate; }

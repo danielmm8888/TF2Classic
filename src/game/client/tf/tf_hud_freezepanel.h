@@ -18,6 +18,7 @@
 #include "tf_imagepanel.h"
 #include "tf_hud_playerstatus.h"
 #include "vgui_avatarimage.h"
+#include "c_tf_player.h"
 
 using namespace vgui;
 
@@ -104,6 +105,7 @@ private:
 	float					m_flShowSnapshotReminderAt;
 	EditablePanel			*m_pNemesisSubPanel;
 	vgui::Label				*m_pFreezeLabel;
+	vgui::Label				*m_pFreezeLabelKiller;
 	CTFImagePanel			*m_pFreezePanelBG;
 	CAvatarImagePanel		*m_pAvatar;
 	vgui::EditablePanel		*m_pScreenshotPanel;
@@ -113,6 +115,8 @@ private:
 	int 					m_iBasePanelOriginalY;
 
 	bool					m_bHoldingAfterScreenshot;
+
+	CPanelAnimationVarAliasType( int, m_iAvatarOffset, "avatar_offset", "0", "proportional_int" );
 
 	enum 
 	{

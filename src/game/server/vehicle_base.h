@@ -229,7 +229,9 @@ public:
 	
 	virtual bool		PassengerShouldReceiveDamage( CTakeDamageInfo &info ) { return true; }
 
+#ifdef TF_CLASSIC
 	virtual void		UpdateOnRemove( void );
+#endif
 
 	// If this is a vehicle, returns the vehicle interface
 	virtual IServerVehicle *GetServerVehicle() { return m_pServerVehicle; }

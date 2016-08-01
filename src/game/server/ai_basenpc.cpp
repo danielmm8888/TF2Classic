@@ -875,9 +875,35 @@ int CAI_BaseNPC::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 
 		info.SetDamage( flDamage );
 	}
-#endif
+	
+	int iOldHealth = m_iHealth;
 
-	return BaseClass::OnTakeDamage( info );
+#endif
+	
+	int ret = BaseClass::OnTakeDamage( info );
+
+#ifdef TF_CLASSIC
+	if ( !ret )
+		return 0;
+
+	IGameEvent * event = gameeventmanager->CreateEvent( "npc_hurt" );
+	if ( event )
+	{
+		event->SetInt( "victim_index", entindex() );
+		event->SetInt( "attacker_index", info.GetAttacker() ? info.GetAttacker()->entindex() : 0 );
+
+		event->SetInt( "health", max( 0, m_iHealth ) );
+		event->SetInt( "damageamount", ( iOldHealth - m_iHealth ) );
+		event->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) != 0 );
+
+		// HLTV event priority, not transmitted
+		event->SetInt( "priority", 5 );
+
+		gameeventmanager->FireEvent( event );
+	}
+
+	return ret;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -11097,6 +11123,7 @@ IMPLEMENT_SERVERCLASS_ST( CAI_BaseNPC, DT_AI_BaseNPC )
 	SendPropBool( SENDINFO( m_bImportanRagdoll ) ),
 	SendPropFloat( SENDINFO( m_flTimePingEffect ) ),
 	SendPropString( SENDINFO( m_szClassname ) ),
+
 #ifdef TF_CLASSIC
 	SendPropInt( SENDINFO( m_nPlayerCond ), TF_COND_LAST, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nNumHealers ), 5, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
@@ -11165,11 +11192,6 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 //-----------------------------------------------------------------------------
 void CAI_BaseNPC::Activate( void )
 {
-#ifdef TF_CLASSIC
-	if ( g_TFClassTeams[Classify()] )
-		ChangeTeam( g_TFClassTeams[Classify()] );
-#endif
-
 	BaseClass::Activate();
 
 	if ( GetModelPtr() )
@@ -11186,6 +11208,11 @@ void CAI_BaseNPC::Activate( void )
 			m_hEnemyFilter = dynamic_cast<CBaseFilter*>(pFilter);
 		}
 	}
+
+#ifdef TF_CLASSIC
+	if ( g_TFClassTeams[Classify()] )
+		ChangeTeam( g_TFClassTeams[Classify()] );
+#endif
 
 #ifdef AI_MONITOR_FOR_OSCILLATION
 	m_ScheduleHistory.RemoveAll();

@@ -317,7 +317,10 @@ private:
 	// Input handlers
 	void				InputEnableHint( inputdata_t &inputdata );
 	void				InputDisableHint( inputdata_t &inputdata );
+
+#ifdef TF_CLASSIC
 	void				InputRoundSpawn( inputdata_t &inputdata );
+#endif
 
 private:
 
@@ -329,7 +332,10 @@ private:
 	COutputEHANDLE		m_OnNPCStoppedUsing;	// Triggered when an NPC has finished using this node.
 	float				m_nodeFOV;
 	Vector				m_vecForward;
+
+#ifdef TF_CLASSIC
 	int					m_iInitialDisabled;
+#endif
 
 	// The next hint in list of all hints
 	friend class CAI_HintManager;

@@ -40,8 +40,6 @@ public:
 	CHandle<CTeamControlPoint> GetControlPoint( void ) { return m_hControlPoint; }
 	CHandle<CTeamControlPointRound> GetRoundBlueSpawn( void ) { return m_hRoundBlueSpawn; }
 	CHandle<CTeamControlPointRound> GetRoundRedSpawn( void ) { return m_hRoundRedSpawn; }
-	CHandle<CTeamControlPointRound> GetRoundGreenSpawn(void) { return m_hRoundGreenSpawn; }
-	CHandle<CTeamControlPointRound> GetRoundYellowSpawn(void) { return m_hRoundYellowSpawn; }
 
 private:
 	bool	m_bDisabled;		// Enabled/Disabled?
@@ -49,14 +47,10 @@ private:
 	string_t						m_iszControlPointName;
 	string_t						m_iszRoundBlueSpawn;
 	string_t						m_iszRoundRedSpawn;
-	string_t						m_iszRoundGreenSpawn;
-	string_t						m_iszRoundYellowSpawn;
 
 	CHandle<CTeamControlPoint>		m_hControlPoint;
 	CHandle<CTeamControlPointRound>	m_hRoundBlueSpawn;
 	CHandle<CTeamControlPointRound>	m_hRoundRedSpawn;
-	CHandle<CTeamControlPointRound>	m_hRoundGreenSpawn;
-	CHandle<CTeamControlPointRound>	m_hRoundYellowSpawn;
 
 	DECLARE_DATADESC();
 };

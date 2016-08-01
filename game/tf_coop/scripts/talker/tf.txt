@@ -62,9 +62,9 @@
 	}
 	response "HeavyTauntMelee"
 	{
-		scene "scenes/player/heavy/low/taunt03.vcd"
+		//scene "scenes/player/heavy/low/taunt03.vcd"
 		scene "scenes/player/heavy/low/taunt03_v1.vcd"
-		scene "scenes/player/heavy/low/taunt03_v2.vcd"
+		//scene "scenes/player/heavy/low/taunt03_v2.vcd"
 	}
 
 	rule HeavyTauntPlayerPrimary

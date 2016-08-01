@@ -122,6 +122,7 @@ void CTFFreezePanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 	if ( m_pBasePanel )
 	{
 		m_pFreezeLabel = dynamic_cast<Label *>( m_pBasePanel->FindChildByName("FreezeLabel") );
+		m_pFreezeLabelKiller = dynamic_cast<Label *>( m_pBasePanel->FindChildByName("FreezeLabelKiller") );
 		m_pAvatar = dynamic_cast<CAvatarImagePanel *>( m_pBasePanel->FindChildByName("AvatarImage") );
 		m_pFreezePanelBG = dynamic_cast<CTFImagePanel *>( m_pBasePanel->FindChildByName( "FreezePanelBG" ) );
 		m_pNemesisSubPanel = dynamic_cast<EditablePanel *>( m_pBasePanel->FindChildByName( "NemesisSubPanel" ) );
@@ -138,6 +139,11 @@ void CTFFreezePanel::ApplySchemeSettings( vgui::IScheme *pScheme )
 
 	int w, h;
 	m_pBasePanel->GetBounds( m_iBasePanelOriginalX, m_iBasePanelOriginalY, w, h );
+
+	if ( m_pAvatar )
+	{
+		m_pAvatar->SetShouldDrawFriendIcon( false );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -216,6 +222,8 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 			SetPos( xp, m_iYBase );
 		}
 
+		C_BasePlayer *pAvatarPlayer = NULL;
+
 		if ( pKiller )
 		{
 			CTFPlayer *pPlayer = ToTFPlayer ( pKiller );
@@ -267,10 +275,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 				m_pBasePanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
 
-				if ( m_pAvatar )
-				{
-					m_pAvatar->SetPlayer( (C_BasePlayer*)pKiller );
-				}
+				pAvatarPlayer = pTFKiller;
 			}
 			else if ( pKiller->IsBaseObject() )
 			{
@@ -288,10 +293,7 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 
 					m_pBasePanel->SetDialogVariable( "killername", g_PR->GetPlayerName( m_iKillerIndex ) );
 
-					if ( m_pAvatar )
-					{
-						m_pAvatar->SetPlayer( pOwner );
-					}
+					pAvatarPlayer = pOwner;
 
 					pKiller = pOwner;
 				}
@@ -358,6 +360,23 @@ void CTFFreezePanel::FireGameEvent( IGameEvent * event )
 					m_pFreezeLabel->SetText( "#FreezePanel_Killer" );
 				}
 			}
+		}
+
+		// NPCs don't have avatars so push the text to the left.
+		if ( pAvatarPlayer && !g_PR->IsFakePlayer( pAvatarPlayer->entindex() ) && m_pAvatar )
+		{
+			m_pAvatar->SetPlayer( pAvatarPlayer );
+
+			if ( m_pFreezeLabelKiller )
+				m_pFreezeLabelKiller->SetTextInset( m_iAvatarOffset, 0 );
+		}
+		else
+		{
+			if ( m_pAvatar )
+				m_pAvatar->SetPlayer( NULL );
+
+			if ( m_pFreezeLabelKiller )
+				m_pFreezeLabelKiller->SetTextInset( 0, 0 );
 		}
 		
 		// see if we should show nemesis panel

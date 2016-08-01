@@ -890,7 +890,10 @@ BEGIN_DATADESC( CAI_Hint )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID,		"EnableHint",		InputEnableHint ),
 	DEFINE_INPUTFUNC( FIELD_VOID,		"DisableHint",		InputDisableHint ),
+
+#ifdef TF_CLASSIC
 	DEFINE_INPUTFUNC( FIELD_VOID,		"RoundSpawn",		InputRoundSpawn ),
+#endif
 
 	// Outputs
 	DEFINE_OUTPUT( m_OnNPCStartedUsing,	"OnNPCStartedUsing" ),
@@ -914,6 +917,7 @@ void CAI_Hint::InputDisableHint( inputdata_t &inputdata )
 	m_NodeData.iDisabled		= true;
 }
 
+#ifdef TF_CLASSIC
 //------------------------------------------------------------------------------
 // Purpose :
 //------------------------------------------------------------------------------
@@ -922,7 +926,7 @@ void CAI_Hint::InputRoundSpawn( inputdata_t &inputdata )
 	// Restore our initial state upon round restart.
 	SetDisabled( m_iInitialDisabled != 0 );
 }
-
+#endif
 
 //------------------------------------------------------------------------------
 // Purpose :
@@ -942,7 +946,10 @@ void CAI_Hint::Spawn( void )
 	}
 
 	SetSolid( SOLID_NONE );
+
+#ifdef TF_CLASSIC
 	m_iInitialDisabled = m_NodeData.iDisabled;
+#endif
 }
 
 void CAI_Hint::Activate()

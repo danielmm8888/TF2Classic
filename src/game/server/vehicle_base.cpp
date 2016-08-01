@@ -1009,6 +1009,7 @@ void CPropVehicleDriveable::TraceAttack( const CTakeDamageInfo &info, const Vect
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 }
 
+#ifdef TF_CLASSIC
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -1024,6 +1025,7 @@ void CPropVehicleDriveable::UpdateOnRemove( void )
 
 	BaseClass::UpdateOnRemove();
 }
+#endif
 
 //=============================================================================
 // Passenger carrier

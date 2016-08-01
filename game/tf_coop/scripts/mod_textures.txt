@@ -618,6 +618,33 @@
 				"width"		"64"
 				"height"	"34"
 		}
+		"taunt_pyro"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"96"
+				"y"		"480"
+				"width"		"96"
+				"height"	"32"
+		}
+		"taunt_heavy"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"191"
+				"y"		"479"
+				"width"		"64"
+				"height"	"32"
+		}
+		"taunt_spy"
+		{
+				"dfile"	"HUD/d_images"
+				"dnegfile"	"HUD/dneg_images"
+				"x"		"263"
+				"y"		"129"
+				"width"		"92"
+				"height"	"32"
+		}
 		"bluedefend"
 		{
 				"dfile"	"HUD/d_images"
@@ -1464,8 +1491,8 @@
 			"dnegfile"	"HUD/dneg_images_hl2"
 			"x"	"0"
 			"y"	"0"
-			"w"	"96"
-			"h"	"32"
+			"width"	"96"
+			"height"	"32"
 		}
 
 		"shotgun"
@@ -1484,16 +1511,6 @@
 			"dnegfile"	"HUD/dneg_images_hl2"
 			"x"	"0"
 			"y"	"64"
-			"width"	"96"
-			"height"	"32"
-		}
-
-		"frag"
-		{
-			"dfile"	"HUD/d_images_hl2"
-			"dnegfile"	"HUD/dneg_images_hl2"
-			"x"	"0"
-			"y"	"96"
 			"width"	"96"
 			"height"	"32"
 		}
@@ -1598,7 +1615,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_frag"
+		"deflect_frag"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1608,7 +1625,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_ar2grenade"
+		"deflect_ar2grenade"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1618,7 +1635,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_rpg"
+		"deflect_rpg"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1788,7 +1805,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_crossbowbolt"
+		"deflect_crossbowbolt"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1798,7 +1815,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_combineball"
+		"deflect_combineball"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1808,7 +1825,7 @@
 			"height"	"32"
 		}
 
-		"d_deflect_acidball"
+		"deflect_acidball"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"
@@ -1908,7 +1925,7 @@
 			"height"	"32"
 		}
 
-		"d_have_an_error"
+		"have_an_error"
 		{
 			"dfile"	"HUD/d_images_hl2"
 			"dnegfile"	"HUD/dneg_images_hl2"

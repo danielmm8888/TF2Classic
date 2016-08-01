@@ -71,8 +71,6 @@ void CHLHealthKit::Precache( void )
 bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 {
 #ifdef TF_CLASSIC
-	bool bSuccess = false;
-
 	if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthkit.GetFloat() / 100)), DMG_GENERIC ) )
 	{
 		CSingleUserRecipientFilter user( pPlayer );
@@ -84,8 +82,6 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 
 		EmitSound( user, entindex(), "HealthKit.Touch" );
 
-		bSuccess = true;
-
 		CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 		Assert( pTFPlayer );
@@ -95,9 +91,11 @@ bool CHLHealthKit::MyTouch( CBasePlayer *pPlayer )
 		{
 			pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
 		}
+
+		return true;
 	}
 
-	return bSuccess;
+	return false;
 #else
 	if ( pPlayer->TakeHealth( sk_healthkit.GetFloat(), DMG_GENERIC ) )
 	{
@@ -145,8 +143,6 @@ public:
 	bool MyTouch( CBasePlayer *pPlayer )
 	{
 #ifdef TF_CLASSIC
-		bool bSuccess = false;
-
 		if ( pPlayer->TakeHealth( ceil(pPlayer->GetMaxHealth() * (sk_healthvial.GetFloat() / 100)), DMG_GENERIC ) )
 		{
 			CSingleUserRecipientFilter user( pPlayer );
@@ -158,8 +154,6 @@ public:
 
 			EmitSound( user, entindex(), "HealthKit.Touch" );
 
-			bSuccess = true;
-
 			CTFPlayer *pTFPlayer = ToTFPlayer( pPlayer );
 
 			Assert( pTFPlayer );
@@ -169,9 +163,11 @@ public:
 			{
 				pTFPlayer->m_Shared.RemoveCond( TF_COND_BURNING );		
 			}
+
+			return true;
 		}
 
-		return bSuccess;
+		return false;
 #else
 		if ( pPlayer->TakeHealth( sk_healthvial.GetFloat(), DMG_GENERIC ) )
 		{

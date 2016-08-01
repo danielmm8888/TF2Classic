@@ -142,6 +142,18 @@
 		"PaintBackgroundType"	"2"
 	}
 	
+	CDamageAccountPanel
+	{
+		"fieldName"				"CDamageAccountPanel"
+		"xpos"					"0"
+		"ypos"					"0"
+		"wide"					"f0"
+		"tall"					"480"
+		"visible" 				"1"
+		"enabled" 				"1"
+		"PaintBackgroundType"	"2"
+	}
+	
 	DisguiseStatus
 	{
 		"fieldName" "DisguiseStatus"
@@ -743,6 +755,7 @@
 		"ypos"					"0"
 		"wide"					"f0"
 		"tall"					"480"
+		"avatar_offset"			"22"
 	}
 
 	FreezePanelCallout
@@ -920,15 +933,5 @@
 		"wide"					"f10"	[$WIN32]
 		"wide"					"f60"	[$X360]
 		"tall"					"100"
-	}
-	HudDamageAccount
-	{
-		"fieldName" "HudDamageAccount"
-		"visible" "1"
-		"enabled" "1"
-		"xpos"	"0"
-		"ypos"	"0"
-		"wide"	"34"
-		"tall"	"34"
 	}
 }

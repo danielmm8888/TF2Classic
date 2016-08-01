@@ -426,6 +426,9 @@ CTFPlayer::CTFPlayer()
 
 	m_iSpawnCounter = 0;
 
+	m_flTauntAttackTime = 0.0f;
+	m_iTauntAttack = TF_TAUNT_NONE;
+
 	m_pPlayerAISquad = NULL;
 
 	m_bTransition = false;
@@ -660,6 +663,12 @@ void CTFPlayer::PostThink()
 	m_angEyeAngles = EyeAngles();
 
     m_PlayerAnimState->Update( m_angEyeAngles[YAW], m_angEyeAngles[PITCH] );
+
+	if ( m_flTauntAttackTime > 0.0f && m_flTauntAttackTime < gpGlobals->curtime )
+	{
+		m_flTauntAttackTime = 0.0f;
+		DoTauntAttack();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1515,7 +1524,7 @@ void CTFPlayer::SearchCoopSpawnSpot( void )
 
 	if ( vecSpawnOrigin != vec3_origin )
 	{
-		CTFTeamSpawn *pSpot = dynamic_cast<CTFTeamSpawn *>( CBaseEntity::Create( "info_player_teamspawn", vecSpawnOrigin, vecSpawnAngles ) );
+		CTFTeamSpawn *pSpot = static_cast<CTFTeamSpawn *>( CBaseEntity::Create( "info_player_teamspawn", vecSpawnOrigin, vecSpawnAngles ) );
 
 		if ( pSpot )
 		{
@@ -3236,6 +3245,7 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	// Do the damage.
 	m_bitsDamageType |= info.GetDamageType();
 
+	int iOldHealth = m_iHealth;
 	bool bIgniting = false;
 
 	if ( m_takedamage != DAMAGE_EVENTS_ONLY )
@@ -3310,21 +3320,17 @@ int CTFPlayer::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 	{
 		event->SetInt( "userid", GetUserID() );
 		event->SetInt( "health", max( 0, m_iHealth ) );
+		event->SetInt( "damageamount", ( iOldHealth - m_iHealth ) );
+		event->SetBool( "crit", ( info.GetDamageType() & DMG_CRITICAL ) != 0 );
 
 		// HLTV event priority, not transmitted
 		event->SetInt( "priority", 5 );	
 
-		// Hurt by another player.
-		if ( pAttacker->IsPlayer() )
-		{
-			CBasePlayer *pPlayer = ToBasePlayer( pAttacker );
-			event->SetInt( "attacker", pPlayer->GetUserID() );
-		}
-		// Hurt by world.
-		else
-		{
-			event->SetInt( "attacker", 0 );
-		}
+		CBasePlayer *pPlayer = ToBasePlayer( pAttacker );
+		event->SetInt( "attacker", pPlayer ? pPlayer->GetUserID() : 0 );
+
+		event->SetInt( "victim_index", entindex() );
+		event->SetInt( "attacker_index", pAttacker->entindex() );
 
         gameeventmanager->FireEvent( event );
 	}
@@ -5993,9 +5999,163 @@ void CTFPlayer::Taunt( void )
 
 		// Slam velocity to zero.
 		SetAbsVelocity( vec3_origin );
+
+		if ( V_stricmp( szResponse, "scenes/player/pyro/low/taunt02.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 2.0f;
+			m_iTauntAttack = TF_TAUNT_PYRO;
+		}
+		else if ( V_stricmp( szResponse, "scenes/player/heavy/low/taunt03_v1.vcd" ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 1.8f;
+			m_iTauntAttack = TF_TAUNT_HEAVY;
+		}
+		else if ( V_strnicmp( szResponse, "scenes/player/spy/low/taunt03", 29 ) == 0 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 1.8f;
+			m_iTauntAttack = TF_TAUNT_SPY1;
+		}
 	}
 
 	pExpresser->DisallowMultipleScenes();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::DoTauntAttack( void )
+{
+	int iTauntType = m_iTauntAttack;
+
+	if ( !iTauntType )
+		return;
+
+	m_iTauntAttack = TF_TAUNT_NONE;
+
+	switch ( iTauntType )
+	{
+	case TF_TAUNT_PYRO:
+	case TF_TAUNT_SPY1:
+	case TF_TAUNT_SPY2:
+	case TF_TAUNT_SPY3:
+	{
+		Vector vecAttackDir = BodyDirection2D();
+		Vector vecOrigin = WorldSpaceCenter() + vecAttackDir * 64;
+		Vector mins = vecOrigin - Vector( 24, 24, 24 );
+		Vector maxs = vecOrigin + Vector( 24, 24, 24 );
+
+		QAngle angForce( -45, EyeAngles()[YAW], 0 );
+		Vector vecForce;
+		AngleVectors( angForce, &vecForce );
+		float flDamage = 0.0f;
+		int nDamageType = DMG_GENERIC;
+		int iDamageCustom = 0;
+
+		switch ( iTauntType )
+		{
+		case TF_TAUNT_PYRO:
+			vecForce *= 25000;
+			flDamage = 500;
+			nDamageType = DMG_IGNITE;
+			iDamageCustom = TF_DMG_TAUNT_PYRO;
+			break;
+		case TF_TAUNT_SPY3:
+			vecForce *= 20000;
+			flDamage = 500;
+			nDamageType = DMG_SLASH;
+			iDamageCustom = TF_DMG_TAUNT_SPY;
+			break;
+		default:
+			vecForce *= 100;
+			flDamage = 25;
+			nDamageType = DMG_SLASH | DMG_PREVENT_PHYSICS_FORCE;
+			iDamageCustom = TF_DMG_TAUNT_SPY;
+			break;
+		}
+
+		// Spy taunt has 3 hits, set up the next one.
+		if ( iTauntType == TF_TAUNT_SPY1 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 0.47;
+			m_iTauntAttack = TF_TAUNT_SPY2;
+		}
+		else if ( iTauntType == TF_TAUNT_SPY2 )
+		{
+			m_flTauntAttackTime = gpGlobals->curtime + 1.73;
+			m_iTauntAttack = TF_TAUNT_SPY3;
+		}
+
+		CBaseEntity *pList[256];
+
+		int count = UTIL_EntitiesInBox( pList, 256, mins, maxs, FL_CLIENT | FL_OBJECT | FL_NPC );
+
+		if ( tf_debug_damage.GetBool() )
+		{
+			NDebugOverlay::Box( vecOrigin, -Vector( 24, 24, 24 ), Vector( 24, 24, 24 ), 0, 255, 0, 40, 10.0f );
+		}
+
+		for ( int i = 0; i < count; i++ )
+		{
+			CBaseEntity *pEntity = pList[i];
+
+			if ( pEntity == this || !pEntity->IsAlive() || pEntity->GetTeamNumber() == GetTeamNumber() || !FVisible( pEntity, MASK_SOLID ) )
+				continue;
+
+			Vector vecDamagePos = WorldSpaceCenter();
+			vecDamagePos += ( pEntity->WorldSpaceCenter() - vecDamagePos ) * 0.75f;
+
+			CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecDamagePos, flDamage, nDamageType, iDamageCustom );
+			pEntity->TakeDamage( info );
+		}
+
+		break;
+	}
+	case TF_TAUNT_HEAVY:
+	{
+		// Fire a bullet in the direction player was looking at.
+		Vector vecSrc, vecShotDir, vecEnd;
+		QAngle angShot = EyeAngles();
+		AngleVectors( angShot, &vecShotDir );
+		vecSrc = Weapon_ShootPosition();
+		vecEnd = vecSrc + vecShotDir * 500;
+
+		trace_t tr;
+		UTIL_TraceLine( vecSrc, vecEnd, MASK_SOLID | CONTENTS_HITBOX, this, COLLISION_GROUP_PLAYER, &tr );
+
+		if ( tf_debug_damage.GetBool() )
+		{
+			NDebugOverlay::Line( vecSrc, tr.endpos, 0, 255, 0, true, 10.0f );
+		}
+
+		if ( tr.fraction < 1.0f )
+		{
+			CBaseEntity *pEntity = tr.m_pEnt;
+			if ( pEntity && ( pEntity->IsPlayer() || pEntity->IsNPC() ) && pEntity->GetTeamNumber() != GetTeamNumber() )
+			{
+				Vector vecForce, vecDamagePos;
+				QAngle angForce( -45, angShot[YAW], 0 );
+				AngleVectors( angForce, &vecForce );
+				vecForce *= 25000;
+
+				vecDamagePos = tr.endpos;
+
+				CTakeDamageInfo info( this, this, GetActiveTFWeapon(), vecForce, vecDamagePos, 500, DMG_BULLET, TF_DMG_TAUNT_HEAVY );
+				pEntity->TakeDamage( info );
+			}
+		}
+
+		break;
+	}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFPlayer::ClearTauntAttack( void )
+{
+	m_flTauntAttackTime = 0.0f;
+	m_iTauntAttack = TF_TAUNT_NONE;
 }
 
 //-----------------------------------------------------------------------------

@@ -624,6 +624,10 @@ enum
 	TF_DMG_WRENCH_FIX,
 	TF_DMG_CUSTOM_MINIGUN,
 	TF_DMG_CUSTOM_SUICIDE,
+	TF_DMG_TAUNT_PYRO,
+	TF_DMG_TAUNT_HEAVY,
+	TF_DMG_TAUNT_SPY,
+	TF_DMG_TELEFRAG,
 };
 
 enum
@@ -933,8 +937,18 @@ typedef enum
 	NUM_STOCK_NOTIFICATIONS
 } HudNotification_t;
 
+// Taunt attack types
+enum
+{
+	TF_TAUNT_NONE,
+	TF_TAUNT_PYRO,
+	TF_TAUNT_HEAVY,
+	TF_TAUNT_SPY1,
+	TF_TAUNT_SPY2,
+	TF_TAUNT_SPY3,
+};
+
 extern const char *g_aNPCMechs[];
 extern const char *g_aBackstabNPC[];
-
 
 #endif // TF_SHAREDDEFS_H

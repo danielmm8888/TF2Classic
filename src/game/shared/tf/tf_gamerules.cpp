@@ -3253,6 +3253,31 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 
 	const char *killer_weapon_name = "world";
 
+	// Handle special kill types first.
+	const char *pszCustomKill = NULL;
+
+	switch ( info.GetDamageCustom() )
+	{
+	case TF_DMG_CUSTOM_SUICIDE:
+		pszCustomKill = "world";
+		break;
+	case TF_DMG_TAUNT_PYRO:
+		pszCustomKill = "taunt_pyro";
+		break;
+	case TF_DMG_TAUNT_HEAVY:
+		pszCustomKill = "taunt_heavy";
+		break;
+	case TF_DMG_TAUNT_SPY:
+		pszCustomKill = "taunt_spy";
+		break;
+	case TF_DMG_TELEFRAG:
+		pszCustomKill = "telefrag";
+		break;
+	}
+
+	if ( pszCustomKill != NULL )
+		return pszCustomKill;
+
 	if ( info.GetDamageCustom() == TF_DMG_CUSTOM_BURNING && pScorer )
 	{
 		// special-case burning damage, since persistent burning damage may happen after attacker has switched weapons

@@ -915,6 +915,7 @@ void CFuncTank::Precache( void )
 	}
 }
 
+#ifdef TF_CLASSIC
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -937,6 +938,7 @@ int CFuncTank::ShouldTransmit( const CCheckTransmitInfo *pInfo )
 
 	return BaseClass::ShouldTransmit( pInfo );
 }
+#endif
 
 void CFuncTank::UpdateOnRemove( void )
 {

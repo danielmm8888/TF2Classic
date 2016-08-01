@@ -50,9 +50,9 @@ void CTFVideoPanel::ReleaseVideo()
 	enginesound->NotifyEndMoviePlayback();
 
 	// Destroy any previously allocated video
-	if (m_VideoMaterial != NULL)
+	if ( m_VideoMaterial != NULL )
 	{
-		g_pVideo->DestroyVideoMaterial(m_VideoMaterial);
+		g_pVideo->DestroyVideoMaterial( m_VideoMaterial );
 		m_VideoMaterial = NULL;
 	}
 }

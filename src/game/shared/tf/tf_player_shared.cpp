@@ -482,6 +482,12 @@ void CTFPlayerShared::OnConditionRemoved( int nCond )
 		OnRemoveTeleported();
 		break;
 
+	case TF_COND_TAUNTING:
+#ifdef GAME_DLL
+		m_pOuter->ClearTauntAttack();
+#endif
+		break;
+
 	default:
 		break;
 	}

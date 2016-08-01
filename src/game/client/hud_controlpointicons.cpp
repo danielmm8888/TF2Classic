@@ -17,7 +17,6 @@
 #include "c_team.h"
 #include "tf_hud_freezepanel.h"
 #include "tf_hud_objectivestatus.h"
-#include "c_tf_player.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -130,9 +129,7 @@ CControlPointIcon::CControlPointIcon( Panel *parent, const char *pName, int iInd
 	m_iCapProgressDir = CP_DIR_N;
 	m_iPrevCappers = 0;
 	m_pCountdown = NULL;
-#if defined( TF_CLIENT_DLL )
 	m_pCPTimerLabel = NULL;
-#endif
 	m_pCPTimerBG = NULL;
 	m_flCPTimerTime = -1.0;
 	m_bRedText = false;
@@ -190,13 +187,11 @@ void CControlPointIcon::ApplySchemeSettings( IScheme *pScheme )
 		m_pCountdown->SetVisible( true );
 	}
 
-#if defined( TF_CLIENT_DLL )
 	if ( !m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel = new CExLabel( this, "CPTimerLabel", L"" );
 		m_pCPTimerLabel->SetZPos( 0 );
 	}
-#endif
 
 	if ( !m_pCPTimerBG )
 	{
@@ -211,12 +206,10 @@ void CControlPointIcon::ApplySchemeSettings( IScheme *pScheme )
 	m_pCapNumPlayers = dynamic_cast<vgui::Label *>( FindChildByName("CapNumPlayers") );
 	m_pOverlayImage = dynamic_cast<vgui::ImagePanel *>( FindChildByName("OverlayImage") );
 
-#if defined( TF_CLIENT_DLL )
 	if ( m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel->SetParent( GetParent() );
 	}
-#endif
 
 	if ( m_pCPTimerBG )
 	{
@@ -271,13 +264,11 @@ CControlPointIcon::~CControlPointIcon( void )
 		m_pCapPulseImage = NULL;
 	}
 
-#if defined( TF_CLIENT_DLL )
 	if ( m_pCPTimerLabel )
 	{
 		m_pCPTimerLabel->MarkForDeletion();
 		m_pCPTimerLabel = NULL;
 	}
-#endif
 
 	if ( m_pCPTimerBG )
 	{
@@ -586,10 +577,8 @@ void CControlPointIcon::OnTick( void )
 	if ( m_flCPTimerTime < 0 )
 		return;
 
-#if defined( TF_CLIENT_DLL )
 	if ( !m_pCPTimerLabel || !m_pCPTimerLabel->IsVisible() )
 		return;
-#endif
 
 	int nTime = 0;
 	if ( m_flCPTimerTime - gpGlobals->curtime > 0 )
@@ -602,24 +591,18 @@ void CControlPointIcon::OnTick( void )
 		if ( m_bRedText )
 		{
 			m_bRedText = false;
-#if defined( TF_CLIENT_DLL )
 			m_pCPTimerLabel->SetFgColor( m_cRegularColor );
-#endif
 		}
 		else
 		{
 			m_bRedText = true;
-#if defined( TF_CLIENT_DLL )
 			m_pCPTimerLabel->SetFgColor( m_cHighlightColor );
-#endif
 		}
 	}
 
 	char szTime[4];
 	Q_snprintf( szTime, sizeof( szTime ), "%d", nTime );
-#if defined( TF_CLIENT_DLL )
 	m_pCPTimerLabel->SetText( szTime );
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -629,35 +612,26 @@ void CControlPointIcon::SetTimerTime( float flTime )
 {
 	m_flCPTimerTime = flTime;
 
-	if ( m_pCPTimerBG )
+	if ( m_pCPTimerBG && m_pCPTimerLabel )
 	{
-#if defined( TF_CLIENT_DLL )
-		if (m_pCPTimerLabel)
-#endif
+		if ( flTime < 0 )
 		{
-			if (flTime < 0)
-			{
-				m_pCPTimerBG->SetVisible(false);
-#if defined( TF_CLIENT_DLL )
-				m_pCPTimerLabel->SetVisible(false);
-#endif
-			}
-			else
-			{
-				int xPos, yPos;
-				GetPos(xPos, yPos);
+			m_pCPTimerBG->SetVisible( false );
+			m_pCPTimerLabel->SetVisible( false );
+		}
+		else
+		{
+			int xPos, yPos;
+			GetPos( xPos, yPos );
 
-				m_pCPTimerBG->SetPos(xPos, yPos);
-				m_pCPTimerBG->SetVisible(true);
-
-				m_bRedText = false;
-#if defined( TF_CLIENT_DLL )
-				m_pCPTimerLabel->SetFgColor(m_cRegularColor); // reset our color
-				m_pCPTimerLabel->SetPos(xPos + GetWide() - XRES(1), yPos + (GetTall() / 2) - (m_pCPTimerLabel->GetTall() / 2));
-				m_pCPTimerLabel->SetVisible(true);
-#endif
-				OnTick(); // call this now so our time gets initialized
-			}
+			m_pCPTimerBG->SetPos( xPos, yPos );
+			m_pCPTimerBG->SetVisible( true );
+	
+			m_bRedText = false;
+			m_pCPTimerLabel->SetFgColor( m_cRegularColor ); // reset our color
+			m_pCPTimerLabel->SetPos( xPos + GetWide() - XRES(1), yPos + ( GetTall() / 2 ) - ( m_pCPTimerLabel->GetTall() / 2 ) );
+			m_pCPTimerLabel->SetVisible( true );
+			OnTick(); // call this now so our time gets initialized
 		}
 	}
 }
@@ -1428,7 +1402,7 @@ void CControlPointProgressBar::PerformLayout( void )
 {
 	BaseClass::PerformLayout();
 
-	if ( m_pAttachedToIcon && m_pTeardrop && m_pTeardropSide )
+	if ( m_pAttachedToIcon && m_pTeardrop && m_pTeardropSide && m_pAttachedToIcon->GetVPanel() )
 	{
 		int iIconX, iIconY;
 		ipanel()->GetAbsPos(m_pAttachedToIcon->GetVPanel(), iIconX, iIconY );
@@ -1820,13 +1794,11 @@ void CControlPointCountdown::ApplySchemeSettings( IScheme *pScheme )
 //-----------------------------------------------------------------------------
 void CControlPointCountdown::PerformLayout()
 {
-#if defined( TF_CLIENT_DLL )
 	CExLabel *pLabel = dynamic_cast<CExLabel *>( FindChildByName( "CapCountdownLabel" ) );
 	if ( pLabel )
 	{
 		pLabel->SetBounds( 0, 0, GetWide(), GetTall() );
 	}
-#endif
 }
 
 //-----------------------------------------------------------------------------
