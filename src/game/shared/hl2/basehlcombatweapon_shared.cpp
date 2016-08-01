@@ -119,6 +119,7 @@ bool CBaseHLCombatWeapon::Deploy( void )
 {
 	// If we should be lowered, deploy in the lowered position
 	// We have to ask the player if the last time it checked, the weapon was lowered
+#if defined( HL2_DLL ) || defined( HL2_CLIENT_DLL )
 	if ( GetOwner() && GetOwner()->IsPlayer() )
 	{
 		CHL2_Player *pPlayer = assert_cast<CHL2_Player*>( GetOwner() );
@@ -139,6 +140,7 @@ bool CBaseHLCombatWeapon::Deploy( void )
 			}
 		}
 	}
+#endif
 
 	m_bLowered = false;
 	return BaseClass::Deploy();
@@ -191,7 +193,7 @@ void CBaseHLCombatWeapon::WeaponIdle( void )
 	//See if we should idle high or low
 	if ( WeaponShouldBeLowered() )
 	{
-#if !defined( CLIENT_DLL )
+#if !defined( CLIENT_DLL ) && defined( HL2_DLL )
 		CHL2_Player *pPlayer = dynamic_cast<CHL2_Player*>(GetOwner());
 
 		if( pPlayer )

@@ -14,7 +14,7 @@
 #include "beamdraw.h"
 #include "vgui/ISurface.h"
 #include <vgui/ILocalize.h>
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 #include "hud_crosshair.h"
 #include "functionproxy.h"
 #include "materialsystem/imaterialvar.h"
