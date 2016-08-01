@@ -19,7 +19,7 @@
 //
 // Weapon Pistol tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol, DT_WeaponPistol )
+IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol, DT_TFPistol )
 
 BEGIN_NETWORK_TABLE_NOBASE( CTFPistol, DT_PistolLocalData )
 #if !defined( CLIENT_DLL )
@@ -29,7 +29,7 @@ BEGIN_NETWORK_TABLE_NOBASE( CTFPistol, DT_PistolLocalData )
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_NETWORK_TABLE( CTFPistol, DT_WeaponPistol )
+BEGIN_NETWORK_TABLE( CTFPistol, DT_TFPistol )
 #if !defined( CLIENT_DLL )
 	SendPropDataTable( "PistolLocalData", 0, &REFERENCE_SEND_TABLE( DT_PistolLocalData ), SendProxy_SendLocalWeaponDataTable ),
 #else
@@ -54,9 +54,9 @@ END_DATADESC()
 
 //============================
 
-IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol_Scout, DT_WeaponPistol_Scout )
+IMPLEMENT_NETWORKCLASS_ALIASED( TFPistol_Scout, DT_TFPistol_Scout )
 
-BEGIN_NETWORK_TABLE( CTFPistol_Scout, DT_WeaponPistol_Scout )
+BEGIN_NETWORK_TABLE( CTFPistol_Scout, DT_TFPistol_Scout )
 END_NETWORK_TABLE()
 
 BEGIN_PREDICTION_DATA( CTFPistol_Scout )

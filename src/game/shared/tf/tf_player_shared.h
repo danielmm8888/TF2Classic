@@ -46,11 +46,6 @@ class CTFPlayer;
 class CTFDamageEvent
 {
 	DECLARE_EMBEDDED_NETWORKVAR()
-#ifdef CLIENT_DLL
-	DECLARE_CLIENTCLASS_NOBASE();
-#else
-	DECLARE_SERVERCLASS_NOBASE();
-#endif
 
 public:
 	float flDamage;

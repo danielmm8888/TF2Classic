@@ -149,7 +149,7 @@ private:
 	struct model_t			*m_pShells[3];
 	struct model_t			*m_pSpriteCombineFlash[2];
 
-#if defined( HL1_CLIENT_DLL ) || defined( TF_CLASSIC_CLIENT ) 
+#ifdef HL1_CLIENT_DLL
 	struct model_t			*m_pHL1Shell;
 	struct model_t			*m_pHL1ShotgunShell;
 #endif

@@ -1868,11 +1868,7 @@ void CTempEnts::MuzzleFlash( const Vector& pos1, const QAngle& angles, int type,
 	
 	default:
 		// There's no supported muzzle flash for the type specified!
-#ifdef TF_CLASSIC_CLIENT
-		//Don't assert, it causes isues with HL1 NPCs. We should try to actually fix this later.
-#else
-		Assert(0);
-#endif
+		Assert( 0 );
 		break;
 	}
 
@@ -2411,7 +2407,7 @@ void CTempEnts::LevelInit()
 	m_pShells[2] = (model_t *) engine->LoadModel( "models/weapons/shotgun_shell.mdl" );
 #endif
 
-#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
+#ifdef HL1_CLIENT_DLL
 	m_pHL1Shell			= (model_t *)engine->LoadModel( "models/shell.mdl" );
 	m_pHL1ShotgunShell	= (model_t *)engine->LoadModel( "models/shotgunshell.mdl" );
 #endif
@@ -2448,7 +2444,7 @@ void CTempEnts::Init (void)
 	m_pShells[1] = NULL;
 	m_pShells[2] = NULL;
 
-#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
+#ifdef HL1_CLIENT_DLL
 	m_pHL1Shell			= NULL;
 	m_pHL1ShotgunShell	= NULL;
 #endif
@@ -3277,7 +3273,7 @@ void CTempEnts::HL1EjectBrass( const Vector &vecPosition, const QAngle &angAngle
 {
 	const model_t *pModel = NULL;
 
-#if defined( HL1_CLIENT_DLL )  || defined( TF_CLASSIC_CLIENT )
+#ifdef HL1_CLIENT_DLL
 	switch ( nType )
 	{
 	case 0:
