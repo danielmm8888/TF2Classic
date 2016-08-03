@@ -122,6 +122,10 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 	{
 		g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find( "#game_respawntime_no_lives" ), 0 );
 	}
+	else if ( TFGameRules()->IsCoOpGameRunning() && pPlayer->GetTeamNumber() == TF_STORY_TEAM && pPlayer->IsSearchingSpawn() )
+	{
+		g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find( "#game_respawntime_searching" ), 0 );
+	}
 	else
 	{
 		float flNextRespawn = TFGameRules()->GetNextRespawnWave( pPlayer->GetTeamNumber(), pPlayer );
@@ -142,11 +146,9 @@ void CTFSpectatorGUI::UpdateReinforcements( void )
 		}
 		else
 		{
-			char szSecs[6];
-			Q_snprintf( szSecs, sizeof(szSecs), "%d", iRespawnWait );
-			wchar_t wSecs[4];
-			g_pVGuiLocalize->ConvertANSIToUnicode(szSecs, wSecs, sizeof(wSecs));
-			g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find("#game_respawntime_in_secs" ), 1, wSecs );
+			wchar_t wszSecs[4];
+			V_snwprintf( wszSecs, sizeof( wszSecs ) / sizeof( wchar_t ), L"%d", iRespawnWait );
+			g_pVGuiLocalize->ConstructString( wLabel, sizeof( wLabel ), g_pVGuiLocalize->Find( "#game_respawntime_in_secs" ), 1, wszSecs );
 		}
 	}
 

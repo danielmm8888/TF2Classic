@@ -1018,6 +1018,7 @@ IMPLEMENT_CLIENTCLASS_DT( C_TFPlayer, DT_TFPlayer, CTFPlayer )
 	RecvPropDataTable( "tfnonlocaldata", 0, 0, &REFERENCE_RECV_TABLE(DT_TFNonLocalPlayerExclusive) ),
 
 	RecvPropInt( RECVINFO( m_iSpawnCounter ) ),
+	RecvPropBool( RECVINFO( m_bSearchingSpawn ) ),
 
 END_RECV_TABLE()
 

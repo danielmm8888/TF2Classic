@@ -349,6 +349,7 @@ IMPLEMENT_SERVERCLASS_ST( CTFPlayer, DT_TFPlayer )
 	SendPropDataTable( "tfnonlocaldata", 0, &REFERENCE_SEND_TABLE(DT_TFNonLocalPlayerExclusive), SendProxy_SendNonLocalDataTable ),
 
 	SendPropInt( SENDINFO( m_iSpawnCounter ) ),
+	SendPropBool( SENDINFO( m_bSearchingSpawn ) ),
 
 END_SEND_TABLE()
 

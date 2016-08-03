@@ -175,6 +175,8 @@ public:
 	bool			GetMedigunAutoHeal( void ){ return tf_medigun_autoheal.GetBool(); }
 	bool			ShouldAutoRezoom( void ){ return cl_autorezoom.GetBool(); }
 
+	bool			IsSearchingSpawn( void ) { return m_bSearchingSpawn; }
+
 	// HL2 ladder related methods
 	LadderMove_t		*GetLadderMove() { return &m_LadderMove; }
 	virtual void		ExitLadder();
@@ -355,6 +357,8 @@ public:
 
 	bool			m_bUpdatePartyHat;
 	CHandle<C_PlayerAttachedModel>	m_hPartyHat;
+
+	bool			m_bSearchingSpawn;
 
 	// HL2 Ladder related data
 	EHANDLE			m_hLadder;
