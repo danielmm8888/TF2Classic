@@ -446,6 +446,7 @@ private:
 	void				GiveDefaultItems();
 	bool				SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot );
 	void				SearchCoopSpawnSpot( void );
+	bool				ShouldUseCoopSpawning( void );
 	void				PrecachePlayerModels( void );
 	void				RemoveNemesisRelationships();
 
@@ -579,6 +580,7 @@ private:
 	int					m_iTauntAttack;
 
 	EHANDLE				m_hTempSpawnSpot;
+	CNetworkVar( bool, m_bSearchingSpawn )
 
 	COutputEvent		m_OnDeath;
 

@@ -107,7 +107,7 @@ void CTFPipebombLauncher::Spawn( void )
 bool CTFPipebombLauncher::Holster( CBaseCombatWeapon *pSwitchingTo )
 {
 	m_flChargeBeginTime = 0;
-	StopSound("Weapon_StickyBombLauncher.ChargeUp");
+	StopSound( "Weapon_StickyBombLauncher.ChargeUp" );
 
 	return BaseClass::Holster( pSwitchingTo );
 }
@@ -142,7 +142,7 @@ void CTFPipebombLauncher::WeaponReset( void )
 void CTFPipebombLauncher::PrimaryAttack( void )
 {
 	// Check for ammunition.
-	if ( m_iClip1 <= 0 && m_iClip1 != -1 )
+	if ( m_iClip1 <= 0 && m_iClip1 != WEAPON_NOCLIP )
 		return;
 
 	// Are we capable of firing again?
@@ -183,10 +183,7 @@ void CTFPipebombLauncher::WeaponIdle( void )
 {
 	if ( m_flChargeBeginTime > 0 && m_iClip1 > 0 )
 	{
-		if ( m_iClip1 > 0 )
-		{
-			LaunchGrenade();
-		}
+		LaunchGrenade();
 	}
 	else
 	{
@@ -199,43 +196,11 @@ void CTFPipebombLauncher::WeaponIdle( void )
 //-----------------------------------------------------------------------------
 void CTFPipebombLauncher::LaunchGrenade( void )
 {
-	// Get the player owning the weapon.
-	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
-	if ( !pPlayer )
-		return;
+	StopSound( "Weapon_StickyBombLauncher.ChargeUp" );
 
-	StopSound("Weapon_StickyBombLauncher.ChargeUp");
+	BaseClass::PrimaryAttack();
 
-	CalcIsAttackCritical();
-
-	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
-
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
-	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
-
-	CTFGrenadePipebombProjectile *pProjectile = static_cast<CTFGrenadePipebombProjectile*>( FireProjectile( pPlayer ) );
-	if ( pProjectile )
-	{
-		// Save the charge time to scale the detonation timer.
-		pProjectile->SetChargeTime( gpGlobals->curtime - m_flChargeBeginTime );
-	}
-#if !defined( CLIENT_DLL ) 
-	pPlayer->SpeakWeaponFire();
-	CTF_GameStats.Event_PlayerFiredWeapon( pPlayer, IsCurrentAttackACrit() );
-#endif
-
-	// Set next attack times.
-	m_flNextPrimaryAttack = gpGlobals->curtime + m_pWeaponInfo->GetWeaponData( m_iWeaponMode ).m_flTimeFireDelay;
 	m_flLastDenySoundTime = gpGlobals->curtime;
-
-	SetWeaponIdleTime( gpGlobals->curtime + SequenceDuration() );
-
-	// Check the reload mode and behave appropriately.
-	if ( m_bReloadsSingly )
-	{
-		m_iReloadMode.Set( TF_RELOAD_START );
-	}
-
 	m_flChargeBeginTime = 0;
 }
 
@@ -275,7 +240,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 				pTemp->SetTimer( gpGlobals->curtime ); // explode NOW
 			}
 
-			m_Pipebombs.Remove(0);
+			m_Pipebombs.Remove( 0 );
 		}
 
 		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
@@ -286,7 +251,7 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 		m_Pipebombs.AddToTail( hHandle );
 
 		m_iPipebombCount = m_Pipebombs.Count();
- #endif
+#endif
 	}
 
 	return pProjectile;
@@ -352,7 +317,7 @@ void CTFPipebombLauncher::SecondaryAttack( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPipebombLauncher::UpdateOnRemove(void)
+void CTFPipebombLauncher::UpdateOnRemove( void )
 {
 	// If we just died, we want to fizzle our pipebombs.
 	// If the player switched classes, our pipebombs have already been removed.
@@ -370,7 +335,7 @@ void CTFPipebombLauncher::UpdateOnRemove(void)
 //-----------------------------------------------------------------------------
 void CTFPipebombLauncher::DeathNotice( CBaseEntity *pVictim )
 {
-	Assert( dynamic_cast<CTFGrenadePipebombProjectile*>(pVictim) );
+	Assert( dynamic_cast<CTFGrenadePipebombProjectile*>( pVictim ) );
 
 	PipebombHandle hHandle;
 	hHandle = (CTFGrenadePipebombProjectile*)pVictim;
@@ -413,7 +378,6 @@ bool CTFPipebombLauncher::DetonateRemotePipebombs( bool bFizzle )
 				}
 			}
 #ifdef GAME_DLL
-			
 			pTemp->Detonate();
 #endif
 		}

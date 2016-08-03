@@ -787,9 +787,10 @@ bool CTFPlayer::IsReadyToSpawn( void )
 		return false;
 	}
 
-	if ( TFGameRules()->IsCoOpGameRunning() && IsOnStoryTeam() && m_Shared.GetLivesCount() == 0 )
+	if ( ShouldUseCoopSpawning() )
 	{
-		return false;
+		if ( m_bSearchingSpawn || m_Shared.GetLivesCount() == 0 )
+			return false;
 	}
 
 	return ( StateGet() != TF_STATE_DYING );
@@ -801,9 +802,10 @@ bool CTFPlayer::IsReadyToSpawn( void )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::ShouldGainInstantSpawn( void )
 {
-	if ( TFGameRules()->IsCoOpGameRunning() && IsOnStoryTeam() && m_Shared.GetLivesCount() == 0 )
+	if ( ShouldUseCoopSpawning() )
 	{
-		return false;
+		if ( m_bSearchingSpawn || m_Shared.GetLivesCount() == 0 )
+			return false;
 	}
 
 	return ( GetPlayerClass()->GetClassIndex() == TF_CLASS_UNDEFINED || IsClassMenuOpen() );
@@ -1443,13 +1445,9 @@ bool CTFPlayer::SelectSpawnSpot( const char *pEntClassName, CBaseEntity* &pSpot 
 //-----------------------------------------------------------------------------
 void CTFPlayer::SearchCoopSpawnSpot( void )
 {
-	if ( IsAlive() )
-	{
-		// Already spawned.
-		return;
-	}
+	m_bSearchingSpawn = false;
 
-	if ( !TFGameRules()->IsCoOpGameRunning() || !IsOnStoryTeam() )
+	if ( !ShouldUseCoopSpawning() )
 	{
 		// No longer spawning this way.
 		return;
@@ -1534,15 +1532,25 @@ void CTFPlayer::SearchCoopSpawnSpot( void )
 
 			m_hTempSpawnSpot = pSpot;
 
-			if ( m_bAllowInstantSpawn )
-			{
-				ForceRespawn();
-			}
+			ForceRespawn();
 			return;
 		}
 	}
 
 	SetContextThink( &CTFPlayer::SearchCoopSpawnSpot, gpGlobals->curtime + 1.0, "SpawnSearchThink" );
+	m_bSearchingSpawn = true;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+bool CTFPlayer::ShouldUseCoopSpawning( void )
+{
+	// Allow respawning normally after changing class.
+	if ( IsAlive() )
+		return false;
+
+	return ( IsOnStoryTeam() && TFGameRules()->IsCoOpGameRunning() );
 }
 
 //-----------------------------------------------------------------------------
@@ -4635,15 +4643,14 @@ int CTFPlayer::GiveAmmo( int iCount, int iAmmoIndex, bool bSuppressSound )
 //-----------------------------------------------------------------------------
 void CTFPlayer::ForceRespawn( void )
 {
-	if ( TFGameRules()->IsCoOpGameRunning() &&
-		IsOnStoryTeam() &&
-		!IsAlive() &&
-		!m_hTempSpawnSpot.Get() )
+	if ( ShouldUseCoopSpawning() && !m_hTempSpawnSpot.Get() )
 	{
 		// In co-op, we respawn near a living teammate.
-		// Only do this if we're dead, allow respawning normally if we change class inside respawn room.
-		AllowInstantSpawn();
-		SetContextThink( &CTFPlayer::SearchCoopSpawnSpot, gpGlobals->curtime, "SpawnSearchThink" );
+		if ( !m_bSearchingSpawn )
+		{
+			SetContextThink( &CTFPlayer::SearchCoopSpawnSpot, gpGlobals->curtime, "SpawnSearchThink" );
+			m_bSearchingSpawn = true;
+		}
 		return;
 	}
 

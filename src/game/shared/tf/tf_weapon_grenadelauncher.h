@@ -38,20 +38,9 @@ public:
 	CTFGrenadeLauncher();
 	~CTFGrenadeLauncher();
 
+	virtual int		GetWeaponID( void ) const { return TF_WEAPON_GRENADELAUNCHER; }
 	virtual void	Spawn( void );
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_GRENADELAUNCHER; }
-	virtual void	SecondaryAttack();
-
-	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo );
-	virtual bool	Deploy( void );
-	virtual void	PrimaryAttack( void );
-	virtual void	WeaponIdle( void );
 	virtual float	GetProjectileSpeed( void );
-
-	virtual bool	Reload( void );
-
-	virtual int GetMaxClip1( void ) const;
-	virtual int GetDefaultClip1( void ) const;
 
 public:
 

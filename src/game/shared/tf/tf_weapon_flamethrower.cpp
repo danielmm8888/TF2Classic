@@ -183,20 +183,28 @@ void CTFFlameThrower::ItemPostFrame()
 	{
 		PrimaryAttack();
 	}
-	else if ( m_iWeaponState > FT_STATE_IDLE )
+	else
 	{
-		SendWeaponAnim( ACT_MP_ATTACK_STAND_POSTFIRE );
-		pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_POST );
-		m_iWeaponState = FT_STATE_IDLE;
-		m_bCritFire = false;
+		if ( m_iWeaponState > FT_STATE_IDLE )
+		{
+			SendWeaponAnim( ACT_MP_ATTACK_STAND_POSTFIRE );
+			pOwner->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_POST );
+			m_iWeaponState = FT_STATE_IDLE;
+			m_bCritFire = false;
+		}
+
+		if ( !ReloadOrSwitchWeapons() )
+			WeaponIdle();
 	}
 
+#if 0
 	if ( pOwner->IsAlive() && ( pOwner->m_nButtons & IN_ATTACK2 ) && iAmmo > TF_FLAMETHROWER_AMMO_PER_SECONDARY_ATTACK )
 	{
 		SecondaryAttack();
 	}
+#endif
 
-	BaseClass::ItemPostFrame();
+	//BaseClass::ItemPostFrame();
 }
 
 class CTraceFilterIgnoreObjects : public CTraceFilterSimple

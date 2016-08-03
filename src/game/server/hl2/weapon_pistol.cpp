@@ -114,7 +114,7 @@ private:
 };
 
 
-IMPLEMENT_SERVERCLASS_ST(CWeaponPistol, DT_HLWeaponPistol)
+IMPLEMENT_SERVERCLASS_ST(CWeaponPistol, DT_WeaponPistol)
 END_SEND_TABLE()
 
 LINK_ENTITY_TO_CLASS( weapon_pistol, CWeaponPistol );
