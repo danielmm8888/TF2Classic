@@ -920,23 +920,7 @@
 			"y"		"0"
 			"width"		"128"
 			"height"	"128"
-		}		
-		"progress_bar_grn"
-		{
-			"file"		"vgui/progress_bar_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"		"128"
-			"height"	"128"
-		}			
-		"progress_bar_ylw"
-		{
-			"file"		"vgui/progress_bar_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"		"128"
-			"height"	"128"
-		}	
+		}
 
 		"dispenser_meter_bg_blue"
 		{
@@ -945,7 +929,7 @@
 			"y"		"0"
 			"width"		"256"
 			"height"	"128"
-		}	
+		}
 		
 		"dispenser_meter_bg_red"
 		{
@@ -954,24 +938,7 @@
 			"y"		"0"
 			"width"		"256"
 			"height"	"128"
-		}	
-		"dispenser_meter_bg_green"
-		{
-			"file"		"vgui/dispenser_meter_bg_green"
-			"x"		"0"
-			"y"		"0"
-			"width"		"256"
-			"height"	"128"
-		}	
-		
-		"dispenser_meter_bg_yellow"
-		{
-			"file"		"vgui/dispenser_meter_bg_yellow"
-			"x"		"0"
-			"y"		"0"
-			"width"		"256"
-			"height"	"128"
-		}	
+		}
 
 		"leaderboard_dominated"
 		{
@@ -1176,169 +1143,7 @@
 			"y"		"0"
 			"width"	"128"
 			"height" "256"
-		}			
-
-		"hud_menu_scout_grn"
-		{
-			"file"		"vgui/class_sel_sm_scout_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
 		}
-		
-		"hud_menu_soldier_grn"
-		{
-			"file"		"vgui/class_sel_sm_soldier_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_pyro_grn"
-		{
-			"file"		"vgui/class_sel_sm_pyro_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_demoman_grn"
-		{
-			"file"		"vgui/class_sel_sm_demo_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_heavy_grn"
-		{
-			"file"		"vgui/class_sel_sm_heavy_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_engineer_grn"
-		{
-			"file"		"vgui/class_sel_sm_engineer_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_medic_grn"
-		{
-			"file"		"vgui/class_sel_sm_medic_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_sniper_grn"
-		{
-			"file"		"vgui/class_sel_sm_sniper_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_spy_grn"
-		{
-			"file"		"vgui/class_sel_sm_spy_grn"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}	
-
-		"hud_menu_scout_ylw"
-		{
-			"file"		"vgui/class_sel_sm_scout_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_soldier_ylw"
-		{
-			"file"		"vgui/class_sel_sm_soldier_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_pyro_ylw"
-		{
-			"file"		"vgui/class_sel_sm_pyro_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_demoman_ylw"
-		{
-			"file"		"vgui/class_sel_sm_demo_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_heavy_ylw"
-		{
-			"file"		"vgui/class_sel_sm_heavy_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_engineer_ylw"
-		{
-			"file"		"vgui/class_sel_sm_engineer_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_medic_ylw"
-		{
-			"file"		"vgui/class_sel_sm_medic_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_sniper_ylw"
-		{
-			"file"		"vgui/class_sel_sm_sniper_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}
-		
-		"hud_menu_spy_ylw"
-		{
-			"file"		"vgui/class_sel_sm_spy_ylw"
-			"x"		"0"
-			"y"		"0"
-			"width"	"128"
-			"height" "256"
-		}		
 		
 		"hud_menu_sentry_build"
 		{
