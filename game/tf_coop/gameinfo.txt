@@ -15,28 +15,23 @@
 	supportsvr	1
 	FileSystem
 	{
-		SteamAppId		243750
+		SteamAppId		243750	// Source SDK Base 2013 Multiplayer
 		SearchPaths
 		{
-			// First, mount all user customizations.  This will search for VPKs and subfolders
+			// Firstly, mount all user customizations.  This will search for VPKs and subfolders
 			// and mount them in alphabetical order.  The easiest way to distribute a mod is to
 			// pack up the custom content into a VPK.  To "install" a mod, just drop it in this
 			// folder.
 			// Note that this folder is scanned only when the game is booted.
 			game+mod			|gameinfo_path|custom/*
 
-			// Now search loose files.  We'll set the directory containing the gameinfo.txt file
-			// as the first "mod" search path (after any user customizations).  This is also the one
-			// that's used when writing to the "mod" path.
+			// Search game's files after any user customizations. This is also where any writes should go.
 			game+game_write+mod+mod_write+default_write_path		|gameinfo_path|.
-			
-			// Where the game's binaries are
+
+			// Where the game's binaries are.
 			gamebin				|gameinfo_path|bin
 
-			// We search VPK files before ordinary folders, because most files will be found in
-			// VPK and we can avoid making thousands of file system calls to attempt to open files
-			// in folders where they don't exist.  (Searching a VPK is much faster than making an operating
-			// system call.)
+			// Search shared VPK files.
 			game_lv				hl2/hl2_lv.vpk
 			game				|all_source_engine_paths|hl2/hl2_textures.vpk
 			game				|all_source_engine_paths|hl2/hl2_sound_vo_english.vpk
@@ -44,6 +39,7 @@
 			game				|all_source_engine_paths|hl2/hl2_misc.vpk
 			platform			|all_source_engine_paths|platform/platform_misc.vpk
 
+			// Mount in shared loose files.
 			game				|all_source_engine_paths|hl2
 			platform			|all_source_engine_paths|platform
 
