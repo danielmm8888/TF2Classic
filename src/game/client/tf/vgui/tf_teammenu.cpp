@@ -625,7 +625,7 @@ void CTFTeamMenu::OnTick()
 		m_bRedDisabled = true;
 	}
 
-	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_BLUE ) || ( pRules->WouldChangeUnbalanceTeams( TF_TEAM_BLUE, iCurrentTeam ) ) )
+	if ( ( bUnbalanced && iHeavyTeam == TF_TEAM_BLUE ) || ( pRules->WouldChangeUnbalanceTeams( TF_TEAM_BLUE, iCurrentTeam ) ) || TFGameRules()->IsCoOp() )
 	{
 		m_bBlueDisabled = true;
 	}

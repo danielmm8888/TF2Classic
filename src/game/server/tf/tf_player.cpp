@@ -1617,6 +1617,9 @@ int CTFPlayer::GetAutoTeam( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
+	if ( TFGameRules()->IsCoOp() && !stricmp( pTeamName, "blue" ) )
+		return;
+
 	int iTeam = TF_TEAM_RED;
 	if ( stricmp( pTeamName, "auto" ) == 0 )
 	{
