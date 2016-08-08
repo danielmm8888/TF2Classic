@@ -1624,7 +1624,7 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 				transitionPlayers++;
 		}
 
-		if ( ( (int)( transitionPlayers / totalPlayers * 100 ) ) < mp_transition_players_percent.GetInt() )
+		if ( roundf( (float)transitionPlayers / (float)totalPlayers * 100 ) < mp_transition_players_percent.GetInt() )
 		{
 			//Msg( "Transitions: Not enough players to trigger level change\n" );
 			return;
