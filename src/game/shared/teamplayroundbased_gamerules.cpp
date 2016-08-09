@@ -3506,6 +3506,9 @@ bool CTeamplayRoundBasedRules::ShouldBalanceTeams( void )
 	if ( IsInTraining() == true || IsInItemTestingMode() )
 		return false;
 
+	if ( TFGameRules()->IsCoOp() )
+		return false;
+
 #if defined( _DEBUG ) || defined( STAGING_ONLY )
 	if ( mp_developer.GetBool() )
 		return false;
