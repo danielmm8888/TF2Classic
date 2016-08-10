@@ -259,6 +259,11 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 			{
 				engine->ClientCmd( "closedwelcomemenu" );
 			}
+			else if ( TFGameRules() && TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() )
+			{
+				// Send the player straight to RED in co-op.
+				engine->ClientCmd( VarArgs( "jointeam %s", g_aTeamNames[TF_STORY_TEAM] ) );
+			}
 			else if ( GetLocalPlayerTeam() == TEAM_UNASSIGNED )
 			{
 				m_pViewPort->ShowPanel( PANEL_TEAM, true );
@@ -274,6 +279,11 @@ void CTFMapInfoMenu::OnCommand( const char *command )
 		if ( CheckForIntroMovie() )
 		{
 			m_pViewPort->ShowPanel( PANEL_INTRO, true );
+		}
+		else if ( TFGameRules() && TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() )
+		{
+			// Send the player straight to RED in co-op.
+			engine->ClientCmd( VarArgs( "jointeam %s", g_aTeamNames[TF_STORY_TEAM] ) );
 		}
 		else
 		{

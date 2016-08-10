@@ -96,8 +96,8 @@ ConVar tf_damage_range( "tf_damage_range", "0.5", FCVAR_DEVELOPMENTONLY );
 
 ConVar tf_max_voice_speak_delay( "tf_max_voice_speak_delay", "1.5", FCVAR_NOTIFY, "Max time after a voice command until player can do another one" );
 
-ConVar tf2c_allow_spectate_npc( "tf2c_allow_spectate_npc", "0", 0, "Allow spectating NPC. Enabling this is not recommended." );
-ConVar tf2c_coop_lives( "tf2c_coop_lives", "-1", 0, "Amount of lives RED players start with in co-op. Set to -1 for unlimited lives." );
+ConVar lf_allow_spectate_npc( "lf_allow_spectate_npc", "0", 0, "Allow spectating NPC. Enabling this is not recommended." );
+ConVar lf_coop_lives( "lf_coop_lives", "-1", 0, "Amount of lives RED players start with in co-op. Set to -1 for unlimited lives." );
 
 // Cvars from HL2 player
 ConVar hl2_walkspeed( "hl2_walkspeed", "150" );
@@ -110,7 +110,7 @@ ConVar player_squad_double_tap_time( "player_squad_double_tap_time", "0.25" );
 extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
-extern ConVar tf2c_use_hl2_player_hull;
+extern ConVar lf_use_hl2_player_hull;
 
 // -------------------------------------------------------------------------------- //
 //Transitions
@@ -835,7 +835,7 @@ void CTFPlayer::InitialSpawn( void )
 	CTF_GameStats.Event_MaxSentryKills( this, 0 );
 
 	// Set initial lives count.
-	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
+	m_Shared.SetLivesCount( lf_coop_lives.GetInt() );
 
 	StateEnter( TF_STATE_WELCOME );
 }
@@ -1590,22 +1590,39 @@ int CTFPlayer::GetAutoTeam( void )
 {
 	int iTeam = TEAM_SPECTATOR;
 
-	CTFTeam *pBlue = TFTeamMgr()->GetTeam(TF_TEAM_BLUE);
-	CTFTeam *pRed = TFTeamMgr()->GetTeam(TF_TEAM_RED);
+	CTFTeam *pBlue = TFTeamMgr()->GetTeam( TF_TEAM_BLUE );
+	CTFTeam *pRed = TFTeamMgr()->GetTeam( TF_TEAM_RED );
 
 	if ( pBlue && pRed )
 	{
-		if (pBlue->GetNumPlayers() < pRed->GetNumPlayers())
+		if ( TFGameRules()->IsCoOp() )
+		{
+			if ( TFGameRules()->IsVersus() )
+			{
+				// Check RED for min amount of players.
+				if ( pRed->GetNumPlayers() < lf_coop_min_red_players.GetInt() )
+				{
+					return TF_TEAM_RED;
+				}
+			}
+			else
+			{
+				// Always join RED in co-op.
+				return TF_TEAM_RED;
+			}
+		}
+
+		if ( pBlue->GetNumPlayers() < pRed->GetNumPlayers() )
 		{
 			iTeam = TF_TEAM_BLUE;
 		}
-		else if (pRed->GetNumPlayers() < pBlue->GetNumPlayers())
+		else if ( pRed->GetNumPlayers() < pBlue->GetNumPlayers() )
 		{
 			iTeam = TF_TEAM_RED;
 		}
 		else
 		{
-			iTeam = RandomInt(0, 1) ? TF_TEAM_RED : TF_TEAM_BLUE;
+			iTeam = RandomInt( 0, 1 ) ? TF_TEAM_RED : TF_TEAM_BLUE;
 		}
 	}
 
@@ -1617,9 +1634,6 @@ int CTFPlayer::GetAutoTeam( void )
 //-----------------------------------------------------------------------------
 void CTFPlayer::HandleCommand_JoinTeam( const char *pTeamName )
 {
-	if ( TFGameRules()->IsCoOp() && !stricmp( pTeamName, "blue" ) )
-		return;
-
 	int iTeam = TF_TEAM_RED;
 	if ( stricmp( pTeamName, "auto" ) == 0 )
 	{
@@ -2329,18 +2343,6 @@ bool CTFPlayer::ClientCommand( const CCommand &args )
 			}
 		}
 	}
-	/*else if (FStrEq(pcmd, "tf2c_4play"))
-	{
-		if (args.ArgC() < 2)
-		{
-			tf2c_4play.GetBool();
-			//Warning("4 Team Gameplay is currently %s", )
-			//return;
-		}
-
-		//tf2c_4play.SetValue()
-		return true;
-	}*/
 
 	return BaseClass::ClientCommand( args );
 }
@@ -2786,7 +2788,7 @@ static float DamageForce( const Vector &size, float damage, float scale )
 	float force;
 
 	// Adjust for HL2 hull size if it's enabled.
-	if ( tf2c_use_hl2_player_hull.GetBool() )
+	if ( lf_use_hl2_player_hull.GetBool() )
 		force = damage * ((32 * 32 * 72.0) / (size.x * size.y * size.z)) * scale;
 	else
 		force = damage * ((48 * 48 * 82.0) / (size.x * size.y * size.z)) * scale;
@@ -5618,7 +5620,7 @@ bool CTFPlayer::IsValidObserverTarget(CBaseEntity * target)
 
 		if ( target->IsNPC() )
 		{
-			if ( tf2c_allow_spectate_npc.GetBool() == false )
+			if ( lf_allow_spectate_npc.GetBool() == false )
 				return false;
 
 			if ( target->IsEffectActive( EF_NODRAW ) ) // don't watch invisible NPC
@@ -5771,7 +5773,7 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 	}		
 
 	// Lastly, look for an allied NPC.
-	if ( !pReturnTarget && tf2c_allow_spectate_npc.GetBool() == true )
+	if ( !pReturnTarget && lf_allow_spectate_npc.GetBool() == true )
 	{
 		CTFTeam *pTFTeam = GetTFTeam();
 		flCurDistSqr = ( flMaxDist * flMaxDist );
@@ -6964,7 +6966,7 @@ bool CTFPlayer::ShouldAnnouceAchievement( void )
 void CTFPlayer::ResetPerRoundStats( void )
 {
 	// Reset lives count.
-	m_Shared.SetLivesCount( tf2c_coop_lives.GetInt() );
+	m_Shared.SetLivesCount( lf_coop_lives.GetInt() );
 }
 
 //=========================================================

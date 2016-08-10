@@ -210,12 +210,13 @@ public:
 
 	const char *GetTeamGoalString( int iTeam );
 
-	virtual bool	IsMultiplayer(void){ return true; };
+	virtual bool	IsMultiplayer( void ) { return true; };
 
-	virtual bool	IsConnectedUserInfoChangeAllowed(CBasePlayer *pPlayer){ return true; };
+	virtual bool	IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer ) { return true; }
 
 	bool IsCoOp( void ) { return ( GetGameType() == TF_GAMETYPE_COOP ); }
 	bool IsCoOpGameRunning( void ) { return ( IsCoOp() && State_Get() == GR_STATE_RND_RUNNING && !IsInWaitingForPlayers() ); }
+	bool IsVersus( void ) { return false; }
 
 #ifdef CLIENT_DLL
 
@@ -347,7 +348,9 @@ inline CTFGameRules* TFGameRules()
 }
 
 #ifdef GAME_DLL
-	bool EntityPlacementTest( CBaseEntity *pMainEnt, const Vector &vOrigin, Vector &outPos, bool bDropToGround );
+bool EntityPlacementTest( CBaseEntity *pMainEnt, const Vector &vOrigin, Vector &outPos, bool bDropToGround );
 #endif
+
+extern ConVar lf_coop_min_red_players;
 
 #endif // TF_GAMERULES_H

@@ -552,11 +552,11 @@ void CTFHudDeathNotice::FireGameEvent( IGameEvent *event )
 		// Record the death notice in the console
 		if ( m_DeathNotices[iMsg].bSelfInflicted )
 		{
-			if ( !strcmp( m_DeathNotices[iMsg].szIcon, "d_worldspawn" ) )
+			if ( !killer )
 			{
 				Q_snprintf( sDeathMsg, sizeof( sDeathMsg ), "%s died.", m_DeathNotices[iMsg].Victim.szName );
 			}
-			else	// d_world
+			else
 			{
 				Q_snprintf( sDeathMsg, sizeof( sDeathMsg ), "%s suicided.", m_DeathNotices[iMsg].Victim.szName );
 			}

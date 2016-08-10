@@ -39,6 +39,7 @@ enum
 #define TF_TEAM_AUTOASSIGN (TF_TEAM_COUNT + 1 )
 
 #define TF_STORY_TEAM TF_TEAM_RED
+#define TF_COMBINE_TEAM TF_TEAM_BLUE
 
 extern const char *g_aTeamNames[TF_TEAM_COUNT];
 extern color32 g_aTeamColors[TF_TEAM_COUNT];

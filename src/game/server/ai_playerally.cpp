@@ -373,7 +373,7 @@ void CAI_PlayerAlly::DisplayDeathMessage( void )
 #ifdef TF_CLASSIC
 	if ( TFGameRules()->IsCoOpGameRunning() )
 	{
-		TFGameRules()->SetWinningTeam( TF_TEAM_BLUE, WINREASON_NONE );
+		TFGameRules()->SetWinningTeam( TF_COMBINE_TEAM, WINREASON_NONE );
 	}
 #else
 	CBaseEntity *pPlayer = AI_GetSinglePlayer();

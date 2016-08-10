@@ -7736,7 +7736,7 @@ void CRevertSaved::InputReload( inputdata_t &inputdata )
 #ifdef TF_CLASSIC
 	if ( TFGameRules()->IsCoOpGameRunning() )
 	{
-		TFGameRules()->SetWinningTeam( TF_TEAM_BLUE, WINREASON_NONE );
+		TFGameRules()->SetWinningTeam( TF_COMBINE_TEAM, WINREASON_NONE );
 	}
 #else
 	UTIL_ScreenFadeAll( m_clrRender, Duration(), HoldTime(), FFADE_OUT );

@@ -1755,7 +1755,7 @@ void CTeamplayRoundBasedRules::State_Think_RND_RUNNING( void )
 	// In co-op RED loses if all players die at the same time.
 	if ( TFGameRules()->IsCoOpGameRunning() )
 	{
-		CTeam *pTeam = GetGlobalTeam( TF_TEAM_RED );
+		CTeam *pTeam = GetGlobalTeam( TF_STORY_TEAM );
 		Assert( pTeam );
 
 		bool bFoundLiveOne = false;
@@ -1785,7 +1785,7 @@ void CTeamplayRoundBasedRules::State_Think_RND_RUNNING( void )
 				if ( pMaster )
 				{
 					variant_t sVariant;
-					sVariant.SetInt( TF_TEAM_BLUE );
+					sVariant.SetInt( TF_COMBINE_TEAM );
 					pMaster->AcceptInput( "SetWinnerAndForceCaps", NULL, NULL, sVariant, 0 );
 					bMasterHandled = true;
 				}
@@ -1793,7 +1793,7 @@ void CTeamplayRoundBasedRules::State_Think_RND_RUNNING( void )
 
 			if ( !bMasterHandled )
 			{
-				SetWinningTeam( TF_TEAM_BLUE, WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
+				SetWinningTeam( TF_COMBINE_TEAM, WINREASON_OPPONENTS_DEAD, m_bForceMapReset );
 			}
 
 			return;
@@ -3113,7 +3113,20 @@ void CTeamplayRoundBasedRules::BalanceTeams( bool bRequireSwitcheesToBeDead )
 
 	Assert( pHeavyTeam && pLightTeam );
 
+#ifdef TF_CLASSIC
+	int iNumSwitchesRequired;
+
+	if ( TFGameRules()->IsCoOp() )
+	{
+		iNumSwitchesRequired = lf_coop_min_red_players.GetInt() - pLightTeam->GetNumPlayers();
+	}
+	else
+	{
+		iNumSwitchesRequired = ( pHeavyTeam->GetNumPlayers() - pLightTeam->GetNumPlayers() ) / 2;
+	}
+#else
 	int iNumSwitchesRequired = ( pHeavyTeam->GetNumPlayers() - pLightTeam->GetNumPlayers() ) / 2;
+#endif
 
 	// sort the eligible players and switch the n best candidates
 	CUtlVector<CBaseMultiplayerPlayer *> vecPlayers;
@@ -3506,9 +3519,6 @@ bool CTeamplayRoundBasedRules::ShouldBalanceTeams( void )
 	if ( IsInTraining() == true || IsInItemTestingMode() )
 		return false;
 
-	if ( TFGameRules()->IsCoOp() )
-		return false;
-
 #if defined( _DEBUG ) || defined( STAGING_ONLY )
 	if ( mp_developer.GetBool() )
 		return false;
@@ -3549,6 +3559,39 @@ bool CTeamplayRoundBasedRules::WouldChangeUnbalanceTeams( int iNewTeam, int iCur
 		Assert( 0 );
 		return true;
 	}
+
+#if defined( TF_CLASSIC ) || defined( TF_CLASSIC_CLIENT )
+	// In Versus don't allow joining BLU unless there's min amount of players on RED.
+	if ( TFGameRules()->IsCoOp() )
+	{
+		if ( iNewTeam == TF_COMBINE_TEAM )
+		{
+			if ( TFGameRules()->IsVersus() )
+			{
+				CTeam *pRebels = GetGlobalTeam( TF_STORY_TEAM );
+				Assert( pRebels );
+
+				int iRebelPlayers = pRebels->GetNumPlayers();
+
+				if ( iCurrentTeam == TF_STORY_TEAM )
+				{
+					iRebelPlayers -= 1;
+				}
+
+				if ( iRebelPlayers < lf_coop_min_red_players.GetInt() )
+					return true;
+			}
+			else
+			{
+				// Don't allow joining Combine outside of Versus mode.
+				return true;
+			}
+		}
+
+		// Always allow joining Rebels.
+		return false;
+	}
+#endif
 
 	// add one because we're joining this team
 	int iNewTeamPlayers = pNewTeam->GetNumPlayers() + 1;
@@ -3595,6 +3638,28 @@ bool CTeamplayRoundBasedRules::AreTeamsUnbalanced( int &iHeaviestTeam, int &iLig
 #ifndef CLIENT_DLL
 	if ( IsInCommentaryMode() )
 		return false;
+#endif
+
+#if defined( TF_CLASSIC ) || defined( TF_CLASSIC_CLIENT )
+	// In Versus there must be min amount of players on RED.
+	if ( TFGameRules()->IsCoOp() )
+	{
+		if ( TFGameRules()->IsVersus() )
+		{
+			CTeam *pRebels = GetGlobalTeam( TF_STORY_TEAM );
+			CTeam *pCombine = GetGlobalTeam( TF_COMBINE_TEAM );
+
+			if ( pRebels->GetNumPlayers() < lf_coop_min_red_players.GetInt() && pCombine->GetNumPlayers() > 0 )
+			{
+				iHeaviestTeam = TF_COMBINE_TEAM;
+				iLightestTeam = TF_STORY_TEAM;
+				return true;
+			}
+		}
+		
+		// Don't balance teams in Co-op.
+		return false;
+	}
 #endif
 
 	int iMostPlayers = 0;

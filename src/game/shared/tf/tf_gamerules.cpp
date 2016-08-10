@@ -119,8 +119,9 @@ ConVar tf_flag_caps_per_round( "tf_flag_caps_per_round", "3", FCVAR_REPLICATED, 
 #endif
 							  );
 
-ConVar tf2c_use_hl2_player_hull( "tf2c_use_hl2_player_hull", "1", FCVAR_NOTIFY | FCVAR_REPLICATED );
-ConVar tf2c_coop( "tf2c_coop", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
+ConVar lf_use_hl2_player_hull( "lf_use_hl2_player_hull", "1", FCVAR_NOTIFY | FCVAR_REPLICATED );
+ConVar lf_coop( "lf_coop", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Enables cooperative mode. Changes will take effect upon map restart." );
+ConVar lf_coop_min_red_players( "lf_coop_min_red_players", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Minumum amount of players on RED required to join BLU in Versus mode." );
 
 // This sets what percentage of players are required in the changelevel trigger before map change takes effect. Currently it's set to 100% (all players required).
 ConVar	mp_transition_players_percent( "mp_transition_players_percent",
@@ -184,7 +185,7 @@ Vector g_TFClassViewVectors[12] =
 
 const CViewVectors *CTFGameRules::GetViewVectors() const
 {
-	if ( tf2c_use_hl2_player_hull.GetBool() )
+	if ( lf_use_hl2_player_hull.GetBool() )
 		return &g_HLViewVectors;
 
 	return &g_TFViewVectors;
@@ -674,7 +675,7 @@ void CTFGameRules::Activate()
 		return;
 	}
 
-	if ( tf2c_coop.GetBool() )
+	if ( lf_coop.GetBool() )
 	{
 		m_nGameType.Set( TF_GAMETYPE_COOP );
 		return;
@@ -4978,7 +4979,6 @@ bool CTFGameRules::HasPassedMinRespawnTime( CBasePlayer *pPlayer )
 
 
 #endif
-
 
 #ifdef CLIENT_DLL
 const char *CTFGameRules::GetVideoFileForMap( bool bWithExtension /*= true*/ )
