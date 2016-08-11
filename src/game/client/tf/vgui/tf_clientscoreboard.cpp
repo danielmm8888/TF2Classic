@@ -29,6 +29,7 @@
 #include "tf_clientscoreboard.h"
 #include "tf_gamestats_shared.h"
 #include "tf_hud_statpanel.h"
+#include "tf_gamerules.h"
 #include "c_playerresource.h"
 #include "c_tf_playerresource.h"
 #include "c_tf_team.h"
@@ -141,6 +142,14 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 	{
 		return;
 	}
+
+	if ( TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() )
+	{
+		LoadControlSettings("Resource/UI/scoreboardcoop.res");
+		m_pPlayerListBlue->SetVisible( false );
+	}
+	else
+		LoadControlSettings("Resource/UI/scoreboard.res");
 
 	int iRenderGroup = gHUD.LookupRenderGroupIndexByName( "global" );
 
