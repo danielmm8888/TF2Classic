@@ -195,7 +195,7 @@ public:
 	void	SetLivesCount( int iCount ) { m_iLives = iCount; }
 	int		GetLivesCount( void ) { return m_iLives; }
 
-	void InCutScene( bool cutscene )	{ m_bInCutScene = true; }  
+	void InCutScene( bool cutscene )	{ m_bInCutScene = cutscene; }  
 	bool IsInCutScene( void )	{ return m_bInCutScene; }
 
 private:
