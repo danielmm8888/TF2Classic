@@ -2445,6 +2445,9 @@ bool CTFPlayer::CanAttack( void )
 		return false;
 	}
 
+	if ( m_Shared.IsInCutScene() )
+		return false;
+
 	return true;
 }
 

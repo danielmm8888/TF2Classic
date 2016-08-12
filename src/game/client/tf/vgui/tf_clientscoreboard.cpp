@@ -143,7 +143,7 @@ void CTFClientScoreBoardDialog::ShowPanel( bool bShow )
 		return;
 	}
 
-	if ( TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() )
+	if ( TFGameRules() && ( TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() ) )
 	{
 		LoadControlSettings("Resource/UI/scoreboardcoop.res");
 		m_pPlayerListBlue->SetVisible( false );

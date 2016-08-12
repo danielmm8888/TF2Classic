@@ -195,6 +195,9 @@ public:
 	void	SetLivesCount( int iCount ) { m_iLives = iCount; }
 	int		GetLivesCount( void ) { return m_iLives; }
 
+	void InCutScene( bool cutscene )	{ m_bInCutScene = true; }  
+	bool IsInCutScene( void )	{ return m_bInCutScene; }
+
 private:
 
 	void ImpactWaterTrace( trace_t &trace, const Vector &vecStart );
@@ -302,6 +305,8 @@ private:
 	CNetworkArray( bool, m_bPlayerDominatingMe, MAX_PLAYERS+1 );	// array of state per other player whether other players are dominating this player
 
 	CNetworkVar( int, m_iLives );
+
+	CNetworkVar( bool, m_bInCutScene );
 	
 #ifdef GAME_DLL
 	float	m_flNextCritUpdate;
