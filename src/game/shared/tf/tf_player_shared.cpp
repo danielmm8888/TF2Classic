@@ -126,6 +126,7 @@ BEGIN_RECV_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	RecvPropInt( RECVINFO( m_bAirDash) ),
 	RecvPropInt( RECVINFO( m_nPlayerState ) ),
 	RecvPropInt( RECVINFO( m_iDesiredPlayerClass ) ),
+	RecvPropInt( RECVINFO( m_bInCutScene ) ),
 	// Spy.
 	RecvPropTime( RECVINFO( m_flInvisChangeCompleteTime ) ),
 	RecvPropInt( RECVINFO( m_nDisguiseTeam ) ),
@@ -167,6 +168,7 @@ BEGIN_SEND_TABLE_NOBASE( CTFPlayerShared, DT_TFPlayerShared )
 	SendPropInt( SENDINFO( m_bAirDash ), 1, SPROP_UNSIGNED | SPROP_CHANGES_OFTEN ),
 	SendPropInt( SENDINFO( m_nPlayerState ), Q_log2( TF_STATE_COUNT )+1, SPROP_UNSIGNED ),
 	SendPropInt( SENDINFO( m_iDesiredPlayerClass ), Q_log2( TF_CLASS_COUNT_ALL )+1, SPROP_UNSIGNED ),
+	SendPropInt( SENDINFO( m_bInCutScene ), 1, SPROP_UNSIGNED ),
 	// Spy
 	SendPropTime( SENDINFO( m_flInvisChangeCompleteTime ) ),
 	SendPropInt( SENDINFO( m_nDisguiseTeam ), 3, SPROP_UNSIGNED ),
