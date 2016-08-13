@@ -107,6 +107,7 @@ $Project "Client (TF)"
 			$File	"hl2\fx_bugbait.cpp"
 			$File	"hl2\fx_hl2_impacts.cpp"
 			$File	"hl2\fx_hl2_tracers.cpp"
+			$File	"hl2\hud_credits.cpp"
 		}
 		
 		$Folder	"Multiplayer"
