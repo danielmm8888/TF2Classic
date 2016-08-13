@@ -3101,14 +3101,14 @@ void CTriggerCamera::Enable( void )
 {
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CTFPlayer *pPlayer = ToTFPlayer(UTIL_PlayerByIndex( i ));
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 
 
 		if (pPlayer == NULL)
 		{
 			//Must be a Local Server Host if we get here (i think).
 			Assert( m_hPlayer->IsPlayer() );
-			pPlayer = ((CTFPlayer*)m_hPlayer.Get());
+			pPlayer = ((CBasePlayer*)m_hPlayer.Get());
 		}
 		m_hPlayer = pPlayer;
 
@@ -3289,7 +3289,6 @@ void CTriggerCamera::Enable( void )
 
 
 			pPlayer->SetViewEntity( this );
-			pPlayer->m_Shared.InCutScene( true );
 
 			// Hide the player's viewmodel
 			if ( pPlayer->GetActiveWeapon() )
@@ -3504,13 +3503,13 @@ void CTriggerCamera::Disable( void )
 {
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CTFPlayer *pPlayer = ToTFPlayer(UTIL_PlayerByIndex( i ));
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 
 		if ( pPlayer == NULL )
 		{
 			//Must be a Local Server Host if we get here (i think).
 			Assert( m_hPlayer->IsPlayer() );
-			pPlayer = ((CTFPlayer*)m_hPlayer.Get());
+			pPlayer = ((CBasePlayer*)m_hPlayer.Get());
 		}		
 
 		m_hPlayer = pPlayer;
@@ -3534,8 +3533,6 @@ void CTriggerCamera::Disable( void )
 
 		//return the player to previous takedamage state
 		m_hPlayer->m_takedamage = DAMAGE_YES;
-
-		pPlayer->m_Shared.InCutScene( false );
 	}
 	m_state = USE_OFF;
 	m_flReturnTime = gpGlobals->curtime;
