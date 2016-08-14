@@ -5992,6 +5992,9 @@ void CTFPlayer::Taunt( void )
 	if ( GetGroundEntity() == NULL )
 		return;
 
+	if ( m_Shared.IsInCutScene() )
+		return;
+
 	// Allow voice commands, etc to be interrupted.
 	CMultiplayer_Expresser *pExpresser = GetMultiplayerExpresser();
 	Assert( pExpresser );
