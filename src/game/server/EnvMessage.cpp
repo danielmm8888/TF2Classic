@@ -91,7 +91,32 @@ void CMessage::Precache( void )
 //-----------------------------------------------------------------------------
 void CMessage::InputShowMessage( inputdata_t &inputdata )
 {
+#ifndef TF_CLASSIC //Because hl2 its made just for singleplayer the spawnflag SF_MESSAGE_ALL is never set
+	CBaseEntity *pPlayer = NULL;
+
+ 	if ( m_spawnflags & SF_MESSAGE_ALL )
+ 	{
+ 		UTIL_ShowMessageAll( STRING( m_iszMessage ) );
+ 	}
+ 	else
+ 	{
+ 		if ( inputdata.pActivator && inputdata.pActivator->IsPlayer() )
+ 		{
+ 			pPlayer = inputdata.pActivator;
+ 		}
+ 		else
+ 		{
+ 			pPlayer = (gpGlobals->maxClients > 1) ? NULL : UTIL_GetLocalPlayer();
+ 		}
+ 
+ 		if ( pPlayer && pPlayer->IsPlayer() )
+ 		{
+ 			UTIL_ShowMessage( STRING( m_iszMessage ), ToBasePlayer( pPlayer ) );
+ 		}
+ 	}
+#else
 	UTIL_ShowMessageAll( STRING( m_iszMessage ) );
+#endif
 
 	if ( m_sNoise != NULL_STRING )
 	{

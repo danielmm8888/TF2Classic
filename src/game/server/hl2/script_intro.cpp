@@ -9,7 +9,9 @@
 #include "script_intro.h"
 #include "point_camera.h"
 #include "ai_utils.h"
+#ifdef TF_CLASSIC
 #include "tf_player.h"
+#endif
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -313,10 +315,11 @@ void CScriptIntro::InputActivate( inputdata_t &inputdata )
 	m_bActive = true;
 	g_hIntroScript = this;
 
-	//Lambda Fortress
+#ifdef TF_CLASSIC //Lambda Fortress
 	CTFPlayer *pPlayer = ToTFPlayer(UTIL_GetLocalPlayer());
 	if ( pPlayer )
 		pPlayer->m_Shared.InCutScene( true );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -327,10 +330,11 @@ void CScriptIntro::InputDeactivate( inputdata_t &inputdata )
 {
 	m_bActive = false;
 
-	//Lambda Fortress
+#ifdef TF_CLASSIC //Lambda Fortress
 	CTFPlayer *pPlayer = ToTFPlayer(UTIL_GetLocalPlayer());
 	if ( pPlayer )
 		pPlayer->m_Shared.InCutScene( false );
+#endif
 }
 
 //-----------------------------------------------------------------------------
