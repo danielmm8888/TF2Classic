@@ -501,8 +501,11 @@ void CNPC_MetroPolice::PrescheduleThink( void )
 	m_bPlayerIsNear = false;
 	if ( PlayerIsCriminal() == false )
 	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
-		
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI	
 		if ( pPlayer && ( pPlayer->WorldSpaceCenter() - WorldSpaceCenter() ).LengthSqr() < (128*128) )
 		{
 			m_bPlayerIsNear = true;
@@ -3908,7 +3911,11 @@ void CNPC_MetroPolice::AnnounceHarrassment( void )
 //-----------------------------------------------------------------------------
 void CNPC_MetroPolice::IncrementPlayerCriminalStatus( void )
 {
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 	CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	if ( pPlayer )
 	{
@@ -3960,8 +3967,10 @@ float CNPC_MetroPolice::GetIdealAccel( void ) const
 //-----------------------------------------------------------------------------
 void CNPC_MetroPolice::AdministerJustice( void )
 {
-	if ( !AI_IsSinglePlayer() )
-		return;
+#ifndef SecobMod__Enable_Fixed_Multiplayer_AI
+	if ( !AI_IsSinglePlayer() ) 
+		return; 
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 
 	// If we're allowed to chase the player, do so. Otherwise, just threaten.
 	if ( !IsInAScript() && (m_NPCState != NPC_STATE_SCRIPT) && HasSpawnFlags( SF_METROPOLICE_ALLOWED_TO_RESPOND ) )
@@ -3974,7 +3983,13 @@ void CNPC_MetroPolice::AdministerJustice( void )
 		m_flChasePlayerTime = gpGlobals->curtime + RandomFloat( 3, 7 );
 
 		// Attack the target
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
+		if ( !pPlayer ) 
+			pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
 		CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 		SetEnemy( pPlayer );
 		SetState( NPC_STATE_COMBAT );
 		UpdateEnemyMemory( pPlayer, pPlayer->GetAbsOrigin() );
@@ -3998,8 +4013,14 @@ void CNPC_MetroPolice::AdministerJustice( void )
 				if ( pNPC->HasSpawnFlags( SF_METROPOLICE_ALLOWED_TO_RESPOND ) )
 				{
 					// Is he within site & range?
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+					CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this); 
+					if ( pPlayer && FVisible(pNPC) && pNPC->FVisible( pPlayer ) &&  
+#else
 					if ( FVisible(pNPC) && pNPC->FVisible( UTIL_PlayerByIndex(1) ) && 
-						UTIL_DistApprox( WorldSpaceCenter(), pNPC->WorldSpaceCenter() ) < 512 )
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI				
+
+					UTIL_DistApprox( WorldSpaceCenter(), pNPC->WorldSpaceCenter() ) < 512 )
 					{
 						pNPC->AdministerJustice();
 						break;
@@ -4015,10 +4036,12 @@ void CNPC_MetroPolice::AdministerJustice( void )
 //-----------------------------------------------------------------------------
 int CNPC_MetroPolice::SelectSchedule( void )
 {
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+	if ( !GetEnemy() && HasCondition( COND_IN_PVS ) && pPlayer && !pPlayer->IsAlive() ) 
+#else
 	if ( !GetEnemy() && HasCondition( COND_IN_PVS ) && AI_GetSinglePlayer() && !AI_GetSinglePlayer()->IsAlive() )
-	{
-		return SCHED_PATROL_WALK;
-	}
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 #ifndef TF_CLASSIC
 	if ( HasCondition(COND_METROPOLICE_ON_FIRE) )
 	{
@@ -4987,7 +5010,11 @@ void CNPC_MetroPolice::GatherConditions( void )
 		ClearCondition( COND_METROPOLICE_PLAYER_TOO_CLOSE );
 	}
 
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+#ifdef SecobMod__Enable_Fixed_Multiplayer_AI
+		CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+#else
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( 1 );
+#endif //SecobMod__Enable_Fixed_Multiplayer_AI
 	
 	// FIXME: Player can be NULL here during level transitions.
 	if ( !pPlayer )
