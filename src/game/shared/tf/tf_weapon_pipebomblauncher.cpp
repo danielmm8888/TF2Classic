@@ -244,7 +244,6 @@ CBaseEntity *CTFPipebombLauncher::FireProjectile( CTFPlayer *pPlayer )
 		}
 
 		CTFGrenadePipebombProjectile *pPipebomb = (CTFGrenadePipebombProjectile*)pProjectile;
-		pPipebomb->SetLauncher( this );
 
 		PipebombHandle hHandle;
 		hHandle = pPipebomb;

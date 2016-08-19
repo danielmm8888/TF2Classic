@@ -74,7 +74,11 @@ public:
 	virtual void	Detonate();
 	virtual void	Fizzle();
 
-	virtual void	SetLauncher( CBaseEntity *pLauncher ) { m_hLauncher = pLauncher; }
+	virtual void	SetLauncher( CBaseEntity *pLauncher )
+	{
+		m_hLauncher = pLauncher;
+		BaseClass::SetLauncher( pLauncher );
+	}
 
 	void			SetPipebombMode( bool bRemoteDetonate );
 

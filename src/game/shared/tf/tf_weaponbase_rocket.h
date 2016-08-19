@@ -11,12 +11,10 @@
 
 #include "cbase.h"
 #include "tf_shareddefs.h"
-// Client specific.
-#ifdef CLIENT_DLL
-#include "c_baseanimating.h"
+#include "baseprojectile.h"
+
+#ifdef GAME_DLL
 // Server specific.
-#else
-#include "baseanimating.h"
 #include "smoke_trail.h"
 #endif
 
@@ -30,7 +28,7 @@
 //
 // TF Base Rocket.
 //
-class CTFBaseRocket : public CBaseAnimating
+class CTFBaseRocket : public CBaseProjectile
 {
 
 //=============================================================================
@@ -39,7 +37,7 @@ class CTFBaseRocket : public CBaseAnimating
 //
 public:
 
-	DECLARE_CLASS( CTFBaseRocket, CBaseAnimating );
+	DECLARE_CLASS( CTFBaseRocket, CBaseProjectile );
 	DECLARE_NETWORKCLASS();
 
 			CTFBaseRocket();
@@ -107,10 +105,6 @@ protected:
 
 	// Not networked.
 	float					m_flDamage;
-
-	float					m_flCollideWithTeammatesTime;
-	bool					m_bCollideWithTeammates;
-
 
 	CHandle<CBaseEntity>	m_hEnemy;
 

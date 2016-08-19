@@ -114,9 +114,6 @@ private:
 
 	CNetworkVar( bool,		m_bCritical );
 
-	float					m_flCollideWithTeammatesTime;
-	bool					m_bCollideWithTeammates;
-
 #endif
 };
 

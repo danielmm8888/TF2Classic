@@ -225,10 +225,6 @@ void CTFWeaponBaseGrenadeProj::Spawn( void )
 	// Set the movement type.
 	SetCollisionGroup( TF_COLLISIONGROUP_GRENADES );
 
-	// Don't collide with players on the owner's team for the first bit of our life
-	m_flCollideWithTeammatesTime = gpGlobals->curtime + 0.25;
-	m_bCollideWithTeammates = false;
-
 	VPhysicsInitNormal( SOLID_BBOX, 0, false );
 
 	m_takedamage = DAMAGE_EVENTS_ONLY;
@@ -292,7 +288,7 @@ void CTFWeaponBaseGrenadeProj::Explode( trace_t *pTrace, int bitsDamageType )
 	// Use the thrower's position as the reported position
 	Vector vecReported = GetThrower() ? GetThrower()->GetAbsOrigin() : vec3_origin;
 
-	CTakeDamageInfo info( this, GetThrower(), GetBlastForce(), GetAbsOrigin(), m_flDamage, bitsDamageType, 0, &vecReported );
+	CTakeDamageInfo info( this, GetThrower(), GetOriginalLauncher(), GetBlastForce(), GetAbsOrigin(), m_flDamage, bitsDamageType, 0, &vecReported );
 
 	float flRadius = GetDamageRadius();
 
@@ -351,11 +347,6 @@ void CTFWeaponBaseGrenadeProj::DetonateThink( void )
 	{
 		CSoundEnt::InsertSound ( SOUND_DANGER, GetAbsOrigin(), 400, 1.5, this );
 		m_bHasWarnedAI = true;
-	}
-
-	if ( gpGlobals->curtime > m_flCollideWithTeammatesTime && m_bCollideWithTeammates == false )
-	{
-		m_bCollideWithTeammates = true;
 	}
 
 	if ( gpGlobals->curtime > m_flDetonateTime )
@@ -637,7 +628,7 @@ void CTFWeaponBaseGrenadeProj::VPhysicsUpdate( IPhysicsObject *pPhysics )
 
 	if ( tr.startsolid )
 	{
-		if ( (m_bInSolid == false && m_bCollideWithTeammates == true) || ( m_bInSolid == false  && bHitEnemy == true ) )
+		if ( (m_bInSolid == false && CanCollideWithTeammates() == true) || ( m_bInSolid == false  && bHitEnemy == true ) )
 		{
 			// UNDONE: Do a better contact solution that uses relative velocity?
 			vel *= -GRENADE_COEFFICIENT_OF_RESTITUTION; // bounce backwards
@@ -653,7 +644,7 @@ void CTFWeaponBaseGrenadeProj::VPhysicsUpdate( IPhysicsObject *pPhysics )
 	{
 		Touch( tr.m_pEnt );
 		
-		if ( m_bCollideWithTeammates == true || bHitEnemy == true )
+		if ( CanCollideWithTeammates() == true || bHitEnemy == true )
 		{
 			// reflect velocity around normal
 			vel = -2.0f * tr.plane.normal * DotProduct(vel,tr.plane.normal) + vel;

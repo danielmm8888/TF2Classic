@@ -47,7 +47,7 @@ END_NETWORK_TABLE()
 // Server specific.
 #ifdef GAME_DLL
 BEGIN_DATADESC( CTFBaseRocket )
-DEFINE_FUNCTION( RocketTouch ),
+DEFINE_ENTITYFUNC( RocketTouch ),
 DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 #endif
@@ -131,10 +131,6 @@ void CTFBaseRocket::Spawn( void )
 	SetTouch( &CTFBaseRocket::RocketTouch );
 	SetThink( &CTFBaseRocket::FlyThink );
 	SetNextThink( gpGlobals->curtime );
-
-	// Don't collide with players on the owner's team for the first bit of our life
-	m_flCollideWithTeammatesTime = gpGlobals->curtime + 0.25;
-	m_bCollideWithTeammates = false;
 
 #endif
 }
@@ -263,7 +259,7 @@ unsigned int CTFBaseRocket::PhysicsSolidMaskForEntity( void ) const
 { 
 	int teamContents = 0;
 
-	if ( m_bCollideWithTeammates == false )
+	if ( CanCollideWithTeammates() == false )
 	{
 		// Only collide with the other team
 		teamContents = ( GetTeamNumber() == TF_TEAM_RED ) ? CONTENTS_BLUETEAM : CONTENTS_REDTEAM;
@@ -384,11 +380,6 @@ void CTFBaseRocket::DrawRadius( float flRadius )
 
 void CTFBaseRocket::FlyThink( void )
 {
-	if ( gpGlobals->curtime > m_flCollideWithTeammatesTime && m_bCollideWithTeammates == false )
-	{
-		m_bCollideWithTeammates = true;
-	}
-
 	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 

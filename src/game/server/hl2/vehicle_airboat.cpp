@@ -1568,6 +1568,11 @@ ConVar hap_airboat_gun_mag("hap_airboat_gun_mag", "3", 0);
 
 void CPropAirboat::FireGun( )
 {
+#ifdef TF_CLASSIC
+	// Disable prediction filtering since this code only runs on server side.
+	CDisablePredictionFiltering disabler;
+#endif
+
 	// Get the gun position.
 	Vector	vecGunPosition;
 	Vector vecForward;
@@ -1611,6 +1616,9 @@ void CPropAirboat::FireGun( )
 	info.m_flDistance = 4096;
 	info.m_iAmmoType = ammoType;
 	info.m_nFlags = FIRE_BULLETS_TEMPORARY_DANGER_SOUND;
+#ifdef TF_CLASSIC
+	info.m_pAttacker = GetDriver();
+#endif
 
 	if ( gpGlobals->curtime >= m_flNextHeavyShotTime )
 	{

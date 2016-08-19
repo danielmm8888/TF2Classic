@@ -456,7 +456,7 @@
 				"width"		"96"
 				"height"	"32"
 		}
-		"syringegun_medic"
+		"tf_projectile_syringe"
 		{
 				"dfile"	"HUD/d_images"
 				"dnegfile"	"HUD/dneg_images"

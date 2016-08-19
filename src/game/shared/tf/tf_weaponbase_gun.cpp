@@ -347,6 +347,7 @@ CBaseEntity *CTFWeaponBaseGun::FireRocket( CTFPlayer *pPlayer )
 	CTFProjectile_Rocket *pProjectile = CTFProjectile_Rocket::Create( vecSrc, angForward, pPlayer, pPlayer );
 	if ( pProjectile )
 	{
+		pProjectile->SetLauncher( this );
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 		pProjectile->SetDamage( GetProjectileDamage() );
 	}
@@ -386,6 +387,7 @@ CBaseEntity *CTFWeaponBaseGun::FireNail( CTFPlayer *pPlayer, int iSpecificNail )
 
 	if ( pProjectile )
 	{
+		pProjectile->SetLauncher( this );
 		pProjectile->SetWeaponID( GetWeaponID() );
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 #ifdef GAME_DLL
@@ -422,6 +424,7 @@ CBaseEntity *CTFWeaponBaseGun::FirePipeBomb( CTFPlayer *pPlayer, bool bRemoteDet
 
 	if ( pProjectile )
 	{
+		pProjectile->SetLauncher( this );
 		pProjectile->SetCritical( IsCurrentAttackACrit() );
 	}
 	return pProjectile;

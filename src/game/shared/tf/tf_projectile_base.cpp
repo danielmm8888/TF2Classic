@@ -37,7 +37,7 @@ END_NETWORK_TABLE()
 #ifdef GAME_DLL
 
 BEGIN_DATADESC( CTFBaseProjectile )
-	//DEFINE_FUNCTION( ProjectileTouch ),
+	DEFINE_ENTITYFUNC( ProjectileTouch ),
 	DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 
@@ -374,25 +374,7 @@ void CTFBaseProjectile::ProjectileTouch( CBaseEntity *pOther )
 		return;
 	}
 
-	// determine the inflictor, which is the weapon which fired this projectile
-	CBaseEntity *pInflictor = NULL;
-	CBaseEntity *pOwner = GetOwnerEntity();
-	if ( pOwner )
-	{
-		CTFPlayer *pTFPlayer = ToTFPlayer( pOwner );
-		if ( pTFPlayer )
-		{
-			pInflictor = pTFPlayer->Weapon_OwnsThisID( GetWeaponID() );
-		}
-	}
-
-	CTakeDamageInfo info;
-	info.SetAttacker( GetOwnerEntity() );		// the player who operated the thing that emitted nails
-	info.SetInflictor( pInflictor );	// the weapon that emitted this projectile
-	info.SetDamage( GetDamage() );
-	info.SetDamageForce( GetDamageForce() );
-	info.SetDamagePosition( GetAbsOrigin() );
-	info.SetDamageType( GetDamageType() );
+	CTakeDamageInfo info( this, GetOwnerEntity(), GetOriginalLauncher(), GetDamageForce(), GetAbsOrigin(), GetDamage(), GetDamageType() );
 
 	Vector dir;
 	AngleVectors( GetAbsAngles(), &dir );

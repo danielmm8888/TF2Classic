@@ -3313,7 +3313,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// Fix for HL2 pistol to prevent conflict with TF2 pistol. Must do this before stripping prefix.
-	if ( Q_strcmp( killer_weapon_name, "weapon_pistol" ) == 0 )
+	if ( V_strcmp( killer_weapon_name, "weapon_pistol" ) == 0 )
 	{
 		killer_weapon_name = "weapon_pistol_hl";
 	}
@@ -3323,8 +3323,8 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	for ( int i = 0; i< ARRAYSIZE( prefix ); i++ )
 	{
 		// if prefix matches, advance the string pointer past the prefix
-		int len = Q_strlen( prefix[i] );
-		if ( strncmp( killer_weapon_name, prefix[i], len ) == 0 )
+		int len = V_strlen( prefix[i] );
+		if ( V_strncmp( killer_weapon_name, prefix[i], len ) == 0 )
 		{
 			killer_weapon_name += len;
 			break;
@@ -3332,7 +3332,7 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 	}
 
 	// In case of a sentry kill change the icon according to sentry level.
-	if ( Q_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
+	if ( V_strcmp( killer_weapon_name, "obj_sentrygun" ) == 0 )
 	{
 		CObjectSentrygun *pSentry = static_cast<CObjectSentrygun *>( pInflictor );
 
@@ -3350,12 +3350,12 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 		}
 	}
 	// look out for sentry rocket as weapon and map it to sentry gun, so we get the L3 sentry death icon
-	else if ( Q_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
+	else if ( V_strcmp( killer_weapon_name, "tf_projectile_sentryrocket" ) == 0 )
 	{
 		killer_weapon_name = "obj_sentrygun3";
 	}
 	// Some special cases for NPCs.
-	else if ( Q_strcmp( killer_weapon_name, "strider" ) == 0 )
+	else if ( V_strcmp( killer_weapon_name, "strider" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_BULLET )
 		{
@@ -3366,25 +3366,32 @@ const char *CTFGameRules::GetKillingWeaponName( const CTakeDamageInfo &info, CTF
 			killer_weapon_name = "strider_skewer";
 		}
 	}
-	else if ( Q_strcmp( killer_weapon_name, "concussiveblast" ) == 0 )
+	else if ( V_strcmp( killer_weapon_name, "concussiveblast" ) == 0 )
 	{
 		if ( pKiller && FClassnameIs( pKiller, "npc_strider" ) )
 		{
 			killer_weapon_name = "strider_beam";
 		}
 	}
-	else if ( Q_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
+	else if ( V_strcmp( killer_weapon_name, "vortigaunt" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{
 			killer_weapon_name = "vortigaunt_beam";
 		}
 	}
-	else if ( Q_strcmp( killer_weapon_name, "prop_vehicle_jeep" ) == 0 )
+	else if ( V_strcmp( killer_weapon_name, "prop_vehicle_jeep" ) == 0 )
 	{
 		if ( info.GetDamageType() & DMG_SHOCK )
 		{
 			killer_weapon_name = "gauss";
+		}
+	}
+	else if ( V_strcmp( killer_weapon_name, "prop_vehicle_airboat" ) == 0 )
+	{
+		if ( info.GetAmmoType() & DMG_BULLET )
+		{
+			killer_weapon_name = "helicopter";
 		}
 	}
 
