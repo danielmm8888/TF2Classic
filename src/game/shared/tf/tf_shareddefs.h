@@ -424,6 +424,7 @@ enum {
 //-----------------------------------------------------------------------------
 #define TF_TIME_ASSIST_KILL				3.0f	// Time window for a recent damager to get credit for an assist for a kill
 #define TF_TIME_SUICIDE_KILL_CREDIT		10.0f	// Time window for a recent damager to get credit for a kill if target suicides
+#define TF_TIME_ENV_DEATH_KILL_CREDIT	5.0f
 
 //-----------------------------------------------------------------------------
 // Domination/nemesis constants
