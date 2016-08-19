@@ -81,4 +81,28 @@ DESCRIPTION SERVER_OPTIONS
 		{ NUMBER 0 -1 }
 		{ "0" }
 	}
+	
+	"lf_coop"
+	{
+		"#TF_CoopMode"
+		{ BOOL }
+		{ "1" }
+	}
+	
+	"lf_use_hl2_player_hull"
+	{
+		"#TF_HL2Hull"
+		{ BOOL }
+		{ "1" }
+	}
+	
+	"skill"
+	{
+		"#TF_Difficulty"
+		{
+			LIST
+			"#TF_DifficultyOriginal" "1"
+			"#TF_DifficultyHard"	"2"
+		}
+		{ "0" }
 }

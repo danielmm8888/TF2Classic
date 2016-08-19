@@ -1457,8 +1457,10 @@ void CNPC_AntlionGuard::Shove( void )
 
 		// Generate enough force to make a 75kg guy move away at 600 in/sec
 		Vector vecForce = traceDir * ImpulseScale( 75, 600 );
+#ifndef TF_CLASSIC
 		CTakeDamageInfo info( this, this, vecForce, tr.endpos, damage, DMG_CLUB );
 		pHurt->TakeDamage( info );
+#endif
 
 		m_hShoveTarget = NULL;
 
@@ -2561,7 +2563,11 @@ void ApplyChargeDamage( CBaseEntity *pAntlionGuard, CBaseEntity *pTarget, float 
 	Vector vecForce = attackDir * ImpulseScale( 75, 700 );
 
 	// Deal the damage
+#ifdef TF_CLASSIC
+	CTakeDamageInfo	info( pAntlionGuard, pAntlionGuard, vecForce, offset, flDamage, DMG_CLUB | DMG_CRITICAL );
+#else
 	CTakeDamageInfo	info( pAntlionGuard, pAntlionGuard, vecForce, offset, flDamage, DMG_CLUB );
+#endif
 	pTarget->TakeDamage( info );
 
 #if HL2_EPISODIC

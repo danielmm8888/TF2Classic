@@ -611,7 +611,11 @@ void CNewRecharge::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE 
 	}
 
 	// Only usable if you have the HEV suit on
+#ifdef TF_CLASSIC
+	if ( pActivator->IsPlayer() )
+#else
 	if ( !pPlayer->IsSuitEquipped() )
+#endif
 	{
 		if (m_flSoundTime <= gpGlobals->curtime)
 		{

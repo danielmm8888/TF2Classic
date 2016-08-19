@@ -694,6 +694,7 @@ void CNPC_BaseZombie::TraceAttack( const CTakeDamageInfo &info, const Vector &ve
 		m_bHeadShot = true;
 	}
 
+#ifndef TF_CLASSIC
 	if( infoCopy.GetDamageType() & DMG_BUCKSHOT )
 	{
 		// Zombie gets across-the-board damage reduction for buckshot. This compensates for the recent changes which
@@ -701,6 +702,7 @@ void CNPC_BaseZombie::TraceAttack( const CTakeDamageInfo &info, const Vector &ve
 		// This normalizes the buckshot damage to what it used to be on normal (5 dmg per pellet. Now it's 8 dmg per pellet). 
 		infoCopy.ScaleDamage( 0.625 );
 	}
+#endif
 
 	BaseClass::TraceAttack( infoCopy, vecDir, ptr, pAccumulator );
 }

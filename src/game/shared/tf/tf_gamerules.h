@@ -116,7 +116,21 @@ public:
 
 	virtual void	FrameUpdatePostEntityThink();
 
-	//HL2 NPC stuff
+	// HL2 NPC stuff
+	virtual void SetSkillLevel( int iLevel )
+	{
+		int oldLevel = g_iSkillLevel;
+
+		iLevel = clamp( iLevel, 1, 2 );
+
+		g_iSkillLevel = iLevel;
+
+		if ( g_iSkillLevel != oldLevel )
+		{
+			OnSkillLevelChanged( g_iSkillLevel );
+		}
+	}
+
 	bool	NPC_ShouldDropHealth(CBasePlayer *pRecipient);
 	void	NPC_DroppedHealth(void);
 
