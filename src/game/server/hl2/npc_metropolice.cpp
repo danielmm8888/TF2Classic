@@ -2810,6 +2810,7 @@ void CNPC_MetroPolice::OnAnimEventStartDeployManhack( void )
 	}
 
 	pManhack->Spawn();
+	pManhack->Activate();
 
 	// Make us move with his hand until we're deployed
 	pManhack->SetParent( this, handAttachment );
