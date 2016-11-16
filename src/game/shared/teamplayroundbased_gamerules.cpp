@@ -3539,6 +3539,14 @@ bool CTeamplayRoundBasedRules::WouldChangeUnbalanceTeams( int iNewTeam, int iCur
 	if( iNewTeam == iCurrentTeam )
 		return false;
 
+#if defined( TF_CLASSIC ) || defined( TF_CLASSIC_CLIENT )
+	if ( TFGameRules()->IsCoOp() && !TFGameRules()->IsVersus() )
+	{
+		// Don't allow joining BLU.
+		return ( iNewTeam == TF_COMBINE_TEAM );
+	}
+#endif
+
 	// if mp_teams_unbalance_limit is 0, don't check
 	if ( ShouldBalanceTeams() == false )
 		return false;

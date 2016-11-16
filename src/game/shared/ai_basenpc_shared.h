@@ -21,8 +21,21 @@ class CAI_BaseNPC;
 //-------------------------------------
 // TF2 flags
 //-------------------------------------
-#define TFFL_ALLOW_BACKSTAB				( 1 << 0 )
-#define TFFL_MECH						( 1 << 1 ) // Can't be healed, don't make "flesh hit" melee sound, show "gears" icon in Target ID
+#define TFFL_MECH					( 1 << 0 ) // show "gears" icon in Target ID
+#define TFFL_NOBACKSTAB				( 1 << 1 )
+#define TFFL_NOHEALING				( 1 << 2 )
+#define TFFL_FIREPROOF				( 1 << 3 )
+
+#define TFFL_BUILDING				( TFFL_MECH | TFFL_NOBACKSTAB | TFFL_NOHEALING | TFFL_FIREPROOF )
+
+struct TF_NPCData
+{
+	const char *pszName;
+	int iTeam;
+	int nFlags;
+};
+
+extern TF_NPCData g_aNPCData[];
 #endif
 
 // Shared header file for NPCs

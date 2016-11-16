@@ -92,8 +92,9 @@ public:
 	CMaterialReference *GetInvulnMaterialRef( void ) { return &m_InvulnerableMaterial; }
 	void	InitInvulnerableMaterial( void );
 
-	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_ALLOW_BACKSTAB ) != 0; }
+	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_NOBACKSTAB ) == 0; }
 	bool	IsMech( void ) { return ( m_nTFFlags & TFFL_MECH ) != 0; }
+	bool	CanBeHealed( void ) { return ( m_nTFFlags & TFFL_NOHEALING ) == 0; }
 #endif
 
 private:

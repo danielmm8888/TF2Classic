@@ -327,8 +327,7 @@ bool CWeaponMedigun::AllowedToHealTarget( CBaseEntity *pTarget )
 	{
 		CAI_BaseNPC *pNPC = assert_cast<CAI_BaseNPC *>( pTarget );
 
-		// Can't heal machines.
-		if ( pNPC->IsMech() )
+		if ( !pNPC->CanBeHealed() )
 			return false;
 
 		// We can heal teammates only

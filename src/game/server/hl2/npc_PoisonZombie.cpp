@@ -687,7 +687,6 @@ void CNPC_PoisonZombie::HandleAnimEvent( animevent_t *pEvent )
 		pCrab->SetOwnerEntity( this );
 
 		pCrab->Spawn();
-		pCrab->Activate();
 
 		pCrab->SetLocalAngles( GetLocalAngles() );
 		pCrab->SetActivity( ACT_RANGE_ATTACK1 );
@@ -816,8 +815,6 @@ void CNPC_PoisonZombie::EvacuateNest( bool bExplosion, float flDamage, CBaseEnti
 			{
 				pCrab->Ignite( 100.0 );
 			}
-
-			pCrab->Activate();
 
 			pCrab->Eject( vecAngles, flVelocityScale, pAttacker );
 			EnableCrab( i, false );

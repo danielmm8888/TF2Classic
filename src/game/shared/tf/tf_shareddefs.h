@@ -950,7 +950,4 @@ enum
 	TF_TAUNT_SPY3,
 };
 
-extern const char *g_aNPCMechs[];
-extern const char *g_aBackstabNPC[];
-
 #endif // TF_SHAREDDEFS_H

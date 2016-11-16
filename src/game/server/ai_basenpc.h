@@ -1061,7 +1061,11 @@ public:
 	void				SelectDeathPose( const CTakeDamageInfo &info );
 	virtual bool		ShouldPickADeathPose( void ) { return true; }
 
+#ifdef TF_CLASSIC
+	virtual bool		AllowedToIgnite( void ) { return ( m_nTFFlags & TFFL_FIREPROOF ) == 0; }
+#else
 	virtual	bool		AllowedToIgnite( void ) { return false; }
+#endif
 
 protected:
 	virtual float 		GetGoalRepathTolerance( CBaseEntity *pGoalEnt, GoalType_t type, const Vector &curGoal, const Vector &curTargetPos );
@@ -2174,8 +2178,9 @@ public:
 	void				ClearDamagerHistory();
 	DamagerHistory_t	&GetDamagerHistory( int i ) { return m_DamagerHistory[i]; }
 
-	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_ALLOW_BACKSTAB ) != 0; }
+	bool	AllowBackstab( void ) { return ( m_nTFFlags & TFFL_NOBACKSTAB ) == 0; }
 	bool	IsMech( void ) { return ( m_nTFFlags & TFFL_MECH ) != 0; }
+	bool	CanBeHealed( void ) { return ( m_nTFFlags & TFFL_NOHEALING ) == 0; }
 
 protected:
 	// Burn handling

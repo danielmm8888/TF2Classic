@@ -288,48 +288,6 @@ const char *g_pszHintMessages[] =
 	"#Hint_enemy_using_tp_exit",
 };
 
-const char *g_aBackstabNPC[] =
-{
-	"npc_alyx",
-	"npc_antlion",
-	"npc_barney",
-	"npc_breen",
-	"npc_bullseye",
-	"npc_citizen",
-	"npc_combine_s",
-	"npc_eli",
-	"npc_fastzombie",
-	"npc_fastzombie_torso",
-	"npc_fastzombie",
-	"npc_metropolice",
-	"npc_monk",
-	"npc_mossman",
-	"npc_poisonzombie",
-	"npc_stalker",
-	"npc_vortigaunt",
-	"npc_zombie",
-	"npc_zombie_torso",
-	"", // END Marker
-};
-
-const char *g_aNPCMechs[] =
-{
-	"npc_bullseye",
-	"npc_clawscanner",
-	"npc_combine_camera",
-	"npc_combinedropship",
-	"npc_combinegunship",
-	"npc_dog",
-	"npc_helicopter",
-	"npc_manhack",
-	"npc_rollermine",
-	"npc_strider",
-	"npc_turret_floor",
-	"npc_turret_ceiling",
-	"npc_turret_ground",
-	"", // END Marker
-};
-
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------

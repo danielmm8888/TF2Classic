@@ -11180,10 +11180,16 @@ void CAI_BaseNPC::PostConstructor( const char *szClassname )
 	CreateComponents();
 
 #ifdef TF_CLASSIC
-	if ( FindInList( g_aBackstabNPC, GetClassname() ) )
-		m_nTFFlags |= TFFL_ALLOW_BACKSTAB;
-	if ( FindInList( g_aNPCMechs, GetClassname() ) )
-		m_nTFFlags |= TFFL_MECH;
+	// Not the best place to put this but it's the only way to make sure NPC gets assigned to a team.
+	for ( int i = 0; g_aNPCData[i].pszName != NULL; i++ )
+	{
+		if ( ClassMatches( g_aNPCData[i].pszName ) )
+		{
+			ChangeTeam( g_aNPCData[i].iTeam );
+			m_nTFFlags = g_aNPCData[i].nFlags;
+			break;
+		}
+	}
 #endif
 }
 
@@ -11208,11 +11214,6 @@ void CAI_BaseNPC::Activate( void )
 			m_hEnemyFilter = dynamic_cast<CBaseFilter*>(pFilter);
 		}
 	}
-
-#ifdef TF_CLASSIC
-	if ( g_TFClassTeams[Classify()] )
-		ChangeTeam( g_TFClassTeams[Classify()] );
-#endif
 
 #ifdef AI_MONITOR_FOR_OSCILLATION
 	m_ScheduleHistory.RemoveAll();

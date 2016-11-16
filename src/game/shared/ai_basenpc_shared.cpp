@@ -14,6 +14,275 @@
 #include "tier0/memdbgon.h"
 
 #if defined(TF_CLASSIC) || defined(TF_CLASSIC_CLIENT)
+TF_NPCData g_aNPCData[] =
+{
+	// Friendly actors.
+	{
+		"npc_dog",
+		TF_TEAM_RED,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_eli",
+		TF_TEAM_RED,
+		0,
+	},
+	{
+		"npc_fisherman",
+		TF_TEAM_RED,
+		0,
+	},
+	{
+		"npc_gman",
+		TF_TEAM_RED,
+		TFFL_NOBACKSTAB | TFFL_NOHEALING | TFFL_FIREPROOF,
+	},
+	{
+		"npc_kleiner",
+		TF_TEAM_RED,
+		0,
+	},
+	{
+		"npc_magnusson",
+		TF_TEAM_RED,
+		0,
+	},
+	{
+		"npc_mossman",
+		TF_TEAM_RED,
+		0,
+	},
+	// Vital allies.
+	{
+		"npc_alyx",
+		TF_TEAM_RED,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_barney",
+		TF_TEAM_RED,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_monk",
+		TF_TEAM_RED,
+		TFFL_NOBACKSTAB,
+	},
+	// Regular allies.
+	{
+		"npc_citizen",
+		TF_TEAM_RED,
+		0,
+	},
+	{
+		"npc_vortigaunt",
+		TF_TEAM_RED,
+		0,
+	},
+	// Enemy actors.
+	{
+		"npc_citizen",
+		TF_TEAM_BLUE,
+		0,
+	},
+	// Regular enemies.
+	{
+		"npc_combine_s",
+		TF_TEAM_BLUE,
+		0,
+	},
+	{
+		"npc_metropolice",
+		TF_TEAM_BLUE,
+		0,
+	},
+	{
+		"npc_stalker",
+		TF_TEAM_BLUE,
+		0,
+	},
+	// Regular combine mechs.
+	{
+		"npc_cscanner",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_clawscanner",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_manhack",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	// Indestructible combine mechs.
+	{
+		"npc_combine_camera",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_rollermine",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_turret_ceiling",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_turret_floor",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_turret_ground",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	// Combine synths.
+	{
+		"npc_combinegunship",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_hunter",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_strider",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_helicopter",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_combinedropship",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	// Misc Combine NPCs.
+	{
+		"npc_crabsynth",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_mortarsynth",
+		TF_TEAM_BLUE,
+		TFFL_BUILDING,
+	},
+	{
+		"npc_sniper",
+		TF_TEAM_BLUE,
+		TFFL_NOHEALING,
+	},
+	// Headcrabs.
+	{
+		"npc_headcrab",
+		TF_TEAM_GREEN,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_headcrab_fast",
+		TF_TEAM_GREEN,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_headcrab_black",
+		TF_TEAM_GREEN,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_headcrab_poison",
+		TF_TEAM_GREEN,
+		TFFL_NOBACKSTAB,
+	},
+	// Zombies.
+	{
+		"npc_zombie",
+		TF_TEAM_GREEN,
+		0,
+	},
+	{
+		"npc_zombie_torso",
+		TF_TEAM_GREEN,
+		0,
+	},
+	{
+		"npc_fastzombie",
+		TF_TEAM_GREEN,
+		0,
+	},
+	{
+		"npc_fastzombie_torso",
+		TF_TEAM_GREEN,
+		0,
+	},
+	{
+		"npc_poisonzombie",
+		TF_TEAM_GREEN,
+		0,
+	},
+	{
+		"npc_zombine",
+		TF_TEAM_GREEN,
+		0,
+	},
+	// Antlions.
+	{
+		"npc_antlion",
+		TF_TEAM_YELLOW,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_antlion_worker",
+		TF_TEAM_YELLOW,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_antlionguard",
+		TF_TEAM_YELLOW,
+		TFFL_NOBACKSTAB,
+	},
+	// Neutral NPCs.
+	{
+		"npc_barnacle",
+		TEAM_UNASSIGNED,
+		TFFL_NOBACKSTAB | TFFL_NOHEALING,
+	},
+	// Birds
+	{
+		"npc_crow",
+		TEAM_UNASSIGNED,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_pigeon",
+		TEAM_UNASSIGNED,
+		TFFL_NOBACKSTAB,
+	},
+	{
+		"npc_seagull",
+		TEAM_UNASSIGNED,
+		TFFL_NOBACKSTAB,
+	},
+	// End marker.
+	{
+		NULL,
+		0,
+		0,
+	},
+};
+
 extern ConVar tf_max_health_boost;
 
 //-----------------------------------------------------------------------------

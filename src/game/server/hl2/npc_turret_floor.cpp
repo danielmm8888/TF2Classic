@@ -296,6 +296,13 @@ void CNPC_FloorTurret::Spawn( void )
 
 	BaseClass::Spawn();
 
+#ifdef TF_CLASSIC
+	if ( IsCitizenTurret() )
+	{
+		ChangeTeam( TF_TEAM_RED );
+	}
+#endif
+
 	SetBlocksLOS( false );
 
 	m_HackedGunPos	= Vector( 0, 0, 12.75 );
