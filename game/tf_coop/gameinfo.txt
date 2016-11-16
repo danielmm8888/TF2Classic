@@ -55,10 +55,6 @@
 			//game				"|all_source_engine_paths|../Half-Life 2/lostcoast"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2/hl2_pak.vpk"
 			game				"|all_source_engine_paths|../Half-Life 2/hl2"
-			//game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/hl1_hd_pak.vpk"
-			//game				"|all_source_engine_paths|../Half-Life 2/hl1_hd/"
-			game				"|all_source_engine_paths|../Half-Life 2/hl1/hl1_pak.vpk"
-			game				"|all_source_engine_paths|../Half-Life 2/hl1/"
 			
 			
 			// Random files downloaded from gameservers go into a seperate directory, so
